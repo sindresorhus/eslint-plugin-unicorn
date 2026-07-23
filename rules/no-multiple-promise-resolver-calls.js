@@ -2,10 +2,11 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction, isLoop, isNewExpression} from './ast/index.js';
 import {
 	isBranchExit,
+	hasOptionalChainInCurrentChain,
 	isGlobalIdentifier,
 	isProcessExitBranch,
 	isProcessExitBranchAtStart,
-	isProcessExitCall,
+	isProcessExitCallAlwaysEvaluated,
 	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 
@@ -467,6 +468,45 @@ function isInAlwaysProvidedParameterDefault(node, context) {
 	return false;
 }
 
+const isAlwaysEvaluatedCall = (node, child) =>
+	node.type === 'CallExpression'
+	&& (
+		node.callee === child
+		|| (
+			node.arguments.includes(child)
+			&& !node.optional
+			&& !hasOptionalChainInCurrentChain(node.callee)
+		)
+	);
+
+const isAlwaysEvaluatedNewExpression = (node, child) =>
+	node.type === 'NewExpression'
+	&& (node.callee === child || node.arguments.includes(child));
+
+const isAlwaysEvaluatedMember = (node, child) =>
+	node.type === 'MemberExpression'
+	&& (
+		node.object === child
+		|| (
+			node.computed
+			&& node.property === child
+			&& !node.optional
+			&& !hasOptionalChainInCurrentChain(node.object)
+		)
+	);
+
+const isAlwaysEvaluatedExpression = (node, child, context) => (
+	(node.type === 'SequenceExpression' && node.expressions.includes(child))
+	|| (node.type === 'LogicalExpression' && node.left === child)
+	|| (node.type === 'UnaryExpression' && node.argument === child)
+	|| (node.type === 'AwaitExpression' && node.argument === child)
+	|| (node.type === 'ConditionalExpression' && isBranchExit(node, context, isReturnOrThrowStatement))
+	|| (isTransparentTypeScriptExpressionWrapper(node) && node.expression === child)
+	|| isAlwaysEvaluatedCall(node, child)
+	|| isAlwaysEvaluatedNewExpression(node, child)
+	|| isAlwaysEvaluatedMember(node, child)
+);
+
 function isInAlwaysExecutedParameterDefault(node, context) {
 	let child = node;
 	let {parent} = node;
@@ -477,15 +517,7 @@ function isInAlwaysExecutedParameterDefault(node, context) {
 				&& !parent.parent.params.slice(0, 2).includes(parent);
 		}
 
-		const isAlwaysEvaluated = (
-			(parent.type === 'SequenceExpression' && parent.expressions.includes(child))
-			|| (parent.type === 'LogicalExpression' && parent.left === child)
-			|| (parent.type === 'UnaryExpression' && parent.argument === child)
-			|| (parent.type === 'AwaitExpression' && parent.argument === child)
-			|| (parent.type === 'ConditionalExpression' && isBranchExit(parent, context, isReturnOrThrowStatement))
-			|| (isTransparentTypeScriptExpressionWrapper(parent) && parent.expression === child)
-		);
-		if (!isAlwaysEvaluated) {
+		if (!isAlwaysEvaluatedExpression(parent, child, context)) {
 			return false;
 		}
 
@@ -715,7 +747,7 @@ const create = context => {
 		'ThrowStatement',
 		'YieldExpression',
 	], node => {
-		if (isProcessExitCall(node, context)) {
+		if (isProcessExitCallAlwaysEvaluated(node, context)) {
 			if (
 				!isInAlwaysProvidedParameterDefault(node, context)
 				&& !isInCatchableTryAfterPotentiallyThrowingCode(node, context)

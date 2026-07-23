@@ -16,6 +16,7 @@ test({
 		'new Proxy(target, {set() { report(process.exit(1)); }});',
 		'new Proxy(target, {set() { report(new Report(process.exit(1))); }});',
 		'new Proxy(target, {set() { process.exit(1)?.toString(); }});',
+		'new Proxy(target, {set() { report((foo?.bar)[process.exit(1)]); }});',
 		'new Proxy(target, {set() { process.exit(1); cleanup(); }});',
 		'new Proxy(target, {set() { (cleanup(), process.exit(1)); }});',
 		'new Proxy(target, {set() { ((cleanup(), process.exit(1))); }});',
@@ -24,6 +25,8 @@ test({
 		'new Proxy(target, {set() { if (condition ? process.exit(1) : process.exit(2)) {} }});',
 		'new Proxy(target, {set() { switch (value) { case 1: process.exit(1); default: process.exit(2); } }});',
 		'new Proxy(target, {set() { switch (value) { case 1: process.exit(1); cleanup(); default: process.exit(2); } }});',
+		'new Proxy(target, {set() { switch (value) { case 1: process.exit(1); break; default: process.exit(2); } }});',
+		'new Proxy(target, {set() { switch (value) { case 1: return true; break; default: return false; } }});',
 		'new Proxy(target, handler);',
 		'new Proxy(target, {get() {}});',
 		'new Proxy(target, {apply() {}});',
@@ -95,6 +98,14 @@ test({
 		},
 		{
 			code: 'new Proxy(target, {set() { report(() => process.exit(1)); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { report(foo?.(process.exit(1))); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { report(foo?.bar[process.exit(1)]); }});',
 			errors,
 		},
 		{

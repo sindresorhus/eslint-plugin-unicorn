@@ -107,9 +107,11 @@ export {default as isUnresolvedVariable} from './is-unresolved-variable.js';
 export {default as isGlobalIdentifier} from './is-global-identifier.js';
 export {
 	default as isBranchExit,
+	hasOptionalChainInCurrentChain,
 	isProcessExitBranch,
 	isProcessExitBranchAtStart,
 	isProcessExitCall,
+	isProcessExitCallAlwaysEvaluated,
 } from './is-branch-exit.js';
 export {default as isShorthandImportLocal} from './is-shorthand-import-local.js';
 export {default as isStrongPrecedenceNode} from './is-strong-precedence-node.js';

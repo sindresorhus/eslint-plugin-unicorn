@@ -1,4 +1,11 @@
-import {isFunction, isLoop, isMethodCall} from '../ast/index.js';
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	isEmptyArrayExpression,
+	isEmptyObjectExpression,
+	isFunction,
+	isLoop,
+	isMethodCall,
+} from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 
@@ -25,17 +32,73 @@ const isProcessExitStatement = (node, context) =>
 	node.type === 'ExpressionStatement'
 	&& isProcessExitExpression(node.expression, context);
 
-function hasOptionalChain(node) {
-	if (node?.type === 'ChainExpression') {
-		return true;
+const isDefinitelyNotThrowing = (node, context) =>
+	getStaticValue(node, context.sourceCode.getScope(node)) !== null;
+
+const isProcessExitVariableDeclaration = (node, context) =>
+	node.declarations.some(declaration => declaration.init && isProcessExitExpression(declaration.init, context));
+
+const isProcessExitVariableDeclarationAtStart = (node, context) => {
+	for (const declaration of node.declarations) {
+		if (!declaration.init) {
+			continue;
+		}
+
+		if (isProcessExitExpressionAtStart(declaration.init, context)) {
+			return true;
+		}
+
+		if (!isDefinitelyNotThrowing(declaration.init, context)) {
+			return false;
+		}
 	}
 
+	return false;
+};
+
+export function hasOptionalChainInCurrentChain(node) {
 	if (node?.type === 'MemberExpression') {
-		return node.optional || hasOptionalChain(node.object);
+		return node.optional || hasOptionalChainInCurrentChain(node.object);
 	}
 
 	return node?.type === 'CallExpression'
-		&& (node.optional || hasOptionalChain(node.callee));
+		&& (node.optional || hasOptionalChainInCurrentChain(node.callee));
+}
+
+export function isProcessExitCallAlwaysEvaluated(node, context) {
+	if (!isProcessExitCall(node, context)) {
+		return false;
+	}
+
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (isFunction(parent)) {
+			return true;
+		}
+
+		if (
+			parent.type === 'CallExpression'
+			&& parent.arguments.includes(child)
+			&& (parent.optional || hasOptionalChainInCurrentChain(parent.callee))
+		) {
+			return false;
+		}
+
+		if (
+			parent.type === 'MemberExpression'
+			&& parent.computed
+			&& parent.property === child
+			&& (parent.optional || hasOptionalChainInCurrentChain(parent.object))
+		) {
+			return false;
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return true;
 }
 
 function isProcessExitCallOrNewExpression(node, context) {
@@ -43,7 +106,7 @@ function isProcessExitCallOrNewExpression(node, context) {
 		return true;
 	}
 
-	if (node.type === 'CallExpression' && hasOptionalChain(node.callee)) {
+	if (node.type === 'CallExpression' && (node.optional || hasOptionalChainInCurrentChain(node.callee))) {
 		return false;
 	}
 
@@ -52,7 +115,12 @@ function isProcessExitCallOrNewExpression(node, context) {
 
 const isProcessExitMemberExpression = (node, context) =>
 	isProcessExitExpression(node.object, context)
-	|| (node.computed && !node.optional && isProcessExitExpression(node.property, context));
+	|| (
+		node.computed
+		&& !node.optional
+		&& !hasOptionalChainInCurrentChain(node.object)
+		&& isProcessExitExpression(node.property, context)
+	);
 
 const isProcessExitConditionalExpression = (node, context) =>
 	isProcessExitExpression(node.test, context)
@@ -149,41 +217,60 @@ function hasLabeledBreakBeforeProcessExit(node, context, labelName) {
 	return false;
 }
 
+const isProcessExitMemberExpressionAtStart = (node, context) =>
+	isProcessExitExpressionAtStart(node.object, context)
+	|| (
+		node.computed
+		&& !node.optional
+		&& !hasOptionalChainInCurrentChain(node.object)
+		&& (isEmptyArrayExpression(node.object) || isEmptyObjectExpression(node.object))
+		&& isProcessExitExpressionAtStart(node.property, context)
+	);
+
 function isProcessExitExpressionAtStart(node, context) {
 	if (isProcessExitCall(node, context)) {
 		return true;
-	}
-
-	if (node?.type === 'UnaryExpression' || node?.type === 'AwaitExpression') {
-		return isProcessExitExpressionAtStart(node.argument, context);
 	}
 
 	if (isTransparentTypeScriptExpressionWrapper(node)) {
 		return isProcessExitExpressionAtStart(node.expression, context);
 	}
 
-	if (node?.type === 'ChainExpression') {
-		return isProcessExitExpressionAtStart(node.expression, context);
-	}
+	switch (node?.type) {
+		case 'ChainExpression': {
+			return isProcessExitExpressionAtStart(node.expression, context);
+		}
 
-	if (node?.type === 'CallExpression') {
-		return isProcessExitExpressionAtStart(node.callee, context);
-	}
+		case 'CallExpression':
+		case 'NewExpression': {
+			return isProcessExitExpressionAtStart(node.callee, context);
+		}
 
-	if (node?.type === 'MemberExpression') {
-		return isProcessExitExpressionAtStart(node.object, context);
-	}
+		case 'MemberExpression': {
+			return isProcessExitMemberExpressionAtStart(node, context);
+		}
 
-	if (node?.type === 'SequenceExpression') {
-		return isProcessExitExpressionAtStart(node.expressions[0], context);
-	}
+		case 'UnaryExpression':
+		case 'AwaitExpression': {
+			return isProcessExitExpressionAtStart(node.argument, context);
+		}
 
-	if (node?.type === 'LogicalExpression') {
-		return isProcessExitExpressionAtStart(node.left, context);
-	}
+		case 'SequenceExpression': {
+			return isProcessExitExpressionAtStart(node.expressions[0], context);
+		}
 
-	return node?.type === 'ConditionalExpression'
-		&& isProcessExitExpressionAtStart(node.test, context);
+		case 'LogicalExpression': {
+			return isProcessExitExpressionAtStart(node.left, context);
+		}
+
+		case 'ConditionalExpression': {
+			return isProcessExitExpressionAtStart(node.test, context);
+		}
+
+		default: {
+			return false;
+		}
+	}
 }
 
 function isProcessExitTryStatement(branch, context, checkTryStatements) {
@@ -215,9 +302,30 @@ function isProcessExitTryStatement(branch, context, checkTryStatements) {
 	);
 }
 
+function isProcessExitBlock(branch, context, checkTryStatements) {
+	for (const statement of branch.body) {
+		if (isProcessExitBranch(statement, context, checkTryStatements)) {
+			return true;
+		}
+
+		if (
+			isReturnOrThrowStatement(statement)
+			|| isBranchExit(statement, context, isReturnOrThrowStatement)
+		) {
+			return false;
+		}
+	}
+
+	return false;
+}
+
 export function isProcessExitBranchAtStart(branch, context, checkTryStatements = true) {
 	if (branch.type === 'ExpressionStatement') {
 		return isProcessExitExpressionAtStart(branch.expression, context);
+	}
+
+	if (branch.type === 'VariableDeclaration') {
+		return isProcessExitVariableDeclarationAtStart(branch, context);
 	}
 
 	return isProcessExitBranch(branch, context, checkTryStatements);
@@ -229,24 +337,15 @@ export function isProcessExitBranch(branch, context, checkTryStatements = true) 
 	}
 
 	if (branch.type === 'BlockStatement') {
-		for (const statement of branch.body) {
-			if (isProcessExitBranch(statement, context, checkTryStatements)) {
-				return true;
-			}
-
-			if (
-				isReturnOrThrowStatement(statement)
-				|| isBranchExit(statement, context, isReturnOrThrowStatement)
-			) {
-				return false;
-			}
-		}
-
-		return false;
+		return isProcessExitBlock(branch, context, checkTryStatements);
 	}
 
 	if (branch.type === 'CatchClause') {
 		return isProcessExitBranch(branch.body, context, checkTryStatements);
+	}
+
+	if (branch.type === 'VariableDeclaration') {
+		return isProcessExitVariableDeclaration(branch, context);
 	}
 
 	if (branch.type === 'LabeledStatement') {
@@ -274,6 +373,24 @@ export function isProcessExitBranch(branch, context, checkTryStatements = true) 
 	);
 }
 
+function hasSwitchControlFlowExitInStatements(statements, context) {
+	for (const statement of statements) {
+		if (hasSwitchControlFlowExit(statement, context)) {
+			return true;
+		}
+
+		if (
+			isReturnOrThrowStatement(statement)
+			|| isBranchExit(statement, context, isReturnOrThrowStatement)
+			|| isProcessExitBranch(statement, context)
+		) {
+			return false;
+		}
+	}
+
+	return false;
+}
+
 function hasSwitchControlFlowExit(node, context) {
 	if (!node || isFunction(node)) {
 		return false;
@@ -281,6 +398,10 @@ function hasSwitchControlFlowExit(node, context) {
 
 	if (node.type === 'BreakStatement' || node.type === 'ContinueStatement') {
 		return true;
+	}
+
+	if (node.type === 'BlockStatement') {
+		return hasSwitchControlFlowExitInStatements(node.body, context);
 	}
 
 	if (isLoop(node) || node.type === 'SwitchStatement') {
@@ -306,7 +427,7 @@ function isSwitchBranchExit(branch, context, branchAlwaysExits, checkTryStatemen
 	let exits = false;
 	for (let index = branch.cases.length - 1; index >= 0; index--) {
 		const switchCase = branch.cases[index];
-		if (switchCase.consequent.some(statement => hasSwitchControlFlowExit(statement, context))) {
+		if (hasSwitchControlFlowExitInStatements(switchCase.consequent, context)) {
 			return false;
 		}
 

@@ -323,6 +323,20 @@ test.snapshot({
 		`,
 		outdent`
 			if (foo) {
+				callback?.(process.exit(1));
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
+				foo?.bar[process.exit(1)];
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
 				process['exit']();
 			} else {
 				baz();

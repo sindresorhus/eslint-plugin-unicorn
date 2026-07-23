@@ -47,6 +47,33 @@ test.snapshot({
 		outdent`
 			const values = (await Promise.allSettled(promises)).map(result => {
 				if (result.status !== 'fulfilled') {
+					const exitCode = process.exit(1);
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					new (process.exit(1))();
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					({})[process.exit(1)];
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
 					(cleanup(), process.exit(1));
 				}
 
@@ -347,6 +374,28 @@ test.snapshot({
 					case "fulfilled":
 						return result.value;
 				}
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						const value = maybeThrow(), exitCode = process.exit(1);
+					} catch {}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						(maybeThrow(), {})[process.exit(1)];
+					} catch {}
+				}
+
+				return result.value;
 			});
 		`,
 	],

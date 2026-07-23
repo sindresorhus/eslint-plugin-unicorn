@@ -1,5 +1,5 @@
 import {isFunction} from '../ast/index.js';
-import {isProcessExitCall} from './is-branch-exit.js';
+import {isProcessExitCallAlwaysEvaluated} from './is-branch-exit.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -81,7 +81,7 @@ export default function trackBranchExits(context, isExitBranch) {
 	});
 
 	context.onExit('CallExpression', node => {
-		if (isInTryBlockWithFinallyAsLastStatement(node) || !isProcessExitCall(node, context)) {
+		if (isInTryBlockWithFinallyAsLastStatement(node) || !isProcessExitCallAlwaysEvaluated(node, context)) {
 			return;
 		}
 

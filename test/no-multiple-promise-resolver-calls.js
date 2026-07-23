@@ -49,6 +49,12 @@ test.snapshot({
 				resolve(otherValue);
 			});
 		`,
+		outdent`
+			new Promise((resolve, reject, extra = foo(process.exit(1))) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
 		{
 			code: outdent`
 				new Promise((resolve, reject, extra = process.exit(1) as never) => {
@@ -71,6 +77,36 @@ test.snapshot({
 			new Promise(resolve => {
 				try {
 					process.exit(1)?.toString();
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					new (process.exit(1))();
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					({})[process.exit(1)];
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					const value = 1, exitCode = process.exit(1);
 				} catch {}
 
 				resolve(value);
@@ -1063,6 +1099,32 @@ test.snapshot({
 						reject();
 					}
 				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					const value = maybeThrow(), exitCode = process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					(maybeThrow(), {})[process.exit(1)];
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject, extra = foo?.(process.exit(1))) => {
+				resolve(value);
+				resolve(otherValue);
 			});
 		`,
 	],
