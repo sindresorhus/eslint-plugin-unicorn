@@ -121,6 +121,7 @@ const propertyDefinitionTypes = new Set([
 	'TSAbstractAccessorProperty',
 ]);
 const methodDefinitionTypes = new Set(['MethodDefinition', 'TSAbstractMethodDefinition']);
+const isSetter = node => node?.kind === 'set' || node?.parent?.kind === 'set';
 
 const unwrapParameter = node => node.type === 'TSParameterProperty'
 	? node.parameter
@@ -390,7 +391,7 @@ function getSupportedVariableDefinition(variable) {
 		name?.type !== 'Identifier'
 		|| !['Variable', 'Parameter', 'FunctionName'].includes(definition.type)
 		|| (definition.type === 'Variable' && definition.node.id.type !== 'Identifier')
-		|| (definition.type === 'Parameter' && definition.node.parent?.kind === 'set')
+		|| (definition.type === 'Parameter' && isSetter(definition.node))
 	) {
 		return;
 	}
@@ -770,10 +771,16 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 	const typeParameterTypes = new Map(typeState.typeParameterTypes);
 	for (const [index, parameter] of (definitionNode.typeParameters?.params ?? []).entries()) {
-		const typeArgument = typeArguments?.[index] ?? parameter.default;
+		const typeArgument = typeArguments?.[index];
 		if (typeArgument) {
-			const resolvedTypeArgument = resolveTypeParameterType(typeArgument, typeState);
-			typeParameterTypes.set(parameter.name.name, resolvedTypeArgument);
+			typeParameterTypes.set(parameter.name.name, resolveTypeParameterType(typeArgument, typeState));
+		} else if (parameter.default) {
+			typeParameterTypes.set(parameter.name.name, resolveTypeParameterType(parameter.default, {
+				...typeState,
+				typeParameterTypes,
+			}));
+		} else {
+			typeParameterTypes.delete(parameter.name.name);
 		}
 	}
 
@@ -1517,6 +1524,10 @@ function isBooleanProperty(node, context) {
 	}
 
 	if (node.type === 'TSMethodSignature') {
+		if (isSetter(node)) {
+			return false;
+		}
+
 		const scope = sourceCode.getScope(node);
 
 		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean
@@ -1567,6 +1578,10 @@ function getExplicitPropertyBooleanState(node, context) {
 	}
 
 	if (node.type === 'TSMethodSignature') {
+		if (isSetter(node)) {
+			return unknown;
+		}
+
 		const scope = sourceCode.getScope(node);
 		const stateFromPromisedReturnType = getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
 

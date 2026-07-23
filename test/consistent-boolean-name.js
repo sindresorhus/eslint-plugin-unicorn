@@ -916,6 +916,10 @@ ruleTest.snapshot({
 		typescript('const task = {set completed(value: boolean) {}};'),
 		typescript('class Task { set completed(value: boolean) {} }'),
 		typescript('class Task { set completed(value: boolean = false) {} }'),
+		typescript({
+			code: 'interface Task { set isReady(value: boolean): void; }',
+			options: [{checkMethods: 'always', checkFields: 'always'}],
+		}),
 		typescript('abstract class Task { abstract set completed(value: boolean); }'),
 		typescript('function isCompleted(): boolean {}'),
 		typescript('const isCompleted = (): boolean => true;'),
@@ -1541,6 +1545,10 @@ ruleTest({
 			code: 'type Recursive<T> = Recursive<T>; declare const completed: Recursive<boolean>;',
 		}),
 		typescript({
+			name: 'mutually recursive generic aliases do not crash',
+			code: 'type First<T> = Second<T>; type Second<T> = First<T>; declare const completed: First<boolean>;',
+		}),
+		typescript({
 			name: 'recursive aliases with omitted type arguments do not crash',
 			code: 'type Box<T> = T; type Pair<T, U> = T | U; type Outer<T, U> = Pair<Box<U>, Box<T>>; declare const completed: Outer;',
 		}),
@@ -1740,6 +1748,11 @@ ruleTest({
 				'async function isReady(): Result<string> {}',
 			].join(' '),
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'nested generic defaults use inner type arguments',
+			code: 'type Inner<T, U = T> = U; type Outer<T> = Inner<string>; declare const isReady: Outer<boolean>;',
+			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'generic value aliases require prefixes',
