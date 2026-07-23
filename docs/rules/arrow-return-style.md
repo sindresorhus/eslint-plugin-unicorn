@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-For concise arrow function bodies, keeping a simple expression on one line is readable. When the expression spans multiple lines, an explicit `return` makes the function boundary easier to scan and leaves room for adding statements later.
+For concise arrow function bodies, keeping a simple expression on one line is readable. When an expression spans multiple lines, an explicit `return` makes the function boundary easier to scan and leaves room for adding statements later.
 
 This rule only considers the arrow function body. A line break between `=>` and a single-line expression does not trigger it.
 

@@ -37,6 +37,7 @@ const tokensThatMayContinueAnExpression = new Set([
 	'+',
 	'-',
 	'*',
+	'**',
 	'.',
 	'<',
 ]);
@@ -46,7 +47,8 @@ const hasPotentiallyUnsafeNextToken = token =>
 	|| token.type === 'RegularExpression'
 	|| token.type === 'Template';
 
-const isMultiline = text => text.includes('\n');
+const linebreakPattern = /\r\n|[\n\r]/;
+const isMultiline = text => linebreakPattern.test(text);
 
 const getReturnStatement = node => {
 	if (node.body.body.length !== 1 || node.body.body[0].type !== 'ReturnStatement') {
@@ -61,13 +63,13 @@ const getReturnStatement = node => {
 	return returnStatement;
 };
 
-const hasComments = (node, sourceCode) => sourceCode.getCommentsInside(node).length > 0;
+const hasCommentsInside = (node, sourceCode) => sourceCode.getCommentsInside(node).length > 0;
 
 const getLineIndent = (sourceCode, node) => {
 	const [start] = sourceCode.getRange(node);
-	const lineStart = sourceCode.text.lastIndexOf('\n', start - 1) + 1;
+	const {line, column} = sourceCode.getLocFromIndex(start);
 
-	return /^[\t ]*/.exec(sourceCode.text.slice(lineStart, start))[0];
+	return /^[\t ]*/.exec(sourceCode.lines[line - 1].slice(0, column))[0];
 };
 
 const getArrowToken = (node, context) => {
@@ -77,16 +79,38 @@ const getArrowToken = (node, context) => {
 
 const getUnderlyingExpression = node => {
 	while (typeScriptExpressionWrappers.has(node.type)) {
-		node = node.expression;
+		const {expression} = node;
+		node = expression;
 	}
 
 	return node;
 };
 
+const isInsideForStatementInitializer = node => {
+	let current = node;
+	while (current.parent) {
+		const {parent} = current;
+		if (parent.type === 'ForStatement' && parent.init === current) {
+			return true;
+		}
+
+		current = parent;
+	}
+
+	return false;
+};
+
 const getReturnArgumentText = (returnArgument, context) => {
 	const text = getParenthesizedText(returnArgument, context);
+	const underlyingExpression = getUnderlyingExpression(returnArgument);
+	const needsParentheses = returnArgumentTypesRequiringParentheses.has(underlyingExpression.type)
+		|| (
+			underlyingExpression.type === 'BinaryExpression'
+			&& underlyingExpression.operator === 'in'
+			&& isInsideForStatementInitializer(returnArgument)
+		);
 
-	if (isParenthesized(returnArgument, context) || !returnArgumentTypesRequiringParentheses.has(getUnderlyingExpression(returnArgument).type)) {
+	if (isParenthesized(returnArgument, context) || !needsParentheses) {
 		return text;
 	}
 
@@ -98,19 +122,19 @@ const hasMultilineSignificantWhitespace = (node, sourceCode) =>
 		tokensWithSignificantWhitespace.has(token.type)
 		&& sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line);
 
-const getBodyText = (text, shouldIndent) => {
+const getBodyText = (text, shouldIndent, linebreak) => {
 	if (!shouldIndent) {
 		return text;
 	}
 
-	const lines = text.split('\n');
+	const lines = text.split(linebreakPattern);
 	for (const [index, line] of lines.entries()) {
 		if (index > 0 && line) {
 			lines[index] = `\t${line}`;
 		}
 	}
 
-	return lines.join('\n');
+	return lines.join(linebreak);
 };
 
 const getExplicitReturnFix = (node, context) => {
@@ -123,9 +147,14 @@ const getExplicitReturnFix = (node, context) => {
 		return;
 	}
 
-	const bodyText = getBodyText(sourceCode.text.slice(...bodyRange), bodyStartsOnArrowLine);
+	const linebreak = sourceCode.text.match(linebreakPattern)?.[0] ?? '\n';
+	const bodyText = getBodyText(
+		node.body.type === 'ObjectExpression' ? sourceCode.getText(node.body) : sourceCode.text.slice(...bodyRange),
+		bodyStartsOnArrowLine,
+		linebreak,
+	);
 	const indentation = getLineIndent(sourceCode, arrowToken);
-	const replacement = `{\n${indentation}\treturn ${bodyText};\n${indentation}}`;
+	const replacement = `{${linebreak}${indentation}\treturn ${bodyText};${linebreak}${indentation}}`;
 
 	return fixer => fixer.replaceTextRange([sourceCode.getRange(arrowToken)[1], bodyRange[1]], ` ${replacement}`);
 };
@@ -147,7 +176,7 @@ const create = context => {
 	const {sourceCode} = context;
 
 	context.on('ArrowFunctionExpression', node => {
-		if (hasComments(node, sourceCode)) {
+		if (hasCommentsInside(node, sourceCode)) {
 			return;
 		}
 

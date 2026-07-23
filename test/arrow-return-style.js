@@ -22,18 +22,36 @@ test.snapshot({
 		'const value = () => (\n\t\tfoo(\n\t\t\tbar,\n\t\t)\n\t);',
 		'const value = () => ({\n\t\tfoo: bar,\n\t});',
 		'const value = () => ({\n\tfoo: bar,\n});',
+		'const value = () =>\n\t({\n\t\tfoo: bar,\n\t});',
 		'const value = () => `foo\nbar`;',
 		'const value = () => {\n\t\treturn foo;\n\t};',
 		'const value = () => {\n\t\treturn {};\n\t};',
 		'const value = () => {\n\t\treturn (foo, bar);\n\t};',
+		'const value = () => {\n\t\treturn foo, bar;\n\t};',
+		'for (const value = () => {\n\t\treturn foo in bar;\n\t}; ; ) {}',
+		'const values = [\n\t\t() => foo(\n\t\t\tbar,\n\t\t),\n\t\t() => {\n\t\t\treturn baz;\n\t\t},\n\t];',
 		'const value = () => {\n\t\treturn foo;\n\t}\n[bar];',
 		'const value = () => {\n\t\treturn this;\n\t}\n[bar];',
 		'const value = () => {\n\t\treturn function () {};\n\t}\n[bar];',
 		'const value = () => {\n\t\treturn foo;\n\t}\n/bar/.test(value);',
 		'const value = () => {\n\t\treturn foo;\n\t}\n`bar`;',
+		'const value = () => {\n\t\treturn foo;\n\t}\n** bar;',
 		String.raw`const value = () => 'foo\
 bar';`,
 	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'const value = () => foo(\r\n\t\tbar,\r\n\t);',
+		output: 'const value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\r\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const values = [\r\t() => foo(\r\t\tbar,\r\t),\r];',
+		output: 'const values = [\r\t() => {\r\t\treturn foo(\r\t\t\tbar,\r\t\t);\r\t},\r];',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}],
 });
 
 test.snapshot({
