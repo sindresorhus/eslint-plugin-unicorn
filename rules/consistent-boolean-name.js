@@ -824,6 +824,42 @@ function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 	return typeParameterTypes;
 }
 
+function hasUnresolvedTypeParameter(node, typeState, scope) {
+	if (!node || typeof node !== 'object') {
+		return false;
+	}
+
+	if (node.type === 'TSTypeReference') {
+		const resolvedType = resolveTypeParameterType(node, typeState);
+		if (resolvedType !== node) {
+			return hasUnresolvedTypeParameter(resolvedType, typeState, scope);
+		}
+
+		if (getTypeParameterResolution(node, typeState)) {
+			return true;
+		}
+
+		const typeArguments = getTypeArguments(node);
+		if (!typeArguments) {
+			return getTypeDefinitions(getTypeReferenceName(node.typeName), scope).length === 0;
+		}
+
+		return typeArguments.some(type => hasUnresolvedTypeParameter(type, typeState, scope));
+	}
+
+	return Object.entries(node)
+		.filter(([key]) => key !== 'parent')
+		.some(([, value]) => Array.isArray(value)
+			? value.some(child => hasUnresolvedTypeParameter(child, typeState, scope))
+			: hasUnresolvedTypeParameter(value, typeState, scope));
+}
+
+const hasUnresolvedTypeParameters = (typeState, scope) =>
+	typeState.typeParameterTypes.values().some(type => hasUnresolvedTypeParameter(type, typeState, scope));
+
+const hasTypeParameterReferenceInType = (node, typeState) =>
+	typeState.typeParameterTypes.keys().some(name => hasTypeParameterReference(node, name));
+
 function getTypeMembersBooleanState(members, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
 	const callSignatures = members.filter(member => member.type === 'TSCallSignatureDeclaration');
@@ -928,8 +964,12 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 	visitedTypeReferenceNodes.delete(node);
 	if (
 		result === unknown
-		&& normalizedTypeState.typeParameterTypes.size === 0
-		&& definitions.some(definition => definition.node.type === 'TSTypeAliasDeclaration')
+		&& !hasTypeParameterReferenceInType(node, normalizedTypeState)
+		&& !hasUnresolvedTypeParameters(normalizedTypeState, scope)
+		&& (
+			interfaceDefinitions.length > 0
+			|| definitions.some(definition => definition.node.type === 'TSTypeAliasDeclaration')
+		)
 	) {
 		result = getTypeInformationBooleanState(node, context, normalizedTypeState.functionTypesAreBoolean, normalizedTypeState.allowNullish);
 	}
@@ -1085,10 +1125,16 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	visitedTypeReferenceNodes.delete(node);
 	if (
 		result === unknown
-		&& normalizedTypeState.typeParameterTypes.size === 0
-		&& definitions.some(definition => definition.node.type === 'TSTypeAliasDeclaration')
+		&& !hasTypeParameterReferenceInType(node, normalizedTypeState)
+		&& !hasUnresolvedTypeParameters(normalizedTypeState, scope)
+		&& (
+			interfaceDefinitions.length > 0
+			|| definitions.some(definition => definition.node.type === 'TSTypeAliasDeclaration')
+		)
 	) {
-		result = getPromisedTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish);
+		result = interfaceDefinitions.length > 0
+			? getAsyncFunctionTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish)
+			: getPromisedTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish);
 	}
 
 	return result;
@@ -1171,7 +1217,7 @@ function isGlobalPromiseTypeAnnotation(node, scope) {
 	return isGlobalPromiseTypeReference(node, scope);
 }
 
-function getAsyncFunctionTypeInformationBooleanState(node, context) {
+function getAsyncFunctionTypeInformationBooleanState(node, context, allowNullish = true) {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
 		return unknown;
@@ -1180,16 +1226,23 @@ function getAsyncFunctionTypeInformationBooleanState(node, context) {
 	try {
 		const checker = parserServices.program.getTypeChecker();
 		const typeScriptNode = parserServices.esTreeNodeToTSNodeMap.get(node);
-		const signature = checker.getSignatureFromDeclaration(typeScriptNode);
-		if (signature) {
-			return getPromisedTypeBooleanState(checker.getReturnTypeOfSignature(signature), checker);
-		}
+		const signature = isFunction(node) ? checker.getSignatureFromDeclaration(typeScriptNode) : undefined;
+		const signatures = signature ? [signature] : parserServices.getTypeAtLocation(node).getCallSignatures();
 
-		return combineBooleanStates(
-			parserServices.getTypeAtLocation(node)
-				.getCallSignatures()
-				.map(signature => getPromisedTypeBooleanState(checker.getReturnTypeOfSignature(signature), checker)),
-		);
+		return combineBooleanStates(signatures.map(signature => {
+			const returnType = checker.getReturnTypeOfSignature(signature);
+			const promisedType = checker.getPromisedTypeOfPromise(returnType);
+			if (!promisedType) {
+				return unknown;
+			}
+
+			const nonNullableType = checker.getNonNullableType(promisedType);
+			if (!allowNullish && nonNullableType !== promisedType) {
+				return unknown;
+			}
+
+			return getTypeBooleanState(nonNullableType, checker, new Set(), false);
+		}));
 	} catch {
 		return unknown;
 	}
