@@ -12,6 +12,8 @@ const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const DIRECTIVE_PATTERNS = [
 	/^\s*(?:eslint(?:-env)?|jshint|[jt]slint|jscs|globals?|exported|no default|noinspection)(?:\s|:|$)/v,
 	/^\s*\*?\s*flowlint(?:-(?:line|next-line))?(?:\s|:|$)/v,
+	/^\s*::?/v,
+	/^\s*flow-include(?:\s|$)/v,
 	/^\s*(?:c8|istanbul|nyc|v8)\s+ignore(?:\s|$)/v,
 	/^\s*(?:biome|deno|dprint|oxlint|prettier)-(?:ignore|lint-ignore|disable|enable)(?:-(?:line|next-line|start|end|file|all))?(?:\s|$)/v,
 	/^\s*(?:cspell|spell-checker):/v,
@@ -91,10 +93,8 @@ const isDirective = (context, comment, opening) => {
 
 const getContentLines = content => content.split(LINE_ENDING_PATTERN);
 
-const getSingleContentLine = (content, opening) => {
-	const contentLines = getContentLines(content)
-		.filter(line => line.trim() !== '')
-		.filter(line => opening !== '/**' || line.trim() !== '*');
+const getSingleContentLine = content => {
+	const contentLines = getContentLines(content).filter(line => line.trim() !== '');
 
 	if (contentLines.length !== 1) {
 		return;
@@ -134,7 +134,7 @@ const getProblem = (context, comment, style) => {
 		return;
 	}
 
-	const singleContentLine = getSingleContentLine(content, opening);
+	const singleContentLine = getSingleContentLine(content);
 
 	if (style === MULTILINE) {
 		if (!singleContentLine || isCanonicalMultiline(content)) {

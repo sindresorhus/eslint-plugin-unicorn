@@ -39,6 +39,15 @@ ruleTest.snapshot({
 		'/* tslint:disable */',
 		'/* flowlint sketchy-null:off */',
 		'/* flowlint-next-line sketchy-null:off */',
+		'/*:: type MyAlias = string; */',
+		'/*: MyAlias */',
+		'/*:string*/',
+		'/*flow-include prop: string; */',
+		outdent`
+			/*::
+			type MyAlias = string;
+			*/
+		`,
 		outdent`
 			/*
 			 * flowlint-line sketchy-null:off
@@ -77,6 +86,7 @@ ruleTest.snapshot({
 		'/**/',
 		'/* */',
 		'/*\n*\n*/',
+		'/***\n** Value\n*/',
 		'/**\n *\n */',
 		'/**\n*\n*/',
 		'/**\n* Value.\n*/',
@@ -241,6 +251,10 @@ ruleTest({
 			options: ['single-line'],
 		},
 		{
+			code: '/***/',
+			options: ['single-line'],
+		},
+		{
 			code: '/**\n *\n */',
 			options: ['single-line'],
 		},
@@ -266,6 +280,10 @@ ruleTest({
 		},
 		{
 			code: '/*#__NO_SIDE_EFFECTS__*/\nfunction foo() {}',
+			options: ['single-line'],
+		},
+		{
+			code: '/*** Value */',
 			options: ['single-line'],
 		},
 	],
@@ -453,6 +471,11 @@ ruleTest({
 			errors: [error],
 		},
 		{
+			code: '/***/',
+			output: '/*\n*\n*/',
+			errors: [error],
+		},
+		{
 			code: '/* Named multiline option. */',
 			options: ['multiline'],
 			output: '/*\nNamed multiline option.\n*/',
@@ -500,6 +523,11 @@ ruleTest({
 			code: '/* $FlowFixMe [prop-missing] */',
 			output: '/*\n$FlowFixMe [prop-missing]\n*/',
 			errors: [error],
+		},
+		{
+			code: 'if (value) {\r\n\t/* Value. */\n}',
+			output: 'if (value) {\r\n\t/*\n\tValue.\n\t*/\n}',
+			errors: [{...error, line: 2, column: 2}],
 		},
 	],
 });
