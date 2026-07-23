@@ -928,10 +928,8 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 	visitedTypeReferenceNodes.delete(node);
 	if (
 		result === unknown
-		&& definitions.some(definition =>
-			definition.node.type === 'TSTypeAliasDeclaration'
-			&& definition.node.typeAnnotation.type === 'TSConditionalType',
-		)
+		&& normalizedTypeState.typeParameterTypes.size === 0
+		&& definitions.some(definition => definition.node.type === 'TSTypeAliasDeclaration')
 	) {
 		result = getTypeInformationBooleanState(node, context, normalizedTypeState.functionTypesAreBoolean, normalizedTypeState.allowNullish);
 	}
@@ -941,12 +939,15 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 
 function getUnionTypeAnnotationBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
+	const states = node.types.map(type => getTypeAnnotationBooleanState(type, context, scope, normalizedTypeState));
+	const nonNullishStates = states.filter((_, index) => !nullishTypeAnnotationTypes.has(node.types[index].type));
+	const nonNullishState = combineBooleanStates(nonNullishStates);
 
-	return combineBooleanStates(
-		node.types
-			.filter(type => !nullishTypeAnnotationTypes.has(type.type) || !normalizedTypeState.allowNullish)
-			.map(type => getTypeAnnotationBooleanState(type, context, scope, normalizedTypeState)),
-	);
+	if (!normalizedTypeState.allowNullish && nonNullishState === nonBoolean) {
+		return nonBoolean;
+	}
+
+	return combineBooleanStates(normalizedTypeState.allowNullish ? nonNullishStates : states);
 }
 
 function getSimpleTypeAnnotationBooleanState(node) {
@@ -1084,10 +1085,8 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	visitedTypeReferenceNodes.delete(node);
 	if (
 		result === unknown
-		&& definitions.some(definition =>
-			definition.node.type === 'TSTypeAliasDeclaration'
-			&& definition.node.typeAnnotation.type === 'TSConditionalType',
-		)
+		&& normalizedTypeState.typeParameterTypes.size === 0
+		&& definitions.some(definition => definition.node.type === 'TSTypeAliasDeclaration')
 	) {
 		result = getPromisedTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish);
 	}
@@ -1767,7 +1766,7 @@ function getExplicitPropertyBooleanState(node, context) {
 	}
 
 	if (node.type === 'TSPropertySignature') {
-		return getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, sourceCode.getScope(node));
+		return getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, sourceCode.getScope(node), {allowNullish: false});
 	}
 
 	if (node.type === 'TSMethodSignature') {
@@ -1779,7 +1778,7 @@ function getExplicitPropertyBooleanState(node, context) {
 		const stateFromPromisedReturnType = getPromisedReturnTypeBooleanState(node.returnType, context, scope);
 
 		return stateFromPromisedReturnType === unknown
-			? getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false})
+			? getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false})
 			: stateFromPromisedReturnType;
 	}
 

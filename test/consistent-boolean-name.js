@@ -1253,6 +1253,14 @@ ruleTest.snapshot({
 		},
 		typescript('interface Task { completed: boolean; }'),
 		typescript({
+			code: 'interface Task { completed: boolean | undefined; }',
+			options: [{checkFields: 'always'}],
+		}),
+		typescript({
+			code: 'interface Task { completed(): boolean | undefined; }',
+			options: [{checkMethods: 'always'}],
+		}),
+		typescript({
 			code: 'interface Task { completed(): Promise<boolean> | undefined; }',
 			options: [{checkMethods: 'always'}],
 		}),
@@ -1810,6 +1818,11 @@ ruleTest({
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
 		}),
 		typeAware({
+			name: 'type-aware nested conditional generic aliases require prefixes',
+			code: 'type Result<T> = T extends string ? string : boolean; type Outer<T> = Result<T>; declare const completed: Outer<boolean>;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typeAware({
 			name: 'type-aware conditional generic aliases require field prefixes',
 			code: 'type Result<T> = T extends string ? string : boolean; interface Task { completed: Result<boolean>; }',
 			options: [{checkFields: 'always'}],
@@ -1986,8 +1999,20 @@ ruleTest({
 			errors: 1,
 		}),
 		typescript({
-			name: 'nullable non-boolean method returns are prohibited',
+			name: 'nullable non-boolean async method returns are prohibited',
 			code: 'interface Task { isReady(): Promise<string> | undefined; }',
+			options: [{checkMethods: 'prohibit'}],
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'nullable non-boolean fields are prohibited',
+			code: 'interface Task { isReady: string | undefined; }',
+			options: [{checkFields: 'prohibit'}],
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'nullable non-boolean synchronous method returns are prohibited',
+			code: 'interface Task { isReady(): string | undefined; }',
 			options: [{checkMethods: 'prohibit'}],
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
