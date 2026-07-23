@@ -40,6 +40,19 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						process.exit((maybeThrow(), 1));
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
 			if (foo) {
 				bar();
 			} else {
@@ -435,6 +448,32 @@ test.snapshot({
 		`,
 	],
 	invalid: [
+		outdent`
+			function qux(condition) {
+				if (foo) {
+					try {
+						condition ? process.exit(1) : process.exit(2);
+					} catch {}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux(condition) {
+				if (foo) {
+					try {
+						if (condition) {
+							process.exit(1);
+						} else {
+							process.exit(2);
+						}
+					} catch {}
+				} else {
+					baz();
+				}
+			}
+		`,
 		outdent`
 			function qux() {
 				if (foo) {
@@ -1079,6 +1118,56 @@ test.snapshot({
 				if (foo) {
 					{
 						process.exit();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							if (false) {
+								break;
+							}
+
+							process.exit(1);
+						default:
+							process.exit(2);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							if (true) {
+								return;
+							}
+							break;
+						default:
+							process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					label: {
+						if (false) {
+							break label;
+						}
+
+						process.exit(1);
 					}
 				} else {
 					baz();

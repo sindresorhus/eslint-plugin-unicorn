@@ -109,6 +109,7 @@ export {
 	default as isBranchExit,
 	hasOptionalChainInCurrentChain,
 	isDefinitelyNotThrowingExpression,
+	isDefinitelyNotThrowingReference,
 	isProcessExitBranch,
 	isProcessExitBranchAtStart,
 	isProcessExitBlockAtStart,

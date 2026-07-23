@@ -4,6 +4,7 @@ import {
 	isBranchExit,
 	hasOptionalChainInCurrentChain,
 	isDefinitelyNotThrowingExpression,
+	isDefinitelyNotThrowingReference,
 	isGlobalIdentifier,
 	isProcessExitBranch,
 	isProcessExitBlockAtStart,
@@ -102,6 +103,15 @@ const getResolverExecutor = (node, resolverReferenceExecutors) => {
 
 	const callee = unwrapTypeScriptExpression(node.callee);
 	return callee.type === 'Identifier' ? resolverReferenceExecutors.get(callee) : undefined;
+};
+
+const isDefinitelyNotThrowingResolverStatement = (node, resolverReferenceExecutors) => {
+	if (node.type !== 'ExpressionStatement' || node.expression.type !== 'CallExpression') {
+		return false;
+	}
+
+	return node.expression.arguments.length === 0
+		&& Boolean(getResolverExecutor(node.expression, resolverReferenceExecutors));
 };
 
 function addEvent(state, event) {
@@ -565,7 +575,7 @@ function getTerminalTryStatement(node, context) {
 	}
 }
 
-function isInCatchableTryAfterPotentiallyThrowingCode(node, context) {
+function isInCatchableTryAfterPotentiallyThrowingCode(node, context, resolverReferenceExecutors) {
 	let child = node;
 	let {parent} = node;
 	let hasPotentiallyThrowingCode = false;
@@ -578,7 +588,7 @@ function isInCatchableTryAfterPotentiallyThrowingCode(node, context) {
 			parent.type === 'IfStatement'
 			&& (parent.consequent === child || parent.alternate === child)
 		) {
-			hasPotentiallyThrowingCode ||= !isDefinitelyNotThrowingExpression(parent.test, context);
+			hasPotentiallyThrowingCode ||= !isDefinitelyNotThrowingReference(parent.test, context);
 		} else if (
 			(parent.type === 'SequenceExpression' && parent.expressions[0] !== child)
 			|| (parent.type === 'LogicalExpression' && parent.right === child)
@@ -589,7 +599,12 @@ function isInCatchableTryAfterPotentiallyThrowingCode(node, context) {
 
 		if (parent.type === 'TryStatement' && parent.handler && parent.block === child) {
 			return hasPotentiallyThrowingCode
-				|| !isProcessExitBlockAtStart(parent.block, context);
+				|| !isProcessExitBlockAtStart(
+					parent.block,
+					context,
+					true,
+					statement => isDefinitelyNotThrowingResolverStatement(statement, resolverReferenceExecutors),
+				);
 		}
 
 		child = parent;
@@ -793,7 +808,7 @@ const create = context => {
 		if (isProcessExitCallAlwaysEvaluated(node, context)) {
 			if (
 				!isInAlwaysProvidedParameterDefault(node, context)
-				&& !isInCatchableTryAfterPotentiallyThrowingCode(node, context)
+				&& !isInCatchableTryAfterPotentiallyThrowingCode(node, context, resolverReferenceExecutors)
 			) {
 				const terminalTryStatement = getTerminalTryStatement(node, context);
 				if (terminalTryStatement) {

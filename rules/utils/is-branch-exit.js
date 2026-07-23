@@ -45,7 +45,9 @@ const isProcessExitStatement = (node, context) =>
 	&& isProcessExitExpression(node.expression, context);
 
 const isDefinitelyNotThrowing = (node, context) =>
-	getStaticValue(node, context.sourceCode.getScope(node)) !== null;
+	node.type === 'SequenceExpression'
+		? node.expressions.every(expression => isDefinitelyNotThrowingExpression(expression, context))
+		: getStaticValue(node, context.sourceCode.getScope(node)) !== null;
 
 const isTemporalDeadZoneDefinition = definition => (
 	(definition.type === 'Variable' && definition.parent?.kind !== 'var')
@@ -182,7 +184,7 @@ export const isDefinitelyNotThrowingExpression = (node, context) =>
 		&& isDefinitelyNotThrowing(node.right, context)
 		: isDefinitelyNotThrowing(node, context);
 
-const isDefinitelyNotThrowingReference = (node, context) => {
+export const isDefinitelyNotThrowingReference = (node, context) => {
 	node = unwrapTransparentTypeScriptExpression(node);
 	if (node?.type === 'Identifier') {
 		return isDefinitelyDefinedReference(node, context);
@@ -257,7 +259,7 @@ const isProcessExitVariableDeclarationAtStart = (node, context) => {
 	return false;
 };
 
-const isProcessExitStatementListAtStart = (statements, context, checkTryStatements) => {
+const isProcessExitStatementListAtStart = (statements, context, checkTryStatements, isAdditionalStatementDefinitelyNotThrowing = () => false) => {
 	for (const statement of statements) {
 		if (isProcessExitBranchAtStart(statement, context, checkTryStatements)) {
 			return true;
@@ -267,7 +269,10 @@ const isProcessExitStatementListAtStart = (statements, context, checkTryStatemen
 			continue;
 		}
 
-		if (!isDefinitelyNotThrowingStatement(statement, context)) {
+		if (
+			!isDefinitelyNotThrowingStatement(statement, context)
+			&& !isAdditionalStatementDefinitelyNotThrowing(statement)
+		) {
 			return false;
 		}
 	}
@@ -275,9 +280,9 @@ const isProcessExitStatementListAtStart = (statements, context, checkTryStatemen
 	return false;
 };
 
-export const isProcessExitBlockAtStart = (branch, context, checkTryStatements = true) =>
+export const isProcessExitBlockAtStart = (branch, context, checkTryStatements = true, isAdditionalStatementDefinitelyNotThrowing) =>
 	!hasPossiblyThrowingClassHeritage(branch, context)
-	&& isProcessExitStatementListAtStart(branch.body, context, checkTryStatements);
+	&& isProcessExitStatementListAtStart(branch.body, context, checkTryStatements, isAdditionalStatementDefinitelyNotThrowing);
 
 export function hasOptionalChainInCurrentChain(node) {
 	if (node?.type === 'MemberExpression') {
@@ -543,6 +548,18 @@ function hasLabeledBreakBeforeProcessExit(node, context, labelName) {
 		return false;
 	}
 
+	if (node.type === 'IfStatement') {
+		if (isProcessExitExpressionAtStart(node.test, context)) {
+			return false;
+		}
+
+		const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
+		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+			const selectedBranch = staticValue.value ? node.consequent : node.alternate;
+			return Boolean(selectedBranch && hasLabeledBreakBeforeProcessExit(selectedBranch, context, labelName));
+		}
+	}
+
 	if (isProcessExitExpression(node.expression, context)) {
 		return false;
 	}
@@ -677,9 +694,13 @@ const isProcessExitConditionalExpressionAtStart = (node, context) => {
 	}
 
 	const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
-	return staticValue !== null
-		&& isDefinitelyNotThrowingExpression(node.test, context)
-		&& isProcessExitExpressionAtStart(staticValue.value ? node.consequent : node.alternate, context);
+	if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+		return isProcessExitExpressionAtStart(staticValue.value ? node.consequent : node.alternate, context);
+	}
+
+	return isDefinitelyNotThrowingReference(node.test, context)
+		&& isProcessExitExpressionAtStart(node.consequent, context)
+		&& isProcessExitExpressionAtStart(node.alternate, context);
 };
 
 export function isProcessExitExpressionAtStart(node, context) {
@@ -856,12 +877,14 @@ const isProcessExitConditionalBranchAtStart = (branch, context, checkTryStatemen
 	}
 
 	const staticValue = getStaticValue(branch.test, context.sourceCode.getScope(branch.test));
-	if (staticValue === null || !isDefinitelyNotThrowingExpression(branch.test, context)) {
-		return false;
+	if (staticValue !== null && isDefinitelyNotThrowingExpression(branch.test, context)) {
+		const selectedBranch = staticValue.value ? branch.consequent : branch.alternate;
+		return Boolean(selectedBranch && isProcessExitBranchAtStart(selectedBranch, context, checkTryStatements));
 	}
 
-	const selectedBranch = staticValue.value ? branch.consequent : branch.alternate;
-	return Boolean(selectedBranch && isProcessExitBranchAtStart(selectedBranch, context, checkTryStatements));
+	return isDefinitelyNotThrowingReference(branch.test, context)
+		&& isProcessExitBranchAtStart(branch.consequent, context, checkTryStatements)
+		&& Boolean(branch.alternate && isProcessExitBranchAtStart(branch.alternate, context, checkTryStatements));
 };
 
 const isProcessExitTryStatementAtStart = (branch, context, checkTryStatements) => {
@@ -1176,6 +1199,18 @@ function hasSwitchControlFlowExit(node, context, switchStatement) {
 		return false;
 	}
 
+	if (node.type === 'IfStatement') {
+		if (isProcessExitExpressionAtStart(node.test, context)) {
+			return false;
+		}
+
+		const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
+		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+			const selectedBranch = staticValue.value ? node.consequent : node.alternate;
+			return Boolean(selectedBranch && hasSwitchControlFlowExit(selectedBranch, context, switchStatement));
+		}
+	}
+
 	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
 		const value = node[key];
 		const children = Array.isArray(value) ? value : [value];
@@ -1260,6 +1295,14 @@ export default function isBranchExit(branch, context, branchAlwaysExits) {
 
 	if (branch.type === 'SwitchStatement') {
 		return isSwitchBranchExit(branch, context, branchAlwaysExits, false);
+	}
+
+	if (branch.type === 'IfStatement' || branch.type === 'ConditionalExpression') {
+		const staticValue = getStaticValue(branch.test, context.sourceCode.getScope(branch.test));
+		if (staticValue !== null && isDefinitelyNotThrowingExpression(branch.test, context)) {
+			const selectedBranch = staticValue.value ? branch.consequent : branch.alternate;
+			return Boolean(selectedBranch && isBranchExit(selectedBranch, context, branchAlwaysExits));
+		}
 	}
 
 	return (

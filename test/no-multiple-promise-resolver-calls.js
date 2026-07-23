@@ -7,6 +7,44 @@ const error = {messageId: 'no-multiple-promise-resolver-calls'};
 test.snapshot({
 	valid: [
 		outdent`
+			new Promise(resolve => {
+				try {
+					resolve();
+					process.exit(1);
+				} catch {
+					resolve();
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				const condition = getCondition();
+
+				try {
+					condition ? process.exit(1) : process.exit(2);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				const condition = getCondition();
+
+				try {
+					if (condition) {
+						process.exit(1);
+					} else {
+						process.exit(2);
+					}
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
 			new Promise((resolve, reject) => {
 				resolve(value);
 				process.exit(1);
@@ -1609,6 +1647,30 @@ test({
 		},
 	],
 	invalid: [
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						process.exit((maybeThrow(), 1));
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					const callback = (value = process.exit()) => {};
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			errors: [error],
+		},
 		{
 			code: outdent`
 				new Promise(resolve => {

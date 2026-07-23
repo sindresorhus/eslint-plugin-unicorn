@@ -18,6 +18,82 @@ test.snapshot({
 		outdent`
 			const values = (await Promise.allSettled(promises)).map(result => {
 				if (result.status !== 'fulfilled') {
+					switch (value) {
+						case 1:
+							if (false) {
+								break;
+							}
+
+							process.exit(1);
+						default:
+							process.exit(2);
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					switch (value) {
+						case 1:
+							if (true) {
+								return;
+							}
+							break;
+						default:
+							process.exit(1);
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					label: {
+						if (false) {
+							break label;
+						}
+
+						process.exit(1);
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			async function mapResult(condition) {
+				return (await Promise.allSettled(promises)).map(result => {
+					if (result.status !== 'fulfilled') {
+						condition ? process.exit(1) : process.exit(2);
+					}
+
+					return result.value;
+				});
+			}
+		`,
+		outdent`
+			async function mapResult(condition) {
+				return (await Promise.allSettled(promises)).map(result => {
+					if (result.status !== 'fulfilled') {
+						if (condition) {
+							process.exit(1);
+						} else {
+							process.exit(2);
+						}
+					}
+
+					return result.value;
+				});
+			}
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
 					while (true) {
 						process.exit(1);
 					}
@@ -314,6 +390,19 @@ test.snapshot({
 		'const values = (await Promise.allSettled(promises)).map(({value}) => ({value: fallback}));',
 	],
 	invalid: [
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						process.exit((maybeThrow(), 1));
+					} catch {
+						cleanup();
+					}
+				}
+
+				return result.value;
+			});
+		`,
 		outdent`
 			const values = (await Promise.allSettled(promises)).map(result => {
 				if (result.status !== 'fulfilled') {
