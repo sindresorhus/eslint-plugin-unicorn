@@ -1,15 +1,14 @@
 import {isRegExp} from 'node:util/types';
 import {findVariable, getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
 import {renameVariable} from './fix/index.js';
+import {combineBooleanStates, getPromisedTypeBooleanState, getTypeBooleanState} from './utils/get-type-boolean-state.js';
 import resolveVariableName from './utils/resolve-variable-name.js';
+import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
 import {
 	getAvailableVariableName,
 	getScopes,
 	getVariableIdentifiers,
 	isReactHookName,
-	isNullishType,
-	isTypeParameterType,
-	isUnknownType,
 	lowerFirst,
 	upperFirst,
 } from './utils/index.js';
@@ -145,10 +144,12 @@ const prepareOptions = ({
 	checkProperties = false,
 	prefixes = {},
 	ignore = [],
+	wrappers = {},
 } = {}) => ({
 	checkProperties,
 	prefixes: getEnabledPrefixes({prefixes}),
 	ignore: ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u')),
+	wrappers: new Map(Object.entries(wrappers)),
 });
 
 function isIgnoredName(name, ignore) {
@@ -430,92 +431,12 @@ function isBooleanVueReferenceVariable(variable, context) {
 		&& getExpressionBooleanState(argument, context) === boolean;
 }
 
-function combineBooleanStates(states) {
-	if (
-		states.length === 0
-		|| states.includes(unknown)
-	) {
-		return unknown;
-	}
-
-	return states.every(state => state === boolean) ? boolean : nonBoolean;
-}
-
 function combineVariableBooleanStates(states) {
 	if (states.includes(nonBoolean)) {
 		return nonBoolean;
 	}
 
 	return combineBooleanStates(states);
-}
-
-function getTypeBooleanState(type, checker, visitedTypes = new Set(), functionTypesAreBoolean = true) {
-	if (!type) {
-		return unknown;
-	}
-
-	if (
-		isUnknownType(type)
-		|| type.intrinsicName === 'never'
-	) {
-		return unknown;
-	}
-
-	if (visitedTypes.has(type)) {
-		return unknown;
-	}
-
-	visitedTypes.add(type);
-
-	if (isTypeParameterType(type)) {
-		const constraint = type.getConstraint();
-		const result = constraint ? getTypeBooleanState(constraint, checker, visitedTypes, functionTypesAreBoolean) : unknown;
-		visitedTypes.delete(type);
-		return result;
-	}
-
-	const nonNullableType = checker.getNonNullableType(type);
-	if (nonNullableType !== type) {
-		const result = getTypeBooleanState(nonNullableType, checker, visitedTypes, functionTypesAreBoolean);
-		visitedTypes.delete(type);
-		return result;
-	}
-
-	if (type.isUnion()) {
-		const result = combineBooleanStates(
-			type.types
-				.filter(type => !isNullishType(type))
-				.map(type => getTypeBooleanState(type, checker, visitedTypes, functionTypesAreBoolean)),
-		);
-		visitedTypes.delete(type);
-		return result;
-	}
-
-	const signatures = type.getCallSignatures();
-	if (signatures.length > 0) {
-		const result = functionTypesAreBoolean
-			? combineBooleanStates(signatures.map(signature => getTypeBooleanState(signature.getReturnType(), checker, visitedTypes, false)))
-			: nonBoolean;
-		visitedTypes.delete(type);
-		return result;
-	}
-
-	const constraint = checker.getBaseConstraintOfType(type);
-	if (constraint && constraint !== type) {
-		const result = getTypeBooleanState(constraint, checker, visitedTypes, functionTypesAreBoolean);
-		visitedTypes.delete(type);
-		return result;
-	}
-
-	if (type.getProperties().length === 0) {
-		visitedTypes.delete(type);
-		return unknown;
-	}
-
-	const typeString = checker.typeToString(checker.getWidenedType(checker.getBaseTypeOfLiteralType(type)));
-	visitedTypes.delete(type);
-
-	return typeString === 'boolean' ? boolean : nonBoolean;
 }
 
 function getTypeInformationBooleanState(node, context, functionTypesAreBoolean = true) {
@@ -716,11 +637,6 @@ function isGlobalPromiseTypeAnnotation(node, scope) {
 	}
 
 	return isGlobalPromiseTypeReference(node, scope);
-}
-
-function getPromisedTypeBooleanState(type, checker) {
-	const promisedType = checker.getPromisedTypeOfPromise(type);
-	return promisedType ? getTypeBooleanState(promisedType, checker, new Set(), false) : unknown;
 }
 
 function getAsyncFunctionTypeInformationBooleanState(node, context) {
@@ -1283,7 +1199,7 @@ function getAutofix({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {checkProperties, prefixes, ignore} = prepareOptions(context.options[0]);
+	const {checkProperties, prefixes, ignore, wrappers} = prepareOptions(context.options[0]);
 
 	if (prefixes.length === 0) {
 		return;
@@ -1300,8 +1216,18 @@ const create = context => {
 		const nameForPrefixCheck = getNameForPrefixCheck(variable, context);
 		const booleanPrefix = getBooleanPrefix(nameForPrefixCheck, prefixes);
 		if (booleanPrefix) {
+			const booleanState = getVariableBooleanState(variable, context);
+			const booleanWrapperState = wrappers.size === 0 || booleanState === boolean
+				? unknown
+				: getBooleanWrapperVariableState({
+					variable,
+					definition: getSupportedVariableDefinition(variable),
+					context,
+					wrappers,
+				});
+			const effectiveBooleanState = booleanWrapperState === unknown ? booleanState : booleanWrapperState;
 			if (
-				getVariableBooleanState(variable, context) === nonBoolean
+				effectiveBooleanState === nonBoolean
 				&& !isBooleanReactReferenceVariable(variable, context)
 				&& !isBooleanVueReferenceVariable(variable, context)
 			) {
@@ -1452,6 +1378,15 @@ const config = {
 							pattern: '^[a-z][a-zA-Z0-9]*$',
 						},
 					},
+					wrappers: {
+						type: 'object',
+						description: 'Wrapper type names and their boolean-like value members.',
+						additionalProperties: {
+							type: 'string',
+							description: 'The property or method that provides the wrapped value.',
+							minLength: 1,
+						},
+					},
 					ignore: {
 						type: 'array',
 						uniqueItems: true,
@@ -1460,7 +1395,7 @@ const config = {
 				},
 			},
 		],
-		defaultOptions: [{ignore: []}],
+		defaultOptions: [{ignore: [], wrappers: {}}],
 		messages,
 		languages: [
 			'js/js',
