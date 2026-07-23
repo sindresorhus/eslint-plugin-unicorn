@@ -37,6 +37,18 @@ test.snapshot({
 				resolve(otherValue);
 			});
 		`,
+		outdent`
+			new Promise((resolve, reject, extra = process.exit(1) || value) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject, extra = process.exit(1) && value) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
 		{
 			code: outdent`
 				new Promise((resolve, reject, extra = process.exit(1) as never) => {

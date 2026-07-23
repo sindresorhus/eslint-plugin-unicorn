@@ -11,7 +11,7 @@
 
 Declare variables as close as possible to where they are used. If a variable is declared before a guard clause but only used after it, the declaration can be moved below the guard. This avoids unnecessary initialization on the early-exit path and keeps the variable scope tighter.
 
-This rule reports declarations before `return`, `throw`, `break`, `continue`, and terminal direct global `process.exit()` guard clauses.
+This rule reports declarations before `return`, `throw`, `break`, `continue`, and terminal calls to the global `process.exit()` function.
 
 ## Examples
 

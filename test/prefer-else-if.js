@@ -58,7 +58,7 @@ test.snapshot({
 				if (foo === 2) {}
 			}
 		`,
-		// `process.exit()` always exits, so `no-useless-else` prefers the flat form.
+		// `process.exit()` always exits, so these should remain separate `if` statements.
 		outdent`
 			function handleSignal(signal) {
 				if (signal === 'SIGINT') {

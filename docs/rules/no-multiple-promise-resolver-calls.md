@@ -13,7 +13,7 @@ The `resolve` and `reject` functions passed to a Promise executor share a single
 
 This rule uses code-path analysis to report a resolver call when an earlier `resolve` or `reject` call can reach it. It also reports resolver calls in loops that may execute more than once.
 
-Terminal direct global `process.exit()` calls are treated as ending the current execution path.
+Calls to the global `process.exit()` function are treated as ending the current execution path.
 
 ## Examples
 

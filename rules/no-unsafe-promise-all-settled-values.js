@@ -549,7 +549,7 @@ function isKnownFulfilledResultArray(node, context, visitedVariables = new Set()
 		&& isPromiseSettledResultArray(node, context);
 }
 
-function isGuardedByFulfilledCheck(node, readContext, context) {
+function isGuardedByFulfilledCheck(node, readContext) {
 	for (
 		let child = node, current = node.parent;
 		current;
@@ -567,7 +567,7 @@ function isGuardedByFulfilledCheck(node, readContext, context) {
 			return true;
 		}
 
-		if (isGuardedByPreviousUnfulfilledExit(current, readContext, context)) {
+		if (isGuardedByPreviousUnfulfilledExit(current, readContext, readContext.context)) {
 			return true;
 		}
 
@@ -659,7 +659,7 @@ function getUnsafeValueRead(node, readContext) {
 
 	if (
 		isUnsafeValueRead(node, readContext)
-		&& !isGuardedByFulfilledCheck(node, readContext, readContext.context)
+		&& !isGuardedByFulfilledCheck(node, readContext)
 	) {
 		return node;
 	}

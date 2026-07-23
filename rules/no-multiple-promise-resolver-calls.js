@@ -479,6 +479,7 @@ function isInAlwaysExecutedParameterDefault(node, context) {
 
 		const isAlwaysEvaluated = (
 			(parent.type === 'SequenceExpression' && parent.expressions.includes(child))
+			|| (parent.type === 'LogicalExpression' && parent.left === child)
 			|| (parent.type === 'UnaryExpression' && parent.argument === child)
 			|| (parent.type === 'AwaitExpression' && parent.argument === child)
 			|| (parent.type === 'ConditionalExpression' && isBranchExit(parent, context, isReturnOrThrowStatement))
