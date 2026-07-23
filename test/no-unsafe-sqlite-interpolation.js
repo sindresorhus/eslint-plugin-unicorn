@@ -57,6 +57,8 @@ test.snapshot({
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const query = `SELECT * FROM users WHERE id = ${id}`; const alias = query; database.prepare(alias);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database?.exec(`SELECT * FROM users WHERE id = ${id}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec?.(`SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database?.["exec"](`SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["prepare"]?.(`SELECT * FROM users WHERE id = ${id}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["prepare"](`SELECT * FROM users WHERE id = ${id}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${first} FROM users WHERE id = ${second}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(/* keep */ `SELECT * FROM users WHERE id = ${id}`);',
