@@ -227,6 +227,19 @@ test({
 			],
 		},
 		{
+			code: '@foo(class {})\nexport default class Foo {}',
+			output: 'export default @foo(class {}) class Foo {}',
+			options: ['after'],
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 1,
+					endColumn: 15,
+				},
+			],
+		},
+		{
 			code: '@foo\nexport @bar class Foo {}',
 			output: '@foo\n@bar\nexport class Foo {}',
 			errors: [
@@ -277,6 +290,17 @@ test({
 			],
 		},
 		{
+			code: '@foo /* keep */ @bar export class Foo {}',
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 1,
+					endColumn: 5,
+				},
+			],
+		},
+		{
 			code: '/* comment */ @decorator export class Foo {}',
 			output: '/* comment */ @decorator\nexport class Foo {}',
 			errors: [
@@ -313,8 +337,34 @@ test({
 			],
 		},
 		{
-			code: 'namespace N { @decorator export class Foo {} }',
-			output: 'namespace N { @decorator\nexport class Foo {} }',
+			code: 'namespace N { @decorator export class Bar {} }',
+			output: 'namespace N { @decorator\nexport class Bar {} }',
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 15,
+					endColumn: 25,
+				},
+			],
+		},
+		{
+			code: 'namespace N {\n\t@decorator export class Foo {}\n}',
+			output: 'namespace N {\n\texport @decorator class Foo {}\n}',
+			options: ['after'],
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 2,
+					column: 2,
+					endColumn: 12,
+				},
+			],
+		},
+		{
+			code: 'namespace N { @decorator export default class Foo {} }',
+			output: 'namespace N { export default @decorator class Foo {} }',
+			options: ['after'],
 			errors: [
 				{
 					messageId: 'consistent-export-decorator-position',
