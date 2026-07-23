@@ -176,18 +176,6 @@ test({
 	valid: [],
 	invalid: [
 		{
-			code: '@foo\n@bar export class Foo {}',
-			output: '@foo\n@bar\nexport class Foo {}',
-			errors: [
-				{
-					messageId: 'consistent-export-decorator-position',
-					line: 2,
-					column: 1,
-					endColumn: 5,
-				},
-			],
-		},
-		{
 			code: '@foo export @bar @baz class Foo {}',
 			output: '@foo @bar @baz export class Foo {}',
 			options: ['before'],
@@ -233,6 +221,18 @@ test({
 					line: 1,
 					column: 15,
 					endColumn: 25,
+				},
+			],
+		},
+		{
+			code: 'foo(); @decorator export class Foo {}',
+			output: 'foo(); @decorator\nexport class Foo {}',
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 8,
+					endColumn: 18,
 				},
 			],
 		},
