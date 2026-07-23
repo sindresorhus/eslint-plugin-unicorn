@@ -19,19 +19,33 @@ const unwrapExpression = node => {
 	return node;
 };
 
+const getNonTypeDefinitions = variable => variable.defs.filter(definition => definition.type !== 'Type');
+
 const getVariableInfo = (node, context) => {
 	if (node.type !== 'Identifier') {
 		return;
 	}
 
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (!variable || variable.defs.length !== 1) {
+	let scope = context.sourceCode.getScope(node);
+	let variable = findVariable(scope, node);
+	let definitions = variable ? getNonTypeDefinitions(variable) : [];
+	while (variable && definitions.length === 0) {
+		scope = scope.upper;
+		if (!scope) {
+			return;
+		}
+
+		variable = findVariable(scope, node.name);
+		definitions = variable ? getNonTypeDefinitions(variable) : [];
+	}
+
+	if (!variable || definitions.length !== 1) {
 		return;
 	}
 
 	return {
 		variable,
-		definition: variable.defs[0],
+		definition: definitions[0],
 	};
 };
 

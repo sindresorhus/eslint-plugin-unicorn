@@ -76,6 +76,14 @@ test.snapshot({
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${id}`); database.prepare(`SELECT ${id}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.prepare(customTag`SELECT ${id}`);',
 		{
+			code: 'import {DatabaseSync} from "node:sqlite"; function query() { type DatabaseSync = {}; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${id}`); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import * as sqlite from "node:sqlite"; function query() { type sqlite = {}; const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT ${id}`); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${id}` as string);',
 			languageOptions: {parser: parsers.typescript},
 		},
