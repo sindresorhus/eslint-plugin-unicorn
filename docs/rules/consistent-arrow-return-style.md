@@ -1,4 +1,4 @@
-# arrow-return-style
+# consistent-arrow-return-style
 
 📝 Enforce a consistent return style for multiline arrow function bodies.
 

@@ -56,7 +56,7 @@ const config = [
 			// The plugin intentionally keeps a few internal barrel files for shared utilities and rule exports.
 			'unicorn/no-barrel-files': 'off',
 			// This opt-in style is not applied to the existing codebase.
-			'unicorn/arrow-return-style': 'off',
+			'unicorn/consistent-arrow-return-style': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',

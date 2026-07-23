@@ -147,12 +147,12 @@ test('fixes nested arrows in multiple passes', t => {
 		plugins: {
 			test: {
 				rules: {
-					'arrow-return-style': rule,
+					'consistent-arrow-return-style': rule,
 				},
 			},
 		},
 		rules: {
-			'test/arrow-return-style': 'error',
+			'test/consistent-arrow-return-style': 'error',
 		},
 	});
 
