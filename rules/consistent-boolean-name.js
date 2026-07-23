@@ -121,6 +121,7 @@ const propertyDefinitionTypes = new Set([
 	'TSAbstractAccessorProperty',
 ]);
 const methodDefinitionTypes = new Set(['MethodDefinition', 'TSAbstractMethodDefinition']);
+const typeScriptMemberTypes = new Set(['TSMethodSignature', 'TSPropertySignature']);
 const isSetter = node => node?.kind === 'set' || node?.parent?.kind === 'set';
 
 const unwrapParameter = node => node.type === 'TSParameterProperty'
@@ -1563,8 +1564,8 @@ function getTypeScriptModuleIdentity(node) {
 	};
 }
 
-function getMethodReportIdentity(node, sourceCode) {
-	if (node.type === 'TSMethodSignature') {
+function getMemberReportIdentity(node, sourceCode) {
+	if (typeScriptMemberTypes.has(node.type)) {
 		const interfaceNode = node.parent?.parent;
 		const interfaceName = interfaceNode?.id?.name;
 		if (interfaceName) {
@@ -1578,7 +1579,7 @@ function getMethodReportIdentity(node, sourceCode) {
 
 			const isExportedInterface = interfaceNode.parent?.type === 'ExportNamedDeclaration';
 			if (namespaceNames.length > 0 && !isAmbient && !isExportedInterface) {
-				return {owner: node.parent};
+				return {owner: interfaceNode.parent};
 			}
 
 			const ownerName = namespaceNames[0] ?? interfaceName;
@@ -1599,7 +1600,7 @@ function getMethodReportIdentity(node, sourceCode) {
 	return {owner: node.parent};
 }
 
-const getMethodReportKey = node => [
+const getMemberReportKey = node => [
 	node.static ? 'static' : 'instance',
 	node.key?.type === 'PrivateIdentifier' ? 'private' : 'public',
 ].join(':');
@@ -1661,7 +1662,7 @@ function isBooleanProperty(node, context) {
 		const scope = sourceCode.getScope(node);
 
 		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean
-			|| getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false}) === boolean;
+			|| getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean;
 	}
 
 	return false;
@@ -1713,7 +1714,7 @@ function getExplicitPropertyBooleanState(node, context) {
 		}
 
 		const scope = sourceCode.getScope(node);
-		const stateFromPromisedReturnType = getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
+		const stateFromPromisedReturnType = getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false});
 
 		return stateFromPromisedReturnType === unknown
 			? getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false})
@@ -1918,7 +1919,7 @@ const create = context => {
 	};
 
 	const variableModes = {checkVariables, checkArguments, checkFunctions};
-	const reportedMethodKeys = new Map();
+	const reportedMemberKeys = new Map();
 
 	context.on('Program', node => {
 		for (const scope of getScopes(context.sourceCode.getScope(node))) {
@@ -1945,23 +1946,23 @@ const create = context => {
 		const booleanPrefix = getBooleanPrefix(name, prefixes);
 		const reportNode = node.key ?? getParameterPropertyNameNode(node);
 		const report = problem => {
-			if (
-				!methodDefinitionTypes.has(node.type)
-				&& node.type !== 'TSMethodSignature'
-				&& !(node.type === 'Property' && (node.method || ['get', 'set'].includes(node.kind)))
-			) {
+			const shouldDeduplicate = methodDefinitionTypes.has(node.type)
+				|| typeScriptMemberTypes.has(node.type)
+				|| (node.type === 'Property' && (node.method || ['get', 'set'].includes(node.kind)));
+
+			if (!shouldDeduplicate) {
 				context.report(problem);
 				return;
 			}
 
-			const {owner, name: qualifiedName} = getMethodReportIdentity(node, context.sourceCode);
-			let keys = reportedMethodKeys.get(owner);
+			const {owner, name: qualifiedName} = getMemberReportIdentity(node, context.sourceCode);
+			let keys = reportedMemberKeys.get(owner);
 			if (!keys) {
 				keys = new Set();
-				reportedMethodKeys.set(owner, keys);
+				reportedMemberKeys.set(owner, keys);
 			}
 
-			const key = `${qualifiedName ?? ''}:${name}:${getMethodReportKey(node)}`;
+			const key = `${qualifiedName ?? ''}:${name}:${getMemberReportKey(node)}`;
 			if (keys.has(key)) {
 				return;
 			}

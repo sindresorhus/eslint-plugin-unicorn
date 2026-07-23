@@ -1252,6 +1252,10 @@ ruleTest.snapshot({
 			}],
 		},
 		typescript('interface Task { completed: boolean; }'),
+		typescript({
+			code: 'interface Task { completed(): Promise<boolean> | undefined; }',
+			options: [{checkMethods: 'always'}],
+		}),
 	],
 	invalid: [
 		{
@@ -2071,6 +2075,18 @@ ruleTest({
 			name: 'overloaded method signatures in merged interfaces report once',
 			code: 'interface Task { completed(): boolean; } interface Task { completed(value: string): boolean; }',
 			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'overloaded method signatures in one namespace report once',
+			code: 'namespace First { interface Task { completed(): boolean; } interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'merged interface fields report once',
+			code: 'interface Task { completed: boolean; } interface Task { completed: boolean; }',
+			options: [{checkFields: 'always'}],
 			errors: 1,
 		}),
 		typescript({
