@@ -1506,6 +1506,104 @@ function getBooleanPropertyName(node, sourceCode) {
 	return typeof name === 'string' ? name : undefined;
 }
 
+function getTypeScriptNameParts(node) {
+	if (node?.type === 'Identifier') {
+		return [node.name];
+	}
+
+	if (node?.type === 'Literal' && typeof node.value === 'string') {
+		return [node.value];
+	}
+
+	return node?.type === 'TSQualifiedName'
+		? [...getTypeScriptNameParts(node.left), ...getTypeScriptNameParts(node.right)]
+		: [];
+}
+
+function getTypeScriptIdentityPrefix(node) {
+	if (node.global) {
+		return 'global';
+	}
+
+	if (node.id.type === 'Literal') {
+		return 'module';
+	}
+
+	return 'namespace';
+}
+
+function getTypeScriptModuleIdentity(node) {
+	const namespaceNames = [];
+	const namespaceIdentityParts = [];
+	let isAmbient = false;
+	let isExternalModule = false;
+	let isGlobal = false;
+	for (let current = node; current; current = current.parent) {
+		if (current.type !== 'TSModuleDeclaration') {
+			continue;
+		}
+
+		isAmbient ||= current.declare || current.global || current.id.type === 'Literal';
+		isExternalModule ||= current.id.type === 'Literal';
+		isGlobal ||= current.global;
+
+		const names = getTypeScriptNameParts(current.id);
+		const identityPrefix = getTypeScriptIdentityPrefix(current);
+
+		namespaceNames.unshift(...names);
+		namespaceIdentityParts.unshift(...names.map(name => `${identityPrefix}:${name}`));
+	}
+
+	return {
+		namespaceNames,
+		namespaceIdentityParts,
+		isAmbient,
+		isExternalModule,
+		isGlobal,
+	};
+}
+
+function getMethodReportIdentity(node, sourceCode) {
+	if (node.type === 'TSMethodSignature') {
+		const interfaceNode = node.parent?.parent;
+		const interfaceName = interfaceNode?.id?.name;
+		if (interfaceName) {
+			const {
+				namespaceNames,
+				namespaceIdentityParts,
+				isAmbient,
+				isExternalModule,
+				isGlobal,
+			} = getTypeScriptModuleIdentity(interfaceNode.parent);
+
+			const isExportedInterface = interfaceNode.parent?.type === 'ExportNamedDeclaration';
+			if (namespaceNames.length > 0 && !isAmbient && !isExportedInterface) {
+				return {owner: node.parent};
+			}
+
+			const ownerName = namespaceNames[0] ?? interfaceName;
+			const namespaceIdentity = namespaceIdentityParts.join('/');
+			let owner = isExternalModule || isGlobal
+				? namespaceIdentity
+				: resolveVariableName(ownerName, sourceCode.getScope(node));
+			if (!owner && namespaceNames.length > 0) {
+				owner = namespaceIdentity;
+			}
+
+			if (owner) {
+				return {owner, name: [...namespaceNames, interfaceName].join('.')};
+			}
+		}
+	}
+
+	return {owner: node.parent};
+}
+
+const getMethodReportKey = node => [
+	node.static ? 'static' : 'instance',
+	node.key?.type === 'PrivateIdentifier' ? 'private' : 'public',
+].join(':');
+
 function getParameterPropertyNameNode(node) {
 	const parameter = unwrapParameter(node.parameter);
 	return parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
@@ -1820,7 +1918,7 @@ const create = context => {
 	};
 
 	const variableModes = {checkVariables, checkArguments, checkFunctions};
-	const reportedMethodNames = new WeakMap();
+	const reportedMethodNames = new Map();
 
 	context.on('Program', node => {
 		for (const scope of getScopes(context.sourceCode.getScope(node))) {
@@ -1856,17 +1954,19 @@ const create = context => {
 				return;
 			}
 
-			let names = reportedMethodNames.get(node.parent);
+			const {owner, name: ownerName} = getMethodReportIdentity(node, context.sourceCode);
+			let names = reportedMethodNames.get(owner);
 			if (!names) {
 				names = new Set();
-				reportedMethodNames.set(node.parent, names);
+				reportedMethodNames.set(owner, names);
 			}
 
-			if (names.has(name)) {
+			const key = `${ownerName ?? name}:${getMethodReportKey(node)}`;
+			if (names.has(key)) {
 				return;
 			}
 
-			names.add(name);
+			names.add(key);
 			context.report(problem);
 		};
 

@@ -2010,9 +2010,33 @@ test('rejects the removed checkProperties option', t => {
 ruleTest({
 	valid: [],
 	invalid: [
+		{
+			name: 'static and instance methods with the same name are checked independently',
+			code: 'class Task { static completed() { return true; } completed() { return true; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 2,
+		},
+		{
+			name: 'private and public methods with the same name are checked independently',
+			code: 'class Task { #completed() { return true; } completed() { return true; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 2,
+		},
+		{
+			name: 'equivalent public method names are deduplicated',
+			code: 'class Task { completed() { return true; } \'completed\'() { return true; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		},
 		typescript({
 			name: 'overloaded method signatures report once',
 			code: 'interface Task { completed(): boolean; completed(value: string): boolean; }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'overloaded method signatures with equivalent public names report once',
+			code: 'interface Task { completed(): boolean; [\'completed\'](value: string): boolean; }',
 			options: [{checkMethods: 'always'}],
 			errors: 1,
 		}),
@@ -2035,6 +2059,78 @@ ruleTest({
 		typescript({
 			name: 'merged callable interfaces are resolved together',
 			code: 'interface Predicate<T> { value: string; } interface Predicate<T> { (): T; } declare const completed: Predicate<boolean>;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'overloaded method signatures in merged interfaces report once',
+			code: 'interface Task { completed(): boolean; } interface Task { completed(value: string): boolean; }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'overloaded method signatures in namespace-merged interfaces report once',
+			code: 'namespace First { export interface Task { completed(): boolean; } } namespace First { export interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'overloaded method signatures in dotted namespace-merged interfaces report once',
+			code: 'namespace First.Inner { export interface Task { completed(): boolean; } } namespace First.Inner { export interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'non-exported interfaces in separate namespaces are checked independently',
+			code: 'namespace First { interface Task { completed(): boolean; } } namespace First { interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 2,
+		}),
+		typescript({
+			name: 'overloaded method signatures in ambient module-merged interfaces report once',
+			code: 'declare module \'first\' { interface Task { completed(): boolean; } } declare module \'first\' { interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'namespace and ambient module interfaces with the same name are checked independently',
+			code: 'namespace first { interface Task { completed(): boolean; } } declare module \'first\' { interface Task { completed(): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 2,
+		}),
+		typescript({
+			name: 'distinct ambient module and namespace paths are checked independently',
+			code: 'declare module \'first.inner\' { interface Task { completed(): boolean; } } declare module \'first\' { namespace inner { interface Task { completed(): boolean; } } }',
+			options: [{checkMethods: 'always'}],
+			errors: 2,
+		}),
+		typescript({
+			name: 'global interfaces in separate ambient declarations report once',
+			code: 'export {}; declare global { interface Task { completed(): boolean; } } declare global { interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'interfaces in separate ambient namespaces report once',
+			code: 'declare namespace First { interface Task { completed(): boolean; } } declare namespace First { interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'interfaces in separate dotted ambient namespaces report once',
+			code: 'declare namespace First.Inner { interface Task { completed(): boolean; } } declare namespace First.Inner { interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'interfaces in regular and ambient namespace declarations report once',
+			code: 'namespace First { export interface Task { completed(): boolean; } } declare namespace First { interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'interfaces in separate identifier-named ambient modules report once',
+			code: 'declare module First { interface Task { completed(): boolean; } } declare module First { interface Task { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
 			errors: 1,
 		}),
 	],
