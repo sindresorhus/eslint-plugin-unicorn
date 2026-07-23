@@ -189,6 +189,31 @@ test({
 			],
 		},
 		{
+			code: 'export default @foo(class {}) class Foo {}',
+			output: '@foo(class {})\nexport default class Foo {}',
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 16,
+					endColumn: 30,
+				},
+			],
+		},
+		{
+			code: 'export @foo(class {}) class Foo {}',
+			output: '@foo(class {}) export class Foo {}',
+			options: ['before'],
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 8,
+					endColumn: 22,
+				},
+			],
+		},
+		{
 			code: '@foo\nexport @bar class Foo {}',
 			output: '@foo\n@bar\nexport class Foo {}',
 			errors: [
@@ -197,6 +222,32 @@ test({
 					line: 2,
 					column: 8,
 					endColumn: 12,
+				},
+			],
+		},
+		{
+			code: '@foo\nexport @bar class Foo {}',
+			output: '@foo @bar export class Foo {}',
+			options: ['before'],
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 1,
+					endColumn: 5,
+				},
+			],
+		},
+		{
+			code: '@foo\nexport @bar class Foo {}',
+			output: 'export @foo @bar class Foo {}',
+			options: ['after'],
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 1,
+					endColumn: 5,
 				},
 			],
 		},
@@ -237,7 +288,20 @@ test({
 			],
 		},
 		{
+			code: 'namespace N { const value = 1; @decorator export class Foo {} }',
+			output: 'namespace N { const value = 1; @decorator\nexport class Foo {} }',
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 32,
+					endColumn: 42,
+				},
+			],
+		},
+		{
 			code: 'namespace N { @decorator export class Foo {} }',
+			output: 'namespace N { @decorator\nexport class Foo {} }',
 			errors: [
 				{
 					messageId: 'consistent-export-decorator-position',

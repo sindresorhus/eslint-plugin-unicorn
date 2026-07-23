@@ -14,6 +14,7 @@ const messages = {
 };
 
 const isKeywordToken = keyword => token => token.type === 'Keyword' && token.value === keyword;
+const isClassKeywordToken = isKeywordToken('class');
 const isClassDeclarationWithDecorators = node =>
 	node?.type === 'ClassDeclaration'
 	&& node.decorators?.length > 0;
@@ -89,21 +90,12 @@ const getExpectedHeadText = ({style, decorators, exportText, sourceCode, indent}
 	}
 };
 
-const canFix = ({headRange, decorators, exportDeclaration, exportToken, defaultToken, expectedStyle, sourceCode}) => {
+const canFix = ({headRange, decorators, exportToken, defaultToken, sourceCode}) => {
 	const isInsideDecorator = nodeOrToken => decorators.some(decorator => isInRange(sourceCode.getRange(decorator), nodeOrToken, sourceCode));
 	const allowedTokens = new Set([
 		exportToken,
 		defaultToken,
 	].filter(Boolean));
-
-	const decoratorLocation = sourceCode.getLoc(decorators[0]);
-	const hasUnexpectedTokenBeforeDecorator = sourceCode.getTokensBefore(decorators[0])
-		.some(token => sourceCode.getLoc(token).end.line === decoratorLocation.start.line && !allowedTokens.has(token));
-	if (expectedStyle === STYLE_ABOVE
-		&& exportDeclaration.parent?.type === 'TSModuleBlock'
-		&& hasUnexpectedTokenBeforeDecorator) {
-		return false;
-	}
 
 	const hasUnexpectedToken = sourceCode.ast.tokens
 		.filter(token => isInRange(headRange, token, sourceCode))
@@ -148,7 +140,10 @@ const getProblem = ({exportDeclaration, expectedStyle, context}) => {
 		},
 	};
 
-	const classToken = sourceCode.getFirstToken(declaration, isKeywordToken('class'));
+	const classToken = sourceCode.getFirstToken(declaration, {
+		filter: token => isClassKeywordToken(token)
+			&& decorators.every(decorator => !isInRange(sourceCode.getRange(decorator), token, sourceCode)),
+	});
 	const defaultToken = exportDeclaration.type === 'ExportDefaultDeclaration'
 		? sourceCode.getTokenAfter(exportToken, isKeywordToken('default'))
 		: undefined;
@@ -160,10 +155,8 @@ const getProblem = ({exportDeclaration, expectedStyle, context}) => {
 	if (!canFix({
 		headRange,
 		decorators,
-		exportDeclaration,
 		exportToken,
 		defaultToken,
-		expectedStyle,
 		sourceCode,
 	})) {
 		return problem;
