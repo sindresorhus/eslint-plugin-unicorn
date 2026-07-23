@@ -31,6 +31,10 @@ test.snapshot({
 			code: 'import {type DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'import sqlite = require("node:sqlite"); const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'import {DatabaseSync} from "node:sqlite"; let Database = DatabaseSync; const database = new Database(":memory:"); database.exec(`SELECT ${value}`);',
 		'import {DatabaseSync} from "node:sqlite"; let Database; Database = DatabaseSync; const database = new Database(":memory:"); database.exec(`SELECT ${value}`);',
 		'import {DatabaseSync} from "node:sqlite"; let database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',

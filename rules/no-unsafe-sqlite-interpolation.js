@@ -67,6 +67,7 @@ const getNodeSqliteImportSpecifier = (node, context) => {
 	if (
 		!definition
 		|| definition.type !== 'ImportBinding'
+		|| definition.parent.type !== 'ImportDeclaration'
 		|| definition.parent.source.value !== 'node:sqlite'
 		|| !isRuntimeImportSpecifier(definition.node)
 	) {
