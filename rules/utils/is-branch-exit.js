@@ -183,7 +183,7 @@ export const isDefinitelyNotThrowingExpression = (node, context) =>
 		: isDefinitelyNotThrowing(node, context);
 
 const isDefinitelyNotThrowingReference = (node, context) => {
-	 node = unwrapTransparentTypeScriptExpression(node);
+	node = unwrapTransparentTypeScriptExpression(node);
 	if (node?.type === 'Identifier') {
 		return isDefinitelyDefinedReference(node, context);
 	}
@@ -289,7 +289,7 @@ export function hasOptionalChainInCurrentChain(node) {
 }
 
 export function isProcessExitCallAlwaysEvaluated(node, context) {
-	if (!isProcessExitCall(node, context)) {
+	if (!isProcessExitCallAtStart(node, context)) {
 		return false;
 	}
 
@@ -519,6 +519,11 @@ function isProcessExitExpression(node, context) {
 			return isProcessExitLogicalExpression(node, context);
 		}
 
+		case 'BinaryExpression': {
+			return isProcessExitExpression(node.left, context)
+				|| isProcessExitExpression(node.right, context);
+		}
+
 		default: {
 			return false;
 		}
@@ -638,6 +643,13 @@ const isProcessExitExpressionListAtStart = (expressions, context) => {
 	return false;
 };
 
+const isProcessExitCallAtStart = (node, context) =>
+	isProcessExitCall(node, context)
+	&& (
+		node.arguments.every(argument => isDefinitelyNotThrowingExpression(argument, context))
+		|| isProcessExitExpressionListAtStart(node.arguments, context)
+	);
+
 const isProcessExitTaggedTemplateExpressionAtStart = (node, context) => {
 	if (isProcessExitExpressionAtStart(node.tag, context)) {
 		return true;
@@ -671,7 +683,7 @@ const isProcessExitConditionalExpressionAtStart = (node, context) => {
 };
 
 export function isProcessExitExpressionAtStart(node, context) {
-	if (isProcessExitCall(node, context)) {
+	if (isProcessExitCallAtStart(node, context)) {
 		return true;
 	}
 
@@ -744,6 +756,14 @@ export function isProcessExitExpressionAtStart(node, context) {
 
 		case 'LogicalExpression': {
 			return isProcessExitLogicalExpressionAtStart(node, context);
+		}
+
+		case 'BinaryExpression': {
+			return isProcessExitExpressionAtStart(node.left, context)
+				|| (
+					isDefinitelyNotThrowingExpression(node.left, context)
+					&& isProcessExitExpressionAtStart(node.right, context)
+				);
 		}
 
 		case 'ConditionalExpression': {
@@ -881,7 +901,7 @@ const isProcessExitSwitchAtStart = (branch, context, checkTryStatements) => {
 		}
 
 		if (isProcessExitExpressionAtStart(switchCase.test, context)) {
-			continue;
+			return true;
 		}
 
 		if (
@@ -892,7 +912,7 @@ const isProcessExitSwitchAtStart = (branch, context, checkTryStatements) => {
 		}
 	}
 
-	return true;
+	return branch.cases.some(switchCase => switchCase.test === null);
 };
 
 const isProcessExitClassAtStart = (node, context, checkTryStatements) => {
@@ -1112,6 +1132,11 @@ function hasSwitchControlFlowExit(node, context) {
 }
 
 function isSwitchBranchExit(branch, context, branchAlwaysExits, checkTryStatements) {
+	const firstNonDefaultCase = branch.cases.find(switchCase => switchCase.test !== null);
+	if (firstNonDefaultCase?.test && isProcessExitExpressionAtStart(firstNonDefaultCase.test, context)) {
+		return true;
+	}
+
 	if (branch.cases.every(switchCase => switchCase.test !== null)) {
 		return false;
 	}

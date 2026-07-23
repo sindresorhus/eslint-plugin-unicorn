@@ -18,6 +18,19 @@ test.snapshot({
 				console.log(result);
 			}
 		`,
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (bar) {
+					try {
+						process.exit(maybeThrow());
+					} catch {
+						cleanup();
+					}
+				}
+				console.log(result);
+			}
+		`,
 		{
 			code: outdent`
 				import process from 'node:process';

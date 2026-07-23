@@ -14,9 +14,13 @@ test.snapshot({
 		`,
 		outdent`
 			function qux() {
-				process.exit();
 				if (foo) {
-					return;
+					try {
+						throw error;
+						process.exit(1);
+					} catch {
+						cleanup();
+					}
 				} else {
 					baz();
 				}
@@ -26,8 +30,7 @@ test.snapshot({
 			function qux() {
 				if (foo) {
 					try {
-						throw error;
-						process.exit(1);
+						process.exit(maybeThrow());
 					} catch {
 						cleanup();
 					}

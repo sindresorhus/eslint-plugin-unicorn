@@ -510,6 +510,7 @@ const isAlwaysEvaluatedMember = (node, child) =>
 const isAlwaysEvaluatedExpression = (node, child, context) => (
 	(node.type === 'SequenceExpression' && node.expressions.includes(child))
 	|| (node.type === 'LogicalExpression' && node.left === child)
+	|| (node.type === 'BinaryExpression' && (node.left === child || node.right === child))
 	|| (node.type === 'UnaryExpression' && node.argument === child)
 	|| (node.type === 'AwaitExpression' && node.argument === child)
 	|| (node.type === 'ConditionalExpression' && isBranchExit(node, context, isReturnOrThrowStatement))

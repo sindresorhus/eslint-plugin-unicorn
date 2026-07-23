@@ -69,6 +69,12 @@ test.snapshot({
 				resolve(otherValue);
 			});
 		`,
+		outdent`
+			new Promise((resolve, reject, extra = process.exit(1) + 1) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
 		{
 			code: outdent`
 				new Promise((resolve, reject, extra = process.exit(1) as never) => {
@@ -464,6 +470,30 @@ test.snapshot({
 					class Example {
 						static {}
 						static { process.exit(1); }
+					}
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					class Example extends process.exit(1) {}
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			const value = 1;
+			new Promise(resolve => {
+				try {
+					switch (value) {
+						case process.exit(1):
+						case 1:
 					}
 				} catch {}
 
@@ -1564,6 +1594,19 @@ test({
 		},
 	],
 	invalid: [
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						process.exit(maybeThrow());
+					} catch {
+						resolve(value);
+						resolve(otherValue);
+					}
+				});
+			`,
+			errors: [error],
+		},
 		{
 			code: outdent`
 				new Promise(resolve => {
