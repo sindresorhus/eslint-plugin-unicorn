@@ -36,6 +36,7 @@ test.snapshot({
 		'import {DatabaseSync} from "node:sqlite"; let database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
 		'import {DatabaseSync} from "other-sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
 		'class DatabaseSync { exec() {} } const database = new DatabaseSync(); database.exec(`SELECT ${value}`);',
+		'for (const Database of values) { const database = new Database(":memory:"); database.exec(`SELECT ${value}`); }',
 		'database.exec(`SELECT ${value}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec();',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(...queries);',

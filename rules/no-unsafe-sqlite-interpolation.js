@@ -62,7 +62,7 @@ const getSimpleConstVariableInfo = (node, context) => {
 
 const getImportSpecifierName = node => node.imported.type === 'Identifier' ? node.imported.name : node.imported.value;
 
-const isDatabaseSyncImport = (node, context) => {
+const getNodeSqliteImportSpecifier = (node, context) => {
 	const definition = getVariableInfo(node, context)?.definition;
 	if (
 		!definition
@@ -70,29 +70,26 @@ const isDatabaseSyncImport = (node, context) => {
 		|| definition.parent.source.value !== 'node:sqlite'
 		|| !isRuntimeImportSpecifier(definition.node)
 	) {
-		return false;
+		return;
 	}
 
-	return definition.node.type === 'ImportSpecifier'
-		&& getImportSpecifierName(definition.node) === 'DatabaseSync';
+	return definition.node;
+};
+
+const isDatabaseSyncImport = (node, context) => {
+	const specifier = getNodeSqliteImportSpecifier(node, context);
+	return specifier?.type === 'ImportSpecifier'
+		&& getImportSpecifierName(specifier) === 'DatabaseSync';
 };
 
 const isSqliteNamespaceImport = (node, context) => {
-	const definition = getVariableInfo(node, context)?.definition;
-	if (
-		!definition
-		|| definition.type !== 'ImportBinding'
-		|| definition.parent.source.value !== 'node:sqlite'
-		|| !isRuntimeImportSpecifier(definition.node)
-	) {
-		return false;
-	}
+	const specifier = getNodeSqliteImportSpecifier(node, context);
 
-	return definition.node.type === 'ImportNamespaceSpecifier'
-		|| definition.node.type === 'ImportDefaultSpecifier'
+	return specifier?.type === 'ImportNamespaceSpecifier'
+		|| specifier?.type === 'ImportDefaultSpecifier'
 		|| (
-			definition.node.type === 'ImportSpecifier'
-			&& getImportSpecifierName(definition.node) === 'default'
+			specifier?.type === 'ImportSpecifier'
+			&& getImportSpecifierName(specifier) === 'default'
 		);
 };
 
@@ -133,6 +130,10 @@ const isSqliteNamespaceRequireBinding = (node, context) => getNodeSqliteRequireB
 
 const isDatabaseSyncConstructor = (node, context, seenVariables = new Set()) => {
 	const callee = unwrapExpression(node);
+	if (!callee) {
+		return false;
+	}
+
 	if (callee.type === 'Identifier') {
 		if (isDatabaseSyncImport(callee, context) || isDatabaseSyncRequireBinding(callee, context)) {
 			return true;
