@@ -27,6 +27,9 @@ ruleTest.snapshot({
 		'const value = /* Get the value. */ 1;',
 		'/* eslint-disable no-console */',
 		'/* eslint-enable no-console */',
+		'/* jshint esversion: 6 */',
+		'/* jslint browser */',
+		'/* jscs:disable */',
 		'/* global value */',
 		'/* prettier-ignore */',
 		'/* @ts-ignore */',
@@ -50,6 +53,9 @@ ruleTest.snapshot({
 		'/* */',
 		'/*\n*\n*/',
 		'/**\n *\n */',
+		'/*\n\n*/',
+		'/**\n\n*/',
+		'/**\n * Value.\n */',
 		'/*\n*\nValue.\n*/',
 		'/** @jsxFrag Fragment */',
 		outdent`
@@ -64,6 +70,26 @@ ruleTest.snapshot({
 		'/*#__NO_SIDE_EFFECTS__*/\nfunction foo() {}',
 		{
 			code: '/** Another value. */',
+			options: ['single-line'],
+		},
+		{
+			code: '\t/** Value. */',
+			options: ['single-line'],
+		},
+		{
+			code: '\t/* Value. */',
+			options: ['single-line'],
+		},
+		{
+			code: '/**\n * First.\n * Second.\n */',
+			options: ['single-line'],
+		},
+		{
+			code: '/*\n\n*/',
+			options: ['single-line'],
+		},
+		{
+			code: '/**\n\n*/',
 			options: ['single-line'],
 		},
 		{
@@ -177,6 +203,10 @@ ruleTest({
 		},
 		{
 			code: '/**\n *\n */',
+			options: ['single-line'],
+		},
+		{
+			code: '/** * */',
 			options: ['single-line'],
 		},
 		{
@@ -393,6 +423,52 @@ ruleTest({
 			output: '/*\nFirst.\n*/\n/**\nSecond.\n*/',
 			errors: [error, error],
 		},
+		{
+			code: '/*\nFirst.\n*/\n/**\nSecond.\n*/',
+			options: ['single-line'],
+			output: '/* First. */\n/** Second. */',
+			errors: [error, error],
+		},
+		{
+			code: '/* Value. */',
+			options: ['multiline'],
+			output: '/*\nValue.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* Named multiline option. */',
+			options: ['multiline'],
+			output: '/*\nNamed multiline option.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/** Named multiline option. */',
+			options: ['multiline'],
+			output: '/**\nNamed multiline option.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* Mixed position.\n*/',
+			output: '/*\nMixed position.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/** Mixed position.\n*/',
+			output: '/**\nMixed position.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/*\nMixed position. */',
+			options: ['single-line'],
+			output: '/* Mixed position. */',
+			errors: [error],
+		},
+		{
+			code: '/**\nMixed position. */',
+			options: ['single-line'],
+			output: '/** Mixed position. */',
+			errors: [error],
+		},
 	],
 });
 
@@ -441,6 +517,16 @@ test('autofixes are idempotent', t => {
 		{
 			code: '/** * Value. */',
 			output: '/**\n* Value.\n*/',
+			options: [],
+		},
+		{
+			code: '/**\n *\n * Value.\n */',
+			output: '/**\n* Value.\n*/',
+			options: [],
+		},
+		{
+			code: '/** * */',
+			output: '/** * */',
 			options: [],
 		},
 	];

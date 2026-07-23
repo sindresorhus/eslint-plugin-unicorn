@@ -17,6 +17,7 @@ Comments with multiple content lines, block comments placed beside code, and dir
 
 ```js
 /** Get the value. */
+/* Get the value. */
 ```
 
 ## Options

@@ -10,7 +10,7 @@ const SINGLE_LINE = 'single-line';
 const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
 const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const DIRECTIVE_PATTERNS = [
-	/^\s*(?:eslint|globals?|exported|no default|noinspection)(?:\s|$)/v,
+	/^\s*(?:eslint(?:-env)?|jshint|jslint|jscs|globals?|exported|no default|noinspection)(?:\s|:|$)/v,
 	/^\s*(?:c8|istanbul|nyc|v8)\s+ignore(?:\s|$)/v,
 	/^\s*(?:biome|deno|dprint|oxlint|prettier)-(?:ignore|lint-ignore|disable|enable)(?:-(?:next-line|start|end))?(?:\s|$)/v,
 	/^\s*(?:cspell|spell-checker):/v,
@@ -99,7 +99,7 @@ const getSingleContentLine = (content, opening) => {
 	return contentLines[0].trim();
 };
 
-const isMultiline = content => {
+const isCanonicalMultiline = content => {
 	const lines = getContentLines(content);
 	return lines.length === 3 && lines[0].trim() === '' && lines[2].trim() === '';
 };
@@ -126,7 +126,7 @@ const getProblem = (context, comment, style) => {
 	const singleContentLine = getSingleContentLine(content, opening);
 
 	if (style === MULTILINE) {
-		if (!singleContentLine || isMultiline(content)) {
+		if (!singleContentLine || isCanonicalMultiline(content)) {
 			return;
 		}
 
