@@ -89,12 +89,19 @@ const getExpectedHeadText = ({style, decorators, exportText, sourceCode, indent}
 	}
 };
 
-const canFix = ({headRange, decorators, exportToken, defaultToken, sourceCode}) => {
+const canFix = ({headRange, decorators, exportToken, defaultToken, expectedStyle, sourceCode}) => {
 	const isInsideDecorator = nodeOrToken => decorators.some(decorator => isInRange(sourceCode.getRange(decorator), nodeOrToken, sourceCode));
 	const allowedTokens = new Set([
 		exportToken,
 		defaultToken,
 	].filter(Boolean));
+
+	const decoratorLocation = sourceCode.getLoc(decorators[0]);
+	const hasUnexpectedTokenBeforeDecorator = sourceCode.getTokensBefore(decorators[0])
+		.some(token => sourceCode.getLoc(token).end.line === decoratorLocation.start.line && !allowedTokens.has(token));
+	if (expectedStyle === STYLE_ABOVE && hasUnexpectedTokenBeforeDecorator) {
+		return false;
+	}
 
 	const hasUnexpectedToken = sourceCode.ast.tokens
 		.filter(token => isInRange(headRange, token, sourceCode))
@@ -153,6 +160,7 @@ const getProblem = ({exportDeclaration, expectedStyle, context}) => {
 		decorators,
 		exportToken,
 		defaultToken,
+		expectedStyle,
 		sourceCode,
 	})) {
 		return problem;

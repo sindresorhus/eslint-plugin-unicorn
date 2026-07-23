@@ -188,8 +188,8 @@ test({
 			],
 		},
 		{
-			code: '@foo export @bar class Foo {}',
-			output: '@foo @bar export class Foo {}',
+			code: '@foo export @bar @baz class Foo {}',
+			output: '@foo @bar @baz export class Foo {}',
 			options: ['before'],
 			errors: [
 				{
@@ -201,15 +201,49 @@ test({
 			],
 		},
 		{
-			code: '@foo export @bar class Foo {}',
-			output: 'export @foo @bar class Foo {}',
-			options: ['after'],
+			code: '@foo\nexport @bar class Foo {}',
+			output: '@foo\n@bar\nexport class Foo {}',
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 2,
+					column: 8,
+					endColumn: 12,
+				},
+			],
+		},
+		{
+			code: '@foo /* comment */ export @bar class Foo {}',
+			options: ['before'],
 			errors: [
 				{
 					messageId: 'consistent-export-decorator-position',
 					line: 1,
-					column: 1,
-					endColumn: 5,
+					column: 27,
+					endColumn: 31,
+				},
+			],
+		},
+		{
+			code: '/* comment */ @decorator export class Foo {}',
+			output: '/* comment */ @decorator\nexport class Foo {}',
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 15,
+					endColumn: 25,
+				},
+			],
+		},
+		{
+			code: 'namespace N { @decorator export class Foo {} }',
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 15,
+					endColumn: 25,
 				},
 			],
 		},
