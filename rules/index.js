@@ -327,6 +327,7 @@ export {default as 'require-number-to-fixed-digits-argument'} from './require-nu
 export {default as 'require-passive-events'} from './require-passive-events.js';
 export {default as 'require-post-message-target-origin'} from './require-post-message-target-origin.js';
 export {default as 'require-proxy-trap-boolean-return'} from './require-proxy-trap-boolean-return.js';
+export {default as 'single-line-block-comment-style'} from './single-line-block-comment-style.js';
 export {default as 'string-content'} from './string-content.js';
 export {default as 'switch-case-braces'} from './switch-case-braces.js';
 export {default as 'switch-case-break-position'} from './switch-case-break-position.js';
