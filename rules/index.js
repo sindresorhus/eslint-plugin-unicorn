@@ -1,5 +1,6 @@
 // Generated file, DO NOT edit
 
+export {default as 'arrow-return-style'} from './arrow-return-style.js';
 export {default as 'better-dom-traversing'} from './better-dom-traversing.js';
 export {default as 'catch-error-name'} from './catch-error-name.js';
 export {default as 'class-reference-in-static-methods'} from './class-reference-in-static-methods.js';

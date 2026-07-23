@@ -1,0 +1,78 @@
+import {parsers, getTester} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'const value = () => foo;',
+		'const value = () =>\n\t\tfoo;',
+		'const value = () => {\n\t\tfoo();\n\t\treturn bar;\n\t};',
+		'const value = () => { /* Keep this block. */ return foo; };',
+		'const value = () => /* Keep this comment. */\n\t\tfoo(\n\t\t\tbar,\n\t\t);',
+		'const value = () => foo(\n\t\t/* Keep this comment. */\n\t\tbar,\n\t);',
+		'export const value = () => foo;',
+		'const value = () => {\n\t\treturn {\n\t\t\tfoo: bar,\n\t\t};\n\t};',
+		'const value = () => {\n\t\treturn (\n\t\t\tfoo\n\t\t);\n\t};',
+		'const value = () => {\n\t\treturn (foo,\n\t\t\tbar);\n\t};',
+	],
+	invalid: [
+		'const value = () => foo(\n\t\tbar,\n\t);',
+		'const value = () =>\n\tfoo(\n\t\tbar,\n\t);',
+		'const value = () => (\n\t\tfoo\n\t);',
+		'const value = () => (\n\t\tfoo(\n\t\t\tbar,\n\t\t)\n\t);',
+		'const value = () => ({\n\t\tfoo: bar,\n\t});',
+		'const value = () => ({\n\tfoo: bar,\n});',
+		'const value = () => `foo\nbar`;',
+		'const value = () => {\n\t\treturn foo;\n\t};',
+		'const value = () => {\n\t\treturn {};\n\t};',
+		'const value = () => {\n\t\treturn (foo, bar);\n\t};',
+		'const value = () => {\n\t\treturn foo;\n\t}\n[bar];',
+		'const value = () => {\n\t\treturn this;\n\t}\n[bar];',
+		'const value = () => {\n\t\treturn function () {};\n\t}\n[bar];',
+		'const value = () => {\n\t\treturn foo;\n\t}\n/bar/.test(value);',
+		'const value = () => {\n\t\treturn foo;\n\t}\n`bar`;',
+		String.raw`const value = () => 'foo\
+bar';`,
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+			},
+		},
+	},
+	valid: [
+		'const Div = () => <div />;',
+		'const Div = () => {\n\t\treturn (\n\t\t\t<>\n\t\t\t\t<div />\n\t\t\t</>\n\t\t);\n\t};',
+	],
+	invalid: [
+		'const Div = () => (\n\t\t<>\n\t\t\t<div />\n\t\t</>\n\t);',
+		'const Div = () => (\n\t<div>\n\t\ttext\n\t</div>\n);',
+		'const value = () => {\n\t\treturn foo;\n\t}\n<div />;',
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [
+		'const value = (input: string): string => input;',
+		'const value = (input: string): string =>\n\t\tinput;',
+	],
+	invalid: [
+		'const value = (input: string): string => getValue(\n\t\tinput,\n\t);',
+		'const value = (\n\tcallback: (\n\t\tinput: string,\n\t) => string,\n): string => getValue(\n\t\tinput,\n\t);',
+		'const value = (input: string): string => {\n\t\treturn input;\n\t};',
+		'const value = (): Foo => {\n\t\treturn {} as Foo;\n\t};',
+		'const value = (): Foo => {\n\t\treturn {} satisfies Foo;\n\t};',
+		'const value = (): Foo => {\n\t\treturn {}!;\n\t};',
+	],
+});
