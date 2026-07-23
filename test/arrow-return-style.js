@@ -44,12 +44,32 @@ bar';`,
 test({
 	valid: [],
 	invalid: [{
+		code: 'const value = () => {\n\t\treturn {foo: bar}.foo;\n\t};',
+		output: 'const value = () => ({foo: bar}.foo);',
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'const value = () => {\n\t\treturn {foo: bar}[key];\n\t};',
+		output: 'const value = () => ({foo: bar}[key]);',
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
 		code: 'const value = () => foo(\r\n\t\tbar,\r\n\t);',
 		output: 'const value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\r\n};',
 		errors: [{messageId: 'useExplicitReturn'}],
 	}, {
 		code: 'const values = [\r\t() => foo(\r\t\tbar,\r\t),\r];',
 		output: 'const values = [\r\t() => {\r\t\treturn foo(\r\t\t\tbar,\r\t\t);\r\t},\r];',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const first = 1;\nconst value = () => foo(\r\n\t\tbar,\r\n\t);',
+		output: 'const first = 1;\nconst value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\r\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const value = () => foo(\u2028\t\tbar,\u2028\t);',
+		output: 'const value = () => {\u2028\treturn foo(\u2028\t\t\tbar,\u2028\t\t);\u2028};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const value = () => foo(\u2029\t\tbar,\u2029\t);',
+		output: 'const value = () => {\u2029\treturn foo(\u2029\t\t\tbar,\u2029\t\t);\u2029};',
 		errors: [{messageId: 'useExplicitReturn'}],
 	}],
 });

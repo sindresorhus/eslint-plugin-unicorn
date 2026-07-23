@@ -47,7 +47,7 @@ const hasPotentiallyUnsafeNextToken = token =>
 	|| token.type === 'RegularExpression'
 	|| token.type === 'Template';
 
-const linebreakPattern = /\r\n|[\n\r]/;
+const linebreakPattern = /\r\n|[\n\r\u2028\u2029]/;
 const isMultiline = text => linebreakPattern.test(text);
 
 const getReturnStatement = node => {
@@ -103,7 +103,8 @@ const isInsideForStatementInitializer = node => {
 const getReturnArgumentText = (returnArgument, context) => {
 	const text = getParenthesizedText(returnArgument, context);
 	const underlyingExpression = getUnderlyingExpression(returnArgument);
-	const needsParentheses = returnArgumentTypesRequiringParentheses.has(underlyingExpression.type)
+	const needsParentheses = text.startsWith('{')
+		|| returnArgumentTypesRequiringParentheses.has(underlyingExpression.type)
 		|| (
 			underlyingExpression.type === 'BinaryExpression'
 			&& underlyingExpression.operator === 'in'
@@ -137,17 +138,21 @@ const getBodyText = (text, shouldIndent, linebreak) => {
 	return lines.join(linebreak);
 };
 
+const getLinebreak = (sourceCode, range) =>
+	sourceCode.text.slice(...range).match(linebreakPattern)?.[0] ?? '\n';
+
 const getExplicitReturnFix = (node, context) => {
 	const {sourceCode} = context;
 	const arrowToken = getArrowToken(node, context);
 	const bodyRange = getParenthesizedRange(node.body, context);
+	const [, arrowEnd] = sourceCode.getRange(arrowToken);
 	const bodyStartToken = sourceCode.getTokenAfter(arrowToken);
 	const bodyStartsOnArrowLine = sourceCode.getLoc(bodyStartToken).start.line === sourceCode.getLoc(arrowToken).start.line;
 	if (bodyStartsOnArrowLine && hasMultilineSignificantWhitespace(node, sourceCode)) {
 		return;
 	}
 
-	const linebreak = sourceCode.text.match(linebreakPattern)?.[0] ?? '\n';
+	const linebreak = getLinebreak(sourceCode, [arrowEnd, bodyRange[1]]);
 	const bodyText = getBodyText(
 		node.body.type === 'ObjectExpression' ? sourceCode.getText(node.body) : sourceCode.text.slice(...bodyRange),
 		bodyStartsOnArrowLine,
@@ -156,7 +161,7 @@ const getExplicitReturnFix = (node, context) => {
 	const indentation = getLineIndent(sourceCode, arrowToken);
 	const replacement = `{${linebreak}${indentation}\treturn ${bodyText};${linebreak}${indentation}}`;
 
-	return fixer => fixer.replaceTextRange([sourceCode.getRange(arrowToken)[1], bodyRange[1]], ` ${replacement}`);
+	return fixer => fixer.replaceTextRange([arrowEnd, bodyRange[1]], ` ${replacement}`);
 };
 
 const getImplicitReturnFix = (node, returnStatement, context) => {
