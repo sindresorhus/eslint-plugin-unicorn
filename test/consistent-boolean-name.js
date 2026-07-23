@@ -1638,6 +1638,11 @@ ruleTest({
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
 		}),
 		typescript({
+			name: 'generic async Promise aliases reject misleading prefixes',
+			code: 'type Result<T> = Promise<T>; async function isReady(): Result<string> {}',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
 			name: 'generic async PromiseLike aliases require prefixes',
 			code: 'type Result<T> = PromiseLike<T>; async function completed(): Result<boolean> {}',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
@@ -1671,6 +1676,21 @@ ruleTest({
 			name: 'generic synchronous callable interfaces require prefixes',
 			code: 'interface Predicate<T> { (): T; } const completed: Predicate<boolean> = getReady;',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'inherited generic callable interfaces require prefixes',
+			code: 'interface Base<T> { (): T; } interface Predicate<T> extends Base<T> {} const completed: Predicate<boolean> = getReady;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'inherited generic async callable interfaces require prefixes',
+			code: 'interface Base<T> { (): Promise<T>; } interface Predicate<T> extends Base<T> {} const completed: Predicate<boolean> = getReady;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'inherited generic async callable interfaces reject misleading prefixes',
+			code: 'interface Base<T> { (): Promise<T>; } interface Predicate<T> extends Base<T> {} declare const isReady: Predicate<string>;',
+			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'generic value aliases require prefixes',

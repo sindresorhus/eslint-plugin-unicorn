@@ -295,7 +295,7 @@ const isBooleanAsyncFunction = (node, context) =>
 
 function getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
-	if (!normalizedTypeState.functionTypesAreBoolean || !isFunctionTypeAnnotation(node, context, scope)) {
+	if (!normalizedTypeState.functionTypesAreBoolean || !isCallableTypeAnnotation(node, context, scope)) {
 		return unknown;
 	}
 
@@ -312,7 +312,7 @@ const isBooleanFunctionLikeTypeAnnotation = (node, context, scope) =>
 	isBooleanFunctionTypeAnnotation(node, context, scope)
 	|| isBooleanAsyncFunctionTypeAnnotation(node, context, scope)
 	|| (
-		isFunctionTypeAnnotation(node, context, scope)
+		isCallableTypeAnnotation(node, context, scope)
 		&& getDirectTypeAnnotationBooleanState(node, context, scope, {allowNullish: false}) === boolean
 	);
 
@@ -597,6 +597,48 @@ function getTypeArguments(node) {
 	return node?.typeArguments?.params ?? node?.typeParameters?.params;
 }
 
+function isCallableTypeAnnotation(node, context, scope, visitedTypeReferenceNames = new Set()) {
+	if (isFunctionTypeAnnotation(node, context, scope)) {
+		return true;
+	}
+
+	if (node?.type === 'TSTypeAnnotation' || node?.type === 'TSParenthesizedType') {
+		return isCallableTypeAnnotation(node.typeAnnotation, context, scope, visitedTypeReferenceNames);
+	}
+
+	if (node?.type === 'TSUnionType') {
+		const types = node.types.filter(type => !nullishTypeAnnotationTypes.has(type.type));
+		return types.length > 0 && types.every(type => isCallableTypeAnnotation(type, context, scope, visitedTypeReferenceNames));
+	}
+
+	if (node?.type !== 'TSTypeReference') {
+		return false;
+	}
+
+	const name = getTypeReferenceName(node.typeName);
+	if (!name || visitedTypeReferenceNames.has(name)) {
+		return false;
+	}
+
+	const [definition] = resolveVariableName(name, scope)?.defs ?? [];
+	if (definition?.type !== 'Type') {
+		return false;
+	}
+
+	const nextVisitedTypeReferenceNames = new Set(visitedTypeReferenceNames);
+	nextVisitedTypeReferenceNames.add(name);
+	const definitionScope = context.sourceCode.getScope(definition.node);
+	if (definition.node.type === 'TSInterfaceDeclaration') {
+		return getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
+			getReturnTypeBooleanState: () => unknown,
+			visitedInterfaceNames: new Set([name]),
+		}).length > 0;
+	}
+
+	return definition.node.type === 'TSTypeAliasDeclaration'
+		&& isCallableTypeAnnotation(definition.node.typeAnnotation, context, definitionScope, nextVisitedTypeReferenceNames);
+}
+
 function isBooleanTypeAnnotatedValue(node, context) {
 	const {typeAnnotation} = node;
 	if (!typeAnnotation) {
@@ -670,10 +712,49 @@ function getTypeMembersBooleanState(members, context, scope, typeState) {
 	return members.length > 0 ? nonBoolean : unknown;
 }
 
+function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {typeState, getReturnTypeBooleanState, visitedInterfaceNames = new Set()}) {
+	const normalizedTypeState = getTypeState(typeState);
+	let callSignatureStates = [];
+	if (normalizedTypeState.functionTypesAreBoolean) {
+		callSignatureStates = interfaceNode.body.body
+			.filter(member => member.type === 'TSCallSignatureDeclaration')
+			.map(member => getReturnTypeBooleanState(member.returnType, context, scope, normalizedTypeState));
+	} else if (interfaceNode.body.body.some(member => member.type === 'TSCallSignatureDeclaration')) {
+		callSignatureStates = [nonBoolean];
+	}
+
+	for (const heritage of interfaceNode.extends ?? []) {
+		const name = getTypeReferenceName(heritage.expression);
+		if (!name || visitedInterfaceNames.has(name)) {
+			continue;
+		}
+
+		const [definition] = resolveVariableName(name, scope)?.defs ?? [];
+		if (definition?.type !== 'Type' || definition.node.type !== 'TSInterfaceDeclaration') {
+			continue;
+		}
+
+		const definitionScope = context.sourceCode.getScope(definition.node);
+		const definitionTypeState = {
+			...normalizedTypeState,
+			typeParameterTypes: getTypeParameterTypes(definition.node, getTypeArguments(heritage), normalizedTypeState),
+		};
+		const nextVisitedInterfaceNames = new Set(visitedInterfaceNames);
+		nextVisitedInterfaceNames.add(name);
+		callSignatureStates.push(...getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
+			typeState: definitionTypeState,
+			getReturnTypeBooleanState,
+			visitedInterfaceNames: nextVisitedInterfaceNames,
+		}));
+	}
+
+	return callSignatureStates;
+}
+
 function getTypeReferenceBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
 	const {visitedTypeReferenceNames} = normalizedTypeState;
-	const name = getTypeReferenceName(node.typeName);
+	const name = getTypeReferenceName(node.typeName ?? node.expression);
 	if (!name || visitedTypeReferenceNames.has(name)) {
 		return unknown;
 	}
@@ -693,7 +774,15 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 		if (definition.node.type === 'TSTypeAliasDeclaration') {
 			result = getDirectTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, definitionTypeState);
 		} else if (definition.node.type === 'TSInterfaceDeclaration') {
-			result = getTypeMembersBooleanState(definition.node.body.body, context, definitionScope, definitionTypeState);
+			const callSignatureStates = getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
+				typeState: definitionTypeState,
+				getReturnTypeBooleanState: (returnType, context, scope, typeState) =>
+					getTypeAnnotationBooleanState(returnType, context, scope, {...typeState, functionTypesAreBoolean: false}),
+				visitedInterfaceNames: new Set([name]),
+			});
+			result = callSignatureStates.length > 0
+				? combineBooleanStates(callSignatureStates)
+				: getTypeMembersBooleanState(definition.node.body.body, context, definitionScope, definitionTypeState);
 		}
 	}
 
@@ -782,7 +871,7 @@ function getTypeAnnotationBooleanState(node, context, scope, typeState) {
 
 function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
-	const name = getTypeReferenceName(node.typeName);
+	const name = getTypeReferenceName(node.typeName ?? node.expression);
 	const typeParameter = getTypeParameterResolution(node, normalizedTypeState);
 	if (typeParameter) {
 		return getPromisedTypeAnnotationBooleanState(typeParameter.type, context, scope, typeParameter.typeState);
@@ -817,7 +906,15 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 		if (definition.node.type === 'TSTypeAliasDeclaration') {
 			result = getPromisedTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, definitionTypeState);
 		} else if (definition.node.type === 'TSInterfaceDeclaration') {
-			result = getPromisedTypeMembersBooleanState(definition.node.body.body, context, definitionScope, definitionTypeState);
+			const callSignatureStates = getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
+				typeState: definitionTypeState,
+				getReturnTypeBooleanState: (returnType, context, scope, typeState) =>
+					getPromisedTypeAnnotationBooleanState(returnType, context, scope, typeState),
+				visitedInterfaceNames: new Set([name]),
+			});
+			result = callSignatureStates.length > 0
+				? combineBooleanStates(callSignatureStates)
+				: getPromisedTypeMembersBooleanState(definition.node.body.body, context, definitionScope, definitionTypeState);
 		}
 	}
 
