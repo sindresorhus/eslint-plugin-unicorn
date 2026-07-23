@@ -4,6 +4,7 @@ import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
 const {test: ruleTest, rule} = getTester(import.meta);
+const error = {messageId: 'single-line-block-comment-style'};
 
 ruleTest.snapshot({
 	valid: [
@@ -35,7 +36,6 @@ ruleTest.snapshot({
 		'/* oxlint-enable no-console */',
 		'/**/',
 		'/* */',
-		'/* * */',
 		'/*\n*\n*/',
 		'/**\n *\n */',
 		'/*\n*\nValue.\n*/',
@@ -47,6 +47,7 @@ ruleTest.snapshot({
 		`,
 		'\u2028/**\u2028Value.\u2028*/\u2028',
 		'// Get the value.',
+		'/*! License. */',
 		{
 			code: '/** Another value. */',
 			options: ['single-line'],
@@ -123,8 +124,145 @@ const getConfig = options => ({
 	},
 });
 
+ruleTest({
+	valid: [
+		{
+			code: outdent`
+				/**
+				First line.
+				Second line.
+				*/
+			`,
+			options: ['single-line'],
+		},
+		{
+			code: 'const value = /* Get the value. */ 1;',
+			options: ['single-line'],
+		},
+		{
+			code: '/* eslint-disable rule-to-test/single-line-block-comment-style */',
+			options: ['single-line'],
+		},
+		{
+			code: '/* */',
+			options: ['single-line'],
+		},
+		{
+			code: '/*! License. */',
+			options: ['single-line'],
+		},
+	],
+	invalid: [
+		{
+			code: '/* Value. */',
+			output: '/*\nValue.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/** Value. */',
+			output: '/**\nValue.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/*\nValue.\n*/',
+			options: ['single-line'],
+			output: '/* Value. */',
+			errors: [error],
+		},
+		{
+			code: '/**\nValue.\n*/',
+			options: ['single-line'],
+			output: '/** Value. */',
+			errors: [error],
+		},
+		{
+			code: '\t/** Value. */',
+			output: '\t/**\n\tValue.\n\t*/',
+			errors: [error],
+		},
+		{
+			code: '/* Value. */\r\n',
+			output: '/*\r\nValue.\r\n*/\r\n',
+			errors: [error],
+		},
+		{
+			code: '\t/**\r\nValue.\r\n\t*/',
+			options: ['single-line'],
+			output: '\t/** Value. */',
+			errors: [error],
+		},
+		{
+			code: '/**\n * Value.\n */',
+			options: ['single-line'],
+			output: '/** * Value. */',
+			errors: [error],
+		},
+		{
+			code: '/** * Value. */',
+			output: '/**\n* Value.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* * */',
+			output: '/*\n*\n*/',
+			errors: [error],
+		},
+		{
+			code: '/*\n*\n*/',
+			options: ['single-line'],
+			output: '/* * */',
+			errors: [error],
+		},
+		{
+			code: '/* eslinted */',
+			output: '/*\neslinted\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* globalize */',
+			output: '/*\nglobalize\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* exportedValue */',
+			output: '/*\nexportedValue\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* prettier-ignorefoo */',
+			output: '/*\nprettier-ignorefoo\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* prettier-ignore-foo */',
+			output: '/*\nprettier-ignore-foo\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* @ts-ignore-foo */',
+			output: '/*\n@ts-ignore-foo\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* * global value */',
+			output: '/*\n* global value\n*/',
+			errors: [error],
+		},
+		{
+			code: 'const value = 1;\nconst otherValue = 2;\r\n/** Value. */',
+			output: 'const value = 1;\nconst otherValue = 2;\r\n/**\r\nValue.\r\n*/',
+			errors: [error],
+		},
+	],
+});
+
 test('autofixes are idempotent', t => {
 	const testCases = [
+		{
+			code: '/* Value */',
+			output: '/*\nValue\n*/',
+			options: [],
+		},
 		{
 			code: '/** Value */',
 			output: '/**\nValue\n*/',
@@ -133,6 +271,31 @@ test('autofixes are idempotent', t => {
 		{
 			code: '/**\nValue\n*/',
 			output: '/** Value */',
+			options: ['single-line'],
+		},
+		{
+			code: '/*\nValue\n*/',
+			output: '/* Value */',
+			options: ['single-line'],
+		},
+		{
+			code: '/**\nValue\n*/',
+			output: '/** Value */',
+			options: ['single-line'],
+		},
+		{
+			code: '/* * */',
+			output: '/*\n*\n*/',
+			options: [],
+		},
+		{
+			code: '/*\n*\n*/',
+			output: '/* * */',
+			options: ['single-line'],
+		},
+		{
+			code: '\t/**\r\nValue.\r\n\t*/',
+			output: '\t/** Value. */',
 			options: ['single-line'],
 		},
 	];

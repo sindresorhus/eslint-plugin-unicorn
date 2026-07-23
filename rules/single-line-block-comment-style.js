@@ -8,9 +8,14 @@ const MESSAGE_ID = 'single-line-block-comment-style';
 const MULTILINE = 'multiline';
 const SINGLE_LINE = 'single-line';
 const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
-const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
-const DIRECTIVE_PATTERN = /^\s*(?:eslint(?:-env)?|globals?|exported|no default\b|noinspection\b|(?:c8|istanbul|nyc|v8)\s+ignore\b|(?:biome|deno|dprint|oxlint|prettier)-|(?:cspell|spell-checker):)/v;
-const TYPESCRIPT_DIRECTIVE_PATTERN = /^\s*@(?:ts-(?:check|nocheck|ignore|expect-error)|jsx(?:Frag|ImportSource|Runtime|Factory)?|(?:no)?flow|(?:jest|vitest)-environment)\b/v;
+const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/gv;
+const DIRECTIVE_PATTERNS = [
+	/^\s*(?:eslint(?:-env)?|globals?|exported|no default|noinspection)(?:\s|$)/v,
+	/^\s*(?:c8|istanbul|nyc|v8)\s+ignore(?:\s|$)/v,
+	/^\s*(?:biome|deno|dprint|oxlint|prettier)-(?:ignore|lint-ignore|disable|enable)(?:-(?:next-line|start|end))?(?:\s|$)/v,
+	/^\s*(?:cspell|spell-checker):/v,
+];
+const TYPESCRIPT_DIRECTIVE_PATTERN = /^\s*@(?:ts-(?:check|nocheck|ignore|expect-error)|jsx(?:Frag|ImportSource|Runtime|Factory)?|(?:no)?flow|(?:jest|vitest)-environment)(?:\s|$)/v;
 
 const messages = {
 	[MESSAGE_ID]: 'Use a {{style}} block comment.',
@@ -32,36 +37,37 @@ const isStandalone = (sourceCode, [start, end]) => (
 	&& getLineSuffix(sourceCode, end).trim() === ''
 );
 
-const getLineEnding = (sourceCode, end, content) =>
+const getLineEnding = (sourceCode, [start, end], content) =>
 	content.match(LINE_ENDING_PATTERN)?.[0]
 	?? sourceCode.text.slice(end).match(LINE_ENDING_PATTERN)?.[0]
+	?? sourceCode.text.slice(0, start).match(LINE_ENDING_PATTERN)?.at(-1)
 	?? sourceCode.text.match(LINE_ENDING_PATTERN)?.[0]
 	?? '\n';
 
 const getOpeningDelimiter = text => text.startsWith('/**') && text[3] !== '*' ? '/**' : '/*';
 
-const getCommentText = comment => comment.value
+const getCommentText = (comment, opening) => comment.value
 	.split(LINE_ENDING_PATTERN)
-	.map(line => line.replace(/^\s*\*?\s*/v, ''))
+	.map(line => line.replace(opening === '/**' ? /^\s*\*?\s*/v : /^\s*/v, ''))
 	.join('\n');
 
-const isDirective = (context, comment) => {
+const isDirective = (context, comment, text) => {
 	if (isEslintDisableOrEnableDirective(context, comment)) {
 		return true;
 	}
 
-	const commentText = getCommentText(comment);
-	return DIRECTIVE_PATTERN.test(commentText) || TYPESCRIPT_DIRECTIVE_PATTERN.test(commentText);
+	const commentText = getCommentText(comment, getOpeningDelimiter(text));
+	return DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText)) || TYPESCRIPT_DIRECTIVE_PATTERN.test(commentText);
 };
 
 const getContentLines = content => content.split(LINE_ENDING_PATTERN);
 
-const getSingleContentLine = content => {
+const getSingleContentLine = (content, opening) => {
 	const contentLines = getContentLines(content).filter(line => line.trim() !== '');
 
 	if (
 		contentLines.length !== 1
-		|| contentLines[0].trim() === '*'
+		|| (opening === '/**' && contentLines[0].trim() === '*')
 	) {
 		return;
 	}
@@ -75,7 +81,7 @@ const isMultiline = content => {
 };
 
 const getProblem = (context, comment, style) => {
-	if (comment.type !== 'Block' || isDirective(context, comment)) {
+	if (comment.type !== 'Block') {
 		return;
 	}
 
@@ -87,9 +93,13 @@ const getProblem = (context, comment, style) => {
 	}
 
 	const text = sourceCode.text.slice(...range);
+	if (text.startsWith('/*!') || isDirective(context, comment, text)) {
+		return;
+	}
+
 	const opening = getOpeningDelimiter(text);
 	const content = text.slice(opening.length, -2);
-	const singleContentLine = getSingleContentLine(content);
+	const singleContentLine = getSingleContentLine(content, opening);
 
 	if (style === MULTILINE) {
 		if (!singleContentLine || isMultiline(content)) {
@@ -97,7 +107,7 @@ const getProblem = (context, comment, style) => {
 		}
 
 		const linePrefix = getLinePrefix(sourceCode, range[0]);
-		const lineEnding = getLineEnding(sourceCode, range[1], content);
+		const lineEnding = getLineEnding(sourceCode, range, content);
 		const fixedText = `${opening}${lineEnding}${linePrefix}${singleContentLine}${lineEnding}${linePrefix}*/`;
 
 		return {
