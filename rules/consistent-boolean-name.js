@@ -715,17 +715,23 @@ function hasTypeParameterReference(node, name) {
 	return false;
 }
 
-function resolveTypeParameterType(node, typeState) {
+function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = new Set()) {
 	const typeParameter = getTypeParameterResolution(node, typeState);
 	if (typeParameter) {
-		return resolveTypeParameterType(typeParameter.type, typeParameter.typeState);
+		if (resolvedTypeParameterTypes.has(typeParameter.type)) {
+			return typeParameter.type;
+		}
+
+		const nextResolvedTypeParameterTypes = new Set(resolvedTypeParameterTypes);
+		nextResolvedTypeParameterTypes.add(typeParameter.type);
+		return resolveTypeParameterType(typeParameter.type, typeParameter.typeState, nextResolvedTypeParameterTypes);
 	}
 
 	if (
 		node?.type === 'TSTypeAnnotation'
 		|| node?.type === 'TSParenthesizedType'
 	) {
-		const typeAnnotation = resolveTypeParameterType(node.typeAnnotation, typeState);
+		const typeAnnotation = resolveTypeParameterType(node.typeAnnotation, typeState, resolvedTypeParameterTypes);
 		return typeAnnotation === node.typeAnnotation ? node : {...node, typeAnnotation};
 	}
 
@@ -733,7 +739,7 @@ function resolveTypeParameterType(node, typeState) {
 		node?.type === 'TSUnionType'
 		|| node?.type === 'TSIntersectionType'
 	) {
-		const types = node.types.map(type => resolveTypeParameterType(type, typeState));
+		const types = node.types.map(type => resolveTypeParameterType(type, typeState, resolvedTypeParameterTypes));
 		return types.every((type, index) => type === node.types[index]) ? node : {...node, types};
 	}
 
@@ -746,7 +752,7 @@ function resolveTypeParameterType(node, typeState) {
 		return node;
 	}
 
-	const resolvedTypeArguments = typeArguments.map(type => resolveTypeParameterType(type, typeState));
+	const resolvedTypeArguments = typeArguments.map(type => resolveTypeParameterType(type, typeState, resolvedTypeParameterTypes));
 	if (resolvedTypeArguments.every((type, index) => type === typeArguments[index])) {
 		return node;
 	}
