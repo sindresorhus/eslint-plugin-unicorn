@@ -98,6 +98,22 @@ test.snapshot({
 		outdent`
 			new Promise(resolve => {
 				try {
+					switch (value) {
+						case 1:
+							process.exit(1);
+							cleanup();
+						default:
+							process.exit(2);
+					}
+				} finally {
+					resolve(value);
+					resolve(otherValue);
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
 					process.exit(1);
 				} finally {
 					resolve(value);

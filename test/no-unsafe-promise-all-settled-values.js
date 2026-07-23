@@ -100,6 +100,21 @@ test.snapshot({
 				return result.value;
 			});
 		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					switch (result.reason.code) {
+						case 'fatal':
+							process.exit(1);
+							cleanup();
+						default:
+							throw result.reason;
+					}
+				}
+
+				return result.value;
+			});
+		`,
 		'const values = (await Promise.all(promises)).map(result => result.value);',
 		'const values = results.map(result => result.value);',
 		'const values = await Promise.allSettled(promises);',

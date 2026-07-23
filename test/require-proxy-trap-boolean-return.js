@@ -18,6 +18,7 @@ test({
 		'new Proxy(target, {set() { try { cleanup(); } finally { process.exit(1); } }});',
 		'new Proxy(target, {set() { if (condition ? process.exit(1) : process.exit(2)) {} }});',
 		'new Proxy(target, {set() { switch (value) { case 1: process.exit(1); default: process.exit(2); } }});',
+		'new Proxy(target, {set() { switch (value) { case 1: process.exit(1); cleanup(); default: process.exit(2); } }});',
 		'new Proxy(target, handler);',
 		'new Proxy(target, {get() {}});',
 		'new Proxy(target, {apply() {}});',

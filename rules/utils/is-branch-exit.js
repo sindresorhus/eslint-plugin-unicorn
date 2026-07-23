@@ -19,6 +19,7 @@ export const isProcessExitCall = (node, context) =>
 const isTransparentTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node) || node?.type === 'TSInstantiationExpression';
 const isReturnOrThrowStatement = node => node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
 const isThrowStatement = node => node.type === 'ThrowStatement';
+const isNeverExiting = () => false;
 
 const isProcessExitStatement = (node, context) =>
 	node.type === 'ExpressionStatement'
@@ -145,6 +146,10 @@ export function isProcessExitBranch(branch, context, checkTryStatements = true) 
 		return isProcessExitTryStatement(branch, context, checkTryStatements);
 	}
 
+	if (branch.type === 'SwitchStatement') {
+		return isSwitchBranchExit(branch, context, isNeverExiting, checkTryStatements);
+	}
+
 	if (branch.type === 'IfStatement' && isProcessExitExpression(branch.test, context)) {
 		return true;
 	}
@@ -181,7 +186,7 @@ function hasSwitchControlFlowExit(node, context) {
 	return false;
 }
 
-function isSwitchBranchExit(branch, context, branchAlwaysExits) {
+function isSwitchBranchExit(branch, context, branchAlwaysExits, checkTryStatements) {
 	if (branch.cases.every(switchCase => switchCase.test !== null)) {
 		return false;
 	}
@@ -193,20 +198,16 @@ function isSwitchBranchExit(branch, context, branchAlwaysExits) {
 			return false;
 		}
 
-		const lastStatement = switchCase.consequent.at(-1);
-		if (!lastStatement) {
+		const caseExits = switchCase.consequent.some(statement =>
+			isBranchExit(statement, context, branchAlwaysExits)
+			|| isProcessExitBranch(statement, context, checkTryStatements),
+		);
+		if (!caseExits) {
 			if (!exits) {
 				return false;
 			}
 
 			continue;
-		}
-
-		if (
-			!isBranchExit(lastStatement, context, branchAlwaysExits)
-			&& !isProcessExitBranch(lastStatement, context)
-		) {
-			return false;
 		}
 
 		exits = true;
@@ -250,7 +251,7 @@ export default function isBranchExit(branch, context, branchAlwaysExits) {
 	}
 
 	if (branch.type === 'SwitchStatement') {
-		return isSwitchBranchExit(branch, context, branchAlwaysExits);
+		return isSwitchBranchExit(branch, context, branchAlwaysExits, false);
 	}
 
 	return (
