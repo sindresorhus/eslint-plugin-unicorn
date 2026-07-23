@@ -27,6 +27,26 @@ test.snapshot({
 		outdent`
 			const values = (await Promise.allSettled(promises)).map(result => {
 				if (result.status !== 'fulfilled') {
+					label: {
+						process.exit(1);
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					report(process.exit(1));
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
 					(cleanup(), process.exit(1));
 				}
 
@@ -199,6 +219,27 @@ test.snapshot({
 			`,
 			languageOptions: {sourceType: 'module'},
 		},
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					label: {
+						break label;
+						process.exit(1);
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					report(() => process.exit(1));
+				}
+
+				return result.value;
+			});
+		`,
 		outdent`
 			const values = (await Promise.allSettled(promises)).map(result => {
 				if (result.status !== 'fulfilled') {

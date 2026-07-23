@@ -11,6 +11,11 @@ const errors = [
 test({
 	valid: [
 		'new Proxy(target, {set() { process.exit(1); }});',
+		'new Proxy(target, {set() { label: { process.exit(1); } }});',
+		'new Proxy(target, {set() { label: { process.exit(1); break label; } }});',
+		'new Proxy(target, {set() { report(process.exit(1)); }});',
+		'new Proxy(target, {set() { report(new Report(process.exit(1))); }});',
+		'new Proxy(target, {set() { process.exit(1)?.toString(); }});',
 		'new Proxy(target, {set() { process.exit(1); cleanup(); }});',
 		'new Proxy(target, {set() { (cleanup(), process.exit(1)); }});',
 		'new Proxy(target, {set() { ((cleanup(), process.exit(1))); }});',
@@ -82,6 +87,14 @@ test({
 		},
 		{
 			code: 'new Proxy(target, {set(process) { process.exit(1); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { label: { break label; process.exit(1); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { report(() => process.exit(1)); }});',
 			errors,
 		},
 		{

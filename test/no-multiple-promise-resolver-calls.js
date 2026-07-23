@@ -70,6 +70,16 @@ test.snapshot({
 		outdent`
 			new Promise(resolve => {
 				try {
+					process.exit(1)?.toString();
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
 					throw error;
 				} catch {
 					if (condition) {

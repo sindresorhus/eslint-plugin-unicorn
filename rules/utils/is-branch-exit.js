@@ -25,33 +25,128 @@ const isProcessExitStatement = (node, context) =>
 	node.type === 'ExpressionStatement'
 	&& isProcessExitExpression(node.expression, context);
 
-function isProcessExitExpression(node, context) {
-	if (isProcessExitCall(node, context)) {
+function hasOptionalChain(node) {
+	if (node?.type === 'ChainExpression') {
 		return true;
 	}
 
-	if (node?.type === 'UnaryExpression' || node?.type === 'AwaitExpression') {
-		return isProcessExitExpression(node.argument, context);
+	if (node?.type === 'MemberExpression') {
+		return node.optional || hasOptionalChain(node.object);
+	}
+
+	return node?.type === 'CallExpression'
+		&& (node.optional || hasOptionalChain(node.callee));
+}
+
+function isProcessExitCallOrNewExpression(node, context) {
+	if (isProcessExitExpression(node.callee, context)) {
+		return true;
+	}
+
+	if (node.type === 'CallExpression' && hasOptionalChain(node.callee)) {
+		return false;
+	}
+
+	return node.arguments.some(argument => isProcessExitExpression(argument, context));
+}
+
+const isProcessExitMemberExpression = (node, context) =>
+	isProcessExitExpression(node.object, context)
+	|| (node.computed && !node.optional && isProcessExitExpression(node.property, context));
+
+const isProcessExitConditionalExpression = (node, context) =>
+	isProcessExitExpression(node.test, context)
+	|| (
+		isProcessExitExpression(node.consequent, context)
+		&& isProcessExitExpression(node.alternate, context)
+	);
+
+function isProcessExitExpression(node, context) {
+	if (isProcessExitCall(node, context)) {
+		return true;
 	}
 
 	if (isTransparentTypeScriptExpressionWrapper(node)) {
 		return isProcessExitExpression(node.expression, context);
 	}
 
-	if (node?.type === 'SequenceExpression') {
-		return node.expressions.some(expression => isProcessExitExpression(expression, context));
+	switch (node?.type) {
+		case 'ChainExpression': {
+			return isProcessExitExpression(node.expression, context);
+		}
+
+		case 'CallExpression':
+		case 'NewExpression': {
+			return isProcessExitCallOrNewExpression(node, context);
+		}
+
+		case 'MemberExpression': {
+			return isProcessExitMemberExpression(node, context);
+		}
+
+		case 'UnaryExpression':
+		case 'AwaitExpression': {
+			return isProcessExitExpression(node.argument, context);
+		}
+
+		case 'SequenceExpression': {
+			return node.expressions.some(expression => isProcessExitExpression(expression, context));
+		}
+
+		case 'ConditionalExpression': {
+			return isProcessExitConditionalExpression(node, context);
+		}
+
+		case 'LogicalExpression': {
+			return isProcessExitExpression(node.left, context);
+		}
+
+		default: {
+			return false;
+		}
+	}
+}
+
+function hasLabeledBreakBeforeProcessExit(node, context, labelName) {
+	if (!node || isFunction(node)) {
+		return false;
 	}
 
-	if (node?.type === 'ConditionalExpression') {
-		return isProcessExitExpression(node.test, context)
-			|| (
-				isProcessExitExpression(node.consequent, context)
-				&& isProcessExitExpression(node.alternate, context)
-			);
+	if (node.type === 'BreakStatement') {
+		return node.label?.name === labelName;
 	}
 
-	return node?.type === 'LogicalExpression'
-		&& isProcessExitExpression(node.left, context);
+	if (node.type === 'LabeledStatement' && node.label.name === labelName) {
+		return false;
+	}
+
+	if (isProcessExitExpression(node.expression, context)) {
+		return false;
+	}
+
+	if (node.type === 'BlockStatement') {
+		for (const statement of node.body) {
+			if (hasLabeledBreakBeforeProcessExit(statement, context, labelName)) {
+				return true;
+			}
+
+			if (isProcessExitBranch(statement, context)) {
+				return false;
+			}
+		}
+
+		return false;
+	}
+
+	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
+		const value = node[key];
+		const children = Array.isArray(value) ? value : [value];
+		if (children.some(child => hasLabeledBreakBeforeProcessExit(child, context, labelName))) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 function isProcessExitExpressionAtStart(node, context) {
@@ -65,6 +160,18 @@ function isProcessExitExpressionAtStart(node, context) {
 
 	if (isTransparentTypeScriptExpressionWrapper(node)) {
 		return isProcessExitExpressionAtStart(node.expression, context);
+	}
+
+	if (node?.type === 'ChainExpression') {
+		return isProcessExitExpressionAtStart(node.expression, context);
+	}
+
+	if (node?.type === 'CallExpression') {
+		return isProcessExitExpressionAtStart(node.callee, context);
+	}
+
+	if (node?.type === 'MemberExpression') {
+		return isProcessExitExpressionAtStart(node.object, context);
 	}
 
 	if (node?.type === 'SequenceExpression') {
@@ -140,6 +247,11 @@ export function isProcessExitBranch(branch, context, checkTryStatements = true) 
 
 	if (branch.type === 'CatchClause') {
 		return isProcessExitBranch(branch.body, context, checkTryStatements);
+	}
+
+	if (branch.type === 'LabeledStatement') {
+		return !hasLabeledBreakBeforeProcessExit(branch.body, context, branch.label.name)
+			&& isProcessExitBranch(branch.body, context, checkTryStatements);
 	}
 
 	if (branch.type === 'TryStatement') {
