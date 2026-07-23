@@ -384,6 +384,23 @@ test.snapshot({
 					try {
 						const value = 1;
 						switch (value) {
+							default:
+								break;
+							case process.exit(1):
+								{}
+						}
+					} catch {}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						const value = 1;
+						switch (value) {
 							case 2:
 								process.exit(1);
 						}

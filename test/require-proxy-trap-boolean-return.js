@@ -25,6 +25,7 @@ test({
 		'new Proxy(target, {set() { ((cleanup(), process.exit(1))); }});',
 		'new Proxy(target, {set() { try { process.exit(1); } finally { cleanup(); } }});',
 		'new Proxy(target, {set() { try { cleanup(); } finally { process.exit(1); } }});',
+		'new Proxy(target, {set() { try { process.exit(1); } catch { cleanup(); } }});',
 		'new Proxy(target, {set() { if (condition ? process.exit(1) : process.exit(2)) {} }});',
 		'new Proxy(target, {set() { switch (value) { case 1: process.exit(1); default: process.exit(2); } }});',
 		'new Proxy(target, {set() { switch (value) { case process.exit(1): } }});',
@@ -127,6 +128,14 @@ test({
 		},
 		{
 			code: 'new Proxy(target, {set() { try { ((maybeThrow(), process.exit(1))); } catch { cleanup(); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { process.exit(maybeThrow()); } catch { cleanup(); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { switch (value) { case 1: return true; default: break; case process.exit(1): {} } }});',
 			errors,
 		},
 		{

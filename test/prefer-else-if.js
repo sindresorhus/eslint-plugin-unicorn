@@ -70,6 +70,35 @@ test.snapshot({
 				}
 			}
 		`,
+		// A previous branch can exit through an exhaustive switch of terminal process.exit calls.
+		outdent`
+			function handleSignal(signal, value) {
+				if (signal === 'SIGINT') {
+					switch (value) {
+						case 1:
+							process.exit(130);
+					default:
+							process.exit(1);
+					}
+				}
+
+				if (signal === 'SIGTERM') {}
+			}
+		`,
+		// A previous branch can exit through a catch that always calls process.exit.
+		outdent`
+			function handleSignal(signal) {
+				if (signal === 'SIGINT') {
+					try {
+						throw error;
+					} catch {
+						process.exit(130);
+					}
+				}
+
+				if (signal === 'SIGTERM') {}
+			}
+		`,
 		outdent`
 			while (unicorn) {
 				if (foo === 1) {

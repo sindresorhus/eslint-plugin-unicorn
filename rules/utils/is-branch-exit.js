@@ -814,11 +814,12 @@ function isProcessExitTryStatement(branch, context, checkTryStatements) {
 		: isProcessExitBranch(branch.block, context, checkTryStatements);
 
 	if (!checkTryStatements) {
-		return (
-			!branch.finalizer
-			|| branch.block.body.length > 1
-		)
-		&& tryBlockAlwaysExits;
+		return tryBlockAlwaysExits
+			|| (
+				branch.handler
+				&& isBranchExit(branch.block, context, isThrowStatement)
+				&& isProcessExitBranch(branch.handler, context, false)
+			);
 	}
 
 	if (tryBlockAlwaysExits) {
@@ -902,11 +903,11 @@ const isProcessExitSwitchAtStart = (branch, context, checkTryStatements) => {
 		}
 
 		if (
-			switchCase.test !== null
-			&& (
-				!isDefinitelyNotThrowingExpression(switchCase.test, context)
-				|| !isProcessExitSwitchCaseAtStart(branch.cases, index, context, checkTryStatements)
+			(
+				switchCase.test !== null
+				&& !isDefinitelyNotThrowingExpression(switchCase.test, context)
 			)
+			|| !isProcessExitSwitchCaseAtStart(branch.cases, index, context, checkTryStatements)
 		) {
 			return false;
 		}
@@ -1089,9 +1090,60 @@ export function isProcessExitBranch(branch, context, checkTryStatements = true) 
 	);
 }
 
-function hasSwitchControlFlowExitInStatements(statements, context) {
+function getControlFlowTarget(node) {
+	let current = node.parent;
+	if (node.label) {
+		while (current && !isFunction(current)) {
+			if (current.type === 'LabeledStatement' && current.label.name === node.label.name) {
+				return current.body;
+			}
+
+			current = current.parent;
+		}
+
+		return;
+	}
+
+	const isBreak = node.type === 'BreakStatement';
+	while (current && !isFunction(current)) {
+		if ((isBreak && (isLoop(current) || current.type === 'SwitchStatement')) || (!isBreak && isLoop(current))) {
+			return current;
+		}
+
+		current = current.parent;
+	}
+}
+
+function isBreakFromSwitch(node, switchStatement) {
+	return getControlFlowTarget(node) === switchStatement;
+}
+
+function isControlFlowExitFromSwitch(node, switchStatement) {
+	if (node.type !== 'BreakStatement' && node.type !== 'ContinueStatement') {
+		return false;
+	}
+
+	const target = getControlFlowTarget(node);
+	if (!target || target === switchStatement || (!isLoop(target) && target.type !== 'SwitchStatement')) {
+		return false;
+	}
+
+	for (let current = switchStatement.parent; current; current = current.parent) {
+		if (current === target) {
+			return true;
+		}
+
+		if (isFunction(current)) {
+			break;
+		}
+	}
+
+	return false;
+}
+
+function hasSwitchControlFlowExitInStatements(statements, context, switchStatement) {
 	for (const statement of statements) {
-		if (hasSwitchControlFlowExit(statement, context)) {
+		if (hasSwitchControlFlowExit(statement, context, switchStatement)) {
 			return true;
 		}
 
@@ -1107,17 +1159,17 @@ function hasSwitchControlFlowExitInStatements(statements, context) {
 	return false;
 }
 
-function hasSwitchControlFlowExit(node, context) {
+function hasSwitchControlFlowExit(node, context, switchStatement) {
 	if (!node || isFunction(node)) {
 		return false;
 	}
 
-	if (node.type === 'BreakStatement' || node.type === 'ContinueStatement') {
+	if (node.type === 'BreakStatement' && isBreakFromSwitch(node, switchStatement)) {
 		return true;
 	}
 
 	if (node.type === 'BlockStatement') {
-		return hasSwitchControlFlowExitInStatements(node.body, context);
+		return hasSwitchControlFlowExitInStatements(node.body, context, switchStatement);
 	}
 
 	if (isLoop(node) || node.type === 'SwitchStatement') {
@@ -1127,7 +1179,7 @@ function hasSwitchControlFlowExit(node, context) {
 	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
 		const value = node[key];
 		const children = Array.isArray(value) ? value : [value];
-		if (children.some(child => hasSwitchControlFlowExit(child, context))) {
+		if (children.some(child => hasSwitchControlFlowExit(child, context, switchStatement))) {
 			return true;
 		}
 	}
@@ -1139,11 +1191,13 @@ function isSwitchBranchExit(branch, context, branchAlwaysExits, checkTryStatemen
 	const caseExits = [];
 	const caseBranchAlwaysExits = branchAlwaysExits === isNeverExiting
 		? branchAlwaysExits
-		: branch => isReturnOrThrowStatement(branch) || branchAlwaysExits(branch);
+		: caseBranch => isReturnOrThrowStatement(caseBranch)
+			|| branchAlwaysExits(caseBranch)
+			|| isControlFlowExitFromSwitch(caseBranch, branch);
 	let fallThroughExits = false;
 	for (let index = branch.cases.length - 1; index >= 0; index--) {
 		const switchCase = branch.cases[index];
-		if (hasSwitchControlFlowExitInStatements(switchCase.consequent, context)) {
+		if (hasSwitchControlFlowExitInStatements(switchCase.consequent, context, branch)) {
 			fallThroughExits = false;
 		} else {
 			const caseConsequentExits = switchCase.consequent.some(statement =>
@@ -1162,7 +1216,6 @@ function isSwitchBranchExit(branch, context, branchAlwaysExits, checkTryStatemen
 	if (firstProcessExitCaseIndex !== -1) {
 		return branch.cases.every((switchCase, index) =>
 			index >= firstProcessExitCaseIndex
-			|| switchCase.test === null
 			|| caseExits[index],
 		);
 	}

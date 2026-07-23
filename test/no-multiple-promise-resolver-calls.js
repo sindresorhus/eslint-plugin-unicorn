@@ -1043,6 +1043,21 @@ test.snapshot({
 	],
 	invalid: [
 		outdent`
+			new Promise(resolve => {
+				try {
+					switch (value) {
+						default:
+							break;
+						case process.exit(1):
+							{}
+					}
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
 			new Promise((resolve, reject) => {
 				try {
 					try {

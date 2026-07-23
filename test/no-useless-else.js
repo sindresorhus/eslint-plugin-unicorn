@@ -190,6 +190,23 @@ test.snapshot({
 				}
 			}
 		`,
+		// A `default` before a later process.exit case can be selected without evaluating that case test.
+		outdent`
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							return;
+					default:
+						break;
+					case process.exit(1):
+						{}
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
 		// `try` whose `catch` falls through.
 		outdent`
 			function qux() {
@@ -389,21 +406,27 @@ test.snapshot({
 		outdent`
 			function qux() {
 				if (foo) {
-					try {
+					if (bar) {
 						process.exit();
-					} finally {
-						cleanup();
 					}
 				} else {
 					baz();
 				}
 			}
 		`,
+		// A bound switch discriminant cannot throw before the later process.exit case test.
 		outdent`
-			function qux() {
+			function qux(value) {
 				if (foo) {
-					if (bar) {
-						process.exit();
+					try {
+						switch (value) {
+						default:
+							break;
+						case process.exit(1):
+							{}
+						}
+					} catch {
+						cleanup();
 					}
 				} else {
 					baz();
@@ -1098,35 +1121,74 @@ test.snapshot({
 				}
 			}
 		`,
-		// Switch case tests are evaluated before a later `default` case body runs.
 		outdent`
 			function qux() {
 				if (foo) {
-					switch (value) {
-						case 1:
-							return;
-					default:
-						break;
-					case process.exit(1):
-						{}
+					try {
+						throw error;
+					} catch {
+						process.exit(1);
 					}
 				} else {
 					baz();
 				}
 			}
 		`,
-		// A bound switch discriminant cannot throw before the later process.exit case test.
 		outdent`
-			function qux(value) {
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							local: {
+								break local;
+							}
+
+							process.exit(1);
+						default:
+							process.exit(2);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// A labeled `break` targeting an enclosing loop exits the whole consequent.
+		outdent`
+			outer: while (condition) {
+				if (foo) {
+					switch (value) {
+						case 1:
+							break outer;
+					default:
+							process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// A labeled `continue` targeting an enclosing loop exits the whole consequent.
+		outdent`
+			outer: while (condition) {
+				if (foo) {
+					switch (value) {
+						case 1:
+							continue outer;
+					default:
+							process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// A direct global process.exit() is terminal even when it appears in a try block with a finally.
+		outdent`
+			function qux() {
 				if (foo) {
 					try {
-						switch (value) {
-						default:
-							break;
-						case process.exit(1):
-							{}
-						}
-					} catch {
+						process.exit();
+					} finally {
 						cleanup();
 					}
 				} else {
