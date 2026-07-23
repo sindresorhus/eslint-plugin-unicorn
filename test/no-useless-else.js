@@ -173,6 +173,23 @@ test.snapshot({
 				}
 			}
 		`,
+		// A matching case can break before a later process.exit case test is evaluated.
+		outdent`
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							break;
+					default:
+						break;
+					case process.exit(1):
+						{}
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
 		// `try` whose `catch` falls through.
 		outdent`
 			function qux() {
@@ -1075,6 +1092,42 @@ test.snapshot({
 						return;
 					} else {
 						process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// Switch case tests are evaluated before a later `default` case body runs.
+		outdent`
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							return;
+					default:
+						break;
+					case process.exit(1):
+						{}
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// A bound switch discriminant cannot throw before the later process.exit case test.
+		outdent`
+			function qux(value) {
+				if (foo) {
+					try {
+						switch (value) {
+						default:
+							break;
+						case process.exit(1):
+							{}
+						}
+					} catch {
+						cleanup();
 					}
 				} else {
 					baz();

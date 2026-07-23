@@ -887,32 +887,36 @@ const isProcessExitSwitchAtStart = (branch, context, checkTryStatements) => {
 		return true;
 	}
 
-	if (!isDefinitelyNotThrowingExpression(branch.discriminant, context)) {
+	if (!isDefinitelyNotThrowingReference(branch.discriminant, context)) {
 		return false;
 	}
 
+	const firstProcessExitCaseIndex = branch.cases.findIndex(switchCase =>
+		switchCase.test && isProcessExitExpressionAtStart(switchCase.test, context),
+	);
+	const defaultCaseIndex = branch.cases.findIndex(switchCase => switchCase.test === null);
+
 	for (const [index, switchCase] of branch.cases.entries()) {
-		if (switchCase.test === null) {
-			if (!isProcessExitSwitchCaseAtStart(branch.cases, index, context, checkTryStatements)) {
-				return false;
-			}
-
-			continue;
-		}
-
-		if (isProcessExitExpressionAtStart(switchCase.test, context)) {
-			return true;
+		if (firstProcessExitCaseIndex !== -1 && index >= firstProcessExitCaseIndex) {
+			break;
 		}
 
 		if (
-			!isDefinitelyNotThrowingExpression(switchCase.test, context)
-			|| !isProcessExitSwitchCaseAtStart(branch.cases, index, context, checkTryStatements)
+			switchCase.test !== null
+			&& (
+				!isDefinitelyNotThrowingExpression(switchCase.test, context)
+				|| !isProcessExitSwitchCaseAtStart(branch.cases, index, context, checkTryStatements)
+			)
 		) {
 			return false;
 		}
 	}
 
-	return branch.cases.some(switchCase => switchCase.test === null);
+	return firstProcessExitCaseIndex !== -1
+		|| (
+			defaultCaseIndex !== -1
+			&& isProcessExitSwitchCaseAtStart(branch.cases, defaultCaseIndex, context, checkTryStatements)
+		);
 };
 
 const isProcessExitClassAtStart = (node, context, checkTryStatements) => {
@@ -1132,36 +1136,39 @@ function hasSwitchControlFlowExit(node, context) {
 }
 
 function isSwitchBranchExit(branch, context, branchAlwaysExits, checkTryStatements) {
-	const firstNonDefaultCase = branch.cases.find(switchCase => switchCase.test !== null);
-	if (firstNonDefaultCase?.test && isProcessExitExpressionAtStart(firstNonDefaultCase.test, context)) {
-		return true;
-	}
-
-	if (branch.cases.every(switchCase => switchCase.test !== null)) {
-		return false;
-	}
-
+	const caseExits = [];
+	const caseBranchAlwaysExits = branchAlwaysExits === isNeverExiting
+		? branchAlwaysExits
+		: branch => isReturnOrThrowStatement(branch) || branchAlwaysExits(branch);
 	let fallThroughExits = false;
 	for (let index = branch.cases.length - 1; index >= 0; index--) {
 		const switchCase = branch.cases[index];
 		if (hasSwitchControlFlowExitInStatements(switchCase.consequent, context)) {
-			return false;
+			fallThroughExits = false;
+		} else {
+			const caseConsequentExits = switchCase.consequent.some(statement =>
+				isBranchExit(statement, context, caseBranchAlwaysExits)
+				|| isProcessExitBranch(statement, context, checkTryStatements),
+			);
+			fallThroughExits = caseConsequentExits || fallThroughExits;
 		}
 
-		const caseConsequentExits = switchCase.consequent.some(statement =>
-			isBranchExit(statement, context, branchAlwaysExits)
-			|| isProcessExitBranch(statement, context, checkTryStatements),
-		);
-		const caseEntryExits = switchCase.test
-			&& isProcessExitExpressionAtStart(switchCase.test, context);
-		if (!caseEntryExits && !caseConsequentExits && !fallThroughExits) {
-			return false;
-		}
-
-		fallThroughExits = caseConsequentExits || fallThroughExits;
+		caseExits[index] = fallThroughExits;
 	}
 
-	return fallThroughExits;
+	const firstProcessExitCaseIndex = branch.cases.findIndex(switchCase =>
+		switchCase.test && isProcessExitExpressionAtStart(switchCase.test, context),
+	);
+	if (firstProcessExitCaseIndex !== -1) {
+		return branch.cases.every((switchCase, index) =>
+			index >= firstProcessExitCaseIndex
+			|| switchCase.test === null
+			|| caseExits[index],
+		);
+	}
+
+	return branch.cases.some(switchCase => switchCase.test === null)
+		&& caseExits.every(Boolean);
 }
 
 /**
