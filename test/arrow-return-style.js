@@ -1,19 +1,24 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import {parsers, getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest, rule} = getTester(import.meta);
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'const value = () => foo;',
 		'const value = () =>\n\t\tfoo;',
 		'const value = () => {\n\t\tfoo();\n\t\treturn bar;\n\t};',
 		'const value = () => { /* Keep this block. */ return foo; };',
+		'const value = () => { return; };',
 		'const value = () => /* Keep this comment. */\n\t\tfoo(\n\t\t\tbar,\n\t\t);',
 		'const value = () => foo(\n\t\t/* Keep this comment. */\n\t\tbar,\n\t);',
 		'export const value = () => foo;',
 		'const value = () => {\n\t\treturn {\n\t\t\tfoo: bar,\n\t\t};\n\t};',
 		'const value = () => {\n\t\treturn (\n\t\t\tfoo\n\t\t);\n\t};',
 		'const value = () => {\n\t\treturn (foo,\n\t\t\tbar);\n\t};',
+		'const value = () => { return (\u2028foo\u2028); };',
+		'const value = () => { return (\u2029foo\u2029); };',
 	],
 	invalid: [
 		'const value = () => foo(\n\t\tbar,\n\t);',
@@ -41,7 +46,7 @@ bar';`,
 	],
 });
 
-test({
+ruleTest({
 	valid: [
 		'const value = () => { return (foo /* Keep this comment. */); };',
 	],
@@ -52,6 +57,31 @@ test({
 	}, {
 		code: 'const value = () => {\n\t\treturn {foo: bar}[key];\n\t};',
 		output: 'const value = () => ({foo: bar}[key]);',
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'const value = (): Foo => {\n\t\treturn (foo, bar) as Foo;\n\t};',
+		output: 'const value = (): Foo => ((foo, bar) as Foo);',
+		languageOptions: {parser: parsers.typescript},
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'const value = (): Foo => {\n\t\treturn (foo, bar) satisfies Foo;\n\t};',
+		output: 'const value = (): Foo => ((foo, bar) satisfies Foo);',
+		languageOptions: {parser: parsers.typescript},
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'const value = (): Foo => {\n\t\treturn (foo, bar)!;\n\t};',
+		output: 'const value = (): Foo => ((foo, bar)!);',
+		languageOptions: {parser: parsers.typescript},
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'const value = (): Foo => {\n\t\treturn <Foo>foo, bar;\n\t};',
+		output: 'const value = (): Foo => (<Foo>foo, bar);',
+		languageOptions: {parser: parsers.typescript},
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'const value = (): Foo => {\n\t\treturn <Foo>(foo, bar);\n\t};',
+		output: 'const value = (): Foo => <Foo>(foo, bar);',
+		languageOptions: {parser: parsers.typescript},
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {
 		code: 'const value = () => foo(\n\t() => {\n\t\treturn bar;\n\t},\n);',
@@ -87,7 +117,28 @@ test({
 	}],
 });
 
-test.snapshot({
+test('fixes nested arrows in multiple passes', t => {
+	const code = 'const value = () => foo(\n\t() => {\n\t\treturn bar;\n\t},\n);';
+	const linter = new Linter({configType: 'flat'});
+	const result = linter.verifyAndFix(code, {
+		languageOptions: {ecmaVersion: 'latest'},
+		plugins: {
+			test: {
+				rules: {
+					'arrow-return-style': rule,
+				},
+			},
+		},
+		rules: {
+			'test/arrow-return-style': 'error',
+		},
+	});
+
+	t.is(result.output, 'const value = () => {\n\treturn foo(\n\t\t() => bar,\n\t);\n};');
+	t.deepEqual(result.messages, []);
+});
+
+ruleTest.snapshot({
 	testerOptions: {
 		languageOptions: {
 			parserOptions: {
@@ -108,7 +159,7 @@ test.snapshot({
 	],
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	testerOptions: {
 		languageOptions: {
 			parser: parsers.typescript,
