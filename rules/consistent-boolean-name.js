@@ -1567,7 +1567,7 @@ function getTypeScriptModuleIdentity(node) {
 function getMemberReportIdentity(node, sourceCode) {
 	if (typeScriptMemberTypes.has(node.type)) {
 		const interfaceNode = node.parent?.parent;
-		const interfaceName = interfaceNode?.id?.name;
+		const interfaceName = interfaceNode?.type === 'TSInterfaceDeclaration' ? interfaceNode.id.name : undefined;
 		if (interfaceName) {
 			const {
 				namespaceNames,
@@ -1579,7 +1579,7 @@ function getMemberReportIdentity(node, sourceCode) {
 
 			const isExportedInterface = interfaceNode.parent?.type === 'ExportNamedDeclaration';
 			if (namespaceNames.length > 0 && !isAmbient && !isExportedInterface) {
-				return {owner: interfaceNode.parent};
+				return {owner: interfaceNode.parent, name: interfaceName};
 			}
 
 			const ownerName = namespaceNames[0] ?? interfaceName;
@@ -1604,6 +1604,17 @@ const getMemberReportKey = node => [
 	node.static ? 'static' : 'instance',
 	node.key?.type === 'PrivateIdentifier' ? 'private' : 'public',
 ].join(':');
+
+function getPromisedReturnTypeBooleanState(node, context, scope) {
+	const state = getPromisedTypeAnnotationBooleanState(node, context, scope, {functionTypesAreBoolean: false, allowNullish: false});
+	if (state !== unknown) {
+		return state;
+	}
+
+	return getPromisedTypeAnnotationBooleanState(node, context, scope, {functionTypesAreBoolean: false}) === nonBoolean
+		? nonBoolean
+		: unknown;
+}
 
 function getParameterPropertyNameNode(node) {
 	const parameter = unwrapParameter(node.parameter);
@@ -1662,7 +1673,7 @@ function isBooleanProperty(node, context) {
 		const scope = sourceCode.getScope(node);
 
 		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean
-			|| getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean;
+			|| getPromisedReturnTypeBooleanState(node.returnType, context, scope) === boolean;
 	}
 
 	return false;
@@ -1714,7 +1725,7 @@ function getExplicitPropertyBooleanState(node, context) {
 		}
 
 		const scope = sourceCode.getScope(node);
-		const stateFromPromisedReturnType = getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false});
+		const stateFromPromisedReturnType = getPromisedReturnTypeBooleanState(node.returnType, context, scope);
 
 		return stateFromPromisedReturnType === unknown
 			? getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false})

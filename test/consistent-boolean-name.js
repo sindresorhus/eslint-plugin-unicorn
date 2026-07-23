@@ -1931,6 +1931,12 @@ ruleTest({
 			errors: 1,
 		}),
 		typescript({
+			name: 'nullable non-boolean method returns are prohibited',
+			code: 'interface Task { isReady(): Promise<string> | undefined; }',
+			options: [{checkMethods: 'prohibit'}],
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
 			name: 'constructor fields are checked independently of arguments',
 			code: 'class Task { constructor(public completed: boolean) {} }',
 			options: [{checkArguments: 'never', checkFields: 'always'}],
@@ -2084,10 +2090,22 @@ ruleTest({
 			errors: 1,
 		}),
 		typescript({
+			name: 'different interfaces in one namespace report independently',
+			code: 'namespace First { interface Task { completed(): boolean; } interface Job { completed(): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 2,
+		}),
+		typescript({
 			name: 'merged interface fields report once',
 			code: 'interface Task { completed: boolean; } interface Task { completed: boolean; }',
 			options: [{checkFields: 'always'}],
 			errors: 1,
+		}),
+		typescript({
+			name: 'same-name type aliases report independently',
+			code: 'namespace First { type Task = { completed(): boolean; }; type Task = { completed(value: string): boolean; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 2,
 		}),
 		typescript({
 			name: 'overloaded method signatures in namespace-merged interfaces report once',
