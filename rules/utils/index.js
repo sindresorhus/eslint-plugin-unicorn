@@ -110,8 +110,10 @@ export {
 	hasOptionalChainInCurrentChain,
 	isProcessExitBranch,
 	isProcessExitBranchAtStart,
+	isProcessExitBlockAtStart,
 	isProcessExitCall,
 	isProcessExitCallAlwaysEvaluated,
+	isProcessExitExpressionAtStart,
 } from './is-branch-exit.js';
 export {default as isShorthandImportLocal} from './is-shorthand-import-local.js';
 export {default as isStrongPrecedenceNode} from './is-strong-precedence-node.js';

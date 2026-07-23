@@ -35,8 +35,29 @@ const isProcessExitStatement = (node, context) =>
 const isDefinitelyNotThrowing = (node, context) =>
 	getStaticValue(node, context.sourceCode.getScope(node)) !== null;
 
+const isDefinitelyNotThrowingStatement = (node, context) =>
+	node.type === 'ExpressionStatement'
+	&& isDefinitelyNotThrowing(node.expression, context);
+
+const isReturnWithoutValue = node => node.type === 'ReturnStatement' && !node.argument;
+
+const isNonThrowingConditionalReturn = (node, context) =>
+	node.type === 'IfStatement'
+	&& !node.alternate
+	&& isDefinitelyNotThrowing(node.test, context)
+	&& (
+		isReturnWithoutValue(node.consequent)
+		|| (
+			node.consequent.type === 'BlockStatement'
+			&& node.consequent.body.length === 1
+			&& isReturnWithoutValue(node.consequent.body[0])
+		)
+	);
+
 const isProcessExitVariableDeclaration = (node, context) =>
 	node.declarations.some(declaration => declaration.init && isProcessExitExpression(declaration.init, context));
+
+const isUsingDeclaration = node => node.kind === 'using' || node.kind === 'await using';
 
 const isProcessExitVariableDeclarationAtStart = (node, context) => {
 	for (const declaration of node.declarations) {
@@ -48,6 +69,10 @@ const isProcessExitVariableDeclarationAtStart = (node, context) => {
 			return true;
 		}
 
+		if (isUsingDeclaration(node)) {
+			return false;
+		}
+
 		if (!isDefinitelyNotThrowing(declaration.init, context)) {
 			return false;
 		}
@@ -55,6 +80,34 @@ const isProcessExitVariableDeclarationAtStart = (node, context) => {
 
 	return false;
 };
+
+const isProcessExitStatementListAtStart = (statements, context, checkTryStatements) => {
+	for (const statement of statements) {
+		if (isProcessExitBranchAtStart(statement, context, checkTryStatements)) {
+			return true;
+		}
+
+		if (isNonThrowingConditionalReturn(statement, context)) {
+			continue;
+		}
+
+		if (
+			!isDefinitelyNotThrowingStatement(statement, context)
+			&& (
+				statement.type !== 'VariableDeclaration'
+				|| isUsingDeclaration(statement)
+				|| statement.declarations.some(declaration => declaration.init && !isDefinitelyNotThrowing(declaration.init, context))
+			)
+		) {
+			return false;
+		}
+	}
+
+	return false;
+};
+
+export const isProcessExitBlockAtStart = (branch, context, checkTryStatements = true) =>
+	isProcessExitStatementListAtStart(branch.body, context, checkTryStatements);
 
 export function hasOptionalChainInCurrentChain(node) {
 	if (node?.type === 'MemberExpression') {
@@ -113,6 +166,18 @@ function isProcessExitCallOrNewExpression(node, context) {
 	return node.arguments.some(argument => isProcessExitExpression(argument, context));
 }
 
+function isProcessExitCallOrNewExpressionAtStart(node, context) {
+	if (isProcessExitExpressionAtStart(node.callee, context)) {
+		return true;
+	}
+
+	if (node.type === 'CallExpression' && (node.optional || hasOptionalChainInCurrentChain(node.callee))) {
+		return false;
+	}
+
+	return isProcessExitExpressionListAtStart(node.arguments, context);
+}
+
 const isProcessExitMemberExpression = (node, context) =>
 	isProcessExitExpression(node.object, context)
 	|| (
@@ -128,6 +193,18 @@ const isProcessExitConditionalExpression = (node, context) =>
 		isProcessExitExpression(node.consequent, context)
 		&& isProcessExitExpression(node.alternate, context)
 	);
+
+const isProcessExitObjectProperty = (node, context) =>
+	node.type === 'SpreadElement'
+		? isProcessExitExpression(node.argument, context)
+		: (node.computed && isProcessExitExpression(node.key, context))
+			|| isProcessExitExpression(node.value, context);
+
+const isProcessExitObjectExpression = (node, context) =>
+	node.properties.some(property => isProcessExitObjectProperty(property, context));
+
+const isProcessExitArrayExpression = (node, context) =>
+	node.elements.some(element => element && isProcessExitExpression(element, context));
 
 function isProcessExitExpression(node, context) {
 	if (isProcessExitCall(node, context)) {
@@ -150,6 +227,40 @@ function isProcessExitExpression(node, context) {
 
 		case 'MemberExpression': {
 			return isProcessExitMemberExpression(node, context);
+		}
+
+		case 'ArrayExpression': {
+			return isProcessExitArrayExpression(node, context);
+		}
+
+		case 'ObjectExpression': {
+			return isProcessExitObjectExpression(node, context);
+		}
+
+		case 'YieldExpression': {
+			return Boolean(node.argument && isProcessExitExpression(node.argument, context));
+		}
+
+		case 'AssignmentExpression': {
+			return isProcessExitExpression(node.left, context)
+				|| isProcessExitExpression(node.right, context);
+		}
+
+		case 'ImportExpression': {
+			return isProcessExitExpression(node.source, context);
+		}
+
+		case 'TemplateLiteral': {
+			return node.expressions.some(expression => isProcessExitExpression(expression, context));
+		}
+
+		case 'TaggedTemplateExpression': {
+			return isProcessExitExpression(node.tag, context)
+				|| node.quasi.expressions.some(expression => isProcessExitExpression(expression, context));
+		}
+
+		case 'ClassExpression': {
+			return isProcessExitClass(node, context, true);
 		}
 
 		case 'UnaryExpression':
@@ -227,7 +338,134 @@ const isProcessExitMemberExpressionAtStart = (node, context) =>
 		&& isProcessExitExpressionAtStart(node.property, context)
 	);
 
-function isProcessExitExpressionAtStart(node, context) {
+const isProcessExitObjectPropertyAtStart = (node, context) => {
+	if (node.type === 'SpreadElement') {
+		return isProcessExitExpressionAtStart(node.argument, context);
+	}
+
+	if (node.computed) {
+		if (isProcessExitExpressionAtStart(node.key, context)) {
+			return true;
+		}
+
+		if (!isDefinitelyNotThrowing(node.key, context)) {
+			return false;
+		}
+	}
+
+	return isProcessExitExpressionAtStart(node.value, context);
+};
+
+const isProcessExitObjectExpressionAtStart = (node, context) => {
+	for (const property of node.properties) {
+		if (isProcessExitObjectPropertyAtStart(property, context)) {
+			return true;
+		}
+
+		if (property.type === 'SpreadElement') {
+			if (!isDefinitelyNotThrowing(property.argument, context)) {
+				return false;
+			}
+
+			continue;
+		}
+
+		if (
+			(property.computed && !isDefinitelyNotThrowing(property.key, context))
+			|| !isDefinitelyNotThrowing(property.value, context)
+		) {
+			return false;
+		}
+	}
+
+	return false;
+};
+
+const isProcessExitExpressionListAtStart = (expressions, context) => {
+	for (const expression of expressions) {
+		if (!expression) {
+			continue;
+		}
+
+		if (isProcessExitExpressionAtStart(expression, context)) {
+			return true;
+		}
+
+		if (!isDefinitelyNotThrowing(expression, context)) {
+			return false;
+		}
+	}
+
+	return false;
+};
+
+const isDefinitelyNotThrowingAssignmentTarget = (node, context) =>
+	node.type === 'Identifier'
+	|| (
+		node.type === 'MemberExpression'
+		&& !node.optional
+		&& !hasOptionalChainInCurrentChain(node.object)
+		&& (
+			isEmptyArrayExpression(node.object)
+			|| isEmptyObjectExpression(node.object)
+			|| isDefinitelyNotThrowing(node.object, context)
+		)
+		&& (!node.computed || isDefinitelyNotThrowing(node.property, context))
+	);
+
+const isProcessExitTaggedTemplateExpressionAtStart = (node, context) => {
+	if (isProcessExitExpressionAtStart(node.tag, context)) {
+		return true;
+	}
+
+	if (!isDefinitelyNotThrowing(node.tag, context)) {
+		return false;
+	}
+
+	return isProcessExitExpressionListAtStart(node.quasi.expressions, context);
+};
+
+const isProcessExitLogicalExpressionAtStart = (node, context) => {
+	if (isProcessExitExpressionAtStart(node.left, context)) {
+		return true;
+	}
+
+	const staticValue = getStaticValue(node.left, context.sourceCode.getScope(node.left));
+	if (staticValue === null) {
+		return false;
+	}
+
+	let shouldEvaluateRight;
+	switch (node.operator) {
+		case '&&': {
+			shouldEvaluateRight = staticValue.value;
+			break;
+		}
+
+		case '||': {
+			shouldEvaluateRight = !staticValue.value;
+			break;
+		}
+
+		default: {
+			shouldEvaluateRight = staticValue.value === null || staticValue.value === undefined;
+		}
+	}
+
+	return shouldEvaluateRight && isProcessExitExpressionAtStart(node.right, context);
+};
+
+const isProcessExitConditionalExpressionAtStart = (node, context) => {
+	if (isProcessExitExpressionAtStart(node.test, context)) {
+		return true;
+	}
+
+	const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
+	return staticValue !== null
+		&& isProcessExitExpressionAtStart(staticValue.value ? node.consequent : node.alternate, context);
+};
+
+export function isProcessExitExpressionAtStart(node, context) {
 	if (isProcessExitCall(node, context)) {
 		return true;
 	}
@@ -243,11 +481,44 @@ function isProcessExitExpressionAtStart(node, context) {
 
 		case 'CallExpression':
 		case 'NewExpression': {
-			return isProcessExitExpressionAtStart(node.callee, context);
+			return isProcessExitCallOrNewExpressionAtStart(node, context);
 		}
 
 		case 'MemberExpression': {
 			return isProcessExitMemberExpressionAtStart(node, context);
+		}
+
+		case 'ArrayExpression': {
+			return isProcessExitExpressionListAtStart(node.elements, context);
+		}
+
+		case 'ObjectExpression': {
+			return isProcessExitObjectExpressionAtStart(node, context);
+		}
+
+		case 'AssignmentExpression': {
+			return isProcessExitExpressionAtStart(node.left, context)
+				|| (
+					node.operator === '='
+					&& isDefinitelyNotThrowingAssignmentTarget(node.left, context)
+					&& isProcessExitExpressionAtStart(node.right, context)
+				);
+		}
+
+		case 'TaggedTemplateExpression': {
+			return isProcessExitTaggedTemplateExpressionAtStart(node, context);
+		}
+
+		case 'YieldExpression': {
+			return Boolean(node.argument && isProcessExitExpressionAtStart(node.argument, context));
+		}
+
+		case 'ImportExpression': {
+			return isProcessExitExpressionAtStart(node.source, context);
+		}
+
+		case 'TemplateLiteral': {
+			return isProcessExitExpressionListAtStart(node.expressions, context);
 		}
 
 		case 'UnaryExpression':
@@ -256,15 +527,15 @@ function isProcessExitExpressionAtStart(node, context) {
 		}
 
 		case 'SequenceExpression': {
-			return isProcessExitExpressionAtStart(node.expressions[0], context);
+			return isProcessExitExpressionListAtStart(node.expressions, context);
 		}
 
 		case 'LogicalExpression': {
-			return isProcessExitExpressionAtStart(node.left, context);
+			return isProcessExitLogicalExpressionAtStart(node, context);
 		}
 
 		case 'ConditionalExpression': {
-			return isProcessExitExpressionAtStart(node.test, context);
+			return isProcessExitConditionalExpressionAtStart(node, context);
 		}
 
 		default: {
@@ -278,9 +549,8 @@ function isProcessExitTryStatement(branch, context, checkTryStatements) {
 		return true;
 	}
 
-	const firstTryStatement = branch.block.body[0];
 	const tryBlockAlwaysExits = branch.handler
-		? Boolean(firstTryStatement && isProcessExitBranchAtStart(firstTryStatement, context, checkTryStatements))
+		? isProcessExitBlockAtStart(branch.block, context, checkTryStatements)
 		: isProcessExitBranch(branch.block, context, checkTryStatements);
 
 	if (!checkTryStatements) {
@@ -319,6 +589,88 @@ function isProcessExitBlock(branch, context, checkTryStatements) {
 	return false;
 }
 
+const isProcessExitConditionalBranchAtStart = (branch, context, checkTryStatements) => {
+	if (isProcessExitExpressionAtStart(branch.test, context)) {
+		return true;
+	}
+
+	const staticValue = getStaticValue(branch.test, context.sourceCode.getScope(branch.test));
+	if (staticValue === null) {
+		return false;
+	}
+
+	const selectedBranch = staticValue.value ? branch.consequent : branch.alternate;
+	return Boolean(selectedBranch && isProcessExitBranchAtStart(selectedBranch, context, checkTryStatements));
+};
+
+const isProcessExitTryStatementAtStart = (branch, context, checkTryStatements) => {
+	if (branch.finalizer && isProcessExitBranchAtStart(branch.finalizer, context, checkTryStatements)) {
+		return true;
+	}
+
+	return branch.handler
+		? isProcessExitTryStatement(branch, context, checkTryStatements)
+		: isProcessExitBlockAtStart(branch.block, context, checkTryStatements);
+};
+
+const isProcessExitSwitchAtStart = (branch, context, checkTryStatements) => {
+	if (isProcessExitExpressionAtStart(branch.discriminant, context)) {
+		return true;
+	}
+
+	if (
+		branch.cases.length !== 1
+		|| branch.cases[0].test !== null
+		|| !isDefinitelyNotThrowing(branch.discriminant, context)
+	) {
+		return false;
+	}
+
+	return isProcessExitStatementListAtStart(branch.cases[0].consequent, context, checkTryStatements);
+};
+
+const isProcessExitClassAtStart = (node, context, checkTryStatements) => {
+	if (node.superClass) {
+		if (isProcessExitExpressionAtStart(node.superClass, context)) {
+			return true;
+		}
+
+		if (!isDefinitelyNotThrowing(node.superClass, context)) {
+			return false;
+		}
+	}
+
+	for (const element of node.body.body) {
+		if (element.computed) {
+			if (isProcessExitExpressionAtStart(element.key, context)) {
+				return true;
+			}
+
+			if (!isDefinitelyNotThrowing(element.key, context)) {
+				return false;
+			}
+		}
+
+		if (element.type === 'StaticBlock') {
+			return isProcessExitBlockAtStart(element, context, checkTryStatements);
+		}
+
+		if (element.type !== 'PropertyDefinition' || !element.static) {
+			continue;
+		}
+
+		if (element.value && isProcessExitExpressionAtStart(element.value, context)) {
+			return true;
+		}
+
+		if (element.value && !isDefinitelyNotThrowing(element.value, context)) {
+			return false;
+		}
+	}
+
+	return false;
+};
+
 export function isProcessExitBranchAtStart(branch, context, checkTryStatements = true) {
 	if (branch.type === 'ExpressionStatement') {
 		return isProcessExitExpressionAtStart(branch.expression, context);
@@ -328,11 +680,63 @@ export function isProcessExitBranchAtStart(branch, context, checkTryStatements =
 		return isProcessExitVariableDeclarationAtStart(branch, context);
 	}
 
+	if (branch.type === 'ReturnStatement' || branch.type === 'ThrowStatement') {
+		return Boolean(branch.argument && isProcessExitExpressionAtStart(branch.argument, context));
+	}
+
+	if (branch.type === 'IfStatement' || branch.type === 'ConditionalExpression') {
+		return isProcessExitConditionalBranchAtStart(branch, context, checkTryStatements);
+	}
+
+	if (branch.type === 'BlockStatement') {
+		return isProcessExitBlockAtStart(branch, context, checkTryStatements);
+	}
+
+	if (branch.type === 'TryStatement') {
+		return isProcessExitTryStatementAtStart(branch, context, checkTryStatements);
+	}
+
+	if (branch.type === 'SwitchStatement') {
+		return isProcessExitSwitchAtStart(branch, context, checkTryStatements);
+	}
+
+	if (branch.type === 'ClassDeclaration' || branch.type === 'ClassExpression') {
+		return isProcessExitClassAtStart(branch, context, checkTryStatements);
+	}
+
 	return isProcessExitBranch(branch, context, checkTryStatements);
 }
 
+const isProcessExitClass = (node, context, checkTryStatements) =>
+	isProcessExitExpression(node.superClass, context)
+	|| node.body.body.some(element => {
+		if (element.computed && isProcessExitExpression(element.key, context)) {
+			return true;
+		}
+
+		if (element.type === 'StaticBlock') {
+			return isProcessExitBlock(element, context, checkTryStatements);
+		}
+
+		return element.type === 'PropertyDefinition'
+			&& element.static
+			&& isProcessExitExpression(element.value, context);
+	});
+
 export function isProcessExitBranch(branch, context, checkTryStatements = true) {
 	if (isProcessExitStatement(branch, context) || isProcessExitExpression(branch, context)) {
+		return true;
+	}
+
+	if (
+		(branch.type === 'ReturnStatement' || branch.type === 'ThrowStatement')
+		&& branch.argument
+		&& isProcessExitExpression(branch.argument, context)
+	) {
+		return true;
+	}
+
+	if (branch.type === 'SwitchStatement' && isProcessExitExpression(branch.discriminant, context)) {
 		return true;
 	}
 
@@ -346,6 +750,10 @@ export function isProcessExitBranch(branch, context, checkTryStatements = true) 
 
 	if (branch.type === 'VariableDeclaration') {
 		return isProcessExitVariableDeclaration(branch, context);
+	}
+
+	if (branch.type === 'ClassDeclaration' || branch.type === 'ClassExpression') {
+		return isProcessExitClass(branch, context, checkTryStatements);
 	}
 
 	if (branch.type === 'LabeledStatement') {

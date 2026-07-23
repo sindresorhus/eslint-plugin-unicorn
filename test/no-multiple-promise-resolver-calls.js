@@ -116,6 +116,192 @@ test.snapshot({
 		outdent`
 			new Promise(resolve => {
 				try {
+					const exitCode = 1;
+					process.exit(exitCode);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					'use strict';
+					process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					if (true) return;
+					process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					[process.exit(1)];
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					[1, process.exit(1)];
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					({value: process.exit(1)});
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					({value: 1, exitCode: process.exit(1)});
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					value = process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					import(process.exit(1));
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					report(process.exit(1));
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					throw process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					switch (process.exit(1)) {}
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					process.exit(1)\`tagged\`;
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					({}).value = process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					(1, process.exit(1));
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					true && process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					true ? process.exit(1) : value;
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					switch (true) {
+						default:
+							process.exit(1);
+					}
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
 					throw error;
 				} catch {
 					if (condition) {
@@ -236,6 +422,33 @@ test.snapshot({
 					static field = process.exit(1);
 					static otherField = (resolve(value), resolve(otherValue));
 				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					class Example {
+						static field = 1;
+						static {
+							process.exit(1);
+						}
+					}
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					class Example {
+						[process.exit(1)]() {}
+					}
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
 			});
 		`,
 		outdent`
@@ -1105,6 +1318,75 @@ test.snapshot({
 			new Promise(resolve => {
 				try {
 					const value = maybeThrow(), exitCode = process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					if (maybeThrow()) return;
+					process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					[maybeThrow(), process.exit(1)];
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					({[maybeThrow()]: process.exit(1)});
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					using resource = 1;
+					process.exit(1);
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					class Example {
+						static {
+							maybeThrow();
+							process.exit(1);
+						}
+					}
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					class Example {
+						static field = (maybeThrow(), process.exit(1));
+					}
 				} catch {}
 
 				resolve(value);

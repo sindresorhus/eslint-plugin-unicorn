@@ -18,6 +18,7 @@ test({
 		'new Proxy(target, {set() { process.exit(1)?.toString(); }});',
 		'new Proxy(target, {set() { report((foo?.bar)[process.exit(1)]); }});',
 		'new Proxy(target, {set() { process.exit(1); cleanup(); }});',
+		'new Proxy(target, {set() { class Example { static { process.exit(1); } } }});',
 		'new Proxy(target, {set() { (cleanup(), process.exit(1)); }});',
 		'new Proxy(target, {set() { ((cleanup(), process.exit(1))); }});',
 		'new Proxy(target, {set() { try { process.exit(1); } finally { cleanup(); } }});',
@@ -123,6 +124,10 @@ test({
 		},
 		{
 			code: 'new Proxy(target, {set() { try { ((maybeThrow(), process.exit(1))); } catch { cleanup(); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { class Example { static { maybeThrow(); process.exit(1); } } } catch {} }});',
 			errors,
 		},
 		{

@@ -86,6 +86,20 @@ test.snapshot({
 		`,
 		outdent`
 			if (foo) {
+				try {
+					class Example {
+						static {
+							maybeThrow();
+							process.exit(1);
+						}
+					}
+				} catch {}
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
 				while (bar) {
 					break;
 				}

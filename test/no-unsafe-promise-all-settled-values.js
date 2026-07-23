@@ -27,6 +27,19 @@ test.snapshot({
 		outdent`
 			const values = (await Promise.allSettled(promises)).map(result => {
 				if (result.status !== 'fulfilled') {
+					class Example {
+						static {
+							process.exit(1);
+						}
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
 					label: {
 						process.exit(1);
 					}
@@ -227,6 +240,22 @@ test.snapshot({
 				if (result.status !== 'fulfilled') {
 					const process = customProcess;
 					process.exit(1);
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						class Example {
+							static {
+								maybeThrow();
+								process.exit(1);
+							}
+						}
+					} catch {}
 				}
 
 				return result.value;

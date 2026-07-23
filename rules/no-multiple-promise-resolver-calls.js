@@ -5,8 +5,9 @@ import {
 	hasOptionalChainInCurrentChain,
 	isGlobalIdentifier,
 	isProcessExitBranch,
-	isProcessExitBranchAtStart,
+	isProcessExitBlockAtStart,
 	isProcessExitCallAlwaysEvaluated,
+	isProcessExitExpressionAtStart,
 	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 
@@ -556,7 +557,6 @@ function isInCatchableTryAfterPotentiallyThrowingCode(node, context) {
 	let child = node;
 	let {parent} = node;
 	let hasPotentiallyThrowingCode = false;
-	let tryBlockStatement;
 	while (parent) {
 		if (isFunction(parent)) {
 			return false;
@@ -567,21 +567,12 @@ function isInCatchableTryAfterPotentiallyThrowingCode(node, context) {
 			|| (parent.type === 'LogicalExpression' && parent.right === child)
 			|| (parent.type === 'ConditionalExpression' && parent.test !== child)
 		) {
-			hasPotentiallyThrowingCode = true;
-		}
-
-		if (
-			parent.type === 'BlockStatement'
-			&& parent.parent?.type === 'TryStatement'
-			&& parent.parent.block === parent
-		) {
-			tryBlockStatement = child;
+			hasPotentiallyThrowingCode = !isProcessExitExpressionAtStart(parent, context);
 		}
 
 		if (parent.type === 'TryStatement' && parent.handler && parent.block === child) {
 			return hasPotentiallyThrowingCode
-				|| parent.block.body[0] !== tryBlockStatement
-				|| !isProcessExitBranchAtStart(tryBlockStatement, context);
+				|| !isProcessExitBlockAtStart(parent.block, context);
 		}
 
 		child = parent;
@@ -701,9 +692,25 @@ const create = context => {
 		const lastStatement = codePathState.node.type === 'StaticBlock'
 			? codePathState.node.body.at(-1)
 			: codePathState.node;
+		const isProcessExitAtStart = codePathState.node.type === 'StaticBlock'
+			? isProcessExitBlockAtStart(codePathState.node, context)
+			: isProcessExitExpressionAtStart(codePathState.node, context);
+		const isCaughtProcessExitSynchronousCodePath = isSynchronousCodePath(codePathState.codePath, codePathState.node)
+			&& getExceptionPath(codePathState.node).catchClause
+			&& isProcessExitBranch(lastStatement, context)
+			&& isBranchExit(lastStatement, context, isReturnOrThrowStatement)
+			&& !isProcessExitAtStart;
 		const isAlwaysExitingSynchronousCodePath = lastStatement && (
-			isBranchExit(lastStatement, context, isReturnOrThrowStatement)
+			(
+				isBranchExit(lastStatement, context, isReturnOrThrowStatement)
+				&& !isCaughtProcessExitSynchronousCodePath
+			)
 			|| (lastStatement.type === 'TryStatement' && isTerminalTryStatement(lastStatement, context))
+			|| (
+				codePathState.node.type === 'StaticBlock'
+				&& !isCaughtProcessExitSynchronousCodePath
+				&& isProcessExitAtStart
+			)
 		);
 		reportMultipleResolverCalls(codePathState, context);
 
@@ -810,6 +817,28 @@ const create = context => {
 
 		if (executor) {
 			currentCodePathState.executors.add(executor);
+		}
+	});
+
+	context.onExit([
+		'ArrayExpression',
+		'AssignmentExpression',
+		'ConditionalExpression',
+		'ImportExpression',
+		'LogicalExpression',
+		'ObjectExpression',
+		'SequenceExpression',
+		'TemplateLiteral',
+		'YieldExpression',
+	], node => {
+		if (!isProcessExitExpressionAtStart(node, context)) {
+			return;
+		}
+
+		for (const segment of currentCodePathState.currentSegments) {
+			if (segment.reachable) {
+				currentCodePathState.terminatedSegments.add(segment);
+			}
 		}
 	});
 };
