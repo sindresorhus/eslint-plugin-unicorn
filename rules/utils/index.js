@@ -108,6 +108,7 @@ export {default as isGlobalIdentifier} from './is-global-identifier.js';
 export {
 	default as isBranchExit,
 	hasOptionalChainInCurrentChain,
+	isDefinitelyNotThrowingExpression,
 	isProcessExitBranch,
 	isProcessExitBranchAtStart,
 	isProcessExitBlockAtStart,

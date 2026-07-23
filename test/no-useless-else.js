@@ -297,6 +297,15 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				if (foo) {
+					false && process.exit();
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
 			function qux(process) {
 				if (foo) {
 					process.exit();
@@ -994,6 +1003,24 @@ test.snapshot({
 			function qux() {
 				if (foo) {
 					process.exit();
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					true && process.exit();
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					[...process.exit()];
 				} else {
 					baz();
 				}

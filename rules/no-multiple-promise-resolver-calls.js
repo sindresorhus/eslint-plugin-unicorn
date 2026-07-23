@@ -1,8 +1,9 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isFunction, isLoop, isNewExpression} from './ast/index.js';
 import {
 	isBranchExit,
 	hasOptionalChainInCurrentChain,
+	isDefinitelyNotThrowingExpression,
 	isGlobalIdentifier,
 	isProcessExitBranch,
 	isProcessExitBlockAtStart,
@@ -27,6 +28,16 @@ const isSupportedExecutor = node => (
 
 const isTransparentTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node) || node?.type === 'TSInstantiationExpression';
 const isReturnOrThrowStatement = node => node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
+
+function isNonThrowingReturnBranch(node) {
+	if (node.type === 'ReturnStatement') {
+		return !node.argument;
+	}
+
+	return node.type === 'BlockStatement'
+		&& node.body.length === 1
+		&& isNonThrowingReturnBranch(node.body[0]);
+}
 
 function getOutermostTypeScriptExpression(node) {
 	while (
@@ -563,11 +574,16 @@ function isInCatchableTryAfterPotentiallyThrowingCode(node, context) {
 		}
 
 		if (
+			parent.type === 'IfStatement'
+			&& (parent.consequent === child || parent.alternate === child)
+		) {
+			hasPotentiallyThrowingCode ||= !isDefinitelyNotThrowingExpression(parent.test, context);
+		} else if (
 			(parent.type === 'SequenceExpression' && parent.expressions[0] !== child)
 			|| (parent.type === 'LogicalExpression' && parent.right === child)
 			|| (parent.type === 'ConditionalExpression' && parent.test !== child)
 		) {
-			hasPotentiallyThrowingCode = !isProcessExitExpressionAtStart(parent, context);
+			hasPotentiallyThrowingCode ||= !isProcessExitExpressionAtStart(parent, context);
 		}
 
 		if (parent.type === 'TryStatement' && parent.handler && parent.block === child) {
@@ -697,6 +713,7 @@ const create = context => {
 			: isProcessExitExpressionAtStart(codePathState.node, context);
 		const isCaughtProcessExitSynchronousCodePath = isSynchronousCodePath(codePathState.codePath, codePathState.node)
 			&& getExceptionPath(codePathState.node).catchClause
+			&& lastStatement
 			&& isProcessExitBranch(lastStatement, context)
 			&& isBranchExit(lastStatement, context, isReturnOrThrowStatement)
 			&& !isProcessExitAtStart;
@@ -728,6 +745,24 @@ const create = context => {
 		}
 
 		currentCodePathState = codePathState.upper;
+	});
+
+	context.onExit('IfStatement', node => {
+		const staticValue = getStaticValue(node.test, sourceCode.getScope(node.test));
+		let selectedBranch;
+		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+			selectedBranch = staticValue.value ? node.consequent : node.alternate;
+		}
+
+		if (!selectedBranch || !isNonThrowingReturnBranch(selectedBranch)) {
+			return;
+		}
+
+		for (const segment of currentCodePathState.currentSegments) {
+			if (segment.reachable) {
+				currentCodePathState.terminatedSegments.add(segment);
+			}
+		}
 	});
 
 	context.on('onCodePathSegmentStart', startSegment);
