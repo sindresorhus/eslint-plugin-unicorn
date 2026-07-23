@@ -61,7 +61,7 @@ const getSimpleConstVariableInfo = (node, context) => {
 
 const getImportSpecifierName = node => node.imported.type === 'Identifier' ? node.imported.name : node.imported.value;
 
-// Only ESM imports are supported. CommonJS `require()` and TypeScript import-equals declarations are intentionally ignored.
+// Only runtime ESM imports are supported. CommonJS `require()` and TypeScript `import =` declarations are intentionally ignored.
 const getNodeSqliteImportSpecifier = (node, context) => {
 	const definition = getVariableInfo(node, context)?.definition;
 	if (
