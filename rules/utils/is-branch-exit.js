@@ -4,7 +4,6 @@ import {
 	isEmptyObjectExpression,
 	isFunction,
 	isLoop,
-	isMethodCall,
 } from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
@@ -14,16 +13,29 @@ import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 @import * as ESTree from 'estree';
 */
 
-export const isProcessExitCall = (node, context) =>
-	isMethodCall(node, {
-		object: 'process',
-		method: 'exit',
-		optionalCall: false,
-		optionalMember: false,
-	})
-	&& isGlobalIdentifier(node.callee.object, context);
-
 const isTransparentTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node) || node?.type === 'TSInstantiationExpression';
+const unwrapTransparentTypeScriptExpression = node => {
+	while (isTransparentTypeScriptExpressionWrapper(node)) {
+		node = node.expression;
+	}
+
+	return node;
+};
+
+export const isProcessExitCall = (node, context) => {
+	const callee = unwrapTransparentTypeScriptExpression(node?.callee);
+	return node?.type === 'CallExpression'
+		&& callee?.type === 'MemberExpression'
+		&& !node.optional
+		&& !callee.optional
+		&& !callee.computed
+		&& callee.object.type === 'Identifier'
+		&& callee.object.name === 'process'
+		&& callee.property.type === 'Identifier'
+		&& callee.property.name === 'exit'
+		&& isGlobalIdentifier(callee.object, context);
+};
+
 const isReturnOrThrowStatement = node => node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
 const isThrowStatement = node => node.type === 'ThrowStatement';
 const isNeverExiting = () => false;
@@ -52,6 +64,16 @@ const isDefinitelyNotInTemporalDeadZone = (node, context) => {
 	) !== true;
 };
 
+const isDefinitelyDefinedReference = (node, context) => {
+	const scope = context.sourceCode.getScope(node);
+	return Boolean(findVariable(scope, node.name)) && isDefinitelyNotInTemporalDeadZone(node, context);
+};
+
+const isDefinitelyNotThrowingAssignmentIdentifier = (node, context) => {
+	const scope = context.sourceCode.getScope(node);
+	return !scope.isStrict || Boolean(findVariable(scope, node.name));
+};
+
 const isDefinitelyNotReadOnly = (node, context) => {
 	const variable = findVariable(context.sourceCode.getScope(node), node.name);
 	return variable?.defs.some(definition =>
@@ -68,23 +90,38 @@ const isDefinitelyNotNullish = (node, context) => {
 		&& staticValue.value !== undefined;
 };
 
+const isDefinitelyValidClassHeritage = (node, context) => {
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	return staticValue !== null
+		&& (staticValue.value === null || typeof staticValue.value === 'function');
+};
+
+const isDefinitelyNotThrowingMemberExpression = (node, context) =>
+	node.type === 'MemberExpression'
+	&& !node.optional
+	&& !hasOptionalChainInCurrentChain(node.object)
+	&& (
+		isEmptyArrayExpression(node.object)
+		|| isEmptyObjectExpression(node.object)
+		|| isDefinitelyNotNullish(node.object, context)
+	)
+	&& (!node.computed || isDefinitelyNotThrowingExpression(node.property, context));
+
 const isDefinitelyNotThrowingAssignmentTarget = (node, context) =>
 	(
 		node.type === 'Identifier'
 		&& isDefinitelyNotInTemporalDeadZone(node, context)
 		&& isDefinitelyNotReadOnly(node, context)
+		&& isDefinitelyNotThrowingAssignmentIdentifier(node, context)
 	)
-	|| (
-		node.type === 'MemberExpression'
-		&& !node.optional
-		&& !hasOptionalChainInCurrentChain(node.object)
-		&& (
-			isEmptyArrayExpression(node.object)
-			|| isEmptyObjectExpression(node.object)
-			|| isDefinitelyNotNullish(node.object, context)
-		)
-		&& (!node.computed || isDefinitelyNotThrowingExpression(node.property, context))
-	);
+	|| isDefinitelyNotThrowingMemberExpression(node, context);
+
+const isDefinitelyNotThrowingAssignmentTargetRead = (node, context) =>
+	(
+		node.type === 'Identifier'
+		&& isDefinitelyDefinedReference(node, context)
+	)
+	|| isDefinitelyNotThrowingMemberExpression(node, context);
 
 const isDefinitelyNotThrowingAssignmentTargetBeforeRight = (node, context) =>
 	(
@@ -92,23 +129,67 @@ const isDefinitelyNotThrowingAssignmentTargetBeforeRight = (node, context) =>
 		|| node.type === 'ArrayPattern'
 		|| node.type === 'ObjectPattern'
 	)
-	|| (
-		node.type === 'MemberExpression'
-		&& !node.optional
-		&& !hasOptionalChainInCurrentChain(node.object)
-		&& (
-			isEmptyArrayExpression(node.object)
-			|| isEmptyObjectExpression(node.object)
-			|| isDefinitelyNotNullish(node.object, context)
-		)
-		&& (!node.computed || isDefinitelyNotThrowingExpression(node.property, context))
-	);
+	|| isDefinitelyNotThrowingMemberExpression(node, context);
+
+const alwaysEvaluatedCompoundAssignmentOperators = new Set([
+	'+=',
+	'-=',
+	'*=',
+	'/=',
+	'%=',
+	'**=',
+	'<<=',
+	'>>=',
+	'>>>=',
+	'&=',
+	'^=',
+	'|=',
+]);
+
+const isAssignmentRightAlwaysEvaluated = (node, context) => {
+	if (node.operator === '=') {
+		return isDefinitelyNotThrowingAssignmentTargetBeforeRight(node.left, context);
+	}
+
+	if (alwaysEvaluatedCompoundAssignmentOperators.has(node.operator)) {
+		return isDefinitelyNotThrowingAssignmentTargetRead(node.left, context);
+	}
+
+	if (!['&&=', '||=', '??='].includes(node.operator) || !isDefinitelyNotThrowingAssignmentTargetRead(node.left, context)) {
+		return false;
+	}
+
+	const staticValue = getStaticValue(node.left, context.sourceCode.getScope(node.left));
+	if (staticValue === null) {
+		return false;
+	}
+
+	if (node.operator === '&&=') {
+		return Boolean(staticValue.value);
+	}
+
+	if (node.operator === '||=') {
+		return !staticValue.value;
+	}
+
+	return staticValue.value === null || staticValue.value === undefined;
+};
 
 export const isDefinitelyNotThrowingExpression = (node, context) =>
 	node.type === 'AssignmentExpression'
-		? isDefinitelyNotThrowingAssignmentTarget(node.left, context)
+		? node.operator === '='
+		&& isDefinitelyNotThrowingAssignmentTarget(node.left, context)
 		&& isDefinitelyNotThrowing(node.right, context)
 		: isDefinitelyNotThrowing(node, context);
+
+const isDefinitelyNotThrowingReference = (node, context) => {
+	 node = unwrapTransparentTypeScriptExpression(node);
+	if (node?.type === 'Identifier') {
+		return isDefinitelyDefinedReference(node, context);
+	}
+
+	return isDefinitelyNotThrowingExpression(node, context);
+};
 
 const isUsingDeclaration = node => node.kind === 'using' || node.kind === 'await using';
 
@@ -195,7 +276,8 @@ const isProcessExitStatementListAtStart = (statements, context, checkTryStatemen
 };
 
 export const isProcessExitBlockAtStart = (branch, context, checkTryStatements = true) =>
-	isProcessExitStatementListAtStart(branch.body, context, checkTryStatements);
+	!hasPossiblyThrowingClassHeritage(branch, context)
+	&& isProcessExitStatementListAtStart(branch.body, context, checkTryStatements);
 
 export function hasOptionalChainInCurrentChain(node) {
 	if (node?.type === 'MemberExpression') {
@@ -216,6 +298,16 @@ export function isProcessExitCallAlwaysEvaluated(node, context) {
 	while (parent) {
 		if (isFunction(parent)) {
 			return true;
+		}
+
+		if (
+			(parent.type === 'ClassDeclaration' || parent.type === 'ClassExpression')
+			&& parent.superClass
+			&& parent.superClass !== child
+			&& !isProcessExitExpressionAtStart(parent.superClass, context)
+			&& !isDefinitelyValidClassHeritage(parent.superClass, context)
+		) {
+			return false;
 		}
 
 		if (
@@ -251,6 +343,10 @@ function isProcessExitCallOrNewExpression(node, context) {
 		return false;
 	}
 
+	if (!isDefinitelyNotThrowingReference(node.callee, context)) {
+		return false;
+	}
+
 	return node.arguments.some(argument => isProcessExitExpression(argument, context));
 }
 
@@ -263,10 +359,7 @@ function isProcessExitCallOrNewExpressionAtStart(node, context) {
 		return false;
 	}
 
-	if (
-		(node.callee.type === 'Identifier' && !isDefinitelyNotInTemporalDeadZone(node.callee, context))
-		|| (node.callee.type !== 'Identifier' && !isDefinitelyNotThrowingExpression(node.callee, context))
-	) {
+	if (!isDefinitelyNotThrowingReference(node.callee, context)) {
 		return false;
 	}
 
@@ -279,6 +372,7 @@ const isProcessExitMemberExpression = (node, context) =>
 		node.computed
 		&& !node.optional
 		&& !hasOptionalChainInCurrentChain(node.object)
+		&& isDefinitelyNotThrowingReference(node.object, context)
 		&& isProcessExitExpression(node.property, context)
 	);
 
@@ -288,7 +382,7 @@ const isProcessExitConditionalExpression = (node, context) => {
 	}
 
 	const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
-	if (staticValue !== null) {
+	if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
 		return isProcessExitExpression(staticValue.value ? node.consequent : node.alternate, context);
 	}
 
@@ -298,7 +392,7 @@ const isProcessExitConditionalExpression = (node, context) => {
 
 const isLogicalExpressionRightEvaluated = (node, context) => {
 	const staticValue = getStaticValue(node.left, context.sourceCode.getScope(node.left));
-	if (staticValue === null) {
+	if (staticValue === null || !isDefinitelyNotThrowingExpression(node.left, context)) {
 		return false;
 	}
 
@@ -382,7 +476,10 @@ function isProcessExitExpression(node, context) {
 
 		case 'AssignmentExpression': {
 			return isProcessExitExpression(node.left, context)
-				|| isProcessExitExpression(node.right, context);
+				|| (
+					isAssignmentRightAlwaysEvaluated(node, context)
+					&& isProcessExitExpression(node.right, context)
+				);
 		}
 
 		case 'ImportExpression': {
@@ -395,7 +492,10 @@ function isProcessExitExpression(node, context) {
 
 		case 'TaggedTemplateExpression': {
 			return isProcessExitExpression(node.tag, context)
-				|| node.quasi.expressions.some(expression => isProcessExitExpression(expression, context));
+				|| (
+					isDefinitelyNotThrowingReference(node.tag, context)
+					&& node.quasi.expressions.some(expression => isProcessExitExpression(expression, context))
+				);
 		}
 
 		case 'ClassExpression': {
@@ -543,7 +643,7 @@ const isProcessExitTaggedTemplateExpressionAtStart = (node, context) => {
 		return true;
 	}
 
-	if (!isDefinitelyNotThrowingExpression(node.tag, context)) {
+	if (!isDefinitelyNotThrowingReference(node.tag, context)) {
 		return false;
 	}
 
@@ -566,6 +666,7 @@ const isProcessExitConditionalExpressionAtStart = (node, context) => {
 
 	const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
 	return staticValue !== null
+		&& isDefinitelyNotThrowingExpression(node.test, context)
 		&& isProcessExitExpressionAtStart(staticValue.value ? node.consequent : node.alternate, context);
 };
 
@@ -604,11 +705,14 @@ export function isProcessExitExpressionAtStart(node, context) {
 			return isProcessExitObjectExpressionAtStart(node, context);
 		}
 
+		case 'ClassExpression': {
+			return isProcessExitClassAtStart(node, context, true);
+		}
+
 		case 'AssignmentExpression': {
 			return isProcessExitExpressionAtStart(node.left, context)
 				|| (
-					node.operator === '='
-					&& isDefinitelyNotThrowingAssignmentTargetBeforeRight(node.left, context)
+					isAssignmentRightAlwaysEvaluated(node, context)
 					&& isProcessExitExpressionAtStart(node.right, context)
 				);
 		}
@@ -650,6 +754,34 @@ export function isProcessExitExpressionAtStart(node, context) {
 			return false;
 		}
 	}
+}
+
+function hasPossiblyThrowingClassHeritage(node, context) {
+	if (node.type !== 'StaticBlock') {
+		return false;
+	}
+
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (isFunction(parent)) {
+			return false;
+		}
+
+		if (parent.type === 'ClassDeclaration' || parent.type === 'ClassExpression') {
+			return Boolean(
+				parent.superClass
+				&& parent.superClass !== child
+				&& !isProcessExitExpressionAtStart(parent.superClass, context)
+				&& !isDefinitelyValidClassHeritage(parent.superClass, context),
+			);
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return false;
 }
 
 function isProcessExitTryStatement(branch, context, checkTryStatements) {
@@ -703,7 +835,7 @@ const isProcessExitConditionalBranchAtStart = (branch, context, checkTryStatemen
 	}
 
 	const staticValue = getStaticValue(branch.test, context.sourceCode.getScope(branch.test));
-	if (staticValue === null) {
+	if (staticValue === null || !isDefinitelyNotThrowingExpression(branch.test, context)) {
 		return false;
 	}
 
@@ -735,20 +867,32 @@ const isProcessExitSwitchAtStart = (branch, context, checkTryStatements) => {
 		return true;
 	}
 
-	if (
-		!isDefinitelyNotThrowingExpression(branch.discriminant, context)
-		|| branch.cases.every(switchCase => switchCase.test !== null)
-		|| branch.cases.some(switchCase =>
-			switchCase.test !== null
-			&& !isDefinitelyNotThrowingExpression(switchCase.test, context),
-		)
-	) {
+	if (!isDefinitelyNotThrowingExpression(branch.discriminant, context)) {
 		return false;
 	}
 
-	return branch.cases.every((switchCase, index) =>
-		isProcessExitSwitchCaseAtStart(branch.cases, index, context, checkTryStatements),
-	);
+	for (const [index, switchCase] of branch.cases.entries()) {
+		if (switchCase.test === null) {
+			if (!isProcessExitSwitchCaseAtStart(branch.cases, index, context, checkTryStatements)) {
+				return false;
+			}
+
+			continue;
+		}
+
+		if (isProcessExitExpressionAtStart(switchCase.test, context)) {
+			continue;
+		}
+
+		if (
+			!isDefinitelyNotThrowingExpression(switchCase.test, context)
+			|| !isProcessExitSwitchCaseAtStart(branch.cases, index, context, checkTryStatements)
+		) {
+			return false;
+		}
+	}
+
+	return true;
 };
 
 const isProcessExitClassAtStart = (node, context, checkTryStatements) => {
@@ -757,7 +901,7 @@ const isProcessExitClassAtStart = (node, context, checkTryStatements) => {
 			return true;
 		}
 
-		if (!isDefinitelyNotThrowingExpression(node.superClass, context)) {
+		if (!isDefinitelyValidClassHeritage(node.superClass, context)) {
 			return false;
 		}
 	}
@@ -837,9 +981,18 @@ export function isProcessExitBranchAtStart(branch, context, checkTryStatements =
 	return isProcessExitBranch(branch, context, checkTryStatements);
 }
 
-const isProcessExitClass = (node, context, checkTryStatements) =>
-	isProcessExitExpression(node.superClass, context)
-	|| node.body.body.some(element => {
+const isProcessExitClass = (node, context, checkTryStatements) => {
+	if (node.superClass) {
+		if (isProcessExitExpression(node.superClass, context)) {
+			return true;
+		}
+
+		if (!isDefinitelyValidClassHeritage(node.superClass, context)) {
+			return false;
+		}
+	}
+
+	return node.body.body.some(element => {
 		if (element.computed && isProcessExitExpression(element.key, context)) {
 			return true;
 		}
@@ -852,6 +1005,7 @@ const isProcessExitClass = (node, context, checkTryStatements) =>
 			&& element.static
 			&& isProcessExitExpression(element.value, context);
 	});
+};
 
 export function isProcessExitBranch(branch, context, checkTryStatements = true) {
 	if (isProcessExitStatement(branch, context) || isProcessExitExpression(branch, context)) {
@@ -962,29 +1116,27 @@ function isSwitchBranchExit(branch, context, branchAlwaysExits, checkTryStatemen
 		return false;
 	}
 
-	let exits = false;
+	let fallThroughExits = false;
 	for (let index = branch.cases.length - 1; index >= 0; index--) {
 		const switchCase = branch.cases[index];
 		if (hasSwitchControlFlowExitInStatements(switchCase.consequent, context)) {
 			return false;
 		}
 
-		const caseExits = switchCase.consequent.some(statement =>
+		const caseConsequentExits = switchCase.consequent.some(statement =>
 			isBranchExit(statement, context, branchAlwaysExits)
 			|| isProcessExitBranch(statement, context, checkTryStatements),
 		);
-		if (!caseExits) {
-			if (!exits) {
-				return false;
-			}
-
-			continue;
+		const caseEntryExits = switchCase.test
+			&& isProcessExitExpressionAtStart(switchCase.test, context);
+		if (!caseEntryExits && !caseConsequentExits && !fallThroughExits) {
+			return false;
 		}
 
-		exits = true;
+		fallThroughExits = caseConsequentExits || fallThroughExits;
 	}
 
-	return exits;
+	return fallThroughExits;
 }
 
 /**

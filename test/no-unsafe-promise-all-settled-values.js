@@ -18,6 +18,17 @@ test.snapshot({
 		outdent`
 			const values = (await Promise.allSettled(promises)).map(result => {
 				if (result.status !== 'fulfilled') {
+					while (true) {
+						process.exit(1);
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
 					process.exit(1);
 				}
 
@@ -116,6 +127,7 @@ test.snapshot({
 			});
 		`,
 		outdent`
+			const report = () => {};
 			const values = (await Promise.allSettled(promises)).map(result => {
 				if (result.status !== 'fulfilled') {
 					report(process.exit(1));

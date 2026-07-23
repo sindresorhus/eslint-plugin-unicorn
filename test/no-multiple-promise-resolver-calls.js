@@ -243,6 +243,7 @@ test.snapshot({
 		`,
 		outdent`
 			new Promise(resolve => {
+				const report = () => {};
 				try {
 					report(process.exit(1));
 				} catch {}
@@ -455,7 +456,7 @@ test.snapshot({
 						resolve(otherValue);
 					}
 				}
-				});
+			});
 		`,
 		outdent`
 			new Promise(resolve => {
@@ -1477,8 +1478,178 @@ test.snapshot({
 });
 
 test({
-	valid: [],
+	valid: [
+		{
+			code: outdent`
+				const callback = () => {};
+				new Promise(resolve => {
+					try {
+						callback(process.exit(1));
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						const Example = class {
+							static { process.exit(1); }
+						};
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+		},
+		{
+			code: outdent`
+				const tag = () => {};
+				new Promise(resolve => {
+					try {
+						tag\`\${process.exit(1)}\`;
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+		},
+		{
+			code: outdent`
+				const value = 1;
+				new Promise(resolve => {
+					try {
+						switch (value) {
+							case process.exit(1):
+							default:
+								process.exit(2);
+						}
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+		},
+		{
+			code: outdent`
+				const value = 1;
+				new Promise(resolve => {
+					try {
+						value += process.exit(1);
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						process.exit!(1);
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
 	invalid: [
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						missing(process.exit(1));
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				'use strict';
+				new Promise(resolve => {
+					try {
+						missing = 1;
+						process.exit(1);
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				let value = Symbol();
+				new Promise(resolve => {
+					try {
+						value += 1;
+						process.exit(1);
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				const value = 0;
+				new Promise(resolve => {
+					try {
+						(value = 0) || process.exit(1);
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				const value = 0;
+				new Promise(resolve => {
+					try {
+						(value = 0) ? process.exit(1) : value;
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						const Example = class extends undefined {
+							static { process.exit(1); }
+						};
+					} catch {}
+
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			errors: [error],
+		},
 		{
 			code: 'new Promise((finish, fail) => { finish(); fail(); finish(); });',
 			errors: [error, error],
