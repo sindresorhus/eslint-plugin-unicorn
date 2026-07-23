@@ -42,7 +42,9 @@ bar';`,
 });
 
 test({
-	valid: [],
+	valid: [
+		'const value = () => { return (foo /* Keep this comment. */); };',
+	],
 	invalid: [{
 		code: 'const value = () => {\n\t\treturn {foo: bar}.foo;\n\t};',
 		output: 'const value = () => ({foo: bar}.foo);',
@@ -51,6 +53,13 @@ test({
 		code: 'const value = () => {\n\t\treturn {foo: bar}[key];\n\t};',
 		output: 'const value = () => ({foo: bar}[key]);',
 		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'const value = () => foo(\n\t() => {\n\t\treturn bar;\n\t},\n);',
+		output: 'const value = () => {\n\treturn foo(\n\t\t() => {\n\t\t\treturn bar;\n\t\t},\n\t);\n};',
+		errors: [
+			{messageId: 'useExplicitReturn'},
+			{messageId: 'useImplicitReturn'},
+		],
 	}, {
 		code: 'const value = () => foo(\r\n\t\tbar,\r\n\t);',
 		output: 'const value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\r\n};',
@@ -62,6 +71,10 @@ test({
 	}, {
 		code: 'const first = 1;\nconst value = () => foo(\r\n\t\tbar,\r\n\t);',
 		output: 'const first = 1;\nconst value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\r\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const value = () => foo(\r\n\t\tbar,\n\t\tbaz,\r\n\t);',
+		output: 'const value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\n\t\t\tbaz,\r\n\t\t);\r\n};',
 		errors: [{messageId: 'useExplicitReturn'}],
 	}, {
 		code: 'const value = () => foo(\u2028\t\tbar,\u2028\t);',

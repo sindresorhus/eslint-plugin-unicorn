@@ -9,11 +9,10 @@ const MESSAGE_ID_IMPLICIT = 'useImplicitReturn';
 
 const messages = {
 	[MESSAGE_ID_EXPLICIT]: 'Use an explicit return for a multiline arrow function body.',
-	[MESSAGE_ID_IMPLICIT]: 'Use an implicit return for a single-line arrow function body.',
+	[MESSAGE_ID_IMPLICIT]: 'Use an implicit return for a single-line return expression.',
 };
 
 const returnArgumentTypesRequiringParentheses = new Set([
-	'ObjectExpression',
 	'SequenceExpression',
 ]);
 
@@ -103,7 +102,7 @@ const isInsideForStatementInitializer = node => {
 const getReturnArgumentText = (returnArgument, context) => {
 	const text = getParenthesizedText(returnArgument, context);
 	const underlyingExpression = getUnderlyingExpression(returnArgument);
-	const needsParentheses = text.startsWith('{')
+	const needsParentheses = text.trimStart().startsWith('{')
 		|| returnArgumentTypesRequiringParentheses.has(underlyingExpression.type)
 		|| (
 			underlyingExpression.type === 'BinaryExpression'
@@ -123,19 +122,19 @@ const hasMultilineSignificantWhitespace = (node, sourceCode) =>
 		tokensWithSignificantWhitespace.has(token.type)
 		&& sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line);
 
-const getBodyText = (text, shouldIndent, linebreak) => {
+const getBodyText = (text, shouldIndent) => {
 	if (!shouldIndent) {
 		return text;
 	}
 
 	const lines = text.split(linebreakPattern);
-	for (const [index, line] of lines.entries()) {
-		if (index > 0 && line) {
-			lines[index] = `\t${line}`;
-		}
+	const linebreaks = text.match(/\r\n|[\n\r\u2028\u2029]/g);
+	let result = lines[0];
+	for (const [index, line] of lines.slice(1).entries()) {
+		result += linebreaks[index] + (line ? `\t${line}` : line);
 	}
 
-	return lines.join(linebreak);
+	return result;
 };
 
 const getLinebreak = (sourceCode, range) =>
@@ -156,7 +155,6 @@ const getExplicitReturnFix = (node, context) => {
 	const bodyText = getBodyText(
 		node.body.type === 'ObjectExpression' ? sourceCode.getText(node.body) : sourceCode.text.slice(...bodyRange),
 		bodyStartsOnArrowLine,
-		linebreak,
 	);
 	const indentation = getLineIndent(sourceCode, arrowToken);
 	const replacement = `{${linebreak}${indentation}\treturn ${bodyText};${linebreak}${indentation}}`;
