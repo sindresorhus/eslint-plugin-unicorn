@@ -10,7 +10,7 @@ const SINGLE_LINE = 'single-line';
 const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
 const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const DIRECTIVE_PATTERNS = [
-	/^\s*(?:eslint(?:-env)?|globals?|exported|no default|noinspection)(?:\s|$)/v,
+	/^\s*(?:eslint|globals?|exported|no default|noinspection)(?:\s|$)/v,
 	/^\s*(?:c8|istanbul|nyc|v8)\s+ignore(?:\s|$)/v,
 	/^\s*(?:biome|deno|dprint|oxlint|prettier)-(?:ignore|lint-ignore|disable|enable)(?:-(?:next-line|start|end))?(?:\s|$)/v,
 	/^\s*(?:cspell|spell-checker):/v,
