@@ -1,9 +1,11 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest, rule} = getTester(import.meta);
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		outdent`
 			/**
@@ -29,11 +31,20 @@ test.snapshot({
 		'/* c8 ignore next */',
 		'/* v8 ignore next */',
 		'/* biome-ignore lint/suspicious/noExplicitAny */',
+		'/* oxlint-disable no-console */',
+		'/* oxlint-enable no-console */',
 		'/**/',
 		'/* */',
+		'/* * */',
+		'/*\n*\n*/',
 		'/**\n *\n */',
 		'/*\n*\nValue.\n*/',
 		'/** @jsxFrag Fragment */',
+		outdent`
+			/**
+			 * @ts-ignore
+			 */
+		`,
 		'\u2028/**\u2028Value.\u2028*/\u2028',
 		'// Get the value.',
 		{
@@ -45,6 +56,10 @@ test.snapshot({
 			options: ['single-line'],
 		},
 		{
+			code: '/*** Value */',
+			options: ['single-line'],
+		},
+		{
 			code: '/**\r\nGet the value.\r\n*/',
 		},
 	],
@@ -53,6 +68,7 @@ test.snapshot({
 		'/* Get the value. */',
 		'\t/** Get the value. */',
 		'/** Carriage return value. */\r\nconst value = 1;',
+		'/*** Value */',
 		'/** Value.\n*/',
 		'/* Value.\n*/',
 		'\u2028/** Value. */\u2028const value = 1;',
@@ -89,4 +105,48 @@ test.snapshot({
 			options: ['single-line'],
 		},
 	],
+});
+
+const getConfig = options => ({
+	languageOptions: {
+		ecmaVersion: 'latest',
+	},
+	plugins: {
+		rule: {
+			rules: {
+				'single-line-block-comment-style': rule,
+			},
+		},
+	},
+	rules: {
+		'rule/single-line-block-comment-style': ['error', ...options],
+	},
+});
+
+test('autofixes are idempotent', t => {
+	const testCases = [
+		{
+			code: '/** Value */',
+			output: '/**\nValue\n*/',
+			options: [],
+		},
+		{
+			code: '/**\nValue\n*/',
+			output: '/** Value */',
+			options: ['single-line'],
+		},
+	];
+
+	for (const {code, output, options} of testCases) {
+		const linter = new Linter();
+		const config = getConfig(options);
+		const firstFix = linter.verifyAndFix(code, config);
+
+		t.is(firstFix.output, output);
+		t.deepEqual(firstFix.messages, []);
+
+		const secondFix = linter.verifyAndFix(firstFix.output, config);
+		t.is(secondFix.output, output);
+		t.deepEqual(secondFix.messages, []);
+	}
 });

@@ -7,69 +7,61 @@ import {
 const MESSAGE_ID = 'single-line-block-comment-style';
 const MULTILINE = 'multiline';
 const SINGLE_LINE = 'single-line';
-const ESLINT_DIRECTIVE_PATTERN = /^\s*(?:eslint(?:-env)?|globals?|exported)\b/v;
-const TOOL_DIRECTIVE_PATTERN = /^\s*(?:prettier-ignore(?:-(?:start|end))?|biome-ignore|(?:c8|istanbul|nyc|v8)\s+ignore)\b/v;
-const TYPESCRIPT_DIRECTIVE_PATTERN = /^\s*\*?\s*@(?:ts-(?:check|nocheck|ignore|expect-error)|jsx(?:Frag|ImportSource|Runtime|Factory)?|(?:no)?flow|(?:jest|vitest)-environment)\b/v;
+const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
+const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
+const DIRECTIVE_PATTERN = /^\s*(?:eslint(?:-env)?|globals?|exported|no default\b|noinspection\b|(?:c8|istanbul|nyc|v8)\s+ignore\b|(?:biome|deno|dprint|oxlint|prettier)-|(?:cspell|spell-checker):)/v;
+const TYPESCRIPT_DIRECTIVE_PATTERN = /^\s*@(?:ts-(?:check|nocheck|ignore|expect-error)|jsx(?:Frag|ImportSource|Runtime|Factory)?|(?:no)?flow|(?:jest|vitest)-environment)\b/v;
 
 const messages = {
 	[MESSAGE_ID]: 'Use a {{style}} block comment.',
 };
 
-const getLinePrefix = (sourceCode, start) => {
-	const lineStart = Math.max(...['\n', '\r', '\u2028', '\u2029'].map(lineEnding => sourceCode.text.lastIndexOf(lineEnding, start - 1))) + 1;
-	return sourceCode.text.slice(lineStart, start);
-};
+const getLineStart = (text, index) => Math.max(...LINE_ENDINGS.map(lineEnding => text.lastIndexOf(lineEnding, index - 1))) + 1;
 
-const getLineSuffix = (sourceCode, end) => {
-	const lineEndings = ['\n', '\r', '\u2028', '\u2029'].map(lineEnding => sourceCode.text.indexOf(lineEnding, end)).filter(index => index !== -1);
-	const lineEnd = Math.min(...lineEndings, sourceCode.text.length);
-	return sourceCode.text.slice(end, lineEnd);
-};
+const getLineEnd = (text, index) => Math.min(
+	...LINE_ENDINGS.map(lineEnding => text.indexOf(lineEnding, index)).filter(index => index !== -1),
+	text.length,
+);
+
+const getLinePrefix = (sourceCode, start) => sourceCode.text.slice(getLineStart(sourceCode.text, start), start);
+
+const getLineSuffix = (sourceCode, end) => sourceCode.text.slice(end, getLineEnd(sourceCode.text, end));
 
 const isStandalone = (sourceCode, [start, end]) => (
-	/^[^\S\n]*$/v.test(getLinePrefix(sourceCode, start))
-	&& /^[^\S\n]*$/v.test(getLineSuffix(sourceCode, end))
+	getLinePrefix(sourceCode, start).trim() === ''
+	&& getLineSuffix(sourceCode, end).trim() === ''
 );
 
-const getLineEnding = (sourceCode, end, content) => {
-	const contentLineEnding = content.match(/\r\n|[\n\r\u{2028}\u{2029}]/v)?.[0];
+const getLineEnding = (sourceCode, end, content) =>
+	content.match(LINE_ENDING_PATTERN)?.[0]
+	?? sourceCode.text.slice(end).match(LINE_ENDING_PATTERN)?.[0]
+	?? sourceCode.text.match(LINE_ENDING_PATTERN)?.[0]
+	?? '\n';
 
-	if (contentLineEnding) {
-		return contentLineEnding;
+const getOpeningDelimiter = text => text.startsWith('/**') && text[3] !== '*' ? '/**' : '/*';
+
+const getCommentText = comment => comment.value
+	.split(LINE_ENDING_PATTERN)
+	.map(line => line.replace(/^\s*\*?\s*/v, ''))
+	.join('\n');
+
+const isDirective = (context, comment) => {
+	if (isEslintDisableOrEnableDirective(context, comment)) {
+		return true;
 	}
 
-	if (sourceCode.text.startsWith('\r\n', end)) {
-		return '\r\n';
-	}
-
-	if (sourceCode.text[end] === '\r') {
-		return '\r';
-	}
-
-	if (/^[\n\u{2028}\u{2029}]$/v.test(sourceCode.text[end])) {
-		return sourceCode.text[end];
-	}
-
-	return sourceCode.text.match(/\r\n|[\n\r\u{2028}\u{2029}]/v)?.[0] ?? '\n';
+	const commentText = getCommentText(comment);
+	return DIRECTIVE_PATTERN.test(commentText) || TYPESCRIPT_DIRECTIVE_PATTERN.test(commentText);
 };
 
-const getOpening = text => text.startsWith('/**') ? '/**' : '/*';
+const getContentLines = content => content.split(LINE_ENDING_PATTERN);
 
-const isDirective = (context, comment) => (
-	isEslintDisableOrEnableDirective(context, comment)
-	|| ESLINT_DIRECTIVE_PATTERN.test(comment.value)
-	|| TOOL_DIRECTIVE_PATTERN.test(comment.value)
-	|| TYPESCRIPT_DIRECTIVE_PATTERN.test(comment.value)
-);
-
-const getContentLines = content => content.split(/\r\n|[\n\r\u{2028}\u{2029}]/v);
-
-const getSingleContentLine = (content, opening) => {
+const getSingleContentLine = content => {
 	const contentLines = getContentLines(content).filter(line => line.trim() !== '');
 
 	if (
 		contentLines.length !== 1
-		|| (opening === '/**' && contentLines[0].trim() === '*')
+		|| contentLines[0].trim() === '*'
 	) {
 		return;
 	}
@@ -95,9 +87,9 @@ const getProblem = (context, comment, style) => {
 	}
 
 	const text = sourceCode.text.slice(...range);
-	const opening = getOpening(text);
+	const opening = getOpeningDelimiter(text);
 	const content = text.slice(opening.length, -2);
-	const singleContentLine = getSingleContentLine(content, opening);
+	const singleContentLine = getSingleContentLine(content);
 
 	if (style === MULTILINE) {
 		if (!singleContentLine || isMultiline(content)) {
