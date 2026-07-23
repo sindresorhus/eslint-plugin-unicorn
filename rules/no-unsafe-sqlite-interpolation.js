@@ -1,0 +1,304 @@
+import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {isRuntimeImportSpecifier, isTypeScriptExpressionWrapper} from './utils/index.js';
+
+const MESSAGE_ID = 'no-unsafe-sqlite-interpolation';
+const messages = {
+	[MESSAGE_ID]: 'Do not interpolate values into `node:sqlite` SQL strings.',
+};
+
+const databaseMethods = new Set([
+	'exec',
+	'prepare',
+]);
+
+const unwrapExpression = node => {
+	while (node && (node.type === 'ChainExpression' || node.type === 'TSInstantiationExpression' || isTypeScriptExpressionWrapper(node))) {
+		node = node.expression;
+	}
+
+	return node;
+};
+
+const getNonTypeDefinitions = variable => variable.defs.filter(definition => definition.type !== 'Type');
+
+/** Get the unique value binding and definition for an identifier, skipping type-only bindings. */
+const getVariableInfo = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	let scope = context.sourceCode.getScope(node);
+	let variable = findVariable(scope, node);
+	let definitions = variable ? getNonTypeDefinitions(variable) : [];
+	while (variable && definitions.length === 0) {
+		scope = scope.upper;
+		if (!scope) {
+			return;
+		}
+
+		variable = findVariable(scope, node.name);
+		definitions = variable ? getNonTypeDefinitions(variable) : [];
+	}
+
+	if (!variable || definitions.length !== 1) {
+		return;
+	}
+
+	return {
+		variable,
+		definition: definitions[0],
+	};
+};
+
+const getConstVariableInfo = (node, context) => {
+	const variableInfo = getVariableInfo(node, context);
+	const definition = variableInfo?.definition;
+	if (
+		!variableInfo
+		|| definition.type !== 'Variable'
+		|| definition.node.type !== 'VariableDeclarator'
+		|| definition.parent.type !== 'VariableDeclaration'
+		|| definition.parent.kind !== 'const'
+	) {
+		return;
+	}
+
+	return {
+		...variableInfo,
+		initializer: definition.node.init,
+	};
+};
+
+const getSimpleConstVariableInfo = (node, context) => {
+	const variableInfo = getConstVariableInfo(node, context);
+	return variableInfo?.definition.node.id.type === 'Identifier' ? variableInfo : undefined;
+};
+
+const getImportSpecifierName = node => node.imported.type === 'Identifier' ? node.imported.name : node.imported.value;
+
+// Only runtime ESM imports are supported. CommonJS `require()` and TypeScript `import =` declarations are intentionally ignored.
+const getNodeSqliteImportSpecifier = (node, context) => {
+	const definition = getVariableInfo(node, context)?.definition;
+	if (
+		!definition
+		|| definition.type !== 'ImportBinding'
+		|| definition.parent.type !== 'ImportDeclaration'
+		|| definition.parent.source.value !== 'node:sqlite'
+		|| !isRuntimeImportSpecifier(definition.node)
+	) {
+		return;
+	}
+
+	return definition.node;
+};
+
+const isDatabaseSyncImport = (node, context) => {
+	const specifier = getNodeSqliteImportSpecifier(node, context);
+	return specifier?.type === 'ImportSpecifier'
+		&& getImportSpecifierName(specifier) === 'DatabaseSync';
+};
+
+const isSqliteNamespaceImport = (node, context) => {
+	const specifier = getNodeSqliteImportSpecifier(node, context);
+
+	return specifier?.type === 'ImportNamespaceSpecifier'
+		|| specifier?.type === 'ImportDefaultSpecifier'
+		|| (
+			specifier?.type === 'ImportSpecifier'
+			&& getImportSpecifierName(specifier) === 'default'
+		);
+};
+
+const isDatabaseSyncConstructor = (node, context, seenVariables = new Set()) => {
+	const callee = unwrapExpression(node);
+	if (!callee) {
+		return false;
+	}
+
+	if (callee.type === 'Identifier') {
+		if (isDatabaseSyncImport(callee, context)) {
+			return true;
+		}
+
+		const variableInfo = getSimpleConstVariableInfo(callee, context);
+		if (!variableInfo || seenVariables.has(variableInfo.variable)) {
+			return false;
+		}
+
+		seenVariables.add(variableInfo.variable);
+		return isDatabaseSyncConstructor(variableInfo.initializer, context, seenVariables);
+	}
+
+	if (callee.type !== 'MemberExpression' || getPropertyName(callee, context.sourceCode.getScope(callee)) !== 'DatabaseSync') {
+		return false;
+	}
+
+	return isSqliteNamespace(callee.object, context);
+};
+
+const isSqliteNamespace = (node, context, seenVariables = new Set()) => {
+	node = unwrapExpression(node);
+	if (node?.type !== 'Identifier') {
+		return false;
+	}
+
+	if (isSqliteNamespaceImport(node, context)) {
+		return true;
+	}
+
+	const variableInfo = getSimpleConstVariableInfo(node, context);
+	if (!variableInfo || seenVariables.has(variableInfo.variable)) {
+		return false;
+	}
+
+	seenVariables.add(variableInfo.variable);
+	return isSqliteNamespace(variableInfo.initializer, context, seenVariables);
+};
+
+const createDatabaseInstanceChecker = context => {
+	const cache = new WeakMap();
+
+	const isDatabaseInstance = (node, seenVariables = new Set()) => {
+		node = unwrapExpression(node);
+		if (!node) {
+			return false;
+		}
+
+		if (node.type === 'NewExpression') {
+			return isDatabaseSyncConstructor(node.callee, context);
+		}
+
+		if (node.type !== 'Identifier') {
+			return false;
+		}
+
+		const variableInfo = getSimpleConstVariableInfo(node, context);
+		if (!variableInfo) {
+			return false;
+		}
+
+		const {variable, initializer} = variableInfo;
+		if (cache.has(variable)) {
+			return cache.get(variable);
+		}
+
+		if (seenVariables.has(variable)) {
+			return false;
+		}
+
+		seenVariables.add(variable);
+		const result = isDatabaseInstance(initializer, seenVariables);
+		cache.set(variable, result);
+
+		return result;
+	};
+
+	return isDatabaseInstance;
+};
+
+const createUnsafeSqlArgumentChecker = context => {
+	const cache = new WeakMap();
+
+	const isUnsafeSqlArgument = (node, seenVariables = new Set()) => {
+		node = unwrapExpression(node);
+		if (!node) {
+			return false;
+		}
+
+		if (node.type === 'TemplateLiteral') {
+			return node.expressions.length > 0;
+		}
+
+		if (node.type === 'TaggedTemplateExpression') {
+			return true;
+		}
+
+		if (node.type !== 'Identifier') {
+			return false;
+		}
+
+		const variableInfo = getSimpleConstVariableInfo(node, context);
+		if (!variableInfo) {
+			return false;
+		}
+
+		const {variable, initializer} = variableInfo;
+		if (cache.has(variable)) {
+			return cache.get(variable);
+		}
+
+		if (seenVariables.has(variable)) {
+			return false;
+		}
+
+		seenVariables.add(variable);
+		const result = isUnsafeSqlArgument(initializer, seenVariables);
+		cache.set(variable, result);
+
+		return result;
+	};
+
+	return isUnsafeSqlArgument;
+};
+
+const getProblem = (callExpression, context, isDatabaseInstance, isUnsafeSqlArgument) => {
+	const callee = unwrapExpression(callExpression.callee);
+	if (callee?.type !== 'MemberExpression') {
+		return;
+	}
+
+	const method = getPropertyName(callee, context.sourceCode.getScope(callee));
+	if (!databaseMethods.has(method) || !isDatabaseInstance(callee.object)) {
+		return;
+	}
+
+	const [sql] = callExpression.arguments;
+	if (!isUnsafeSqlArgument(sql, new Set())) {
+		return;
+	}
+
+	return {
+		node: sql,
+		messageId: MESSAGE_ID,
+	};
+};
+
+/** @param {import('eslint').Rule.RuleContext} context */
+const create = context => {
+	const callExpressions = [];
+
+	context.on('CallExpression', node => {
+		callExpressions.push(node);
+	});
+
+	context.onExit('Program', function * () {
+		const isDatabaseInstance = createDatabaseInstanceChecker(context);
+		const isUnsafeSqlArgument = createUnsafeSqlArgumentChecker(context);
+
+		for (const callExpression of callExpressions) {
+			const problem = getProblem(callExpression, context, isDatabaseInstance, isUnsafeSqlArgument);
+			if (problem) {
+				yield problem;
+			}
+		}
+	});
+};
+
+/** @type {import('eslint').Rule.RuleModule} */
+const config = {
+	create,
+	meta: {
+		type: 'problem',
+		docs: {
+			description: 'Disallow interpolation into SQL strings passed to Node’s `node:sqlite` APIs.',
+			recommended: 'unopinionated',
+		},
+		schema: [],
+		messages,
+		languages: [
+			'js/js',
+		],
+	},
+};
+
+export default config;
