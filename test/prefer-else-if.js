@@ -284,6 +284,98 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		// The trailing `else` makes the previous chain exhaustive.
+		outdent`
+			if (foo === 1) {}
+			else if (foo === 2) {}
+			else {}
+
+			if (foo === 3) {}
+		`,
+		// The trailing `else` would stop running once the following chain is joined.
+		outdent`
+			if (foo === 1) {}
+
+			if (foo === 2) {}
+			else if (foo === 3) {}
+			else {}
+		`,
+		// A later condition in the previous chain repeats the following value.
+		outdent`
+			if (foo === 1) {}
+			else if (foo === 2) {}
+
+			if (foo === 2) {}
+		`,
+		// A later condition in the following chain repeats a previous value.
+		outdent`
+			if (foo === 1) {}
+
+			if (foo === 2) {}
+			else if (foo === 1) {}
+		`,
+		// A later condition in the following chain checks another discriminant.
+		outdent`
+			if (foo === 1) {}
+
+			if (foo === 2) {}
+			else if (bar === 3) {}
+		`,
+		// A later condition in the previous chain checks another discriminant.
+		outdent`
+			if (foo === 1) {}
+			else if (bar === 2) {}
+
+			if (foo === 3) {}
+		`,
+		// A later branch in the previous chain exits.
+		outdent`
+			function unicorn() {
+				if (foo === 1) {}
+				else if (foo === 2) {
+					return;
+				}
+
+				if (foo === 3) {}
+			}
+		`,
+		// A later branch in the previous chain mutates the discriminant.
+		outdent`
+			if (foo === 1) {}
+			else if (foo === 2) {
+				foo = 3;
+			}
+
+			if (foo === 3) {}
+		`,
+		// The first branch in the previous chain exits.
+		outdent`
+			function unicorn() {
+				if (foo === 1) {
+					return;
+				}
+				else if (foo === 2) {}
+
+				if (foo === 3) {}
+			}
+		`,
+		// The first branch in the previous chain mutates the discriminant.
+		outdent`
+			if (foo === 1) {
+				foo = 3;
+			}
+			else if (foo === 2) {}
+
+			if (foo === 3) {}
+		`,
+		// Every value of a `||` condition inside a chain counts towards the overlap check.
+		outdent`
+			if (foo === 1) {}
+			else if (foo === 2 || foo === 3) {}
+
+			if (foo === 4) {}
+			else if (foo === 3) {}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -454,5 +546,55 @@ test.snapshot({
 				}
 			}
 		`,
+		// A chain that is joined with the following `if`, from issue #3586.
+		outdent`
+			if (foo === 1) {}
+			else if (foo === 2) {}
+
+			if (foo === 3) {}
+			else if (foo === 4) {}
+
+			if (foo === 5) {}
+		`,
+		// A later branch in the previous chain has a side effect, so only a suggestion is offered.
+		outdent`
+			if (foo === 1) {}
+			else if (foo === 2) {
+				bar();
+			}
+
+			if (foo === 3) {}
+		`,
+		// The first branch in the previous chain has a side effect, so only a suggestion is offered.
+		outdent`
+			if (foo === 1) {
+				bar();
+			}
+			else if (foo === 2) {}
+
+			if (foo === 3) {}
+		`,
+		// Every value of a `||` condition inside a chain counts, in both chains.
+		outdent`
+			if (foo === 1 || foo === 2) {}
+			else if (foo === 3) {}
+
+			if (foo === 4) {}
+			else if (foo === 5 || foo === 6) {}
+		`,
+		// A later condition in the following chain has a side effect, so only a suggestion is offered.
+		{
+			code: outdent`
+				function unicorn(foo: boolean) {
+					if (foo === false) {}
+
+					if (foo === true) {}
+					else if (Boolean(foo)) {}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 });

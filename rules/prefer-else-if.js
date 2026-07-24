@@ -238,6 +238,62 @@ function getComparisonInfo(node, context) {
 }
 
 /**
+Collect the `if` statements of an `if`/`else if` chain.
+
+Returns `undefined` when the chain ends with an `else`, since the trailing `else` runs whenever no earlier branch matched, so the chain cannot be joined with an adjacent `if`.
+
+@param {ESTree.IfStatement} ifStatement
+@returns {ESTree.IfStatement[] | undefined}
+*/
+function getIfStatementChain(ifStatement) {
+	const chain = [];
+
+	for (let node = ifStatement; ; node = node.alternate) {
+		chain.push(node);
+
+		if (!node.alternate) {
+			return chain;
+		}
+
+		if (node.alternate.type !== 'IfStatement') {
+			return;
+		}
+	}
+}
+
+/**
+@param {ESTree.IfStatement[]} chain
+@param {ESLint.Rule.RuleContext} context
+@returns {ComparisonInfo | undefined}
+*/
+function getChainComparisonInfo(chain, context) {
+	let discriminant;
+	const valueKeys = new Set();
+
+	for (const {test} of chain) {
+		const info = getComparisonInfo(test, context);
+
+		if (
+			!info
+			|| (discriminant && !isSame(discriminant, info.discriminant))
+		) {
+			return;
+		}
+
+		discriminant ||= info.discriminant;
+
+		for (const valueKey of info.valueKeys) {
+			valueKeys.add(valueKey);
+		}
+	}
+
+	return {
+		discriminant,
+		valueKeys,
+	};
+}
+
+/**
 @param {ESTree.Expression} node
 @returns {ESTree.Expression[]}
 */
@@ -404,12 +460,12 @@ const fix = ifStatement => fixer => fixer.insertTextBefore(ifStatement, 'else ')
 
 /**
 @param {ComparisonInfo} previous
-@param {ESTree.IfStatement} previousIfStatement
-@param {ESTree.IfStatement} ifStatement
+@param {ESTree.IfStatement[]} previousChain
+@param {ESTree.IfStatement[]} chain
 @param {ESLint.Rule.RuleContext} context
 @returns {boolean}
 */
-const canAutofix = (previous, previousIfStatement, ifStatement, context) => {
+const canAutofix = (previous, previousChain, chain, context) => {
 	const discriminant = unwrapExpression(previous.discriminant);
 	const hasSideEffectOptions = {
 		considerGetters: true,
@@ -417,12 +473,12 @@ const canAutofix = (previous, previousIfStatement, ifStatement, context) => {
 	};
 
 	return discriminant.type === 'Identifier'
-		&& !hasSideEffect(
-			previousIfStatement.consequent,
+		&& previousChain.every(({consequent}) => !hasSideEffect(
+			consequent,
 			context.sourceCode,
 			hasSideEffectOptions,
-		)
-		&& !hasSideEffect(ifStatement.test, context.sourceCode, hasSideEffectOptions);
+		))
+		&& chain.every(({test}) => !hasSideEffect(test, context.sourceCode, hasSideEffectOptions));
 };
 
 /**
@@ -433,20 +489,27 @@ const canAutofix = (previous, previousIfStatement, ifStatement, context) => {
 @returns {ESLint.Rule.ReportDescriptor | undefined}
 */
 function getProblem(previousIfStatement, ifStatement, context, branchAlwaysExits) {
+	const previousChain = getIfStatementChain(previousIfStatement);
+	const chain = getIfStatementChain(ifStatement);
+
 	if (
-		previousIfStatement.alternate
-		|| ifStatement.alternate
-		|| branchAlwaysExits(previousIfStatement.consequent)
+		!previousChain
+		|| !chain
+		|| previousChain.some(({consequent}) => branchAlwaysExits(consequent))
 	) {
 		return;
 	}
 
-	const previous = getComparisonInfo(previousIfStatement.test, context);
-	const current = getComparisonInfo(ifStatement.test, context);
+	const previous = getChainComparisonInfo(previousChain, context);
+	const current = getChainComparisonInfo(chain, context);
 
-	if (!(previous
-		&& current
-		&& isSame(previous.discriminant, current.discriminant)) || hasOverlappingValues(previous.valueKeys, current.valueKeys) || hasDirectDiscriminantMutation(previousIfStatement.consequent, previous.discriminant, context)) {
+	if (
+		!previous
+		|| !current
+		|| !isSame(previous.discriminant, current.discriminant)
+		|| hasOverlappingValues(previous.valueKeys, current.valueKeys)
+		|| previousChain.some(({consequent}) => hasDirectDiscriminantMutation(consequent, previous.discriminant, context))
+	) {
 		return;
 	}
 
@@ -456,7 +519,7 @@ function getProblem(previousIfStatement, ifStatement, context, branchAlwaysExits
 	};
 	const fixFunction = fix(ifStatement);
 
-	if (canAutofix(previous, previousIfStatement, ifStatement, context)) {
+	if (canAutofix(previous, previousChain, chain, context)) {
 		problem.fix = fixFunction;
 	} else {
 		problem.suggest = [
