@@ -13,6 +13,8 @@ ES2019 introduced a new method [`Array#flat()`](https://developer.mozilla.org/en
 
 The native method expresses flattening directly and avoids verbose or indirect flattening patterns.
 
+A `.reduce()` receiver known not to be an array is ignored, including a typed array, since the `.flat()` replacement does not exist on it. Unknown receivers are still reported.
+
 ## Examples
 
 ```js

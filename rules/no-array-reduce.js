@@ -4,6 +4,7 @@ import {
 	getAvailableVariableName,
 	getLastTrailingCommentOnSameLine,
 	getParenthesizedText,
+	isKnownBigIntTypedArray,
 	isFunctionSelfUsedInside,
 	isKnownNonNumber,
 	isNodeValueNotFunction,
@@ -100,6 +101,7 @@ function getSumPreciseSuggestions(callExpression, context) {
 		|| sourceCode.getCommentsInside(callExpression).length > 0
 		// `Math.sumPrecise()` throws on non-numbers, so don't suggest it for a provably non-numeric sum (e.g. string concatenation). Only the accumulator and element parameters matter.
 		|| [callback.params[0], callback.params[1]].some(parameter => isKnownNonNumber(parameter, context))
+		|| isKnownBigIntTypedArray(callExpression.callee.object, context)
 	) {
 		return;
 	}
@@ -662,13 +664,13 @@ const create = context => {
 				continue;
 			}
 
-			// Skip receivers that are provably not arrays (e.g. a typed `Set`)
-			if (getReceiver && shouldSkipKnownNonArrayReceiver(getReceiver(callExpression), context)) {
+			// TODO: Once `Math.sumPrecise()` is widely available, report (and suggest) sum reduces even when `allowSimpleOperations` is enabled, so the option only exempts operations `Math.sumPrecise()` can't express.
+			if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
 				continue;
 			}
 
-			// TODO: Once `Math.sumPrecise()` is widely available, report (and suggest) sum reduces even when `allowSimpleOperations` is enabled, so the option only exempts operations `Math.sumPrecise()` can't express.
-			if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
+			// Skip receivers known to be neither an array nor a typed array (e.g. a typed `Set`). Resolving the receiver type is expensive, so it runs after the cheap checks.
+			if (getReceiver && shouldSkipKnownNonArrayReceiver(getReceiver(callExpression), context)) {
 				continue;
 			}
 

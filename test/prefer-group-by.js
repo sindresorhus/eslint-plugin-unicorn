@@ -134,5 +134,10 @@ test.snapshot({
 		'items.reduce((groups, item) => {const key = {}; groups[key] ??= []; groups[key].push(item); return groups;}, {});',
 		'items.reduce((groups, item) => {const key = {}; const group = groups.get(key) ?? []; group.push(item); groups.set(key, group); return groups;}, new Map());',
 		typeAware('function foo(items: Item[]) {items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}'),
+		// A typed array shares `Array#reduce()`, and `Object.groupBy()` accepts any iterable
+		{
+			code: 'function f(items: Int8Array) { items.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {}); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

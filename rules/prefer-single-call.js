@@ -7,6 +7,7 @@ import {
 	getPreviousNode,
 	hasOptionalChainElement,
 	needsSemicolon,
+	shouldSkipKnownNonArrayReceiver,
 } from './utils/index.js';
 import {isMethodCall, isMemberExpression, isCallExpression} from './ast/index.js';
 
@@ -81,6 +82,7 @@ const cases = [
 			method: 'push',
 			optionalCall: false,
 		}),
+		checkArrayReceiver: true,
 		ignore: [
 			'stream.push',
 			'this.push',
@@ -96,6 +98,7 @@ const cases = [
 			method: 'unshift',
 			optionalCall: false,
 		}),
+		checkArrayReceiver: true,
 		keepSecondCall: true,
 		ignore: [
 			'stream.unshift',
@@ -132,36 +135,58 @@ const cases = [
 	},
 ];
 
+// Find the immediately preceding statement that is the same call on the same receiver, so the two can be merged.
+function getMergeableFirstCall(secondCall, {test, ignoredCallee, checkArrayReceiver}, context) {
+	if (isNodeMatches(secondCall.callee, ignoredCallee)) {
+		return;
+	}
+
+	const secondExpressionStatement = getExpressionStatement(secondCall);
+	if (!secondExpressionStatement) {
+		return;
+	}
+
+	const firstExpressionStatement = getPreviousNode(secondExpressionStatement, context);
+	if (firstExpressionStatement?.type !== 'ExpressionStatement') {
+		return;
+	}
+
+	const firstCall = getCallExpressionFromExpressionStatement(firstExpressionStatement);
+	if (
+		!test(firstCall)
+		|| !isSameReference(firstCall.callee, secondCall.callee)
+		|| (checkArrayReceiver && shouldSkipKnownNonArrayReceiver(secondCall.callee.object, context))
+	) {
+		return;
+	}
+
+	return {firstCall, firstExpressionStatement, secondExpressionStatement};
+}
+
 function create(context) {
 	const {ignore: ignoredCalleeInOptions} = context.options[0];
 	const {sourceCode} = context;
 
 	context.on('CallExpression', function * (secondCall) {
-		for (const {description, test, ignore = [], keepSecondCall = false} of cases) {
+		for (const {description, test, ignore = [], keepSecondCall = false, checkArrayReceiver = false} of cases) {
 			if (!test(secondCall)) {
 				continue;
 			}
 
-			const ignoredCallee = [...ignore, ...ignoredCalleeInOptions];
-			if (isNodeMatches(secondCall.callee, ignoredCallee)) {
+			const match = getMergeableFirstCall(
+				secondCall,
+				{
+					test,
+					ignoredCallee: [...ignore, ...ignoredCalleeInOptions],
+					checkArrayReceiver,
+				},
+				context,
+			);
+			if (!match) {
 				continue;
 			}
 
-			const secondExpressionStatement = getExpressionStatement(secondCall);
-			if (!secondExpressionStatement) {
-				continue;
-			}
-
-			const firstExpressionStatement = getPreviousNode(secondExpressionStatement, context);
-			if (firstExpressionStatement?.type !== 'ExpressionStatement') {
-				continue;
-			}
-
-			const firstCall = getCallExpressionFromExpressionStatement(firstExpressionStatement);
-
-			if (!test(firstCall) || !isSameReference(firstCall.callee, secondCall.callee)) {
-				continue;
-			}
+			const {firstCall, firstExpressionStatement, secondExpressionStatement} = match;
 
 			const {
 				shouldKeepSecondCall,

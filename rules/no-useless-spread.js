@@ -174,6 +174,9 @@ const isKnownArrayMethodClone = (node, context) => {
 	return isArray(node.callee.object, context) && isArray(node, context);
 };
 
+/*
+Deliberately not `isKnownNonIndexedCollection`: spreading a typed array produces a plain array, so `[...typedArray.slice()]` is a real conversion rather than a useless spread.
+*/
 const isHeuristicArrayClone = (node, context) => {
 	if (isKnownNonArray(node, context)) {
 		return false;

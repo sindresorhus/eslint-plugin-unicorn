@@ -72,6 +72,8 @@ Functions to ignore.
 
 `stream.push`, `stream.unshift`, `this.push`, `this.unshift`, `this.stream.push`, `this.stream.unshift`, `process.stdin.push`, `process.stdin.unshift`, `process.stdout.push`, `process.stdout.unshift`, `process.stderr.push`, and `process.stderr.unshift` are ignored by default.
 
+`push()` and `unshift()` calls are also skipped when the receiver is known not to be an array, so this option is rarely needed in TypeScript. A locally declared type is recognized from its annotation alone, while a receiver whose type comes from another module, such as a stream, needs [type information](https://typescript-eslint.io/getting-started/typed-linting/).
+
 Example:
 
 ```js

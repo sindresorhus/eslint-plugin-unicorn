@@ -5,6 +5,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: {sort(comparator: (a: number, b: number) => number): void}) { foo.sort((a, b) => a > b ? 1 : -1); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// Already simple
 		'array.sort((a, b) => a - b)',
 		'array.sort((a, b) => b - a)',
@@ -201,6 +206,28 @@ test.snapshot({
 		// TypeScript
 		{
 			code: 'array.sort((a: number, b: number): number => a > b ? 1 : -1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A receiver that is known to be an array must still be reported
+		{
+			code: 'function f(foo: number[]) { foo.sort((a, b) => a > b ? 1 : -1); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A typed array shares `Array#sort()` and takes the same comparator
+		{
+			code: 'function f(foo: Int8Array) { foo.sort((a, b) => a > b ? 1 : -1); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// Subtraction throws for BigInt typed arrays
+		'new BigInt64Array().sort((a, b) => a > b ? 1 : -1)',
+		'new BigUint64Array().sort((a, b) => a > b ? 1 : -1)',
+		'BigInt64Array.from([]).sort((a, b) => a > b ? 1 : -1)',
+		'BigUint64Array.of(1n).sort((a, b) => a > b ? 1 : -1)',
+		{
+			code: 'function f(values: BigInt64Array | Int8Array) { values.sort((a, b) => a > b ? 1 : -1); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

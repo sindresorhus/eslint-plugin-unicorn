@@ -2,6 +2,7 @@ import {
 	getConstVariableInitializer,
 	getParenthesizedText,
 	isArrayPrototypeProperty,
+	isKnownNonArray,
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
 	isParenthesized,
@@ -47,7 +48,7 @@ const arrayFlatMap = {
 // `array.reduce((a, b) => [...a, ...b], [])`
 // `array?.reduce((a, b) => [...a, ...b], [])`
 const arrayReduce = {
-	testFunction(node) {
+	testFunction(node, context) {
 		if (!isMethodCall(node, {
 			method: 'reduce',
 			argumentsLength: 2,
@@ -68,7 +69,7 @@ const arrayReduce = {
 
 		const firstArgumentBody = firstArgument.body;
 		const [firstParameter, secondParameter] = firstArgument.params;
-		return (
+		if (!(
 			// `(a, b) => a.concat(b)`
 			(
 				isMethodCall(firstArgumentBody, {
@@ -89,7 +90,12 @@ const arrayReduce = {
 					&& node.argument.type === 'Identifier'
 					&& isSameIdentifier(firstArgument.params[index], node.argument))
 			)
-		);
+		)) {
+			return false;
+		}
+
+		// Deliberately `isKnownNonArray`, not `isKnownNonIndexedCollection`: the replacement calls `flat()`, which a typed array does not have, so a typed array must be skipped along with the other non-arrays
+		return !isKnownNonArray(node.callee.object, context);
 	},
 	getArrayNode: node => node.callee.object,
 	isOptionalArray: node => node.callee.optional,

@@ -7,7 +7,7 @@ import {
 } from './ast/index.js';
 import {
 	getParenthesizedText,
-	isKnownNonArray,
+	isKnownNonIndexedCollection,
 	isSameIdentifier,
 	isSameReference,
 	unwrapTypeScriptExpression,
@@ -463,7 +463,7 @@ const shouldSkipReduceCall = (callExpression, context) =>
 	|| callExpression.callee.optional
 	|| containsOptionalChain(callExpression.callee.object)
 	|| isSparseArrayReceiver(callExpression.callee.object)
-	|| isKnownNonArray(callExpression.callee.object, context);
+	|| isKnownNonIndexedCollection(callExpression.callee.object, context);
 
 function getGroupByMethod(initialValue) {
 	if (isEmptyObject(initialValue)) {

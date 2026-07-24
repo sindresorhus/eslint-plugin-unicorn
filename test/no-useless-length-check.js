@@ -10,6 +10,8 @@ test.snapshot({
 			code: 'function f(foo: Set<number>) { return foo.length === 0 || foo.every(Boolean); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A private method named `every` is not `Array#every()`
+		'class A { #every() {} foo() { return this.length === 0 || this.#every(Boolean); } }',
 		// `.length === 0 || .every()`
 		'array.length === 0 ?? array.every(Boolean)',
 		'array.length === 0 && array.every(Boolean)',
@@ -182,6 +184,11 @@ test.snapshot({
 		},
 		{
 			code: 'array!.length > 0 && array!.some(Boolean)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A typed array shares `Array#length` and `Array#every()`
+		{
+			code: 'function f(array: Int8Array) { return array.length === 0 || array.every(Boolean); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

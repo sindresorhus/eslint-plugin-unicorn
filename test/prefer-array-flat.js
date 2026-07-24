@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -123,12 +123,33 @@ test.snapshot({
 		'array.reduce((a, b) => a.notConcat(b), [])',
 		'array.reduce((a, b) => a.concat, [])',
 		'array.reduce((a, b) => Iterator.concat(a, b), [])',
+		// The replacement calls `flat()`, so a receiver known not to be an array is skipped
+		{
+			code: 'function f(foo: Set<number[]>) { foo.reduce((a, b) => a.concat(b), []); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A typed array has `reduce()` but no `flat()`, so it must be skipped too, in both spellings
+		{
+			code: 'function f(foo: Uint8Array) { foo.reduce((a, b) => a.concat(b), []); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const foo = new Uint8Array(); foo.reduce((a, b) => a.concat(b), []);',
+		// A string is not an array either, and has no `reduce()` to begin with
+		{
+			code: 'function f(foo: string) { foo.reduce((a, b) => a.concat(b), []); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'array.reduce((a, b) => a.concat(b), [])',
 		'array?.reduce((a, b) => a.concat(b), [])',
 		'function foo(){return[].reduce((a, b) => a.concat(b), [])}',
 		'function foo(){return[]?.reduce((a, b) => a.concat(b), [])}',
+		// A receiver known to be an array must still be reported
+		{
+			code: 'function f(foo: number[][]) { foo.reduce((a, b) => a.concat(b), []); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
@@ -157,11 +178,25 @@ test.snapshot({
 		'array.reduce((a, b) => [,...a, ...b], [])',
 		'array.reduce((a, b) => [, ], [])',
 		'array.reduce((a, b) => [, ,], [])',
+		// The spread form skips a non-array receiver the same way the `concat` form does
+		{
+			code: 'function f(foo: Set<number[]>) { foo.reduce((a, b) => [...a, ...b], []); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(foo: Uint8Array) { foo.reduce((a, b) => [...a, ...b], []); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'array.reduce((a, b) => [...a, ...b], [])',
 		'array.reduce((a, b) => [...a, ...b,], [])',
 		'function foo(){return[].reduce((a, b) => [...a, ...b,], [])}',
+		// A receiver known to be an array must still be reported
+		{
+			code: 'function f(foo: number[][]) { foo.reduce((a, b) => [...a, ...b], []); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

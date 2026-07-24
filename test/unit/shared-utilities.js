@@ -8,6 +8,8 @@ import {
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from '../../rules/utils/index.js';
+import {isLengthMinusOneOf, isLengthOf} from '../../rules/utils/comparison.js';
+import {typescriptEslintParser} from '../../scripts/parsers.js';
 
 test('getStaticStringValue returns strings from static string nodes', t => {
 	t.is(getStaticStringValue({
@@ -222,4 +224,43 @@ test('canTokensBeAdjacent detects merges from strings and tokens', t => {
 	// A comment token always swallows whatever follows it on the same line.
 	t.false(canTokensBeAdjacent({type: 'Line', value: '// foo'}, {type: 'Punctuator', value: '('}));
 	t.false(canTokensBeAdjacent({type: 'Shebang', value: '#!/usr/bin/env node'}, {type: 'Punctuator', value: '('}));
+});
+
+test('isLengthOf and isLengthMinusOneOf detect a `.length` access on a given object', t => {
+	// Parse `object.method(argument)` and return `[argument, object]`
+	const parse = code => {
+		const {expression} = typescriptEslintParser.parseForESLint(code).ast.body[0];
+
+		return [expression.arguments[0], expression.callee.object];
+	};
+
+	const isLengthOfCode = code => isLengthOf(...parse(code));
+	const isLengthMinusOneOfCode = code => isLengthMinusOneOf(...parse(code));
+
+	t.true(isLengthOfCode('foo.method(foo.length)'));
+	t.true(isLengthOfCode('foo.bar.method(foo.bar.length)'));
+	// TypeScript wrappers have no runtime effect, on either side
+	t.true(isLengthOfCode('foo.method((foo as string[]).length)'));
+	t.true(isLengthOfCode('foo.method(foo.length as number)'));
+	t.true(isLengthOfCode('(foo as string[]).method(foo.length)'));
+	t.true(isLengthOfCode('(foo satisfies string[]).method(foo.length)'));
+	t.true(isLengthOfCode('this.method(this.length)'));
+
+	t.false(isLengthOfCode('foo.method(bar.length)'));
+	t.false(isLengthOfCode('foo.method(foo.size)'));
+	t.false(isLengthOfCode('foo.method(foo?.length)'));
+	t.false(isLengthOfCode('foo.method(foo[length])'));
+	t.false(isLengthOfCode('foo.method(foo)'));
+
+	t.true(isLengthMinusOneOfCode('foo.method(foo.length - 1)'));
+	t.true(isLengthMinusOneOfCode('foo.method((foo.length - 1) as number)'));
+	t.true(isLengthMinusOneOfCode('foo.method((foo.length as number) - 1)'));
+	// `1.0` is the same number as `1`, `1n` is not
+	t.true(isLengthMinusOneOfCode('foo.method(foo.length - 1.0)'));
+	t.false(isLengthMinusOneOfCode('foo.method(foo.length - 1n)'));
+	t.false(isLengthMinusOneOfCode('foo.method(foo.length - 0)'));
+	t.false(isLengthMinusOneOfCode('foo.method(foo.length - 2)'));
+	t.false(isLengthMinusOneOfCode('foo.method(foo.length + 1)'));
+	t.false(isLengthMinusOneOfCode('foo.method(bar.length - 1)'));
+	t.false(isLengthMinusOneOfCode('foo.method(foo.length)'));
 });

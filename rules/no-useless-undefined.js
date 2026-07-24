@@ -6,7 +6,13 @@ import {
 	isMemberExpression,
 } from './ast/index.js';
 import {getStaticNumberValue, isTypeScriptFile, needsSemicolon} from './utils/index.js';
-import {containsOptionalChain, isSame, unwrapExpression} from './utils/comparison.js';
+import {
+	containsOptionalChain,
+	isLengthMinusOneOf,
+	isLengthOf,
+	isSame,
+	unwrapExpression,
+} from './utils/comparison.js';
 
 const messageId = 'no-useless-undefined';
 const suggestionMessageId = 'no-useless-undefined/suggestion';
@@ -185,30 +191,12 @@ function getLowerBoundTestValidity(test, indexAccess) {
 	}
 }
 
-function isLengthMemberExpressionFor(node, object) {
-	node = unwrapExpression(node);
-
-	return isMemberExpression(node, {
-		property: 'length',
-		optional: false,
-		computed: false,
-	})
-	&& isSame(node.object, object);
-}
-
 function getLengthBoundKind(node, object) {
-	node = unwrapExpression(node);
-
-	if (isLengthMemberExpressionFor(node, object)) {
+	if (isLengthOf(node, object)) {
 		return 'length';
 	}
 
-	if (
-		node.type === 'BinaryExpression'
-		&& node.operator === '-'
-		&& isLengthMemberExpressionFor(node.left, object)
-		&& getStaticNumberValue(node.right) === 1
-	) {
+	if (isLengthMinusOneOf(node, object)) {
 		return 'lengthMinusOne';
 	}
 }

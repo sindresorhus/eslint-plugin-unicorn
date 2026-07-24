@@ -3,7 +3,7 @@ import {
 	getParenthesizedRange,
 	isSameReference,
 	isLogicalExpression,
-	isKnownNonArray,
+	isKnownNonIndexedCollection,
 } from './utils/index.js';
 
 const messages = {
@@ -31,24 +31,29 @@ const create = context => {
 	const logicalExpressions = [];
 	const zeroLengthChecks = new Set();
 	const nonZeroLengthChecks = new Set();
-	const arraySomeCalls = new Set();
-	const arrayEveryCalls = new Set();
+
+	// Resolving the receiver type is expensive, so it runs last, after the cheap shape and reference checks
+	const isMatchingCall = (condition, method, lengthCheck) =>
+		isMethodCall(condition, {
+			method,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		&& isSameReference(lengthCheck.left.object, condition.callee.object)
+		// Ignore receivers known to be neither an array nor a typed array
+		&& !isKnownNonIndexedCollection(condition.callee.object, context);
 
 	function isUselessLengthCheckNode({node, operator, siblings}) {
 		return (
 			(
 				operator === '||'
 				&& zeroLengthChecks.has(node)
-				&& siblings.some(condition =>
-					arrayEveryCalls.has(condition)
-					&& isSameReference(node.left.object, condition.callee.object))
+				&& siblings.some(condition => isMatchingCall(condition, 'every', node))
 			)
 			|| (
 				operator === '&&'
 				&& nonZeroLengthChecks.has(node)
-				&& siblings.some(condition =>
-					arraySomeCalls.has(condition)
-					&& isSameReference(node.left.object, condition.callee.object))
+				&& siblings.some(condition => isMatchingCall(condition, 'some', node))
 			)
 		);
 	}
@@ -76,25 +81,6 @@ const create = context => {
 			zeroLengthChecks.add(node);
 		} else if (operator === '>' || operator === '!==') {
 			nonZeroLengthChecks.add(node);
-		}
-	});
-
-	context.on('CallExpression', node => {
-		if (
-			isMethodCall(node, {
-				optionalCall: false,
-				optionalMember: false,
-				computed: false,
-			})
-			&& node.callee.property.type === 'Identifier'
-			// Ignore receivers that are provably not arrays
-			&& !isKnownNonArray(node.callee.object, context)
-		) {
-			if (node.callee.property.name === 'some') {
-				arraySomeCalls.add(node);
-			} else if (node.callee.property.name === 'every') {
-				arrayEveryCalls.add(node);
-			}
 		}
 	});
 

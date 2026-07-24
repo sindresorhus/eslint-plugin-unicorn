@@ -4,6 +4,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: {splice(start: number, deleteCount: number, element: unknown): void}) { foo.splice(index, 1, element); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'array.splice(index)',
 		'array.splice(index, 1)',
 		'array.splice(index, 2, element)',
@@ -97,5 +102,7 @@ test.snapshot({
 		'array.toSpliced(-1 satisfies number, 0 satisfies number, element)',
 		'array.toSpliced(-1 satisfies number, 1, element)',
 		'array.toSpliced(-(1 satisfies number), 1, element)',
+		// A receiver that is known to be an array must still be reported
+		'function f(foo: unknown[]) { foo.splice(index, 1, element); }',
 	],
 });

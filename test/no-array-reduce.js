@@ -139,6 +139,16 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: errorsReduce,
 		},
+		// A typed array shares `Array#reduce()`, in both of the ways the receiver can be spelled
+		{
+			code: 'function f(foo: Int32Array) { return foo.reduce(fn); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsReduce,
+		},
+		{
+			code: 'const foo = new Int32Array(); foo.reduce(fn);',
+			errors: errorsReduce,
+		},
 		// Async callback is reported but not auto-fixed
 		{
 			code: 'array.reduce(async (total, item) => transform(total, item), initialValue)',
@@ -487,5 +497,11 @@ test.snapshot({
 		typeAware('function concat(values: string[]) { return values.reduce((a, b) => a + b); }', [allowSimpleOperationsDisabled]),
 		typeAware('function sum(values: boolean[]) { return values.reduce((a, b) => a + b); }', [allowSimpleOperationsDisabled]),
 		typeAware('function sum(values: bigint[]) { return values.reduce((a, b) => a + b); }', [allowSimpleOperationsDisabled]),
+		// BigInt typed arrays → no suggestion (`Math.sumPrecise()` would throw)
+		reported('new BigInt64Array().reduce((a, b) => a + b)'),
+		reported('new BigUint64Array().reduce((a, b) => a + b)'),
+		reported('BigInt64Array.from([]).reduce((a, b) => a + b)'),
+		reported('BigUint64Array.of(1n).reduce((a, b) => a + b)'),
+		reportedTypeScript('function sum(values: BigInt64Array | Int8Array) { return values.reduce((a, b) => a + b); }'),
 	],
 });

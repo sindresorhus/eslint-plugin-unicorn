@@ -58,6 +58,13 @@ test({
 		'[array.filter(foo)[0] = 1] = []',
 	],
 	invalid: [
+		// A typed array shares `Array#filter()` and `Array#find()`
+		{
+			code: 'function f(array: Int8Array) { return array.filter(foo)[0]; }',
+			output: 'function f(array: Int8Array) { return array.find(foo); }',
+			errors: [{messageId: ERROR_ZERO_INDEX}],
+			languageOptions: {parser: parsers.typescript},
+		},
 		{
 			code: 'array.filter(foo)[0]',
 			output: 'array.find(foo)',

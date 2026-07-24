@@ -13,7 +13,7 @@ import {
 	getAvailableVariableName,
 	getVariableIdentifiers,
 	hasCommentInRange,
-	isKnownNonArray,
+	isKnownNonIndexedCollection,
 } from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
 
@@ -43,14 +43,14 @@ const messages = {
 	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.',
 };
 
-// `array.filter(…)`, ignoring receivers that are provably not arrays
+// `array.filter(…)`, ignoring receivers known to be neither an array nor a typed array
 const isArrayFilterCall = (node, context, options) => isMethodCall(node, {
 	method: 'filter',
 	minimumArguments: 1,
 	maximumArguments: 2,
 	optionalCall: false,
 	...options,
-}) && !isKnownNonArray(node.callee.object, context);
+}) && !isKnownNonIndexedCollection(node.callee.object, context);
 
 // `-1`
 const isNegativeOneLiteral = node =>

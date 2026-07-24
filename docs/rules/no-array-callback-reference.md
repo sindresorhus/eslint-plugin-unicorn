@@ -15,7 +15,7 @@ This rule intentionally reports locally declared callbacks too. Use an inline wr
 
 Type predicate callbacks are allowed for `.every()`, `.filter()`, `.find()`, and `.findLast()` because wrapping them can fail to preserve TypeScript's predicate overload narrowing.
 
-When TypeScript type information is available, this rule ignores receivers that are known not to be arrays or typed arrays. Untyped JavaScript and unknown TypeScript receivers are still checked heuristically, so use the `ignore` option or an inline disable for unsupported non-array APIs that intentionally share array method names.
+A receiver known to be neither an array nor a typed array, such as a `Set` or a locally declared class with a same-named method, is ignored. A locally declared type is recognized from its annotation alone, while a receiver whose type comes from another module needs [type information](https://typescript-eslint.io/getting-started/typed-linting/). Unknown receivers are still reported, so use the `ignore` option or an inline disable for non-array APIs that intentionally share array method names.
 
 Suppose you have a `unicorn` module:
 

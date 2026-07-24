@@ -11,6 +11,8 @@
 
 Without an explicit compare function, [`Array#sort()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) and [`Array#toSorted()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted) sort elements by converting them to strings, which produces unexpected results for numbers and other non-string values.
 
+A typed array is never reported, because [`TypedArray#sort()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/sort) already sorts numerically. Most array rules do report a typed array receiver, since it shares `Array`'s method surface.
+
 ## Examples
 
 ```js

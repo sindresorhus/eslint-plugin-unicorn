@@ -5,7 +5,7 @@ import {
 	getParenthesizedRange,
 	hasCommentInRange,
 	isArray,
-	isKnownNonArray,
+	isKnownNonIndexedCollection,
 	isNodeValueNotFunction,
 } from './utils/index.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
@@ -116,7 +116,7 @@ const create = context => {
 			return;
 		}
 
-		if (isKnownNonArray(callExpression.callee.object, context)) {
+		if (isKnownNonIndexedCollection(callExpression.callee.object, context)) {
 			return;
 		}
 
@@ -198,7 +198,7 @@ const create = context => {
 			return;
 		}
 
-		if (isKnownNonArray(left.callee.object, context)) {
+		if (isKnownNonIndexedCollection(left.callee.object, context)) {
 			return;
 		}
 
@@ -253,11 +253,11 @@ const create = context => {
 		const filterCall = binaryExpression.left.object;
 		const filterCallObject = filterCall.callee.object;
 		if (
-			isKnownNonArray(filterCallObject, context)
-			|| (
+			(
 				filterCallObject.type === 'Identifier'
 				&& filterCallObject.name.startsWith('$')
 			)
+			|| isKnownNonIndexedCollection(filterCallObject, context)
 		) {
 			return;
 		}

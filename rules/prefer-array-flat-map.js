@@ -1,7 +1,7 @@
 import {
 	getParenthesizedText,
 	hasOptionalChainElement,
-	isKnownNonArray,
+	isKnownNonIndexedCollection,
 	isNodeMatches,
 	isParenthesized,
 	isSameIdentifier,
@@ -169,7 +169,7 @@ const create = context => {
 			})
 			|| hasTypeArguments(filterCallExpression)
 			|| hasOptionalChainElement(filterCallExpression.callee.object)
-			|| isKnownNonArray(filterCallExpression.callee.object, context)
+			|| isKnownNonIndexedCollection(filterCallExpression.callee.object, context)
 		) {
 			return;
 		}

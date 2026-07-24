@@ -1,18 +1,13 @@
 import isIdentifier from 'is-identifier';
 import {findVariable} from '@eslint-community/eslint-utils';
-import typedArray from './shared/typed-array.js';
 import {isMethodCall, isUndefined} from './ast/index.js';
 import {
-	getBaseTypes,
-	getTypeSymbol,
-	isDefaultLibrarySymbol,
-	isNullishType,
-	isUnknownType,
 	isNodeMatches,
 	isNodeValueNotFunction,
 	isParenthesized,
 	getParenthesizedRange,
 	getParenthesizedText,
+	isKnownNonIndexedCollection,
 	shouldAddParenthesesToCallExpressionCallee,
 	singular,
 	unwrapTypeScriptExpression,
@@ -164,8 +159,15 @@ const defaultIgnoredCallees = [
 	'jQuery',
 ];
 
-const typedArrayTypes = new Set(typedArray);
-const arrayTypeNames = new Set(['Array', 'ReadonlyArray']);
+/*
+A class that extends `Array` is a valid receiver, and a locally declared class that shadows a built-in name is not, so the class syntax and heritage are both worth resolving. A union is skipped as soon as one member is a non-array, since the call may land on that member, whose same-named method takes a callback of its own shape. Nullish members are dropped first, because a nullish receiver throws before the callback matters either way.
+*/
+const receiverTypeOptions = {
+	allowNullishInMixedUnion: true,
+	checkClassHeritage: true,
+	checkClassSyntax: true,
+	treatMixedUnionAsNonTarget: true,
+};
 
 const definitelyNotFunctionValueNodeTypes = new Set([
 	'ArrayExpression',
@@ -177,71 +179,6 @@ const definitelyNotFunctionValueNodeTypes = new Set([
 	'UnaryExpression',
 	'UpdateExpression',
 ]);
-
-function shouldReportReceiverType(type, checker, program, allowNullish) {
-	if (isUnknownType(type)) {
-		return true;
-	}
-
-	if (type.isUnion()) {
-		const types = allowNullish
-			? type.types.filter(type => !isNullishType(type))
-			: type.types;
-
-		return types.length > 0 && types.every(type => shouldReportReceiverType(type, checker, program, allowNullish));
-	}
-
-	const constraint = checker.getBaseConstraintOfType(type);
-	if (constraint && constraint !== type) {
-		return shouldReportReceiverType(constraint, checker, program, allowNullish);
-	}
-
-	if (isNullishType(type)) {
-		return false;
-	}
-
-	const types = type.isIntersection() ? type.types : [type];
-	return types.some(type => {
-		if (isUnknownType(type)) {
-			return true;
-		}
-
-		if (checker.isArrayType(type) || checker.isTupleType(type)) {
-			return true;
-		}
-
-		if (getBaseTypes(type, checker).some(baseType => shouldReportReceiverType(baseType, checker, program, allowNullish))) {
-			return true;
-		}
-
-		const symbol = getTypeSymbol(type);
-		if (!isDefaultLibrarySymbol(symbol, program)) {
-			return false;
-		}
-
-		const typeName = symbol.getName();
-		return arrayTypeNames.has(typeName) || typedArrayTypes.has(typeName);
-	});
-}
-
-function shouldReportReceiver(callExpression, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return true;
-	}
-
-	try {
-		const {program} = parserServices;
-		return shouldReportReceiverType(
-			parserServices.getTypeAtLocation(callExpression.callee.object),
-			program.getTypeChecker(),
-			program,
-			callExpression.callee.optional,
-		);
-	} catch {
-		return true;
-	}
-}
 
 function getConstVariableInitializer(node, context, visitedVariables) {
 	node = unwrapTypeScriptExpression(node);
@@ -489,16 +426,21 @@ const create = context => {
 		}
 
 		const options = iteratorMethods.get(methodName);
-		if (
-			options.shouldIgnoreCallExpression(callExpression, ignoredCallees)
-			|| !shouldReportReceiver(callExpression, context)
-		) {
+		if (options.shouldIgnoreCallExpression(callExpression, ignoredCallees)) {
 			return;
 		}
 
 		const callbackArgument = callExpression.arguments[0];
 		const callbacks = [...getTernaryConsequentAndALternate(callbackArgument)];
 		const reportableCallbacks = callbacks.filter(callback => !shouldIgnoreCallback(callback, methodName, options, context));
+
+		// Resolving the receiver type is expensive, so it runs last, after an inline callback has already been ruled out
+		if (
+			reportableCallbacks.length === 0
+			|| isKnownNonIndexedCollection(callExpression.callee.object, context, receiverTypeOptions)
+		) {
+			return;
+		}
 
 		for (const callback of reportableCallbacks) {
 			yield getProblem(context, callback, callExpression, options);

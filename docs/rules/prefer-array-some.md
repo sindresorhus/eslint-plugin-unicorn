@@ -27,7 +27,7 @@ This rule is fixable for `.filter(…).length` checks and `.{findIndex,findLastI
 
 This rule provides a suggestion for `.{find,findLast}(…)`.
 
-This rule skips receivers known to be non-arrays from syntax, TypeScript annotations, or TypeScript type information. Unknown receivers are still checked.
+This rule skips receivers known to be neither an array nor a typed array, from syntax, TypeScript annotations, or TypeScript type information. Unknown receivers are still checked.
 
 ## Examples
 

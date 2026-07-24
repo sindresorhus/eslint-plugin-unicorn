@@ -5,6 +5,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(set: Set<number>) { return set.toSorted((a, b) => a - b)[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const minimum = Math.min(...array);',
 		'const minimum = array.reduce((minimum, value) => Math.min(minimum, value));',
 		'const minimum = array.sort()[0];',
@@ -51,6 +56,23 @@ test.snapshot({
 		},
 		{
 			code: 'const first = array.sort((a: number, b: number) => a - b).at(1);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// `Math.min()` and `Math.max()` reject BigInt typed arrays
+		'new BigInt64Array().sort((a, b) => a - b)[0];',
+		'new BigUint64Array().sort((a, b) => a - b).at(-1);',
+		'BigInt64Array.from([]).toSorted((a, b) => a - b)[0];',
+		'BigUint64Array.of(1n).toSorted((a, b) => a - b).at(-1);',
+		{
+			code: 'function f(values: BigInt64Array) { return values.sort((a, b) => a - b)[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(values: BigUint64Array) { return values.toSorted((a, b) => a - b).at(-1); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(values: BigInt64Array | Int8Array) { return values.toSorted((a, b) => a - b)[0]; }',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
@@ -100,6 +122,11 @@ test.snapshot({
 		},
 		{
 			code: 'const minimum = array.toSorted((a, b) => a - b satisfies number)[0];',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A typed array shares `Array#toSorted()`, and `Math.min()` spreads one just as well
+		{
+			code: 'function f(array: Int8Array) { return array.toSorted((a, b) => a - b)[0]; }',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

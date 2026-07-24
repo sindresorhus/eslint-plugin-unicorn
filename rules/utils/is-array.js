@@ -15,14 +15,30 @@ const nonArrayExpressionTypes = new Set([
 	'TemplateLiteral',
 ]);
 
-const knownNonArrayTypeNames = new Set([
-	...typedArray,
+const keyedCollectionTypeNames = new Set([
 	'Map',
 	'ReadonlyMap',
 	'WeakMap',
 	'Set',
 	'ReadonlySet',
 	'WeakSet',
+]);
+
+const bigIntTypedArrayTypeNames = new Set([
+	'BigInt64Array',
+	'BigUint64Array',
+]);
+
+const isBigIntTypedArrayNode = node => isMethodCall(node, {
+	objects: [...bigIntTypedArrayTypeNames],
+	methods: ['from', 'of'],
+	optionalCall: false,
+	optionalMember: false,
+});
+
+const knownNonArrayTypeNames = new Set([
+	...typedArray,
+	...keyedCollectionTypeNames,
 ]);
 
 const isArrayTypeAnnotation = node =>
@@ -52,10 +68,7 @@ const getStaticType = (value, node) => {
 		: nonTarget;
 };
 
-const {
-	isTarget: isArray,
-	isKnownNonTarget: isKnownNonArray,
-} = createTypeCheckers({
+const arrayTypeCheckerOptions = {
 	checkClassHeritage: false,
 	preferTypeReferenceDefinitions: true,
 	targetTypeNames: new Set([
@@ -70,10 +83,41 @@ const {
 	isTargetTypeAnnotation: isArrayTypeAnnotation,
 	isTargetType: (type, checker) => checker.isArrayType(type) || checker.isTupleType(type),
 	getStaticType,
+};
+
+const {
+	isTarget: isArray,
+	isKnownNonTarget: isKnownNonArray,
+} = createTypeCheckers(arrayTypeCheckerOptions);
+
+/*
+The indexed collections, `Array` and the typed arrays. A typed array is not an array, but it carries most of `Array`'s method surface (`sort()`, `with()`, `forEach()`, `join()`, `reduce()`, `indexOf()`, and the iteration methods), so rules about those methods read correctly on a typed array receiver.
+
+A typed array name must be a target in both of the ways it can be spelled, otherwise the two disagree: `targetTypeNames` covers the annotation `foo: Uint8Array` and the type-information symbol lookup, `targetConstructorNames` covers `new Uint8Array()`, which the blanket `NewExpression` rule in `isNonArrayNode` would otherwise claim.
+*/
+const {
+	isKnownNonTarget: isKnownNonIndexedCollection,
+} = createTypeCheckers({
+	...arrayTypeCheckerOptions,
+	targetTypeNames: new Set([
+		...arrayTypeCheckerOptions.targetTypeNames,
+		...typedArray,
+	]),
+	nonTargetTypeNames: keyedCollectionTypeNames,
+	targetConstructorNames: ['Array', ...typedArray],
+});
+
+const {isTarget: isKnownBigIntTypedArray} = createTypeCheckers({
+	treatMixedUnionAsTarget: true,
+	targetTypeNames: bigIntTypedArrayTypeNames,
+	targetConstructorNames: [...bigIntTypedArrayTypeNames],
+	isTargetNode: isBigIntTypedArrayNode,
 });
 
 export {
 	isKnownNonArray,
+	isKnownNonIndexedCollection,
+	isKnownBigIntTypedArray,
 };
 
 export default isArray;

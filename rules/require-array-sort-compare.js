@@ -56,6 +56,7 @@ const create = context => {
 			return;
 		}
 
+		// Deliberately not `isKnownNonIndexedCollection`: `TypedArray#sort()` already sorts numerically, so it needs no comparator
 		if (isKnownNonArray(callExpression.callee.object, context)) {
 			return;
 		}

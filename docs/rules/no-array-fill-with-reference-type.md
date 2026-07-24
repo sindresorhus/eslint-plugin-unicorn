@@ -11,6 +11,8 @@
 
 Create the value inside an `Array.from()` mapping function when each array element should receive a fresh object.
 
+A receiver known not to be an array is ignored, including a typed array, since [`TypedArray#fill()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/fill) coerces the value to a number and no two elements can end up sharing a reference. Unknown receivers are still reported.
+
 ## Examples
 
 ```js

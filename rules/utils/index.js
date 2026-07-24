@@ -67,7 +67,9 @@ export {
 export {default as isFunctionSelfUsedInside} from './is-function-self-used-inside.js';
 export {
 	default as isArray,
+	isKnownBigIntTypedArray,
 	isKnownNonArray,
+	isKnownNonIndexedCollection,
 } from './is-array.js';
 export {default as shouldSkipKnownNonArrayReceiver} from './should-skip-known-non-array-receiver.js';
 export {isRegExp, isKnownNonRegExp} from './is-reg-exp.js';

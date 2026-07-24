@@ -190,8 +190,9 @@ const create = context => {
 				optionalCall: false,
 			})
 			|| isNodeMatches(callExpression.callee, ignored)
-			|| shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context)
 			|| isNodeValueNotFunction(callExpression.arguments[0])
+			// Resolving the receiver type is expensive, so it runs last
+			|| shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context)
 		) {
 			return;
 		}

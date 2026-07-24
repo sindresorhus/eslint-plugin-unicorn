@@ -6,6 +6,11 @@ const {test} = getTester(import.meta);
 // `Array#push()`
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: {push(value: number): void}) { foo.push(1); foo.push(2); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			foo.forEach(fn);
 			foo.forEach(fn);
@@ -115,6 +120,8 @@ test.snapshot({
 			foo.push?.(1);
 			foo.push(2);
 		`,
+		// A `new Foo()` receiver other than `new Array()` is a known non-array
+		'const foo = new Foo(); foo.push(1); foo.push(2);',
 	],
 	invalid: [
 		outdent`
@@ -263,12 +270,22 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A receiver that is known to be an array must still be reported
+		{
+			code: 'function f(foo: number[]) { foo.push(1); foo.push(2); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
 // `Array#unshift()`
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: {unshift(value: number): void}) { foo.unshift(1); foo.unshift(2); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'foo.unshift(1);',
 		outdent`
 			foo.push(1);
@@ -378,6 +395,8 @@ test.snapshot({
 			foo.unshift?.(1);
 			foo.unshift(2);
 		`,
+		// A `new Foo()` receiver other than `new Array()` is a known non-array
+		'const foo = new Foo(); foo.unshift(1); foo.unshift(2);',
 	],
 	invalid: [
 		outdent`
@@ -521,6 +540,11 @@ test.snapshot({
 				foo!.unshift(1);
 				foo!.unshift(2);
 			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A receiver that is known to be an array must still be reported
+		{
+			code: 'function f(foo: number[]) { foo.unshift(1); foo.unshift(2); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
