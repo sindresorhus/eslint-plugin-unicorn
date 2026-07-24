@@ -1,5 +1,6 @@
 import {isMethodCall, isLiteral} from './ast/index.js';
 import {removeArgument} from './fix/index.js';
+import {shouldSkipKnownNonArrayReceiver} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-array-flat-depth';
 const messages = {
@@ -17,6 +18,10 @@ const create = context => {
 			})
 			&& isLiteral(callExpression.arguments[0], 1)
 		)) {
+			return;
+		}
+
+		if (shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context)) {
 			return;
 		}
 

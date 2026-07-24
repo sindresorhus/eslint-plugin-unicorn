@@ -39,6 +39,7 @@ function isAtCall(node) {
 	});
 }
 
+// `isKnownNonArray` with its own receiver options, rather than the shared `shouldSkipKnownNonArrayReceiver`. That it counts a typed array as a non-array makes no difference here, since a typed array has no `splice()` to report.
 function shouldReportReceiver(node, context) {
 	return !isKnownNonArray(node, context, receiverTypeOptions);
 }

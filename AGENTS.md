@@ -4,6 +4,14 @@
 
 Keep rules simple. Target common patterns, skip rare edge cases rather than overcomplicating the rule.
 
+### Out of scope
+
+These constructs are intentionally unsupported. Do not add machinery to handle them:
+
+- **`Array` subclasses** — Receiver checks treat `new Foo()` as non-array, so `class Foo extends Array {}` is missed. Do not add class heritage resolution for this. (`Error` subclasses are different: `createTypeCheckers` resolves class heritage by default.)
+- **Shadowed built-ins** — Receiver checks may recognize built-ins by name without resolving scope. Do not add scope resolution for shadowed constructors.
+- **BigInt typed-array chains** — Only direct constructors, static `.from()`/`.of()`, and explicit types are recognized. Do not add flow analysis for method chains.
+
 ## Rule anatomy
 
 Rules export a default config object with `create` and `meta`. The `create` function uses `context.on(NodeType, listener)` to register visitors (this is the Unicorn-specific API, not standard ESLint). See the [ESLint custom rules guide](https://eslint.org/docs/latest/extend/custom-rules) for the underlying API.

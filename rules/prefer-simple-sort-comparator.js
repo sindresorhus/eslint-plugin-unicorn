@@ -1,5 +1,5 @@
 import {isFunction, isMethodCall, isNumericLiteral} from './ast/index.js';
-import {isSameReference} from './utils/index.js';
+import {isKnownBigIntTypedArray, isSameReference, shouldSkipKnownNonArrayReceiver} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -224,7 +224,10 @@ const create = context => {
 		const isLeftIsMinuend = isGreaterThan ? sign > 0 : sign < 0;
 		const [minuend, subtrahend] = isLeftIsMinuend ? [test.left, test.right] : [test.right, test.left];
 
-		if (!branchSignsMatchSubtraction(tree, minuend, subtrahend)) {
+		if (
+			!branchSignsMatchSubtraction(tree, minuend, subtrahend)
+			|| shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context)
+		) {
 			return;
 		}
 
@@ -236,7 +239,10 @@ const create = context => {
 		};
 
 		// Replacing the whole function would drop any comments inside it, so only suggest when there are none.
-		if (sourceCode.getCommentsInside(comparator).length === 0) {
+		if (
+			sourceCode.getCommentsInside(comparator).length === 0
+			&& !isKnownBigIntTypedArray(callExpression.callee.object, context)
+		) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,

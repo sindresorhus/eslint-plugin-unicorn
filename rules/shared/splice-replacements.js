@@ -1,7 +1,5 @@
-import {
-	getStaticNumberValue,
-	isSameReference,
-} from '../utils/index.js';
+import {getStaticNumberValue} from '../utils/index.js';
+import {isLengthMinusOneOf, isLengthOf} from '../utils/comparison.js';
 
 const MESSAGE_ID_NO_OP = 'no-op';
 const MESSAGE_ID_SHIFT = 'shift';
@@ -17,20 +15,6 @@ const emptyArrayReplacement = {
 const isZero = node => Object.is(getStaticNumberValue(node), 0);
 const isOne = node => getStaticNumberValue(node) === 1;
 const isZeroOrNegative = node => getStaticNumberValue(node) <= 0;
-
-const isLengthMemberExpressionFor = (node, object) =>
-	node.type === 'MemberExpression'
-	&& !node.optional
-	&& node.property.type === 'Identifier'
-	&& node.property.name === 'length'
-	&& !node.computed
-	&& isSameReference(node.object, object);
-
-const isLengthMinusOneFor = (node, object) =>
-	node.type === 'BinaryExpression'
-	&& node.operator === '-'
-	&& isOne(node.right)
-	&& isLengthMemberExpressionFor(node.left, object);
 
 function getNoOpOrEmptyReplacement(arguments_, object) {
 	if (arguments_.length === 0) {
@@ -49,7 +33,7 @@ function getNoOpOrEmptyReplacement(arguments_, object) {
 	if (
 		arguments_.length === 2
 		&& isZero(arguments_[0])
-		&& isLengthMemberExpressionFor(arguments_[1], object)
+		&& isLengthOf(arguments_[1], object)
 	) {
 		return emptyArrayReplacement;
 	}
@@ -91,7 +75,7 @@ function getMethodReplacement(arguments_, object) {
 
 	if (
 		arguments_.length === 2
-		&& isLengthMinusOneFor(arguments_[0], object)
+		&& isLengthMinusOneOf(arguments_[0], object)
 		&& isOne(arguments_[1])
 	) {
 		return {
@@ -103,7 +87,7 @@ function getMethodReplacement(arguments_, object) {
 
 	if (
 		arguments_.length > 2
-		&& isLengthMemberExpressionFor(arguments_[0], object)
+		&& isLengthOf(arguments_[0], object)
 		&& isZeroOrNegative(arguments_[1])
 	) {
 		return {

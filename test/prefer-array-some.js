@@ -390,6 +390,11 @@ test.snapshot({
 				))
 			);
 		`,
+		// A typed array shares `Array#filter()` and `Array#some()`
+		{
+			code: 'function f(array: Int8Array) { return array.filter(fn).length > 0; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

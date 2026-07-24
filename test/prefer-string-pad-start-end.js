@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -8,6 +8,19 @@ const MESSAGE_ID_SUGGESTION = 'suggest-padding-method';
 
 test({
 	valid: [
+		// Known non-string target (type information)
+		{
+			code: 'function f(bar: number[]) { const foo = " ".repeat(10 - bar.length) + bar; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(bar: {length: number}) { const foo = " ".repeat(10 - bar.length) + bar; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(bar: number) { const foo = " ".repeat(10 - bar.length) + bar; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const foo = bar.padStart(10);',
 		'const foo = bar.padStart(10, "*");',
 		'const foo = bar.padEnd(10);',
@@ -53,6 +66,46 @@ test({
 		{
 			code: 'const foo = " ".repeat(10 - bar.length) + bar;',
 			output: 'const foo = bar.padStart(10);',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		// A target that is known to be a string must still be reported
+		{
+			code: 'function f(bar: string) { const foo = " ".repeat(10 - bar.length) + bar; }',
+			output: 'function f(bar: string) { const foo = bar.padStart(10); }',
+			errors: [{messageId: MESSAGE_ID}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A function declaration's parameter must not be mistaken for the function itself
+		{
+			code: 'function f(bar) { const foo = " ".repeat(10 - bar.length) + bar; }',
+			output: 'function f(bar) { const foo = bar.padStart(10); }',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		// The other parameter forms, which were never affected by that mistake
+		{
+			code: 'const f = bar => { const foo = " ".repeat(10 - bar.length) + bar; };',
+			output: 'const f = bar => { const foo = bar.padStart(10); };',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const f = function (bar) { const foo = " ".repeat(10 - bar.length) + bar; };',
+			output: 'const f = function (bar) { const foo = bar.padStart(10); };',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'class Foo { f(bar) { const foo = " ".repeat(10 - bar.length) + bar; } }',
+			output: 'class Foo { f(bar) { const foo = bar.padStart(10); } }',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		// A destructuring pattern's initializer is not the bound variable's value
+		{
+			code: 'const [bar] = ["x"]; const foo = " ".repeat(10 - bar.length) + bar;',
+			output: 'const [bar] = ["x"]; const foo = bar.padStart(10);',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const {bar} = {bar: "x"}; const foo = " ".repeat(10 - bar.length) + bar;',
+			output: 'const {bar} = {bar: "x"}; const foo = bar.padStart(10);',
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{

@@ -6,7 +6,8 @@ import {
 } from './ast/index.js';
 import {
 	hasOptionalChainElement,
-	isKnownNonArray,
+	isKnownBigIntTypedArray,
+	isKnownNonIndexedCollection,
 	isLeftHandSide,
 	isSameReference,
 	isStrongPrecedenceNode,
@@ -84,10 +85,6 @@ const getSortedSource = (callExpression, context) => {
 		return;
 	}
 
-	if (isKnownNonArray(callExpression.callee.object, context)) {
-		return;
-	}
-
 	if (hasOptionalChainElement(callExpression.callee.object)) {
 		return;
 	}
@@ -95,6 +92,14 @@ const getSortedSource = (callExpression, context) => {
 	const [comparator] = callExpression.arguments;
 	const direction = getSortDirection(comparator);
 	if (!direction) {
+		return;
+	}
+
+	// Resolving the receiver type is expensive, so it runs last
+	if (
+		isKnownNonIndexedCollection(callExpression.callee.object, context)
+		|| isKnownBigIntTypedArray(callExpression.callee.object, context)
+	) {
 		return;
 	}
 

@@ -5,7 +5,7 @@ import {
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
 	isKnownBooleanFunctionReference,
-	isKnownNonArray,
+	isKnownNonIndexedCollection,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
@@ -182,16 +182,19 @@ const create = context => {
 			return;
 		}
 
-		if (isKnownNonArray(callExpression.callee.object, context)) {
-			return;
-		}
-
 		const [comparator] = callExpression.arguments;
 		if (comparator.type === 'SpreadElement') {
 			return;
 		}
 
-		return getComparatorProblem(comparator, context);
+		const problem = getComparatorProblem(comparator, context);
+
+		// Resolving the receiver type is expensive, so it runs last
+		if (!problem || isKnownNonIndexedCollection(callExpression.callee.object, context)) {
+			return;
+		}
+
+		return problem;
 	});
 };
 

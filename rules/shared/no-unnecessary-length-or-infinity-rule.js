@@ -1,5 +1,5 @@
 import {isMethodCall, isMemberExpression} from '../ast/index.js';
-import {isSameReference} from '../utils/index.js';
+import {isSameReference, shouldSkipKnownNonArrayReceiver} from '../utils/index.js';
 import {removeArgument} from '../fix/index.js';
 
 function getObjectLengthOrInfinityDescription(node, object) {
@@ -35,8 +35,14 @@ function getObjectLengthOrInfinityDescription(node, object) {
 	return `${object.type === 'Identifier' ? object.name : '…'}${isOptional ? '?.' : '.'}length`;
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
-function listen(context, {methods, messageId}) {
+/**
+Set `checkArrayReceiver` when the report only makes sense for a real array, so a receiver known to be something else is skipped. See `shouldSkipKnownNonArrayReceiver` for what that covers.
+
+Leave it off for `slice`, since `String#slice()` takes the same arguments and is a valid target too. Set it for `splice`/`toSpliced`, where a receiver that is known not to be an array is some other type whose same-named method means something else.
+
+@param {import('eslint').Rule.RuleContext} context
+*/
+function listen(context, {methods, messageId, checkArrayReceiver = false}) {
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			methods,
@@ -52,7 +58,10 @@ function listen(context, {methods, messageId}) {
 			callExpression.callee.object,
 		);
 
-		if (!description) {
+		if (
+			!description
+			|| (checkArrayReceiver && shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context))
+		) {
 			return;
 		}
 

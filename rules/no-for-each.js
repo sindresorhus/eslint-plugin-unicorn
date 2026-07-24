@@ -277,8 +277,45 @@ const isChildScope = (child, parent) => {
 	return false;
 };
 
-function isFunctionParametersSafeToFix(callbackFunction, {sourceCode, scope, callExpression, allIdentifiers}) {
+/*
+Collect the reference identifiers inside `node`, keyed by name. Only identifiers inside the `.forEach()` call are ever looked up, and most files contain no `.forEach()` at all, so this walks the call's subtree when a candidate is checked instead of collecting every identifier in the file up front.
+*/
+function getReferenceIdentifiersByName(node, visitorKeys) {
+	const identifiersByName = new Map();
+
+	const walk = node => {
+		if (node.type === 'Identifier' && isReferenceIdentifier(node)) {
+			const identifiers = identifiersByName.get(node.name);
+			if (identifiers) {
+				identifiers.push(node);
+			} else {
+				identifiersByName.set(node.name, [node]);
+			}
+		}
+
+		for (const key of visitorKeys[node.type] ?? []) {
+			const value = node[key];
+
+			if (Array.isArray(value)) {
+				for (const child of value) {
+					if (child?.type) {
+						walk(child);
+					}
+				}
+			} else if (value?.type) {
+				walk(value);
+			}
+		}
+	};
+
+	walk(node);
+
+	return identifiersByName;
+}
+
+function isFunctionParametersSafeToFix(callbackFunction, {sourceCode, scope, callExpression}) {
 	const variables = sourceCode.getDeclaredVariables(callbackFunction);
+	let identifiersByName;
 
 	for (const variable of variables) {
 		if (variable.defs.length !== 1) {
@@ -290,21 +327,10 @@ function isFunctionParametersSafeToFix(callbackFunction, {sourceCode, scope, cal
 			continue;
 		}
 
-		const variableName = definition.name.name;
-		const [callExpressionStart, callExpressionEnd] = sourceCode.getRange(callExpression);
-		for (const identifier of allIdentifiers) {
-			const {name} = identifier;
-			const [start, end] = sourceCode.getRange(identifier);
-			if (
-				name !== variableName
-				|| start < callExpressionStart
-				|| end > callExpressionEnd
-			) {
-				continue;
-			}
-
-			const variable = findVariable(scope, identifier);
-			if (!variable || variable.scope === scope || isChildScope(scope, variable.scope)) {
+		identifiersByName ??= getReferenceIdentifiersByName(callExpression, sourceCode.visitorKeys);
+		for (const identifier of identifiersByName.get(definition.name.name) ?? []) {
+			const referencedVariable = findVariable(scope, identifier);
+			if (!referencedVariable || referencedVariable.scope === scope || isChildScope(scope, referencedVariable.scope)) {
 				return false;
 			}
 		}
@@ -320,7 +346,7 @@ function isFunctionParameterVariableReassigned(callbackFunction, sourceCode) {
 			variable.references.some(reference => !reference.init && reference.isWrite()));
 }
 
-function isFixable(callExpression, {scope, functionInfo, allIdentifiers, sourceCode}) {
+function isFixable(callExpression, {scope, functionInfo, sourceCode}) {
 	// Check `CallExpression`
 	if (callExpression.optional || callExpression.arguments.length !== 1) {
 		return false;
@@ -358,7 +384,6 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, sourceC
 		|| !isFunctionParametersSafeToFix(callback, {
 			scope,
 			callExpression,
-			allIdentifiers,
 			sourceCode,
 		})
 	) {
@@ -366,12 +391,12 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, sourceC
 	}
 
 	// Check `ReturnStatement`s in `callback`
-	const {returnStatements, scope: callbackScope} = functionInfo.get(callback);
+	const {returnStatements} = functionInfo.get(callback);
 	if (returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))) {
 		return false;
 	}
 
-	return !isFunctionSelfUsedInside(callback, callbackScope);
+	return !isFunctionSelfUsedInside(callback, sourceCode.getScope(callback));
 }
 
 const ignoredObjects = [
@@ -402,26 +427,16 @@ function isStrictCallbagBasicsNamespace(node, scope) {
 const create = context => {
 	const functionStack = [];
 	const callExpressions = [];
-	const allIdentifiers = [];
 	const functionInfo = new Map();
 	const {sourceCode} = context;
 
 	context.on(functionTypes, node => {
 		functionStack.push(node);
-		functionInfo.set(node, {
-			returnStatements: [],
-			scope: sourceCode.getScope(node),
-		});
+		functionInfo.set(node, {returnStatements: []});
 	});
 
 	context.onExit(functionTypes, () => {
 		functionStack.pop();
-	});
-
-	context.on('Identifier', node => {
-		if (isReferenceIdentifier(node)) {
-			allIdentifiers.push(node);
-		}
 	});
 
 	context.on('ReturnStatement', node => {
@@ -474,7 +489,6 @@ const create = context => {
 				!isKnownArrayReceiver
 				|| !isFixable(node, {
 					scope,
-					allIdentifiers,
 					functionInfo,
 					sourceCode,
 				})

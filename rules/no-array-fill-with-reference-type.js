@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
-import {unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
+import {isKnownNonArray, unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-array-fill-with-reference-type';
 const messages = {
@@ -89,6 +89,11 @@ const create = context => {
 
 		const [fillValue] = callExpression.arguments;
 		if (!isReferenceFillValue(fillValue, context)) {
+			return;
+		}
+
+		// Deliberately `isKnownNonArray`, not `isKnownNonIndexedCollection`: `TypedArray#fill()` coerces the value to a number, so every slot gets a copy and the shared reference this rule warns about cannot happen
+		if (isKnownNonArray(callExpression.callee.object, context)) {
 			return;
 		}
 

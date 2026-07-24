@@ -132,7 +132,7 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 					optionalCall: false,
 				})
 				|| !isSimpleCompareCallbackFunction(callExpression.arguments[0])
-				// Skip receivers that are provably not arrays
+				// Skip receivers known to be neither an array nor a typed array
 				|| shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context)
 			) {
 				return;

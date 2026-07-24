@@ -4,6 +4,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: {splice(start?: number, deleteCount?: number): void}) { foo.splice(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'array.splice(index, 1);',
 		'array.splice(index, 2);',
 		'array.splice(index, 1, element);',
@@ -89,5 +94,10 @@ test.snapshot({
 		'array.splice(array.length - 1!, 1!);',
 		'array.splice(0!, array.length);',
 		'(array satisfies string[]).splice((array satisfies string[]).length, 0, element);',
+		// A receiver that is known to be an array must still be reported
+		'function f(foo: number[]) { foo.splice(); }',
+		// A TypeScript wrapper around `.length` itself does not hide the argument
+		'array.splice(0, array.length as number);',
+		'array.splice((array.length as number) - 1, 1);',
 	],
 });
