@@ -39,6 +39,7 @@ const config = [
 			// Annoying
 			'unicorn/no-asterisk-prefix-in-documentation-comments': 'off',
 			'unicorn/no-manually-wrapped-comments': 'off',
+			'unicorn/single-line-block-comment-style': 'off',
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/no-array-front-mutation': 'off',
 			'unicorn/no-invalid-argument-count': 'off',
