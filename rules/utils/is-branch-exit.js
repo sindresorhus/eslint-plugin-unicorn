@@ -921,6 +921,10 @@ const isProcessExitTryStatementAtStart = (branch, context, checkTryStatements, o
 		return true;
 	}
 
+	if (branch.finalizer && options?.isAdditionalStatementAlwaysExits && !isDefinitelyNotThrowingStatementWithOptions(branch.finalizer, context, options)) {
+		options = {...options, isAdditionalStatementAlwaysExits: undefined};
+	}
+
 	return branch.handler
 		? isProcessExitTryStatement(branch, context, checkTryStatements, options)
 		: isProcessExitBlockAtStart(branch.block, context, checkTryStatements, options);
@@ -1158,27 +1162,25 @@ const isLoopBodyAlwaysExits = (loop, state) => {
 		);
 };
 
-const isSwitchCaseStatementDefinitelyNotThrowing = (statement, switchStatement, context, options) => (
-	isDefinitelyNotThrowingStatementWithOptions(statement, context, options)
-	|| isBreakFromSwitch(statement, switchStatement)
-	|| (
-		statement.type === 'BlockStatement'
-		&& statement.body.length > 0
-		&& isSwitchCaseStatementDefinitelyNotThrowing(statement.body.at(-1), switchStatement, context, options)
-		&& statement.body.slice(0, -1).every(statement => isDefinitelyNotThrowingStatementWithOptions(statement, context, options))
-	)
-);
+const isSwitchBodyDefinitelyNotThrowing = (switchStatement, loop, context, options) => {
+	const isCaseStatementDefinitelyNotThrowing = statement => (
+		isDefinitelyNotThrowingStatementWithOptions(statement, context, options)
+		|| isBreakFromSwitch(statement, switchStatement)
+		|| isContinueToLoop(statement, loop)
+		|| (
+			statement.type === 'BlockStatement'
+			&& statement.body.length > 0
+			&& isCaseStatementDefinitelyNotThrowing(statement.body.at(-1))
+			&& statement.body.slice(0, -1).every(statement => isDefinitelyNotThrowingStatementWithOptions(statement, context, options))
+		)
+	);
 
-const isSwitchBodyDefinitelyNotThrowing = (switchStatement, loop, context, options) => (
-	isDefinitelyNotThrowingExpression(switchStatement.discriminant, context)
-	&& switchStatement.cases.every(switchCase =>
-		(switchCase.test === null || isDefinitelyNotThrowingExpression(switchCase.test, context))
-		&& switchCase.consequent.every(statement =>
-			isSwitchCaseStatementDefinitelyNotThrowing(statement, switchStatement, context, options)
-			|| isContinueToLoop(statement, loop),
-		),
-	)
-);
+	return isDefinitelyNotThrowingExpression(switchStatement.discriminant, context)
+		&& switchStatement.cases.every(switchCase =>
+			(switchCase.test === null || isDefinitelyNotThrowingExpression(switchCase.test, context))
+			&& switchCase.consequent.every(statement => isCaseStatementDefinitelyNotThrowing(statement)),
+		);
+};
 
 const isProcessExitInfiniteLoopAtStart = (branch, context, checkTryStatements, options) => {
 	const isInfinite = isInfiniteLoop(branch, context);

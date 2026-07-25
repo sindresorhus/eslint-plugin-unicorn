@@ -93,6 +93,52 @@ test.snapshot({
 			new Promise(resolve => {
 				try {
 					outer: do {
+						switch (1) {
+							case 1: {
+								{
+									void 0;
+									continue outer;
+								}
+							}
+							default: {
+								{
+									void 0;
+									continue outer;
+								}
+							}
+						}
+					} while (process.exit(1));
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					outer: do {
+						switch (1) {
+							case 1:
+								try {
+									continue outer;
+								} finally {
+									void 0;
+								}
+							default:
+								continue outer;
+						}
+					} while (process.exit(1));
+				} catch {}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					outer: do {
 						while (true) {
 							continue outer;
 						}
@@ -2067,6 +2113,72 @@ test({
 				new Promise(resolve => {
 					try {
 						do {
+							for (const value = maybeThrow(); condition;) {}
+						} while (process.exit(1));
+					} catch {
+						resolve(firstValue);
+					}
+
+					resolve(secondValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						do {
+							for (; condition; maybeThrow()) {}
+						} while (process.exit(1));
+					} catch {
+						resolve(firstValue);
+					}
+
+					resolve(secondValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						do {
+							for (const value of maybeThrow()) {}
+						} while (process.exit(1));
+					} catch {
+						resolve(firstValue);
+					}
+
+					resolve(secondValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				function f(value, condition) {
+					new Promise(resolve => {
+						try {
+							do {
+								for (; condition; value++) {}
+							} while (process.exit(1));
+						} catch {
+							resolve(firstValue);
+						}
+
+						resolve(secondValue);
+					});
+				}
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						do {
 							for (const {value} of [null]) {}
 						} while (process.exit(1));
 					} catch {
@@ -2161,6 +2273,31 @@ test({
 							}
 						} while (condition);
 					} catch {}
+
+					resolve(secondValue);
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					try {
+						outer: do {
+							switch (1) {
+								case 1:
+									try {
+										continue outer;
+									} finally {
+										maybeThrow();
+									}
+								default:
+									continue outer;
+							}
+						} while (process.exit(1));
+					} catch {
+						resolve(firstValue);
+					}
 
 					resolve(secondValue);
 				});
