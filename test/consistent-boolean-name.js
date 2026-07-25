@@ -1583,6 +1583,18 @@ ruleTest({
 			name: 'nullable async PromiseLike aliases remain unknown without type information',
 			code: 'type Result = PromiseLike<boolean | undefined>; declare const completed: () => Result; declare const isReady: () => Result;',
 		}),
+		typescript({
+			name: 'nullable async inline callable types remain unknown without type information',
+			code: 'declare const completed: {(): Promise<boolean | undefined>}; declare const isReady: {(): Promise<boolean | undefined>};',
+		}),
+		typescript({
+			name: 'nullable async inherited callable types remain unknown without type information',
+			code: 'interface Base {(): Promise<boolean | undefined>} interface Predicate extends Base {} declare const completed: Predicate; declare const isReady: Predicate;',
+		}),
+		typescript({
+			name: 'nullable async generic inherited callable types remain unknown without type information',
+			code: 'interface Base<T> {(): T} interface Predicate extends Base<Promise<boolean | undefined>> {} declare const completed: Predicate; declare const isReady: Predicate;',
+		}),
 		typeAware({
 			name: 'unresolved generic callable interfaces remain unknown',
 			code: [
@@ -1606,6 +1618,30 @@ ruleTest({
 		typeAware({
 			name: 'unresolved generic async function returns remain unknown',
 			code: 'type Result<T> = T extends string ? Promise<string> : Promise<boolean>; async function isReady<T>(): Result<T> { throw new Error(); }',
+		}),
+		typescript({
+			name: 'unresolved generic method returns remain unknown',
+			code: [
+				'interface Base<T> {(): Promise<T>}',
+				'interface Predicate<T> extends Base<T> {}',
+				'interface Task<T> { isReady(): Promise<T>; }',
+				'interface GenericTask<T> { isReady(): Predicate<T>; }',
+				'interface Job { isReady<T>(): PromiseLike<T>; }',
+				'interface Mixed { isReady<T>(): Promise<T> | string; }',
+			].join(' '),
+			options: [{checkMethods: 'prohibit'}],
+		}),
+		typeAware({
+			name: 'type-aware unresolved generic method returns remain unknown',
+			code: [
+				'interface Base<T> {(): Promise<T>}',
+				'interface Predicate<T> extends Base<T> {}',
+				'interface Task<T> { isReady(): Promise<T>; }',
+				'interface GenericTask<T> { isReady(): Predicate<T>; }',
+				'interface Job { isReady<T>(): PromiseLike<T>; }',
+				'interface Mixed { isReady<T>(): Promise<T> | string; }',
+			].join(' '),
+			options: [{checkMethods: 'prohibit'}],
 		}),
 		typeAware({
 			name: 'inferred nullable async results remain unknown',
@@ -2114,6 +2150,32 @@ ruleTest({
 			code: 'interface Task { completed(): Promise<boolean>; }',
 			options: [{checkMethods: 'always'}],
 			errors: 1,
+		}),
+		typescript({
+			name: 'mixed inherited callable return types prohibit misleading prefixes',
+			code: [
+				'interface BooleanResult {(): Promise<boolean | undefined>}',
+				'interface StringResult {(): string}',
+				'interface Predicate extends BooleanResult, StringResult {}',
+				'declare const isReady: Predicate;',
+			].join(' '),
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'mixed merged callable return types prohibit misleading prefixes',
+			code: [
+				'interface BooleanResult {(): Promise<boolean | undefined>}',
+				'interface StringResult {(): string}',
+				'interface Predicate extends BooleanResult {}',
+				'interface Predicate extends StringResult {}',
+				'declare const isReady: Predicate;',
+			].join(' '),
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'mixed inline callable return types prohibit misleading prefixes',
+			code: 'declare const isReady: {(): Promise<boolean | undefined>; (): string};',
+			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'nullable non-boolean async method returns are prohibited',
