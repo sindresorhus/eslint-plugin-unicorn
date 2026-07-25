@@ -1802,6 +1802,16 @@ ruleTest({
 			code: 'interface Predicate<T> { (): Promise<T>; } const completed: Predicate<boolean> = getReady;',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
 		}),
+		typescript({
+			name: 'generic PromiseLike callable type literals require prefixes',
+			code: 'type Predicate<T> = {(): PromiseLike<T>}; const completed: Predicate<boolean> = getReady;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'generic PromiseLike callable type literals reject misleading prefixes',
+			code: 'type Predicate<T> = {(): PromiseLike<T>}; const isReady: Predicate<string> = getReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
 		typeAware({
 			name: 'type-aware generic callable interfaces resolve conditional aliases',
 			code: [
@@ -1832,14 +1842,14 @@ ruleTest({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
-			name: 'type-aware generic callable interfaces keep nullable Promise booleans unknown',
+			name: 'type-aware generic callable interfaces keep nullable Promise booleans unknown and reject non-booleans',
 			code: [
 				'type Result<T> = T extends string ? Promise<boolean> | undefined : Promise<string> | undefined;',
 				'interface Predicate<T> { (): Result<T>; }',
 				'declare const completed: Predicate<string>;',
 				'declare const isReady: Predicate<boolean>;',
 			].join(' '),
-			errors: [{messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
 		}),
 		typeAware({
 			name: 'type-aware generic PromiseLike callable interfaces resolve conditional aliases',
@@ -1852,14 +1862,14 @@ ruleTest({
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
-			name: 'type-aware generic callable interfaces keep nullable PromiseLike booleans unknown',
+			name: 'type-aware generic callable interfaces keep nullable PromiseLike booleans unknown and reject non-booleans',
 			code: [
 				'type Result<T> = T extends string ? PromiseLike<boolean> | undefined : PromiseLike<string> | undefined;',
 				'interface Predicate<T> { (): Result<T>; }',
 				'declare const completed: Predicate<string>;',
 				'declare const isReady: Predicate<boolean>;',
 			].join(' '),
-			errors: [{messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
 		}),
 		typescript({
 			name: 'generic synchronous function aliases require prefixes',
@@ -2042,6 +2052,12 @@ ruleTest({
 			code: 'type Value<T> = T; interface Task { completed(): Value<boolean>; }',
 			options: [{checkMethods: 'always'}],
 			errors: [{messageId: 'consistent-boolean-name'}],
+		}),
+		typescript({
+			name: 'generic callable method returns prohibit misleading prefixes',
+			code: 'type Predicate<T> = () => Promise<T>; interface Task { isReady(): Predicate<boolean>; }',
+			options: [{checkMethods: 'prohibit'}],
+			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'generic function return types require prefixes',
@@ -2282,7 +2298,7 @@ test('rejects the removed checkProperties option', t => {
 		},
 	});
 
-	for (const checkProperties of [false, true, 'always']) {
+	for (const checkProperties of [false, true, 'always', undefined]) {
 		t.throws(
 			() => verify({checkProperties}),
 			{message: /`checkProperties` was removed\. Use `checkMethods` and `checkFields` instead\./u},
