@@ -1565,15 +1565,23 @@ ruleTest({
 		}),
 		typeAware({
 			name: 'nullable async results remain unknown',
-			code: 'async function completed(): Promise<boolean | undefined> {}',
+			code: 'async function completed(): Promise<boolean | undefined> {} async function isReady(): Promise<boolean | undefined> {}',
 		}),
 		typeAware({
 			name: 'nullable async function type results remain unknown',
-			code: 'declare const completed: () => Promise<boolean | undefined>;',
+			code: 'declare const completed: () => Promise<boolean | undefined>; declare const isReady: () => Promise<boolean | undefined>;',
 		}),
 		typeAware({
 			name: 'nullable async function types remain unknown',
-			code: 'declare const completed: (() => Promise<boolean>) | undefined;',
+			code: 'declare const completed: (() => Promise<boolean>) | undefined; declare const isReady: (() => Promise<boolean>) | undefined;',
+		}),
+		typescript({
+			name: 'nullable async aliases remain unknown without type information',
+			code: 'type Result = Promise<boolean | undefined>; declare const completed: () => Result; declare const isReady: () => Result;',
+		}),
+		typescript({
+			name: 'nullable async PromiseLike aliases remain unknown without type information',
+			code: 'type Result = PromiseLike<boolean | undefined>; declare const completed: () => Result; declare const isReady: () => Result;',
 		}),
 		typeAware({
 			name: 'unresolved generic callable interfaces remain unknown',
@@ -1584,6 +1592,34 @@ ruleTest({
 				'\tconst isReady: Predicate<T> = value as Predicate<T>;',
 				'}',
 			].join(' '),
+		}),
+		typeAware({
+			name: 'unresolved generic async callable interfaces remain unknown',
+			code: [
+				'type Result<T> = T extends string ? Promise<string> : Promise<boolean>;',
+				'interface Predicate<T> { (): Result<T>; }',
+				'function run<T>(value: T) {',
+				'\tconst isReady: Predicate<T> = value as Predicate<T>;',
+				'}',
+			].join(' '),
+		}),
+		typeAware({
+			name: 'unresolved generic async function returns remain unknown',
+			code: 'type Result<T> = T extends string ? Promise<string> : Promise<boolean>; async function isReady<T>(): Result<T> { throw new Error(); }',
+		}),
+		typeAware({
+			name: 'inferred nullable async results remain unknown',
+			code: 'async function completed() { return Math.random() > 0.5 ? true : undefined; } async function isReady() { return Math.random() > 0.5 ? true : undefined; }',
+		}),
+		typeAware({
+			name: 'nullable async methods and fields remain unknown',
+			code: 'class Task { async completed() { return Math.random() > 0.5 ? true : undefined; } async isReady() { return Math.random() > 0.5 ? true : undefined; } }',
+			options: [{checkMethods: 'always'}],
+		}),
+		typeAware({
+			name: 'nullable async object fields remain unknown',
+			code: 'const task = {completed: async () => Math.random() > 0.5 ? true : undefined, isReady: async () => Math.random() > 0.5 ? true : undefined};',
+			options: [{checkFields: 'always'}],
 		}),
 		typeAware('type Maybe<T> = T | undefined; const completed: Maybe<boolean> = true;'),
 		typescript({

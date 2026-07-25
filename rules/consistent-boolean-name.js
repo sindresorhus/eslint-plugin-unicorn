@@ -307,11 +307,16 @@ function getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, typeSt
 		...normalizedTypeState,
 		allowNullish: false,
 	});
-	if (state !== unknown || isNullableTypeAnnotation(node, context)) {
+	if (
+		state !== unknown
+		|| !context.sourceCode.parserServices?.program
+		|| hasNullableType(node, context)
+		|| hasUnresolvedTypeParameterReference(node, normalizedTypeState, scope, false)
+	) {
 		return state;
 	}
 
-	return getPromisedTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
+	return getAsyncFunctionTypeInformationBooleanState(node, context, false);
 }
 
 const isBooleanAsyncFunctionTypeAnnotation = (node, context, scope) =>
@@ -585,6 +590,10 @@ function getTypeInformationBooleanState(node, context, functionTypesAreBoolean =
 			return unknown;
 		}
 
+		if (!allowNullish && hasNullableType(node, context)) {
+			return unknown;
+		}
+
 		return getTypeBooleanState(
 			type,
 			checker,
@@ -596,7 +605,7 @@ function getTypeInformationBooleanState(node, context, functionTypesAreBoolean =
 	}
 }
 
-function isNullableTypeAnnotation(node, context) {
+function hasNullableType(node, context) {
 	if (!node) {
 		return false;
 	}
@@ -605,7 +614,7 @@ function isNullableTypeAnnotation(node, context) {
 		node.type === 'TSTypeAnnotation'
 		|| node.type === 'TSParenthesizedType'
 	) {
-		return isNullableTypeAnnotation(node.typeAnnotation, context);
+		return hasNullableType(node.typeAnnotation, context);
 	}
 
 	if (node.type === 'TSUnionType' && node.types.some(type => nullishTypeAnnotationTypes.has(type.type))) {
@@ -661,6 +670,10 @@ function getPromisedTypeInformationBooleanState(node, context, allowNullish = tr
 			return unknown;
 		}
 
+		if (!allowNullish && hasNullableType(node, context)) {
+			return unknown;
+		}
+
 		return getPromisedTypeBooleanState(nonNullableType, checker);
 	} catch {
 		return unknown;
@@ -687,6 +700,59 @@ function getTypeArguments(node) {
 	}
 
 	return node?.typeArguments?.params ?? node?.typeParameters?.params;
+}
+
+function isPromisedTypeAnnotation(node, scope, visitedTypeReferenceNames = new Set()) {
+	if (
+		node?.type === 'TSTypeAnnotation'
+		|| node?.type === 'TSParenthesizedType'
+	) {
+		return isPromisedTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames);
+	}
+
+	if (node?.type === 'TSFunctionType') {
+		return isPromisedTypeAnnotation(node.returnType, scope, visitedTypeReferenceNames);
+	}
+
+	if (node?.type === 'TSUnionType') {
+		const types = node.types.filter(type => !nullishTypeAnnotationTypes.has(type.type));
+		return types.length > 0 && types.every(type => isPromisedTypeAnnotation(type, scope, visitedTypeReferenceNames));
+	}
+
+	if (node?.type !== 'TSTypeReference') {
+		return false;
+	}
+
+	const name = getTypeReferenceName(node.typeName);
+	if (!name || visitedTypeReferenceNames.has(name)) {
+		return false;
+	}
+
+	if (
+		promiseValueTypeNames.has(name)
+		&& getTypeArguments(node)?.length === 1
+		&& isGlobalTypeReferenceName(name, scope)
+	) {
+		return true;
+	}
+
+	const definitions = getTypeDefinitions(name, scope);
+	if (definitions.length === 0) {
+		return false;
+	}
+
+	const nextVisitedTypeReferenceNames = new Set(visitedTypeReferenceNames);
+	nextVisitedTypeReferenceNames.add(name);
+	return definitions.some(definition => {
+		if (definition.node.type === 'TSTypeAliasDeclaration') {
+			return isPromisedTypeAnnotation(definition.node.typeAnnotation, scope, nextVisitedTypeReferenceNames);
+		}
+
+		return definition.node.type === 'TSInterfaceDeclaration'
+			&& definition.node.body.body
+				.filter(member => member.type === 'TSCallSignatureDeclaration')
+				.some(member => isPromisedTypeAnnotation(member.returnType, scope, nextVisitedTypeReferenceNames));
+	});
 }
 
 function isCallableTypeAnnotation(node, context, scope, visitedTypeReferenceNodes = new Set()) {
@@ -1351,9 +1417,11 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set(), is
 	}
 
 	const scope = context.sourceCode.getScope(node);
+	const hasUnresolvedReturnType = isAsync
+		&& hasUnresolvedTypeParameterReference(node.returnType, getTypeState(), scope, false);
 	// Only actual async function implementations and their overload signatures get `Promise<T>` unwrapped in function-body analysis. Promise-valued variables are not predicates; type-only callable signatures are handled separately by direct annotation analysis.
-	const stateFromPromisedReturnType = isAsync
-		? getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false})
+	const stateFromPromisedReturnType = isAsync && !hasUnresolvedReturnType
+		? getPromisedReturnTypeBooleanState(node.returnType, context, scope)
 		: unknown;
 	if (stateFromPromisedReturnType !== unknown) {
 		return stateFromPromisedReturnType;
@@ -1365,10 +1433,24 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set(), is
 	}
 
 	const stateFromTypeInformation = isAsync
-		? getAsyncFunctionTypeInformationBooleanState(node, context)
+		? (hasUnresolvedReturnType
+			? unknown
+			: getAsyncFunctionTypeInformationBooleanState(node, context, false))
 		: getTypeInformationBooleanState(node, context);
 	if (stateFromTypeInformation !== unknown) {
 		return stateFromTypeInformation;
+	}
+
+	if (
+		isAsync
+		&& !hasUnresolvedReturnType
+		&& getAsyncFunctionTypeInformationBooleanState(node, context) === nonBoolean
+	) {
+		return nonBoolean;
+	}
+
+	if (isAsync && (hasUnresolvedReturnType || hasNullableType(node, context))) {
+		return unknown;
 	}
 
 	if (!node.body) {
@@ -1576,6 +1658,13 @@ function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
 	const stateFromAsyncFunctionType = getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
 	if (stateFromAsyncFunctionType !== unknown) {
 		return stateFromAsyncFunctionType;
+	}
+
+	if (
+		isCallableTypeAnnotation(node, context, scope)
+		&& isPromisedTypeAnnotation(node, scope)
+	) {
+		return unknown;
 	}
 
 	return getTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
