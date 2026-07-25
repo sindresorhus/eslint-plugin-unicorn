@@ -397,6 +397,25 @@ ruleTest({
 			],
 		}),
 		typescript({
+			code: 'type Hook = (() => boolean) & {description: string}; declare const useReady: Hook;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'ready',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'type Hook = (() => boolean) & {description: string}; declare const useIsReady: Hook;',
+						},
+					],
+				},
+			],
+		}),
+		typescript({
 			code: 'declare function useIsCool(): number;',
 			options: [onlyIsPrefixOptions],
 			errors: [
@@ -969,6 +988,7 @@ ruleTest.snapshot({
 		typescript('interface Predicate { (): boolean; } const isCompleted: Predicate = getCompleted;'),
 		typescript('interface Predicate { (): boolean; readonly description: string; } const isCompleted: Predicate = getCompleted;'),
 		typescript('declare const getReady: () => Promise<() => boolean>; const completed = getReady;'),
+		typescript('declare const completed: () => () => Promise<boolean>;'),
 		typescript('type Predicate = () => Promise<() => boolean>; declare const getReady: Predicate; const completed = getReady;'),
 		typescript('interface Predicate { (): Promise<() => boolean>; } declare const getReady: Predicate; const completed = getReady;'),
 		typescript('interface Empty {} const isReady: Empty = value;'),
@@ -1803,6 +1823,29 @@ ruleTest({
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
 		}),
 		typescript({
+			name: 'generic callable type alias heritage requires prefixes',
+			code: 'type Base<T> = {(): Promise<T>}; interface Predicate<T> extends Base<T> {} const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'nested generic callable type alias heritage resolves prefixes',
+			code: [
+				'type Inner<T> = {(): Promise<T>};',
+				'type Base<T> = Inner<T>;',
+				'interface Predicate<T> extends Base<T> {}',
+				'const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
+			].join(' '),
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'callable interface type alias heritage resolves prefixes',
+			code: [
+				'interface Parent<T> { (): Promise<T>; } type Base<T> = Parent<T>; interface Predicate<T> extends Base<T> {}',
+				'const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
+			].join(' '),
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
 			name: 'generic PromiseLike callable type literals require prefixes',
 			code: 'type Predicate<T> = {(): PromiseLike<T>}; const completed: Predicate<boolean> = getReady;',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
@@ -1810,6 +1853,36 @@ ruleTest({
 		typescript({
 			name: 'generic PromiseLike callable type literals reject misleading prefixes',
 			code: 'type Predicate<T> = {(): PromiseLike<T>}; const isReady: Predicate<string> = getReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'generic callable intersections require prefixes',
+			code: 'type Predicate<T> = (() => Promise<T>) & {description: string}; const completed: Predicate<boolean> = getReady;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'generic synchronous callable intersections classify boolean results',
+			code: 'type Predicate<T> = (() => T) & {description: string}; const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'generic PromiseLike callable intersections classify boolean results',
+			code: 'type Predicate<T> = (() => PromiseLike<T>) & {description: string}; const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'generic type parameters in callable intersections require prefixes',
+			code: 'type Wrapper<T> = T & {description: string}; type Predicate = Wrapper<() => Promise<boolean>>; declare const completed: Predicate;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'callable intersections with boolean overloads require prefixes',
+			code: 'type Predicate = (() => Promise<boolean>) & ((value: string) => Promise<boolean>); declare const completed: Predicate;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'callable intersections combine return types',
+			code: 'type Predicate = (() => Promise<boolean>) & (() => string); declare const isReady: Predicate;',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
@@ -1820,6 +1893,11 @@ ruleTest({
 				'declare const completed: Predicate<boolean>;',
 				'declare const isReady: Predicate<string>;',
 			].join(' '),
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			name: 'type-aware qualified callable interfaces require prefixes',
+			code: 'namespace Api { export interface Predicate<T> { (): Promise<T>; } } declare const completed: Api.Predicate<boolean>; declare const isReady: Api.Predicate<string>;',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
@@ -2042,6 +2120,12 @@ ruleTest({
 			errors: [{messageId: 'consistent-boolean-name'}],
 		}),
 		typescript({
+			name: 'callable intersection fields require prefixes',
+			code: 'interface Task { completed: (() => Promise<boolean>) & {description: string}; }',
+			options: [{checkFields: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
+		}),
+		typescript({
 			name: 'generic class methods require prefixes',
 			code: 'type Value<T> = T; class Task { completed(): Value<boolean> {} }',
 			options: [{checkMethods: 'always'}],
@@ -2171,6 +2255,12 @@ ruleTest({
 			code: 'interface Task { completed(): Promise<boolean>; }',
 			options: [{checkMethods: 'always'}],
 			errors: 1,
+		}),
+		typescript({
+			name: 'Promise intersections in method returns require prefixes',
+			code: 'interface Task { completed(): Promise<boolean> & {metadata: string}; isReady(): Promise<string> & {metadata: string}; }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'mixed inherited callable return types prohibit misleading prefixes',
