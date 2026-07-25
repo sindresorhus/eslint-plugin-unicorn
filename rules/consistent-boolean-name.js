@@ -765,6 +765,27 @@ function getTypeArguments(node) {
 	return node?.typeArguments?.params ?? node?.typeParameters?.params;
 }
 
+function getCallSignatureReturnTypesFromDefinition(definition, context, scope, {typeArguments, typeState, visitedTypeReferenceNames} = {}) {
+	const definitionScope = context.sourceCode.getScope(definition.node);
+	const definitionTypeState = {
+		...typeState,
+		typeParameterTypes: getTypeParameterTypes(definition.node, typeArguments, typeState),
+	};
+	if (definition.node.type === 'TSInterfaceDeclaration') {
+		return getCallSignatureReturnTypes(definition.node, context, definitionScope, {
+			typeState: definitionTypeState,
+			visitedTypeReferenceNames,
+		});
+	}
+
+	return definition.node.type === 'TSTypeAliasDeclaration'
+		? getCallSignatureReturnTypes(definition.node.typeAnnotation, context, definitionScope, {
+			typeState: definitionTypeState,
+			visitedTypeReferenceNames,
+		})
+		: [];
+}
+
 function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeState(), visitedTypeReferenceNames = new Set()} = {}) {
 	if (
 		node?.type === 'TSParenthesizedType'
@@ -787,6 +808,31 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 		return node.types.flatMap(type => getCallSignatureReturnTypes(type, context, scope, {typeState, visitedTypeReferenceNames}));
 	}
 
+	if (node?.type === 'TSInterfaceDeclaration') {
+		const returnTypes = node.body.body
+			.filter(member => member.type === 'TSCallSignatureDeclaration')
+			.map(member => resolveTypeParameterType(member.returnType, typeState));
+
+		for (const heritage of node.extends ?? []) {
+			const name = getTypeReferenceName(heritage.expression);
+			if (!name || visitedTypeReferenceNames.has(name)) {
+				continue;
+			}
+
+			const nextVisitedTypeReferenceNames = new Set(visitedTypeReferenceNames);
+			nextVisitedTypeReferenceNames.add(name);
+			for (const definition of getTypeDefinitions(name, scope)) {
+				returnTypes.push(...getCallSignatureReturnTypesFromDefinition(definition, context, scope, {
+					typeArguments: getTypeArguments(heritage),
+					typeState,
+					visitedTypeReferenceNames: nextVisitedTypeReferenceNames,
+				}));
+			}
+		}
+
+		return returnTypes;
+	}
+
 	if (node?.type === 'TSTypeReference') {
 		const name = getTypeReferenceName(node.typeName);
 		if (!name || visitedTypeReferenceNames.has(name)) {
@@ -795,27 +841,11 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 
 		const nextVisitedTypeReferenceNames = new Set(visitedTypeReferenceNames);
 		nextVisitedTypeReferenceNames.add(name);
-		return getTypeDefinitions(name, scope).flatMap(definition => {
-			const definitionScope = context.sourceCode.getScope(definition.node);
-			const definitionTypeState = {
-				...typeState,
-				typeParameterTypes: getTypeParameterTypes(definition.node, getTypeArguments(node), typeState),
-			};
-			if (definition.node.type === 'TSInterfaceDeclaration') {
-				return definition.node.body.body
-					.filter(member => member.type === 'TSCallSignatureDeclaration')
-					.map(member => resolveTypeParameterType(member.returnType, definitionTypeState));
-			}
-
-			if (definition.node.type !== 'TSTypeAliasDeclaration') {
-				return [];
-			}
-
-			return getCallSignatureReturnTypes(definition.node.typeAnnotation, context, definitionScope, {
-				typeState: definitionTypeState,
-				visitedTypeReferenceNames: nextVisitedTypeReferenceNames,
-			});
-		});
+		return getTypeDefinitions(name, scope).flatMap(definition => getCallSignatureReturnTypesFromDefinition(definition, context, scope, {
+			typeArguments: getTypeArguments(node),
+			typeState,
+			visitedTypeReferenceNames: nextVisitedTypeReferenceNames,
+		}));
 	}
 
 	return [];

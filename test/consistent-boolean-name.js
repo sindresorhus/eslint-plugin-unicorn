@@ -1846,6 +1846,15 @@ ruleTest({
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
+			name: 'callable interface aliases preserve inherited signatures',
+			code: [
+				'interface Parent<T> { (): Promise<T>; } interface Child<T> extends Parent<T> {}',
+				'type Base<T> = Child<T>; interface Predicate<T> extends Base<T> {}',
+				'const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
+			].join(' '),
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
 			name: 'generic PromiseLike callable type literals require prefixes',
 			code: 'type Predicate<T> = {(): PromiseLike<T>}; const completed: Predicate<boolean> = getReady;',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
