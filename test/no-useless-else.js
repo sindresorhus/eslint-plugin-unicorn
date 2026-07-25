@@ -476,6 +476,19 @@ test.snapshot({
 	],
 	invalid: [
 		outdent`
+			function qux() {
+				if (foo) {
+					outer: do {
+						while (true) {
+							continue outer;
+						}
+					} while (process.exit(1));
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
 			function qux(condition) {
 				if (foo) {
 					try {

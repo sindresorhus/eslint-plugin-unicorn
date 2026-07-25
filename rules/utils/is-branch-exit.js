@@ -927,7 +927,7 @@ const isProcessExitTryStatementAtStart = (branch, context, checkTryStatements, o
 };
 
 const isProcessExitDoWhileBody = (node, loop, context, state) => {
-	const {checkTryStatements, isAtStart, isLastStatement, options, isProcessExitAtTest} = state;
+	const {checkTryStatements, enclosingLoop, isAtStart, isLastStatement, options, isProcessExitAtTest} = state;
 
 	if (
 		(
@@ -988,9 +988,10 @@ const isProcessExitDoWhileBody = (node, loop, context, state) => {
 					isLoop(node)
 					&& (
 						!isInfiniteLoop(node, context)
-						|| isLoopBodyAlwaysExits(node, context, options)
+						|| isLoopBodyAlwaysExits(node, state)
 					)
-					&& (!checkTryStatements || isLoopBodyAlwaysExitsSimply(node.body, node, context, options))
+					&& (!checkTryStatements || isLoopHeaderDefinitelyNotThrowing(node, context))
+					&& (!checkTryStatements || isLoopBodyAlwaysExitsSimply(node.body, node, state))
 					&& !hasControlFlowExitBeforeLoopTest(node, loop, context)
 				)
 			);
@@ -1116,18 +1117,20 @@ const isInfiniteLoop = (branch, context) => (
 	)
 );
 
-const isLoopBodyAlwaysExitsSimply = (node, loop, context, options) => {
+const isLoopBodyAlwaysExitsSimply = (node, loop, state) => {
+	const {context, enclosingLoop, options} = state;
 	if (
 		isBreakFromLoop(node, loop)
 		|| isContinueToLoop(node, loop)
+		|| Boolean(enclosingLoop && isContinueToLoop(node, enclosingLoop))
 		|| node.type === 'EmptyStatement'
 	) {
 		return true;
 	}
 
 	if (node.type === 'IfStatement' && isDefinitelyNotThrowingReference(node.test, context)) {
-		return isLoopBodyAlwaysExitsSimply(node.consequent, loop, context, options)
-			&& (!node.alternate || isLoopBodyAlwaysExitsSimply(node.alternate, loop, context, options));
+		return isLoopBodyAlwaysExitsSimply(node.consequent, loop, state)
+			&& (!node.alternate || isLoopBodyAlwaysExitsSimply(node.alternate, loop, state));
 	}
 
 	if (node.type !== 'BlockStatement') {
@@ -1138,15 +1141,32 @@ const isLoopBodyAlwaysExitsSimply = (node, loop, context, options) => {
 	return Boolean(
 		!lastStatement
 		|| (
-			isLoopBodyAlwaysExitsSimply(lastStatement, loop, context, options)
+			isLoopBodyAlwaysExitsSimply(lastStatement, loop, state)
 			&& node.body.slice(0, -1).every(statement => isDefinitelyNotThrowingStatementWithOptions(statement, context, options))
 		),
 	);
 };
 
-const isLoopBodyAlwaysExits = (loop, context, options) => (
-	isLoopBodyAlwaysExitsSimply(loop.body, loop, context, options)
-	|| isBranchExit(loop.body, context, statement => isBreakFromLoop(statement, loop))
+const isLoopBodyAlwaysExits = (loop, state) => {
+	const {context, enclosingLoop} = state;
+	return isLoopBodyAlwaysExitsSimply(loop.body, loop, state)
+		|| isBranchExit(
+			loop.body,
+			context,
+			statement => isBreakFromLoop(statement, loop)
+				|| Boolean(enclosingLoop && isContinueToLoop(statement, enclosingLoop)),
+		);
+};
+
+const isSwitchCaseStatementDefinitelyNotThrowing = (statement, switchStatement, context, options) => (
+	isDefinitelyNotThrowingStatementWithOptions(statement, context, options)
+	|| isBreakFromSwitch(statement, switchStatement)
+	|| (
+		statement.type === 'BlockStatement'
+		&& statement.body.length > 0
+		&& isSwitchCaseStatementDefinitelyNotThrowing(statement.body.at(-1), switchStatement, context, options)
+		&& statement.body.slice(0, -1).every(statement => isDefinitelyNotThrowingStatementWithOptions(statement, context, options))
+	)
 );
 
 const isSwitchBodyDefinitelyNotThrowing = (switchStatement, loop, context, options) => (
@@ -1154,8 +1174,7 @@ const isSwitchBodyDefinitelyNotThrowing = (switchStatement, loop, context, optio
 	&& switchStatement.cases.every(switchCase =>
 		(switchCase.test === null || isDefinitelyNotThrowingExpression(switchCase.test, context))
 		&& switchCase.consequent.every(statement =>
-			isDefinitelyNotThrowingStatementWithOptions(statement, context, options)
-			|| isBreakFromSwitch(statement, switchStatement)
+			isSwitchCaseStatementDefinitelyNotThrowing(statement, switchStatement, context, options)
 			|| isContinueToLoop(statement, loop),
 		),
 	)
@@ -1169,6 +1188,8 @@ const isProcessExitInfiniteLoopAtStart = (branch, context, checkTryStatements, o
 const isProcessExitDoWhile = (branch, context, checkTryStatements, options) =>
 	isProcessExitDoWhileBody(branch.body, branch, context, {
 		checkTryStatements,
+		context,
+		enclosingLoop: branch,
 		isAtStart: false,
 		isLastStatement: true,
 		options,
@@ -1178,6 +1199,8 @@ const isProcessExitDoWhile = (branch, context, checkTryStatements, options) =>
 const isProcessExitDoWhileAtStart = (branch, context, checkTryStatements, options) =>
 	isProcessExitDoWhileBody(branch.body, branch, context, {
 		checkTryStatements,
+		context,
+		enclosingLoop: branch,
 		isAtStart: true,
 		isLastStatement: true,
 		options,
@@ -1191,6 +1214,26 @@ const isProcessExitForInitAtStart = (node, context) => node.type === 'VariableDe
 const isDefinitelyNotThrowingForInit = (node, context) => node.type === 'VariableDeclaration'
 	? isDefinitelyNotThrowingStatement(node, context)
 	: isDefinitelyNotThrowingExpression(node, context);
+
+const isDefinitelyNotThrowingForLeft = (node, context) => node.type === 'VariableDeclaration'
+	? isDefinitelyNotThrowingStatement(node, context)
+	: isDefinitelyNotThrowingAssignmentTarget(node, context);
+
+const isLoopHeaderDefinitelyNotThrowing = (node, context) => {
+	if (node.type === 'WhileStatement' || node.type === 'DoWhileStatement') {
+		return isDefinitelyNotThrowingReference(node.test, context);
+	}
+
+	if (node.type === 'ForStatement') {
+		return (!node.init || isDefinitelyNotThrowingForInit(node.init, context))
+			&& (!node.test || isDefinitelyNotThrowingReference(node.test, context))
+			&& (!node.update || isDefinitelyNotThrowingExpression(node.update, context));
+	}
+
+	return (node.type === 'ForInStatement' || node.type === 'ForOfStatement')
+		&& isDefinitelyNotThrowingForLeft(node.left, context)
+		&& isDefinitelyNotThrowingExpression(node.right, context);
+};
 
 const isProcessExitLoopAtStart = (branch, context, checkTryStatements, options) => {
 	if (branch.type === 'WhileStatement') {
@@ -1607,8 +1650,8 @@ function hasControlFlowExitFromLoop(node, loop, context) {
 }
 
 function isBreakFromSwitch(node, switchStatement) {
-	const target = getControlFlowTarget(node);
-	return isControlFlowTargetCurrentLoop(target, switchStatement);
+	return node.type === 'BreakStatement'
+		&& isControlFlowTargetCurrentLoop(getControlFlowTarget(node), switchStatement);
 }
 
 function isControlFlowExitFromSwitch(node, switchStatement) {
