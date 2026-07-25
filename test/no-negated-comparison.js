@@ -16,17 +16,16 @@ test.snapshot({
 		'!foo',
 		'!!(a === b)',
 		'!foo === bar',
-		// Relational comparisons with optional chaining: the opposite operator is
-		// not equivalent when the operand is `undefined`/`NaN`.
-		'if (!(node.expressions?.length >= 2)) {}',
+		// Relational comparisons are never checked, since the opposite operator is not equivalent when an operand is not a comparable number.
+		'if (!(chr >= 0)) {}',
+		'!(a > b)',
+		'!(a >= b)',
+		'!(a < b)',
+		'!(a <= b)',
+		'!(null > undefined)',
 		'!(a?.b > c)',
-		'!(a > b?.c)',
-		'!(a?.b >= c)',
-		'!(a?.b < c)',
-		'!(a?.b <= c)',
-		'!(a?.() > b)',
-		'!(a > b?.())',
-		// Optional chaining inside a TypeScript type-only wrapper is still detected.
+		'async function foo() { return await !(a > b); }',
+		'const foo = a + !(b > c);',
 		{
 			code: '!((a?.b as number) > c)',
 			languageOptions: {
@@ -39,6 +38,8 @@ test.snapshot({
 		'!(a !== b)',
 		'!(a == b)',
 		'!(a != b)',
+		// The replaced operator is the outer one, since `a === b === c` parses as `(a === b) === c`.
+		'!(a === b === c)',
 		'!(typeof value === "undefined")',
 		'!((a === b))',
 		'(!(a === b)).toString()',
@@ -73,15 +74,16 @@ test.snapshot({
 		'function * foo() { yield !(a === b); }',
 		'function * foo() { yield!(a === b); }',
 		'foo(...!(a === b));',
-		'async function foo() { return await !(a > b); }',
-		'const foo = a + !(b > c);',
-		'!(a > b)',
-		'!(a >= b)',
-		'!(a < b)',
-		'!(a <= b)',
-		'!(null > undefined)',
-		// Equality comparisons are exact even for `undefined`/`NaN`, so optional
-		// chaining does not affect them.
+		// The parentheses are kept here, so the fixed expression starts with `(` and needs a semicolon.
+		outdent`
+			foo
+			!(a === b) + c
+		`,
+		outdent`
+			const foo = [a]
+			!(b === c) + d
+		`,
+		// Equality comparisons are exact even for `undefined`/`NaN`, so optional chaining does not affect them.
 		'!(a?.b === c)',
 		'!(a?.b !== c)',
 		'!(a?.() == b)',
@@ -142,14 +144,35 @@ test.snapshot({
 			code: '!(a === b && (c === d || foo()))',
 			options: [{checkLogicalExpressions: true}],
 		},
-		// A relational comparison with optional chaining anywhere in the tree is
-		// not safely negatable, so the whole expression is ignored.
+		// De Morgan's law does not apply to `??`, so it is not negatable.
 		{
-			code: '!(a?.b > c && d === e)',
+			code: '!(a === b ?? c)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		// A relational comparison anywhere in the tree suppresses the whole expression.
+		{
+			code: '!(a > b && c === d)',
 			options: [{checkLogicalExpressions: true}],
 		},
 		{
-			code: '!(a === b && (c === d || e?.f <= g))',
+			code: '!(a === b || c <= d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a === b && (c === d || e <= f))',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!((a || b) > c && d === e)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		// `in` and `instanceof` are not equality comparisons either.
+		{
+			code: '!(a in b && c === d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a instanceof B && c === d)',
 			options: [{checkLogicalExpressions: true}],
 		},
 	],
@@ -164,14 +187,6 @@ test.snapshot({
 		},
 		{
 			code: '!(a !== b || c != d)',
-			options: [{checkLogicalExpressions: true}],
-		},
-		{
-			code: '!(a > b && c === d)',
-			options: [{checkLogicalExpressions: true}],
-		},
-		{
-			code: '!(a === b || c <= d)',
 			options: [{checkLogicalExpressions: true}],
 		},
 		// Equality comparisons with optional chaining stay reportable (exact under negation).
@@ -196,15 +211,7 @@ test.snapshot({
 			options: [{checkLogicalExpressions: true}],
 		},
 		{
-			code: '!(a > b && (c === d || e <= f))',
-			options: [{checkLogicalExpressions: true}],
-		},
-		{
 			code: '!((a || b) === c && d === e)',
-			options: [{checkLogicalExpressions: true}],
-		},
-		{
-			code: '!((a || b) > c && d === e)',
 			options: [{checkLogicalExpressions: true}],
 		},
 		{

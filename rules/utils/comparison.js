@@ -31,17 +31,6 @@ export const negatedEqualityOperators = new Map([
 ]);
 
 /**
-Comparison operators after applying a leading logical negation, including relational operators.
-*/
-export const negatedComparisonOperators = new Map([
-	...negatedEqualityOperators,
-	['>', '<='],
-	['>=', '<'],
-	['<', '>='],
-	['<=', '>'],
-]);
-
-/**
 Logical operators after applying De Morgan's law.
 */
 export const negatedLogicalOperators = new Map([
