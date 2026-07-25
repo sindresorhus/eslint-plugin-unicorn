@@ -1563,6 +1563,28 @@ ruleTest({
 			name: 'type-aware conditional generic aliases with nullable results remain unknown',
 			code: 'type Result<T> = T extends string ? boolean | undefined : boolean | undefined; declare const completed: Result<boolean>;',
 		}),
+		typeAware({
+			name: 'nullable async results remain unknown',
+			code: 'async function completed(): Promise<boolean | undefined> {}',
+		}),
+		typeAware({
+			name: 'nullable async function type results remain unknown',
+			code: 'declare const completed: () => Promise<boolean | undefined>;',
+		}),
+		typeAware({
+			name: 'nullable async function types remain unknown',
+			code: 'declare const completed: (() => Promise<boolean>) | undefined;',
+		}),
+		typeAware({
+			name: 'unresolved generic callable interfaces remain unknown',
+			code: [
+				'type Result<T> = T extends string ? string : boolean;',
+				'interface Predicate<T> { (): Result<T>; }',
+				'function run<T>(value: T) {',
+				'\tconst isReady: Predicate<T> = value as Predicate<T>;',
+				'}',
+			].join(' '),
+		}),
 		typeAware('type Maybe<T> = T | undefined; const completed: Maybe<boolean> = true;'),
 		typescript({
 			name: 'recursive generic aliases do not crash',
@@ -1724,6 +1746,25 @@ ruleTest({
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
+			name: 'type-aware generic callable interface overloads combine return types',
+			code: [
+				'type Result<T> = T extends string ? Promise<string> : Promise<boolean>;',
+				'interface Predicate<T> { (): Result<T>; (value: number): Promise<string>; }',
+				'declare const isReady: Predicate<boolean>;',
+			].join(' '),
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			name: 'type-aware generic callable interfaces keep nullable Promise booleans unknown',
+			code: [
+				'type Result<T> = T extends string ? Promise<boolean> | undefined : Promise<string> | undefined;',
+				'interface Predicate<T> { (): Result<T>; }',
+				'declare const completed: Predicate<string>;',
+				'declare const isReady: Predicate<boolean>;',
+			].join(' '),
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
 			name: 'type-aware generic PromiseLike callable interfaces resolve conditional aliases',
 			code: [
 				'type Result<T> = T extends string ? PromiseLike<string> : PromiseLike<boolean>;',
@@ -1732,6 +1773,16 @@ ruleTest({
 				'declare const isReady: Predicate<string>;',
 			].join(' '),
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			name: 'type-aware generic callable interfaces keep nullable PromiseLike booleans unknown',
+			code: [
+				'type Result<T> = T extends string ? PromiseLike<boolean> | undefined : PromiseLike<string> | undefined;',
+				'interface Predicate<T> { (): Result<T>; }',
+				'declare const completed: Predicate<string>;',
+				'declare const isReady: Predicate<boolean>;',
+			].join(' '),
+			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'generic synchronous function aliases require prefixes',
