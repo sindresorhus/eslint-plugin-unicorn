@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -13,9 +13,17 @@ Prefer using the opposite comparison operator instead of negating the whole comp
 
 Writing the opposite operator directly makes the comparison easier to read and reduces mental negation.
 
-By default, the rule intentionally does not rewrite compound logical expressions like `!(a === b && c === d)`. Keeping the grouped negation can be easier to read.
+Only equality comparisons (`===`, `!==`, `==`, `!=`) are checked, since those are the ones the opposite operator reproduces exactly.
 
-Relational comparisons (`<`, `>`, `<=`, `>=`) with optional chaining are ignored, since the operand can be `undefined` and `!(a?.b >= 2)` is not equivalent to `a?.b < 2`. Equality comparisons are unaffected.
+Relational comparisons (`<`, `>`, `<=`, `>=`) are left alone. Every relational comparison with `NaN` is false, so `!(value >= 1)` is `true` for `NaN`, `undefined`, `'abc'`, and `{}`, while `value < 1` is `false` for all of them. That makes the negated form a common way to reject anything that is not a comparable number:
+
+```js
+if (!(options.factor > 0)) {
+	options.factor = 1;
+}
+```
+
+By default, the rule intentionally does not rewrite compound logical expressions like `!(a === b && c === d)`. Keeping the grouped negation can be easier to read.
 
 ## Examples
 
@@ -40,6 +48,11 @@ if (typeof value !== 'undefined') {}
 if (!(a === b && c === d)) {}
 ```
 
+```js
+// ✅
+if (!(a > b)) {}
+```
+
 ## Options
 
 Type: `object`
@@ -49,9 +62,9 @@ Type: `object`
 Type: `boolean`\
 Default: `false`
 
-Check logical expressions that only contain comparisons.
+Check logical expressions that only contain equality comparisons.
 
-This option intentionally does not attempt broad boolean algebra simplification. It ignores logical expressions with non-comparison parts and reports without a fix or suggestion when comments are inside the negated expression.
+This option intentionally does not attempt broad boolean algebra simplification. It ignores logical expressions with any part that is not an equality comparison, including relational ones like `!(a > b && c === d)`, and reports without a fix when comments are inside the negated expression.
 
 ```js
 {

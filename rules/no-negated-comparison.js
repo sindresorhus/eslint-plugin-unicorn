@@ -9,24 +9,18 @@ import {
 	needsSemicolon,
 } from './utils/index.js';
 import {
-	containsOptionalChain,
 	getBinaryExpressionWithReplacedOperatorText,
 	getPunctuatorBinaryExpressionOperatorToken,
 	hasLowerLogicalOperatorPrecedence,
-	negatedComparisonOperators,
 	negatedEqualityOperators,
 	negatedLogicalOperators,
 } from './utils/comparison.js';
 
 const MESSAGE_ID_ERROR = 'no-negated-comparison/error';
 const MESSAGE_ID_LOGICAL_ERROR = 'no-negated-comparison/logical-error';
-const MESSAGE_ID_SUGGESTION = 'no-negated-comparison/suggestion';
-const MESSAGE_ID_LOGICAL_SUGGESTION = 'no-negated-comparison/logical-suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer the opposite comparison instead of negating the whole comparison.',
 	[MESSAGE_ID_LOGICAL_ERROR]: 'Prefer the opposite comparisons instead of negating the whole logical expression.',
-	[MESSAGE_ID_SUGGESTION]: 'Switch to `{{operator}}`.',
-	[MESSAGE_ID_LOGICAL_SUGGESTION]: 'Switch to opposite comparisons.',
 };
 
 const defaultOptions = {
@@ -40,7 +34,7 @@ const schema = [
 		properties: {
 			checkLogicalExpressions: {
 				type: 'boolean',
-				description: 'Check logical expressions that only contain comparisons.',
+				description: 'Check logical expressions that only contain equality comparisons.',
 			},
 		},
 	},
@@ -56,37 +50,27 @@ const isNegation = node =>
 		&& node.parent.argument === node
 	);
 
-const isComparison = node =>
+/*
+Only equality operators, never the relational ones, and it must stay that way.
+
+`!(a > b)` is not equivalent to `a <= b` when an operand is not a comparable number: every relational comparison with `NaN` is false, so the negated form is how code rejects `NaN`, `undefined`, and non-numbers, as in `if (!(options.factor > 0))`, which the opposite operator silently accepts.
+
+A census of 8564 source files found three negated relational comparisons, and all three were deliberate guards of that kind, so reporting them would be almost entirely false positives. Do not add them back behind an option either: the precondition for enabling it safely, that no operand is ever a non-number, cannot be verified for a whole codebase.
+
+Do not reintroduce a heuristic that exempts only the operands that look risky. An earlier optional-chaining exemption covered under 3% of occurrences and made `!(a?.b >= 2)` and `!(chr >= 0)` behave differently for the same underlying reason. See #3510 and #3588.
+*/
+const isEqualityComparison = node =>
 	node.type === 'BinaryExpression'
-	&& negatedComparisonOperators.has(node.operator);
+	&& negatedEqualityOperators.has(node.operator);
 
-// `!(a > b)` is not equivalent to `a <= b` when an operand is `NaN`.
-// Optional chaining signals a possibly-`undefined` (→ `NaN`) operand, so the
-// opposite relational operator would silently change behavior. Equality
-// operators are exact even for `NaN`, so they stay reportable.
-const isNanUnsafeComparison = comparison =>
-	isComparison(comparison)
-	&& !negatedEqualityOperators.has(comparison.operator)
-	&& (containsOptionalChain(comparison.left) || containsOptionalChain(comparison.right));
-
-const containsNanUnsafeComparison = node =>
-	isComparison(node)
-		? isNanUnsafeComparison(node)
-		: containsNanUnsafeComparison(node.left) || containsNanUnsafeComparison(node.right);
-
-const isLogicalExpressionWithOnlyComparisons = node =>
-	isComparison(node)
+const containsOnlyEqualityComparisons = node =>
+	isEqualityComparison(node)
 	|| (
 		node.type === 'LogicalExpression'
 		&& negatedLogicalOperators.has(node.operator)
-		&& isLogicalExpressionWithOnlyComparisons(node.left)
-		&& isLogicalExpressionWithOnlyComparisons(node.right)
+		&& containsOnlyEqualityComparisons(node.left)
+		&& containsOnlyEqualityComparisons(node.right)
 	);
-
-const isSafelyFixableLogicalExpression = node =>
-	isComparison(node)
-		? negatedEqualityOperators.has(node.operator)
-		: isSafelyFixableLogicalExpression(node.left) && isSafelyFixableLogicalExpression(node.right);
 
 const parentNeedsGroupedComparison = parent => [
 	'AwaitExpression',
@@ -100,6 +84,18 @@ const parentNeedsGroupedComparison = parent => [
 	'YieldExpression',
 ].includes(parent.type);
 
+// `return`/`throw` followed by a line break needs the expression wrapped, otherwise removing the `!` makes ASI turn it into a bare `return;`/`throw;`.
+const needsReturnOrThrowParentheses = (unaryExpression, context) => {
+	const {parent} = unaryExpression;
+	const {sourceCode} = context;
+	const bangToken = sourceCode.getFirstToken(unaryExpression);
+
+	return (parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+		&& parent.argument === unaryExpression
+		&& !isOnSameLine(bangToken, sourceCode.getTokenAfter(bangToken), context)
+		&& !isParenthesized(unaryExpression, context);
+};
+
 function * fix({
 	fixer,
 	context,
@@ -109,18 +105,12 @@ function * fix({
 }) {
 	const {sourceCode} = context;
 	const bangToken = sourceCode.getFirstToken(unaryExpression);
-	const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 	const tokenAfterBangIncludingComments = sourceCode.getTokenAfter(bangToken, {includeComments: true});
 	const operatorToken = getPunctuatorBinaryExpressionOperatorToken(comparison, context);
 	const {parent} = unaryExpression;
-	const isNeedsReturnOrThrowParentheses = (
-		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-		&& parent.argument === unaryExpression
-		&& !isOnSameLine(bangToken, tokenAfterBang, context)
-		&& !isParenthesized(unaryExpression, context)
-	);
+	const shouldAddReturnOrThrowParentheses = needsReturnOrThrowParentheses(unaryExpression, context);
 
-	if (!isNeedsReturnOrThrowParentheses) {
+	if (!shouldAddReturnOrThrowParentheses) {
 		yield fixSpaceAroundKeyword(fixer, unaryExpression, context);
 	}
 
@@ -132,33 +122,33 @@ function * fix({
 		yield fixer.insertTextAfter(tokenAfterBangIncludingComments, ' ');
 	}
 
-	if (!parentNeedsGroupedComparison(parent) || isParenthesized(unaryExpression, context)) {
+	const shouldKeepParentheses = parentNeedsGroupedComparison(parent) && !isParenthesized(unaryExpression, context);
+	if (!shouldKeepParentheses) {
 		yield removeParentheses(comparison, fixer, context);
 	}
 
 	yield fixer.replaceText(operatorToken, replacementOperator);
 
-	if (isNeedsReturnOrThrowParentheses) {
+	if (shouldAddReturnOrThrowParentheses) {
 		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}
 
-	const firstComparisonToken = sourceCode.getFirstToken(comparison);
+	// When the parentheses are kept, the fixed expression starts with `(`, not with the comparison.
+	const firstTokenValue = shouldKeepParentheses ? '(' : sourceCode.getFirstToken(comparison).value;
 	const tokenBefore = sourceCode.getTokenBefore(unaryExpression);
-	if (needsSemicolon(tokenBefore, context, firstComparisonToken.value)) {
+	if (needsSemicolon(tokenBefore, context, firstTokenValue)) {
 		yield fixer.insertTextBefore(unaryExpression, ';');
 	}
 }
 
-const getFixedComparisonText = (comparison, context) => getBinaryExpressionWithReplacedOperatorText(
-	comparison,
-	context,
-	negatedComparisonOperators.get(comparison.operator),
-);
-
 const getFixedLogicalExpressionText = (node, context, parentOperator) => {
-	if (isComparison(node)) {
-		return getFixedComparisonText(node, context);
+	if (isEqualityComparison(node)) {
+		return getBinaryExpressionWithReplacedOperatorText(
+			node,
+			context,
+			negatedEqualityOperators.get(node.operator),
+		);
 	}
 
 	const operator = negatedLogicalOperators.get(node.operator);
@@ -190,21 +180,16 @@ function * fixLogical({
 	const bangToken = sourceCode.getFirstToken(unaryExpression);
 	const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 	const {parent} = unaryExpression;
-	const isNeedsReturnOrThrowParentheses = (
-		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-		&& parent.argument === unaryExpression
-		&& !isOnSameLine(bangToken, tokenAfterBang, context)
-		&& !isParenthesized(unaryExpression, context)
-	);
+	const shouldAddReturnOrThrowParentheses = needsReturnOrThrowParentheses(unaryExpression, context);
 
-	if (!isNeedsReturnOrThrowParentheses) {
+	if (!shouldAddReturnOrThrowParentheses) {
 		yield fixSpaceAroundKeyword(fixer, unaryExpression, context);
 	}
 
 	yield fixer.remove(bangToken);
 	yield fixer.replaceText(logicalExpression, getFixedLogicalExpressionText(logicalExpression, context));
 
-	if (isNeedsReturnOrThrowParentheses) {
+	if (shouldAddReturnOrThrowParentheses) {
 		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}
@@ -226,48 +211,26 @@ const create = context => {
 
 		const {argument} = unaryExpression;
 
-		if (isComparison(argument)) {
-			if (isNanUnsafeComparison(argument)) {
-				return;
-			}
-
+		if (isEqualityComparison(argument)) {
 			const comparison = argument;
-			const replacementOperator = negatedComparisonOperators.get(comparison.operator);
-			const problem = {
+
+			return {
 				node: unaryExpression,
 				messageId: MESSAGE_ID_ERROR,
+				fix: fixer => fix({
+					fixer,
+					context,
+					unaryExpression,
+					comparison,
+					replacementOperator: negatedEqualityOperators.get(comparison.operator),
+				}),
 			};
-
-			const fixFunction = fixer => fix({
-				fixer,
-				context,
-				unaryExpression,
-				comparison,
-				replacementOperator,
-			});
-
-			if (negatedEqualityOperators.has(comparison.operator)) {
-				problem.fix = fixFunction;
-			} else {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							operator: replacementOperator,
-						},
-						fix: fixFunction,
-					},
-				];
-			}
-
-			return problem;
 		}
 
 		if (
 			!checkLogicalExpressions
 			|| argument.type !== 'LogicalExpression'
-			|| !isLogicalExpressionWithOnlyComparisons(argument)
-			|| containsNanUnsafeComparison(argument)
+			|| !containsOnlyEqualityComparisons(argument)
 		) {
 			return;
 		}
@@ -282,23 +245,12 @@ const create = context => {
 			return problem;
 		}
 
-		const fixFunction = fixer => fixLogical({
+		problem.fix = fixer => fixLogical({
 			fixer,
 			context,
 			unaryExpression,
 			logicalExpression,
 		});
-
-		if (isSafelyFixableLogicalExpression(logicalExpression)) {
-			problem.fix = fixFunction;
-		} else {
-			problem.suggest = [
-				{
-					messageId: MESSAGE_ID_LOGICAL_SUGGESTION,
-					fix: fixFunction,
-				},
-			];
-		}
 
 		return problem;
 	});
@@ -314,7 +266,6 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
-		hasSuggestions: true,
 		schema,
 		defaultOptions: [defaultOptions],
 		messages,
