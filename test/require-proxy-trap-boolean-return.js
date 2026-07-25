@@ -72,6 +72,31 @@ test({
 		'new Proxy(target, {set() { return value instanceof Constructor; }});',
 		// CPA: infinite loop always exits.
 		'new Proxy(target, {set() { while (true) { doSomething(); } }});',
+		'new Proxy(target, {set() { while (process.exit(1)) {} }});',
+		'new Proxy(target, {set() { for (; process.exit(1);) {} }});',
+		'new Proxy(target, {set() { do {} while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { label: while (condition) {} } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { for (const value of values) {} } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { for (const key in object) {} } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { while (true) { break; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = getCondition(); do { while (true) { if (condition) break; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = getCondition(); do { while (true) { if (condition) continue; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { continue; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do; while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { ; continue; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { label: do { continue label; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = true; do { if (condition) continue; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = true; do { ; if (condition) continue; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = true; do { if (condition) continue; process.exit(1); } while (process.exit(2)); }});',
+		'new Proxy(target, {set() { for (;;) { process.exit(1); } }});',
+		'new Proxy(target, {set() { while (1) { process.exit(1); } }});',
+		'new Proxy(target, {set() { for (; 1;) { process.exit(1); } }});',
+		'new Proxy(target, {set() { for (; true; process.exit(1)) {} }});',
+		'new Proxy(target, {set() { do { process.exit(1); break; } while (condition); }});',
+		'new Proxy(target, {set() { do { process.exit(1); continue; } while (condition); }});',
+		'new Proxy(target, {set() { outer: do { while (condition) { continue outer; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { outer: do { switch (value) { case 1: continue outer; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { if (false) maybeThrow(); } while (process.exit(1)); }});',
 		// CPA: `for (;;)` always exits.
 		'new Proxy(target, {set() { for (;;) { doSomething(); } }});',
 		// CPA: try/catch where both branches exit.
@@ -99,6 +124,30 @@ test({
 		},
 		{
 			code: 'new Proxy(target, {set() { label: { break label; process.exit(1); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { label: switch (value) { case 1: break label; default: process.exit(1); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { do { break; } while (process.exit(1)); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { do { break; process.exit(1); } while (condition); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { do { if (condition) continue; process.exit(1); } while (otherCondition); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { outer: while (condition) { do { continue outer; } while (process.exit(1)); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { outer: do { switch (value) { case 1: continue outer; default: process.exit(1); } } while (condition); }});',
 			errors,
 		},
 		{

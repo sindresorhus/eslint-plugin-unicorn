@@ -603,7 +603,9 @@ function isInCatchableTryAfterPotentiallyThrowingCode(node, context, resolverRef
 					parent.block,
 					context,
 					true,
-					statement => isDefinitelyNotThrowingResolverStatement(statement, resolverReferenceExecutors),
+					{
+						isAdditionalStatementDefinitelyNotThrowing: statement => isDefinitelyNotThrowingResolverStatement(statement, resolverReferenceExecutors),
+					},
 				);
 		}
 

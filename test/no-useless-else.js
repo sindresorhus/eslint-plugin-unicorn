@@ -16,6 +16,19 @@ test.snapshot({
 			function qux() {
 				if (foo) {
 					try {
+						do {} while (maybeThrow(), process.exit(1));
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
 						throw error;
 						process.exit(1);
 					} catch {
@@ -44,6 +57,20 @@ test.snapshot({
 				if (foo) {
 					try {
 						process.exit((maybeThrow(), 1));
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						maybeThrow();
+						process.exit();
 					} catch {
 						cleanup();
 					}

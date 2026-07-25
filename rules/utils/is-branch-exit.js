@@ -200,13 +200,25 @@ const isDefinitelyNotThrowingStatement = (node, context) => {
 		return isDefinitelyNotThrowingExpression(node.expression, context);
 	}
 
-	return node.type === 'VariableDeclaration'
-		&& !isUsingDeclaration(node)
-		&& node.declarations.every(declaration =>
-			declaration.id.type === 'Identifier'
-			&& (!declaration.init || isDefinitelyNotThrowingExpression(declaration.init, context)),
+	if (node.type === 'BlockStatement') {
+		return node.body.every(statement => isDefinitelyNotThrowingStatement(statement, context));
+	}
+
+	return node.type === 'EmptyStatement'
+		|| node.type === 'FunctionDeclaration'
+		|| (
+			node.type === 'VariableDeclaration'
+			&& !isUsingDeclaration(node)
+			&& node.declarations.every(declaration =>
+				declaration.id.type === 'Identifier'
+				&& (!declaration.init || isDefinitelyNotThrowingExpression(declaration.init, context)),
+			)
 		);
 };
+
+const isDefinitelyNotThrowingStatementWithOptions = (node, context, options) =>
+	isDefinitelyNotThrowingStatement(node, context)
+	|| Boolean(options?.isAdditionalStatementDefinitelyNotThrowing?.(node));
 
 const isReturnWithoutValue = node => node.type === 'ReturnStatement' && !node.argument;
 
@@ -259,9 +271,20 @@ const isProcessExitVariableDeclarationAtStart = (node, context) => {
 	return false;
 };
 
-const isProcessExitStatementListAtStart = (statements, context, checkTryStatements, isAdditionalStatementDefinitelyNotThrowing = () => false) => {
+const isProcessExitStatementListAtStart = (
+	statements,
+	context,
+	checkTryStatements,
+	options = {},
+) => {
+	const {isAdditionalStatementAlwaysExits = () => false} = options;
+
 	for (const statement of statements) {
-		if (isProcessExitBranchAtStart(statement, context, checkTryStatements)) {
+		if (isProcessExitBranchAtStart(statement, context, checkTryStatements, options)) {
+			return true;
+		}
+
+		if (isAdditionalStatementAlwaysExits(statement)) {
 			return true;
 		}
 
@@ -269,10 +292,7 @@ const isProcessExitStatementListAtStart = (statements, context, checkTryStatemen
 			continue;
 		}
 
-		if (
-			!isDefinitelyNotThrowingStatement(statement, context)
-			&& !isAdditionalStatementDefinitelyNotThrowing(statement)
-		) {
+		if (!isDefinitelyNotThrowingStatementWithOptions(statement, context, options)) {
 			return false;
 		}
 	}
@@ -280,9 +300,18 @@ const isProcessExitStatementListAtStart = (statements, context, checkTryStatemen
 	return false;
 };
 
-export const isProcessExitBlockAtStart = (branch, context, checkTryStatements = true, isAdditionalStatementDefinitelyNotThrowing) =>
-	!hasPossiblyThrowingClassHeritage(branch, context)
-	&& isProcessExitStatementListAtStart(branch.body, context, checkTryStatements, isAdditionalStatementDefinitelyNotThrowing);
+export const isProcessExitBlockAtStart = (
+	branch,
+	context,
+	checkTryStatements = true,
+	options,
+) => !hasPossiblyThrowingClassHeritage(branch, context)
+	&& isProcessExitStatementListAtStart(
+		branch.body,
+		context,
+		checkTryStatements,
+		options,
+	);
 
 export function hasOptionalChainInCurrentChain(node) {
 	if (node?.type === 'MemberExpression') {
@@ -825,21 +854,21 @@ function hasPossiblyThrowingClassHeritage(node, context) {
 	return false;
 }
 
-function isProcessExitTryStatement(branch, context, checkTryStatements) {
-	if (branch.finalizer && isProcessExitBranch(branch.finalizer, context)) {
+function isProcessExitTryStatement(branch, context, checkTryStatements, options) {
+	if (branch.finalizer && isProcessExitBranch(branch.finalizer, context, true, options)) {
 		return true;
 	}
 
 	const tryBlockAlwaysExits = branch.handler
-		? isProcessExitBlockAtStart(branch.block, context, checkTryStatements)
-		: isProcessExitBranch(branch.block, context, checkTryStatements);
+		? isProcessExitBlockAtStart(branch.block, context, checkTryStatements, options)
+		: isProcessExitBranch(branch.block, context, checkTryStatements, options);
 
 	if (!checkTryStatements) {
 		return tryBlockAlwaysExits
 			|| (
 				branch.handler
 				&& isBranchExit(branch.block, context, isThrowStatement)
-				&& isProcessExitBranch(branch.handler, context, false)
+				&& isProcessExitBranch(branch.handler, context, false, options)
 			);
 	}
 
@@ -850,13 +879,13 @@ function isProcessExitTryStatement(branch, context, checkTryStatements) {
 	return Boolean(
 		branch.handler
 		&& isBranchExit(branch.block, context, isThrowStatement)
-		&& isProcessExitBranch(branch.handler, context),
+		&& isProcessExitBranch(branch.handler, context, true, options),
 	);
 }
 
-function isProcessExitBlock(branch, context, checkTryStatements) {
+function isProcessExitBlock(branch, context, checkTryStatements, options) {
 	for (const statement of branch.body) {
-		if (isProcessExitBranch(statement, context, checkTryStatements)) {
+		if (isProcessExitBranch(statement, context, checkTryStatements, options)) {
 			return true;
 		}
 
@@ -871,7 +900,7 @@ function isProcessExitBlock(branch, context, checkTryStatements) {
 	return false;
 }
 
-const isProcessExitConditionalBranchAtStart = (branch, context, checkTryStatements) => {
+const isProcessExitConditionalBranchAtStart = (branch, context, checkTryStatements, options) => {
 	if (isProcessExitExpressionAtStart(branch.test, context)) {
 		return true;
 	}
@@ -879,34 +908,339 @@ const isProcessExitConditionalBranchAtStart = (branch, context, checkTryStatemen
 	const staticValue = getStaticValue(branch.test, context.sourceCode.getScope(branch.test));
 	if (staticValue !== null && isDefinitelyNotThrowingExpression(branch.test, context)) {
 		const selectedBranch = staticValue.value ? branch.consequent : branch.alternate;
-		return Boolean(selectedBranch && isProcessExitBranchAtStart(selectedBranch, context, checkTryStatements));
+		return Boolean(selectedBranch && isProcessExitBranchAtStart(selectedBranch, context, checkTryStatements, options));
 	}
 
 	return isDefinitelyNotThrowingReference(branch.test, context)
-		&& isProcessExitBranchAtStart(branch.consequent, context, checkTryStatements)
-		&& Boolean(branch.alternate && isProcessExitBranchAtStart(branch.alternate, context, checkTryStatements));
+		&& isProcessExitBranchAtStart(branch.consequent, context, checkTryStatements, options)
+		&& Boolean(branch.alternate && isProcessExitBranchAtStart(branch.alternate, context, checkTryStatements, options));
 };
 
-const isProcessExitTryStatementAtStart = (branch, context, checkTryStatements) => {
-	if (branch.finalizer && isProcessExitBranchAtStart(branch.finalizer, context, checkTryStatements)) {
+const isProcessExitTryStatementAtStart = (branch, context, checkTryStatements, options) => {
+	if (branch.finalizer && isProcessExitBranchAtStart(branch.finalizer, context, checkTryStatements, options)) {
 		return true;
 	}
 
 	return branch.handler
-		? isProcessExitTryStatement(branch, context, checkTryStatements)
-		: isProcessExitBlockAtStart(branch.block, context, checkTryStatements);
+		? isProcessExitTryStatement(branch, context, checkTryStatements, options)
+		: isProcessExitBlockAtStart(branch.block, context, checkTryStatements, options);
 };
 
-const isProcessExitSwitchCaseAtStart = (cases, startIndex, context, checkTryStatements) => {
+const isProcessExitDoWhileBody = (node, loop, context, state) => {
+	const {checkTryStatements, isAtStart, isLastStatement, options, isProcessExitAtTest} = state;
+
+	if (
+		(
+			node.type !== 'BlockStatement'
+			&& (isAtStart
+				? isProcessExitBranchAtStart(node, context, checkTryStatements, options)
+				: isProcessExitBranch(node, context, checkTryStatements, options))
+		)
+		|| (
+			node.type !== 'BlockStatement'
+			&& !isAtStart
+			&& isBranchExit(node, context, isReturnOrThrowStatement)
+			&& !(node.type === 'SwitchStatement' && hasControlFlowExitFromLoop(node, loop, context))
+		)
+	) {
+		return true;
+	}
+
+	if (
+		isDefinitelyNotThrowingStatementWithOptions(node, context, options)
+		|| isContinueToLoop(node, loop)
+	) {
+		return isProcessExitAtTest;
+	}
+
+	if (node.type === 'LabeledStatement' && isLoop(node.body)) {
+		return isProcessExitDoWhileBody(node.body, loop, context, state);
+	}
+
+	if (node.type === 'IfStatement') {
+		const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
+		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+			const selectedBranch = staticValue.value ? node.consequent : node.alternate;
+			return selectedBranch
+				? isProcessExitDoWhileBody(selectedBranch, loop, context, state)
+				: isProcessExitAtTest;
+		}
+
+		return isDefinitelyNotThrowingReference(node.test, context)
+			&& isProcessExitDoWhileBody(node.consequent, loop, context, state)
+			&& (
+				node.alternate
+					? isProcessExitDoWhileBody(node.alternate, loop, context, state)
+					: isProcessExitAtTest
+			);
+	}
+
+	if (node.type !== 'BlockStatement') {
+		return isProcessExitAtTest
+			&& isLastStatement
+			&& (
+				(
+					node.type === 'SwitchStatement'
+					&& (!checkTryStatements || isSwitchBodyDefinitelyNotThrowing(node, loop, context, options))
+					&& !hasControlFlowExitBeforeLoopTest(node, loop, context)
+				)
+				|| (
+					isLoop(node)
+					&& (
+						!isInfiniteLoop(node, context)
+						|| isLoopBodyAlwaysExits(node, context, options)
+					)
+					&& (!checkTryStatements || isLoopBodyAlwaysExitsSimply(node.body, node, context, options))
+					&& !hasControlFlowExitBeforeLoopTest(node, loop, context)
+				)
+			);
+	}
+
+	if (isAtStart) {
+		if (isProcessExitBlockAtStart(node, context, checkTryStatements, options)) {
+			return true;
+		}
+
+		if (isProcessExitConditionalContinue(node.body, loop, context, state)) {
+			return true;
+		}
+
+		const lastStatement = node.body.at(-1);
+		if (
+			lastStatement
+			&& isContinueToLoop(lastStatement, loop)
+			&& node.body.slice(0, -1).every(statement => isDefinitelyNotThrowingStatementWithOptions(statement, context, options))
+		) {
+			return isProcessExitAtTest;
+		}
+
+		return node.body.length === 1
+			&& isProcessExitDoWhileBody(node.body[0], loop, context, state);
+	}
+
+	if (node.body.some(statement => hasControlFlowExitFromLoop(statement, loop, context))) {
+		if (isProcessExitConditionalContinue(node.body, loop, context, state)) {
+			return true;
+		}
+
+		if (isProcessExitDoWhileStatementList(node.body, loop, context, state)) {
+			return true;
+		}
+
+		const lastStatement = node.body.at(-1);
+		return Boolean(
+			lastStatement
+			&& hasControlFlowExitFromLoop(lastStatement, loop, context)
+			&& isProcessExitDoWhileBody(lastStatement, loop, context, state),
+		);
+	}
+
+	return isProcessExitDoWhileStatementList(node.body, loop, context, state);
+};
+
+const isProcessExitConditionalContinue = (statements, loop, context, state) => {
+	const {isProcessExitAtTest, options} = state;
+	const index = statements.findIndex(statement => isConditionalContinueToLoop(statement, loop, context));
+	const statement = index === -1 ? undefined : statements[index];
+	return Boolean(
+		statement
+		&& statements.slice(0, index).every(statement => isDefinitelyNotThrowingStatementWithOptions(statement, context, options))
+		&& isProcessExitAtTest
+		&& (
+			statement.alternate
+				? isProcessExitDoWhileBody(statement.alternate, loop, context, state)
+				: index === statements.length - 1
+					|| isProcessExitDoWhileStatementList(
+						statements.slice(index + 1),
+						loop,
+						context,
+						state,
+					)
+		),
+	);
+};
+
+const isProcessExitDoWhileStatementList = (statements, loop, context, state) => {
+	const {checkTryStatements, isAtStart, options, isProcessExitAtTest} = state;
+	let hasPotentiallyThrowingStatement = false;
+
+	for (const [index, statement] of statements.entries()) {
+		if (isAtStart) {
+			if (isProcessExitBranchAtStart(statement, context, checkTryStatements, options)) {
+				return true;
+			}
+
+			if (isContinueToLoop(statement, loop)) {
+				return isProcessExitAtTest;
+			}
+
+			if (!isDefinitelyNotThrowingStatementWithOptions(statement, context, options)) {
+				return false;
+			}
+
+			continue;
+		}
+
+		if (isDefinitelyNotThrowingStatementWithOptions(statement, context, options)) {
+			continue;
+		}
+
+		if (isConditionalContinueToLoop(statement, loop, context) && hasPotentiallyThrowingStatement) {
+			return false;
+		}
+
+		const statementState = {
+			...state,
+			isLastStatement: index === statements.length - 1,
+		};
+
+		if (isProcessExitDoWhileBody(statement, loop, context, statementState)) {
+			return true;
+		}
+
+		if (hasControlFlowExitFromLoop(statement, loop, context)) {
+			return false;
+		}
+
+		hasPotentiallyThrowingStatement = true;
+	}
+
+	return false;
+};
+
+const isInfiniteLoop = (branch, context) => (
+	(branch.type === 'WhileStatement' || branch.type === 'ForStatement')
+	&& (
+		!branch.test
+		|| Boolean(getStaticValue(branch.test, context.sourceCode.getScope(branch.test))?.value)
+	)
+);
+
+const isLoopBodyAlwaysExitsSimply = (node, loop, context, options) => {
+	if (
+		isBreakFromLoop(node, loop)
+		|| isContinueToLoop(node, loop)
+		|| node.type === 'EmptyStatement'
+	) {
+		return true;
+	}
+
+	if (node.type === 'IfStatement' && isDefinitelyNotThrowingReference(node.test, context)) {
+		return isLoopBodyAlwaysExitsSimply(node.consequent, loop, context, options)
+			&& (!node.alternate || isLoopBodyAlwaysExitsSimply(node.alternate, loop, context, options));
+	}
+
+	if (node.type !== 'BlockStatement') {
+		return false;
+	}
+
+	const lastStatement = node.body.at(-1);
+	return Boolean(
+		!lastStatement
+		|| (
+			isLoopBodyAlwaysExitsSimply(lastStatement, loop, context, options)
+			&& node.body.slice(0, -1).every(statement => isDefinitelyNotThrowingStatementWithOptions(statement, context, options))
+		),
+	);
+};
+
+const isLoopBodyAlwaysExits = (loop, context, options) => (
+	isLoopBodyAlwaysExitsSimply(loop.body, loop, context, options)
+	|| isBranchExit(loop.body, context, statement => isBreakFromLoop(statement, loop))
+);
+
+const isSwitchBodyDefinitelyNotThrowing = (switchStatement, loop, context, options) => (
+	isDefinitelyNotThrowingExpression(switchStatement.discriminant, context)
+	&& switchStatement.cases.every(switchCase =>
+		(switchCase.test === null || isDefinitelyNotThrowingExpression(switchCase.test, context))
+		&& switchCase.consequent.every(statement =>
+			isDefinitelyNotThrowingStatementWithOptions(statement, context, options)
+			|| isBreakFromSwitch(statement, switchStatement)
+			|| isContinueToLoop(statement, loop),
+		),
+	)
+);
+
+const isProcessExitInfiniteLoopAtStart = (branch, context, checkTryStatements, options) => {
+	const isInfinite = isInfiniteLoop(branch, context);
+	return isInfinite && isProcessExitBranchAtStart(branch.body, context, checkTryStatements, options);
+};
+
+const isProcessExitDoWhile = (branch, context, checkTryStatements, options) =>
+	isProcessExitDoWhileBody(branch.body, branch, context, {
+		checkTryStatements,
+		isAtStart: false,
+		isLastStatement: true,
+		options,
+		isProcessExitAtTest: isProcessExitExpression(branch.test, context),
+	});
+
+const isProcessExitDoWhileAtStart = (branch, context, checkTryStatements, options) =>
+	isProcessExitDoWhileBody(branch.body, branch, context, {
+		checkTryStatements,
+		isAtStart: true,
+		isLastStatement: true,
+		options,
+		isProcessExitAtTest: isProcessExitExpressionAtStart(branch.test, context),
+	});
+
+const isProcessExitForInitAtStart = (node, context) => node.type === 'VariableDeclaration'
+	? isProcessExitVariableDeclarationAtStart(node, context)
+	: isProcessExitExpressionAtStart(node, context);
+
+const isDefinitelyNotThrowingForInit = (node, context) => node.type === 'VariableDeclaration'
+	? isDefinitelyNotThrowingStatement(node, context)
+	: isDefinitelyNotThrowingExpression(node, context);
+
+const isProcessExitLoopAtStart = (branch, context, checkTryStatements, options) => {
+	if (branch.type === 'WhileStatement') {
+		return isProcessExitExpressionAtStart(branch.test, context)
+			|| isProcessExitInfiniteLoopAtStart(branch, context, checkTryStatements, options);
+	}
+
+	if (branch.type === 'ForStatement') {
+		if (branch.init) {
+			if (isProcessExitForInitAtStart(branch.init, context)) {
+				return true;
+			}
+
+			if (!isDefinitelyNotThrowingForInit(branch.init, context)) {
+				return false;
+			}
+		}
+
+		return Boolean(
+			(branch.test && isProcessExitExpressionAtStart(branch.test, context))
+			|| (isInfiniteLoop(branch, context)
+				&& branch.update
+				&& isProcessExitExpressionAtStart(branch.update, context)
+				&& isDefinitelyNotThrowingStatement(branch.body, context))
+			|| isProcessExitInfiniteLoopAtStart(branch, context, checkTryStatements, options),
+		);
+	}
+
+	return (branch.type === 'ForInStatement' || branch.type === 'ForOfStatement')
+		&& isProcessExitExpressionAtStart(branch.right, context);
+};
+
+const isProcessExitSwitchCaseAtStart = (cases, startIndex, context, {checkTryStatements, switchStatement, options}) => {
 	const statements = [];
 	for (let index = startIndex; index < cases.length; index++) {
 		statements.push(...cases[index].consequent);
 	}
 
-	return isProcessExitStatementListAtStart(statements, context, checkTryStatements);
+	return isProcessExitStatementListAtStart(
+		statements,
+		context,
+		checkTryStatements,
+		{
+			...options,
+			isAdditionalStatementAlwaysExits: statement => isControlFlowExitFromSwitch(statement, switchStatement),
+		},
+	);
 };
 
-const isProcessExitSwitchAtStart = (branch, context, checkTryStatements) => {
+const isProcessExitSwitchAtStart = (branch, context, checkTryStatements, options) => {
 	if (isProcessExitExpressionAtStart(branch.discriminant, context)) {
 		return true;
 	}
@@ -930,7 +1264,7 @@ const isProcessExitSwitchAtStart = (branch, context, checkTryStatements) => {
 				switchCase.test !== null
 				&& !isDefinitelyNotThrowingExpression(switchCase.test, context)
 			)
-			|| !isProcessExitSwitchCaseAtStart(branch.cases, index, context, checkTryStatements)
+			|| !isProcessExitSwitchCaseAtStart(branch.cases, index, context, {checkTryStatements, switchStatement: branch, options})
 		) {
 			return false;
 		}
@@ -939,11 +1273,11 @@ const isProcessExitSwitchAtStart = (branch, context, checkTryStatements) => {
 	return firstProcessExitCaseIndex !== -1
 		|| (
 			defaultCaseIndex !== -1
-			&& isProcessExitSwitchCaseAtStart(branch.cases, defaultCaseIndex, context, checkTryStatements)
+			&& isProcessExitSwitchCaseAtStart(branch.cases, defaultCaseIndex, context, {checkTryStatements, switchStatement: branch, options})
 		);
 };
 
-const isProcessExitClassAtStart = (node, context, checkTryStatements) => {
+const isProcessExitClassAtStart = (node, context, checkTryStatements, options) => {
 	if (node.superClass) {
 		if (isProcessExitExpressionAtStart(node.superClass, context)) {
 			return true;
@@ -966,11 +1300,11 @@ const isProcessExitClassAtStart = (node, context, checkTryStatements) => {
 		}
 
 		if (element.type === 'StaticBlock') {
-			if (isProcessExitBlockAtStart(element, context, checkTryStatements)) {
+			if (isProcessExitBlockAtStart(element, context, checkTryStatements, options)) {
 				return true;
 			}
 
-			if (element.body.some(statement => !isDefinitelyNotThrowingStatement(statement, context))) {
+			if (element.body.some(statement => !isDefinitelyNotThrowingStatementWithOptions(statement, context, options))) {
 				return false;
 			}
 
@@ -993,7 +1327,7 @@ const isProcessExitClassAtStart = (node, context, checkTryStatements) => {
 	return false;
 };
 
-export function isProcessExitBranchAtStart(branch, context, checkTryStatements = true) {
+export function isProcessExitBranchAtStart(branch, context, checkTryStatements = true, options) {
 	if (branch.type === 'ExpressionStatement') {
 		return isProcessExitExpressionAtStart(branch.expression, context);
 	}
@@ -1007,29 +1341,42 @@ export function isProcessExitBranchAtStart(branch, context, checkTryStatements =
 	}
 
 	if (branch.type === 'IfStatement' || branch.type === 'ConditionalExpression') {
-		return isProcessExitConditionalBranchAtStart(branch, context, checkTryStatements);
+		return isProcessExitConditionalBranchAtStart(branch, context, checkTryStatements, options);
 	}
 
 	if (branch.type === 'BlockStatement') {
-		return isProcessExitBlockAtStart(branch, context, checkTryStatements);
+		return isProcessExitBlockAtStart(branch, context, checkTryStatements, options);
 	}
 
 	if (branch.type === 'TryStatement') {
-		return isProcessExitTryStatementAtStart(branch, context, checkTryStatements);
+		return isProcessExitTryStatementAtStart(branch, context, checkTryStatements, options);
+	}
+
+	if (branch.type === 'LabeledStatement') {
+		return !hasLabeledBreakBeforeProcessExit(branch.body, context, branch.label.name)
+			&& isProcessExitBranchAtStart(branch.body, context, checkTryStatements, options);
+	}
+
+	if (
+		['DoWhileStatement', 'WhileStatement', 'ForStatement', 'ForInStatement', 'ForOfStatement'].includes(branch.type)
+	) {
+		return branch.type === 'DoWhileStatement'
+			? isProcessExitDoWhileAtStart(branch, context, checkTryStatements, options)
+			: isProcessExitLoopAtStart(branch, context, checkTryStatements, options);
 	}
 
 	if (branch.type === 'SwitchStatement') {
-		return isProcessExitSwitchAtStart(branch, context, checkTryStatements);
+		return isProcessExitSwitchAtStart(branch, context, checkTryStatements, options);
 	}
 
 	if (branch.type === 'ClassDeclaration' || branch.type === 'ClassExpression') {
-		return isProcessExitClassAtStart(branch, context, checkTryStatements);
+		return isProcessExitClassAtStart(branch, context, checkTryStatements, options);
 	}
 
-	return isProcessExitBranch(branch, context, checkTryStatements);
+	return isProcessExitBranch(branch, context, checkTryStatements, options);
 }
 
-const isProcessExitClass = (node, context, checkTryStatements) => {
+const isProcessExitClass = (node, context, checkTryStatements, options) => {
 	if (node.superClass) {
 		if (isProcessExitExpression(node.superClass, context)) {
 			return true;
@@ -1046,7 +1393,7 @@ const isProcessExitClass = (node, context, checkTryStatements) => {
 		}
 
 		if (element.type === 'StaticBlock') {
-			return isProcessExitBlock(element, context, checkTryStatements);
+			return isProcessExitBlock(element, context, checkTryStatements, options);
 		}
 
 		return element.type === 'PropertyDefinition'
@@ -1055,7 +1402,7 @@ const isProcessExitClass = (node, context, checkTryStatements) => {
 	});
 };
 
-export function isProcessExitBranch(branch, context, checkTryStatements = true) {
+export function isProcessExitBranch(branch, context, checkTryStatements = true, options) {
 	if (isProcessExitStatement(branch, context) || isProcessExitExpression(branch, context)) {
 		return true;
 	}
@@ -1073,28 +1420,57 @@ export function isProcessExitBranch(branch, context, checkTryStatements = true) 
 	}
 
 	if (branch.type === 'BlockStatement') {
-		return isProcessExitBlock(branch, context, checkTryStatements);
+		return isProcessExitBlock(branch, context, checkTryStatements, options);
 	}
 
 	if (branch.type === 'CatchClause') {
-		return isProcessExitBranch(branch.body, context, checkTryStatements);
+		return isProcessExitBranch(branch.body, context, checkTryStatements, options);
 	}
 
 	if (branch.type === 'VariableDeclaration') {
 		return isProcessExitVariableDeclaration(branch, context);
 	}
 
+	if (branch.type === 'DoWhileStatement') {
+		return isProcessExitDoWhile(branch, context, checkTryStatements, options);
+	}
+
+	if (branch.type === 'WhileStatement') {
+		return isProcessExitExpression(branch.test, context)
+			|| isProcessExitInfiniteLoopAtStart(branch, context, checkTryStatements, options);
+	}
+
+	if (branch.type === 'ForStatement') {
+		return Boolean(
+			(branch.init && (
+				branch.init.type === 'VariableDeclaration'
+					? isProcessExitVariableDeclaration(branch.init, context)
+					: isProcessExitExpression(branch.init, context)
+			))
+			|| (branch.test && isProcessExitExpression(branch.test, context))
+			|| (isInfiniteLoop(branch, context)
+				&& branch.update
+				&& isProcessExitExpression(branch.update, context)
+				&& isDefinitelyNotThrowingStatement(branch.body, context))
+			|| isProcessExitInfiniteLoopAtStart(branch, context, checkTryStatements, options),
+		);
+	}
+
+	if (branch.type === 'ForInStatement' || branch.type === 'ForOfStatement') {
+		return isProcessExitExpression(branch.right, context);
+	}
+
 	if (branch.type === 'ClassDeclaration' || branch.type === 'ClassExpression') {
-		return isProcessExitClass(branch, context, checkTryStatements);
+		return isProcessExitClass(branch, context, checkTryStatements, options);
 	}
 
 	if (branch.type === 'LabeledStatement') {
 		return !hasLabeledBreakBeforeProcessExit(branch.body, context, branch.label.name)
-			&& isProcessExitBranch(branch.body, context, checkTryStatements);
+			&& isProcessExitBranch(branch.body, context, checkTryStatements, options);
 	}
 
 	if (branch.type === 'TryStatement') {
-		return isProcessExitTryStatement(branch, context, checkTryStatements);
+		return isProcessExitTryStatement(branch, context, checkTryStatements, options);
 	}
 
 	if (branch.type === 'SwitchStatement') {
@@ -1108,8 +1484,8 @@ export function isProcessExitBranch(branch, context, checkTryStatements = true) 
 	return (
 		(branch.type === 'IfStatement' || branch.type === 'ConditionalExpression')
 		&& branch.alternate
-		&& isProcessExitBranch(branch.consequent, context, checkTryStatements)
-		&& isProcessExitBranch(branch.alternate, context, checkTryStatements)
+		&& isProcessExitBranch(branch.consequent, context, checkTryStatements, options)
+		&& isProcessExitBranch(branch.alternate, context, checkTryStatements, options)
 	);
 }
 
@@ -1118,7 +1494,7 @@ function getControlFlowTarget(node) {
 	if (node.label) {
 		while (current && !isFunction(current)) {
 			if (current.type === 'LabeledStatement' && current.label.name === node.label.name) {
-				return current.body;
+				return current;
 			}
 
 			current = current.parent;
@@ -1137,21 +1513,28 @@ function getControlFlowTarget(node) {
 	}
 }
 
-function isBreakFromSwitch(node, switchStatement) {
-	return getControlFlowTarget(node) === switchStatement;
+function isContinueToLoop(node, loop) {
+	if (node.type === 'ContinueStatement') {
+		const target = getControlFlowTarget(node);
+		return isControlFlowTargetCurrentLoop(target, loop);
+	}
+
+	return node.type === 'BlockStatement'
+		&& node.body.length === 1
+		&& isContinueToLoop(node.body[0], loop);
 }
 
-function isControlFlowExitFromSwitch(node, switchStatement) {
-	if (node.type !== 'BreakStatement' && node.type !== 'ContinueStatement') {
-		return false;
-	}
+function isBreakFromLoop(node, loop) {
+	return node.type === 'BreakStatement'
+		&& isControlFlowTargetCurrentLoop(getControlFlowTarget(node), loop);
+}
 
-	const target = getControlFlowTarget(node);
-	if (!target || target === switchStatement || (!isLoop(target) && target.type !== 'SwitchStatement')) {
-		return false;
-	}
+function isControlFlowTargetCurrentLoop(target, loop) {
+	return target === loop || (target?.type === 'LabeledStatement' && target.body === loop);
+}
 
-	for (let current = switchStatement.parent; current; current = current.parent) {
+function isControlFlowTargetInOuterScope(target, loop) {
+	for (let current = loop.parent; current; current = current.parent) {
 		if (current === target) {
 			return true;
 		}
@@ -1164,9 +1547,89 @@ function isControlFlowExitFromSwitch(node, switchStatement) {
 	return false;
 }
 
-function hasSwitchControlFlowExitInStatements(statements, context, switchStatement) {
+function isConditionalContinueToLoop(node, loop, context) {
+	return node.type === 'IfStatement'
+		&& isDefinitelyNotThrowingReference(node.test, context)
+		&& isContinueToLoop(node.consequent, loop);
+}
+
+function hasControlFlowExitBeforeLoopTest(node, loop, context) {
+	if (!node || isFunction(node)) {
+		return false;
+	}
+
+	if (node.type === 'BreakStatement' || node.type === 'ContinueStatement') {
+		const target = getControlFlowTarget(node);
+		const targetsCurrentLoop = isControlFlowTargetCurrentLoop(target, loop);
+		if (
+			(node.type === 'BreakStatement' && targetsCurrentLoop)
+			|| (!targetsCurrentLoop && isControlFlowTargetInOuterScope(target, loop))
+		) {
+			return true;
+		}
+	}
+
+	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
+		const value = node[key];
+		const children = Array.isArray(value) ? value : [value];
+		if (children.some(child => hasControlFlowExitBeforeLoopTest(child, loop, context))) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function hasControlFlowExitFromLoop(node, loop, context) {
+	if (!node || isFunction(node)) {
+		return false;
+	}
+
+	if (node.type === 'BreakStatement' || node.type === 'ContinueStatement') {
+		const target = getControlFlowTarget(node);
+		if (
+			isControlFlowTargetCurrentLoop(target, loop)
+			|| isControlFlowTargetInOuterScope(target, loop)
+		) {
+			return true;
+		}
+	}
+
+	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
+		const value = node[key];
+		const children = Array.isArray(value) ? value : [value];
+		if (children.some(child => hasControlFlowExitFromLoop(child, loop, context))) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function isBreakFromSwitch(node, switchStatement) {
+	const target = getControlFlowTarget(node);
+	return isControlFlowTargetCurrentLoop(target, switchStatement);
+}
+
+function isControlFlowExitFromSwitch(node, switchStatement) {
+	if (node.type !== 'BreakStatement' && node.type !== 'ContinueStatement') {
+		return false;
+	}
+
+	const target = getControlFlowTarget(node);
+	if (
+		!target
+		|| isControlFlowTargetCurrentLoop(target, switchStatement)
+	) {
+		return false;
+	}
+
+	return isControlFlowTargetInOuterScope(target, switchStatement);
+}
+
+function hasSwitchControlFlowExitInStatements(statements, context, switchStatement, checkOuterControlFlow) {
 	for (const statement of statements) {
-		if (hasSwitchControlFlowExit(statement, context, switchStatement)) {
+		if (hasSwitchControlFlowExit(statement, context, switchStatement, checkOuterControlFlow)) {
 			return true;
 		}
 
@@ -1182,17 +1645,20 @@ function hasSwitchControlFlowExitInStatements(statements, context, switchStateme
 	return false;
 }
 
-function hasSwitchControlFlowExit(node, context, switchStatement) {
+function hasSwitchControlFlowExit(node, context, switchStatement, checkOuterControlFlow) {
 	if (!node || isFunction(node)) {
 		return false;
 	}
 
-	if (node.type === 'BreakStatement' && isBreakFromSwitch(node, switchStatement)) {
+	if (
+		(node.type === 'BreakStatement' && isBreakFromSwitch(node, switchStatement))
+		|| (checkOuterControlFlow && isControlFlowExitFromSwitch(node, switchStatement))
+	) {
 		return true;
 	}
 
 	if (node.type === 'BlockStatement') {
-		return hasSwitchControlFlowExitInStatements(node.body, context, switchStatement);
+		return hasSwitchControlFlowExitInStatements(node.body, context, switchStatement, checkOuterControlFlow);
 	}
 
 	if (isLoop(node) || node.type === 'SwitchStatement') {
@@ -1207,14 +1673,14 @@ function hasSwitchControlFlowExit(node, context, switchStatement) {
 		const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
 		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
 			const selectedBranch = staticValue.value ? node.consequent : node.alternate;
-			return Boolean(selectedBranch && hasSwitchControlFlowExit(selectedBranch, context, switchStatement));
+			return Boolean(selectedBranch && hasSwitchControlFlowExit(selectedBranch, context, switchStatement, checkOuterControlFlow));
 		}
 	}
 
 	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
 		const value = node[key];
 		const children = Array.isArray(value) ? value : [value];
-		if (children.some(child => hasSwitchControlFlowExit(child, context, switchStatement))) {
+		if (children.some(child => hasSwitchControlFlowExit(child, context, switchStatement, checkOuterControlFlow))) {
 			return true;
 		}
 	}
@@ -1232,7 +1698,12 @@ function isSwitchBranchExit(branch, context, branchAlwaysExits, checkTryStatemen
 	let fallThroughExits = false;
 	for (let index = branch.cases.length - 1; index >= 0; index--) {
 		const switchCase = branch.cases[index];
-		if (hasSwitchControlFlowExitInStatements(switchCase.consequent, context, branch)) {
+		if (hasSwitchControlFlowExitInStatements(
+			switchCase.consequent,
+			context,
+			branch,
+			branchAlwaysExits === isNeverExiting,
+		)) {
 			fallThroughExits = false;
 		} else {
 			const caseConsequentExits = switchCase.consequent.some(statement =>
