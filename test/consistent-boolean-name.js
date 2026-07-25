@@ -1678,6 +1678,11 @@ ruleTest({
 		},
 	],
 	invalid: [
+		typescript({
+			name: 'callable interfaces resolve referenced types in their declaration scope',
+			code: 'type Result = string; interface Predicate {(): Result;} { type Result = Promise<boolean>; const isReady: Predicate = value; }',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
 		{
 			name: 'variables always',
 			code: 'const completed = true;',
