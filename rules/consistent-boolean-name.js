@@ -1514,7 +1514,11 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 	}
 
 	visitedTypeReferenceNodes.delete(node);
-	if (result === unknown && canUseTypeInformationFallback(node, normalizedTypeState, scope, definitions)) {
+	if (
+		result === unknown
+		&& context.sourceCode.parserServices?.program
+		&& canUseTypeInformationFallback(node, normalizedTypeState, scope, definitions)
+	) {
 		result = getTypeInformationBooleanState(node, context, normalizedTypeState.functionTypesAreBoolean, normalizedTypeState.allowNullish);
 	}
 
@@ -1672,7 +1676,11 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	}
 
 	visitedTypeReferenceNodes.delete(node);
-	if (result === unknown && canUseTypeInformationFallback(node, normalizedTypeState, scope, definitions)) {
+	if (
+		result === unknown
+		&& context.sourceCode.parserServices?.program
+		&& canUseTypeInformationFallback(node, normalizedTypeState, scope, definitions)
+	) {
 		result = interfaceDefinitions.length > 0
 			? getAsyncFunctionTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish)
 			: getPromisedTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish);
