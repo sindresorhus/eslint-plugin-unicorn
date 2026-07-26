@@ -2551,9 +2551,7 @@ function getAutofix({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	if (context.filename === '<input>') {
-		process.stderr.write(`@@consistent-boolean-name ${context.sourceCode.text.slice(0, 200).replaceAll('\n', ' ')}\n`);
-	}
+	process.stderr.write(`@@consistent-boolean-name ${context.filename} ${context.sourceCode.text.slice(0, 200).replaceAll('\n', ' ')}\n`);
 
 	const {
 		checkVariables,
