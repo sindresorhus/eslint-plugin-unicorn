@@ -106,7 +106,6 @@ class Tester {
 
 		Reflect.apply(test, undefined, [`empty file: ${ruleId}`, t => {
 			const linter = new Linter();
-
 			const messages = linter.verify(
 				'',
 				// Avoid a separate `{files}` config-array entry here. It makes ESLint merge an extra config for every empty-file smoke test.
