@@ -96,9 +96,6 @@ class Tester {
 
 	runEmptyFileTest() {
 		const {ruleId, rule} = this;
-		if (ruleId === 'consistent-boolean-name') {
-			return;
-		}
 
 		// Empty input should be a no-op for every rule except the rule that exists to report it.
 		if (RULES_REPORTING_EMPTY_FILE.has(ruleId)) {
@@ -109,9 +106,6 @@ class Tester {
 
 		Reflect.apply(test, undefined, [`empty file: ${ruleId}`, t => {
 			const linter = new Linter();
-			if (ruleId === 'consistent-boolean-name') {
-				process.stderr.write('@@consistent-boolean-name-empty-before\n');
-			}
 
 			const messages = linter.verify(
 				'',
@@ -137,10 +131,6 @@ class Tester {
 				},
 				{filename: language ? `index.${language.name}` : 'index.js'},
 			);
-
-			if (ruleId === 'consistent-boolean-name') {
-				process.stderr.write('@@consistent-boolean-name-empty-after\n');
-			}
 
 			t.deepEqual(messages, []);
 		}]);

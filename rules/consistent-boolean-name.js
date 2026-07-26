@@ -147,21 +147,8 @@ function findParameter(parameters, identifier) {
 }
 
 const prepareOptions = options => {
-	if (options?.ignore?.includes('^useReady$')) {
-		process.stderr.write('@@consistent-boolean-name-options-entered\n');
-	}
-
-	const isDiagnosticOptions = options?.ignore?.includes('^useReady$');
-	if (isDiagnosticOptions) {
-		process.stderr.write('@@consistent-boolean-name-options-start\n');
-	}
-
 	if (Object.hasOwn(options ?? {}, 'checkProperties')) {
 		throw new Error(REMOVED_CHECK_PROPERTIES_MESSAGE);
-	}
-
-	if (isDiagnosticOptions) {
-		process.stderr.write('@@consistent-boolean-name-options-checked\n');
 	}
 
 	const {
@@ -175,10 +162,6 @@ const prepareOptions = options => {
 		wrappers,
 	} = options ?? {};
 
-	if (isDiagnosticOptions) {
-		process.stderr.write('@@consistent-boolean-name-options-destructured\n');
-	}
-
 	const preparedOptions = {
 		checkVariables,
 		checkArguments,
@@ -189,10 +172,6 @@ const prepareOptions = options => {
 		ignore: ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u')),
 		wrappers: new Map(Object.entries(wrappers)),
 	};
-
-	if (isDiagnosticOptions) {
-		process.stderr.write('@@consistent-boolean-name-options-finished\n');
-	}
 
 	return preparedOptions;
 };
@@ -2492,29 +2471,6 @@ function getAutofix({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const isDiagnosticInput = context.sourceCode.text.startsWith('function useReady() { return true; }');
-	if (isDiagnosticInput) {
-		process.stderr.write('@@consistent-boolean-name-function-create-before\n');
-		throw new Error('diagnostic create boundary');
-	}
-
-	if (isDiagnosticInput) {
-		process.stderr.write('@@consistent-boolean-name-before-empty-check\n');
-	}
-
-	if (context.sourceCode.text === '') {
-		process.stderr.write('@@consistent-boolean-name-create-before\n');
-	}
-
-	if (isDiagnosticInput) {
-		process.stderr.write('@@consistent-boolean-name-after-empty-check\n');
-	}
-
-	const optionsValue = context.options[0];
-	if (isDiagnosticInput) {
-		process.stderr.write(`@@consistent-boolean-name-options-read ${typeof optionsValue} ${Array.isArray(optionsValue?.ignore)}\n`);
-	}
-
 	const {
 		checkVariables,
 		checkArguments,
@@ -2524,25 +2480,13 @@ const create = context => {
 		prefixes,
 		ignore,
 		wrappers,
-	} = prepareOptions(optionsValue);
-
-	if (context.sourceCode.text === '') {
-		process.stderr.write('@@consistent-boolean-name-create-after\n');
-	}
-
-	if (isDiagnosticInput) {
-		process.stderr.write('@@consistent-boolean-name-function-create-after\n');
-	}
+	} = prepareOptions(context.options[0]);
 
 	if (prefixes.length === 0) {
 		return;
 	}
 
 	const checkVariable = variable => {
-		if (isDiagnosticInput) {
-			process.stderr.write(`@@consistent-boolean-name-variable ${variable.name}\n`);
-		}
-
 		if (
 			isIgnoredName(variable.name, ignore)
 			|| isDestructuredVariable(variable)
@@ -2648,19 +2592,12 @@ const create = context => {
 	};
 
 	context.on('Program', node => {
-		if (isDiagnosticInput) {
-			process.stderr.write('@@consistent-boolean-name-program-before\n');
-		}
-
 		for (const scope of getScopes(context.sourceCode.getScope(node))) {
 			for (const variable of scope.variables) {
 				checkVariable(variable);
 			}
 		}
 
-		if (isDiagnosticInput) {
-			process.stderr.write('@@consistent-boolean-name-program-after\n');
-		}
 	});
 
 	const checkProperty = (node, mode) => {
