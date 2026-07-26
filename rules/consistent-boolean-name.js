@@ -2469,6 +2469,10 @@ function getAutofix({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	if (context.sourceCode.text === '') {
+		process.stderr.write('@@consistent-boolean-name-create-before\n');
+	}
+
 	const {
 		checkVariables,
 		checkArguments,
@@ -2479,6 +2483,10 @@ const create = context => {
 		ignore,
 		wrappers,
 	} = prepareOptions(context.options[0]);
+
+	if (context.sourceCode.text === '') {
+		process.stderr.write('@@consistent-boolean-name-create-after\n');
+	}
 
 	if (prefixes.length === 0) {
 		return;
