@@ -2471,7 +2471,9 @@ function getAutofix({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	throw new Error('diagnostic create start');
+	if (context.sourceCode) {
+		throw new Error('diagnostic create start');
+	}
 
 	const {
 		checkVariables,
