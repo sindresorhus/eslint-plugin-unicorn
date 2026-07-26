@@ -1040,29 +1040,42 @@ const getTypeState = typeState => ({
 });
 
 function getTypeParameterResolution(node, typeState) {
-	const name = getTypeReferenceName(node?.typeName);
-	if (!name || typeState.visitedTypeParameterNames.has(name)) {
-		return;
+	let currentNode = node;
+	let currentTypeState = typeState;
+	for (;;) {
+		const name = getTypeReferenceName(currentNode?.typeName);
+		if (!name || currentTypeState.visitedTypeParameterNames.has(name)) {
+			return;
+		}
+
+		const typeParameterType = currentTypeState.typeParameterTypes.get(name);
+		if (!typeParameterType) {
+			return;
+		}
+
+		const visitedTypeParameterNames = new Set(currentTypeState.visitedTypeParameterNames);
+		visitedTypeParameterNames.add(name);
+		const nextTypeState = {
+			...currentTypeState,
+			visitedTypeParameterNames,
+		};
+		const nextName = getTypeReferenceName(typeParameterType?.typeName);
+		if (
+			!nextName
+			|| nextTypeState.visitedTypeParameterNames.has(nextName)
+			|| !nextTypeState.typeParameterTypes.get(nextName)
+		) {
+			return {
+				type: typeParameterType,
+				typeState: hasTypeParameterReference(typeParameterType, name)
+					? nextTypeState
+					: {...nextTypeState, visitedTypeParameterNames: new Set()},
+			};
+		}
+
+		currentNode = typeParameterType;
+		currentTypeState = nextTypeState;
 	}
-
-	const typeParameterType = typeState.typeParameterTypes.get(name);
-	if (!typeParameterType) {
-		return;
-	}
-
-	const visitedTypeParameterNames = new Set(typeState.visitedTypeParameterNames);
-	visitedTypeParameterNames.add(name);
-	const nextTypeState = {
-		...typeState,
-		visitedTypeParameterNames,
-	};
-
-	return getTypeParameterResolution(typeParameterType, nextTypeState) ?? {
-		type: typeParameterType,
-		typeState: hasTypeParameterReference(typeParameterType, name)
-			? nextTypeState
-			: {...nextTypeState, visitedTypeParameterNames: new Set()},
-	};
 }
 
 function hasTypeParameterReference(node, name) {
@@ -1289,9 +1302,9 @@ function hasUnresolvedTypeParameter(node, typeState, scope) {
 
 		visitedTypeStates.add(current.typeState);
 		if (current.node.type === 'TSTypeReference') {
+			const name = getTypeReferenceName(current.node.typeName);
 			const typeParameter = getTypeParameterResolution(current.node, current.typeState);
 			if (typeParameter) {
-				const name = getTypeReferenceName(current.node.typeName);
 				if (
 					current.resolvedTypeParameterTypes.has(typeParameter.type)
 					|| current.resolvedTypeParameterNames.has(name)
@@ -1312,6 +1325,10 @@ function hasUnresolvedTypeParameter(node, typeState, scope) {
 				continue;
 			}
 
+			if (name && current.typeState.visitedTypeParameterNames.has(name)) {
+				return true;
+			}
+
 			const typeArguments = getTypeArguments(current.node);
 			if (typeArguments) {
 				nodes.push(...typeArguments.map(type => ({
@@ -1320,7 +1337,7 @@ function hasUnresolvedTypeParameter(node, typeState, scope) {
 					resolvedTypeParameterTypes: current.resolvedTypeParameterTypes,
 					resolvedTypeParameterNames: current.resolvedTypeParameterNames,
 				})));
-			} else if (getTypeDefinitions(getTypeReferenceName(current.node.typeName), scope).length === 0) {
+			} else if (getTypeDefinitions(name, scope).length === 0) {
 				return true;
 			}
 
