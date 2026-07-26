@@ -1092,64 +1092,122 @@ function hasTypeParameterReference(node, name) {
 }
 
 function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = new Set(), resolvedTypeParameterNames = new Set(), visitedNodes = new Set()) {
-	if (!node || typeof node !== 'object' || visitedNodes.has(node)) {
-		return node;
-	}
+	const stack = [{
+		kind: 'resolve',
+		node,
+		typeState,
+		resolvedTypeParameterTypes,
+		resolvedTypeParameterNames,
+		visitedNodes,
+	}];
+	const results = [];
 
-	const nextVisitedNodes = new Set(visitedNodes);
-	nextVisitedNodes.add(node);
-	const typeParameter = getTypeParameterResolution(node, typeState);
-	if (typeParameter) {
-		const name = getTypeReferenceName(node.typeName);
-		if (resolvedTypeParameterTypes.has(typeParameter.type) || resolvedTypeParameterNames.has(name)) {
-			return node;
+	while (stack.length > 0) {
+		const task = stack.pop();
+		if (task.kind === 'combineAnnotation') {
+			const typeAnnotation = results.pop();
+			results.push(typeAnnotation === task.node.typeAnnotation ? task.node : {...task.node, typeAnnotation});
+		} else if (task.kind === 'combineTypes') {
+			const types = results.splice(results.length - task.types.length);
+			results.push(types.every((type, index) => type === task.types[index]) ? task.node : {...task.node, types});
+		} else if (task.kind === 'combineTypeArguments') {
+			const resolvedTypeArguments = results.splice(results.length - task.typeArguments.length);
+			if (resolvedTypeArguments.every((type, index) => type === task.typeArguments[index])) {
+				results.push(task.node);
+			} else {
+				results.push({
+					...task.node,
+					[task.typeArgumentsProperty]: {
+						...task.node[task.typeArgumentsProperty],
+						params: resolvedTypeArguments,
+					},
+				});
+			}
+		} else {
+			const {
+				node,
+				typeState,
+				resolvedTypeParameterTypes,
+				resolvedTypeParameterNames,
+				visitedNodes,
+			} = task;
+
+			if (!node || typeof node !== 'object' || visitedNodes.has(node)) {
+				results.push(node);
+			} else {
+				const nextVisitedNodes = new Set(visitedNodes);
+				nextVisitedNodes.add(node);
+				const typeParameter = getTypeParameterResolution(node, typeState);
+				if (typeParameter) {
+					const name = getTypeReferenceName(node.typeName);
+					if (resolvedTypeParameterTypes.has(typeParameter.type) || resolvedTypeParameterNames.has(name)) {
+						results.push(node);
+					} else {
+						const nextResolvedTypeParameterTypes = new Set(resolvedTypeParameterTypes);
+						nextResolvedTypeParameterTypes.add(typeParameter.type);
+						const nextResolvedTypeParameterNames = new Set(resolvedTypeParameterNames);
+						nextResolvedTypeParameterNames.add(name);
+						stack.push({
+							kind: 'resolve',
+							node: typeParameter.type,
+							typeState: typeParameter.typeState,
+							resolvedTypeParameterTypes: nextResolvedTypeParameterTypes,
+							resolvedTypeParameterNames: nextResolvedTypeParameterNames,
+							visitedNodes: nextVisitedNodes,
+						});
+					}
+				} else if (
+					node.type === 'TSTypeAnnotation'
+					|| node.type === 'TSParenthesizedType'
+				) {
+					stack.push({kind: 'combineAnnotation', node});
+					stack.push({
+						kind: 'resolve',
+						node: node.typeAnnotation,
+						typeState,
+						resolvedTypeParameterTypes,
+						resolvedTypeParameterNames,
+						visitedNodes: nextVisitedNodes,
+					});
+				} else if (
+					node.type === 'TSUnionType'
+					|| node.type === 'TSIntersectionType'
+				) {
+					stack.push({kind: 'combineTypes', node, types: node.types});
+					for (let index = node.types.length - 1; index >= 0; index--) {
+						stack.push({
+							kind: 'resolve',
+							node: node.types[index],
+							typeState,
+							resolvedTypeParameterTypes,
+							resolvedTypeParameterNames,
+							visitedNodes: nextVisitedNodes,
+						});
+					}
+				} else {
+					const typeArguments = node.type === 'TSTypeReference' ? getTypeArguments(node) : undefined;
+					if (!typeArguments) {
+						results.push(node);
+					} else {
+						const typeArgumentsProperty = node.typeArguments ? 'typeArguments' : 'typeParameters';
+						stack.push({kind: 'combineTypeArguments', node, typeArguments, typeArgumentsProperty});
+						for (let index = typeArguments.length - 1; index >= 0; index--) {
+							stack.push({
+								kind: 'resolve',
+								node: typeArguments[index],
+								typeState,
+								resolvedTypeParameterTypes,
+								resolvedTypeParameterNames,
+								visitedNodes: nextVisitedNodes,
+							});
+						}
+					}
+				}
+			}
 		}
-
-		const nextResolvedTypeParameterTypes = new Set(resolvedTypeParameterTypes);
-		nextResolvedTypeParameterTypes.add(typeParameter.type);
-		const nextResolvedTypeParameterNames = new Set(resolvedTypeParameterNames);
-		nextResolvedTypeParameterNames.add(name);
-		return resolveTypeParameterType(typeParameter.type, typeParameter.typeState, nextResolvedTypeParameterTypes, nextResolvedTypeParameterNames, nextVisitedNodes);
 	}
 
-	if (
-		node?.type === 'TSTypeAnnotation'
-		|| node?.type === 'TSParenthesizedType'
-	) {
-		const typeAnnotation = resolveTypeParameterType(node.typeAnnotation, typeState, resolvedTypeParameterTypes, resolvedTypeParameterNames, nextVisitedNodes);
-		return typeAnnotation === node.typeAnnotation ? node : {...node, typeAnnotation};
-	}
-
-	if (
-		node?.type === 'TSUnionType'
-		|| node?.type === 'TSIntersectionType'
-	) {
-		const types = node.types.map(type => resolveTypeParameterType(type, typeState, resolvedTypeParameterTypes, resolvedTypeParameterNames, nextVisitedNodes));
-		return types.every((type, index) => type === node.types[index]) ? node : {...node, types};
-	}
-
-	if (node?.type !== 'TSTypeReference') {
-		return node;
-	}
-
-	const typeArguments = getTypeArguments(node);
-	if (!typeArguments) {
-		return node;
-	}
-
-	const resolvedTypeArguments = typeArguments.map(type => resolveTypeParameterType(type, typeState, resolvedTypeParameterTypes, resolvedTypeParameterNames, nextVisitedNodes));
-	if (resolvedTypeArguments.every((type, index) => type === typeArguments[index])) {
-		return node;
-	}
-
-	const typeArgumentsProperty = node.typeArguments ? 'typeArguments' : 'typeParameters';
-	return {
-		...node,
-		[typeArgumentsProperty]: {
-			...node[typeArgumentsProperty],
-			params: resolvedTypeArguments,
-		},
-	};
+	return results[0];
 }
 
 function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
