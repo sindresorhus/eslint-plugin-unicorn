@@ -164,11 +164,6 @@ const prepareOptions = options => {
 		process.stderr.write('@@consistent-boolean-name-options-checked\n');
 	}
 
-	const optionsValue = context.options[0];
-	if (isDiagnosticInput) {
-		process.stderr.write(`@@consistent-boolean-name-options-read ${typeof optionsValue} ${Array.isArray(optionsValue?.ignore)}\n`);
-	}
-
 	const {
 		checkVariables,
 		checkArguments,
@@ -2504,6 +2499,11 @@ const create = context => {
 
 	if (context.sourceCode.text === '') {
 		process.stderr.write('@@consistent-boolean-name-create-before\n');
+	}
+
+	const optionsValue = context.options[0];
+	if (isDiagnosticInput) {
+		process.stderr.write(`@@consistent-boolean-name-options-read ${typeof optionsValue} ${Array.isArray(optionsValue?.ignore)}\n`);
 	}
 
 	const {
