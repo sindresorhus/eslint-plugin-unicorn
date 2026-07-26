@@ -786,7 +786,7 @@ function hasMissingRequiredTypeArguments(node, scope) {
 
 	const typeArguments = getTypeArguments(node) ?? [];
 	return getTypeDefinitions(name, scope).some(definition =>
-		(definition.node.typeParameters?.params ?? []).some((parameter, index) => !typeArguments[index] && !parameter.default),
+		(definition.node.typeParameters?.params ?? []).some((parameter, index) => index >= typeArguments.length && !parameter.default),
 	);
 }
 
@@ -1525,10 +1525,11 @@ function getSimpleTypeAnnotationBooleanState(node) {
 }
 
 function getTypeAnnotationBooleanState(node, context, scope, typeState) {
-	const normalizedTypeState = getTypeState(typeState);
 	if (hasMissingRequiredTypeArguments(node, scope)) {
 		return unknown;
 	}
+
+	const normalizedTypeState = getTypeState(typeState);
 
 	if (
 		node?.type === 'TSTypeAnnotation'
