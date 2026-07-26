@@ -1,10 +1,7 @@
-import test from 'ava';
-import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
-import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test: ruleTest} = getTester(import.meta);
+const {test} = getTester(import.meta);
 
 const typescript = testCase => typeof testCase === 'string'
 	? {
@@ -58,7 +55,7 @@ const onlyIsPrefixOptions = {
 	},
 };
 
-ruleTest({
+test({
 	valid: [
 		{
 			code: 'function useReady() { return true; }',
@@ -571,7 +568,7 @@ ruleTest({
 	],
 });
 
-ruleTest.snapshot({
+test.snapshot({
 	valid: [
 		'const isCompleted = true;',
 		'const hasCompleted = true;',
@@ -923,7 +920,7 @@ ruleTest.snapshot({
 	],
 });
 
-ruleTest.snapshot({
+test.snapshot({
 	valid: [
 		typescript('const isCompleted: boolean = true;'),
 		typescript('const wasCompleted: true = true;'),
@@ -1161,7 +1158,7 @@ ruleTest.snapshot({
 	].map(testCase => typeof testCase === 'string' ? typescript(testCase) : testCase),
 });
 
-ruleTest({
+test({
 	valid: [],
 	invalid: [
 		invalidBooleanPrefix('declare const Vue: {ref<T>(value: T): {value: T}}; const {ref} = Vue; const isReady = ref(false);'),
@@ -1188,7 +1185,7 @@ ruleTest({
 	],
 });
 
-ruleTest.snapshot({
+test.snapshot({
 	valid: [
 		'const task = {completed: true};',
 		'class Task { completed = true; }',
@@ -1536,7 +1533,7 @@ ruleTest.snapshot({
 	],
 });
 
-ruleTest({
+test({
 	valid: [
 		{
 			name: 'variables never',
@@ -2384,31 +2381,7 @@ ruleTest({
 	],
 });
 
-test('rejects the removed checkProperties option', t => {
-	const linter = new Linter({configType: 'flat'});
-	const verify = options => linter.verify('const completed = true;', {
-		languageOptions: {
-			ecmaVersion: 'latest',
-			sourceType: 'module',
-		},
-		plugins: {unicorn},
-		rules: {
-			'unicorn/consistent-boolean-name': ['error', options],
-		},
-	});
-
-	for (const checkProperties of [false, true, 'always', undefined]) {
-		t.throws(
-			() => verify({checkProperties}),
-			{message: /`checkProperties` was removed\. Use `checkMethods` and `checkFields` instead\./u},
-		);
-	}
-
-	t.throws(() => verify({checkVariables: true}));
-	t.throws(() => verify({checkMethods: 'invalid'}));
-});
-
-ruleTest({
+test({
 	valid: [
 		typescript({
 			name: 'mixed overload return types do not require a boolean prefix',
@@ -2604,7 +2577,7 @@ ruleTest({
 });
 
 // Svelte `{#each}` bindings are `Parameter` definitions whose owner is the each-block, not a function.
-ruleTest.svelte({
+test.svelte({
 	valid: [
 		'<script>let items = [];</script>{#each items as item}{item}{/each}',
 		'<script>let entries = [];</script>{#each entries as [key, value]}{key}{value}{/each}',
