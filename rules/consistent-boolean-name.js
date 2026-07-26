@@ -147,6 +147,10 @@ function findParameter(parameters, identifier) {
 }
 
 const prepareOptions = options => {
+	if (options?.ignore?.includes('^useReady$')) {
+		process.stderr.write('@@consistent-boolean-name-options-entered\n');
+	}
+
 	const isDiagnosticOptions = options?.ignore?.includes('^useReady$');
 	if (isDiagnosticOptions) {
 		process.stderr.write('@@consistent-boolean-name-options-start\n');
@@ -158,6 +162,11 @@ const prepareOptions = options => {
 
 	if (isDiagnosticOptions) {
 		process.stderr.write('@@consistent-boolean-name-options-checked\n');
+	}
+
+	const optionsValue = context.options[0];
+	if (isDiagnosticInput) {
+		process.stderr.write(`@@consistent-boolean-name-options-read ${typeof optionsValue} ${Array.isArray(optionsValue?.ignore)}\n`);
 	}
 
 	const {
@@ -2506,7 +2515,7 @@ const create = context => {
 		prefixes,
 		ignore,
 		wrappers,
-	} = prepareOptions(context.options[0]);
+	} = prepareOptions(optionsValue);
 
 	if (context.sourceCode.text === '') {
 		process.stderr.write('@@consistent-boolean-name-create-after\n');
