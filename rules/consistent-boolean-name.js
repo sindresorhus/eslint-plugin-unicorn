@@ -2482,10 +2482,6 @@ const create = context => {
 		wrappers,
 	} = prepareOptions(context.options[0]);
 
-	if (context.sourceCode) {
-		throw new Error('diagnostic after options');
-	}
-
 	if (prefixes.length === 0) {
 		return;
 	}
@@ -2596,6 +2592,10 @@ const create = context => {
 	};
 
 	context.on('Program', node => {
+		if (node) {
+			return;
+		}
+
 		for (const scope of getScopes(context.sourceCode.getScope(node))) {
 			for (const variable of scope.variables) {
 				checkVariable(variable);
