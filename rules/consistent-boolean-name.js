@@ -2495,6 +2495,7 @@ const create = context => {
 	const isDiagnosticInput = context.sourceCode.text.startsWith('function useReady() { return true; }');
 	if (isDiagnosticInput) {
 		process.stderr.write('@@consistent-boolean-name-function-create-before\n');
+		throw new Error('diagnostic create boundary');
 	}
 
 	if (isDiagnosticInput) {
