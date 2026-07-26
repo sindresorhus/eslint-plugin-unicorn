@@ -1264,7 +1264,12 @@ function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 }
 
 function hasUnresolvedTypeParameter(node, typeState, scope) {
-	const nodes = [{node, typeState}];
+	const nodes = [{
+		node,
+		typeState,
+		resolvedTypeParameterTypes: new Set(),
+		resolvedTypeParameterNames: new Set(),
+	}];
 	const visitedNodes = new WeakMap();
 	while (nodes.length > 0) {
 		const current = nodes.pop();
@@ -1286,13 +1291,35 @@ function hasUnresolvedTypeParameter(node, typeState, scope) {
 		if (current.node.type === 'TSTypeReference') {
 			const typeParameter = getTypeParameterResolution(current.node, current.typeState);
 			if (typeParameter) {
-				nodes.push({node: typeParameter.type, typeState: typeParameter.typeState});
+				const name = getTypeReferenceName(current.node.typeName);
+				if (
+					current.resolvedTypeParameterTypes.has(typeParameter.type)
+					|| current.resolvedTypeParameterNames.has(name)
+				) {
+					return true;
+				}
+
+				const resolvedTypeParameterTypes = new Set(current.resolvedTypeParameterTypes);
+				resolvedTypeParameterTypes.add(typeParameter.type);
+				const resolvedTypeParameterNames = new Set(current.resolvedTypeParameterNames);
+				resolvedTypeParameterNames.add(name);
+				nodes.push({
+					node: typeParameter.type,
+					typeState: typeParameter.typeState,
+					resolvedTypeParameterTypes,
+					resolvedTypeParameterNames,
+				});
 				continue;
 			}
 
 			const typeArguments = getTypeArguments(current.node);
 			if (typeArguments) {
-				nodes.push(...typeArguments.map(type => ({node: type, typeState: current.typeState})));
+				nodes.push(...typeArguments.map(type => ({
+					node: type,
+					typeState: current.typeState,
+					resolvedTypeParameterTypes: current.resolvedTypeParameterTypes,
+					resolvedTypeParameterNames: current.resolvedTypeParameterNames,
+				})));
 			} else if (getTypeDefinitions(getTypeReferenceName(current.node.typeName), scope).length === 0) {
 				return true;
 			}
@@ -1303,7 +1330,12 @@ function hasUnresolvedTypeParameter(node, typeState, scope) {
 		const childNodes = Object.entries(current.node)
 			.filter(([key]) => key !== 'parent')
 			.flatMap(([, value]) => Array.isArray(value) ? value : [value]);
-		nodes.push(...childNodes.map(child => ({node: child, typeState: current.typeState})));
+		nodes.push(...childNodes.map(child => ({
+			node: child,
+			typeState: current.typeState,
+			resolvedTypeParameterTypes: current.resolvedTypeParameterTypes,
+			resolvedTypeParameterNames: current.resolvedTypeParameterNames,
+		})));
 	}
 
 	return false;
