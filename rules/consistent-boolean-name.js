@@ -1092,49 +1092,74 @@ function hasTypeParameterReference(node, name) {
 }
 
 function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = new Set(), resolvedTypeParameterNames = new Set(), visitedNodes = new Set()) {
-	const stack = [{
-		kind: 'resolve',
-		node,
-		typeState,
-		resolvedTypeParameterTypes,
-		resolvedTypeParameterNames,
-		visitedNodes,
-	}];
+	const createResolveTask = (node, state) => ({kind: 'resolve', node, ...state});
+	const initialState = {
+		typeState, resolvedTypeParameterTypes, resolvedTypeParameterNames, visitedNodes,
+	};
+	const stack = [createResolveTask(node, initialState)];
 	const results = [];
+	const addTasks = tasks => {
+		stack.push(...tasks);
+	};
 
-	while (stack.length > 0) {
-		const task = stack.pop();
-		if (task.kind === 'combineAnnotation') {
-			const typeAnnotation = results.pop();
-			results.push(typeAnnotation === task.node.typeAnnotation ? task.node : {...task.node, typeAnnotation});
-		} else if (task.kind === 'combineTypes') {
-			const types = results.splice(results.length - task.types.length);
-			results.push(types.every((type, index) => type === task.types[index]) ? task.node : {...task.node, types});
-		} else if (task.kind === 'combineTypeArguments') {
-			const resolvedTypeArguments = results.splice(results.length - task.typeArguments.length);
-			if (resolvedTypeArguments.every((type, index) => type === task.typeArguments[index])) {
-				results.push(task.node);
-			} else {
-				results.push({
-					...task.node,
-					[task.typeArgumentsProperty]: {
-						...task.node[task.typeArgumentsProperty],
-						params: resolvedTypeArguments,
-					},
-				});
+	const processTask = task => {
+		switch (task.kind) {
+			case 'combineAnnotation': {
+				const typeAnnotation = results.pop();
+				if (typeAnnotation === task.node.typeAnnotation) {
+					results.push(task.node);
+				} else {
+					results.push({
+						...task.node,
+						typeAnnotation,
+					});
+				}
+
+				return;
 			}
-		} else {
-			const {
-				node,
-				typeState,
-				resolvedTypeParameterTypes,
-				resolvedTypeParameterNames,
-				visitedNodes,
-			} = task;
 
-			if (!node || typeof node !== 'object' || visitedNodes.has(node)) {
-				results.push(node);
-			} else {
+			case 'combineTypes': {
+				const types = results.splice(results.length - task.types.length);
+				if (types.some((type, index) => type !== task.types[index])) {
+					results.push({...task.node, types});
+				} else {
+					results.push(task.node);
+				}
+
+				return;
+			}
+
+			case 'combineTypeArguments': {
+				const resolvedTypeArguments = results.splice(results.length - task.typeArguments.length);
+				if (resolvedTypeArguments.some((type, index) => type !== task.typeArguments[index])) {
+					results.push({
+						...task.node,
+						[task.typeArgumentsProperty]: {
+							...task.node[task.typeArgumentsProperty],
+							params: resolvedTypeArguments,
+						},
+					});
+				} else {
+					results.push(task.node);
+				}
+
+				return;
+			}
+
+			default: {
+				const {
+					node,
+					typeState,
+					resolvedTypeParameterTypes,
+					resolvedTypeParameterNames,
+					visitedNodes,
+				} = task;
+
+				if (!node || typeof node !== 'object' || visitedNodes.has(node)) {
+					results.push(node);
+					return;
+				}
+
 				const nextVisitedNodes = new Set(visitedNodes);
 				nextVisitedNodes.add(node);
 				const typeParameter = getTypeParameterResolution(node, typeState);
@@ -1142,69 +1167,78 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 					const name = getTypeReferenceName(node.typeName);
 					if (resolvedTypeParameterTypes.has(typeParameter.type) || resolvedTypeParameterNames.has(name)) {
 						results.push(node);
-					} else {
-						const nextResolvedTypeParameterTypes = new Set(resolvedTypeParameterTypes);
-						nextResolvedTypeParameterTypes.add(typeParameter.type);
-						const nextResolvedTypeParameterNames = new Set(resolvedTypeParameterNames);
-						nextResolvedTypeParameterNames.add(name);
-						stack.push({
-							kind: 'resolve',
-							node: typeParameter.type,
-							typeState: typeParameter.typeState,
-							resolvedTypeParameterTypes: nextResolvedTypeParameterTypes,
-							resolvedTypeParameterNames: nextResolvedTypeParameterNames,
-							visitedNodes: nextVisitedNodes,
-						});
+						return;
 					}
-				} else if (
+
+					const nextResolvedTypeParameterTypes = new Set(resolvedTypeParameterTypes);
+					nextResolvedTypeParameterTypes.add(typeParameter.type);
+					const nextResolvedTypeParameterNames = new Set(resolvedTypeParameterNames);
+					nextResolvedTypeParameterNames.add(name);
+					addTasks([createResolveTask(typeParameter.type, {
+						typeState: typeParameter.typeState,
+						resolvedTypeParameterTypes: nextResolvedTypeParameterTypes,
+						resolvedTypeParameterNames: nextResolvedTypeParameterNames,
+						visitedNodes: nextVisitedNodes,
+					})]);
+					return;
+				}
+
+				if (
 					node.type === 'TSTypeAnnotation'
 					|| node.type === 'TSParenthesizedType'
 				) {
-					stack.push({kind: 'combineAnnotation', node});
-					stack.push({
-						kind: 'resolve',
-						node: node.typeAnnotation,
-						typeState,
-						resolvedTypeParameterTypes,
-						resolvedTypeParameterNames,
-						visitedNodes: nextVisitedNodes,
-					});
-				} else if (
-					node.type === 'TSUnionType'
-					|| node.type === 'TSIntersectionType'
-				) {
-					stack.push({kind: 'combineTypes', node, types: node.types});
-					for (let index = node.types.length - 1; index >= 0; index--) {
-						stack.push({
-							kind: 'resolve',
-							node: node.types[index],
+					addTasks([
+						{kind: 'combineAnnotation', node},
+						createResolveTask(node.typeAnnotation, {
 							typeState,
 							resolvedTypeParameterTypes,
 							resolvedTypeParameterNames,
 							visitedNodes: nextVisitedNodes,
-						});
-					}
-				} else {
-					const typeArguments = node.type === 'TSTypeReference' ? getTypeArguments(node) : undefined;
-					if (!typeArguments) {
-						results.push(node);
-					} else {
-						const typeArgumentsProperty = node.typeArguments ? 'typeArguments' : 'typeParameters';
-						stack.push({kind: 'combineTypeArguments', node, typeArguments, typeArgumentsProperty});
-						for (let index = typeArguments.length - 1; index >= 0; index--) {
-							stack.push({
-								kind: 'resolve',
-								node: typeArguments[index],
-								typeState,
-								resolvedTypeParameterTypes,
-								resolvedTypeParameterNames,
-								visitedNodes: nextVisitedNodes,
-							});
-						}
-					}
+						}),
+					]);
+					return;
 				}
+
+				if (
+					node.type === 'TSUnionType'
+					|| node.type === 'TSIntersectionType'
+				) {
+					addTasks([
+						{kind: 'combineTypes', node, types: node.types},
+						...node.types.toReversed().map(type => createResolveTask(type, {
+							typeState,
+							resolvedTypeParameterTypes,
+							resolvedTypeParameterNames,
+							visitedNodes: nextVisitedNodes,
+						})),
+					]);
+					return;
+				}
+
+				const typeArguments = node.type === 'TSTypeReference' ? getTypeArguments(node) : undefined;
+				if (!typeArguments) {
+					results.push(node);
+					return;
+				}
+
+				const typeArgumentsProperty = node.typeArguments ? 'typeArguments' : 'typeParameters';
+				addTasks([
+					{
+						kind: 'combineTypeArguments', node, typeArguments, typeArgumentsProperty,
+					},
+					...typeArguments.toReversed().map(type => createResolveTask(type, {
+						typeState,
+						resolvedTypeParameterTypes,
+						resolvedTypeParameterNames,
+						visitedNodes: nextVisitedNodes,
+					})),
+				]);
 			}
 		}
+	};
+
+	while (stack.length > 0) {
+		processTask(stack.pop());
 	}
 
 	return results[0];
@@ -1230,39 +1264,46 @@ function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 }
 
 function hasUnresolvedTypeParameter(node, typeState, scope) {
-	if (!node || typeof node !== 'object') {
-		return false;
-	}
-
-	if (node.type === 'TSTypeReference') {
-		const resolvedType = resolveTypeParameterType(node, typeState);
-		if (resolvedType !== node) {
-			return hasUnresolvedTypeParameter(resolvedType, typeState, scope);
-		}
-
-		if (getTypeParameterResolution(node, typeState)) {
-			return true;
-		}
-
-		const typeArguments = getTypeArguments(node);
-		if (!typeArguments) {
-			return getTypeDefinitions(getTypeReferenceName(node.typeName), scope).length === 0;
-		}
-
-		return typeArguments.some(type => hasUnresolvedTypeParameter(type, typeState, scope));
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(child => hasUnresolvedTypeParameter(child, typeState, scope))) {
-				return true;
+	const nodes = [{
+		node, typeState, shouldResolve: true, visitedNodes: new Set(),
+	}];
+	while (nodes.length > 0) {
+		const current = nodes.pop();
+		if (current.node && typeof current.node === 'object' && !current.visitedNodes.has(current.node)) {
+			const nextVisitedNodes = new Set(current.visitedNodes);
+			nextVisitedNodes.add(current.node);
+			if (current.node.type === 'TSTypeReference') {
+				const resolvedType = current.shouldResolve ? resolveTypeParameterType(current.node, current.typeState) : current.node;
+				if (resolvedType !== current.node) {
+					nodes.push({
+						node: resolvedType, typeState: current.typeState, shouldResolve: false, visitedNodes: nextVisitedNodes,
+					});
+				} else if (getTypeParameterResolution(current.node, current.typeState)) {
+					return true;
+				} else {
+					const typeArguments = getTypeArguments(current.node);
+					if (typeArguments) {
+						nodes.push(...typeArguments.map(type => ({
+							node: type,
+							typeState: current.typeState,
+							shouldResolve: true,
+							visitedNodes: nextVisitedNodes,
+						})));
+					} else if (getTypeDefinitions(getTypeReferenceName(current.node.typeName), scope).length === 0) {
+						return true;
+					}
+				}
+			} else {
+				const childNodes = Object.entries(current.node)
+					.filter(([key]) => key !== 'parent')
+					.flatMap(([, value]) => Array.isArray(value) ? value : [value]);
+				nodes.push(...childNodes.map(child => ({
+					node: child,
+					typeState: current.typeState,
+					shouldResolve: true,
+					visitedNodes: nextVisitedNodes,
+				})));
 			}
-		} else if (hasUnresolvedTypeParameter(value, typeState, scope)) {
-			return true;
 		}
 	}
 
@@ -1276,32 +1317,27 @@ const hasTypeParameterReferenceInType = (node, typeState) =>
 	typeState.typeParameterTypes.keys().some(name => hasTypeParameterReference(node, name));
 
 function hasUnresolvedTypeParameterReference(node, typeState, scope, checkNode = true) {
-	if (!node || typeof node !== 'object') {
-		return false;
-	}
-
-	const name = node.type === 'TSTypeReference' ? getTypeReferenceName(node.typeName) : undefined;
-	if (
-		checkNode
-		&& name
-		&& !getTypeParameterResolution(node, typeState)
-		&& getTypeDefinitions(name, scope)
-			.some(definition => definition.node.type === 'TSTypeParameter')
-	) {
-		return true;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(child => hasUnresolvedTypeParameterReference(child, typeState, scope))) {
+	const nodes = [{node, checkNode, visitedNodes: new Set()}];
+	while (nodes.length > 0) {
+		const current = nodes.pop();
+		if (current.node && typeof current.node === 'object' && !current.visitedNodes.has(current.node)) {
+			const nextVisitedNodes = new Set(current.visitedNodes);
+			nextVisitedNodes.add(current.node);
+			const name = current.node.type === 'TSTypeReference' ? getTypeReferenceName(current.node.typeName) : undefined;
+			if (
+				current.checkNode
+				&& name
+				&& !getTypeParameterResolution(current.node, typeState)
+				&& getTypeDefinitions(name, scope)
+					.some(definition => definition.node.type === 'TSTypeParameter')
+			) {
 				return true;
 			}
-		} else if (hasUnresolvedTypeParameterReference(value, typeState, scope)) {
-			return true;
+
+			const childNodes = Object.entries(current.node)
+				.filter(([key]) => key !== 'parent')
+				.flatMap(([, value]) => Array.isArray(value) ? value : [value]);
+			nodes.push(...childNodes.map(child => ({node: child, checkNode: true, visitedNodes: nextVisitedNodes})));
 		}
 	}
 
