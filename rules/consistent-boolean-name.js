@@ -2469,6 +2469,11 @@ function getAutofix({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const isDiagnosticInput = context.sourceCode.text.startsWith('function useReady() { return true; }');
+	if (isDiagnosticInput) {
+		process.stderr.write('@@consistent-boolean-name-function-create-before\n');
+	}
+
 	if (context.sourceCode.text === '') {
 		process.stderr.write('@@consistent-boolean-name-create-before\n');
 	}
@@ -2488,11 +2493,19 @@ const create = context => {
 		process.stderr.write('@@consistent-boolean-name-create-after\n');
 	}
 
+	if (isDiagnosticInput) {
+		process.stderr.write('@@consistent-boolean-name-function-create-after\n');
+	}
+
 	if (prefixes.length === 0) {
 		return;
 	}
 
 	const checkVariable = variable => {
+		if (isDiagnosticInput) {
+			process.stderr.write(`@@consistent-boolean-name-variable ${variable.name}\n`);
+		}
+
 		if (
 			isIgnoredName(variable.name, ignore)
 			|| isDestructuredVariable(variable)
@@ -2598,10 +2611,18 @@ const create = context => {
 	};
 
 	context.on('Program', node => {
+		if (isDiagnosticInput) {
+			process.stderr.write('@@consistent-boolean-name-program-before\n');
+		}
+
 		for (const scope of getScopes(context.sourceCode.getScope(node))) {
 			for (const variable of scope.variables) {
 				checkVariable(variable);
 			}
+		}
+
+		if (isDiagnosticInput) {
+			process.stderr.write('@@consistent-boolean-name-program-after\n');
 		}
 	});
 
