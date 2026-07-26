@@ -767,6 +767,29 @@ function getTypeArguments(node) {
 	return node?.typeArguments?.params ?? node?.typeParameters?.params;
 }
 
+function hasMissingRequiredTypeArguments(node, scope) {
+	while (
+		node?.type === 'TSTypeAnnotation'
+		|| node?.type === 'TSParenthesizedType'
+	) {
+		node = node.typeAnnotation;
+	}
+
+	if (node?.type !== 'TSTypeReference') {
+		return false;
+	}
+
+	const name = getTypeReferenceName(node.typeName);
+	if (!name) {
+		return false;
+	}
+
+	const typeArguments = getTypeArguments(node) ?? [];
+	return getTypeDefinitions(name, scope).some(definition =>
+		(definition.node.typeParameters?.params ?? []).some((parameter, index) => !typeArguments[index] && !parameter.default),
+	);
+}
+
 function getCallSignatureReturnTypesFromDefinition(definition, context, scope, {typeArguments, typeState, visitedTypeReferenceNames} = {}) {
 	const definitionScope = context.sourceCode.getScope(definition.node);
 	const definitionTypeState = {
@@ -896,6 +919,10 @@ function isPromisedTypeReference(node, context, scope, {visitedTypeReferenceName
 }
 
 function isPromisedTypeAnnotation(node, context, scope, {visitedTypeReferenceNames = new Set(), typeState = getTypeState()} = {}) {
+	if (hasMissingRequiredTypeArguments(node, scope)) {
+		return false;
+	}
+
 	const typeParameter = getTypeParameterResolution(node, typeState);
 	if (typeParameter) {
 		return isPromisedTypeAnnotation(typeParameter.type, context, scope, {
@@ -944,6 +971,10 @@ function isPromisedTypeAnnotation(node, context, scope, {visitedTypeReferenceNam
 }
 
 function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNodes = new Set(), typeState = getTypeState()} = {}) {
+	if (hasMissingRequiredTypeArguments(node, scope)) {
+		return false;
+	}
+
 	const typeParameter = getTypeParameterResolution(node, typeState);
 	if (typeParameter) {
 		return isCallableTypeAnnotation(typeParameter.type, context, scope, {visitedTypeReferenceNodes, typeState: typeParameter.typeState});
@@ -1024,6 +1055,10 @@ function isBooleanTypeAnnotatedValue(node, context) {
 	}
 
 	const scope = context.sourceCode.getScope(node);
+	if (hasMissingRequiredTypeArguments(typeAnnotation, scope)) {
+		return false;
+	}
+
 	return isBooleanTypeAnnotation(typeAnnotation, context, scope)
 		|| isBooleanFunctionLikeTypeAnnotation(typeAnnotation, context, scope)
 		|| (
@@ -1491,6 +1526,9 @@ function getSimpleTypeAnnotationBooleanState(node) {
 
 function getTypeAnnotationBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
+	if (hasMissingRequiredTypeArguments(node, scope)) {
+		return unknown;
+	}
 
 	if (
 		node?.type === 'TSTypeAnnotation'
@@ -1990,6 +2028,10 @@ function getParameterBooleanState(definition, context, visitedVariables, functio
 }
 
 function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
+	if (hasMissingRequiredTypeArguments(node, scope)) {
+		return unknown;
+	}
+
 	if (isGlobalPromiseTypeAnnotation(node, scope)) {
 		return nonBoolean;
 	}
