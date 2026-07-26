@@ -2592,10 +2592,6 @@ const create = context => {
 	};
 
 	context.on('Program', node => {
-		if (node) {
-			return;
-		}
-
 		for (const scope of getScopes(context.sourceCode.getScope(node))) {
 			for (const variable of scope.variables) {
 				checkVariable(variable);
