@@ -2497,8 +2497,16 @@ const create = context => {
 		process.stderr.write('@@consistent-boolean-name-function-create-before\n');
 	}
 
+	if (isDiagnosticInput) {
+		process.stderr.write('@@consistent-boolean-name-before-empty-check\n');
+	}
+
 	if (context.sourceCode.text === '') {
 		process.stderr.write('@@consistent-boolean-name-create-before\n');
+	}
+
+	if (isDiagnosticInput) {
+		process.stderr.write('@@consistent-boolean-name-after-empty-check\n');
 	}
 
 	const optionsValue = context.options[0];
