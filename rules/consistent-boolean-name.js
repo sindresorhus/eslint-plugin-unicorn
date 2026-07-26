@@ -147,8 +147,17 @@ function findParameter(parameters, identifier) {
 }
 
 const prepareOptions = options => {
+	const isDiagnosticOptions = options?.ignore?.includes('^useReady$');
+	if (isDiagnosticOptions) {
+		process.stderr.write('@@consistent-boolean-name-options-start\n');
+	}
+
 	if (Object.hasOwn(options ?? {}, 'checkProperties')) {
 		throw new Error(REMOVED_CHECK_PROPERTIES_MESSAGE);
+	}
+
+	if (isDiagnosticOptions) {
+		process.stderr.write('@@consistent-boolean-name-options-checked\n');
 	}
 
 	const {
@@ -162,7 +171,11 @@ const prepareOptions = options => {
 		wrappers,
 	} = options ?? {};
 
-	return {
+	if (isDiagnosticOptions) {
+		process.stderr.write('@@consistent-boolean-name-options-destructured\n');
+	}
+
+	const preparedOptions = {
 		checkVariables,
 		checkArguments,
 		checkFunctions,
@@ -172,6 +185,12 @@ const prepareOptions = options => {
 		ignore: ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u')),
 		wrappers: new Map(Object.entries(wrappers)),
 	};
+
+	if (isDiagnosticOptions) {
+		process.stderr.write('@@consistent-boolean-name-options-finished\n');
+	}
+
+	return preparedOptions;
 };
 
 function isIgnoredName(name, ignore) {
