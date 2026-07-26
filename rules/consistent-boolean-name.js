@@ -1265,14 +1265,24 @@ function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 
 function hasUnresolvedTypeParameter(node, typeState, scope) {
 	const nodes = [{node, typeState}];
-	const visitedNodes = new Set();
+	const visitedNodes = new WeakMap();
 	while (nodes.length > 0) {
 		const current = nodes.pop();
-		if (!current.node || typeof current.node !== 'object' || visitedNodes.has(current.node)) {
+		if (!current.node || typeof current.node !== 'object') {
 			continue;
 		}
 
-		visitedNodes.add(current.node);
+		let visitedTypeStates = visitedNodes.get(current.node);
+		if (!visitedTypeStates) {
+			visitedTypeStates = new Set();
+			visitedNodes.set(current.node, visitedTypeStates);
+		}
+
+		if (visitedTypeStates.has(current.typeState)) {
+			continue;
+		}
+
+		visitedTypeStates.add(current.typeState);
 		if (current.node.type === 'TSTypeReference') {
 			const typeParameter = getTypeParameterResolution(current.node, current.typeState);
 			if (typeParameter) {
