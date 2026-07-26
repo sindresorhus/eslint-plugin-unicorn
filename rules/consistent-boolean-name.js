@@ -2471,10 +2471,6 @@ function getAutofix({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	if (context.sourceCode) {
-		throw new Error('diagnostic create start');
-	}
-
 	const {
 		checkVariables,
 		checkArguments,
@@ -2485,6 +2481,10 @@ const create = context => {
 		ignore,
 		wrappers,
 	} = prepareOptions(context.options[0]);
+
+	if (context.sourceCode) {
+		throw new Error('diagnostic after options');
+	}
 
 	if (prefixes.length === 0) {
 		return;
