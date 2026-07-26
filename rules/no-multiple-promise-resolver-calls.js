@@ -1,6 +1,17 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isFunction, isLoop, isNewExpression} from './ast/index.js';
-import {isGlobalIdentifier, isTypeScriptExpressionWrapper} from './utils/index.js';
+import {
+	isBranchExit,
+	hasOptionalChainInCurrentChain,
+	isDefinitelyNotThrowingExpression,
+	isDefinitelyNotThrowingReference,
+	isGlobalIdentifier,
+	isProcessExitBranch,
+	isProcessExitBlockAtStart,
+	isProcessExitCallAlwaysEvaluated,
+	isProcessExitExpressionAtStart,
+	isTypeScriptExpressionWrapper,
+} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -17,6 +28,17 @@ const isSupportedExecutor = node => (
 );
 
 const isTransparentTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node) || node?.type === 'TSInstantiationExpression';
+const isReturnOrThrowStatement = node => node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
+
+function isNonThrowingReturnBranch(node) {
+	if (node.type === 'ReturnStatement') {
+		return !node.argument;
+	}
+
+	return node.type === 'BlockStatement'
+		&& node.body.length === 1
+		&& isNonThrowingReturnBranch(node.body[0]);
+}
 
 function getOutermostTypeScriptExpression(node) {
 	while (
@@ -83,9 +105,18 @@ const getResolverExecutor = (node, resolverReferenceExecutors) => {
 	return callee.type === 'Identifier' ? resolverReferenceExecutors.get(callee) : undefined;
 };
 
+const isDefinitelyNotThrowingResolverStatement = (node, resolverReferenceExecutors) => {
+	if (node.type !== 'ExpressionStatement' || node.expression.type !== 'CallExpression') {
+		return false;
+	}
+
+	return node.expression.arguments.length === 0
+		&& Boolean(getResolverExecutor(node.expression, resolverReferenceExecutors));
+};
+
 function addEvent(state, event) {
 	for (const segment of state.currentSegments) {
-		if (!segment.reachable) {
+		if (!segment.reachable || state.terminatedSegments.has(segment)) {
 			continue;
 		}
 
@@ -133,7 +164,14 @@ function cloneFinallyBlocksByCatchClause(finallyBlocksByCatchClause) {
 }
 
 // These are may-states, so both booleans can be true after paths merge.
-const createResolverState = ({resolverUncalled = false, resolverCalled = false, catchClausesAfterResolverCall = new Set(), pendingFinallyBlocksByCatchClause = new Map()} = {}) => ({
+const createResolverState = ({
+	isTerminated = false,
+	resolverUncalled = false,
+	resolverCalled = false,
+	catchClausesAfterResolverCall = new Set(),
+	pendingFinallyBlocksByCatchClause = new Map(),
+} = {}) => ({
+	isTerminated,
 	resolverUncalled,
 	resolverCalled,
 	catchClausesAfterResolverCall,
@@ -141,6 +179,7 @@ const createResolverState = ({resolverUncalled = false, resolverCalled = false, 
 });
 
 const cloneResolverState = state => createResolverState({
+	isTerminated: state.isTerminated,
 	resolverUncalled: state.resolverUncalled,
 	resolverCalled: state.resolverCalled,
 	catchClausesAfterResolverCall: new Set(state.catchClausesAfterResolverCall),
@@ -148,6 +187,10 @@ const cloneResolverState = state => createResolverState({
 });
 
 const getStateAfterEvent = (state, event, executor) => {
+	if (state.isTerminated) {
+		return state;
+	}
+
 	if (event.executor === executor) {
 		const nextState = cloneResolverState(state);
 		for (const [catchClause, finallyBlocks] of nextState.pendingFinallyBlocksByCatchClause) {
@@ -198,9 +241,11 @@ function getStateAfterEvents(state, events, executor) {
 function getStateAfterEdge(state, previousSegment, segment, codePathState) {
 	if (
 		!previousSegment.reachable
+		|| codePathState.terminatedSegments.has(previousSegment)
+		|| state.isTerminated
 		|| isIgnoredLoopEdge(codePathState, previousSegment, segment)
 	) {
-		return createResolverState();
+		return createResolverState({isTerminated: true});
 	}
 
 	const catchClause = codePathState.catchClausesBySegment.get(segment);
@@ -248,6 +293,7 @@ function areFinallyBlocksByCatchClauseEqual(finallyBlocksByCatchClause, otherFin
 
 const areStatesEqual = (state, otherState) => (
 	otherState !== undefined
+	&& state.isTerminated === otherState.isTerminated
 	&& state.resolverUncalled === otherState.resolverUncalled
 	&& state.resolverCalled === otherState.resolverCalled
 	&& areSetsEqual(state.catchClausesAfterResolverCall, otherState.catchClausesAfterResolverCall)
@@ -255,6 +301,11 @@ const areStatesEqual = (state, otherState) => (
 );
 
 function mergeResolverState(target, source) {
+	if (source.isTerminated) {
+		return;
+	}
+
+	target.isTerminated = false;
 	target.resolverUncalled ||= source.resolverUncalled;
 	target.resolverCalled ||= source.resolverCalled;
 	for (const catchClause of source.catchClausesAfterResolverCall) {
@@ -324,7 +375,10 @@ function getContainingFinallyBlocks(node) {
 }
 
 function getStateAtSegmentStart(segment, statesAtSegmentEnd, codePathState) {
-	const state = createResolverState({resolverUncalled: segment === codePathState.codePath.initialSegment});
+	const state = createResolverState({
+		isTerminated: segment !== codePathState.codePath.initialSegment,
+		resolverUncalled: segment === codePathState.codePath.initialSegment,
+	});
 	for (const previousSegment of segment.prevSegments) {
 		const stateAfterEdge = getStateAfterEdge(statesAtSegmentEnd.get(previousSegment) ?? createResolverState(), previousSegment, segment, codePathState);
 		mergeResolverState(state, stateAfterEdge);
@@ -436,6 +490,142 @@ function isInAlwaysProvidedParameterDefault(node, context) {
 	return false;
 }
 
+const isAlwaysEvaluatedCall = (node, child) =>
+	node.type === 'CallExpression'
+	&& (
+		node.callee === child
+		|| (
+			node.arguments.includes(child)
+			&& !node.optional
+			&& !hasOptionalChainInCurrentChain(node.callee)
+		)
+	);
+
+const isAlwaysEvaluatedNewExpression = (node, child) =>
+	node.type === 'NewExpression'
+	&& (node.callee === child || node.arguments.includes(child));
+
+const isAlwaysEvaluatedMember = (node, child) =>
+	node.type === 'MemberExpression'
+	&& (
+		node.object === child
+		|| (
+			node.computed
+			&& node.property === child
+			&& !node.optional
+			&& !hasOptionalChainInCurrentChain(node.object)
+		)
+	);
+
+const isAlwaysEvaluatedExpression = (node, child, context) => (
+	(node.type === 'SequenceExpression' && node.expressions.includes(child))
+	|| (node.type === 'LogicalExpression' && node.left === child)
+	|| (node.type === 'BinaryExpression' && (node.left === child || node.right === child))
+	|| (node.type === 'UnaryExpression' && node.argument === child)
+	|| (node.type === 'AwaitExpression' && node.argument === child)
+	|| (node.type === 'ConditionalExpression' && isBranchExit(node, context, isReturnOrThrowStatement))
+	|| (isTransparentTypeScriptExpressionWrapper(node) && node.expression === child)
+	|| isAlwaysEvaluatedCall(node, child)
+	|| isAlwaysEvaluatedNewExpression(node, child)
+	|| isAlwaysEvaluatedMember(node, child)
+);
+
+function isInAlwaysExecutedParameterDefault(node, context) {
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (parent.type === 'AssignmentPattern') {
+			return parent.right === child
+				&& isPromiseExecutor(parent.parent, context)
+				&& !parent.parent.params.slice(0, 2).includes(parent);
+		}
+
+		if (!isAlwaysEvaluatedExpression(parent, child, context)) {
+			return false;
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return false;
+}
+
+const isTerminalTryStatement = (node, context) => isProcessExitBranch(node, context);
+
+function getTerminalTryStatement(node, context) {
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (isFunction(parent)) {
+			return;
+		}
+
+		if (
+			parent.type === 'TryStatement'
+			&& parent.finalizer
+			&& (parent.block === child || parent.handler === child)
+			&& isTerminalTryStatement(parent, context)
+		) {
+			return parent;
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+}
+
+function isInCatchableTryAfterPotentiallyThrowingCode(node, context, resolverReferenceExecutors) {
+	let child = node;
+	let {parent} = node;
+	let hasPotentiallyThrowingCode = false;
+	while (parent) {
+		if (isFunction(parent)) {
+			return false;
+		}
+
+		if (
+			parent.type === 'IfStatement'
+			&& (parent.consequent === child || parent.alternate === child)
+		) {
+			hasPotentiallyThrowingCode ||= !isDefinitelyNotThrowingReference(parent.test, context);
+		} else if (
+			(parent.type === 'SequenceExpression' && parent.expressions[0] !== child)
+			|| (parent.type === 'LogicalExpression' && parent.right === child)
+			|| (parent.type === 'ConditionalExpression' && parent.test !== child)
+		) {
+			hasPotentiallyThrowingCode ||= !isProcessExitExpressionAtStart(parent, context);
+		}
+
+		if (parent.type === 'TryStatement' && parent.handler && parent.block === child) {
+			return hasPotentiallyThrowingCode
+				|| !isProcessExitBlockAtStart(
+					parent.block,
+					context,
+					true,
+					{
+						isAdditionalStatementDefinitelyNotThrowing: statement => isDefinitelyNotThrowingResolverStatement(statement, resolverReferenceExecutors),
+					},
+				);
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return false;
+}
+
+const isSynchronousCodePath = (codePath, node) => (
+	codePath.origin === 'class-static-block'
+	|| (
+		codePath.origin === 'class-field-initializer'
+		&& node.parent?.type === 'PropertyDefinition'
+		&& node.parent.value === node
+		&& node.parent.static
+	)
+);
+
 function isContinueAcrossFinally(node) {
 	if (node.type !== 'ContinueStatement') {
 		return false;
@@ -480,6 +670,18 @@ const create = context => {
 
 	const startSegment = (segment, node) => {
 		currentCodePathState.currentSegments.add(segment);
+		if (
+			currentCodePathState.terminatedFinallyBlocks.has(node)
+			|| (
+				segment.prevSegments.length > 0
+				&& segment.prevSegments.every(previousSegment =>
+					!previousSegment.reachable || currentCodePathState.terminatedSegments.has(previousSegment),
+				)
+			)
+		) {
+			currentCodePathState.terminatedSegments.add(segment);
+		}
+
 		addCatchClause(currentCodePathState, segment, node);
 	};
 
@@ -489,16 +691,27 @@ const create = context => {
 
 	context.on('onCodePathStart', (codePath, node) => {
 		const upper = currentCodePathState;
+		const isTerminatedSynchronousChild = upper
+			&& isSynchronousCodePath(codePath, node)
+			&& upper.currentSegments.size > 0
+			&& [...upper.currentSegments].every(segment => upper.terminatedSegments.has(segment));
 		currentCodePathState = {
 			upper,
 			codePath,
+			node,
 			currentSegments: new Set(),
 			eventsBySegment: new Map(),
 			executors: new Set(),
 			catchClausesBySegment: new Map(),
 			ignoredLoopEdges: [],
+			terminatedSegments: new WeakSet(),
+			terminatedFinallyBlocks: new WeakSet(),
 			hasResolverReferences: upper?.hasResolverReferences ?? false,
 		};
+
+		if (isTerminatedSynchronousChild) {
+			currentCodePathState.terminatedSegments.add(codePath.initialSegment);
+		}
 
 		if (
 			isPromiseExecutor(node, context)
@@ -509,8 +722,65 @@ const create = context => {
 	});
 
 	context.on('onCodePathEnd', () => {
-		reportMultipleResolverCalls(currentCodePathState, context);
-		currentCodePathState = currentCodePathState.upper;
+		const codePathState = currentCodePathState;
+		const lastStatement = codePathState.node.type === 'StaticBlock'
+			? codePathState.node.body.at(-1)
+			: codePathState.node;
+		const isProcessExitAtStart = codePathState.node.type === 'StaticBlock'
+			? isProcessExitBlockAtStart(codePathState.node, context)
+			: isProcessExitExpressionAtStart(codePathState.node, context);
+		const isCaughtProcessExitSynchronousCodePath = isSynchronousCodePath(codePathState.codePath, codePathState.node)
+			&& getExceptionPath(codePathState.node).catchClause
+			&& lastStatement
+			&& isProcessExitBranch(lastStatement, context)
+			&& isBranchExit(lastStatement, context, isReturnOrThrowStatement)
+			&& !isProcessExitAtStart;
+		const isAlwaysExitingSynchronousCodePath = lastStatement && (
+			(
+				isBranchExit(lastStatement, context, isReturnOrThrowStatement)
+				&& !isCaughtProcessExitSynchronousCodePath
+			)
+			|| (lastStatement.type === 'TryStatement' && isTerminalTryStatement(lastStatement, context))
+			|| (
+				codePathState.node.type === 'StaticBlock'
+				&& !isCaughtProcessExitSynchronousCodePath
+				&& isProcessExitAtStart
+			)
+		);
+		reportMultipleResolverCalls(codePathState, context);
+
+		if (
+			codePathState.upper
+			&& isSynchronousCodePath(codePathState.codePath, codePathState.node)
+			&& (
+				getReachableSegments(codePathState.codePath).every(segment => codePathState.terminatedSegments.has(segment))
+				|| isAlwaysExitingSynchronousCodePath
+			)
+		) {
+			for (const segment of codePathState.upper.currentSegments) {
+				codePathState.upper.terminatedSegments.add(segment);
+			}
+		}
+
+		currentCodePathState = codePathState.upper;
+	});
+
+	context.onExit('IfStatement', node => {
+		const staticValue = getStaticValue(node.test, sourceCode.getScope(node.test));
+		let selectedBranch;
+		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+			selectedBranch = staticValue.value ? node.consequent : node.alternate;
+		}
+
+		if (!selectedBranch || !isNonThrowingReturnBranch(selectedBranch)) {
+			return;
+		}
+
+		for (const segment of currentCodePathState.currentSegments) {
+			if (segment.reachable) {
+				currentCodePathState.terminatedSegments.add(segment);
+			}
+		}
 	});
 
 	context.on('onCodePathSegmentStart', startSegment);
@@ -537,6 +807,28 @@ const create = context => {
 		'ThrowStatement',
 		'YieldExpression',
 	], node => {
+		if (isProcessExitCallAlwaysEvaluated(node, context)) {
+			if (
+				!isInAlwaysProvidedParameterDefault(node, context)
+				&& !isInCatchableTryAfterPotentiallyThrowingCode(node, context, resolverReferenceExecutors)
+			) {
+				const terminalTryStatement = getTerminalTryStatement(node, context);
+				if (terminalTryStatement) {
+					currentCodePathState.terminatedFinallyBlocks.add(terminalTryStatement.finalizer);
+				}
+
+				if (isInAlwaysExecutedParameterDefault(node, context)) {
+					currentCodePathState.terminatedSegments.add(currentCodePathState.codePath.initialSegment);
+				}
+
+				for (const segment of currentCodePathState.currentSegments) {
+					currentCodePathState.terminatedSegments.add(segment);
+				}
+			}
+
+			return;
+		}
+
 		if (!currentCodePathState.hasResolverReferences) {
 			return;
 		}
@@ -578,6 +870,28 @@ const create = context => {
 
 		if (executor) {
 			currentCodePathState.executors.add(executor);
+		}
+	});
+
+	context.onExit([
+		'ArrayExpression',
+		'AssignmentExpression',
+		'ConditionalExpression',
+		'ImportExpression',
+		'LogicalExpression',
+		'ObjectExpression',
+		'SequenceExpression',
+		'TemplateLiteral',
+		'YieldExpression',
+	], node => {
+		if (!isProcessExitExpressionAtStart(node, context)) {
+			return;
+		}
+
+		for (const segment of currentCodePathState.currentSegments) {
+			if (segment.reachable) {
+				currentCodePathState.terminatedSegments.add(segment);
+			}
 		}
 	});
 };

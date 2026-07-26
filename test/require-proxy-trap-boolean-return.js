@@ -10,6 +10,28 @@ const errors = [
 
 test({
 	valid: [
+		'new Proxy(target, {set() { process.exit(1); }});',
+		'new Proxy(target, {set() { label: { process.exit(1); } }});',
+		'new Proxy(target, {set() { label: { process.exit(1); break label; } }});',
+		'const report = () => {}; new Proxy(target, {set() { report(process.exit(1)); }});',
+		'class Report {} const report = () => {}; new Proxy(target, {set() { report(new Report(process.exit(1))); }});',
+		'new Proxy(target, {set() { process.exit(1)?.toString(); }});',
+		'const report = () => {}; const foo = {}; new Proxy(target, {set() { report((foo?.bar)[process.exit(1)]); }});',
+		'new Proxy(target, {set() { process.exit(1) + 1; }});',
+		'new Proxy(target, {set() { process.exit(1); cleanup(); }});',
+		'new Proxy(target, {set() { class Example { static { process.exit(1); } } }});',
+		'new Proxy(target, {set() { class Example { static {} static { process.exit(1); } } }});',
+		'new Proxy(target, {set() { (cleanup(), process.exit(1)); }});',
+		'new Proxy(target, {set() { ((cleanup(), process.exit(1))); }});',
+		'new Proxy(target, {set() { try { process.exit(1); } finally { cleanup(); } }});',
+		'new Proxy(target, {set() { try { cleanup(); } finally { process.exit(1); } }});',
+		'new Proxy(target, {set() { try { process.exit(1); } catch { cleanup(); } }});',
+		'new Proxy(target, {set() { if (condition ? process.exit(1) : process.exit(2)) {} }});',
+		'new Proxy(target, {set() { switch (value) { case 1: process.exit(1); default: process.exit(2); } }});',
+		'new Proxy(target, {set() { switch (value) { case process.exit(1): } }});',
+		'new Proxy(target, {set() { switch (value) { case 1: process.exit(1); cleanup(); default: process.exit(2); } }});',
+		'new Proxy(target, {set() { switch (value) { case 1: process.exit(1); break; default: process.exit(2); } }});',
+		'new Proxy(target, {set() { switch (value) { case 1: return true; break; default: return false; } }});',
 		'new Proxy(target, handler);',
 		'new Proxy(target, {get() {}});',
 		'new Proxy(target, {apply() {}});',
@@ -50,10 +72,36 @@ test({
 		'new Proxy(target, {set() { return value instanceof Constructor; }});',
 		// CPA: infinite loop always exits.
 		'new Proxy(target, {set() { while (true) { doSomething(); } }});',
+		'new Proxy(target, {set() { while (process.exit(1)) {} }});',
+		'new Proxy(target, {set() { for (; process.exit(1);) {} }});',
+		'new Proxy(target, {set() { do {} while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { label: while (condition) {} } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { for (const value of values) {} } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { for (const key in object) {} } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { while (true) { break; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = getCondition(); do { while (true) { if (condition) break; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = getCondition(); do { while (true) { if (condition) continue; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { continue; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do; while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { ; continue; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { label: do { continue label; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = true; do { if (condition) continue; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = true; do { ; if (condition) continue; } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { const condition = true; do { if (condition) continue; process.exit(1); } while (process.exit(2)); }});',
+		'new Proxy(target, {set() { for (;;) { process.exit(1); } }});',
+		'new Proxy(target, {set() { while (1) { process.exit(1); } }});',
+		'new Proxy(target, {set() { for (; 1;) { process.exit(1); } }});',
+		'new Proxy(target, {set() { for (; true; process.exit(1)) {} }});',
+		'new Proxy(target, {set() { do { process.exit(1); break; } while (condition); }});',
+		'new Proxy(target, {set() { do { process.exit(1); continue; } while (condition); }});',
+		'new Proxy(target, {set() { outer: do { while (condition) { continue outer; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { outer: do { switch (value) { case 1: continue outer; } } while (process.exit(1)); }});',
+		'new Proxy(target, {set() { do { if (false) maybeThrow(); } while (process.exit(1)); }});',
 		// CPA: `for (;;)` always exits.
 		'new Proxy(target, {set() { for (;;) { doSomething(); } }});',
 		// CPA: try/catch where both branches exit.
 		'new Proxy(target, {set() { try { return doSomething(); } catch { throw new Error(); } }});',
+		'new Proxy(target, {set() { try { throw error; } catch { if (condition) { process.exit(1); } else { throw error; } } }});',
 		// CPA: nested if/else chain where every branch returns.
 		'new Proxy(target, {set() { if (a) { if (b) { return true; } else { return false; } } else { return true; } }});',
 		// CPA: exhaustive switch inside try/finally.
@@ -68,6 +116,79 @@ test({
 	invalid: [
 		{
 			code: 'new Proxy(target, {set(target, property, value) { target[property] = value; }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set(process) { process.exit(1); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { label: { break label; process.exit(1); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { label: switch (value) { case 1: break label; default: process.exit(1); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { do { break; } while (process.exit(1)); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { do { break; process.exit(1); } while (condition); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { do { if (condition) continue; process.exit(1); } while (otherCondition); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { outer: while (condition) { do { continue outer; } while (process.exit(1)); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { outer: do { switch (value) { case 1: continue outer; default: process.exit(1); } } while (condition); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { report(() => process.exit(1)); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { report(foo?.(process.exit(1))); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { report(foo?.bar[process.exit(1)]); }});',
+			errors,
+		},
+		{
+			code: 'import process from \'node:process\'; new Proxy(target, {set() { process.exit(1); }});',
+			languageOptions: {sourceType: 'module'},
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { throw error; process.exit(1); } catch { cleanup(); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { (maybeThrow(), process.exit(1)); } catch { cleanup(); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { ((maybeThrow(), process.exit(1))); } catch { cleanup(); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { process.exit(maybeThrow()); } catch { cleanup(); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { switch (value) { case 1: return true; default: break; case process.exit(1): {} } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { class Example { static { maybeThrow(); process.exit(1); } } } catch {} }});',
 			errors,
 		},
 		{
@@ -223,6 +344,10 @@ test({
 		},
 		{
 			code: 'new Proxy(target, {preventExtensions() { switch (value) { case 1: break; default: return true; } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {preventExtensions() { switch (value) { case 1: return true; default: } }});',
 			errors,
 		},
 		{

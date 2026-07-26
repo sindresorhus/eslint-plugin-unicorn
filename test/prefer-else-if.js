@@ -58,6 +58,47 @@ test.snapshot({
 				if (foo === 2) {}
 			}
 		`,
+		// `process.exit()` always exits, so these should remain separate `if` statements.
+		outdent`
+			function handleSignal(signal) {
+				if (signal === 'SIGINT') {
+					process.exit(130);
+				}
+
+				if (signal === 'SIGTERM' || signal === 'SIGHUP') {
+					process.exit(1);
+				}
+			}
+		`,
+		// A previous branch can exit through an exhaustive switch of terminal process.exit calls.
+		outdent`
+			function handleSignal(signal, value) {
+				if (signal === 'SIGINT') {
+					switch (value) {
+						case 1:
+							process.exit(130);
+					default:
+							process.exit(1);
+					}
+				}
+
+				if (signal === 'SIGTERM') {}
+			}
+		`,
+		// A previous branch can exit through a catch that always calls process.exit.
+		outdent`
+			function handleSignal(signal) {
+				if (signal === 'SIGINT') {
+					try {
+						throw error;
+					} catch {
+						process.exit(130);
+					}
+				}
+
+				if (signal === 'SIGTERM') {}
+			}
+		`,
 		outdent`
 			while (unicorn) {
 				if (foo === 1) {
@@ -596,5 +637,27 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		outdent`
+			function handleSignal(process, signal) {
+				if (signal === 'SIGINT') {
+					process.exit(130);
+				}
+
+				if (signal === 'SIGTERM' || signal === 'SIGHUP') {
+					process.exit(1);
+				}
+			}
+		`,
+		outdent`
+			import process from 'node:process';
+
+			if (signal === 'SIGINT') {
+				process.exit(130);
+			}
+
+			if (signal === 'SIGTERM' || signal === 'SIGHUP') {
+				process.exit(1);
+			}
+		`,
 	],
 });

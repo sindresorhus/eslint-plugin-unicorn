@@ -1,5 +1,6 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
+import {isBranchExit, isProcessExitBranch, trackBranchExits} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unsafe-promise-all-settled-values';
 
@@ -479,21 +480,17 @@ const isIfStatementFulfilledGuard = (node, child, statusContext) =>
 		)
 	);
 
-function isAlwaysExitingStatement(node) {
+const isReturnOrThrowStatement = node => {
 	node = unwrapExpression(node);
+	return node?.type === 'ReturnStatement' || node?.type === 'ThrowStatement';
+};
 
-	if (node?.type === 'ReturnStatement' || node?.type === 'ThrowStatement') {
-		return true;
-	}
+const isAlwaysExitingStatement = (node, context, branchAlwaysExits) => (
+	isBranchExit(node, context, branch => isReturnOrThrowStatement(branch) || branchAlwaysExits(branch))
+	|| isProcessExitBranch(node, context)
+);
 
-	if (node?.type === 'BlockStatement') {
-		return node.body.length > 0 && isAlwaysExitingStatement(node.body.at(-1));
-	}
-
-	return false;
-}
-
-function isGuardedByPreviousUnfulfilledExit(node, statusContext) {
+function isGuardedByPreviousUnfulfilledExit(node, statusContext, context, branchAlwaysExits) {
 	const statements = node.parent?.body;
 	if (!Array.isArray(statements)) {
 		return false;
@@ -505,7 +502,7 @@ function isGuardedByPreviousUnfulfilledExit(node, statusContext) {
 	return previousStatement?.type === 'IfStatement'
 		&& !previousStatement.alternate
 		&& hasUnfulfilledStatusCheckInDisjunction(previousStatement.test, statusContext)
-		&& isAlwaysExitingStatement(previousStatement.consequent);
+		&& isAlwaysExitingStatement(previousStatement.consequent, context, branchAlwaysExits);
 }
 
 const isFulfilledFilterCallback = callback => {
@@ -570,7 +567,7 @@ function isGuardedByFulfilledCheck(node, readContext) {
 			return true;
 		}
 
-		if (isGuardedByPreviousUnfulfilledExit(current, readContext)) {
+		if (isGuardedByPreviousUnfulfilledExit(current, readContext, readContext.context, readContext.branchAlwaysExits)) {
 			return true;
 		}
 
@@ -717,7 +714,7 @@ function hasFulfilledFilterInChain(node) {
 	return false;
 }
 
-function getMapCallbackProblem(callExpression, context, {knownPromiseSettledResultArray = false} = {}) {
+function getMapCallbackProblem(callExpression, context, {knownPromiseSettledResultArray = false, branchAlwaysExits} = {}) {
 	if (
 		!isMethodCall(callExpression, {
 			method: 'map',
@@ -764,6 +761,7 @@ function getMapCallbackProblem(callExpression, context, {knownPromiseSettledResu
 		statusVariable,
 		valueVariable,
 		context,
+		branchAlwaysExits,
 	});
 	if (unsafeValueRead) {
 		return {
@@ -773,7 +771,7 @@ function getMapCallbackProblem(callExpression, context, {knownPromiseSettledResu
 	}
 }
 
-function getThenMapCallbackProblem(node, resultsVariable, context) {
+function getThenMapCallbackProblem(node, resultsVariable, context, branchAlwaysExits) {
 	node = unwrapExpression(node);
 
 	if (!node?.type || isFunction(node) || node.type === 'ClassExpression' || node.type === 'ClassDeclaration') {
@@ -791,7 +789,7 @@ function getThenMapCallbackProblem(node, resultsVariable, context) {
 		&& isDerivedFromVariableThroughFilters(node.callee.object, resultsVariable, context)
 		&& !hasFulfilledFilterInChain(node.callee.object)
 	) {
-		const problem = getMapCallbackProblem(node, context, {knownPromiseSettledResultArray: true});
+		const problem = getMapCallbackProblem(node, context, {knownPromiseSettledResultArray: true, branchAlwaysExits});
 		if (problem) {
 			return problem;
 		}
@@ -804,7 +802,7 @@ function getThenMapCallbackProblem(node, resultsVariable, context) {
 
 		const nodes = Array.isArray(value) ? value : [value];
 		for (const child of nodes) {
-			const problem = getThenMapCallbackProblem(child, resultsVariable, context);
+			const problem = getThenMapCallbackProblem(child, resultsVariable, context, branchAlwaysExits);
 			if (problem) {
 				return problem;
 			}
@@ -812,7 +810,7 @@ function getThenMapCallbackProblem(node, resultsVariable, context) {
 	}
 }
 
-function getThenCallbackProblem(callExpression, context) {
+function getThenCallbackProblem(callExpression, context, branchAlwaysExits) {
 	if (
 		!isMethodCall(callExpression, {
 			method: 'then',
@@ -837,12 +835,13 @@ function getThenCallbackProblem(callExpression, context) {
 		return;
 	}
 
-	return getThenMapCallbackProblem(callback.body, resultsVariable, context);
+	return getThenMapCallbackProblem(callback.body, resultsVariable, context, branchAlwaysExits);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on('CallExpression', callExpression => getThenCallbackProblem(callExpression, context) ?? getMapCallbackProblem(callExpression, context));
+	const branchAlwaysExits = trackBranchExits(context, branch => isBranchExit(branch, context, branchAlwaysExits));
+	context.onExit('CallExpression', callExpression => getThenCallbackProblem(callExpression, context, branchAlwaysExits) ?? getMapCallbackProblem(callExpression, context, {branchAlwaysExits}));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

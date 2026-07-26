@@ -13,6 +13,73 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						do {} while (maybeThrow(), process.exit(1));
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						throw error;
+						process.exit(1);
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						process.exit(maybeThrow());
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						process.exit((maybeThrow(), 1));
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						maybeThrow();
+						process.exit();
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
 			if (foo) {
 				bar();
 			} else {
@@ -45,6 +112,20 @@ test.snapshot({
 				} else {
 					baz();
 				}
+			}
+		`,
+		outdent`
+			if (foo) {
+				try {
+					class Example {
+						static {
+							maybeThrow();
+							process.exit(1);
+						}
+					}
+				} catch {}
+			} else {
+				baz();
 			}
 		`,
 		outdent`
@@ -126,6 +207,40 @@ test.snapshot({
 							return;
 						default:
 							break;
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// A matching case can break before a later process.exit case test is evaluated.
+		outdent`
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							break;
+					default:
+						break;
+					case process.exit(1):
+						{}
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// A `default` before a later process.exit case can be selected without evaluating that case test.
+		outdent`
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							return;
+					default:
+						break;
+					case process.exit(1):
+						{}
 					}
 				} else {
 					baz();
@@ -246,6 +361,15 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				if (foo) {
+					false && process.exit();
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
 			function qux(process) {
 				if (foo) {
 					process.exit();
@@ -286,6 +410,20 @@ test.snapshot({
 		`,
 		outdent`
 			if (foo) {
+				callback?.(process.exit(1));
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
+				foo?.bar[process.exit(1)];
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
 				process['exit']();
 			} else {
 				baz();
@@ -308,19 +446,6 @@ test.snapshot({
 		outdent`
 			function qux() {
 				if (foo) {
-					try {
-						process.exit();
-					} finally {
-						cleanup();
-					}
-				} else {
-					baz();
-				}
-			}
-		`,
-		outdent`
-			function qux() {
-				if (foo) {
 					if (bar) {
 						process.exit();
 					}
@@ -329,8 +454,66 @@ test.snapshot({
 				}
 			}
 		`,
+		// A bound switch discriminant cannot throw before the later process.exit case test.
+		outdent`
+			function qux(value) {
+				if (foo) {
+					try {
+						switch (value) {
+						default:
+							break;
+						case process.exit(1):
+							{}
+						}
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
 	],
 	invalid: [
+		outdent`
+			function qux() {
+				if (foo) {
+					outer: do {
+						while (true) {
+							continue outer;
+						}
+					} while (process.exit(1));
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux(condition) {
+				if (foo) {
+					try {
+						condition ? process.exit(1) : process.exit(2);
+					} catch {}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux(condition) {
+				if (foo) {
+					try {
+						if (condition) {
+							process.exit(1);
+						} else {
+							process.exit(2);
+						}
+					} catch {}
+				} else {
+					baz();
+				}
+			}
+		`,
 		outdent`
 			function qux() {
 				if (foo) {
@@ -936,6 +1119,24 @@ test.snapshot({
 		`,
 		outdent`
 			function qux() {
+				if (foo) {
+					true && process.exit();
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					[...process.exit()];
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
 				if (foo)
 					process.exit(1);
 				else
@@ -966,8 +1167,72 @@ test.snapshot({
 		outdent`
 			function qux() {
 				if (foo) {
+					switch (value) {
+						case 1:
+							if (false) {
+								break;
+							}
+
+							process.exit(1);
+						default:
+							process.exit(2);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							if (true) {
+								return;
+							}
+							break;
+						default:
+							process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					label: {
+						if (false) {
+							break label;
+						}
+
+						process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
 					process.exit(1);
 				} else if (bar) {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						process.exit(1);
+						cleanup();
+					} finally {
+						cleanup();
+					}
+				} else {
 					baz();
 				}
 			}
@@ -979,6 +1244,81 @@ test.snapshot({
 						return;
 					} else {
 						process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						throw error;
+					} catch {
+						process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					switch (value) {
+						case 1:
+							local: {
+								break local;
+							}
+
+							process.exit(1);
+						default:
+							process.exit(2);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// A labeled `break` targeting an enclosing loop exits the whole consequent.
+		outdent`
+			outer: while (condition) {
+				if (foo) {
+					switch (value) {
+						case 1:
+							break outer;
+					default:
+							process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// A labeled `continue` targeting an enclosing loop exits the whole consequent.
+		outdent`
+			outer: while (condition) {
+				if (foo) {
+					switch (value) {
+						case 1:
+							continue outer;
+					default:
+							process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		// A direct global process.exit() is terminal even when it appears in a try block with a finally.
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						process.exit();
+					} finally {
+						cleanup();
 					}
 				} else {
 					baz();

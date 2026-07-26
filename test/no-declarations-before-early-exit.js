@@ -10,6 +10,42 @@ const typescriptLanguageOptions = {
 test.snapshot({
 	valid: [
 		outdent`
+			function foo(process, bar) {
+				const result = 1;
+				if (!bar) {
+					process.exit(1);
+				}
+				console.log(result);
+			}
+		`,
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (bar) {
+					try {
+						process.exit(maybeThrow());
+					} catch {
+						cleanup();
+					}
+				}
+				console.log(result);
+			}
+		`,
+		{
+			code: outdent`
+				import process from 'node:process';
+
+				function foo(bar) {
+					const result = 1;
+					if (!bar) {
+						process.exit(1);
+					}
+					console.log(result);
+				}
+			`,
+			languageOptions: {sourceType: 'module'},
+		},
+		outdent`
 			function foo(bar) {
 				const result = 1;
 				console.log(result);
@@ -561,8 +597,33 @@ test.snapshot({
 			`,
 			languageOptions: {sourceType: 'module'},
 		},
+		outdent`
+			function foo(bar, type) {
+				const result = 1;
+				if (!bar) {
+					switch (type) {
+						case 'a':
+							return;
+					default:
+						break;
+					case process.exit(1):
+						{}
+					}
+				}
+				console.log(result);
+			}
+		`,
 	],
 	invalid: [
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					process.exit(1);
+				}
+				console.log(result);
+			}
+		`,
 		outdent`
 			function foo(bar) {
 				const result = getResult();
@@ -881,6 +942,21 @@ test.snapshot({
 							throw new Error('a');
 						default:
 							throw new Error('unknown');
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// The guard's exiting branch ends in an exhaustive `switch` of terminal process.exit calls.
+		outdent`
+			function foo(bar, type) {
+				const result = 1;
+				if (!bar) {
+					switch (type) {
+						case 'a':
+							process.exit(1);
+						default:
+							process.exit(2);
 					}
 				}
 				console.log(result);
