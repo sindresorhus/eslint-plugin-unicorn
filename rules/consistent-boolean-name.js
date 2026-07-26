@@ -812,6 +812,10 @@ function getCallSignatureReturnTypesFromDefinition(definition, context, scope, {
 }
 
 function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeState(), visitedTypeReferenceNames = new Set()} = {}) {
+	if (hasMissingRequiredTypeArguments(node, scope)) {
+		return [];
+	}
+
 	if (
 		node?.type === 'TSParenthesizedType'
 		|| node?.type === 'TSTypeAnnotation'
@@ -1649,6 +1653,10 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 }
 
 function getPromisedTypeAnnotationBooleanState(node, context, scope, typeState) {
+	if (hasMissingRequiredTypeArguments(node, scope)) {
+		return unknown;
+	}
+
 	const normalizedTypeState = getTypeState(typeState);
 
 	if (
