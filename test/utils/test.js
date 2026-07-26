@@ -106,6 +106,10 @@ class Tester {
 
 		Reflect.apply(test, undefined, [`empty file: ${ruleId}`, t => {
 			const linter = new Linter();
+			if (ruleId === 'consistent-boolean-name') {
+				process.stderr.write('@@consistent-boolean-name-empty-before\n');
+			}
+
 			const messages = linter.verify(
 				'',
 				// Avoid a separate `{files}` config-array entry here. It makes ESLint merge an extra config for every empty-file smoke test.
@@ -130,6 +134,10 @@ class Tester {
 				},
 				{filename: language ? `index.${language.name}` : 'index.js'},
 			);
+
+			if (ruleId === 'consistent-boolean-name') {
+				process.stderr.write('@@consistent-boolean-name-empty-after\n');
+			}
 
 			t.deepEqual(messages, []);
 		}]);
