@@ -149,7 +149,13 @@ class Tester {
 			languageOptions: mergeLanguageOptions(DEFAULT_LANGUAGE_OPTIONS, testerOptions.languageOptions),
 		};
 
-		const tester = new AvaRuleTester(test, testConfig);
+		const testFunction = ruleId === 'consistent-boolean-name'
+			? (title, callback) => test(title, t => {
+				process.stderr.write(`@@consistent-boolean-name-test ${title}\n`);
+				return callback(t);
+			})
+			: test;
+		const tester = new AvaRuleTester(testFunction, testConfig);
 
 		return tester.run(
 			ruleId,
