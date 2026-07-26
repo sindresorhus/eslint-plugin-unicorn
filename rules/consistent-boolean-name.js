@@ -1264,47 +1264,36 @@ function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 }
 
 function hasUnresolvedTypeParameter(node, typeState, scope) {
-	const nodes = [{
-		node, typeState, shouldResolve: true, visitedNodes: new Set(),
-	}];
+	const nodes = [{node, typeState}];
+	const visitedNodes = new Set();
 	while (nodes.length > 0) {
 		const current = nodes.pop();
-		if (current.node && typeof current.node === 'object' && !current.visitedNodes.has(current.node)) {
-			const nextVisitedNodes = new Set(current.visitedNodes);
-			nextVisitedNodes.add(current.node);
-			if (current.node.type === 'TSTypeReference') {
-				const resolvedType = current.shouldResolve ? resolveTypeParameterType(current.node, current.typeState) : current.node;
-				if (resolvedType !== current.node) {
-					nodes.push({
-						node: resolvedType, typeState: current.typeState, shouldResolve: false, visitedNodes: nextVisitedNodes,
-					});
-				} else if (getTypeParameterResolution(current.node, current.typeState)) {
-					return true;
-				} else {
-					const typeArguments = getTypeArguments(current.node);
-					if (typeArguments) {
-						nodes.push(...typeArguments.map(type => ({
-							node: type,
-							typeState: current.typeState,
-							shouldResolve: current.shouldResolve,
-							visitedNodes: nextVisitedNodes,
-						})));
-					} else if (getTypeDefinitions(getTypeReferenceName(current.node.typeName), scope).length === 0) {
-						return true;
-					}
-				}
-			} else {
-				const childNodes = Object.entries(current.node)
-					.filter(([key]) => key !== 'parent')
-					.flatMap(([, value]) => Array.isArray(value) ? value : [value]);
-				nodes.push(...childNodes.map(child => ({
-					node: child,
-					typeState: current.typeState,
-					shouldResolve: current.shouldResolve,
-					visitedNodes: nextVisitedNodes,
-				})));
-			}
+		if (!current.node || typeof current.node !== 'object' || visitedNodes.has(current.node)) {
+			continue;
 		}
+
+		visitedNodes.add(current.node);
+		if (current.node.type === 'TSTypeReference') {
+			const typeParameter = getTypeParameterResolution(current.node, current.typeState);
+			if (typeParameter) {
+				nodes.push({node: typeParameter.type, typeState: typeParameter.typeState});
+				continue;
+			}
+
+			const typeArguments = getTypeArguments(current.node);
+			if (typeArguments) {
+				nodes.push(...typeArguments.map(type => ({node: type, typeState: current.typeState})));
+			} else if (getTypeDefinitions(getTypeReferenceName(current.node.typeName), scope).length === 0) {
+				return true;
+			}
+
+			continue;
+		}
+
+		const childNodes = Object.entries(current.node)
+			.filter(([key]) => key !== 'parent')
+			.flatMap(([, value]) => Array.isArray(value) ? value : [value]);
+		nodes.push(...childNodes.map(child => ({node: child, typeState: current.typeState})));
 	}
 
 	return false;
@@ -1317,28 +1306,30 @@ const hasTypeParameterReferenceInType = (node, typeState) =>
 	typeState.typeParameterTypes.keys().some(name => hasTypeParameterReference(node, name));
 
 function hasUnresolvedTypeParameterReference(node, typeState, scope, checkNode = true) {
-	const nodes = [{node, checkNode, visitedNodes: new Set()}];
+	const nodes = [{node, checkNode}];
+	const visitedNodes = new Set();
 	while (nodes.length > 0) {
 		const current = nodes.pop();
-		if (current.node && typeof current.node === 'object' && !current.visitedNodes.has(current.node)) {
-			const nextVisitedNodes = new Set(current.visitedNodes);
-			nextVisitedNodes.add(current.node);
-			const name = current.node.type === 'TSTypeReference' ? getTypeReferenceName(current.node.typeName) : undefined;
-			if (
-				current.checkNode
-				&& name
-				&& !getTypeParameterResolution(current.node, typeState)
-				&& getTypeDefinitions(name, scope)
-					.some(definition => definition.node.type === 'TSTypeParameter')
-			) {
-				return true;
-			}
-
-			const childNodes = Object.entries(current.node)
-				.filter(([key]) => key !== 'parent')
-				.flatMap(([, value]) => Array.isArray(value) ? value : [value]);
-			nodes.push(...childNodes.map(child => ({node: child, checkNode: true, visitedNodes: nextVisitedNodes})));
+		if (!current.node || typeof current.node !== 'object' || visitedNodes.has(current.node)) {
+			continue;
 		}
+
+		visitedNodes.add(current.node);
+		const name = current.node.type === 'TSTypeReference' ? getTypeReferenceName(current.node.typeName) : undefined;
+		if (
+			current.checkNode
+			&& name
+			&& !getTypeParameterResolution(current.node, typeState)
+			&& getTypeDefinitions(name, scope)
+				.some(definition => definition.node.type === 'TSTypeParameter')
+		) {
+			return true;
+		}
+
+		const childNodes = Object.entries(current.node)
+			.filter(([key]) => key !== 'parent')
+			.flatMap(([, value]) => Array.isArray(value) ? value : [value]);
+		nodes.push(...childNodes.map(child => ({node: child, checkNode: true})));
 	}
 
 	return false;
