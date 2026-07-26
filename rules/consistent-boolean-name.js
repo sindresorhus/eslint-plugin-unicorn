@@ -1070,24 +1070,20 @@ function hasTypeParameterReference(node, name) {
 	const visitedNodes = new Set();
 	while (nodes.length > 0) {
 		const currentNode = nodes.pop();
-		if (!currentNode || typeof currentNode !== 'object' || visitedNodes.has(currentNode)) {
-			continue;
-		}
-
-		visitedNodes.add(currentNode);
-		if (currentNode.type === 'TSTypeReference' && getTypeReferenceName(currentNode.typeName) === name) {
-			return true;
-		}
-
-		for (const [key, value] of Object.entries(currentNode)) {
-			if (key === 'parent') {
-				continue;
+		if (currentNode && typeof currentNode === 'object' && !visitedNodes.has(currentNode)) {
+			visitedNodes.add(currentNode);
+			if (currentNode.type === 'TSTypeReference' && getTypeReferenceName(currentNode.typeName) === name) {
+				return true;
 			}
 
-			if (Array.isArray(value)) {
-				nodes.push(...value);
-			} else {
-				nodes.push(value);
+			for (const [key, value] of Object.entries(currentNode)) {
+				if (key !== 'parent') {
+					if (Array.isArray(value)) {
+						nodes.push(...value);
+					} else {
+						nodes.push(value);
+					}
+				}
 			}
 		}
 	}
@@ -1095,7 +1091,7 @@ function hasTypeParameterReference(node, name) {
 	return false;
 }
 
-function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = new Set(), visitedNodes = new Set()) {
+function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = new Set(), resolvedTypeParameterNames = new Set(), visitedNodes = new Set()) {
 	if (!node || typeof node !== 'object' || visitedNodes.has(node)) {
 		return node;
 	}
@@ -1104,20 +1100,23 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 	nextVisitedNodes.add(node);
 	const typeParameter = getTypeParameterResolution(node, typeState);
 	if (typeParameter) {
-		if (resolvedTypeParameterTypes.has(typeParameter.type)) {
-			return typeParameter.type;
+		const name = getTypeReferenceName(node.typeName);
+		if (resolvedTypeParameterTypes.has(typeParameter.type) || resolvedTypeParameterNames.has(name)) {
+			return node;
 		}
 
 		const nextResolvedTypeParameterTypes = new Set(resolvedTypeParameterTypes);
 		nextResolvedTypeParameterTypes.add(typeParameter.type);
-		return resolveTypeParameterType(typeParameter.type, typeParameter.typeState, nextResolvedTypeParameterTypes, nextVisitedNodes);
+		const nextResolvedTypeParameterNames = new Set(resolvedTypeParameterNames);
+		nextResolvedTypeParameterNames.add(name);
+		return resolveTypeParameterType(typeParameter.type, typeParameter.typeState, nextResolvedTypeParameterTypes, nextResolvedTypeParameterNames, nextVisitedNodes);
 	}
 
 	if (
 		node?.type === 'TSTypeAnnotation'
 		|| node?.type === 'TSParenthesizedType'
 	) {
-		const typeAnnotation = resolveTypeParameterType(node.typeAnnotation, typeState, resolvedTypeParameterTypes, nextVisitedNodes);
+		const typeAnnotation = resolveTypeParameterType(node.typeAnnotation, typeState, resolvedTypeParameterTypes, resolvedTypeParameterNames, nextVisitedNodes);
 		return typeAnnotation === node.typeAnnotation ? node : {...node, typeAnnotation};
 	}
 
@@ -1125,7 +1124,7 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 		node?.type === 'TSUnionType'
 		|| node?.type === 'TSIntersectionType'
 	) {
-		const types = node.types.map(type => resolveTypeParameterType(type, typeState, resolvedTypeParameterTypes, nextVisitedNodes));
+		const types = node.types.map(type => resolveTypeParameterType(type, typeState, resolvedTypeParameterTypes, resolvedTypeParameterNames, nextVisitedNodes));
 		return types.every((type, index) => type === node.types[index]) ? node : {...node, types};
 	}
 
@@ -1138,7 +1137,7 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 		return node;
 	}
 
-	const resolvedTypeArguments = typeArguments.map(type => resolveTypeParameterType(type, typeState, resolvedTypeParameterTypes, nextVisitedNodes));
+	const resolvedTypeArguments = typeArguments.map(type => resolveTypeParameterType(type, typeState, resolvedTypeParameterTypes, resolvedTypeParameterNames, nextVisitedNodes));
 	if (resolvedTypeArguments.every((type, index) => type === typeArguments[index])) {
 		return node;
 	}
