@@ -19,7 +19,7 @@ jobs:
       - run: npm run lint
       - run: rm -rf test/snapshots
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
-      - run: npx ava --update-snapshots test/consistent-boolean-name.js
+      - run: npx ava --update-snapshots --match='*recursive aliases*' test/consistent-boolean-name.js
         env:
           AVA_FORCE_CI: not-ci
       - uses: autofix-ci/action@v1
