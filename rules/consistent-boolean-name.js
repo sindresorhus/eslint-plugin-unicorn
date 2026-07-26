@@ -2597,7 +2597,6 @@ const create = context => {
 				checkVariable(variable);
 			}
 		}
-
 	});
 
 	const checkProperty = (node, mode) => {
