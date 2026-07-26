@@ -6,15 +6,6 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 
-const {verify} = Linter.prototype;
-Linter.prototype.verify = function (code, config, ...arguments_) {
-	if (config?.plugins?.['rule-to-test']?.rules?.['consistent-boolean-name']) {
-		process.stderr.write(`@@consistent-boolean-name-verify ${this.version} ${code.slice(0, 200).replaceAll('\n', ' ')}\n`);
-	}
-
-	return verify.call(this, code, config, ...arguments_);
-};
-
 const typescript = testCase => typeof testCase === 'string'
 	? {
 		code: testCase,

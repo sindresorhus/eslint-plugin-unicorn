@@ -1276,90 +1276,8 @@ function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 	return typeParameterTypes;
 }
 
-function hasUnresolvedTypeParameter(node, typeState, scope) {
-	const nodes = [{
-		node,
-		typeState,
-		resolvedTypeParameterTypes: new Set(),
-		resolvedTypeParameterNames: new Set(),
-	}];
-	const visitedNodes = new WeakMap();
-	while (nodes.length > 0) {
-		const current = nodes.pop();
-		if (!current.node || typeof current.node !== 'object') {
-			continue;
-		}
-
-		let visitedTypeStates = visitedNodes.get(current.node);
-		if (!visitedTypeStates) {
-			visitedTypeStates = new Set();
-			visitedNodes.set(current.node, visitedTypeStates);
-		}
-
-		if (visitedTypeStates.has(current.typeState)) {
-			continue;
-		}
-
-		visitedTypeStates.add(current.typeState);
-		if (current.node.type === 'TSTypeReference') {
-			const name = getTypeReferenceName(current.node.typeName);
-			const typeParameter = getTypeParameterResolution(current.node, current.typeState);
-			if (typeParameter) {
-				if (
-					current.resolvedTypeParameterTypes.has(typeParameter.type)
-					|| current.resolvedTypeParameterNames.has(name)
-				) {
-					return true;
-				}
-
-				const resolvedTypeParameterTypes = new Set(current.resolvedTypeParameterTypes);
-				resolvedTypeParameterTypes.add(typeParameter.type);
-				const resolvedTypeParameterNames = new Set(current.resolvedTypeParameterNames);
-				resolvedTypeParameterNames.add(name);
-				nodes.push({
-					node: typeParameter.type,
-					typeState: typeParameter.typeState,
-					resolvedTypeParameterTypes,
-					resolvedTypeParameterNames,
-				});
-				continue;
-			}
-
-			if (name && current.typeState.visitedTypeParameterNames.has(name)) {
-				return true;
-			}
-
-			const typeArguments = getTypeArguments(current.node);
-			if (typeArguments) {
-				nodes.push(...typeArguments.map(type => ({
-					node: type,
-					typeState: current.typeState,
-					resolvedTypeParameterTypes: current.resolvedTypeParameterTypes,
-					resolvedTypeParameterNames: current.resolvedTypeParameterNames,
-				})));
-			} else if (getTypeDefinitions(name, scope).length === 0) {
-				return true;
-			}
-
-			continue;
-		}
-
-		const childNodes = Object.entries(current.node)
-			.filter(([key]) => key !== 'parent')
-			.flatMap(([, value]) => Array.isArray(value) ? value : [value]);
-		nodes.push(...childNodes.map(child => ({
-			node: child,
-			typeState: current.typeState,
-			resolvedTypeParameterTypes: current.resolvedTypeParameterTypes,
-			resolvedTypeParameterNames: current.resolvedTypeParameterNames,
-		})));
-	}
-
-	return false;
-}
-
-const hasUnresolvedTypeParameters = (typeState, scope) =>
-	typeState.typeParameterTypes.values().some(type => hasUnresolvedTypeParameter(type, typeState, scope));
+const hasUnresolvedTypeParameters = typeState =>
+	typeState.typeParameterTypes.entries().some(([name, type]) => hasTypeParameterReference(type, name));
 
 const hasTypeParameterReferenceInType = (node, typeState) =>
 	typeState.typeParameterTypes.keys().some(name => hasTypeParameterReference(node, name));
@@ -1396,7 +1314,7 @@ function hasUnresolvedTypeParameterReference(node, typeState, scope, checkNode =
 
 function canUseTypeInformationFallback(node, typeState, scope, definitions) {
 	return !hasTypeParameterReferenceInType(node, typeState)
-		&& !hasUnresolvedTypeParameters(typeState, scope)
+		&& !hasUnresolvedTypeParameters(typeState)
 		&& !hasUnresolvedTypeParameterReference(node, typeState, scope)
 		&& (
 			definitions.some(definition =>
