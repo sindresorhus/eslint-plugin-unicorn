@@ -9,11 +9,19 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-By default, this rule checks boolean variables, parameters, and functions. When `checkProperties` is enabled, it also checks object, class, and TypeScript property and method names.
+By default, this rule checks boolean variables, parameters, and functions. Object, class, and TypeScript property and method names are ignored unless enabled with their respective options.
+
+Each `check*` option accepts one of these modes:
+
+- `always`: require prefixes for booleans and reject misleading prefixes on non-booleans.
+- `prohibit`: only reject misleading prefixes on non-booleans.
+- `never`: skip the occurrence entirely.
 
 Boolean names should start with a prefix that makes the boolean meaning clear.
 
 Names that start with a boolean prefix should also refer to booleans or boolean-returning functions. Unknown values are ignored.
+
+When type information is unavailable, unannotated async functions are not considered boolean-returning when requiring a prefix.
 
 Configured wrapper bindings may use boolean prefixes when a configured property or method provides a boolean-like value. This applies only to variables and parameters that are not reassigned.
 
@@ -45,7 +53,7 @@ Direct Vue `ref()` calls with boolean-like values and `computed()` calls with bo
 
 This rule intentionally does not check destructuring bindings, imports, class names, or catch parameters.
 
-TypeScript type annotation checks resolve local type aliases and callable interfaces, but not qualified or namespaced type references.
+TypeScript type annotation checks resolve local type aliases and callable interfaces, including generic type parameters, but not qualified or namespaced type references.
 
 This rule is only automatically fixable when a non-global, non-exported, non-ambient variable binding can be safely renamed to the first enabled prefix without adding a collision suffix. Other safe rename candidates are still provided as editor suggestions.
 
@@ -133,7 +141,8 @@ function download(shouldShowProgress: boolean) {}
 
 ```js
 // ✅
-// Properties are ignored unless `checkProperties` is enabled.
+// Object fields are ignored unless `checkFields` is set to a mode other than `never`.
+// Methods and getters use `checkMethods`. Setter names are ignored because setters do not return values.
 const task = {
 	completed: progress === 100,
 };
@@ -141,48 +150,96 @@ const task = {
 
 ## Options
 
-### checkProperties
+### checkVariables
 
-Type: `boolean`\
-Default: `false`
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'always'`
 
-Check object, class, and TypeScript property and method names.
+How to check variable names.
 
 ```js
 'unicorn/consistent-boolean-name': [
 	'error',
 	{
-		checkProperties: true,
+		checkVariables: 'prohibit',
 	},
 ]
 ```
 
-With `checkProperties: true`, this would fail:
+With `checkVariables: 'prohibit'`, this would fail:
 
 ```js
-const task = {
-	completed: true,
-};
+const hasName = 'Sindre';
 ```
 
-```ts
-interface Task {
-	completed: boolean;
+And these would pass:
+
+```js
+const completed = true;
+const isCompleted = true;
+```
+
+### checkArguments
+
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'always'`
+
+How to check parameter names, including TypeScript constructor parameter properties. Setter parameters are ignored because their names are positional. For example, `checkArguments: 'never'` allows both forms:
+
+```js
+function download(showProgress = false) {}
+function download(shouldShowProgress = false) {}
+```
+
+### checkFunctions
+
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'always'`
+
+How to check function names.
+
+### checkMethods
+
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'never'`
+
+How to check object and class methods, getters, and TypeScript method signatures. Setter names are ignored because setters do not return values.
+
+### checkFields
+
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'never'`
+
+How to check object properties, class fields, TypeScript property signatures, and TypeScript constructor parameter properties. Constructor parameter properties are checked as both arguments and fields.
+
+```js
+'unicorn/consistent-boolean-name': [
+	'error',
+	{
+		checkMethods: 'always',
+		checkFields: 'never',
+	},
+]
+```
+
+With the above config, this would fail:
+
+```js
+class Task {
+	hasTitle() {
+		return 'Unicorn';
+	}
 }
 ```
 
 And this would pass:
 
 ```js
-const task = {
-	isCompleted: true,
-};
-```
-
-```ts
-interface Task {
-	isCompleted: boolean;
-	canComplete(): boolean;
+class Task {
+	completed = true;
+	isCompleted() {
+		return true;
+	}
 }
 ```
 

@@ -87,6 +87,7 @@ test({
 	],
 	invalid: [
 		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, string>;`),
+		invalidBooleanWrapper('interface PromiseLikeWrapper {get(): PromiseLike<string>} declare const isReady: PromiseLikeWrapper;', {wrappers: {PromiseLikeWrapper: 'get'}}),
 		invalidBooleanWrapper([
 			'namespace Storage { export interface StorageItem<Return> {get(): Promise<Return>} }',
 			'import StorageItem = Storage.StorageItem;',
@@ -122,7 +123,7 @@ test({
 			'declare const isReady: OverloadedWrapper;',
 		].join('\n'), {wrappers: {OverloadedWrapper: 'get'}}),
 		// Boolean wrappers intentionally apply only to variable and parameter bindings.
-		invalidBooleanWrapper('interface BooleanWrapper {get(): Promise<boolean>} interface Settings {isReady: BooleanWrapper}', {checkProperties: true, wrappers: {BooleanWrapper: 'get'}}),
+		invalidBooleanWrapper('interface BooleanWrapper {get(): Promise<boolean>} interface Settings {isReady: BooleanWrapper}', {checkFields: 'prohibit', wrappers: {BooleanWrapper: 'get'}}),
 		invalidBooleanWrapper(`${storageItemType} let isUnicorn: StorageItem<unknown, boolean> = value; isUnicorn = value;`),
 		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, boolean>;`, {}),
 		typescript({
