@@ -1286,7 +1286,7 @@ function hasUnresolvedTypeParameter(node, typeState, scope) {
 						nodes.push(...typeArguments.map(type => ({
 							node: type,
 							typeState: current.typeState,
-							shouldResolve: true,
+							shouldResolve: current.shouldResolve,
 							visitedNodes: nextVisitedNodes,
 						})));
 					} else if (getTypeDefinitions(getTypeReferenceName(current.node.typeName), scope).length === 0) {
@@ -1300,7 +1300,7 @@ function hasUnresolvedTypeParameter(node, typeState, scope) {
 				nodes.push(...childNodes.map(child => ({
 					node: child,
 					typeState: current.typeState,
-					shouldResolve: true,
+					shouldResolve: current.shouldResolve,
 					visitedNodes: nextVisitedNodes,
 				})));
 			}
