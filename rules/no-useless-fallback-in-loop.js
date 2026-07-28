@@ -14,7 +14,6 @@ const messages = {
 	[MESSAGE_ID]: 'The empty {{type}} fallback is unnecessary.',
 };
 
-const logicalOperators = new Set(['??', '||']);
 const objectMethods = ['keys', 'values', 'entries'];
 
 const getFallbackInfo = (node, isFallback) => {
@@ -22,27 +21,36 @@ const getFallbackInfo = (node, isFallback) => {
 
 	if (
 		logicalExpression.type !== 'LogicalExpression'
-		|| !logicalOperators.has(logicalExpression.operator)
-		|| !isFallback(unwrapExpression(logicalExpression.right))
+		|| (logicalExpression.operator !== '??' && logicalExpression.operator !== '||')
 	) {
+		return;
+	}
+
+	const fallback = unwrapExpression(logicalExpression.right);
+	if (!isFallback(fallback)) {
 		return;
 	}
 
 	return {
 		logicalExpression,
-		fallback: unwrapExpression(logicalExpression.right),
+		fallback,
 		source: logicalExpression.left,
 		operator: logicalExpression.operator,
 	};
 };
 
+const hasMultilineLiteral = (node, sourceCode) => sourceCode.getTokens(node).some(token =>
+	(token.type === 'String' || token.type === 'Template')
+	&& sourceCode.getText(token).includes('\n'),
+);
+
 const getLoopFallbackInfo = node => {
 	if (node.type === 'ForInStatement') {
-		return getFallbackInfo(unwrapExpression(node.right), isEmptyObjectExpression);
+		return getFallbackInfo(node.right, isEmptyObjectExpression);
 	}
 
 	const right = unwrapExpression(node.right);
-	const directFallback = getFallbackInfo(right, isEmptyArrayExpression);
+	const directFallback = getFallbackInfo(node.right, isEmptyArrayExpression);
 	if (directFallback) {
 		return directFallback;
 	}
@@ -71,7 +79,7 @@ const canFixForOf = (node, fallbackInfo, context) => {
 
 	return !(
 		sourceCode.getCommentsInside(logicalExpression).length > 0
-		|| sourceCode.getTokens(node).some(token => token.type === 'Template' && token.value.includes('\n'))
+		|| hasMultilineLiteral(node, sourceCode)
 		|| !isReference(source)
 		|| hasSideEffect(source, sourceCode)
 		|| node.parent.type === 'LabeledStatement'
@@ -110,7 +118,7 @@ const create = context => {
 			return;
 		}
 
-		const {fallback, logicalExpression, source} = fallbackInfo;
+		const {fallback} = fallbackInfo;
 		const type = fallback.type === 'ArrayExpression' ? 'array' : 'object';
 		const problem = {
 			node: fallback,
@@ -118,11 +126,7 @@ const create = context => {
 			data: {type},
 		};
 
-		if (node.type === 'ForInStatement') {
-			if (context.sourceCode.getCommentsInside(logicalExpression).length === 0) {
-				problem.fix = fixer => fixer.replaceText(logicalExpression, context.sourceCode.getText(source));
-			}
-		} else if (canFixForOf(node, fallbackInfo, context)) {
+		if (node.type === 'ForOfStatement' && canFixForOf(node, fallbackInfo, context)) {
 			problem.fix = getForOfFix(node, fallbackInfo, context);
 		}
 

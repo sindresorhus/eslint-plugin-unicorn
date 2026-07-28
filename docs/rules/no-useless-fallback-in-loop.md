@@ -53,4 +53,4 @@ for (const key in options.config) {
 }
 ```
 
-The rule does not check fallbacks outside these loop forms. Fallbacks in `for…in` loops are removed directly. Fallbacks in `for…of` loops are only rewritten when the source has no obvious side effects and the loop can be safely wrapped. Fallbacks in `for await…of` loops are reported but not fixed. Autofixes intentionally do not account for getter or Proxy behavior.
+The rule does not check fallbacks outside these loop forms. Fallbacks in `for…of` loops are only rewritten when the source has no obvious side effects, the loop can be safely wrapped, and the loop does not contain a multiline literal. Fallbacks in `for await…of` and `for…in` loops are reported but not fixed. Autofixes intentionally do not account for getter or Proxy behavior.
