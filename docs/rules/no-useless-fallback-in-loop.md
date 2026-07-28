@@ -53,4 +53,4 @@ for (const key in options.config) {
 }
 ```
 
-The rule does not check fallbacks outside these loop forms. Fallbacks in `for…of` loops are only rewritten when the source has no obvious side effects, the loop can be safely wrapped, and the loop does not contain a multiline literal. Fallbacks in `for await…of` and `for…in` loops are reported but not fixed. Autofixes intentionally do not account for getter or Proxy behavior.
+The rule does not check fallbacks outside these loop forms. Fallbacks in `for…of` loops are only rewritten when the source has no obvious side effects, the loop can be safely wrapped, and the loop does not contain a token spanning multiple lines. Fallbacks in `for await…of` and `for…in` loops are reported but not fixed. Autofixes intentionally do not account for getter or Proxy behavior or the legacy `document.all` value. The `for…in` check assumes `Object.prototype` has no enumerable properties.

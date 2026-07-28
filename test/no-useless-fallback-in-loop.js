@@ -32,6 +32,22 @@ const multilineStringInHeader = [
 	'\tb\'] ?? []) {}',
 ].join('\n');
 
+const multilineJsx = [
+	'for (const item of items ?? []) {',
+	'\tconst value = <pre>',
+	'\t\tkeep',
+	'\t</pre>;',
+	'}',
+].join('\n');
+
+const multilineBlockComment = [
+	'for (const item of items ?? []) {',
+	'\t/*',
+	'\t\tKeep this comment.',
+	'\t*/',
+	'}',
+].join('\n');
+
 test.snapshot({
 	valid: [
 		'for (const item of items) {}',
@@ -56,17 +72,21 @@ test.snapshot({
 	invalid: [
 		'for (const item of items ?? []) {}',
 		'for (const item of items || []) {}',
+		'for (const item of (items ?? [])) {}',
 		'for (const [key, value] of Object.entries(options.config ?? {})) {}',
 		'for (const value of Object.values(options.config || {})) {}',
 		'for (const key of Object.keys(options.config ?? ({}))) {}',
 		'for (const key in options.config ?? {}) {}',
 		'for (const key in options.config || {}) {}',
 		'for await (const item of items ?? []) {}',
+		'for await (const item of items || []) {}',
 		'for await (const item of Object.entries(options ?? {})) {}',
+		'for (const item of options?.items ?? []) {}',
 		'for (const item of getItems() ?? []) {}',
 		'for (const [key, value] of Object.entries(getOptions() ?? {})) {}',
 		'for (const item of items /* keep */ ?? []) {}',
 		'for (const item of items ?? /* keep */ []) {}',
+		'for (const item of items ?? [/* keep */]) {}',
 		'for (const item of Object.entries(options.config ?? /* keep */ {})) {}',
 		'label: for (const item of items ?? []) { break label; }',
 		'if (condition) for (const item of items ?? []) {} else foo();',
@@ -76,6 +96,7 @@ test.snapshot({
 		typescript('for (const item of (items satisfies Iterable<string> | undefined) ?? []) {}'),
 		typescript('for (const item of (<Iterable<string> | undefined>items) ?? []) {}'),
 		typescript('for (const [key, value] of Object.entries((options.config! ?? {}) as Record<string, unknown>)) {}'),
+		typescript('for (const item of Object.entries<Record<string, unknown>>(options.config ?? {})) {}'),
 		'for (const item of items ?? []) use(item);',
 		outdent`
 			for (const item of items ?? []) {
@@ -93,5 +114,16 @@ test.snapshot({
 		multilineTemplate,
 		multilineString,
 		multilineStringInHeader,
+		{
+			code: multilineJsx,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		multilineBlockComment,
 	],
 });

@@ -6,7 +6,7 @@ import {
 	isEmptyObjectExpression,
 	isMethodCall,
 } from './ast/index.js';
-import {getIndentString} from './utils/index.js';
+import {getIndentString, hasMultilineToken} from './utils/index.js';
 import {isReference, unwrapExpression} from './utils/comparison.js';
 
 const MESSAGE_ID = 'no-useless-fallback-in-loop';
@@ -38,11 +38,6 @@ const getFallbackInfo = (node, isFallback) => {
 		operator: logicalExpression.operator,
 	};
 };
-
-const hasMultilineLiteral = (node, sourceCode) => sourceCode.getTokens(node).some(token =>
-	(token.type === 'String' || token.type === 'Template')
-	&& sourceCode.getText(token).includes('\n'),
-);
 
 const getLoopFallbackInfo = node => {
 	if (node.type === 'ForInStatement') {
@@ -79,7 +74,7 @@ const canFixForOf = (node, fallbackInfo, context) => {
 
 	return !(
 		sourceCode.getCommentsInside(logicalExpression).length > 0
-		|| hasMultilineLiteral(node, sourceCode)
+		|| hasMultilineToken(node, context)
 		|| !isReference(source)
 		|| hasSideEffect(source, sourceCode)
 		|| node.parent.type === 'LabeledStatement'
