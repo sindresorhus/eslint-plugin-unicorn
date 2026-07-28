@@ -168,6 +168,7 @@ export {default as 'no-useless-continue'} from './no-useless-continue.js';
 export {default as 'no-useless-delete-check'} from './no-useless-delete-check.js';
 export {default as 'no-useless-else'} from './no-useless-else.js';
 export {default as 'no-useless-error-capture-stack-trace'} from './no-useless-error-capture-stack-trace.js';
+export {default as 'no-useless-fallback-in-loop'} from './no-useless-fallback-in-loop.js';
 export {default as 'no-useless-fallback-in-spread'} from './no-useless-fallback-in-spread.js';
 export {default as 'no-useless-iterator-to-array'} from './no-useless-iterator-to-array.js';
 export {default as 'no-useless-length-check'} from './no-useless-length-check.js';
