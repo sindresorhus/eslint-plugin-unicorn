@@ -325,5 +325,17 @@ test.typescript({
 			`,
 			errors: 1,
 		},
+		{
+			code: 'const validator = (this: TrackedModel) => this.value;',
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function validator(value: TrackedModel) {
+					return this.value;
+				}
+			`,
+			errors: 1,
+		},
 	],
 });

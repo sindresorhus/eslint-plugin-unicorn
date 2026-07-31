@@ -67,7 +67,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow `this` outside of classes.',
+			description: 'Disallow `this` outside of classes or functions with an explicit TypeScript `this` parameter.',
 			recommended: true,
 		},
 		schema: [],

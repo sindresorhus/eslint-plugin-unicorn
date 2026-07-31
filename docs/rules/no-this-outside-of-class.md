@@ -1,6 +1,6 @@
 # no-this-outside-of-class
 
-📝 Disallow `this` outside of classes.
+📝 Disallow `this` outside of classes or functions with an explicit TypeScript `this` parameter.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
