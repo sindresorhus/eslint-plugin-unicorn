@@ -35,7 +35,11 @@ ruleTest.snapshot({
 		},
 		{
 			code: 'export default (function parse() {});',
-			options: [{namedFunctions: 'arrow-function', defaultExport: 'function-expression'}],
+			options: [{default: 'arrow-function', namedFunctions: 'arrow-function', defaultExport: 'function-expression'}],
+		},
+		{
+			code: 'export default function () {}',
+			options: [{defaultExport: 'declaration'}],
 		},
 		{
 			code: 'const parse = value => value; export default parse;',
@@ -210,6 +214,10 @@ ruleTest.snapshot({
 		{
 			code: 'export default () => {};',
 			options: [{namedFunctions: 'arrow-function', defaultExport: 'declaration'}],
+		},
+		{
+			code: 'export default function () {}',
+			options: [{defaultExport: 'arrow-function'}],
 		},
 		typescript({
 			code: 'const parse: Parser = function (value) { return value; };',

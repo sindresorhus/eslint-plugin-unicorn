@@ -26,7 +26,7 @@ export default class Foo {}
 export default function () {}
 
 // ✅
-export default function foo () {}
+export default function foo() {}
 ```
 
 ```js
@@ -51,7 +51,7 @@ module.exports = class Foo {};
 module.exports = function () {};
 
 // ✅
-module.exports = function foo () {};
+module.exports = function foo() {};
 ```
 
 ```js
