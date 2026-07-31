@@ -437,6 +437,7 @@ const schema = [
 		properties: {
 			getLastElementFunctions: {
 				type: 'array',
+				items: {type: 'string'},
 				uniqueItems: true,
 				description: 'Additional functions that return the last element.',
 			},

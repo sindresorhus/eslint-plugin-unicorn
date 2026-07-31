@@ -270,6 +270,7 @@ const schema = [
 		properties: {
 			ignore: {
 				type: 'array',
+				items: {type: 'string'},
 				uniqueItems: true,
 				description: 'Methods to ignore.',
 			},

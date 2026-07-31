@@ -208,6 +208,10 @@ const schema = [
 		properties: {
 			ignore: {
 				type: 'array',
+				items: {
+					type: ['string', 'object'],
+					additionalProperties: true,
+				},
 				uniqueItems: true,
 				description: 'Regular expressions to ignore.',
 			},

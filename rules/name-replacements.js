@@ -630,6 +630,10 @@ const schema = {
 				},
 				ignore: {
 					type: 'array',
+					items: {
+						type: ['string', 'object'],
+						additionalProperties: true,
+					},
 					uniqueItems: true,
 					description: 'Patterns to ignore.',
 				},

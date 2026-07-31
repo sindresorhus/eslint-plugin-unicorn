@@ -363,6 +363,10 @@ const schema = [
 					},
 					ignore: {
 						type: 'array',
+						items: {
+							type: ['string', 'object'],
+							additionalProperties: true,
+						},
 						uniqueItems: true,
 						description: 'Path segment patterns to ignore.',
 					},
@@ -407,6 +411,10 @@ const schema = [
 					},
 					ignore: {
 						type: 'array',
+						items: {
+							type: ['string', 'object'],
+							additionalProperties: true,
+						},
 						uniqueItems: true,
 						description: 'Path segment patterns to ignore.',
 					},

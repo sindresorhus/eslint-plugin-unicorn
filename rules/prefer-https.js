@@ -181,6 +181,10 @@ const schema = [
 		properties: {
 			ignore: {
 				type: 'array',
+				items: {
+					type: ['string', 'object'],
+					additionalProperties: true,
+				},
 				uniqueItems: true,
 				description: 'Exact URLs and regular expressions to ignore.',
 			},
