@@ -143,16 +143,27 @@ const defaultReplacements = {
 	'\\byou\\s?tube\\b': caseInsensitive('YouTube'),
 	'\\b(?:mac\\s?os(?!\\s?x)|(mac\\s?)?os\\s?x)\\b': caseInsensitive('macOS'),
 };
+const unicodeWordCharacterPattern = String.raw`[\p{Letter}\p{Mark}\p{Number}_]`;
+const unicodeWordCharacter = new RegExp(unicodeWordCharacterPattern, 'v');
+const unicodeWordBoundaryStartPattern = `(?<!${unicodeWordCharacterPattern})`;
+const unicodeWordBoundaryEndPattern = `(?!${unicodeWordCharacterPattern})`;
+
+function getDefaultReplacementPattern(pattern) {
+	return `${unicodeWordBoundaryStartPattern}${pattern}${unicodeWordBoundaryEndPattern}`;
+}
+
 const defaultReplacementTermPatterns = Object.entries(defaultReplacements)
 	.filter(([, options]) => {
 		const replacement = typeof options === 'string' ? options : options.replacement;
 
 		return replacement === replacement.toUpperCase();
 	})
-	.map(([pattern]) => new RegExp(`^(?:${pattern})$`, 'iv'));
+	.map(([pattern]) => new RegExp(`^(?:${getDefaultReplacementPattern(pattern)})$`, 'iv'));
 
 /*
 Most patterns are a single literal word, which must appear verbatim in the text for the pattern to match. Checking for it with `String#includes` is far cheaper than running the regex, and lets the vast majority of comments skip almost every replacement. Patterns of any other shape get no required text and are always run.
+
+The pre-check intentionally only recognizes ASCII words. The replacement regex remains authoritative and handles the full pattern, including Unicode word boundaries.
 */
 const literalWordPattern = /^\\b(?<word>[\dA-Za-z]+)\\b$/v;
 
@@ -161,7 +172,7 @@ The `i` flag folds case the way Unicode does, which `String#toLowerCase` does no
 */
 const unfoldableCharacter = 'ſ';
 
-function normalizeReplacement(pattern, options) {
+function normalizeReplacement(pattern, options, isDefaultReplacement) {
 	if (typeof options === 'string') {
 		options = {
 			replacement: options,
@@ -170,11 +181,12 @@ function normalizeReplacement(pattern, options) {
 
 	const caseSensitive = options.caseSensitive !== false;
 	const word = literalWordPattern.exec(pattern)?.groups.word;
+	const regexPattern = isDefaultReplacement ? getDefaultReplacementPattern(pattern) : pattern;
 
 	return {
 		caseSensitive,
 		requiredText: caseSensitive ? word : word?.toLowerCase(),
-		regex: new RegExp(pattern, caseSensitive ? 'gu' : 'giu'),
+		regex: new RegExp(regexPattern, caseSensitive ? 'gu' : 'giu'),
 		replacement: options.replacement,
 	};
 }
@@ -199,13 +211,19 @@ function prepareReplacements({extendDefaultReplacements = true, replacements = {
 
 	return Object.entries(mergedReplacements)
 		.filter(([, replacement]) => replacement !== false)
-		.map(([pattern, replacement]) => normalizeReplacement(pattern, replacement));
+		.map(([pattern, replacement]) => normalizeReplacement(
+			pattern,
+			replacement,
+			extendDefaultReplacements
+			&& Object.hasOwn(defaultReplacements, pattern)
+			&& !Object.hasOwn(replacements, pattern),
+		));
 }
 
 function isEslintDirective(context, comment) {
 	return context.sourceCode.getDisableDirectives
 		&& (isEslintDisableOrEnableDirective(context, comment)
-			|| (comment.type === 'Block' && /^\s*(?:eslint(?:-env)?|global|exported)\b/v.test(comment.value)));
+			|| (comment.type === 'Block' && eslintDirectivePattern.test(comment.value)));
 }
 
 function shouldUseRawCommentFallback(context) {
@@ -303,10 +321,14 @@ function getCommentValueStart(comment, sourceCode) {
 	return range[0] + valueOffset;
 }
 
+const eslintDirectivePattern = new RegExp(String.raw`^\s*(?:eslint(?:-env)?|global|exported)${unicodeWordBoundaryEndPattern}`, 'v');
 const urlPattern = /\b(?:[a-z][\d+\-.a-z]{0,31}:\/\/|www\.)\S+/giv;
 const mimeTypePattern = /\b(?:application|audio|font|image|message|model|multipart|text|video)\/[\da-z][\d+\-.a-z]*\b/giv;
-const codeLikeLineStartPattern = /^(?:import|export|const|let|var|type|interface|class|function|return|await|throw)\b/v;
-const controlFlowLikeLineStartPattern = /^(?:(?:if|for|while|switch|catch)\s*\(|else(?:\s+if\s*\(|\s*(?:\{|$))|(?:try|do|finally)\s*(?:\{|$)|(?:case\b[^:]+|default\s*):)/v;
+const codeLikeLineStartPattern = new RegExp(`^(?:import|export|const|let|var|type|interface|class|function|return|await|throw)${unicodeWordBoundaryEndPattern}`, 'v');
+const controlFlowLikeLineStartPattern = new RegExp(
+	String.raw`^(?:(?:if|for|while|switch|catch)\s*\(|else(?:\s+if\s*\(|\s*(?:\{|$))|(?:try|do|finally)\s*(?:\{|$)|(?:case${unicodeWordBoundaryEndPattern}[^:]+|default\s*):)`,
+	'v',
+);
 const identifierPatternSource = String.raw`[\w$]+`;
 const codeIdentifierPatternSource = String.raw`[$A-Z_a-z][\w$]*`;
 const listMarkerPatternSource = String.raw`(?:[*+\-]|\d+\.)`;
@@ -365,7 +387,11 @@ const bareCallLinePattern = new RegExp([
 	String.raw`(?:\(|\s+\(\s*$)`,
 ].join(''), 'v');
 const shellPromptLinePattern = new RegExp(String.raw`^${optionalListMarkerPrefixPatternSource}\$\s+\S+`, 'v');
-const secondaryShellPromptLinePattern = new RegExp(String.raw`^${optionalListMarkerPrefixPatternSource}>\s*(?:bun|curl|deno|docker|git|node(?:js)?|npm|npx|pnpm|yarn)\b`, 'v');
+const secondaryShellPromptLinePattern = new RegExp(
+	String.raw`^${optionalListMarkerPrefixPatternSource}>\s*(?:bun|curl|deno|docker|git|node(?:js)?|npm|npx|pnpm|yarn)${unicodeWordBoundaryEndPattern}`,
+	'v',
+);
+const jsdocExamplePattern = new RegExp(`^@example${unicodeWordBoundaryEndPattern}`, 'v');
 const listMarkerPattern = new RegExp(String.raw`^${listMarkerPatternSource}\s*`, 'v');
 const dotMemberAccessAfterMatchPattern = /^(?:\?\.|\.|\s+\.)\s*[\w$]+(?:\s*(?:\[|\.[\w$]|\()|\s*$)/v;
 const bracketMemberAccessAfterMatchPattern = /^(?:\?\.\s*)?\[[^\]]+\](?:\s*(?:\[|\.[\w$]|\()|\s*$)/v;
@@ -426,7 +452,7 @@ function getBracketDepthDelta(text) {
 }
 
 function isIdentifierLikeCharacter(character) {
-	return Boolean(character) && /[\p{Letter}\p{Number}_]/v.test(character);
+	return Boolean(character) && unicodeWordCharacter.test(character);
 }
 
 function isAsciiLetter(character) {
@@ -895,7 +921,7 @@ function maskJsdocExamples(characters, text) {
 			exampleStart = undefined;
 		}
 
-		if (exampleStart === undefined && /^@example\b/v.test(trimmedLine)) {
+		if (exampleStart === undefined && jsdocExamplePattern.test(trimmedLine)) {
 			exampleStart = lineStart;
 		}
 

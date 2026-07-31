@@ -84,6 +84,9 @@ ruleTest.snapshot({
 		'// See cdn.example.com and mdn.dev.',
 		'// Download from ftp://example.com/file and sftp://example.com/file.',
 		'// Copy from s3://bucket/key.',
+		// Unicode letters, numbers, and combining marks are part of a word.
+		'// ... différent de l\'astérisque ...',
+		'// ast中 ast١ ast\u0301er',
 		'// import api from \'../github-helpers/api.js\';',
 		// A term preceded by a hyphen (compound word fragment) is skipped
 		'// foo-github-bar',
@@ -582,6 +585,79 @@ test('fixes multiple problems in the same comment over multiple passes', t => {
 
 	t.true(result.fixed);
 	t.is(result.output, '// Node.js uses JavaScript.');
+});
+
+test('does not match default replacements inside Unicode words', t => {
+	const code = `// astérisque
+// éast
+// ast\u0301`;
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('does not classify Unicode word suffixes as syntax', t => {
+	const code = `/* eslinté api */
+/* globalé api */
+// returné api
+// > nodeé api
+/**
+ * @exampleé api
+ */`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `/* eslinté API */
+/* globalé API */
+// returné API
+// > nodeé API
+/**
+ * @exampleé API
+ */`);
+});
+
+test('matches default replacements beside Unicode punctuation', t => {
+	const result = verifyAndFixJavaScript('// ast—json and ast😊api');
+
+	t.true(result.fixed);
+	t.is(result.output, '// AST—JSON and AST😊API');
+});
+
+test('preserves syntax masking after Unicode characters', t => {
+	const code = '// éhttps://example.com/api and éapplication/json';
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+});
+
+test('preserves custom replacement regex semantics', t => {
+	const linter = new Linter({configType: 'flat'});
+	const code = '// astérisque';
+	const config = {
+		...JAVASCRIPT_CONFIG,
+		rules: {
+			[RULE_ID]: [
+				'error',
+				{
+					extendDefaultReplacements: true,
+					replacements: {
+						'\\bast\\b': {
+							replacement: 'AST',
+							caseSensitive: false,
+						},
+					},
+				},
+			],
+		},
+	};
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+
+	t.true(result.fixed);
+	t.is(result.output, '// ASTérisque');
 });
 
 test('ignores custom replacement matches that overlap masked regions', t => {

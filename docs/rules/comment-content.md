@@ -73,6 +73,8 @@ You can extend the default replacements by passing the `replacements` option.
 
 The key is treated as a regex. By default, custom replacements are case-sensitive.
 
+Default replacement patterns treat Unicode letters, marks, numbers, and underscores as part of a word. Custom patterns are used exactly as written.
+
 ```js
 'unicorn/comment-content': [
 	'error',
