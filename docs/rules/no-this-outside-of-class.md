@@ -7,9 +7,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`this` should only be used when JavaScript class syntax defines the receiver. Prefer classes for stateful objects instead of relying on constructor functions, manually patched prototypes, object-literal methods, top-level `this`, or callback APIs that bind `this`.
+`this` should only be used when JavaScript class syntax or an explicit TypeScript `this` parameter defines the receiver. Prefer classes for stateful objects instead of relying on constructor functions, manually patched prototypes, object-literal methods, top-level `this`, or callback APIs that bind `this`.
 
-This rule is intentionally strict. Vue options-style methods, object methods, and SDK callbacks that bind `this` are unsupported. Disable the rule for that file or block when those patterns are intentional.
+This rule is intentionally strict. Vue options-style methods, untyped object methods, and SDK callbacks that bind `this` are unsupported. In TypeScript, non-arrow functions with an explicit `this` parameter are supported. Disable the rule for that file or block when other patterns are intentional.
 
 ## Examples
 
@@ -62,4 +62,13 @@ class Foo {
 		return getValue();
 	}
 }
+```
+
+```ts
+// ✅
+const foo = {
+	method(this: Foo) {
+		return this.value;
+	}
+};
 ```

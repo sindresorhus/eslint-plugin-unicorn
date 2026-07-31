@@ -273,6 +273,24 @@ test.typescript({
 				accessor value = this.defaultValue;
 			}
 		`,
+		outdent`
+			const foo = {
+				validator(this: TrackedModel, value: Date | null) {
+					const getValue = () => this.value;
+					return getValue() === value;
+				},
+			};
+		`,
+		outdent`
+			function validator(this: TrackedModel) {
+				return this.value;
+			}
+		`,
+		outdent`
+			const validator = function (this: TrackedModel) {
+				return this.value;
+			};
+		`,
 	],
 	invalid: [
 		{
@@ -280,6 +298,30 @@ test.typescript({
 				class Foo {
 					accessor [this.key] = 1;
 				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const foo = {
+					validator(this: TrackedModel) {
+						function getValue() {
+							return this.value;
+						}
+
+						return getValue();
+					},
+				};
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const foo = {
+					method() {
+						return this.value;
+					},
+				};
 			`,
 			errors: 1,
 		},
