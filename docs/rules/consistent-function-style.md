@@ -47,6 +47,19 @@ if (debug) {
 items.map(item => item.id);
 ```
 
+```js
+// eslint unicorn/consistent-function-style: ["error", {namedFunctions: "arrow-function"}]
+
+// ❌
+function parse(value) {
+	return JSON.parse(value);
+}
+
+// ✅
+const parse = value => JSON.parse(value);
+export default parse;
+```
+
 ## Options
 
 Type: `object`
@@ -70,6 +83,7 @@ Each option chooses the expected style for a role.
 When multiple roles apply, the most specific role wins. Roles are checked in this order:
 
 ```js
+defaultExport
 typedVariables
 reassignedVariables
 namedExports
@@ -84,6 +98,12 @@ default
 Allowed values: `'declaration'`, `'function-expression'`, `'arrow-function'`, `'ignore'`
 
 Fallback style for functions that do not match a more specific role.
+
+### `defaultExport`
+
+Allowed values: `'declaration'`, `'function-expression'`, `'arrow-function'`, `'ignore'`
+
+Style for functions written directly inside `export default`. When omitted, named default-exported function declarations use the `namedFunctions` option, other named function expressions use the `default` option, and anonymous default exports are ignored. Exported identifiers such as `export default parse` are not followed.
 
 ### `namedFunctions`
 
@@ -123,4 +143,4 @@ Style for TypeScript variable functions with an explicit type annotation.
 
 ## Limitations
 
-The rule ignores anonymous default exports, export specifier lists, IIFEs, accessors, class methods, class fields, destructuring defaults, TypeScript overload declarations, and generators when the expected style is `'arrow-function'`. Most reports do not have suggestions, because the safe rewrite surface is intentionally narrow.
+The rule ignores anonymous default exports when `defaultExport` is omitted, export specifier lists, IIFEs, accessors, class methods, class fields, destructuring defaults, TypeScript overload declarations, and generators when the expected style is `'arrow-function'`. When `defaultExport` is configured to a non-`ignore` style, anonymous default-exported functions are checked for syntax but are still handled separately by [`no-anonymous-default-export`](./no-anonymous-default-export.md) for naming. When both rules are enabled, an anonymous default can therefore produce two reports: one for its syntax and one for its missing name. Most reports do not have suggestions, because the safe rewrite surface is intentionally narrow.

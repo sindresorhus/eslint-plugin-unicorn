@@ -13,9 +13,9 @@ Enforce whether default-exported functions and classes are declared inline with 
 
 A consistent declaration style makes default exports easier to scan and avoids mixing multiple declaration forms across a codebase.
 
-This rule only checks local default exports. Named exports are intentionally ignored. Use [`consistent-function-style`](./consistent-function-style.md) for named function export syntax.
+This rule controls whether local default exports are written inline or separately. Named exports are intentionally ignored. Use [`consistent-function-style`](./consistent-function-style.md) for function syntax, including direct default-exported functions through its `defaultExport` option.
 
-Anonymous default exports remain the responsibility of [`no-anonymous-default-export`](./no-anonymous-default-export.md).
+Use [`no-anonymous-default-export`](./no-anonymous-default-export.md) to require names for anonymous default exports.
 
 ## Examples
 
@@ -118,7 +118,7 @@ export default foo;
 `'ignore'` disables checks for functions.
 
 > [!NOTE]
-> `functions: 'separate'` may conflict with [`consistent-function-style`](./consistent-function-style.md) if `namedFunctions: 'declaration'` is enabled.
+> When both rules are enabled, configure compatible styles. For example, `functions: 'inline'` pairs with `defaultExport: 'declaration'`, while `functions: 'separate'` pairs with `defaultExport: 'ignore'` when `namedFunctions` permits the separate `const` arrow function. The `defaultExport` option does not inspect `export default identifier`.
 
 ### `classes`
 
