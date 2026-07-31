@@ -7,6 +7,9 @@ const isNonArrowFunction = node =>
 	node.type === 'FunctionDeclaration'
 	|| node.type === 'FunctionExpression';
 
+const hasThisParameter = node =>
+	node.params.some(parameter => parameter.type === 'Identifier' && parameter.name === 'this');
+
 const isClassMethodFunction = node =>
 	node.parent.type === 'MethodDefinition'
 	&& node.parent.value === node;
@@ -19,7 +22,7 @@ const isClassFieldValue = (node, child) =>
 	&& node.value === child;
 
 /** @param {import('estree').ThisExpression} node */
-const isClassThisBinding = node => {
+const isAllowedThisBinding = node => {
 	let child = node;
 	let {parent} = node;
 
@@ -29,7 +32,7 @@ const isClassThisBinding = node => {
 		}
 
 		if (isNonArrowFunction(parent)) {
-			return isClassMethodFunction(parent);
+			return isClassMethodFunction(parent) || hasThisParameter(parent);
 		}
 
 		if (parent.type === 'StaticBlock') {
@@ -47,7 +50,7 @@ const isClassThisBinding = node => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('ThisExpression', node => {
-		if (isClassThisBinding(node)) {
+		if (isAllowedThisBinding(node)) {
 			return;
 		}
 

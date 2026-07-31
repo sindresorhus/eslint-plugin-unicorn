@@ -391,10 +391,12 @@ const schema = [
 					},
 					{
 						type: 'array',
+						items: {type: 'string'},
 						description: 'An array of browserslist query strings.',
 					},
 					{
 						type: 'object',
+						additionalProperties: true,
 						description: 'A browserslist targets object.',
 					},
 				],

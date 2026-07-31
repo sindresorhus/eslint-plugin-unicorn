@@ -191,11 +191,7 @@ const schema = [
 		properties: {
 			disallowedPrefixes: {
 				type: 'array',
-				items: [
-					{
-						type: 'string',
-					},
-				],
+				items: {type: 'string'},
 				minItems: 0,
 				uniqueItems: true,
 				description: 'The prefixes to disallow.',

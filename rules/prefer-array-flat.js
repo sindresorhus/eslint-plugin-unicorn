@@ -301,6 +301,7 @@ const schema = [
 		properties: {
 			functions: {
 				type: 'array',
+				items: {type: 'string'},
 				uniqueItems: true,
 				description: 'Additional functions to check.',
 			},
