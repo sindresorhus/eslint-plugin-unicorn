@@ -1,6 +1,6 @@
 # no-this-outside-of-class
 
-📝 Disallow `this` outside of classes or functions with an explicit TypeScript `this` parameter.
+📝 Disallow `this` outside of classes or non-arrow functions with an explicit TypeScript `this` parameter.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -9,7 +9,7 @@
 
 `this` should only be used when JavaScript class syntax or an explicit TypeScript `this` parameter defines the receiver. Prefer classes for stateful objects instead of relying on constructor functions, manually patched prototypes, object-literal methods, top-level `this`, or callback APIs that bind `this`.
 
-This rule is intentionally strict. Vue options-style methods, untyped object methods, and SDK callbacks that bind `this` are unsupported. In TypeScript, non-arrow functions with an explicit `this` parameter are supported. Disable the rule for that file or block when other patterns are intentional.
+This rule is intentionally strict. Vue options-style methods, object methods, and SDK callbacks that rely on an implicit `this` binding are unsupported. In TypeScript, non-arrow functions with an explicit `this` parameter are supported. Disable the rule for that file or block when other patterns are intentional.
 
 ## Examples
 
