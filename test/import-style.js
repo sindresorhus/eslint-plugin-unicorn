@@ -24,6 +24,30 @@ const options = {
 	},
 };
 
+const bannedOptions = [{
+	styles: {
+		banned: {
+			unassigned: false,
+			default: false,
+			namespace: false,
+			named: false,
+		},
+	},
+	extendDefaultStyles: false,
+}];
+
+const typeOnlyOptions = [{
+	extendDefaultStyles: false,
+	styles: {
+		chalk: {
+			named: true,
+		},
+		named: {
+			default: true,
+		},
+	},
+}];
+
 const unassignedError = {
 	messageId: 'importStyle',
 	data: {
@@ -825,16 +849,28 @@ test.typescript({
 	valid: [
 		{
 			code: 'import type chalk from \'chalk\'',
-			options: [],
+			options: typeOnlyOptions,
 		},
 		{
 			code: 'import type {x} from \'named\'',
-			options: [options],
+			options: typeOnlyOptions,
+		},
+		{
+			code: 'import type {ChalkInstance} from \'chalk\'',
+			options: [],
+		},
+		{
+			code: 'import {type ChalkInstance} from \'chalk\'',
+			options: [],
+		},
+		{
+			code: 'import chalk, {type ChalkInstance} from \'chalk\'',
+			options: [],
 		},
 	],
 	invalid: [
 		{
-			code: 'import {type ChalkInstance} from \'chalk\'',
+			code: 'import {type ChalkInstance, red} from \'chalk\'',
 			options: [],
 			errors: [{
 				messageId: 'importStyle',
@@ -845,13 +881,22 @@ test.typescript({
 			}],
 		},
 		{
-			code: 'import type {ChalkInstance} from \'chalk\'',
-			options: [],
+			code: 'import type {Foo} from \'banned\'',
+			options: bannedOptions,
 			errors: [{
-				messageId: 'importStyle',
+				messageId: 'importStyleBanned',
 				data: {
-					allowedStyles: 'default',
-					moduleName: 'chalk',
+					moduleName: 'banned',
+				},
+			}],
+		},
+		{
+			code: 'import {type Foo} from \'banned\'',
+			options: bannedOptions,
+			errors: [{
+				messageId: 'importStyleBanned',
+				data: {
+					moduleName: 'banned',
 				},
 			}],
 		},
@@ -877,9 +922,40 @@ test.snapshot({
 				const {red} = await import('chalk');
 			}
 		`,
-		// All styles set to `false` — should report misuse
-		...(() => {
-			const bannedOptions = [{
+		// All styles set to `false` should report misuse
+		{code: 'import \'banned\'', options: bannedOptions},
+		{code: 'import foo from \'banned\'', options: bannedOptions},
+		{code: 'import * as foo from \'banned\'', options: bannedOptions},
+		{code: 'import {foo} from \'banned\'', options: bannedOptions},
+		{
+			code: outdent`
+				async () => {
+					const foo = await import('banned');
+				}
+			`,
+			options: bannedOptions,
+		},
+		{code: 'import(\'banned\')', options: bannedOptions},
+		{code: 'const foo = require(\'banned\')', options: bannedOptions},
+		{code: 'require(\'banned\')', options: bannedOptions},
+		{
+			code: 'export {foo} from \'banned\'',
+			options: [{
+				checkExportFrom: true,
+				...bannedOptions[0],
+			}],
+		},
+		{
+			code: 'export * from \'banned\'',
+			options: [{
+				checkExportFrom: true,
+				...bannedOptions[0],
+			}],
+		},
+		// `extendDefaultStyles: true` (default) should also detect banned modules
+		{
+			code: 'import \'banned\'',
+			options: [{
 				styles: {
 					banned: {
 						unassigned: false,
@@ -888,60 +964,7 @@ test.snapshot({
 						named: false,
 					},
 				},
-				extendDefaultStyles: false,
-			}];
-
-			return [
-				{code: 'import \'banned\'', options: bannedOptions},
-				{code: 'import foo from \'banned\'', options: bannedOptions},
-				{code: 'import * as foo from \'banned\'', options: bannedOptions},
-				{code: 'import {foo} from \'banned\'', options: bannedOptions},
-				{
-					code: outdent`
-						async () => {
-							const foo = await import('banned');
-						}
-					`,
-					options: bannedOptions,
-				},
-				{code: 'import(\'banned\')', options: bannedOptions},
-				{code: 'const foo = require(\'banned\')', options: bannedOptions},
-				{code: 'require(\'banned\')', options: bannedOptions},
-				{
-					code: 'export {foo} from \'banned\'',
-					options: [
-						{
-							checkExportFrom: true,
-							...bannedOptions[0],
-						},
-					],
-				},
-				{
-					code: 'export * from \'banned\'',
-					options: [
-						{
-							checkExportFrom: true,
-							...bannedOptions[0],
-						},
-					],
-				},
-				// `extendDefaultStyles: true` (default) should also detect banned modules
-				{
-					code: 'import \'banned\'',
-					options: [
-						{
-							styles: {
-								banned: {
-									unassigned: false,
-									default: false,
-									namespace: false,
-									named: false,
-								},
-							},
-						},
-					],
-				},
-			];
-		})(),
+			}],
+		},
 	],
 });
