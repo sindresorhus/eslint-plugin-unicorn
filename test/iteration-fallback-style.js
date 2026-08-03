@@ -71,6 +71,7 @@ const multilineGuardBody = outdent`
 
 const guardStyle = code => ({code, options: ['guard']});
 const fallbackStyle = code => ({code, options: ['fallback']});
+const typescriptFallbackStyle = code => ({...typescript(code), options: ['fallback']});
 
 ruleTest.snapshot({
 	valid: [
@@ -120,7 +121,9 @@ ruleTest.snapshot({
 		typescript('for (const item of (items! ?? []) as Iterable<string>) {}'),
 		typescript('for (const item of (items satisfies Iterable<string> | undefined) ?? []) {}'),
 		typescript('for (const item of (<Iterable<string> | undefined>items) ?? []) {}'),
+		typescript('for (const item of items ?? ([] as Iterable<string>)) {}'),
 		typescript('for (const [key, value] of Object.entries((options.config! ?? {}) as Record<string, unknown>)) {}'),
+		typescript('for (const item of Object.entries(options ?? ({} satisfies Record<string, unknown>))) {}'),
 		typescript('for (const item of Object.entries<Record<string, unknown>>(options.config ?? {})) {}'),
 		'for (const item of items ?? []) use(item);',
 		outdent`
@@ -162,7 +165,9 @@ ruleTest.snapshot({
 		fallbackStyle('for (const value of Object.values(options.config || {})) {}'),
 		fallbackStyle('for (const key of Object.keys(options.config ?? {})) {}'),
 		fallbackStyle('for (const key in options.config ?? {}) {}'),
+		fallbackStyle('for (const key in options.config || {}) {}'),
 		fallbackStyle('for await (const item of items ?? []) {}'),
+		fallbackStyle('for await (const item of Object.values(options ?? {})) {}'),
 		fallbackStyle('if (other) { for (const item of items) {} }'),
 		fallbackStyle('if (items) { for (const item of items) {} } else foo();'),
 		fallbackStyle('if (items) { const value = 1; for (const item of items) {} }'),
@@ -176,11 +181,13 @@ ruleTest.snapshot({
 		fallbackStyle('if (items) for (const item of items) {}'),
 		fallbackStyle('if (items) { for (const item of (items)) {} }'),
 		fallbackStyle('if (items != null) { for (const item of items) {} }'),
+		fallbackStyle('if (null != items) { for (const item of items) {} }'),
 		fallbackStyle('if (options.config) { for (const [key, value] of Object.entries(options.config)) {} }'),
 		fallbackStyle('if (options.config != null) { for (const value of Object.values(options.config)) {} }'),
 		fallbackStyle('if (options.config) { for (const key of Object.keys(options.config)) {} }'),
 		fallbackStyle('if (options.config) { for (const key in options.config) {} }'),
 		fallbackStyle('if (items) { for await (const item of items) {} }'),
+		typescriptFallbackStyle('if (items) { for (const item of (items as Iterable<string>)) {} }'),
 		fallbackStyle('if (items) { for (const item of items) { /* Keep this comment. */ } }'),
 		fallbackStyle('label: if (items) { for (const item of items) {} }'),
 		fallbackStyle(multilineGuard),

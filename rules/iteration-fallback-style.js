@@ -142,7 +142,7 @@ const getGuardInfo = node => {
 
 const canFixForOf = (node, fallbackInfo, context) => {
 	const {sourceCode} = context;
-	const {logicalExpression, source} = fallbackInfo;
+	const {logicalExpression, fallback, source} = fallbackInfo;
 
 	if (node.await) {
 		return false;
@@ -151,6 +151,8 @@ const canFixForOf = (node, fallbackInfo, context) => {
 	return !(
 		sourceCode.getCommentsInside(logicalExpression).length > 0
 		|| hasMultilineToken(node, context)
+		// Removing a TypeScript wrapper from the fallback can change type checking.
+		|| fallback !== logicalExpression.right
 		|| !isReference(source)
 		|| hasSideEffect(source, sourceCode)
 		|| node.parent.type === 'LabeledStatement'
