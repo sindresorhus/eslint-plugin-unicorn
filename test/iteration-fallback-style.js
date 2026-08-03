@@ -122,6 +122,8 @@ ruleTest.snapshot({
 		typescript('for (const item of (items satisfies Iterable<string> | undefined) ?? []) {}'),
 		typescript('for (const item of (<Iterable<string> | undefined>items) ?? []) {}'),
 		typescript('for (const item of items ?? ([] as Iterable<string>)) {}'),
+		typescript('for (const item of items ?? (<Iterable<string>>[])) {}'),
+		typescript('for (const item of items ?? ([]!)) {}'),
 		typescript('for (const [key, value] of Object.entries((options.config! ?? {}) as Record<string, unknown>)) {}'),
 		typescript('for (const item of Object.entries(options ?? ({} satisfies Record<string, unknown>))) {}'),
 		typescript('for (const item of Object.entries<Record<string, unknown>>(options.config ?? {})) {}'),
