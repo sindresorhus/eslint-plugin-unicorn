@@ -17,6 +17,12 @@ const roleStyles = new Map([
 		STYLE_ARROW_FUNCTION,
 		STYLE_IGNORE,
 	]],
+	['defaultExport', [
+		STYLE_DECLARATION,
+		STYLE_FUNCTION_EXPRESSION,
+		STYLE_ARROW_FUNCTION,
+		STYLE_IGNORE,
+	]],
 	['namedFunctions', [
 		STYLE_DECLARATION,
 		STYLE_FUNCTION_EXPRESSION,
@@ -54,6 +60,7 @@ const roleStyles = new Map([
 
 const roleNames = new Map([
 	['default', 'function'],
+	['defaultExport', 'default export'],
 	['namedFunctions', 'named function'],
 	['namedExports', 'named export'],
 	['callbacks', 'callback'],
@@ -70,6 +77,7 @@ const styleNames = new Map([
 ]);
 
 const defaultOptions = {
+	// Keep `defaultExport` out of the defaults so its omission remains distinguishable from an explicit `ignore`.
 	default: STYLE_IGNORE,
 	namedFunctions: STYLE_IGNORE,
 	namedExports: STYLE_IGNORE,
@@ -102,6 +110,8 @@ const isNamedExport = node => {
 		&& node.parent.parent.type === 'VariableDeclaration'
 		&& node.parent.parent.parent.type === 'ExportNamedDeclaration';
 };
+
+const isDefaultExport = node => node.parent.type === 'ExportDefaultDeclaration';
 
 const isCallback = node =>
 	(
@@ -232,7 +242,11 @@ const getSuggestion = ({
 	];
 };
 
-const getRole = (node, sourceCode) => {
+const getRole = (node, sourceCode, options) => {
+	if (options.defaultExport !== undefined && isDefaultExport(node)) {
+		return 'defaultExport';
+	}
+
 	if (isTypedVariable(node)) {
 		return 'typedVariables';
 	}
@@ -270,7 +284,7 @@ const create = context => {
 
 	context.on(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'], node => {
 		if (
-			(node.parent.type === 'ExportDefaultDeclaration' && !node.id)
+			(isDefaultExport(node) && !node.id && options.defaultExport === undefined)
 			|| isAccessorProperty(node)
 			|| isClassElementValue(node)
 			|| isIife(node)
@@ -280,7 +294,7 @@ const create = context => {
 			return;
 		}
 
-		const role = getRole(node, sourceCode);
+		const role = getRole(node, sourceCode, options);
 		const expectedStyle = options[role] ?? options.default;
 		const actualStyle = getActualStyle(node);
 

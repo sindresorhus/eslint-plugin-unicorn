@@ -1,7 +1,10 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const typescript = testCase => ({
 	...(typeof testCase === 'string' ? {code: testCase} : testCase),
@@ -10,7 +13,7 @@ const typescript = testCase => ({
 	},
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'function parse(value) { return value; }',
 		'const parse = value => value;',
@@ -26,6 +29,34 @@ test.snapshot({
 		'(() => {})();',
 		'export default () => {};',
 		'export default function parse() {}',
+		{
+			code: 'const parse = value => value; export default function parseDefault(value) { return value; }',
+			options: [{namedFunctions: 'arrow-function', defaultExport: 'declaration'}],
+		},
+		{
+			code: 'export default (function parse() {});',
+			options: [{default: 'arrow-function', namedFunctions: 'arrow-function', defaultExport: 'function-expression'}],
+		},
+		{
+			code: 'export default function () {}',
+			options: [{defaultExport: 'declaration'}],
+		},
+		{
+			code: 'const parse = value => value; export default parse;',
+			options: [{namedFunctions: 'arrow-function', defaultExport: 'declaration'}],
+		},
+		{
+			code: 'export default function parse() {}',
+			options: [{namedFunctions: 'arrow-function', defaultExport: 'ignore'}],
+		},
+		{
+			code: 'export default () => {};',
+			options: [{namedFunctions: 'declaration', defaultExport: 'ignore'}],
+		},
+		{
+			code: 'export default () => {};',
+			options: [{default: 'declaration', namedFunctions: 'declaration'}],
+		},
 		'class Parser {parse(value) { return value; }}',
 		'class Parser {parse = value => value;}',
 		'const {parse = value => value} = object;',
@@ -53,6 +84,11 @@ test.snapshot({
 			code: 'export const parse: Parser = value => value;',
 			options: [{namedExports: 'declaration'}],
 		}),
+		{
+			code: 'export default function parse(value: string): string { return value; }',
+			options: [{namedFunctions: 'arrow-function', defaultExport: 'declaration'}],
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		{
@@ -144,6 +180,10 @@ test.snapshot({
 			options: [{namedFunctions: 'arrow-function'}],
 		},
 		{
+			code: 'function parseDefault(value) { return value; }',
+			options: [{namedFunctions: 'arrow-function', defaultExport: 'declaration'}],
+		},
+		{
 			code: 'const parse = value => value;',
 			options: [{namedFunctions: 'function-expression'}],
 		},
@@ -159,6 +199,26 @@ test.snapshot({
 			code: 'export default function parse(value) { return value; }',
 			options: [{namedFunctions: 'arrow-function'}],
 		},
+		{
+			code: 'export default (function parse() {});',
+			options: [{default: 'arrow-function'}],
+		},
+		{
+			code: 'export default function parse(value) { return value; }',
+			options: [{namedFunctions: 'arrow-function', defaultExport: 'arrow-function'}],
+		},
+		{
+			code: 'export default (function parse() {});',
+			options: [{namedFunctions: 'arrow-function', defaultExport: 'declaration'}],
+		},
+		{
+			code: 'export default () => {};',
+			options: [{namedFunctions: 'arrow-function', defaultExport: 'declaration'}],
+		},
+		{
+			code: 'export default function () {}',
+			options: [{defaultExport: 'arrow-function'}],
+		},
 		typescript({
 			code: 'const parse: Parser = function (value) { return value; };',
 			options: [{typedVariables: 'arrow-function'}],
@@ -172,4 +232,48 @@ test.snapshot({
 			options: [{typedVariables: 'function-expression', namedExports: 'declaration'}],
 		}),
 	],
+});
+
+test('separate default exports remain governed by default-export-style', t => {
+	const linter = new Linter();
+	const messages = linter.verify(
+		'const parse = value => value; export default parse;',
+		{
+			languageOptions: {
+				ecmaVersion: 'latest',
+				sourceType: 'module',
+			},
+			plugins: {unicorn},
+			rules: {
+				'unicorn/consistent-function-style': ['error', {namedFunctions: 'arrow-function', defaultExport: 'declaration'}],
+				'unicorn/default-export-style': ['error', {functions: 'inline'}],
+			},
+		},
+	);
+
+	t.deepEqual(messages.map(message => message.ruleId), ['unicorn/default-export-style']);
+});
+
+test('anonymous default exports can produce syntax and naming reports', t => {
+	const linter = new Linter();
+	const messages = linter.verify(
+		'export default () => {};',
+		{
+			languageOptions: {
+				ecmaVersion: 'latest',
+				sourceType: 'module',
+			},
+			plugins: {unicorn},
+			rules: {
+				'unicorn/consistent-function-style': ['error', {defaultExport: 'declaration'}],
+				'unicorn/no-anonymous-default-export': 'error',
+			},
+		},
+	);
+
+	t.is(messages.length, 2);
+	t.deepEqual(
+		new Set(messages.map(message => message.ruleId)),
+		new Set(['unicorn/consistent-function-style', 'unicorn/no-anonymous-default-export']),
+	);
 });
