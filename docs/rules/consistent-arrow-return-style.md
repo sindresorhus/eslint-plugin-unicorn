@@ -9,44 +9,24 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-For concise arrow function bodies, keeping a simple expression on one line is readable. When an expression spans multiple lines, an explicit `return` makes the function boundary easier to scan and leaves room for adding statements later.
+Use concise bodies when the expression fits on one line and an explicit `return` when it spans multiple lines. A line break between `=>` and a single-line expression is ignored.
 
-This rule only considers the arrow function body. A line break between `=>` and a single-line expression does not trigger it.
+Only blocks with a single `return` and a single-line argument are converted. Blocks with other statements, bare returns, multiline return expressions, or comments are ignored.
 
-For block bodies, this rule only converts blocks containing exactly one `return` statement with a single-line argument. Blocks with other statements, a bare `return`, or a multiline return expression are left unchanged.
-
-This rule ignores arrow functions containing comments to avoid moving comments during autofixes.
-
-Autofixes are omitted when reindenting could change the contents of a string, template literal, or JSX text.
-
-Autofixes are also omitted when removing a block could change how the following token is parsed.
+Fixes are omitted when reindenting could change string, template literal, or JSX text, or when removing the block could change how the following token is parsed.
 
 This rule is an alternative to [`arrow-body-style`](https://eslint.org/docs/latest/rules/arrow-body-style). Do not enable both rules together.
 
 ## Examples
 
-Examples of incorrect code:
-
 ```js
+// ❌
 const getValue = () => getValueFromServer(
 	url,
 	options,
 );
 
-const getValue = () => {
-	return value;
-};
-
-const getObject = () => ({
-	value,
-});
-```
-
-Examples of correct code:
-
-```js
-const getValue = () => value;
-
+// ✅
 const getValue = () => {
 	return getValueFromServer(
 		url,
@@ -54,12 +34,27 @@ const getValue = () => {
 	);
 };
 
+// ❌
+const getValue = () => {
+	return value;
+};
+
+// ✅
+const getValue = () => value;
+
+// ❌
+const getObject = () => ({
+	value,
+});
+
+// ✅
 const getObject = () => {
 	return {
 		value,
 	};
 };
 
+// ✅ Ignored because it contains a comment.
 const getValue = () => /* A comment means this function is ignored. */
 	getValueFromServer(
 		url,
