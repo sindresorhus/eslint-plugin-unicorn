@@ -7,7 +7,12 @@ import {
 	isMethodCall,
 	isNullLiteral,
 } from './ast/index.js';
-import {getIndentString, hasMultilineToken, isSameReference} from './utils/index.js';
+import {
+	getIndentString,
+	hasMultilineToken,
+	isSameReference,
+	isTypeScriptExpressionWrapper,
+} from './utils/index.js';
 import {containsOptionalChain, isReference, unwrapExpression} from './utils/comparison.js';
 
 const MESSAGE_ID_GUARD = 'preferGuard';
@@ -142,7 +147,7 @@ const getGuardInfo = node => {
 
 const canFixForOf = (node, fallbackInfo, context) => {
 	const {sourceCode} = context;
-	const {logicalExpression, fallback, source} = fallbackInfo;
+	const {logicalExpression, source} = fallbackInfo;
 
 	if (node.await) {
 		return false;
@@ -152,7 +157,7 @@ const canFixForOf = (node, fallbackInfo, context) => {
 		sourceCode.getCommentsInside(logicalExpression).length > 0
 		|| hasMultilineToken(node, context)
 		// Removing a TypeScript wrapper from the fallback can change type checking.
-		|| fallback !== logicalExpression.right
+		|| isTypeScriptExpressionWrapper(logicalExpression.right)
 		|| !isReference(source)
 		|| hasSideEffect(source, sourceCode)
 		|| node.parent.type === 'LabeledStatement'
