@@ -81,8 +81,7 @@ for (const [key, value] of Object.entries(options.config || {})) {
 
 ## Options
 
-Type: `string`
-
+Type: `string`\
 Default: `'guard'`
 
 ### `guard`
@@ -95,4 +94,4 @@ Prefer an empty fallback over an `if` guard.
 
 Truthiness guards correspond to `||` fallbacks, while `source != null` guards correspond to `??` fallbacks.
 
-Only direct loop guards and fallbacks are checked. Autofixes are limited to synchronous `for…of` loops with reference sources, no comments or multiline tokens, and safe restructuring. `for await…of` and `for…in` reports are not fixed. Autofixes do not account for getters, Proxies, or `document.all`, and the `for…in` check assumes `Object.prototype` has no enumerable properties.
+Only direct loop guards and fallbacks are checked. Autofixes are limited to simple synchronous `for…of` loops with reference sources; `for await…of` and `for…in` are reported but not fixed. Getters, Proxies, `document.all`, and enumerable `Object.prototype` properties are not accounted for.
