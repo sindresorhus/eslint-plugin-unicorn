@@ -45,7 +45,7 @@ const config = [
 			'unicorn/no-invalid-argument-count': 'off',
 			'unicorn/no-unreadable-for-of-expression': 'off',
 			// Internal AST walkers intentionally use empty iterable fallbacks.
-			'unicorn/no-useless-fallback-in-loop': 'off',
+			'unicorn/iteration-fallback-style': 'off',
 			'unicorn/try-complexity': 'off',
 			'unicorn/consistent-boolean-name': 'off',
 			// Recursive AST/tree walkers are intentional in rule implementation code.

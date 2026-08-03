@@ -1,7 +1,10 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const typescript = code => ({
 	code,
@@ -48,7 +51,28 @@ const multilineBlockComment = [
 	'}',
 ].join('\n');
 
-test.snapshot({
+const multilineGuard = [
+	'if (items) {',
+	'\tfor (const item of items) {',
+	'\t\tconst value = `',
+	'\t\t\tkeep',
+	'\t\t`;',
+	'\t}',
+	'}',
+].join('\n');
+
+const multilineGuardBody = outdent`
+	if (items) {
+		for (const item of items) {
+			use(item);
+		}
+	}
+`;
+
+const guardStyle = code => ({code, options: ['guard']});
+const fallbackStyle = code => ({code, options: ['fallback']});
+
+ruleTest.snapshot({
 	valid: [
 		'for (const item of items) {}',
 		'for await (const item of items) {}',
@@ -68,6 +92,7 @@ test.snapshot({
 		'Object.entries(options.config ?? {});',
 		'items.map(item => item ?? []);',
 		typescript('for (const item of (items as Iterable<string> | undefined) ?? [fallback]) {}'),
+		guardStyle('if (items) { for (const item of items) {} }'),
 	],
 	invalid: [
 		'for (const item of items ?? []) {}',
@@ -125,5 +150,62 @@ test.snapshot({
 			},
 		},
 		multilineBlockComment,
+		guardStyle('for (const item of items ?? []) {}'),
 	],
+});
+
+ruleTest.snapshot({
+	valid: [
+		fallbackStyle('for (const item of items ?? []) {}'),
+		fallbackStyle('for (const item of items || []) {}'),
+		fallbackStyle('for (const [key, value] of Object.entries(options.config ?? {})) {}'),
+		fallbackStyle('for (const value of Object.values(options.config || {})) {}'),
+		fallbackStyle('for (const key of Object.keys(options.config ?? {})) {}'),
+		fallbackStyle('for (const key in options.config ?? {}) {}'),
+		fallbackStyle('for await (const item of items ?? []) {}'),
+		fallbackStyle('if (other) { for (const item of items) {} }'),
+		fallbackStyle('if (items) { for (const item of items) {} } else foo();'),
+		fallbackStyle('if (items) { const value = 1; for (const item of items) {} }'),
+		fallbackStyle('if (items && enabled) { for (const item of items) {} }'),
+		fallbackStyle('if (items) { for (const item of getItems()) {} }'),
+		fallbackStyle('if (items) { for (const item of items ?? []) {} }'),
+		fallbackStyle('if (items?.length) { for (const item of items?.length) {} }'),
+	],
+	invalid: [
+		fallbackStyle('if (items) { for (const item of items) {} }'),
+		fallbackStyle('if (items) for (const item of items) {}'),
+		fallbackStyle('if (items) { for (const item of (items)) {} }'),
+		fallbackStyle('if (items != null) { for (const item of items) {} }'),
+		fallbackStyle('if (options.config) { for (const [key, value] of Object.entries(options.config)) {} }'),
+		fallbackStyle('if (options.config != null) { for (const value of Object.values(options.config)) {} }'),
+		fallbackStyle('if (options.config) { for (const key of Object.keys(options.config)) {} }'),
+		fallbackStyle('if (options.config) { for (const key in options.config) {} }'),
+		fallbackStyle('if (items) { for await (const item of items) {} }'),
+		fallbackStyle('if (items) { for (const item of items) { /* Keep this comment. */ } }'),
+		fallbackStyle('label: if (items) { for (const item of items) {} }'),
+		fallbackStyle(multilineGuard),
+		fallbackStyle(multilineGuardBody),
+	],
+});
+
+test('iteration-fallback-style rejects invalid style options', t => {
+	const linter = new Linter({configType: 'flat'});
+	const verify = options => linter.verify('for (const item of items) {}', {
+		languageOptions: {
+			ecmaVersion: 'latest',
+			sourceType: 'module',
+		},
+		plugins: {unicorn},
+		rules: {
+			'unicorn/iteration-fallback-style': ['error', ...options],
+		},
+	});
+
+	for (const options of [[], ['guard'], ['fallback']]) {
+		t.notThrows(() => verify(options));
+	}
+
+	for (const options of [['invalid'], [{}], ['guard', 'fallback']]) {
+		t.throws(() => verify(options));
+	}
 });
