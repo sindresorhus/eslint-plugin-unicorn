@@ -22,7 +22,7 @@ The rule offers editor suggestions only for simple callback conversions between 
 ## Examples
 
 ```js
-// eslint unicorn/consistent-function-style: ["error", {namedFunctions: "declaration"}]
+// eslint unicorn/consistent-function-style: ['error', {namedFunctions: 'declaration'}]
 
 // ❌
 const parse = value => value;
@@ -48,7 +48,7 @@ items.map(item => item.id);
 ```
 
 ```js
-// eslint unicorn/consistent-function-style: ["error", {namedFunctions: "arrow-function"}]
+// eslint unicorn/consistent-function-style: ['error', {namedFunctions: 'arrow-function'}]
 
 // ❌
 function parse(value) {
