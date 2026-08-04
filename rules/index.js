@@ -33,6 +33,7 @@ export {default as 'filename-case'} from './filename-case.js';
 export {default as 'id-match'} from './id-match.js';
 export {default as 'import-style'} from './import-style.js';
 export {default as 'isolated-functions'} from './isolated-functions.js';
+export {default as 'iteration-fallback-style'} from './iteration-fallback-style.js';
 export {default as 'logical-assignment-operators'} from './logical-assignment-operators.js';
 export {default as 'max-nested-calls'} from './max-nested-calls.js';
 export {default as 'name-replacements'} from './name-replacements.js';
