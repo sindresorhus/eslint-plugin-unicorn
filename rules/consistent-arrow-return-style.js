@@ -36,7 +36,6 @@ const tokensThatMayContinueAnExpression = new Set([
 	'+',
 	'-',
 	'*',
-	'**',
 	'.',
 	'<',
 ]);

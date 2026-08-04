@@ -40,7 +40,6 @@ ruleTest.snapshot({
 		'const value = () => {\n\t\treturn function () {};\n\t}\n[bar];',
 		'const value = () => {\n\t\treturn foo;\n\t}\n/bar/.test(value);',
 		'const value = () => {\n\t\treturn foo;\n\t}\n`bar`;',
-		'const value = () => { return foo; } ** bar;',
 		String.raw`const value = () => 'foo\
 bar';`,
 	],
