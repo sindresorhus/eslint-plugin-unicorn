@@ -60,6 +60,10 @@ test.snapshot({
 
 		// Key resolves to a member name through a variable
 		'const map = new Map(); const key = "size"; map[key];',
+		'const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[modes.size ? "foo" : "get"];',
+		typescript('const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[(modes.size ? "foo" : "get") as string];'),
+		'const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[(modes.size && "get") || "foo"];',
+		typescript('const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[((modes.size && "get") || "foo") as string];'),
 
 		// Not a known collection
 		'array[0];',
@@ -95,6 +99,9 @@ test.snapshot({
 		'const map = new Map(); const key = "foo"; map[key];',
 		// One branch is a real member, but the other is a collection entry key
 		'const set = new Set(); set[condition ? "add" : "foo"]("foo");',
+		'const map = new Map(); map[+(condition ? 0 : 1)];',
+		'const map = new Map(); map[+(condition ? "size" : "get")];',
+		'const map = new Map(); map[typeof Symbol.iterator];',
 		// Dynamic template key
 		'const map = new Map(); map[`${prefix}foo`];', // eslint-disable-line no-template-curly-in-string
 

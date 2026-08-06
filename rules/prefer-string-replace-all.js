@@ -1,4 +1,3 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import regjsparser from 'regjsparser';
 import {
 	getStaticStringValue,
@@ -7,7 +6,12 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import {isRegExpEscapeReplaceCall} from './shared/regexp-escape.js';
-import {escapeString, getParenthesizedText, isKnownNonString} from './utils/index.js';
+import {
+	escapeString,
+	getParenthesizedText,
+	getStaticValueIfNoSideEffects,
+	isKnownNonString,
+} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID_USE_REPLACE_ALL = 'method';
@@ -153,7 +157,7 @@ function getPatternReplacement(node) {
 	return QUOTE + replacement + QUOTE;
 }
 
-const isRegExpWithGlobalFlag = (node, scope) => {
+const isRegExpWithGlobalFlag = (node, context) => {
 	if (isRegexLiteral(node)) {
 		return node.regex.flags.includes('g');
 	}
@@ -167,7 +171,7 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 		return node.arguments[1].value.includes('g');
 	}
 
-	const staticResult = getStaticValue(node, scope);
+	const staticResult = getStaticValueIfNoSideEffects(node, context);
 
 	// Don't know if there is `g` flag
 	if (!staticResult) {
@@ -358,7 +362,7 @@ const create = context => {
 
 		const [pattern] = callArguments;
 
-		if (!isRegExpWithGlobalFlag(pattern, context.sourceCode.getScope(pattern))) {
+		if (!isRegExpWithGlobalFlag(pattern, context)) {
 			return;
 		}
 

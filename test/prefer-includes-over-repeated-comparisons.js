@@ -36,6 +36,12 @@ test.snapshot({
 		'foo === bar || foo === foo;',
 		'foo === 1 || bar === 1;',
 		'value === "a" || value === "b";',
+		'const modes = new Set(["foo"]); modes.clear(); value === (modes.size ? 1 : NaN) || value === 2;',
+		'const modes = new Set(["foo"]); modes.clear(); value === ((modes.size && NaN) || other) || value === 2;',
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); value === ((modes.size ? NaN : other) as number) || value === 2;',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'"a" === value || "b" === value;',
 		'value === "a" || "b" === value;',
 		'value === first || value === second;',

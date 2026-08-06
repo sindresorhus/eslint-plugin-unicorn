@@ -1,10 +1,10 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isCallExpression,
 	isNewExpression,
 	isUndefined,
 	isNullLiteral,
 } from './ast/index.js';
+import {getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-invalid-fetch-options';
 const messages = {
@@ -53,8 +53,7 @@ function getFetchOptionsProblem(context, node) {
 
 	const methodValue = methodProperty.value;
 
-	const scope = context.sourceCode.getScope(methodValue);
-	let method = getStaticValue(methodValue, scope)?.value;
+	let method = getStaticValueIfNoSideEffects(methodValue, context)?.value;
 
 	if (typeof method !== 'string') {
 		return;

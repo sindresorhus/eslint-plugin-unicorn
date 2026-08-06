@@ -53,6 +53,13 @@ test.snapshot({
 
 		// Computed keys with calls are not treated as the same reference
 		'a[f()] > 0 && b[f()] > 0 && a[f()] === b[f()]',
+		'const modes = new Set([1]); modes.clear(); value === other && value > (modes.size ? 3 : 2) && other > 3;',
+		'const modes = new Set([1]); modes.clear(); value === other && value > -(modes.size ? 2 : 3) && other > -2;',
+		'const modes = new Set([1]); modes.clear(); value === other && value > ((modes.size && 3) || lowerBound) && other > 3;',
+		{
+			code: 'const modes = new Set([1]); modes.clear(); value === other && value > ((modes.size ? 3 : 2) as number) && other > 3;',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// The seven cases from the proposal

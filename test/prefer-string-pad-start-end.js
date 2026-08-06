@@ -61,6 +61,12 @@ test({
 		'const foo = ("*".repeat(10n) + value).slice(-10n);',
 		'const foo = ("*".repeat(width) + function () {}).slice(-width);',
 		'const foo = (class {} + "*".repeat(width)).slice(0, width);',
+		'const modes = new Set(["foo"]); modes.clear(); const target = modes.size ? "x" : 1; const foo = "*".repeat(10 - target.length) + target;',
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); const target = (modes.size ? "x" : 1) as string; const foo = "*".repeat(10 - target.length) + target;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const modes = new Set(["foo"]); modes.clear(); const target = (modes.size && "x") || value; const foo = "*".repeat(10 - target.length) + target;',
 	],
 	invalid: [
 		{

@@ -1,5 +1,5 @@
-import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
-import {getParenthesizedRange} from './utils/index.js';
+import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {getParenthesizedRange, getStaticValueIfNoSideEffects} from './utils/index.js';
 import {
 	comparisonOperators,
 	containsOptionalChain,
@@ -58,7 +58,8 @@ function impliesNumeric(pOperator, pValue, qOperator, qValue) {
 }
 
 // Whether predicate `a` being true guarantees predicate `b` is true, for two predicates on the same value.
-function entails(a, b, sourceCode) {
+function entails(a, b, context) {
+	const {sourceCode} = context;
 	if (a.operator === b.operator && isSame(a.value, b.value)) {
 		return true;
 	}
@@ -67,8 +68,13 @@ function entails(a, b, sourceCode) {
 		return false;
 	}
 
-	const aValue = getStaticValue(a.value, sourceCode.getScope(a.value))?.value;
-	const bValue = getStaticValue(b.value, sourceCode.getScope(b.value))?.value;
+	const getStaticValueForComparison = node => {
+		node = unwrapExpression(node);
+		return getStaticValueIfNoSideEffects(node, context)?.value;
+	};
+
+	const aValue = getStaticValueForComparison(a.value);
+	const bValue = getStaticValueForComparison(b.value);
 	if (
 		typeof aValue !== 'number'
 		|| typeof bValue !== 'number'
@@ -166,7 +172,8 @@ function classifyOperands(operands) {
 	return {equalities, disequalities, comparisons};
 }
 
-function findRedundantComparison({equalities, disequalities, comparisons, sourceCode}) {
+function findRedundantComparison({equalities, disequalities, comparisons, context}) {
+	const {sourceCode} = context;
 	// `a === b` makes a comparison redundant when another comparison on the same equality class implies it.
 	for (const equalityClass of buildEqualityClasses(equalities)) {
 		const predicates = comparisons
@@ -175,8 +182,8 @@ function findRedundantComparison({equalities, disequalities, comparisons, source
 
 		for (const [index, first] of predicates.entries()) {
 			for (const second of predicates.slice(index + 1)) {
-				const firstImpliesSecond = entails(first, second, sourceCode);
-				const secondImpliesFirst = entails(second, first, sourceCode);
+				const firstImpliesSecond = entails(first, second, context);
+				const secondImpliesFirst = entails(second, first, context);
 
 				if (firstImpliesSecond && secondImpliesFirst) {
 					// Equivalent comparisons: report the later one.
@@ -237,7 +244,7 @@ const create = context => {
 		}
 
 		const redundant = findRedundantComparison({
-			equalities, disequalities, comparisons, sourceCode,
+			equalities, disequalities, comparisons, context,
 		});
 		if (!redundant) {
 			return;

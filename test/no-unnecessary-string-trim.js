@@ -37,6 +37,12 @@ test.snapshot({
 		'foo.trim().startsWith(`foo `)',
 		'foo.trim().endsWith(" foo")',
 		'foo.trim().endsWith(` foo`)',
+		'const modes = new Set([\'foo\']); modes.clear(); value.trim().startsWith(modes.size ? \'x\' : \'x \')',
+		'const modes = new Set([\'foo\']); modes.clear(); value.trim().endsWith((modes.size && \'x\') || suffix)',
+		{
+			code: 'const modes = new Set([\'foo\']); modes.clear(); value.trim().startsWith((modes.size ? \'x\' : \'x \') as string)',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const prefix = "foo "; foo.trim().startsWith(prefix)',
 		'const suffix = " foo"; foo.trim().endsWith(suffix)',
 		'foo.trim().startsWith("foo" + " ")',

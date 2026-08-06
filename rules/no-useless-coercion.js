@@ -23,7 +23,7 @@ const coercions = new Map([
 	['Boolean', {type: 'boolean', isType: isBoolean}],
 	['String', {type: 'string', isType: isString}],
 	['BigInt', {type: 'bigint', isType: isBigInt}],
-	['Number', {type: 'number', isType: (node, context) => isNumber(node, context.sourceCode.getScope(node))}],
+	['Number', {type: 'number', isType: isNumber}],
 ]);
 
 /** @param {ESLint.Rule.RuleContext} context */
@@ -79,7 +79,7 @@ const create = context => {
 	context.on('UnaryExpression', (/** @type {ESTree.UnaryExpression} */ node) => {
 		if (
 			node.operator !== '+'
-			|| !isNumber(node.argument, sourceCode.getScope(node.argument))
+			|| !isNumber(node.argument, context)
 		) {
 			return;
 		}

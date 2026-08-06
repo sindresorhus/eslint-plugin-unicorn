@@ -86,6 +86,54 @@ test.snapshot({
 				baz();
 			}
 		`,
+		// The condition depends on a mutable collection, so the throw is conditional.
+		outdent`
+			const MODE_GROUP = new Set(['foo', 'bar']);
+
+			const args = new Map();
+
+			const modes = new Set();
+			if (args.has('modes')) {
+				for (const mode of args.get('modes').split(',')) {
+					const trimmed = mode.trim();
+					if (MODE_GROUP.has(trimmed)) {
+						modes.add(trimmed);
+					}
+				}
+
+				if (!modes.size) {
+					throw new Error('No valid modes');
+				}
+			} else {
+				for (const mode of MODE_GROUP) {
+					modes.add(mode);
+				}
+			}
+		`,
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			if (condition) {
+				modes.size ? process.exit() : doSomething();
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			function qux() {
+				const modes = new Set(['foo']);
+				modes.clear();
+
+				if (foo) {
+					if (modes.size) {
+						return;
+					}
+					bar();
+				} else {
+					baz();
+				}
+			}
+		`,
 		outdent`
 			function qux() {
 				if (foo) {
@@ -672,6 +720,24 @@ test.snapshot({
 				throw new Error();
 			} else {
 				bar();
+			}
+		`,
+		outdent`
+			function qux() {
+				if (false) {
+					return;
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (true) {
+					return;
+				} else {
+					bar();
+				}
 			}
 		`,
 		outdent`

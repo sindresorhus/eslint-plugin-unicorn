@@ -1,4 +1,5 @@
-import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
+import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {getStaticValueIfNoSideEffects} from './utils/index.js';
 import {isUndefined} from './ast/index.js';
 import {
 	containsOptionalChain,
@@ -53,8 +54,12 @@ const getComparedValue = (comparison, sharedReference) => {
 	return isLeftSharedReference ? right : left;
 };
 
-const isNaNValue = (node, sourceCode) =>
-	Number.isNaN(getStaticValue(unwrapExpression(node), sourceCode.getScope(node))?.value);
+const isNaNValue = (node, context) => {
+	node = unwrapExpression(node);
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+
+	return Number.isNaN(staticValue?.value);
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -84,13 +89,13 @@ const create = context => {
 		const sharedReference = getSharedReference(comparisons);
 		if (
 			!sharedReference
-			|| isNaNValue(sharedReference, sourceCode)
+			|| isNaNValue(sharedReference, context)
 			|| !comparisons.every(comparison => {
 				const comparedValue = getComparedValue(comparison, sharedReference);
 
 				return comparedValue
 					&& !hasSideEffect(comparedValue, sourceCode)
-					&& !isNaNValue(comparedValue, sourceCode);
+					&& !isNaNValue(comparedValue, context);
 			})
 		) {
 			return;

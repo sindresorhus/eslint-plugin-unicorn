@@ -19,6 +19,8 @@ import {
 	getBaseTypes,
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
+	getStaticValueIfNoSideEffects,
+	isBranchExpression,
 	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -81,8 +83,12 @@ const getStaticPropertyName = (property, context) =>
 		? getPropertyName(property, context.sourceCode.getScope(property)) ?? undefined
 		: undefined;
 
-const getStaticValueForNode = (node, context) =>
-	getStaticValue(unwrapTypeScriptExpression(node), context.sourceCode.getScope(node));
+const getStaticValueForNode = (node, context) => {
+	const staticValueNode = unwrapTypeScriptExpression(node);
+	return isBranchExpression(staticValueNode)
+		? getStaticValueIfNoSideEffects(staticValueNode, context)
+		: getStaticValue(staticValueNode, context.sourceCode.getScope(node));
+};
 
 const hasCommentsInside = (node, context) =>
 	context.sourceCode.getCommentsInside(node).length > 0;

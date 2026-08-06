@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction, isLoop, isNewExpression} from './ast/index.js';
 import {
 	isBranchExit,
@@ -11,6 +11,7 @@ import {
 	isProcessExitCallAlwaysEvaluated,
 	isProcessExitExpressionAtStart,
 	isTypeScriptExpressionWrapper,
+	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
 
 /**
@@ -766,9 +767,9 @@ const create = context => {
 	});
 
 	context.onExit('IfStatement', node => {
-		const staticValue = getStaticValue(node.test, sourceCode.getScope(node.test));
+		const staticValue = getStaticValueIfNoSideEffects(node.test, context);
 		let selectedBranch;
-		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(node.test, context)) {
 			selectedBranch = staticValue.value ? node.consequent : node.alternate;
 		}
 

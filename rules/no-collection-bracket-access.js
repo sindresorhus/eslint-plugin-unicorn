@@ -1,4 +1,4 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	isMap,
 	isSet,
@@ -6,6 +6,8 @@ import {
 	isWeakSet,
 	isLeftHandSide,
 	getParenthesizedText,
+	getStaticValueIfNoSideEffects,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 /**
@@ -55,27 +57,52 @@ const collectionTypes = [
 // Only `Identifier`/`ThisExpression`/`MemberExpression` receivers can be placed before
 // `.method(…)` without parentheses, so suggestions are limited to them.
 const simpleObjectTypes = new Set(['Identifier', 'ThisExpression', 'MemberExpression']);
+const skipPropertyCheck = Symbol('skipPropertyCheck');
 
-function getStaticPropertyValues(node, sourceCode) {
-	const staticResult = getStaticValue(node, sourceCode.getScope(node));
+function getStaticPropertyValues(node, context) {
+	node = unwrapTypeScriptExpression(node);
+	const {sourceCode} = context;
+	const isBranch = node.type === 'ConditionalExpression' || node.type === 'LogicalExpression';
+	if (isBranch && hasSideEffect(node, sourceCode, {considerGetters: true})) {
+		// Do not report when the key depends on a mutable member or getter. The static branch is unreliable, and resolving it would require flow analysis.
+		return skipPropertyCheck;
+	}
+
+	const staticResult = getStaticValueIfNoSideEffects(node, context);
 	if (staticResult) {
 		return [staticResult.value];
 	}
 
-	if (node.type !== 'ConditionalExpression') {
+	// `hasSideEffect` conservatively treats member reads as getter-backed. Keep allowing
+	// the well-known `Symbol` properties that ESLint can evaluate without executing user code.
+	if (
+		node.type === 'MemberExpression'
+		&& node.object.type === 'Identifier'
+		&& node.object.name === 'Symbol'
+	) {
+		const staticResult = getStaticValue(node, sourceCode.getScope(node));
+		if (staticResult) {
+			return [staticResult.value];
+		}
+	}
+
+	if (!isBranch) {
 		return;
 	}
 
-	const consequentValues = getStaticPropertyValues(node.consequent, sourceCode);
-	const alternateValues = getStaticPropertyValues(node.alternate, sourceCode);
-	if (!consequentValues || !alternateValues) {
+	const childNodes = node.type === 'ConditionalExpression'
+		? [node.consequent, node.alternate]
+		: [node.left, node.right];
+	const propertyValues = childNodes.map(child => getStaticPropertyValues(child, context));
+	if (propertyValues.includes(skipPropertyCheck)) {
+		return skipPropertyCheck;
+	}
+
+	if (propertyValues.some(values => !values)) {
 		return;
 	}
 
-	return [
-		...consequentValues,
-		...alternateValues,
-	];
+	return propertyValues.flat();
 }
 
 function getProblem(node, collection, context) {
@@ -154,7 +181,11 @@ const create = context => {
 		}
 
 		// Allow accessing a real member, including `Symbol` ones like `map[Symbol.iterator]`.
-		const staticPropertyValues = getStaticPropertyValues(node.property, context.sourceCode);
+		const staticPropertyValues = getStaticPropertyValues(node.property, context);
+		if (staticPropertyValues === skipPropertyCheck) {
+			return;
+		}
+
 		if (
 			staticPropertyValues?.every(value =>
 				(typeof value === 'string' || typeof value === 'symbol')

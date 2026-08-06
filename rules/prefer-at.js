@@ -1,7 +1,6 @@
 import {
 	isOpeningBracketToken,
 	isClosingBracketToken,
-	getStaticValue,
 } from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
@@ -12,6 +11,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	isLeftHandSide,
+	getStaticValueIfNoSideEffects,
 	unwrapTypeScriptExpression as unwrapExpression,
 } from './utils/index.js';
 import {
@@ -212,7 +212,7 @@ function create(context) {
 			}
 
 			// Only if we are sure it's a non-negative integer
-			const staticValue = getStaticValue(indexNode, sourceCode.getScope(indexNode));
+			const staticValue = getStaticValueIfNoSideEffects(indexNode, context);
 			if (!staticValue || !Number.isSafeInteger(staticValue.value) || staticValue.value < 0) {
 				return;
 			}

@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isCallExpression,
 	isNewExpression,
@@ -9,6 +9,7 @@ import {
 	isNullishType,
 	isUnknownType,
 } from './types.js';
+import getStaticValueIfNoSideEffects from './get-static-value.js';
 
 const target = 'target';
 const nonTarget = 'non-target';
@@ -435,8 +436,8 @@ const getTypeFromTypeInformation = (node, context, options) => {
 	}
 };
 
-const getTypeFromStaticValue = (node, scope, options) => {
-	const result = getStaticValue(node, scope);
+const getTypeFromStaticValue = (node, context, options) => {
+	const result = getStaticValueIfNoSideEffects(node, context);
 
 	if (!result) {
 		return unknown;
@@ -693,7 +694,7 @@ function getType(node, context, options, visitedVariables = new Set()) {
 	}
 
 	if (node.type !== 'Identifier') {
-		const typeFromStaticValue = getTypeFromStaticValue(node, scope, options);
+		const typeFromStaticValue = getTypeFromStaticValue(node, context, options);
 		if (typeFromStaticValue !== unknown) {
 			return typeFromStaticValue;
 		}

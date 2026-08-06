@@ -1,7 +1,7 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isNumericLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 import {createTypeCheckers, target, unknown} from './type-helpers.js';
+import getStaticValueIfNoSideEffects from './get-static-value.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -89,8 +89,8 @@ const isNumberMethodCall = node =>
 	&& isStaticProperties(node.callee, 'Number', numberMethods);
 const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt') || isFunctionCall(node, 'parseFloat');
 
-const isStaticNumber = (node, scope) =>
-	typeof getStaticValue(node, scope)?.value === 'number';
+const isStaticNumber = (node, context) =>
+	typeof getStaticValueIfNoSideEffects(node, context)?.value === 'number';
 
 // Only the bare `number` keyword and numeric literal types (`5`), never the boxed `Number` object (which doesn't coerce the same way), unions, or generics, so accuracy stays high
 const isNumberTypeAnnotation = node =>
@@ -111,7 +111,7 @@ const isLengthProperty = node =>
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
 
 // eslint-disable-next-line complexity
-export default function isNumber(node, scope) {
+export default function isNumber(node, context) {
 	if (
 		isNumericLiteral(node)
 		|| isMathProperty(node)
@@ -128,7 +128,7 @@ export default function isNumber(node, scope) {
 	switch (node.type) {
 		case 'AssignmentExpression': {
 			const {operator} = node;
-			if (operator === '=' && isNumber(node.right, scope)) {
+			if (operator === '=' && isNumber(node.right, context)) {
 				return true;
 			}
 
@@ -142,7 +142,7 @@ export default function isNumber(node, scope) {
 				operator = operator.slice(0, -1);
 			}
 
-			if (operator === '+' && isNumber(node.left, scope) && isNumber(node.right, scope)) {
+			if (operator === '+' && isNumber(node.left, context) && isNumber(node.right, context)) {
 				return true;
 			}
 
@@ -153,7 +153,7 @@ export default function isNumber(node, scope) {
 			}
 
 			// `a * b` can be `BigInt`, we need make sure at least one side is number
-			if (mathOperators.has(operator) && (isNumber(node.left, scope) || isNumber(node.right, scope))) {
+			if (mathOperators.has(operator) && (isNumber(node.left, context) || isNumber(node.right, context))) {
 				return true;
 			}
 
@@ -169,7 +169,7 @@ export default function isNumber(node, scope) {
 				return true;
 			}
 
-			if ((operator === '-' || operator === '~') && isNumber(node.argument, scope)) {
+			if ((operator === '-' || operator === '~') && isNumber(node.argument, context)) {
 				return true;
 			}
 
@@ -177,7 +177,7 @@ export default function isNumber(node, scope) {
 		}
 
 		case 'UpdateExpression': {
-			if (isNumber(node.argument, scope)) {
+			if (isNumber(node.argument, context)) {
 				return true;
 			}
 
@@ -185,16 +185,16 @@ export default function isNumber(node, scope) {
 		}
 
 		case 'ConditionalExpression': {
-			const isConsequentNumber = isNumber(node.consequent, scope);
-			const isAlternateNumber = isNumber(node.alternate, scope);
+			const isConsequentNumber = isNumber(node.consequent, context);
+			const isAlternateNumber = isNumber(node.alternate, context);
 
 			if (isConsequentNumber && isAlternateNumber) {
 				return true;
 			}
 
-			const testStaticValueResult = getStaticValue(node.test, scope);
+			const testStaticValueResult = getStaticValueIfNoSideEffects(node.test, context);
 			if (
-				testStaticValueResult !== null
+				testStaticValueResult !== undefined
 				&& (
 					(isConsequentNumber && testStaticValueResult.value)
 					|| (isAlternateNumber && !testStaticValueResult.value)
@@ -207,7 +207,7 @@ export default function isNumber(node, scope) {
 		}
 
 		case 'SequenceExpression': {
-			if (isNumber(node.expressions.at(-1), scope)) {
+			if (isNumber(node.expressions.at(-1), context)) {
 				return true;
 			}
 
@@ -215,7 +215,7 @@ export default function isNumber(node, scope) {
 		}
 
 		case 'Identifier': {
-			if (hasNumberTypeAnnotation(node, scope)) {
+			if (hasNumberTypeAnnotation(node, context.sourceCode.getScope(node))) {
 				return true;
 			}
 
@@ -235,7 +235,7 @@ export default function isNumber(node, scope) {
 
 		// `foo!`
 		case 'TSNonNullExpression': {
-			if (isNumber(node.expression, scope)) {
+			if (isNumber(node.expression, context)) {
 				return true;
 			}
 
@@ -244,7 +244,7 @@ export default function isNumber(node, scope) {
 		// No default
 	}
 
-	return isStaticNumber(node, scope);
+	return isStaticNumber(node, context);
 }
 
 const getStaticType = value => (typeof value === 'number' ? target : unknown);

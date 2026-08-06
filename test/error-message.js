@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -45,6 +45,33 @@ test.snapshot({
 			const err = new Error({
 				name: 'Unauthorized',
 			});
+		`,
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			new Error(modes.size ? {} : 'ok');
+		`,
+		{
+			code: outdent`
+				const modes = new Set(['foo']);
+				modes.clear();
+				new Error((modes.size ? {} : 'ok') as any);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			new Error(modes.size || 'ok');
+		`,
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			new Error((modes.size && {}) || 'ok');
+		`,
+		outdent`
+			let modes = new Set(['foo']);
+			new Error((modes = new Set()).size ? {} : 'ok');
 		`,
 	],
 	invalid: [
