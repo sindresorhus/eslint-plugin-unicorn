@@ -31,7 +31,7 @@ const isKnownStaticProperty = node => {
 	}
 
 	return node.type === 'MemberExpression'
-		&& !node.computed
+		&& (!node.computed || node.property.type === 'Literal')
 		&& node.object.type === 'Identifier'
 		&& (node.object.name === 'Math' || node.object.name === 'Number');
 };
