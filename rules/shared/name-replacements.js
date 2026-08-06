@@ -314,6 +314,9 @@ export const defaultAllowList = {
 	ImportMetaEnv: true,
 	// The name iOS is a standard name for an OS
 	iOS: true,
+	// Node.js environment variables type
+	// https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/node/process.d.ts
+	ProcessEnv: true,
 	// React PropTypes
 	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
