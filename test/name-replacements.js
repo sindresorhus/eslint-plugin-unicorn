@@ -1991,6 +1991,14 @@ test.typescript({
 	valid: [
 		// Vite type declaration
 		'interface ImportMetaEnv {}',
+		// Node.js environment variables type
+		outdent`
+			declare namespace NodeJS {
+				interface ProcessEnv {
+					FILE_PATH: string;
+				}
+			}
+		`,
 	],
 	invalid: [
 		// Types
