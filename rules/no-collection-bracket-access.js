@@ -63,8 +63,11 @@ function getStaticPropertyValues(node, context) {
 	node = unwrapTypeScriptExpression(node);
 	const {sourceCode} = context;
 	const isBranch = node.type === 'ConditionalExpression' || node.type === 'LogicalExpression';
-	if (isBranch && hasSideEffect(node, sourceCode, {considerGetters: true})) {
-		// Do not report when the key depends on a mutable member or getter. The static branch is unreliable, and resolving it would require flow analysis.
+	if (
+		(isBranch || node.type === 'SequenceExpression')
+		&& hasSideEffect(node, sourceCode, {considerGetters: true})
+	) {
+		// Do not report when the key depends on a mutable member, getter, or side effect. The static value is unreliable, and resolving it would require flow analysis.
 		return skipPropertyCheck;
 	}
 
@@ -84,10 +87,6 @@ function getStaticPropertyValues(node, context) {
 		if (staticResult) {
 			return [staticResult.value];
 		}
-	}
-
-	if (node.type === 'SequenceExpression') {
-		return getStaticPropertyValues(node.expressions.at(-1), context);
 	}
 
 	if (!isBranch) {

@@ -109,11 +109,11 @@ test({
 			errors: [error],
 		},
 		{
-			code: "if (array.length < Number['MIN_SAFE_INTEGER']) {}",
+			code: 'if (array.length < Number[\'MIN_SAFE_INTEGER\']) {}',
 			errors: [error],
 		},
 		{
-			code: "if (array.length < -Math['PI']) {}",
+			code: 'if (array.length < -Math[\'PI\']) {}',
 			errors: [error],
 		},
 		{

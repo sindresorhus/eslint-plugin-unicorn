@@ -52,7 +52,7 @@ test.snapshot({
 		'const map = new Map(); map[Symbol.iterator];',
 		'const map = new Map(); map[Symbol.toStringTag];',
 		'const map = new Map(); map[condition ? Symbol.iterator : Symbol.toStringTag];',
-		'const map = new Map(); map[(ignored, Symbol.iterator)];',
+		'const map = new Map(); map[(0, Symbol.iterator)];',
 
 		// Inherited `Object.prototype` members
 		'const map = new Map(); map["toString"];',
@@ -65,6 +65,7 @@ test.snapshot({
 		typescript('const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[(modes.size ? "foo" : "get") as string];'),
 		'const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[(modes.size && "get") || "foo"];',
 		typescript('const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[((modes.size && "get") || "foo") as string];'),
+		'let key = "foo"; const map = new Map(); map[(key = "size", key)];',
 
 		// Not a known collection
 		'array[0];',
