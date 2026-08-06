@@ -92,6 +92,8 @@ jsx.snapshot({
 		'<input Type="file" accept="image/jpg" />',
 	],
 	invalid: [
+		'const modes = new Set(["foo"]); modes.clear(); <input type="file" accept={modes.size ? "bad" : "image/jpeg"} />',
+		'const modes = new Set(["foo"]); modes.clear(); <input type="file" accept={(modes.size && "image/jpeg") || value} />',
 		'<input type="file" accept />',
 		'<input type="file" accept={allowedTypes} />',
 		'<input type="file" accept={`image/${type}`} />',

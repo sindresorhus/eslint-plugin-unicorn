@@ -1,6 +1,7 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isCallOrNewExpression} from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
+import {getStaticValueIfNoSideEffects, isBranchExpression} from './utils/index.js';
 
 const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
 const MESSAGE_ID_EMPTY_MESSAGE = 'message-is-empty-string';
@@ -49,7 +50,7 @@ const create = context => {
 			};
 		}
 
-		// These types can't be string, and `getStaticValue` may don't know the value
+		// These types can't be string, and `getStaticValue` may not know the value
 		// Add more types, if issue reported
 		if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
 			return {
@@ -58,7 +59,9 @@ const create = context => {
 			};
 		}
 
-		const staticResult = getStaticValue(node, context.sourceCode.getScope(node));
+		const staticResult = isBranchExpression(node)
+			? getStaticValueIfNoSideEffects(node, context)
+			: getStaticValue(node, context.sourceCode.getScope(node));
 
 		// We don't know the value of `message`
 		if (!staticResult) {

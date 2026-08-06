@@ -20,6 +20,9 @@ test.snapshot({
 		'array[array.length - 0];',
 		'array[array.length + 1]',
 		'array[array.length + -1]',
+		'const modes = new Set([\'foo\']); modes.clear(); array[modes.size ? 1 : \'x\'];',
+		'const modes = new Set([\'foo\']); modes.clear(); array[(modes.size && 1) || index];',
+		typeAware('const modes = new Set([\'foo\']); modes.clear(); array[(modes.size ? 1 : index) as number];'),
 		'foo[bar.length - 1]',
 		// LHS
 		'array[array.length - 1] = 1',

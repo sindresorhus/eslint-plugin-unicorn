@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
@@ -6,6 +6,7 @@ import {
 	isLoop,
 } from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
+import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 
 /**
@@ -47,7 +48,7 @@ const isProcessExitStatement = (node, context) =>
 const isDefinitelyNotThrowing = (node, context) =>
 	node.type === 'SequenceExpression'
 		? node.expressions.every(expression => isDefinitelyNotThrowingExpression(expression, context))
-		: getStaticValue(node, context.sourceCode.getScope(node)) !== null;
+		: getStaticValueIfNoSideEffects(node, context) !== undefined;
 
 const isTemporalDeadZoneDefinition = definition => (
 	(definition.type === 'Variable' && definition.parent?.kind !== 'var')
@@ -86,15 +87,15 @@ const isDefinitelyNotReadOnly = (node, context) => {
 };
 
 const isDefinitelyNotNullish = (node, context) => {
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
-	return staticValue !== null
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	return staticValue !== undefined
 		&& staticValue.value !== null
 		&& staticValue.value !== undefined;
 };
 
 const isDefinitelyValidClassHeritage = (node, context) => {
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
-	return staticValue !== null
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	return staticValue !== undefined
 		&& (staticValue.value === null || typeof staticValue.value === 'function');
 };
 
@@ -161,8 +162,8 @@ const isAssignmentRightAlwaysEvaluated = (node, context) => {
 		return false;
 	}
 
-	const staticValue = getStaticValue(node.left, context.sourceCode.getScope(node.left));
-	if (staticValue === null) {
+	const staticValue = getStaticValueIfNoSideEffects(node.left, context);
+	if (staticValue === undefined) {
 		return false;
 	}
 
@@ -239,8 +240,8 @@ const isNonThrowingConditionalReturn = (node, context) => {
 		return false;
 	}
 
-	const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
-	return staticValue !== null && !staticValue.value;
+	const staticValue = getStaticValueIfNoSideEffects(node.test, context);
+	return staticValue !== undefined && !staticValue.value;
 };
 
 const isProcessExitVariableDeclaration = (node, context) =>
@@ -415,8 +416,8 @@ const isProcessExitConditionalExpression = (node, context) => {
 		return true;
 	}
 
-	const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
-	if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+	const staticValue = getStaticValueIfNoSideEffects(node.test, context);
+	if (staticValue !== undefined && isDefinitelyNotThrowingExpression(node.test, context)) {
 		return isProcessExitExpression(staticValue.value ? node.consequent : node.alternate, context);
 	}
 
@@ -425,8 +426,8 @@ const isProcessExitConditionalExpression = (node, context) => {
 };
 
 const isLogicalExpressionRightEvaluated = (node, context) => {
-	const staticValue = getStaticValue(node.left, context.sourceCode.getScope(node.left));
-	if (staticValue === null || !isDefinitelyNotThrowingExpression(node.left, context)) {
+	const staticValue = getStaticValueIfNoSideEffects(node.left, context);
+	if (staticValue === undefined || !isDefinitelyNotThrowingExpression(node.left, context)) {
 		return false;
 	}
 
@@ -582,8 +583,8 @@ function hasLabeledBreakBeforeProcessExit(node, context, labelName) {
 			return false;
 		}
 
-		const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
-		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+		const staticValue = getStaticValueIfNoSideEffects(node.test, context);
+		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(node.test, context)) {
 			const selectedBranch = staticValue.value ? node.consequent : node.alternate;
 			return Boolean(selectedBranch && hasLabeledBreakBeforeProcessExit(selectedBranch, context, labelName));
 		}
@@ -722,8 +723,8 @@ const isProcessExitConditionalExpressionAtStart = (node, context) => {
 		return true;
 	}
 
-	const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
-	if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+	const staticValue = getStaticValueIfNoSideEffects(node.test, context);
+	if (staticValue !== undefined && isDefinitelyNotThrowingExpression(node.test, context)) {
 		return isProcessExitExpressionAtStart(staticValue.value ? node.consequent : node.alternate, context);
 	}
 
@@ -905,8 +906,8 @@ const isProcessExitConditionalBranchAtStart = (branch, context, checkTryStatemen
 		return true;
 	}
 
-	const staticValue = getStaticValue(branch.test, context.sourceCode.getScope(branch.test));
-	if (staticValue !== null && isDefinitelyNotThrowingExpression(branch.test, context)) {
+	const staticValue = getStaticValueIfNoSideEffects(branch.test, context);
+	if (staticValue !== undefined && isDefinitelyNotThrowingExpression(branch.test, context)) {
 		const selectedBranch = staticValue.value ? branch.consequent : branch.alternate;
 		return Boolean(selectedBranch && isProcessExitBranchAtStart(selectedBranch, context, checkTryStatements, options));
 	}
@@ -962,8 +963,8 @@ const isProcessExitDoWhileBody = (node, loop, context, state) => {
 	}
 
 	if (node.type === 'IfStatement') {
-		const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
-		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+		const staticValue = getStaticValueIfNoSideEffects(node.test, context);
+		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(node.test, context)) {
 			const selectedBranch = staticValue.value ? node.consequent : node.alternate;
 			return selectedBranch
 				? isProcessExitDoWhileBody(selectedBranch, loop, context, state)
@@ -1117,7 +1118,7 @@ const isInfiniteLoop = (branch, context) => (
 	(branch.type === 'WhileStatement' || branch.type === 'ForStatement')
 	&& (
 		!branch.test
-		|| Boolean(getStaticValue(branch.test, context.sourceCode.getScope(branch.test))?.value)
+		|| Boolean(getStaticValueIfNoSideEffects(branch.test, context)?.value)
 	)
 );
 
@@ -1715,8 +1716,8 @@ function hasSwitchControlFlowExit(node, context, switchStatement, checkOuterCont
 			return false;
 		}
 
-		const staticValue = getStaticValue(node.test, context.sourceCode.getScope(node.test));
-		if (staticValue !== null && isDefinitelyNotThrowingExpression(node.test, context)) {
+		const staticValue = getStaticValueIfNoSideEffects(node.test, context);
+		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(node.test, context)) {
 			const selectedBranch = staticValue.value ? node.consequent : node.alternate;
 			return Boolean(selectedBranch && hasSwitchControlFlowExit(selectedBranch, context, switchStatement, checkOuterControlFlow));
 		}
@@ -1814,8 +1815,8 @@ export default function isBranchExit(branch, context, branchAlwaysExits) {
 	}
 
 	if (branch.type === 'IfStatement' || branch.type === 'ConditionalExpression') {
-		const staticValue = getStaticValue(branch.test, context.sourceCode.getScope(branch.test));
-		if (staticValue !== null && isDefinitelyNotThrowingExpression(branch.test, context)) {
+		const staticValue = getStaticValueIfNoSideEffects(branch.test, context);
+		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(branch.test, context)) {
 			const selectedBranch = staticValue.value ? branch.consequent : branch.alternate;
 			return Boolean(selectedBranch && isBranchExit(selectedBranch, context, branchAlwaysExits));
 		}

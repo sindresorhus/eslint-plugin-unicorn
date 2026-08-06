@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -12,6 +12,14 @@ test.snapshot({
 		'parseInt(value, 2);',
 		'Number.parseInt(value, 8);',
 		'parseInt(value, radix);',
+		'const modes = new Set([\'foo\']); modes.clear(); parseInt(value, modes.size ? 10 : 2);',
+		'const modes = new Set([\'foo\']); modes.clear(); parseInt(value, +(modes.size ? 10 : 2));',
+		{
+			code: 'const modes = new Set([\'foo\']); modes.clear(); parseInt(value, (modes.size ? 10 : 2) as number);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const modes = new Set([\'foo\']); modes.clear(); parseInt(value, modes.size && 10);',
+		'const modes = new Set([\'foo\']); modes.clear(); parseInt(value, (modes.size = 0) ? 10 : radix);',
 		'Number.parseInt(value, radix);',
 		'Number["parseFloat"](value);',
 		'Number["parseInt"](value, 10);',

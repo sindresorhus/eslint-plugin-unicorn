@@ -1,8 +1,8 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
 	needsSemicolon,
 	isNumber,
+	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
 import {isNewExpression} from './ast/index.js';
 
@@ -57,15 +57,14 @@ function getProblem(context, node) {
 	}
 
 	const fromLengthText = `Array.from(${text === 'length' ? '{length}' : `{length: ${text}}`})`;
-	const scope = sourceCode.getScope(node);
-	if (isNumber(argumentNode, scope)) {
+	if (isNumber(argumentNode, context)) {
 		problem.fix = fixer => fixer.replaceText(node, fromLengthText);
 		return problem;
 	}
 
 	const onlyElementText = `${maybeSemiColon}[${text}]`;
-	const result = getStaticValue(argumentNode, scope);
-	if (result !== null && typeof result.value !== 'number') {
+	const result = getStaticValueIfNoSideEffects(argumentNode, context);
+	if (result !== undefined && typeof result.value !== 'number') {
 		problem.fix = fixer => fixer.replaceText(node, onlyElementText);
 		return problem;
 	}

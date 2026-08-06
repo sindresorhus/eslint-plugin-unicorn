@@ -2,6 +2,8 @@ import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMemberExpression, isMethodCall, isNumericLiteral} from './ast/index.js';
 import {
 	getParenthesizedText,
+	getStaticValueIfNoSideEffects,
+	isBranchExpression,
 	isKnownNonString,
 	isSameReference,
 	needsSemicolon,
@@ -20,7 +22,7 @@ const isLengthMemberExpression = node => isMemberExpression(node, {
 });
 
 const getStaticString = (node, context) => {
-	const result = getStaticValue(node, context.sourceCode.getScope(node));
+	const result = getStaticValueResult(node, context);
 
 	if (typeof result?.value === 'string') {
 		return result.value;
@@ -28,7 +30,11 @@ const getStaticString = (node, context) => {
 };
 
 const isStaticNonString = (node, context) => {
-	const result = getStaticValue(node, context.sourceCode.getScope(node));
+	const staticValueNode = getIdentifierValueNode(node, context) ?? node;
+	const result = getStaticValueIfNoSideEffects(staticValueNode, context);
+	if (isBranchExpression(staticValueNode)) {
+		return !result || typeof result.value !== 'string';
+	}
 
 	return result && typeof result.value !== 'string';
 };
@@ -61,6 +67,16 @@ const getIdentifierValueNode = (node, context) => {
 	if (definition?.type === 'Variable' && definition.node.id === definition.name) {
 		return definition.node.init;
 	}
+};
+
+const getStaticValueResult = (node, context) => {
+	const staticValueNode = getIdentifierValueNode(node, context) ?? node;
+	const result = getStaticValueIfNoSideEffects(staticValueNode, context);
+	if (result || staticValueNode.type !== 'SequenceExpression') {
+		return result;
+	}
+
+	return getStaticValue(staticValueNode, context.sourceCode.getScope(staticValueNode));
 };
 
 const isClearlyNonStringTarget = (node, context) => (

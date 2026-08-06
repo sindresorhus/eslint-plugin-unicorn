@@ -56,6 +56,13 @@ test.snapshot({
 				method: 'post',
 			});
 		`,
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			fetch(url, {method: modes.size ? 'GET' : 'POST', body});
+		`,
+		'const modes = new Set(["foo"]); modes.clear(); fetch(url, {method: modes.size && "GET", body});',
+		'const modes = new Set(["foo"]); modes.clear(); new Request(url, {method: modes.size ? "HEAD" : "POST", body});',
 	],
 	invalid: [
 		'fetch(url, {body})',

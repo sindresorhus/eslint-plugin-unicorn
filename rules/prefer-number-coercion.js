@@ -1,5 +1,6 @@
-import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
+import {getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID_PARSE_FLOAT = 'parse-float';
 const MESSAGE_ID_PARSE_INT = 'parse-int';
@@ -28,7 +29,11 @@ function getStaticNumberValue(node, context) {
 		return;
 	}
 
-	return getStaticValue(node, context.sourceCode.getScope(node))?.value;
+	if (node.type === 'AssignmentExpression' && node.operator === '=') {
+		return getStaticValueIfNoSideEffects(node.right, context)?.value;
+	}
+
+	return getStaticValueIfNoSideEffects(node, context)?.value;
 }
 
 const isDecimalRadix = (node, context) => getStaticNumberValue(node, context) === 10;

@@ -1543,6 +1543,32 @@ test.snapshot({
 	invalid: [
 		outdent`
 			new Promise(resolve => {
+				const modes = new Set();
+				modes.add('foo');
+
+				if (!modes.size) {
+					return;
+				}
+
+				resolve();
+				resolve();
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				const modes = new Set(['foo']);
+				modes.clear();
+
+				if (modes.size || condition) {
+					return;
+				}
+
+				resolve();
+				resolve();
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
 				try {
 					switch (value) {
 						default:

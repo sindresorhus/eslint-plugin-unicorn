@@ -1,8 +1,8 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isEmptyArrayExpression,
 	isEmptyStringLiteral,
 } from './ast/index.js';
+import {getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID = 'consistent-empty-array-spread';
 const messages = {
@@ -10,7 +10,7 @@ const messages = {
 };
 
 const isString = (node, context) => {
-	const staticValueResult = getStaticValue(node, context.sourceCode.getScope(node));
+	const staticValueResult = getStaticValueIfNoSideEffects(node, context);
 	return typeof staticValueResult?.value === 'string';
 };
 
@@ -19,7 +19,7 @@ const isArray = (node, context) => {
 		return true;
 	}
 
-	const staticValueResult = getStaticValue(node, context.sourceCode.getScope(node));
+	const staticValueResult = getStaticValueIfNoSideEffects(node, context);
 	return Array.isArray(staticValueResult?.value);
 };
 

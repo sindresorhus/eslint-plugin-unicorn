@@ -1,10 +1,11 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getConstVariableInitializer,
 	hasOptionalChainElement,
 	isKnownNonString,
 	isRuntimeImportSpecifier,
+	getStaticValueIfNoSideEffects,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -72,7 +73,7 @@ const isSearchStringSafe = (method, searchString) => method === 'startsWith'
 const getStaticValueResult = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
 
-	return getStaticValue(node, context.sourceCode.getScope(node));
+	return getStaticValueIfNoSideEffects(node, context);
 };
 
 const getStaticSearchString = (node, context) => {

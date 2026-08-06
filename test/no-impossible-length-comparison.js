@@ -55,6 +55,13 @@ test({
 		'if (dimensions.height && dimensions.size === -1) {}',
 		'if (dimensions.depth && -1 < dimensions.length) {}',
 		'if (array.length !== 0) {}',
+		outdent`
+			const modes = new Set();
+			modes.add('foo');
+			if (array.length < modes.size) {}
+		`,
+		'const modes = new Set(["foo"]); modes.clear(); if (array.length < (modes.size ? -1 : 1)) {}',
+		'const modes = new Set(["foo"]); modes.clear(); if (array.length < (modes.size && -1)) {}',
 	],
 	invalid: [
 		{
@@ -95,6 +102,10 @@ test({
 		},
 		{
 			code: 'if (array.length < -Number.EPSILON) {}',
+			errors: [error],
+		},
+		{
+			code: 'if (array.length < +Number.MIN_SAFE_INTEGER) {}',
 			errors: [error],
 		},
 		{

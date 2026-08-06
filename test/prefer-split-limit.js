@@ -56,6 +56,12 @@ test({
 		'string.split("/", limit)[0]',
 		'string.split(...separator)[0]',
 		'string.split("/", ...limit)[0]',
+		'const modes = new Set(); modes.add("foo"); "a,b".split(",")[modes.size]',
+		'const modes = new Set(["foo"]); modes.clear(); "a,b".split(",")[(modes.size && 0) || index]',
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); "a,b".split(",")[(modes.size ? 0 : index) as number]',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'string.split()[0]',
 		'string.notSplit("/")[0]',
 	],

@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -17,6 +17,16 @@ test.snapshot({
 		'const array = Array(1)',
 	],
 	invalid: [
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			new Array(modes.size ? 1 : 'x');
+		`,
+		'const modes = new Set(["foo"]); modes.clear(); new Array((modes.size && 1) || value);',
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); new Array((modes.size ? "x" : 1) as number);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const array = new Array(1)',
 		// This is actually `[]`, but we fix to `Array.from({length: zero})`
 		outdent`

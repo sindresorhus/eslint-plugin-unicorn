@@ -473,6 +473,16 @@ test({
 		'"shark".slice(-5) === /shark/',
 		// Unknown compared value
 		'"shark".slice(0, 5) === prefix',
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			'foo'.slice(0, 1) === (modes.size ? 'f' : 'foo');
+		`,
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			'foo'.slice(0, 1) === ((modes.size && 'f') || prefix);
+		`,
 	],
 	invalid: [
 		// Static prefix

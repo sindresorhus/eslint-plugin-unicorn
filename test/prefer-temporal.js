@@ -55,6 +55,8 @@ test.snapshot({
 
 		// `new Date(dateString)` — inconsistent parsing, no suggestion
 		'new Date("2024-08-16")',
+		'const modes = new Set([\'foo\']); modes.clear(); new Date(modes.size ? 0 : \'2020-01-01\')',
+		'const modes = new Set([\'foo\']); modes.clear(); new Date((modes.size && 0) || timestamp)',
 		'const string = "2024-08-16"; new Date(string);',
 		// Template literal that resolves to a string
 		'new Date(`2024-08-16`)',
