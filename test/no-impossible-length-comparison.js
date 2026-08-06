@@ -109,6 +109,14 @@ test({
 			errors: [error],
 		},
 		{
+			code: "if (array.length < Number['MIN_SAFE_INTEGER']) {}",
+			errors: [error],
+		},
+		{
+			code: "if (array.length < -Math['PI']) {}",
+			errors: [error],
+		},
+		{
 			code: 'if (array.length > -Number.EPSILON) {}',
 			errors: [lengthAlwaysTrueError],
 		},

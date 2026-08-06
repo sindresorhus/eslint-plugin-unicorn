@@ -86,6 +86,10 @@ function getStaticPropertyValues(node, context) {
 		}
 	}
 
+	if (node.type === 'SequenceExpression') {
+		return getStaticPropertyValues(node.expressions.at(-1), context);
+	}
+
 	if (!isBranch) {
 		return;
 	}

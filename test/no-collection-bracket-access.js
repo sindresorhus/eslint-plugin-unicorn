@@ -52,6 +52,7 @@ test.snapshot({
 		'const map = new Map(); map[Symbol.iterator];',
 		'const map = new Map(); map[Symbol.toStringTag];',
 		'const map = new Map(); map[condition ? Symbol.iterator : Symbol.toStringTag];',
+		'const map = new Map(); map[(ignored, Symbol.iterator)];',
 
 		// Inherited `Object.prototype` members
 		'const map = new Map(); map["toString"];',

@@ -1,4 +1,4 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
@@ -48,7 +48,7 @@ const isProcessExitStatement = (node, context) =>
 const isDefinitelyNotThrowing = (node, context) =>
 	node.type === 'SequenceExpression'
 		? node.expressions.every(expression => isDefinitelyNotThrowingExpression(expression, context))
-		: getStaticValueIfNoSideEffects(node, context) !== undefined;
+		: getStaticValue(node, context.sourceCode.getScope(node)) !== null;
 
 const isTemporalDeadZoneDefinition = definition => (
 	(definition.type === 'Variable' && definition.parent?.kind !== 'var')
@@ -87,15 +87,15 @@ const isDefinitelyNotReadOnly = (node, context) => {
 };
 
 const isDefinitelyNotNullish = (node, context) => {
-	const staticValue = getStaticValueIfNoSideEffects(node, context);
-	return staticValue !== undefined
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	return staticValue !== null
 		&& staticValue.value !== null
 		&& staticValue.value !== undefined;
 };
 
 const isDefinitelyValidClassHeritage = (node, context) => {
-	const staticValue = getStaticValueIfNoSideEffects(node, context);
-	return staticValue !== undefined
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	return staticValue !== null
 		&& (staticValue.value === null || typeof staticValue.value === 'function');
 };
 

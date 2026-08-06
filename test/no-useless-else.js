@@ -120,6 +120,29 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const object = {};
+			Object.defineProperty(object, 'value', {get() { return true; }});
+
+			if (condition) {
+				if (object.value) {
+					throw new Error();
+				}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			let modes = new Set(['foo']);
+
+			if (condition) {
+				if ((modes = new Set()).size) {
+					throw new Error();
+				}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
 			function qux() {
 				const modes = new Set(['foo']);
 				modes.clear();
