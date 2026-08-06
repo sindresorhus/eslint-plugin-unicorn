@@ -93,6 +93,11 @@ test({
 			code: 'require("core-js/stable/promise")',
 			options: [{targets: 'node >15'}],
 		},
+		// `Promise.try` has changed semantics and remains unavailable in core-js-compat.
+		{
+			code: 'require("core-js/stable/promise")',
+			options: [{targets: 'node >24'}],
+		},
 		{
 			code: 'import "core-js/stable"',
 			options: [{targets: 'node >20'}],
@@ -154,11 +159,6 @@ test({
 			code: 'require("core-js/features/array/flat")',
 			options: [{targets: 'node >16'}],
 			errors: [{message: 'All polyfilled features imported from `core-js/features/array/flat` are available as built-ins. Use the built-ins instead.'}],
-		},
-		{
-			code: 'require("core-js/stable/promise")',
-			options: [{targets: 'node >24'}],
-			errors: [{message: 'All polyfilled features imported from `core-js/stable/promise` are available as built-ins. Use the built-ins instead.'}],
 		},
 		{
 			code: 'import "core-js-pure/stable/array/flat"',
