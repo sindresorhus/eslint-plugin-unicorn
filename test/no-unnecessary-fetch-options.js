@@ -29,6 +29,7 @@ test.snapshot({
 		'const modes = new Set(["foo"]); modes.clear(); fetch(url, {keepalive: (modes.size && false) || value})',
 		typeAware('const modes = new Set(["foo"]); modes.clear(); fetch(url, {method: (modes.size ? "GET" : value) as string})'),
 		'fetch(url, {method})',
+		'let method = "GET"; method = "POST"; fetch(url, {method})',
 		'fetch(url, {mode: "cors"})',
 		'fetch(url, {mode: "same-origin"})',
 		'fetch(url, {credentials: "include"})',

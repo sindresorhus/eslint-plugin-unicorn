@@ -73,6 +73,11 @@ test.snapshot({
 			let modes = new Set(['foo']);
 			new Error((modes = new Set()).size ? {} : 'ok');
 		`,
+		outdent`
+			let message = 42;
+			message = 'valid';
+			new Error(message);
+		`,
 	],
 	invalid: [
 		'throw new Error()',

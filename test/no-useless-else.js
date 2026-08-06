@@ -132,6 +132,42 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const object = {};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					object.value(process.exit(1));
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					object.value.foo(process.exit(1));
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					(object?.value)[process.exit(1)];
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
 			let modes = new Set(['foo']);
 
 			if (condition) {

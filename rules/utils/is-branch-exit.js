@@ -45,10 +45,19 @@ const isProcessExitStatement = (node, context) =>
 	node.type === 'ExpressionStatement'
 	&& isProcessExitExpression(node.expression, context);
 
+const getStaticValueForThrowAnalysis = (node, context) => {
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	if (staticValue !== undefined || node.type !== 'ChainExpression') {
+		return staticValue;
+	}
+
+	return getStaticValue(node, context.sourceCode.getScope(node)) ?? undefined;
+};
+
 const isDefinitelyNotThrowing = (node, context) =>
 	node.type === 'SequenceExpression'
 		? node.expressions.every(expression => isDefinitelyNotThrowingExpression(expression, context))
-		: getStaticValue(node, context.sourceCode.getScope(node)) !== null;
+		: getStaticValueForThrowAnalysis(node, context) !== undefined;
 
 const isTemporalDeadZoneDefinition = definition => (
 	(definition.type === 'Variable' && definition.parent?.kind !== 'var')
@@ -87,15 +96,15 @@ const isDefinitelyNotReadOnly = (node, context) => {
 };
 
 const isDefinitelyNotNullish = (node, context) => {
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
-	return staticValue !== null
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	return staticValue !== undefined
 		&& staticValue.value !== null
 		&& staticValue.value !== undefined;
 };
 
 const isDefinitelyValidClassHeritage = (node, context) => {
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
-	return staticValue !== null
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	return staticValue !== undefined
 		&& (staticValue.value === null || typeof staticValue.value === 'function');
 };
 
