@@ -50,6 +50,7 @@ export {
 	default as getStaticValueIfNoSideEffects,
 	isBranchExpression,
 	hasPotentiallyMutableMemberAccess,
+	hasSideEffectfulConstInitializer,
 } from './get-static-value.js';
 export {getMemberAccessOperatorRange} from './member-expression.js';
 export {

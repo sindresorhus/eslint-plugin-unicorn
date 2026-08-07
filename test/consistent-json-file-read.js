@@ -36,8 +36,17 @@ test.snapshot({
 		'JSON.parse(await fs.readFile(file, {flag: "r"}));',
 		'JSON.parse(await fs.readFile(file, {encoding: null, flag: "r"}));',
 		'JSON.parse(await fs.readFile(file, {encoding: "utf8", extraProperty: "utf8"}));',
+		'const options = {}; Object.defineProperty(options); JSON.parse(await fs.readFile(file, options));',
 		`const options = {encoding: null};
 Object.defineProperty(options, 'encoding', {get() { return 'utf8'; }});
+JSON.parse(await fs.readFile(file, options));`,
+		`const options = {encoding: null};
+Object.defineProperties(options, {encoding: {get() { return 'utf8'; }}});
+JSON.parse(await fs.readFile(file, options));`,
+		`const key = 'encoding';
+const descriptorKey = 'get';
+const options = {encoding: null};
+Object.defineProperties(options, {[key]: {[descriptorKey]() { return 'utf8'; }}});
 JSON.parse(await fs.readFile(file, options));`,
 		`const options = {encoding: null};
 Object.defineProperty(options, 'encoding', {['get']() { return 'utf8'; }});

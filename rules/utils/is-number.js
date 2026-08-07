@@ -1,7 +1,7 @@
 import {isNumericLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 import {createTypeCheckers, target, unknown} from './type-helpers.js';
-import getStaticValueIfNoSideEffects from './get-static-value.js';
+import getStaticValueIfNoSideEffects, {hasPotentiallyMutableMemberAccess} from './get-static-value.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -100,12 +100,13 @@ const isNumberTypeAnnotation = node =>
 // `function foo(bar: number) {}`, `const foo: number = …`
 const hasNumberTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isNumberTypeAnnotation);
 
-const isLengthProperty = node =>
+const isLengthProperty = (node, context) =>
 	node.type === 'MemberExpression'
 	&& !node.computed
 	&& !node.optional
 	&& node.property.type === 'Identifier'
-	&& node.property.name === 'length';
+	&& node.property.name === 'length'
+	&& !hasPotentiallyMutableMemberAccess(node, context);
 
 // `+` and `>>>` operators are handled separately
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
@@ -120,7 +121,7 @@ export default function isNumber(node, context) {
 		|| isNumberProperty(node)
 		|| isNumberMethodCall(node)
 		|| isGlobalParseToNumberFunctionCall(node)
-		|| isLengthProperty(node)
+		|| isLengthProperty(node, context)
 	) {
 		return true;
 	}

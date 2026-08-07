@@ -53,6 +53,8 @@ test.snapshot({
 		'fetch(url, {headers: new Headers([["x-custom", "value"]])})',
 		'fetch(url, {headers})',
 		'fetch(url, {body: ""})',
+		'Array.prototype.join = () => "x"; fetch(url, {referrer: String([])});',
+		'Array.prototype.join = () => "x"; const referrer = String([]); fetch(url, {referrer});',
 		'fetch(url, {priority: "auto"})',
 		'fetch(url, {window: null})',
 		'fetch(url, {duplex: "half"})',

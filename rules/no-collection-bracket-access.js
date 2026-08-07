@@ -7,6 +7,8 @@ import {
 	isLeftHandSide,
 	getParenthesizedText,
 	getStaticValueIfNoSideEffects,
+	getConstVariableInitializer,
+	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -59,6 +61,20 @@ const collectionTypes = [
 const simpleObjectTypes = new Set(['Identifier', 'ThisExpression', 'MemberExpression']);
 const skipPropertyCheck = Symbol('skipPropertyCheck');
 
+const isWellKnownSymbolExpression = (node, context) => {
+	const initializer = getConstVariableInitializer(node, context);
+	if (initializer) {
+		node = initializer;
+	}
+
+	node = unwrapTypeScriptExpression(node);
+	return node.type === 'MemberExpression'
+		&& node.object.type === 'Identifier'
+		&& node.object.name === 'Symbol'
+		&& isGlobalIdentifier(node.object, context)
+		&& (!node.computed || getStaticValueIfNoSideEffects(node.property, context));
+};
+
 function getStaticPropertyValues(node, context) {
 	node = unwrapTypeScriptExpression(node);
 	const {sourceCode} = context;
@@ -78,15 +94,7 @@ function getStaticPropertyValues(node, context) {
 
 	// `hasSideEffect` conservatively treats member reads as getter-backed. Keep allowing
 	// the well-known `Symbol` properties that ESLint can evaluate without executing user code.
-	if (
-		node.type === 'MemberExpression'
-		&& node.object.type === 'Identifier'
-		&& node.object.name === 'Symbol'
-		&& (
-			(!node.computed && node.property.type === 'Identifier')
-			|| (node.computed && node.property.type === 'Literal')
-		)
-	) {
+	if (isWellKnownSymbolExpression(node, context)) {
 		const staticResult = getStaticValue(node, sourceCode.getScope(node));
 		if (staticResult) {
 			return [staticResult.value];

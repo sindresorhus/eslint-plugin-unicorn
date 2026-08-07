@@ -123,6 +123,21 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				Object.prototype.toString = () => '';
+				const initialValue = String({});
+				const value = initialValue;
+
+				if (condition) {
+					if (value) {
+						return;
+					}
+				} else {
+					doSomethingElse();
+				}
+			}
+		`,
+		outdent`
 			const object = {value: true};
 			object.value = false;
 
@@ -263,55 +278,82 @@ test.snapshot({
 				doSomethingElse();
 			}
 		`,
+		outdent`
+			function qux() {
+				const text = 'foo';
+
+				if (condition) {
+					if (text.length) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				const property = 'value';
+
+				if (condition) {
+					if ({value: true}[property]) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				const key = object.value;
+
+				if (condition) {
+					if (({value: {key: true}}).value) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				const values = ['value'];
+
+				if (condition) {
+					if (values[0]) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
-			const regex = /foo/;
-
-			if (regex.global) {
-				process.exit();
-			} else {
-				bar();
-			}
-		`,
-		outdent`
-			const text = 'foo';
-
-			if (text.length) {
-				process.exit();
-			} else {
-				bar();
-			}
-		`,
-		outdent`
-			const property = 'value';
-
-			if (condition) {
-				if ({value: true}[property]) {
-					process.exit();
+			function qux() {
+				if (condition) {
+					if (true) {
+						return;
+					}
+				} else {
+					bar();
 				}
-			} else {
-				bar();
 			}
 		`,
 		outdent`
-			const key = object.value;
-
-			if (condition) {
-				if (({value: {key: true}}).value) {
-					process.exit();
+			function qux() {
+				if (condition) {
+					if (false) {
+						bar();
+					} else {
+						return;
+					}
+				} else {
+					bar();
 				}
-			} else {
-				bar();
-			}
-		`,
-		outdent`
-			const regex = /foo/;
-
-			if (regex['global']) {
-				process.exit();
-			} else {
-				bar();
 			}
 		`,
 		outdent`
