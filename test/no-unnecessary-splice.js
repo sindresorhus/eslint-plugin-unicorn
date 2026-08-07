@@ -89,6 +89,8 @@ test.snapshot({
 		'(object?.array as string[]).splice(index, 0);',
 		'((object?.array as {items: string[]}).items).splice(index, 0);',
 		'(object?.array satisfies string[]).splice(0);',
+		'const result: unknown[] = array.splice(0 as const);',
+		'const result: unknown[] = array.splice(0 as const, array.length);',
 	],
 	invalid: [
 		'array.splice(0 as const, 1 as const);',
