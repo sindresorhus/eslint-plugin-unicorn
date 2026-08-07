@@ -18,20 +18,23 @@ const staticPassThroughMethods = new Set([
 	'seal',
 ]);
 
-export const isSafeStaticPassThroughCall = (node, context, visitedVariables = new Set()) =>
-	node.type === 'CallExpression'
-	&& !node.optional
-	&& node.arguments.length === 1
-	&& node.arguments[0].type !== 'SpreadElement'
-	&& node.callee.type === 'MemberExpression'
-	&& !node.callee.computed
-	&& !node.callee.optional
-	&& node.callee.object.type === 'Identifier'
-	&& node.callee.object.name === 'Object'
-	&& isGlobalIdentifier(node.callee.object, context)
-	&& node.callee.property.type === 'Identifier'
-	&& staticPassThroughMethods.has(node.callee.property.name)
-	&& getStaticValueIfNoSideEffectsInternal(node.arguments[0], context, visitedVariables) !== undefined;
+export const isSafeStaticPassThroughCall = (node, context, visitedVariables = new Set()) => {
+	node = unwrapTypeScriptExpression(node);
+
+	return node.type === 'CallExpression'
+		&& !node.optional
+		&& node.arguments.length === 1
+		&& node.arguments[0].type !== 'SpreadElement'
+		&& node.callee.type === 'MemberExpression'
+		&& !node.callee.computed
+		&& !node.callee.optional
+		&& node.callee.object.type === 'Identifier'
+		&& node.callee.object.name === 'Object'
+		&& isGlobalIdentifier(node.callee.object, context)
+		&& node.callee.property.type === 'Identifier'
+		&& staticPassThroughMethods.has(node.callee.property.name)
+		&& getStaticValueIfNoSideEffectsInternal(node.arguments[0], context, visitedVariables) !== undefined;
+};
 
 export const isBranchExpression = node => {
 	node = unwrapTypeScriptExpression(node);
