@@ -31,6 +31,10 @@ test.snapshot({
 		'array.toSpliced(0, 1);',
 		// Nested unary index resolves to `1`, which is not a special case.
 		'array.splice(- -1, 1);',
+		'const result = array.splice(0);',
+		'const result = array.splice(0, array.length);',
+		'for (const item of array.splice(0)) { item; }',
+		'for (const item of array.splice(0, array.length)) { item; }',
 	],
 	invalid: [
 		'array.splice();',
@@ -62,7 +66,6 @@ test.snapshot({
 		'const result = array.splice(0, 0, element);',
 		'const result = array.splice(array.length - 1, 1);',
 		'const result = array.splice(array.length, 0, element);',
-		'const result = array.splice(0);',
 		'array.splice(0, /* comment */ 0, element);',
 		'array.splice(/* comment */ 0, 1);',
 		'array.splice(index, /* comment */ 0);',
@@ -86,6 +89,8 @@ test.snapshot({
 		'(object?.array as string[]).splice(index, 0);',
 		'((object?.array as {items: string[]}).items).splice(index, 0);',
 		'(object?.array satisfies string[]).splice(0);',
+		'const result: unknown[] = array.splice(0 as const);',
+		'const result: unknown[] = array.splice(0 as const, array.length);',
 	],
 	invalid: [
 		'array.splice(0 as const, 1 as const);',

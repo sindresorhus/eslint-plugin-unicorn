@@ -124,6 +124,13 @@ const create = context => {
 			return;
 		}
 
+		if (
+			replacement.messageId === MESSAGE_ID_EMPTY
+			&& !isValueNotUsable(callExpression)
+		) {
+			return;
+		}
+
 		return {
 			node: callExpression.callee.property,
 			messageId: replacement.messageId,
