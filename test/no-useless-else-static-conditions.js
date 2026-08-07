@@ -205,6 +205,42 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const set = new Set();
+
+			if (globalThis.condition) {
+				set.add('a');
+				if (!set.size) {
+					throw new Error('empty');
+				}
+			} else {
+				globalThis.fallback();
+			}
+		`,
+		outdent`
+			const map = new Map();
+
+			if (globalThis.condition) {
+				map.set('a', true);
+				if (!map.size) {
+					throw new Error('empty');
+				}
+			} else {
+				globalThis.fallback();
+			}
+		`,
+		outdent`
+			const first = Object.freeze(second);
+			const second = Object.freeze(first);
+
+			if (condition) {
+				if (first) {
+					throw new Error('cyclic initializer');
+				}
+			} else {
+				globalThis.fallback();
+			}
+		`,
+		outdent`
 			const modes = new Set(['foo']);
 
 			if (condition) {
@@ -421,6 +457,39 @@ test.snapshot({
 			function qux() {
 				if (true && true) {
 					process.exit();
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (condition) {
+					if (Object.freeze({})) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (condition) {
+					if (Object.seal({})) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (condition) {
+					if (Object.preventExtensions({})) {
+						return;
+					}
 				} else {
 					bar();
 				}

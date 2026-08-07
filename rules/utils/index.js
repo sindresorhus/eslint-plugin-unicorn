@@ -50,6 +50,7 @@ export {
 	default as getStaticValueIfNoSideEffects,
 	getStaticRegExp,
 	isBranchExpression,
+	isSafeStaticPassThroughCall,
 	hasPotentiallyMutableMemberAccess,
 	hasSideEffectfulConstInitializer,
 } from './get-static-value.js';
