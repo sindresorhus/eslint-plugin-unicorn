@@ -1,6 +1,10 @@
 import {Linter} from 'eslint';
 import test from 'ava';
-import {getStaticValueIfNoSideEffects} from '../../rules/utils/index.js';
+import {
+	getStaticRegExp,
+	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
+} from '../../rules/utils/index.js';
 
 const linter = new Linter();
 
@@ -56,6 +60,17 @@ test('returns unknown for mutated collection sizes and getter-backed members', t
 	}
 });
 
+test('detects potentially mutable member accesses', t => {
+	for (const [code, expected] of [
+		['const object = {value: true}; const result = object.value;', true],
+		['const result = ({value: true}).value;', false],
+		['const text = \'value\'; const result = text.length;', false],
+		['const values = [\'value\']; const result = values[0];', true],
+	]) {
+		t.is(evaluate(code, hasPotentiallyMutableMemberAccess), expected);
+	}
+});
+
 test('preserves safe static primitives and pass-through calls', t => {
 	t.true(evaluate('const result = true;', getStaticValueIfNoSideEffects)?.value);
 	t.false(evaluate('const result = false;', getStaticValueIfNoSideEffects)?.value);
@@ -64,6 +79,20 @@ test('preserves safe static primitives and pass-through calls', t => {
 		const result = evaluate(`const result = Object.${method}({value: true});`, getStaticValueIfNoSideEffects);
 		t.true(result?.value.value);
 	}
+});
+
+test('returns static regular expressions only for safe expressions', t => {
+	for (const code of [
+		'const result = /foo/g;',
+		'const result = new RegExp(\'foo\', \'g\');',
+		'const expression = new RegExp(\'foo\'); const result = expression;',
+	]) {
+		const result = evaluate(code, getStaticRegExp);
+		t.true(result instanceof RegExp);
+		t.is(result.source, 'foo');
+	}
+
+	t.is(evaluate('const result = new RegExp(getPattern());', getStaticRegExp), undefined);
 });
 
 test('does not recurse forever through cyclic constant aliases', t => {
