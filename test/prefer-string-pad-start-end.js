@@ -92,6 +92,16 @@ test({
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{
+			code: 'let target = 42; target = "x"; const foo = "*".repeat(10 - target.length) + target;',
+			output: 'let target = 42; target = "x"; const foo = target.padStart(10, "*");',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'function target() {} target = "x"; const foo = "*".repeat(10 - target.length) + target;',
+			output: 'function target() {} target = "x"; const foo = target.padStart(10, "*");',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
 			code: outdent`
 				const object = {};
 				Object.defineProperty(object, 'value', {get() { return 'x'; }});

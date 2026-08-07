@@ -103,6 +103,11 @@ test.snapshot({
 			Object.defineProperty(object, 'value', {get() { return 'message'; }});
 			new Error([object.value][0]);
 		`,
+		outdent`
+			function test(Object) {
+				new Error(Object.freeze({value: 1}).value);
+			}
+		`,
 	],
 	invalid: [
 		'throw new Error()',
