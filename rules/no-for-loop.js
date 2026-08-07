@@ -1,4 +1,4 @@
-import {isClosingParenToken, getStaticValue} from '@eslint-community/eslint-utils';
+import {getStaticValue, isClosingParenToken} from '@eslint-community/eslint-utils';
 import {
 	getAvailableVariableName,
 	getScopes,
@@ -9,6 +9,7 @@ import {
 	isArray,
 	isNullishType,
 	isUnknownType,
+	hasPotentiallyMutableMemberAccess,
 } from './utils/index.js';
 import {
 	isCallExpression,
@@ -741,8 +742,12 @@ const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) =>
 const getReferencesInChildScopes = (scope, name) =>
 	getReferences(scope).filter(reference => reference.identifier.name === name);
 
-const isStaticNonArray = (node, scope) => {
-	const staticResult = getStaticValue(node, scope);
+const isStaticNonArray = (node, context) => {
+	if (hasPotentiallyMutableMemberAccess(node, context)) {
+		return false;
+	}
+
+	const staticResult = getStaticValue(node, context.sourceCode.getScope(node));
 	return Boolean(staticResult && !Array.isArray(staticResult.value));
 };
 
@@ -778,12 +783,12 @@ const create = context => {
 		}
 
 		const {arrayIdentifier, cachedLengthIdentifier, indexIdentifierName} = loopInfo;
-		const scope = sourceCode.getScope(node);
-		if (isStaticNonArray(arrayIdentifier, scope)) {
+		if (isStaticNonArray(arrayIdentifier, context)) {
 			// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
 			return;
 		}
 
+		const scope = sourceCode.getScope(node);
 		const arrayVariable = getVariableByName(arrayIdentifier.name, scope);
 		const {
 			isStandardUpdateExpression,

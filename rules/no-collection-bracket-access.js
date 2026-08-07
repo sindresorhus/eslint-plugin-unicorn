@@ -82,6 +82,10 @@ function getStaticPropertyValues(node, context) {
 		node.type === 'MemberExpression'
 		&& node.object.type === 'Identifier'
 		&& node.object.name === 'Symbol'
+		&& (
+			(!node.computed && node.property.type === 'Identifier')
+			|| (node.computed && node.property.type === 'Literal')
+		)
 	) {
 		const staticResult = getStaticValue(node, sourceCode.getScope(node));
 		if (staticResult) {

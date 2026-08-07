@@ -281,6 +281,13 @@ test({
 		'const notArray = "abc"; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
 		'const notArray = 123; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
 		'const notArray = true; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
+		outdent`
+			const object = {value: []};
+			Object.defineProperty(object, 'value', {get() { return new Set(); }});
+			for (let i = 0; i < object.value.length; i++) {
+				console.log(object.value[i]);
+			}
+		`,
 	],
 
 	invalid: [

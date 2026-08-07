@@ -7,6 +7,7 @@ import {
 } from './utils/type-helpers.js';
 import {
 	getVariableByName,
+	getStaticValueIfNoSideEffects,
 	isArray,
 	isGlobalIdentifier,
 } from './utils/index.js';
@@ -481,7 +482,16 @@ function getConditionalStaticPropertyKeyType(node, context, visitedVariables) {
 }
 
 function getExpressionStaticPropertyKeyType(node, context) {
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	let staticValue = getStaticValueIfNoSideEffects(node, context);
+	if (
+		!staticValue
+		&& node.type === 'MemberExpression'
+		&& node.object.type === 'Identifier'
+		&& isGlobalIdentifier(node.object, context)
+	) {
+		staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	}
+
 	const isUnsafe = isUnsafePropertyKeyNode(node)
 		|| isUnsafeGlobalThisProperty(node, context)
 		|| isArray(node, context)

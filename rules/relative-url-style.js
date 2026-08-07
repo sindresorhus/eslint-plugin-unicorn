@@ -1,5 +1,5 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isNewExpression, isStringLiteral} from './ast/index.js';
+import {getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID_NEVER = 'never';
 const MESSAGE_ID_ALWAYS = 'always';
@@ -35,13 +35,10 @@ function canAddDotSlash(node, sourceCode) {
 	}
 
 	const baseNode = node.parent.arguments[1];
-	const staticValueResult = getStaticValue(baseNode, sourceCode.getScope(node));
+	const staticValueResult = getStaticValueIfNoSideEffects(baseNode, {sourceCode});
 
-	if (
-		typeof staticValueResult?.value === 'string'
-		&& isSafeToAddDotSlash(url, [staticValueResult.value])
-	) {
-		return true;
+	if (typeof staticValueResult?.value === 'string') {
+		return isSafeToAddDotSlash(url, [staticValueResult.value]);
 	}
 
 	return isSafeToAddDotSlash(url);
@@ -54,13 +51,10 @@ function canRemoveDotSlash(node, sourceCode) {
 	}
 
 	const baseNode = node.parent.arguments[1];
-	const staticValueResult = getStaticValue(baseNode, sourceCode.getScope(node));
+	const staticValueResult = getStaticValueIfNoSideEffects(baseNode, {sourceCode});
 
-	if (
-		typeof staticValueResult?.value === 'string'
-		&& isSafeToRemoveDotSlash(node.value, [staticValueResult.value])
-	) {
-		return true;
+	if (typeof staticValueResult?.value === 'string') {
+		return isSafeToRemoveDotSlash(node.value, [staticValueResult.value]);
 	}
 
 	return isSafeToRemoveDotSlash(node.value);

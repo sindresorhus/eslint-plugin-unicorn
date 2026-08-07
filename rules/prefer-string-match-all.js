@@ -7,6 +7,7 @@ import {
 	isNullLiteral,
 	isRegexLiteral,
 } from './ast/index.js';
+import {getStaticValueIfNoSideEffects, hasPotentiallyMutableMemberAccess} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID = 'prefer-string-match-all';
@@ -105,7 +106,8 @@ const getRegExpVariable = (node, sourceCode) => {
 	return findVariable(sourceCode.getScope(node), node);
 };
 
-const isStaticConstStringIdentifier = (node, sourceCode) => {
+const isStaticConstStringIdentifier = (node, context) => {
+	const {sourceCode} = context;
 	if (node.type !== 'Identifier') {
 		return false;
 	}
@@ -120,11 +122,15 @@ const isStaticConstStringIdentifier = (node, sourceCode) => {
 		return false;
 	}
 
-	const staticResult = getStaticValue(node, sourceCode.getScope(node));
+	const staticResult = getStaticValueIfNoSideEffects(node, context);
+	if (staticResult && definition.node.init && hasPotentiallyMutableMemberAccess(definition.node.init, context)) {
+		return false;
+	}
+
 	return typeof staticResult?.value === 'string';
 };
 
-const isGlobalRegExpDefinition = variable => {
+const isGlobalRegExpDefinition = (variable, context) => {
 	if (variable.defs.length !== 1) {
 		return false;
 	}
@@ -142,6 +148,10 @@ const isGlobalRegExpDefinition = variable => {
 		!isRegexLiteral(init)
 		&& !isNewExpression(init, {name: 'RegExp'})
 	) {
+		return false;
+	}
+
+	if (hasPotentiallyMutableMemberAccess(init, context) && !getStaticValueIfNoSideEffects(init, context)) {
 		return false;
 	}
 
@@ -280,12 +290,12 @@ const create = context => {
 		}
 
 		const regexpVariable = getRegExpVariable(regexpNode, sourceCode);
-		if (!regexpVariable || !isGlobalRegExpDefinition(regexpVariable)) {
+		if (!regexpVariable || !isGlobalRegExpDefinition(regexpVariable, context)) {
 			return;
 		}
 
 		if (
-			!isStaticConstStringIdentifier(stringNode, sourceCode)
+			!isStaticConstStringIdentifier(stringNode, context)
 			|| !isRegExpVariableDeclaredInLoopScope(regexpVariable, node)
 			|| !isRegExpVariableOnlyUsedInCondition(regexpVariable, node)
 		) {

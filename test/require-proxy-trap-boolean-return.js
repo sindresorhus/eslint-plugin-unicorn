@@ -16,7 +16,7 @@ test({
 		'const report = () => {}; new Proxy(target, {set() { report(process.exit(1)); }});',
 		'class Report {} const report = () => {}; new Proxy(target, {set() { report(new Report(process.exit(1))); }});',
 		'new Proxy(target, {set() { process.exit(1)?.toString(); }});',
-		'const report = () => {}; const foo = {}; new Proxy(target, {set() { report((foo?.bar)[process.exit(1)]); }});',
+		'const report = () => {}; const foo = null; new Proxy(target, {set() { report((foo?.bar)[process.exit(1)]); }});',
 		'new Proxy(target, {set() { process.exit(1) + 1; }});',
 		'new Proxy(target, {set() { process.exit(1); cleanup(); }});',
 		'new Proxy(target, {set() { class Example { static { process.exit(1); } } }});',
@@ -70,6 +70,7 @@ test({
 		'new Proxy(target, {set() { return value > 0; }});',
 		'new Proxy(target, {set() { return value === otherValue; }});',
 		'new Proxy(target, {set() { return value instanceof Constructor; }});',
+		'new Proxy(target, {set() { const object = {value: 1}; Object.defineProperty(object, "value", {get() { return false; }}); return object.value; }});',
 		// CPA: infinite loop always exits.
 		'new Proxy(target, {set() { while (true) { doSomething(); } }});',
 		'new Proxy(target, {set() { while (process.exit(1)) {} }});',

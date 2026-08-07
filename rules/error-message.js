@@ -1,7 +1,12 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isCallOrNewExpression} from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
-import {getStaticValueIfNoSideEffects, isBranchExpression} from './utils/index.js';
+import {
+	getStaticValueIfNoSideEffects,
+	isBranchExpression,
+	hasPotentiallyMutableMemberAccess,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
 const MESSAGE_ID_EMPTY_MESSAGE = 'message-is-empty-string';
@@ -16,6 +21,41 @@ const messageArgumentIndexes = new Map([
 	['AggregateError', 1],
 	['SuppressedError', 2],
 ]);
+
+const isObjectFreezeMemberExpression = (node, context) => {
+	if (node.type === 'Identifier') {
+		const variable = findVariable(context.sourceCode.getScope(node), node);
+		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+		node = definition?.type === 'Variable'
+			&& definition.parent?.kind === 'const'
+			&& definition.node.id === definition.name
+			&& definition.node.init
+			? definition.node.init
+			: node;
+	}
+
+	return node.type === 'MemberExpression'
+		&& node.object.type === 'CallExpression'
+		&& node.object.callee.type === 'MemberExpression'
+		&& !node.object.callee.computed
+		&& node.object.callee.object.type === 'Identifier'
+		&& node.object.callee.object.name === 'Object'
+		&& node.object.callee.property.type === 'Identifier'
+		&& node.object.callee.property.name === 'freeze';
+};
+
+const getStaticValueForNode = (node, context) => {
+	const staticValueNode = unwrapTypeScriptExpression(node);
+	if (isBranchExpression(staticValueNode) || hasPotentiallyMutableMemberAccess(staticValueNode, context)) {
+		if (isObjectFreezeMemberExpression(staticValueNode, context)) {
+			return getStaticValue(staticValueNode, context.sourceCode.getScope(node));
+		}
+
+		return getStaticValueIfNoSideEffects(staticValueNode, context);
+	}
+
+	return getStaticValue(staticValueNode, context.sourceCode.getScope(node));
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -59,9 +99,7 @@ const create = context => {
 			};
 		}
 
-		const staticResult = isBranchExpression(node)
-			? getStaticValueIfNoSideEffects(node, context)
-			: getStaticValue(node, context.sourceCode.getScope(node));
+		const staticResult = getStaticValueForNode(node, context);
 
 		// We don't know the value of `message`
 		if (!staticResult) {

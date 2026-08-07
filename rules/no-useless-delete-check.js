@@ -8,6 +8,8 @@ import {isMethodCall} from './ast/index.js';
 import {
 	getConstVariableInitializer,
 	hasCommentInRange,
+	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
 	isSameReference,
 	needsSemicolon,
 	unwrapTypeScriptExpression,
@@ -123,11 +125,16 @@ const getSingleExpression = node => {
 };
 
 const getStaticPropertyKey = (node, context) => {
-	const result = getStaticValue(node, context.sourceCode.getScope(node));
-	return result
-		&& typeof result.value !== 'symbol'
-		&& !isObjectValue(result.value)
-		? String(result.value)
+	const result = getStaticValueIfNoSideEffects(node, context);
+	if (!result && hasPotentiallyMutableMemberAccess(node, context)) {
+		return;
+	}
+
+	const staticResult = result ?? getStaticValue(node, context.sourceCode.getScope(node));
+	return staticResult
+		&& typeof staticResult.value !== 'symbol'
+		&& !isObjectValue(staticResult.value)
+		? String(staticResult.value)
 		: undefined;
 };
 

@@ -113,6 +113,11 @@ ruleTest.snapshot({
 		'const pattern = {}; if (foo.match(pattern)) {}',
 		'const pattern = () => {}; if (foo.match(pattern)) {}',
 		'const pattern = 1 + 2; if (foo.match(pattern)) {}',
+		outdent`
+			const object = {pattern: /regexp/};
+			Object.defineProperty(object, 'pattern', {get() { return 'regexp'; }});
+			if (foo.match(object.pattern)) {}
+		`,
 
 		// Known non-RegExp receivers
 		'if ("regexp".exec(foo)) {}',

@@ -1,4 +1,4 @@
-import {getStaticValue, hasSideEffect, isSemicolonToken} from '@eslint-community/eslint-utils';
+import {hasSideEffect, isSemicolonToken} from '@eslint-community/eslint-utils';
 import {
 	getCallExpressionTokens,
 	getCallExpressionArgumentsText,
@@ -8,6 +8,7 @@ import {
 	hasOptionalChainElement,
 	needsSemicolon,
 	shouldSkipKnownNonArrayReceiver,
+	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
 import {isMethodCall, isMemberExpression, isCallExpression} from './ast/index.js';
 
@@ -25,7 +26,7 @@ const isClassList = node => isMemberExpression(node, {
 
 const hasSpreadElement = callExpression => callExpression.arguments.some(node => node.type === 'SpreadElement');
 
-const hasStaticValue = (node, sourceCode) => getStaticValue(node, sourceCode.getScope(node)) !== null;
+const hasStaticValue = (node, context) => getStaticValueIfNoSideEffects(node, context) !== undefined;
 
 function getExpressionStatement(callExpression) {
 	let expressionStatement = callExpression.parent;
@@ -57,14 +58,14 @@ function getMergePlan(firstCall, secondCall, keepSecondCall) {
 	};
 }
 
-function shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, sourceCode) {
+function shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, context) {
 	const argumentsToCheckForSideEffects = keepSecondCall
 		? [...firstCall.arguments, ...secondCall.arguments]
 		: secondCall.arguments;
 
 	return (keepSecondCall && (hasSpreadElement(firstCall) || hasSpreadElement(secondCall)))
-		|| (keepSecondCall && argumentsToCheckForSideEffects.some(element => !hasStaticValue(element, sourceCode)))
-		|| argumentsToCheckForSideEffects.some(element => hasSideEffect(element, sourceCode));
+		|| (keepSecondCall && argumentsToCheckForSideEffects.some(element => !hasStaticValue(element, context)))
+		|| argumentsToCheckForSideEffects.some(element => hasSideEffect(element, context.sourceCode));
 }
 
 function hasCommentsInRange(sourceCode, range) {
@@ -246,7 +247,7 @@ function create(context) {
 			};
 
 			if (!hasCommentsInRange(sourceCode, removalRange)) {
-				if (shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, sourceCode)) {
+				if (shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, context)) {
 					problem.suggest = [
 						{
 							messageId: SUGGESTION,

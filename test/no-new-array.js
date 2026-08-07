@@ -23,6 +23,7 @@ test.snapshot({
 			new Array(modes.size ? 1 : 'x');
 		`,
 		'const modes = new Set(["foo"]); modes.clear(); new Array((modes.size && 1) || value);',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); new Array(object.value ? 1 : value);',
 		{
 			code: 'const modes = new Set(["foo"]); modes.clear(); new Array((modes.size ? "x" : 1) as number);',
 			languageOptions: {parser: parsers.typescript},

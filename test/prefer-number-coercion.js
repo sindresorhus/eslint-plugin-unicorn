@@ -20,6 +20,7 @@ test.snapshot({
 		},
 		'const modes = new Set([\'foo\']); modes.clear(); parseInt(value, modes.size && 10);',
 		'const modes = new Set([\'foo\']); modes.clear(); parseInt(value, (modes.size = 0) ? 10 : radix);',
+		'const object = {value: true}; Object.defineProperty(object, \'value\', {get() { return false; }}); parseInt(value, object.value ? 10 : radix);',
 		'Number.parseInt(value, radix);',
 		'Number["parseFloat"](value);',
 		'Number["parseInt"](value, 10);',

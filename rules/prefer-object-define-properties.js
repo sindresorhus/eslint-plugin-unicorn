@@ -1,9 +1,10 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getIndentString,
 	getNextNode,
 	getPreviousNode,
+	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
 	isSameReference,
 	isIdentifierName,
 } from './utils/index.js';
@@ -37,9 +38,9 @@ function getDefinePropertyCall(expressionStatement) {
 }
 
 function getStaticPropertyKey(node, sourceCode) {
-	const staticValue = getStaticValue(node, sourceCode.getScope(node));
+	const staticValue = getStaticValueIfNoSideEffects(node, {sourceCode});
 
-	if (!staticValue) {
+	if (!staticValue || hasPotentiallyMutableMemberAccess(node, {sourceCode})) {
 		return;
 	}
 

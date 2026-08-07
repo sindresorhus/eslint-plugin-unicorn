@@ -62,6 +62,14 @@ test({
 		`,
 		'const modes = new Set(["foo"]); modes.clear(); if (array.length < (modes.size ? -1 : 1)) {}',
 		'const modes = new Set(["foo"]); modes.clear(); if (array.length < (modes.size && -1)) {}',
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return false; }});
+			if (array.length < (object.value ? -1 : lowerBound)) {}
+		`,
+		`const object = {length: 1};
+Object.defineProperty(object, 'length', {get() { return -1; }});
+if (object.length >= 0) {}`,
 	],
 	invalid: [
 		{

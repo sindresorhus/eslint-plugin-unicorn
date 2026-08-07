@@ -591,6 +591,8 @@ ruleTest.snapshot({
 			code: 'function foo(value: string) { value.concat(other); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'({value: "🦄"}).value.slice();',
+		'({value: "x"}).value.concat(1);',
 		{
 			code: 'function foo(value: Buffer) { value.concat(next); }',
 			languageOptions: {parser: parsers.typescript},
@@ -616,6 +618,16 @@ ruleTest.snapshot({
 	],
 	invalid: [
 		'[1].concat(2)',
+		outdent`
+			const object = {value: [2]};
+			Object.defineProperty(object, 'value', {get() { return 'bar'; }});
+			[1].concat(object.value);
+		`,
+		outdent`
+			const object = {value: [1]};
+			Object.defineProperty(object, 'value', {get() { return 'bar'; }});
+			object.value.concat(2);
+		`,
 		'[1].concat("bar")',
 		'[1].concat([2, 3])',
 		'[1].concat(2,)',

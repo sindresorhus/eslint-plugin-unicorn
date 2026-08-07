@@ -86,6 +86,10 @@ test.snapshot({
 		typeAware('export {}; class Map<K, V> {get(key: K): V | undefined {return undefined;} has(key: K) {return true;}} declare const map: Map<string, object>; map.get(key) !== undefined'),
 		typeAware('export {}; interface Map<K, V> {get(key: K): V | undefined; has(key: K): boolean} declare const map: Map<string, object>; map.get(key) !== undefined'),
 		'const map = new Map([[key, {}]]); map.get(key) !== undefined',
+		`const object = {value: {}};
+Object.defineProperty(object, 'value', {get() { return undefined; }});
+const map = new Map([[key, object.value]]);
+map.get(key) !== undefined;`,
 		typeAware('const map = new Map<string, object | undefined>([[key, {}]]); map.get(key) !== undefined'),
 		typeAware('new Map<string, object | undefined>(iterable).get(key) !== undefined'),
 		typeAware('new Map<string, object>([[key, undefined]]).get(key) !== undefined'),

@@ -67,6 +67,13 @@ test.snapshot({
 		// Side-effecting / non-static operands (reported, no suggestion)
 		'foo.bar * 0;',
 		'foo() * 0;',
+		`const object = {value: 1};
+Object.defineProperty(object, 'value', {get() { return 1n; }});
+object.value * 0;`,
+		`const object = {value: 1};
+Object.defineProperty(object, 'value', {get() { return 1n; }});
+const value = object.value;
+value * 0;`,
 
 		// Foldable via a constant binding resolved through scope (suggestion → `0`)
 		'const a = 5;\na * 0;',

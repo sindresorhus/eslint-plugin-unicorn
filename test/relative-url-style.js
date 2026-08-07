@@ -1,4 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
+import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -15,6 +16,11 @@ test.snapshot({
 		'new NOT_URL("./", base)',
 		'new URL("./", base)',
 		'new URL("./", "https://example.com/a/b/c.html")',
+		outdent`
+			const base = {value: 'https://example.com/a/b'};
+			Object.defineProperty(base, 'value', {get() { return 'https://example.com/a/b'; }});
+			new URL('./?query', base.value);
+		`,
 		'const base = new URL("./", import.meta.url)',
 		'new URL',
 		'new URL(0, base)',
@@ -33,6 +39,9 @@ test.snapshot({
 	],
 	invalid: [
 		'new URL("./foo", base)',
+		`const base = {value: 'https://example.com/'};
+Object.defineProperty(base, 'value', {get() { return 'https://example.com/a/b/'; }});
+new URL('./foo', base.value);`,
 		'new URL(\'./foo\', base)',
 		'new URL("././a", base)',
 		'new URL(`./${foo}`, base)',

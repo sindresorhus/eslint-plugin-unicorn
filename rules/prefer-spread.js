@@ -1,6 +1,5 @@
 import {
 	findVariable,
-	getStaticValue,
 	isCommaToken,
 	isCommentToken,
 	hasSideEffect,
@@ -19,6 +18,8 @@ import {
 	hasUnparenthesizedOptionalChainElement,
 	isTypeScriptExpressionWrapper,
 	isDefaultLibrarySymbol,
+	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
 import {
@@ -128,8 +129,8 @@ const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	return isCommaToken(sourceCode.getLastToken(node, 1));
 };
 
-const isStaticString = (node, scope) => {
-	const staticValue = getStaticValue(node, scope);
+const isStaticString = (node, context) => {
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
 	return typeof staticValue?.value === 'string';
 };
 
@@ -270,7 +271,7 @@ function fixConcat(node, context, fixableArguments) {
 	};
 }
 
-const getConcatArgumentSpreadable = (node, scope, context) => {
+const getConcatArgumentSpreadable = (node, context) => {
 	if (node.type === 'SpreadElement') {
 		return;
 	}
@@ -283,7 +284,7 @@ const getConcatArgumentSpreadable = (node, scope, context) => {
 		return {node, isArrayLiteral: true};
 	}
 
-	const result = getStaticValue(node, scope);
+	const result = getStaticValueIfNoSideEffects(node, context);
 
 	if (!result) {
 		return;
@@ -294,11 +295,11 @@ const getConcatArgumentSpreadable = (node, scope, context) => {
 	return {node, isSpreadable};
 };
 
-function getConcatFixableArguments(argumentsList, scope, context) {
+function getConcatFixableArguments(argumentsList, context) {
 	const fixableArguments = [];
 
 	for (const node of argumentsList) {
-		const result = getConcatArgumentSpreadable(node, scope, context);
+		const result = getConcatArgumentSpreadable(node, context);
 
 		if (result) {
 			fixableArguments.push(result);
@@ -386,7 +387,7 @@ function isGlobalMemberExpression(node, objectName, propertyName, context) {
 		return node.property.type === 'Identifier' && node.property.name === propertyName;
 	}
 
-	const staticValue = getStaticValue(node.property, context.sourceCode.getScope(node.property));
+	const staticValue = getStaticValueIfNoSideEffects(node.property, context);
 	return staticValue?.value === propertyName;
 }
 
@@ -927,7 +928,7 @@ function isNotArrayByArrayIsArrayTest(node, context) {
 	return false;
 }
 
-function isNotArray(node, scope) {
+function isNotArray(node, context) {
 	if (
 		node.type === 'TemplateLiteral'
 		|| node.type === 'Literal'
@@ -939,7 +940,7 @@ function isNotArray(node, scope) {
 		return true;
 	}
 
-	const staticValue = getStaticValue(node, scope);
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
 	return Boolean(staticValue && !Array.isArray(staticValue.value));
 }
 
@@ -951,9 +952,8 @@ function getSyntacticReceiverArrayState(node, context) {
 		return true;
 	}
 
-	const scope = context.sourceCode.getScope(node);
 	if (
-		isNotArray(node, scope)
+		isNotArray(node, context)
 		|| node.type === 'ObjectExpression'
 		|| node.type === 'FunctionExpression'
 		|| node.type === 'ArrowFunctionExpression'
@@ -1326,7 +1326,7 @@ const create = context => {
 		if (
 			receiverArrayState !== true
 			&& node.arguments.length > 0
-			&& node.arguments.every(argument => isStaticString(argument, scope))
+			&& node.arguments.every(argument => isStaticString(argument, context))
 		) {
 			return;
 		}
@@ -1336,8 +1336,9 @@ const create = context => {
 			messageId: ERROR_ARRAY_CONCAT,
 		};
 
-		const fixableArguments = getConcatFixableArguments(node.arguments, scope, context);
-		const isReceiverSafeToSpread = !isArrayConstructorWithOneArgument(object, context);
+		const fixableArguments = getConcatFixableArguments(node.arguments, context);
+		const isReceiverSafeToSpread = !hasPotentiallyMutableMemberAccess(object, context)
+			&& !isArrayConstructorWithOneArgument(object, context);
 
 		if (fixableArguments.length > 0 || node.arguments.length === 0) {
 			if (
@@ -1363,7 +1364,7 @@ const create = context => {
 			return problem;
 		}
 
-		const fixableArgumentsAfterFirstArgument = getConcatFixableArguments(restArguments, scope, context);
+		const fixableArgumentsAfterFirstArgument = getConcatFixableArguments(restArguments, context);
 		const hasUnsafeArrayConstructorRestArgument = restArguments.some(argument => isArrayConstructorWithOneArgument(argument, context));
 		const suggestions = [
 			{
@@ -1410,7 +1411,7 @@ const create = context => {
 				fix: fixConcat(
 					node,
 					context,
-					node.arguments.map(node => getConcatArgumentSpreadable(node, scope, context) || {node, isSpreadable: true}),
+					node.arguments.map(node => getConcatArgumentSpreadable(node, context) || {node, isSpreadable: true}),
 				),
 			});
 		}
@@ -1434,8 +1435,7 @@ const create = context => {
 			return;
 		}
 
-		const scope = sourceCode.getScope(node.callee.object);
-		if (isNotArray(node.callee.object, scope)) {
+		if (isNotArray(node.callee.object, context)) {
 			return;
 		}
 

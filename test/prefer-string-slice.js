@@ -70,6 +70,10 @@ test({
 			errors: errorsSubstr,
 		},
 		{
+			code: 'const object = {value: true}; Object.defineProperty(object, "value", {get() { return 0; }}); foo.substr(object.value ? 0 : index, length);',
+			errors: errorsSubstr,
+		},
+		{
 			code: 'foo.substr()',
 			output: 'foo.slice()',
 			errors: errorsSubstr,

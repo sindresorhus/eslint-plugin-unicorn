@@ -1,7 +1,8 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isMemberExpression} from '../ast/index.js';
 import isLogicalExpression from './is-logical-expression.js';
 import isSameReference from './is-same-reference.js';
+import getStaticValueIfNoSideEffects from './get-static-value.js';
 
 const shapeProperties = new Set(['depth', 'height', 'width']);
 
@@ -48,6 +49,17 @@ export function hasSameObjectShapePropertyCheck({node, lengthOrSizeNode}) {
 }
 
 export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
-	const staticValue = getStaticValue(memberExpression, context.sourceCode.getScope(memberExpression));
-	return Boolean(staticValue && (!Number.isSafeInteger(staticValue.value) || staticValue.value < 0));
+	const staticValue = getStaticValueIfNoSideEffects(memberExpression, context);
+	if (staticValue) {
+		return !Number.isSafeInteger(staticValue.value) || staticValue.value < 0;
+	}
+
+	const {object} = memberExpression;
+	if (object.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(object), object);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	return definition?.type === 'Variable' && definition.node.init?.type === 'ObjectExpression';
 }

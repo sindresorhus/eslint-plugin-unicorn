@@ -55,6 +55,7 @@ test.snapshot({
 		'foo[Symbol.property] = 1',
 		'const modes = new Set(["foo"]); modes.clear(); foo[modes.size ? "then" : "value"] = 1',
 		'const modes = new Set(["foo"]); modes.clear(); foo[(modes.size && "then") || key] = 1',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); foo[object.value ? "then" : key] = 1',
 
 		// `Object.fromEntries`
 		'Object.fromEntries([then, 1])',
@@ -85,6 +86,7 @@ test.snapshot({
 		'Reflect.defineProperty(foo, Symbol.property, 1)',
 		'const modes = new Set([\'foo\']); modes.clear(); Object.defineProperty(foo, modes.size ? \'then\' : \'value\', descriptor)',
 		'const modes = new Set([\'foo\']); modes.clear(); Object.defineProperty(foo, (modes.size && \'then\') || key, descriptor)',
+		'const object = {value: true}; Object.defineProperty(object, \'value\', {get() { return false; }}); Object.defineProperty(foo, object.value ? \'then\' : key, descriptor)',
 
 		// `export`
 		'export {default} from "then"',

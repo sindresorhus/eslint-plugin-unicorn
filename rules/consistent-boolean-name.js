@@ -1,5 +1,5 @@
 import {isRegExp} from 'node:util/types';
-import {findVariable, getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {renameVariable} from './fix/index.js';
 import {combineBooleanStates, getPromisedTypeBooleanState, getTypeBooleanState} from './utils/get-type-boolean-state.js';
 import resolveVariableName from './utils/resolve-variable-name.js';
@@ -8,6 +8,7 @@ import {
 	getAvailableVariableName,
 	getScopes,
 	getVariableIdentifiers,
+	getStaticValueIfNoSideEffects,
 	isReactHookName,
 	lowerFirst,
 	upperFirst,
@@ -1869,17 +1870,41 @@ function getKnownIdentifierBooleanState(node, context, visitedVariables, functio
 	return variable ? getVariableBooleanState(variable, context, visitedVariables, functionValuesAreBoolean) : unknown;
 }
 
-function getStaticExpressionBooleanState(node, scope) {
+function getStaticExpressionBooleanState(node, context) {
 	if (node.type === 'Identifier') {
 		return unknown;
 	}
 
-	const staticValue = getStaticValue(node, scope)?.value;
+	const staticValue = getStaticValueIfNoSideEffects(node, context)?.value;
 
 	return staticValue === undefined
 		? unknown
 		: (typeof staticValue === 'boolean' ? boolean : nonBoolean);
 }
+
+const hasPotentiallyMutableExpression = (node, context) => {
+	if (!node) {
+		return false;
+	}
+
+	if (node.type === 'Identifier') {
+		const variable = findVariable(context.sourceCode.getScope(node), node);
+		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+		return Boolean(
+			definition?.type === 'Variable'
+			&& definition.node.init?.type === 'MemberExpression'
+			&& hasPotentiallyMutableExpression(definition.node.init, context),
+		);
+	}
+
+	if (node.type !== 'MemberExpression' || node.object.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node.object), node.object);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	return definition?.type === 'Variable' && definition.node.init?.type === 'ObjectExpression';
+};
 
 function getSimpleExpressionBooleanState(node) {
 	if (nonBooleanExpressionTypes.has(node.type)) {
@@ -1964,11 +1989,14 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 		return stateFromTypeAnnotation;
 	}
 
-	if (isBooleanExpression(node, context, visitedVariables)) {
+	if (
+		!hasPotentiallyMutableExpression(node, context)
+		&& isBooleanExpression(node, context, visitedVariables)
+	) {
 		return boolean;
 	}
 
-	const stateFromStaticValue = getStaticExpressionBooleanState(node, scope);
+	const stateFromStaticValue = getStaticExpressionBooleanState(node, context);
 	if (stateFromStaticValue !== unknown) {
 		return stateFromStaticValue;
 	}
@@ -2013,11 +2041,15 @@ const isBooleanVariable = (variable, context) => {
 			&& isBooleanExpression(parameter.right, context);
 	}
 
-	if (isBooleanExpression(name, context)) {
+	if (!hasPotentiallyMutableExpression(name, context) && isBooleanExpression(name, context)) {
 		return true;
 	}
 
 	if (definition.type === 'Variable') {
+		if (hasPotentiallyMutableExpression(definition.node.init, context)) {
+			return false;
+		}
+
 		return isBooleanValue(definition.node.init, context);
 	}
 

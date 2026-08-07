@@ -1,5 +1,5 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import isSameReference from './is-same-reference.js';
+import getStaticValueIfNoSideEffects from './get-static-value.js';
 
 export const isComparableStaticValue = value =>
 	value === null
@@ -22,8 +22,7 @@ const getComparableStaticElementValueResult = (element, context) => {
 		return {value: undefined};
 	}
 
-	const {sourceCode} = context;
-	const result = getStaticValue(element, sourceCode.getScope(element));
+	const result = getStaticValueIfNoSideEffects(element, context);
 
 	if (!result || !isComparableStaticValue(result.value)) {
 		return;

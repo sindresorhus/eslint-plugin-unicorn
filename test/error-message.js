@@ -78,6 +78,31 @@ test.snapshot({
 			message = 'valid';
 			new Error(message);
 		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return false; }});
+			new Error(object.value ? '' : message);
+		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(object.value);
+		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(object.value + 1);
+		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(({value: object.value}).value);
+		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error([object.value][0]);
+		`,
 	],
 	invalid: [
 		'throw new Error()',

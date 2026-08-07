@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isMethodCall,
 	isNewExpression,
@@ -15,6 +15,7 @@ import {
 	isNullishType,
 	isUnknownType,
 	shouldAddParenthesesToMemberExpressionObject,
+	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-has-check';
@@ -622,7 +623,7 @@ const isDefinitelyTruthyType = (type, checker, program) => {
 };
 
 const isDefinitelySafeExpression = (node, context, kind) => {
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
 	if (staticValue) {
 		return isDefinitelySafeLiteralValue(staticValue.value, kind);
 	}

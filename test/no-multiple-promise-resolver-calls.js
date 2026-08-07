@@ -1569,6 +1569,19 @@ test.snapshot({
 		`,
 		outdent`
 			new Promise(resolve => {
+				const object = {value: true};
+				Object.defineProperty(object, 'value', {get() { return false; }});
+
+				if (object.value) {
+					return;
+				}
+
+				resolve();
+				resolve();
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
 				try {
 					switch (value) {
 						default:

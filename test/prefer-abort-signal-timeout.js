@@ -295,6 +295,11 @@ test.snapshot({
 		`,
 		outdent`
 			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), ({delay: -1}).delay);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
 			setTimeout(() => abortController.abort(), 1.5);
 			fetch(url, {signal: abortController.signal});
 		`,
@@ -321,6 +326,28 @@ test.snapshot({
 		`,
 		outdent`
 			const delay = '100';
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const options = {delay: 0};
+			Object.defineProperty(options, 'delay', {get() { return 2147483648; }});
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), options.delay);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const options = {delay: undefined};
+			Object.defineProperty(options, 'delay', {get() { return -1; }});
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), options.delay);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const options = {delay: undefined};
+			Object.defineProperty(options, 'delay', {get() { return -1; }});
+			const delay = options.delay;
 			const abortController = new AbortController();
 			setTimeout(() => abortController.abort(), delay);
 			fetch(url, {signal: abortController.signal});
