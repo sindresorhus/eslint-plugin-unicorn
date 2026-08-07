@@ -18,7 +18,7 @@ const staticPassThroughMethods = new Set([
 	'seal',
 ]);
 
-const isSafeStaticPassThroughCall = (node, context) =>
+export const isSafeStaticPassThroughCall = (node, context, visitedVariables = new Set()) =>
 	node.type === 'CallExpression'
 	&& !node.optional
 	&& node.arguments.length === 1
@@ -31,7 +31,7 @@ const isSafeStaticPassThroughCall = (node, context) =>
 	&& isGlobalIdentifier(node.callee.object, context)
 	&& node.callee.property.type === 'Identifier'
 	&& staticPassThroughMethods.has(node.callee.property.name)
-	&& getStaticValueIfNoSideEffects(node.arguments[0], context) !== undefined;
+	&& getStaticValueIfNoSideEffectsInternal(node.arguments[0], context, visitedVariables) !== undefined;
 
 export const isBranchExpression = node => {
 	node = unwrapTypeScriptExpression(node);
@@ -100,7 +100,7 @@ const isSafeStaticRegExpConstructorArgument = (node, context) => {
 
 	return isRegExpValue(staticValue.value)
 		|| staticValue.value === null
-		|| ['bigint', 'boolean', 'number', 'string', 'symbol', 'undefined'].includes(typeof staticValue.value);
+		|| ['bigint', 'boolean', 'number', 'string', 'undefined'].includes(typeof staticValue.value);
 };
 
 export const getStaticRegExp = (node, context) => {
@@ -159,7 +159,7 @@ export const hasSideEffectfulConstInitializer = (node, context, visitedVariables
 
 	visitedVariables.add(definition.variable);
 	const result = (
-		!isSafeStaticPassThroughCall(definition.initializer, context)
+		!isSafeStaticPassThroughCall(definition.initializer, context, visitedVariables)
 		&& hasSideEffect(definition.initializer, context.sourceCode, {considerGetters: true})
 	) || hasSideEffectfulConstReference(definition.initializer, context, visitedVariables);
 	visitedVariables.delete(definition.variable);
@@ -284,7 +284,7 @@ export const hasPotentiallyMutableMemberAccess = (node, context, visitedVariable
 		node = node.expression;
 	}
 
-	if (isSafeStaticPassThroughCall(node, context)) {
+	if (isSafeStaticPassThroughCall(node, context, visitedVariables)) {
 		return false;
 	}
 
@@ -307,6 +307,21 @@ export const hasPotentiallyMutableMemberAccess = (node, context, visitedVariable
 	return getChildNodes(node).some(child => hasPotentiallyMutableMemberAccess(child, context, visitedVariables));
 };
 
+const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables = new Set()) => {
+	node = unwrapTypeScriptExpression(node);
+	const {sourceCode} = context;
+	const hasSideEffects = hasSideEffect(node, sourceCode);
+	if (
+		(!isSafeStaticPassThroughCall(node, context, visitedVariables) && hasSideEffects)
+		|| hasSideEffectfulConstInitializer(node, context, visitedVariables)
+		|| hasPotentiallyMutableMemberAccess(node, context, visitedVariables)
+	) {
+		return;
+	}
+
+	return getStaticValueFromEslintUtilities(node, sourceCode.getScope(node)) ?? undefined;
+};
+
 /**
 Get the static value of a node only when evaluating it has no side effects or unsupported mutable member reads.
 
@@ -315,16 +330,5 @@ Get the static value of a node only when evaluating it has no side effects or un
 @returns {object | undefined}
 */
 export default function getStaticValueIfNoSideEffects(node, context) {
-	node = unwrapTypeScriptExpression(node);
-	const {sourceCode} = context;
-	const hasSideEffects = hasSideEffect(node, sourceCode);
-	if (
-		(!isSafeStaticPassThroughCall(node, context) && hasSideEffects)
-		|| hasSideEffectfulConstInitializer(node, context)
-		|| hasPotentiallyMutableMemberAccess(node, context)
-	) {
-		return;
-	}
-
-	return getStaticValueFromEslintUtilities(node, sourceCode.getScope(node)) ?? undefined;
+	return getStaticValueIfNoSideEffectsInternal(node, context);
 }

@@ -6,7 +6,7 @@ import {
 	isLoop,
 } from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
-import getStaticValueIfNoSideEffects from './get-static-value.js';
+import getStaticValueIfNoSideEffects, {isSafeStaticPassThroughCall} from './get-static-value.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 
 /**
@@ -1834,6 +1834,7 @@ export default function isBranchExit(branch, context, branchAlwaysExits) {
 
 	if (branch.type === 'IfStatement' || branch.type === 'ConditionalExpression') {
 		const staticValue = hasSideEffect(branch.test, context.sourceCode, {considerGetters: true})
+			&& !isSafeStaticPassThroughCall(branch.test, context)
 			? undefined
 			: getStaticValueIfNoSideEffects(branch.test, context);
 		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(branch.test, context)) {

@@ -52,7 +52,7 @@ function getIdentifierDeclaration(node, scope) {
 	return getIdentifierDeclaration(identifier.parent.init, variable.scope);
 }
 
-const hasEncodingAccessorDefinition = (node, sourceCode, visitedVariables = new Set()) => {
+const hasEncodingAccessor = (node, sourceCode, visitedVariables = new Set()) => {
 	if (node.type !== 'Identifier') {
 		return false;
 	}
@@ -107,7 +107,7 @@ const hasEncodingAccessorDefinition = (node, sourceCode, visitedVariables = new 
 			&& variableDeclarator.id.type === 'Identifier'
 			&& variableDeclarator.parent.type === 'VariableDeclaration'
 			&& variableDeclarator.parent.kind === 'const'
-			&& hasEncodingAccessorDefinition(variableDeclarator.id, sourceCode, visitedVariables);
+			&& hasEncodingAccessor(variableDeclarator.id, sourceCode, visitedVariables);
 	});
 	visitedVariables.delete(variable);
 	return result;
@@ -134,7 +134,7 @@ const isSingleEncodingOptionObject = value =>
 	&& Object.hasOwn(value, 'encoding');
 
 function isUtf8Encoding(node, scope, sourceCode) {
-	if (hasEncodingAccessorDefinition(node, sourceCode)) {
+	if (hasEncodingAccessor(node, sourceCode)) {
 		return false;
 	}
 
@@ -163,7 +163,7 @@ function isUtf8Encoding(node, scope, sourceCode) {
 }
 
 function isBufferEncoding(node, scope, sourceCode) {
-	if (hasEncodingAccessorDefinition(node, sourceCode)) {
+	if (hasEncodingAccessor(node, sourceCode)) {
 		return false;
 	}
 
