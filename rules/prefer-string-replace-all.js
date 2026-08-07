@@ -2,14 +2,13 @@ import regjsparser from 'regjsparser';
 import {
 	getStaticStringValue,
 	isRegexLiteral,
-	isNewExpression,
 	isMethodCall,
 } from './ast/index.js';
 import {isRegExpEscapeReplaceCall} from './shared/regexp-escape.js';
 import {
 	escapeString,
 	getParenthesizedText,
-	getStaticValueIfNoSideEffects,
+	getStaticRegExp,
 	isKnownNonString,
 } from './utils/index.js';
 
@@ -157,33 +156,7 @@ function getPatternReplacement(node) {
 	return QUOTE + replacement + QUOTE;
 }
 
-const isRegExpWithGlobalFlag = (node, context) => {
-	if (isRegexLiteral(node)) {
-		return node.regex.flags.includes('g');
-	}
-
-	if (
-		isNewExpression(node, {name: 'RegExp'})
-		&& node.arguments[0]?.type !== 'SpreadElement'
-		&& node.arguments[1]?.type === 'Literal'
-		&& typeof node.arguments[1].value === 'string'
-	) {
-		return node.arguments[1].value.includes('g');
-	}
-
-	const staticResult = getStaticValueIfNoSideEffects(node, context);
-
-	// Don't know if there is `g` flag
-	if (!staticResult) {
-		return false;
-	}
-
-	const {value} = staticResult;
-	return (
-		Object.prototype.toString.call(value) === '[object RegExp]'
-		&& value.global
-	);
-};
+const isRegExpWithGlobalFlag = (node, context) => Boolean(getStaticRegExp(node, context)?.global);
 
 const parseRegExpLiteral = node => {
 	const {pattern, flags} = node.regex;

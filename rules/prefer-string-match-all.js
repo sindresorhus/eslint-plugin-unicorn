@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import regjsparser from 'regjsparser';
 import {
 	isFunction,
@@ -7,7 +7,7 @@ import {
 	isNullLiteral,
 	isRegexLiteral,
 } from './ast/index.js';
-import {getStaticValueIfNoSideEffects, hasPotentiallyMutableMemberAccess} from './utils/index.js';
+import {getStaticRegExp, getStaticValueIfNoSideEffects, hasPotentiallyMutableMemberAccess} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID = 'prefer-string-match-all';
@@ -144,27 +144,17 @@ const isGlobalRegExpDefinition = (variable, context) => {
 		return false;
 	}
 
-	if (
-		!isRegexLiteral(init)
-		&& !isNewExpression(init, {name: 'RegExp'})
-	) {
+	if (!isRegexLiteral(init) && !isNewExpression(init, {name: 'RegExp'})) {
 		return false;
 	}
 
-	if (hasPotentiallyMutableMemberAccess(init, context) && !getStaticValueIfNoSideEffects(init, context)) {
+	const value = getStaticRegExp(init, context);
+	if (!value) {
 		return false;
 	}
 
-	const staticResult = getStaticValue(init, variable.scope);
-
-	if (!staticResult) {
-		return false;
-	}
-
-	const {value} = staticResult;
 	return (
-		Object.prototype.toString.call(value) === '[object RegExp]'
-		&& value.global
+		value.global
 		&& !canMatchEmptyString(value)
 	);
 };

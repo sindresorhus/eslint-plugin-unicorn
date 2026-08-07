@@ -19,6 +19,7 @@ import {
 	isString,
 	isUnknownType,
 	isGlobalBooleanCall,
+	getStaticRegExp,
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableMemberAccess,
 	shouldAddParenthesesToMemberExpressionObject,
@@ -42,6 +43,7 @@ const messages = {
 };
 
 const isLiteralZero = node => isLiteral(node, 0);
+const isRegExpValue = value => Object.prototype.toString.call(value) === '[object RegExp]';
 
 function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context) {
 	const {sourceCode} = context;
@@ -123,12 +125,6 @@ const cases = [
 
 const isRegExpNode = node => isRegexLiteral(node) || isNewExpression(node, {name: 'RegExp'});
 
-const getRegExpFromStaticValue = value => {
-	if (Object.prototype.toString.call(value) === '[object RegExp]') {
-		return value;
-	}
-};
-
 const getStaticValueType = (node, context) => {
 	const result = getStaticValueIfNoSideEffects(node, context);
 	if (!result && hasPotentiallyMutableMemberAccess(node, context)) {
@@ -144,7 +140,7 @@ const getStaticValueType = (node, context) => {
 		return STRING;
 	}
 
-	if (getRegExpFromStaticValue(result.value)) {
+	if (isRegExpValue(result.value)) {
 		return REGEXP;
 	}
 
@@ -633,9 +629,8 @@ const create = context => {
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
 
-			const staticResult = getStaticValueIfNoSideEffects(regexpNode, context);
-			const staticRegExp = staticResult ? getRegExpFromStaticValue(staticResult.value) : undefined;
-			const isRegExp = isRegExpNode(regexpNode);
+			const staticRegExp = getStaticRegExp(regexpNode, context);
+			const isSafeRegExp = isRegexLiteral(regexpNode) || Boolean(staticRegExp);
 			const stringType = getExpressionType(nodes.stringNode, context);
 			const regexpType = getExpressionType(regexpNode, context);
 
@@ -681,7 +676,7 @@ const create = context => {
 				lengthCheck,
 				searchCheck,
 				callExpression: node,
-				isRegExp,
+				isRegExp: isSafeRegExp,
 				staticRegExp,
 			});
 

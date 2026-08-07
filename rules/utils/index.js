@@ -48,6 +48,7 @@ export {
 export {default as getConstVariableInitializer} from './get-const-variable-initializer.js';
 export {
 	default as getStaticValueIfNoSideEffects,
+	getStaticRegExp,
 	isBranchExpression,
 	hasPotentiallyMutableMemberAccess,
 	hasSideEffectfulConstInitializer,

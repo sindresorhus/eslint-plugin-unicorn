@@ -3,7 +3,35 @@ import {
 	getStaticValue as getStaticValueFromEslintUtilities,
 	hasSideEffect,
 } from '@eslint-community/eslint-utils';
+import isGlobalIdentifier from './is-global-identifier.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+
+const unevaluatedExpressionTypes = new Set([
+	'FunctionExpression',
+	'ArrowFunctionExpression',
+	'ClassExpression',
+]);
+
+const staticPassThroughMethods = new Set([
+	'freeze',
+	'preventExtensions',
+	'seal',
+]);
+
+const isSafeStaticPassThroughCall = (node, context) =>
+	node.type === 'CallExpression'
+	&& !node.optional
+	&& node.arguments.length === 1
+	&& node.arguments[0].type !== 'SpreadElement'
+	&& node.callee.type === 'MemberExpression'
+	&& !node.callee.computed
+	&& !node.callee.optional
+	&& node.callee.object.type === 'Identifier'
+	&& node.callee.object.name === 'Object'
+	&& isGlobalIdentifier(node.callee.object, context)
+	&& node.callee.property.type === 'Identifier'
+	&& staticPassThroughMethods.has(node.callee.property.name)
+	&& getStaticValueIfNoSideEffects(node.arguments[0], context) !== undefined;
 
 export const isBranchExpression = node => {
 	node = unwrapTypeScriptExpression(node);
@@ -33,10 +61,75 @@ const getConstVariableDefinition = (node, context) => {
 	return {variable, initializer: definition.node.init};
 };
 
+const isRegExpValue = value => Object.prototype.toString.call(value) === '[object RegExp]';
+
+const isRegExpConstructor = node => node?.type === 'NewExpression'
+	&& node.callee.type === 'Identifier'
+	&& node.callee.name === 'RegExp';
+
+const isRegExpLiteral = node => node?.type === 'Literal' && node.regex;
+
+const getRegExpVariableDefinition = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	if (
+		definition?.type !== 'Variable'
+		|| !definition.node.init
+		|| definition.node.id !== definition.name
+		|| variable.references.some(reference => reference.isWrite() && reference.identifier !== definition.name)
+	) {
+		return;
+	}
+
+	return {initializer: definition.node.init};
+};
+
+const isSafeStaticRegExpConstructorArgument = (node, context) => {
+	if (node.type === 'SpreadElement') {
+		return false;
+	}
+
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	if (!staticValue) {
+		return false;
+	}
+
+	return isRegExpValue(staticValue.value)
+		|| staticValue.value === null
+		|| ['bigint', 'boolean', 'number', 'string', 'symbol', 'undefined'].includes(typeof staticValue.value);
+};
+
+export const getStaticRegExp = (node, context) => {
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	if (staticValue && isRegExpValue(staticValue.value)) {
+		return staticValue.value;
+	}
+
+	const definition = getRegExpVariableDefinition(node, context);
+	const initializer = definition?.initializer;
+	const constructor = isRegExpConstructor(node)
+		? node
+		: (isRegExpConstructor(initializer) ? initializer : undefined);
+	if (
+		!isRegExpLiteral(initializer)
+		&& (!constructor || constructor.arguments.some(argument => !isSafeStaticRegExpConstructorArgument(argument, context)))
+	) {
+		return;
+	}
+
+	const result = getStaticValueFromEslintUtilities(node, context.sourceCode.getScope(node));
+	return result && isRegExpValue(result.value) ? result.value : undefined;
+};
+
 const getChildNodes = node => Object.entries(node)
 	.filter(([key]) =>
 		!['parent', 'loc', 'range'].includes(key)
-		&& !(node.type === 'Property' && key === 'key' && !node.computed),
+		&& !(node.type === 'Property' && key === 'key' && !node.computed)
+		&& !(node.type === 'MemberExpression' && key === 'property' && !node.computed),
 	)
 	.flatMap(([, value]) => Array.isArray(value) ? value : [value])
 	.filter(value => value?.type);
@@ -46,7 +139,7 @@ const hasSideEffectfulConstReference = (node, context, visitedVariables) => {
 		return hasSideEffectfulConstInitializer(node, context, visitedVariables);
 	}
 
-	if (['FunctionExpression', 'ArrowFunctionExpression', 'ClassExpression'].includes(node.type)) {
+	if (unevaluatedExpressionTypes.has(node.type)) {
 		return false;
 	}
 
@@ -65,8 +158,10 @@ export const hasSideEffectfulConstInitializer = (node, context, visitedVariables
 	}
 
 	visitedVariables.add(definition.variable);
-	const result = hasSideEffect(definition.initializer, context.sourceCode, {considerGetters: true})
-		|| hasSideEffectfulConstReference(definition.initializer, context, visitedVariables);
+	const result = (
+		!isSafeStaticPassThroughCall(definition.initializer, context)
+		&& hasSideEffect(definition.initializer, context.sourceCode, {considerGetters: true})
+	) || hasSideEffectfulConstReference(definition.initializer, context, visitedVariables);
 	visitedVariables.delete(definition.variable);
 	return result;
 };
@@ -135,7 +230,7 @@ const isSafeStaticArrayMember = (node, propertyName, context, visitedVariables) 
 	}
 
 	const index = Number(propertyName);
-	if (String(index) !== propertyName || index < 0 || index >= node.elements.length) {
+	if (String(index) !== propertyName || !Number.isSafeInteger(index) || index < 0 || index >= node.elements.length) {
 		return false;
 	}
 
@@ -157,7 +252,10 @@ const isSafeStaticMemberObject = (node, propertyName, context, visitedVariables)
 		}
 
 		const index = Number(propertyName);
-		return String(index) === propertyName && index >= 0 && index < primitiveValue.length;
+		return String(index) === propertyName
+			&& Number.isSafeInteger(index)
+			&& index >= 0
+			&& index < primitiveValue.length;
 	}
 
 	if (node.type === 'ArrayExpression') {
@@ -184,6 +282,10 @@ export const hasPotentiallyMutableMemberAccess = (node, context, visitedVariable
 	node = unwrapTypeScriptExpression(node);
 	if (node.type === 'ChainExpression') {
 		node = node.expression;
+	}
+
+	if (isSafeStaticPassThroughCall(node, context)) {
+		return false;
 	}
 
 	const definition = getConstVariableDefinition(node, context);
@@ -215,8 +317,9 @@ Get the static value of a node only when evaluating it has no side effects or un
 export default function getStaticValueIfNoSideEffects(node, context) {
 	node = unwrapTypeScriptExpression(node);
 	const {sourceCode} = context;
+	const hasSideEffects = hasSideEffect(node, sourceCode);
 	if (
-		hasSideEffect(node, sourceCode, {considerGetters: true})
+		(!isSafeStaticPassThroughCall(node, context) && hasSideEffects)
 		|| hasSideEffectfulConstInitializer(node, context)
 		|| hasPotentiallyMutableMemberAccess(node, context)
 	) {

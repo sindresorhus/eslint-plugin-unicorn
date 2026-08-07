@@ -229,6 +229,10 @@ ruleTest.snapshot({
 		'const bar = {bar: /a/}; if (foo.match(bar.baz)) {}',
 		'if (foo.match(bar.baz())) {}',
 		'if (foo.match(new RegExp("re", "g"))) {}',
+		outdent`
+			const options = {toString() { sideEffect(); return 'a'; }};
+			if (getString().match(new RegExp(options))) {}
+		`,
 		'if (foo.match(new SomeRegExp())) {}',
 		'if (foo.match(new SomeRegExp)) {}',
 		'if (foo.match(bar?.baz)) {}',

@@ -41,6 +41,18 @@ test({
 				console.log(value[index]);
 			}
 		`,
+		outdent`
+			const value = '123'.indexOf('1');
+			for (let index = 0; index < value.length; index++) {
+				console.log(value[index]);
+			}
+		`,
+		outdent`
+			const value = '123'.includes('1');
+			for (let index = 0; index < value.length; index++) {
+				console.log(value[index]);
+			}
+		`,
 		'for (;;);',
 		'for (;;) {}',
 		'for (a;; c) { d }',

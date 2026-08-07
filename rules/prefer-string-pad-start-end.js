@@ -5,8 +5,10 @@ import {
 	getStaticValueIfNoSideEffects,
 	hasSideEffectfulConstInitializer,
 	hasPotentiallyMutableMemberAccess,
+	isBoolean,
 	isBranchExpression,
 	isKnownNonString,
+	isNumber,
 	isSameReference,
 	needsSemicolon,
 } from './utils/index.js';
@@ -97,12 +99,15 @@ const getStaticValueResult = (node, context) => {
 	return result ?? getStaticValue(staticValueNode, context.sourceCode.getScope(staticValueNode));
 };
 
-const isClearlyNonStringTarget = (node, context) => (
-	clearlyNonStringTargetTypes.has(node.type)
-	|| isStaticNonString(node, context)
-	|| clearlyNonStringTargetTypes.has(getIdentifierValueNode(node, context)?.type)
-	|| isKnownNonString(node, context)
-);
+const isClearlyNonStringTarget = (node, context) => {
+	const valueNode = getIdentifierValueNode(node, context) ?? node;
+	return clearlyNonStringTargetTypes.has(node.type)
+		|| isStaticNonString(node, context)
+		|| clearlyNonStringTargetTypes.has(valueNode.type)
+		|| isNumber(valueNode, context)
+		|| isBoolean(valueNode, context)
+		|| isKnownNonString(node, context);
+};
 
 const hasCommentsInside = (node, context) => context.sourceCode.getCommentsInside(node).length > 0;
 
