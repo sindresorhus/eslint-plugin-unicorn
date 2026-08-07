@@ -2,9 +2,11 @@ import {getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNewExpression} from './ast/index.js';
 import {
 	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
 	hasSideEffectfulConstInitializer,
 	isBranchExit,
 	isProcessExitBranch,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'require-proxy-trap-boolean-return';
@@ -80,20 +82,20 @@ const isProxyCall = node => isProxyConstructorCall(node) || isProxyRevocableCall
 
 const getStaticBooleanValue = (node, sourceCode) => {
 	const context = {sourceCode};
-	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	const staticValueNode = unwrapTypeScriptExpression(node);
+	const staticValue = getStaticValueIfNoSideEffects(staticValueNode, context);
 	if (staticValue !== undefined) {
 		return typeof staticValue.value === 'boolean' ? undefined : Boolean(staticValue.value);
 	}
 
 	if (
-		node.type === 'MemberExpression'
-		|| node.type === 'ChainExpression'
-		|| hasSideEffectfulConstInitializer(node, context)
+		hasPotentiallyMutableMemberAccess(staticValueNode, context)
+		|| hasSideEffectfulConstInitializer(staticValueNode, context)
 	) {
 		return;
 	}
 
-	const result = getStaticValue(node, sourceCode.getScope(node));
+	const result = getStaticValue(staticValueNode, sourceCode.getScope(staticValueNode));
 	if (!result || typeof result.value === 'boolean') {
 		return;
 	}

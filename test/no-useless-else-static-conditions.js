@@ -138,6 +138,21 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				Object.prototype.toString = () => '';
+				const initialValue = String({});
+				const value = true ? initialValue : '';
+
+				if (condition) {
+					if (value) {
+						return;
+					}
+				} else {
+					doSomethingElse();
+				}
+			}
+		`,
+		outdent`
 			const object = {value: true};
 			object.value = false;
 
