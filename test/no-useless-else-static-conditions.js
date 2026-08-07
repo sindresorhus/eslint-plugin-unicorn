@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta, 'no-useless-else');
 
@@ -238,6 +238,64 @@ test.snapshot({
 				}
 			} else {
 				globalThis.fallback();
+			}
+		`,
+		outdent`
+			function qux(Object) {
+				if (condition) {
+					if (Object.freeze({})) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (condition) {
+					if (Object.freeze(null)) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (condition) {
+					if (Object.freeze?.({})) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (condition) {
+					if (Object.freeze(...[{}])) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				const object = {value: true};
+				Object.defineProperty(object, 'value', {get() { return false; }});
+
+				if (condition) {
+					if (Object.freeze(object.value)) {
+						return;
+					}
+				} else {
+					bar();
+				}
 			}
 		`,
 		outdent`
@@ -495,5 +553,19 @@ test.snapshot({
 				}
 			}
 		`,
+		{
+			code: outdent`
+				function qux() {
+					if (condition) {
+						if ((Object.freeze({}) as object)) {
+							return;
+						}
+					} else {
+						bar();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
