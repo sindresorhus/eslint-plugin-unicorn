@@ -50,6 +50,7 @@ test({
 		'const value = {size: "small"}; if (value.size < 0) {}',
 		'const value = {length: NaN}; if (value.length < 0) {}',
 		'const value = {length: Infinity}; if (value.length < 0) {}',
+		'const value = {length: -1}; value.length; if (value.length < 0) {}',
 		'if (dimensions.width && dimensions.length < 0) {}',
 		'if ((dimensions.width && dimensions.length < 0) || fallback) {}',
 		'if (dimensions.height && dimensions.size === -1) {}',
@@ -69,6 +70,20 @@ test({
 		`,
 		`const object = {length: 1};
 Object.defineProperty(object, 'length', {get() { return -1; }});
+if (object.length >= 0) {}`,
+		`const object = {length: 1};
+Object.defineProperties(object, {length: {get() { return -1; }}});
+if (object.length >= 0) {}`,
+		`const key = 'length';
+const object = {length: 1};
+Object.defineProperty(object, key, {get() { return -1; }});
+if (object.length >= 0) {}`,
+		`const object = {length: 1};
+Object.defineProperties(object, {['length']: {get() { return -1; }}});
+if (object.length >= 0) {}`,
+		`const key = 'length';
+const object = {length: 1};
+Object.defineProperties(object, {[key]: {get() { return -1; }}});
 if (object.length >= 0) {}`,
 	],
 	invalid: [

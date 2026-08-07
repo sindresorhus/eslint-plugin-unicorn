@@ -18,6 +18,27 @@ const staticPassThroughMethods = new Set([
 	'seal',
 ]);
 
+const staticGlobalProperties = new Map([
+	['Math', new Set(['E', 'LN2', 'LN10', 'LOG2E', 'LOG10E', 'PI', 'SQRT1_2', 'SQRT2'])],
+	['Number', new Set(['EPSILON', 'MAX_SAFE_INTEGER', 'MAX_VALUE', 'MIN_SAFE_INTEGER', 'MIN_VALUE', 'NaN', 'NEGATIVE_INFINITY', 'POSITIVE_INFINITY'])],
+	['String', new Set(['raw'])],
+	['Symbol', new Set(['asyncIterator', 'hasInstance', 'isConcatSpreadable', 'iterator', 'match', 'matchAll', 'replace', 'search', 'species', 'split', 'toPrimitive', 'toStringTag', 'unscopables'])],
+]);
+
+// Like `getStaticValue`, this assumes that built-in globals are not monkey-patched.
+const isSafeStaticGlobalMember = (node, context) =>
+	Boolean(
+		node.type === 'MemberExpression'
+		&& !node.optional
+		&& node.object.type === 'Identifier'
+		&& isGlobalIdentifier(node.object, context)
+		&& staticGlobalProperties.get(node.object.name)?.has(
+			node.computed
+				? node.property.type === 'Literal' && typeof node.property.value === 'string' && node.property.value
+				: node.property.type === 'Identifier' && node.property.name,
+		),
+	);
+
 export const isSafeStaticPassThroughCall = (node, context, visitedVariables = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
 	if (node.type !== 'CallExpression') {
@@ -309,7 +330,8 @@ export const hasPotentiallyMutableMemberAccess = (node, context, visitedVariable
 	}
 
 	if (node.type === 'MemberExpression') {
-		return !isSafeStaticMember(node, context, visitedVariables);
+		return !isSafeStaticGlobalMember(node, context)
+			&& !isSafeStaticMember(node, context, visitedVariables);
 	}
 
 	return getChildNodes(node).some(child => hasPotentiallyMutableMemberAccess(child, context, visitedVariables));

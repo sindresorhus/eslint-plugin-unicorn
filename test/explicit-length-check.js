@@ -345,6 +345,9 @@ test.snapshot({
 			code: 'const foo = { length: 123 }; if (foo.length) {}',
 			options: [{'non-zero': 'not-equal'}],
 		},
+		// A later property write invalidates the initial static value.
+		'const foo = {length: -1}; foo.length = 123; if (foo.length) {}',
+		'const foo = {length: -1}; Object.assign(foo, {length: 123}); if (foo.length) {}',
 		'if (foo.bar && foo.bar.length) {}',
 		'if (foo.length || foo.bar()) {}',
 		'if (!!(!!foo.length)) {}',

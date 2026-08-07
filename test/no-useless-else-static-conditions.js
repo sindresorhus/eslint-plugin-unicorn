@@ -446,7 +446,7 @@ test.snapshot({
 				const key = object.value;
 
 				if (condition) {
-					if (({value: {key: true}}).value) {
+					if (({value: {key}}).value) {
 						return;
 					}
 				} else {

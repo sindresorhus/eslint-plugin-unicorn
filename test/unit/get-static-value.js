@@ -81,6 +81,20 @@ test('preserves safe static primitives and pass-through calls', t => {
 	}
 });
 
+test('preserves known static global properties', t => {
+	for (const [code, expected] of [
+		['const result = Math.PI;', Math.PI],
+		['const result = Math[\'PI\'];', Math.PI],
+		['const result = Number.MAX_SAFE_INTEGER;', Number.MAX_SAFE_INTEGER],
+		['const result = Number[\'MAX_SAFE_INTEGER\'];', Number.MAX_SAFE_INTEGER],
+		['const result = Symbol.iterator;', Symbol.iterator],
+		['const result = Symbol[\'iterator\'];', Symbol.iterator],
+		['const result = String.raw`foo`;', 'foo'],
+	]) {
+		t.is(evaluate(code, getStaticValueIfNoSideEffects)?.value, expected);
+	}
+});
+
 test('returns static regular expressions only for safe expressions', t => {
 	for (const code of [
 		'const result = /foo/g;',

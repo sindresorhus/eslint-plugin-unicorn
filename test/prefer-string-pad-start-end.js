@@ -102,6 +102,12 @@ test({
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{
+			code: 'function target() {} var target = "x"; const foo = "*".repeat(10 - target.length) + target;',
+			output: 'function target() {} var target = "x"; const foo = target.padStart(10, "*");',
+			errors: [{messageId: MESSAGE_ID}],
+			languageOptions: {sourceType: 'script'},
+		},
+		{
 			code: outdent`
 				const object = {};
 				Object.defineProperty(object, 'value', {get() { return 'x'; }});
