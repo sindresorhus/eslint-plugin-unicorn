@@ -743,12 +743,17 @@ const getReferencesInChildScopes = (scope, name) =>
 	getReferences(scope).filter(reference => reference.identifier.name === name);
 
 const isStaticNonArray = (node, context) => {
-	if (hasPotentiallyMutableMemberAccess(node, context)) {
+	const staticResult = getStaticValue(node, context.sourceCode.getScope(node));
+	if (!staticResult) {
 		return false;
 	}
 
-	const staticResult = getStaticValue(node, context.sourceCode.getScope(node));
-	return Boolean(staticResult && !Array.isArray(staticResult.value));
+	if (hasPotentiallyMutableMemberAccess(node, context)) {
+		// A static string may be produced by a method call. Keep this guard because reporting it would be a false positive.
+		return typeof staticResult.value === 'string';
+	}
+
+	return !Array.isArray(staticResult.value);
 };
 
 const getUpdateExpressionInfo = (forStatement, indexIdentifierName, cachedLengthIdentifier) => {
