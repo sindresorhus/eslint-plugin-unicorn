@@ -51,6 +51,8 @@ test.snapshot({
 		// Well-known `Symbol` keys
 		'const map = new Map(); map[Symbol.iterator];',
 		'const map = new Map(); map[Symbol.toStringTag];',
+		'const key = Symbol.iterator; const map = new Map(); map[key];',
+		'const property = "iterator"; const map = new Map(); map[Symbol[property]];',
 		'const map = new Map(); map[condition ? Symbol.iterator : Symbol.toStringTag];',
 		'const map = new Map(); map[(0, Symbol.iterator)];',
 		'const map = new Map(); map[(0, Symbol.toStringTag)];',

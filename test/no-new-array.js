@@ -2,6 +2,7 @@ import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const noAutofixOutput = /./.exec('');
 
 test.snapshot({
 	valid: [
@@ -61,6 +62,8 @@ test.snapshot({
 		'new Array(-Math.PI)',
 		'new Array(-"-2")',
 		'new Array(foo.length)',
+		'const array = [1]; new Array(array.length)',
+		'const text = "foo"; new Array(text.length)',
 		'const foo = 1; new Array(foo + 2)',
 		'new Array(foo - 2)',
 		'new Array(foo -= 2)',
@@ -117,5 +120,16 @@ test.snapshot({
 			const foo = []
 			new Array(...bar).forEach(baz)
 		`,
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const object = {}; Object.defineProperty(object, "length", {get() { return "foo"; }}); new Array(object.length);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'error', suggestions: 2}],
+		},
 	],
 });

@@ -57,6 +57,16 @@ const hasEncodingAccessorDefinition = (node, sourceCode) => {
 		return false;
 	}
 
+	const hasAccessorDescriptor = descriptor => descriptor?.type === 'ObjectExpression'
+		&& descriptor.properties.some(property => {
+			if (property.type !== 'Property') {
+				return false;
+			}
+
+			const propertyName = getPropertyName(property, sourceCode.getScope(property));
+			return propertyName === 'get' || propertyName === 'set';
+		});
+
 	const variable = findVariable(sourceCode.getScope(node), node);
 	return Boolean(variable?.references.some(reference => {
 		const callExpression = reference.identifier.parent;
@@ -65,24 +75,30 @@ const hasEncodingAccessorDefinition = (node, sourceCode) => {
 			|| callExpression.callee.type !== 'MemberExpression'
 			|| callExpression.callee.object.type !== 'Identifier'
 			|| callExpression.callee.object.name !== 'Object'
-			|| callExpression.callee.property.type !== 'Identifier'
-			|| callExpression.callee.property.name !== 'defineProperty'
 			|| callExpression.arguments[0] !== reference.identifier
-			|| !callExpression.arguments[1]
-			|| callExpression.arguments[2]?.type !== 'ObjectExpression'
-			|| getStaticValueIfNoSideEffects(callExpression.arguments[1], {sourceCode})?.value !== 'encoding'
 		) {
 			return false;
 		}
 
-		return callExpression.arguments[2].properties.some(property => {
-			if (property.type !== 'Property') {
+		const method = getPropertyName(callExpression.callee, sourceCode.getScope(callExpression.callee));
+		if (method === 'defineProperty') {
+			if (!callExpression.arguments[1]) {
 				return false;
 			}
 
-			const propertyName = getPropertyName(property, sourceCode.getScope(property));
-			return propertyName === 'get' || propertyName === 'set';
-		});
+			return getStaticValueIfNoSideEffects(callExpression.arguments[1], {sourceCode})?.value === 'encoding'
+				&& hasAccessorDescriptor(callExpression.arguments[2]);
+		}
+
+		if (method !== 'defineProperties' || callExpression.arguments[1]?.type !== 'ObjectExpression') {
+			return false;
+		}
+
+		return callExpression.arguments[1].properties.some(property =>
+			property.type === 'Property'
+			&& getPropertyName(property, sourceCode.getScope(property)) === 'encoding'
+			&& hasAccessorDescriptor(property.value),
+		);
 	}));
 };
 

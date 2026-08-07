@@ -33,6 +33,23 @@ const getConstVariableDefinition = (node, context) => {
 	return {variable, initializer: definition.node.init};
 };
 
+export const hasSideEffectfulConstInitializer = (node, context, visitedVariables = new Set()) => {
+	const definition = getConstVariableDefinition(node, context);
+	if (!definition) {
+		return false;
+	}
+
+	if (visitedVariables.has(definition.variable)) {
+		return true;
+	}
+
+	visitedVariables.add(definition.variable);
+	const result = hasSideEffect(definition.initializer, context.sourceCode, {considerGetters: true})
+		|| hasSideEffectfulConstInitializer(definition.initializer, context, visitedVariables);
+	visitedVariables.delete(definition.variable);
+	return result;
+};
+
 const isStaticPropertyValue = value => typeof value === 'string' || typeof value === 'number';
 
 const getStaticPropertyName = (node, property, context) => {
@@ -186,7 +203,8 @@ export default function getStaticValueIfNoSideEffects(node, context) {
 	node = unwrapTypeScriptExpression(node);
 	const {sourceCode} = context;
 	if (
-		hasSideEffect(node, sourceCode)
+		hasSideEffect(node, sourceCode, {considerGetters: true})
+		|| hasSideEffectfulConstInitializer(node, context)
 		|| hasPotentiallyMutableMemberAccess(node, context)
 	) {
 		return;

@@ -3,6 +3,7 @@ import {isMemberExpression, isMethodCall, isNumericLiteral} from './ast/index.js
 import {
 	getParenthesizedText,
 	getStaticValueIfNoSideEffects,
+	hasSideEffectfulConstInitializer,
 	hasPotentiallyMutableMemberAccess,
 	isBranchExpression,
 	isKnownNonString,
@@ -80,6 +81,10 @@ const getIdentifierValueNode = (node, context) => {
 
 const getStaticValueResult = (node, context) => {
 	const staticValueNode = getIdentifierValueNode(node, context) ?? node;
+	if (hasSideEffectfulConstInitializer(node, context)) {
+		return;
+	}
+
 	const result = getStaticValueIfNoSideEffects(staticValueNode, context);
 	if (staticValueNode.type !== 'SequenceExpression') {
 		return result;

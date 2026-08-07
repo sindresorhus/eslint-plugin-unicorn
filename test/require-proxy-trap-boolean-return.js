@@ -67,6 +67,7 @@ test({
 		'new Proxy(target, {set() { return didSet = true; }});',
 		'new Proxy(target, {set(target, property, value) { return didSet = Reflect.set(target, property, value); }});',
 		'new Proxy(target, {set(target, property) { return (sideEffect(), property in target); }});',
+		'new Proxy(target, {set() { Object.prototype.toString = () => ""; const value = String({}); return value; }});',
 		'new Proxy(target, {set() { return value > 0; }});',
 		'new Proxy(target, {set() { return value === otherValue; }});',
 		'new Proxy(target, {set() { return value instanceof Constructor; }});',

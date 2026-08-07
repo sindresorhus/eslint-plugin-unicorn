@@ -2,7 +2,7 @@ import {getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNewExpression} from './ast/index.js';
 import {
 	getStaticValueIfNoSideEffects,
-	hasPotentiallyMutableMemberAccess,
+	hasSideEffectfulConstInitializer,
 	isBranchExit,
 	isProcessExitBranch,
 } from './utils/index.js';
@@ -81,14 +81,19 @@ const isProxyCall = node => isProxyConstructorCall(node) || isProxyRevocableCall
 const getStaticBooleanValue = (node, sourceCode) => {
 	const context = {sourceCode};
 	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	if (staticValue !== undefined) {
+		return typeof staticValue.value === 'boolean' ? undefined : Boolean(staticValue.value);
+	}
+
 	if (
-		staticValue === undefined
-		&& hasPotentiallyMutableMemberAccess(node, context)
+		node.type === 'MemberExpression'
+		|| node.type === 'ChainExpression'
+		|| hasSideEffectfulConstInitializer(node, context)
 	) {
 		return;
 	}
 
-	const result = staticValue ?? getStaticValue(node, sourceCode.getScope(node));
+	const result = getStaticValue(node, sourceCode.getScope(node));
 	if (!result || typeof result.value === 'boolean') {
 		return;
 	}

@@ -21,6 +21,7 @@ import {
 	getStaticValueIfNoSideEffects,
 	isBranchExpression,
 	hasPotentiallyMutableMemberAccess,
+	hasSideEffectfulConstInitializer,
 	isDefaultLibrarySymbol,
 	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
@@ -86,7 +87,11 @@ const getStaticPropertyName = (property, context) =>
 
 const getStaticValueForNode = (node, context) => {
 	const staticValueNode = unwrapTypeScriptExpression(node);
-	if (isBranchExpression(staticValueNode) || hasPotentiallyMutableMemberAccess(staticValueNode, context)) {
+	if (
+		isBranchExpression(staticValueNode)
+		|| hasPotentiallyMutableMemberAccess(staticValueNode, context)
+		|| hasSideEffectfulConstInitializer(staticValueNode, context)
+	) {
 		return getStaticValueIfNoSideEffects(staticValueNode, context);
 	}
 
