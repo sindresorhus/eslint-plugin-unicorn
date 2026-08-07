@@ -20,19 +20,24 @@ const staticPassThroughMethods = new Set([
 
 export const isSafeStaticPassThroughCall = (node, context, visitedVariables = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
+	if (node.type !== 'CallExpression') {
+		return false;
+	}
 
-	return node.type === 'CallExpression'
-		&& !node.optional
+	const callee = unwrapTypeScriptExpression(node.callee);
+	const object = unwrapTypeScriptExpression(callee.object);
+
+	return !node.optional
 		&& node.arguments.length === 1
 		&& node.arguments[0].type !== 'SpreadElement'
-		&& node.callee.type === 'MemberExpression'
-		&& !node.callee.computed
-		&& !node.callee.optional
-		&& node.callee.object.type === 'Identifier'
-		&& node.callee.object.name === 'Object'
-		&& isGlobalIdentifier(node.callee.object, context)
-		&& node.callee.property.type === 'Identifier'
-		&& staticPassThroughMethods.has(node.callee.property.name)
+		&& callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& !callee.optional
+		&& object.type === 'Identifier'
+		&& object.name === 'Object'
+		&& isGlobalIdentifier(object, context)
+		&& callee.property.type === 'Identifier'
+		&& staticPassThroughMethods.has(callee.property.name)
 		&& getStaticValueIfNoSideEffectsInternal(node.arguments[0], context, visitedVariables) !== undefined;
 };
 

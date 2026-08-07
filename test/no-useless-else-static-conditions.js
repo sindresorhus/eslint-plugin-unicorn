@@ -567,5 +567,75 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				function qux() {
+					if (condition) {
+						if ((Object.freeze as typeof Object.freeze)({})) {
+							return;
+						}
+					} else {
+						bar();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function qux() {
+					if (condition) {
+						if (Object.freeze!({})) {
+							return;
+						}
+					} else {
+						bar();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function qux() {
+					if (condition) {
+						if ((Object.freeze satisfies typeof Object.freeze)({})) {
+							return;
+						}
+					} else {
+						bar();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function qux() {
+					if (condition) {
+						if ((<typeof Object.freeze>Object.freeze)({})) {
+							return;
+						}
+					} else {
+						bar();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function qux() {
+					if (condition) {
+						if ((Object as typeof Object).freeze({})) {
+							return;
+						}
+					} else {
+						bar();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
