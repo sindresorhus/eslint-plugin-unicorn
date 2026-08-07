@@ -69,14 +69,21 @@ const getIdentifierValueNode = (node, context) => {
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 	const definition = variable?.defs[0];
+	const hasNonInitializationWrite = variable?.references.some(reference => reference.isWrite() && !reference.init);
 
 	// Only the binding itself counts. A parameter's definition node is the enclosing function, which says nothing about the parameter.
-	if (definition?.type === 'FunctionName' || definition?.type === 'ClassName') {
+	if (!hasNonInitializationWrite && (definition?.type === 'FunctionName' || definition?.type === 'ClassName')) {
 		return definition.node;
 	}
 
 	// The initializer only describes the variable when it is bound directly. In `const [bar] = ["x"]` the initializer is an array but `bar` is a string.
-	if (definition?.type === 'Variable' && definition.node.id === definition.name) {
+	if (
+		!hasNonInitializationWrite
+		&& definition?.type === 'Variable'
+		&& definition.parent?.kind === 'const'
+		&& definition.node.id === definition.name
+		&& definition.node.init
+	) {
 		return definition.node.init;
 	}
 };
