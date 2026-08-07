@@ -68,7 +68,7 @@ const getIdentifierValueNode = (node, context) => {
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	const definition = variable?.defs[0];
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
 	const hasNonInitializationWrite = variable?.references.some(reference => reference.isWrite() && !reference.init);
 
 	// Only the binding itself counts. A parameter's definition node is the enclosing function, which says nothing about the parameter.
