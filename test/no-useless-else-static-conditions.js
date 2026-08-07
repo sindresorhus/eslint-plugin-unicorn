@@ -153,6 +153,20 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				Object.prototype.toString = () => '';
+				const initialValue = String({});
+
+				if (condition) {
+					if (true ? initialValue : false) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
 			const object = {value: true};
 			object.value = false;
 

@@ -41,10 +41,23 @@ const getChildNodes = node => Object.entries(node)
 	.flatMap(([, value]) => Array.isArray(value) ? value : [value])
 	.filter(value => value?.type);
 
+const hasSideEffectfulConstReference = (node, context, visitedVariables) => {
+	if (node.type === 'Identifier') {
+		return hasSideEffectfulConstInitializer(node, context, visitedVariables);
+	}
+
+	if (['FunctionExpression', 'ArrowFunctionExpression', 'ClassExpression'].includes(node.type)) {
+		return false;
+	}
+
+	return getChildNodes(node).some(child => hasSideEffectfulConstReference(child, context, visitedVariables));
+};
+
 export const hasSideEffectfulConstInitializer = (node, context, visitedVariables = new Set()) => {
 	const definition = getConstVariableDefinition(node, context);
 	if (!definition) {
-		return false;
+		return node.type !== 'Identifier'
+			&& hasSideEffectfulConstReference(node, context, visitedVariables);
 	}
 
 	if (visitedVariables.has(definition.variable)) {
@@ -52,20 +65,8 @@ export const hasSideEffectfulConstInitializer = (node, context, visitedVariables
 	}
 
 	visitedVariables.add(definition.variable);
-	const hasSideEffectfulConstReference = node => {
-		if (node.type === 'Identifier') {
-			return hasSideEffectfulConstInitializer(node, context, visitedVariables);
-		}
-
-		if (['FunctionExpression', 'ArrowFunctionExpression', 'ClassExpression'].includes(node.type)) {
-			return false;
-		}
-
-		return getChildNodes(node).some(child => hasSideEffectfulConstReference(child));
-	};
-
 	const result = hasSideEffect(definition.initializer, context.sourceCode, {considerGetters: true})
-		|| hasSideEffectfulConstReference(definition.initializer);
+		|| hasSideEffectfulConstReference(definition.initializer, context, visitedVariables);
 	visitedVariables.delete(definition.variable);
 	return result;
 };
