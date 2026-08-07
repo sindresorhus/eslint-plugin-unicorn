@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
@@ -45,19 +45,28 @@ const isProcessExitStatement = (node, context) =>
 	node.type === 'ExpressionStatement'
 	&& isProcessExitExpression(node.expression, context);
 
-const getStaticValueForThrowAnalysis = (node, context) => {
+const isDefinitelyNullish = (node, context) => {
 	const staticValue = getStaticValueIfNoSideEffects(node, context);
-	if (staticValue !== undefined || node.type !== 'ChainExpression') {
-		return staticValue;
-	}
-
-	return getStaticValue(node, context.sourceCode.getScope(node)) ?? undefined;
+	return staticValue !== undefined
+		&& (staticValue.value === null || staticValue.value === undefined);
 };
 
-const isDefinitelyNotThrowing = (node, context) =>
-	node.type === 'SequenceExpression'
-		? node.expressions.every(expression => isDefinitelyNotThrowingExpression(expression, context))
-		: getStaticValueForThrowAnalysis(node, context) !== undefined;
+const isDefinitelyNotThrowing = (node, context) => {
+	if (node.type === 'SequenceExpression') {
+		return node.expressions.every(expression => isDefinitelyNotThrowingExpression(expression, context));
+	}
+
+	if (
+		node.type === 'ChainExpression'
+		&& node.expression.type === 'MemberExpression'
+		&& node.expression.optional
+		&& isDefinitelyNullish(node.expression.object, context)
+	) {
+		return true;
+	}
+
+	return getStaticValueIfNoSideEffects(node, context) !== undefined;
+};
 
 const isTemporalDeadZoneDefinition = definition => (
 	(definition.type === 'Variable' && definition.parent?.kind !== 'var')

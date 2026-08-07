@@ -56,6 +56,7 @@ test.snapshot({
 		'const modes = new Set([1]); modes.clear(); value === other && value > (modes.size ? 3 : 2) && other > 3;',
 		'const modes = new Set([1]); modes.clear(); value === other && value > -(modes.size ? 2 : 3) && other > -2;',
 		'const modes = new Set([1]); modes.clear(); value === other && value > ((modes.size && 3) || lowerBound) && other > 3;',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); value === other && value > (object.value ? 3 : lowerBound) && other > 3;',
 		{
 			code: 'const modes = new Set([1]); modes.clear(); value === other && value > ((modes.size ? 3 : 2) as number) && other > 3;',
 			languageOptions: {parser: parsers.typescript},

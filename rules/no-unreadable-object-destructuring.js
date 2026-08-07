@@ -1,5 +1,5 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {isTypeScriptExpressionWrapper} from './utils/index.js';
+import {getStaticValueIfNoSideEffects, isGlobalIdentifier, isTypeScriptExpressionWrapper} from './utils/index.js';
 
 const MESSAGE_ID_COMPUTED_KEY = 'computed-key';
 const MESSAGE_ID_NESTED_ARRAY = 'nested-array';
@@ -71,8 +71,19 @@ function getObjectPatternDepth(node) {
 	return depth;
 }
 
-function isStaticComputedKey(node, scope) {
-	return getStaticValue(node, scope) !== null;
+function isStaticComputedKey(node, context) {
+	if (getStaticValueIfNoSideEffects(node, context) !== undefined) {
+		return true;
+	}
+
+	if (
+		node.type === 'MemberExpression'
+		&& !isGlobalIdentifier(node.object, context)
+	) {
+		return false;
+	}
+
+	return getStaticValue(node, context.sourceCode.getScope(node)) !== null;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -89,7 +100,7 @@ const create = context => {
 		// so allow it when the same object pattern collects a rest. A static key is not
 		// dynamic, so it stays disallowed.
 		if (
-			!isStaticComputedKey(node.key, context.sourceCode.getScope(node.key))
+			!isStaticComputedKey(node.key, context)
 			&& node.parent.properties.some(property => property.type === 'RestElement')
 		) {
 			return;

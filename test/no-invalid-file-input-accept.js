@@ -94,6 +94,7 @@ jsx.snapshot({
 	invalid: [
 		'const modes = new Set(["foo"]); modes.clear(); <input type="file" accept={modes.size ? "bad" : "image/jpeg"} />',
 		'const modes = new Set(["foo"]); modes.clear(); <input type="file" accept={(modes.size && "image/jpeg") || value} />',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); <input type="file" accept={object.value ? "image/jpeg" : value} />',
 		'<input type="file" accept />',
 		'<input type="file" accept={allowedTypes} />',
 		'<input type="file" accept={`image/${type}`} />',

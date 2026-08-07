@@ -713,6 +713,9 @@ test.snapshot({
 		},
 		typescript('const completed: boolean | undefined = true;'),
 		typescript('type MaybeBoolean = boolean | undefined; const completed: MaybeBoolean = true;'),
+		`const object = {value: true};
+Object.defineProperty(object, 'value', {get() { return 1; }});
+const completed = object.value;`,
 		typeAware('declare function useRef<T>(value: T): {current: T}; const consentRef = useRef(false);'),
 		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentRef = useRef(false);'),
 		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentReference = useRef(false);'),

@@ -158,6 +158,19 @@ test({
 			name: 'parseInt',
 		}),
 		invalidMethodTest({
+			code: outdent`
+				const object = {value: true};
+				Object.defineProperty(object, 'value', {get() { return false; }});
+				parseInt('10', object.value ? 10 : radix);
+			`,
+			output: outdent`
+				const object = {value: true};
+				Object.defineProperty(object, 'value', {get() { return false; }});
+				Number.parseInt('10', object.value ? 10 : radix);
+			`,
+			name: 'parseInt',
+		}),
+		invalidMethodTest({
 			// Radix `0` (treated as base-10 at runtime) is still flagged
 			code: 'parseInt("10", 0);',
 			output: 'Number.parseInt("10", 0);',

@@ -1,6 +1,11 @@
 import {getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNewExpression} from './ast/index.js';
-import {isBranchExit, isProcessExitBranch} from './utils/index.js';
+import {
+	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
+	isBranchExit,
+	isProcessExitBranch,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'require-proxy-trap-boolean-return';
 const messages = {
@@ -74,12 +79,21 @@ const isProxyRevocableCall = node => isMethodCall(node, {
 const isProxyCall = node => isProxyConstructorCall(node) || isProxyRevocableCall(node);
 
 const getStaticBooleanValue = (node, sourceCode) => {
-	const staticValue = getStaticValue(node, sourceCode.getScope(node));
-	if (staticValue === null || typeof staticValue.value === 'boolean') {
+	const context = {sourceCode};
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	if (
+		staticValue === undefined
+		&& hasPotentiallyMutableMemberAccess(node, context)
+	) {
 		return;
 	}
 
-	return Boolean(staticValue.value);
+	const result = staticValue ?? getStaticValue(node, sourceCode.getScope(node));
+	if (!result || typeof result.value === 'boolean') {
+		return;
+	}
+
+	return Boolean(result.value);
 };
 
 const getBooleanReplacement = (node, booleanValue, sourceCode) => {

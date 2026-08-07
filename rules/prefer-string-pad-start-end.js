@@ -3,6 +3,7 @@ import {isMemberExpression, isMethodCall, isNumericLiteral} from './ast/index.js
 import {
 	getParenthesizedText,
 	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
 	isBranchExpression,
 	isKnownNonString,
 	isSameReference,
@@ -31,7 +32,15 @@ const getStaticString = (node, context) => {
 
 const isStaticNonString = (node, context) => {
 	const staticValueNode = getIdentifierValueNode(node, context) ?? node;
-	const result = getStaticValueIfNoSideEffects(staticValueNode, context);
+	if (
+		staticValueNode.type === 'SequenceExpression'
+		&& hasPotentiallyMutableMemberAccess(staticValueNode, context)
+	) {
+		const finalResult = getStaticValueIfNoSideEffects(staticValueNode.expressions.at(-1), context);
+		return !finalResult || typeof finalResult.value !== 'string';
+	}
+
+	const result = getStaticValueResult(staticValueNode, context);
 	if (isBranchExpression(staticValueNode)) {
 		return !result || typeof result.value !== 'string';
 	}
@@ -72,11 +81,15 @@ const getIdentifierValueNode = (node, context) => {
 const getStaticValueResult = (node, context) => {
 	const staticValueNode = getIdentifierValueNode(node, context) ?? node;
 	const result = getStaticValueIfNoSideEffects(staticValueNode, context);
-	if (result || staticValueNode.type !== 'SequenceExpression') {
+	if (staticValueNode.type !== 'SequenceExpression') {
 		return result;
 	}
 
-	return getStaticValue(staticValueNode, context.sourceCode.getScope(staticValueNode));
+	if (staticValueNode.expressions.some(expression => hasPotentiallyMutableMemberAccess(expression, context))) {
+		return;
+	}
+
+	return result ?? getStaticValue(staticValueNode, context.sourceCode.getScope(staticValueNode));
 };
 
 const isClearlyNonStringTarget = (node, context) => (

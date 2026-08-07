@@ -1,4 +1,4 @@
-import {findVariable, isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue, isParenthesized} from '@eslint-community/eslint-utils';
 import {checkVueTemplate} from './utils/rule.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
@@ -19,6 +19,8 @@ import {
 	isString,
 	isUnknownType,
 	isGlobalBooleanCall,
+	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 
@@ -127,8 +129,13 @@ const getRegExpFromStaticValue = value => {
 	}
 };
 
-const getStaticValueType = (node, scope) => {
-	const result = getStaticValue(node, scope);
+const getStaticValueType = (node, context) => {
+	const result = getStaticValueIfNoSideEffects(node, context);
+	if (!result && hasPotentiallyMutableMemberAccess(node, context)) {
+		const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+		return staticValue && staticValue.value !== undefined ? OTHER : UNKNOWN;
+	}
+
 	if (!result) {
 		return UNKNOWN;
 	}
@@ -408,8 +415,7 @@ function getExpressionType(node, context, visitedVariables = new Set()) {
 		}
 	}
 
-	const scope = context.sourceCode.getScope(node);
-	const staticType = getStaticValueType(node, scope);
+	const staticType = getStaticValueType(node, context);
 	if (staticType !== UNKNOWN) {
 		return staticType;
 	}
@@ -627,8 +633,7 @@ const create = context => {
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
 
-			const regexpScope = context.sourceCode.getScope(regexpNode);
-			const staticResult = getStaticValue(regexpNode, regexpScope);
+			const staticResult = getStaticValueIfNoSideEffects(regexpNode, context);
 			const staticRegExp = staticResult ? getRegExpFromStaticValue(staticResult.value) : undefined;
 			const isRegExp = isRegExpNode(regexpNode);
 			const stringType = getExpressionType(nodes.stringNode, context);

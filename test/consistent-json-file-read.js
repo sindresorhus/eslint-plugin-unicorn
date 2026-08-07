@@ -36,6 +36,12 @@ test.snapshot({
 		'JSON.parse(await fs.readFile(file, {flag: "r"}));',
 		'JSON.parse(await fs.readFile(file, {encoding: null, flag: "r"}));',
 		'JSON.parse(await fs.readFile(file, {encoding: "utf8", extraProperty: "utf8"}));',
+		`const options = {encoding: null};
+Object.defineProperty(options, 'encoding', {get() { return 'utf8'; }});
+JSON.parse(await fs.readFile(file, options));`,
+		`const options = {encoding: null};
+Object.defineProperty(options, 'encoding', {['get']() { return 'utf8'; }});
+JSON.parse(await fs.readFile(file, options));`,
 		'JSON.parse(await fs.readFile(file, {...encoding}));',
 		'JSON.parse(await fs.readFile(file, {encoding: unknown}));',
 		'const readingOptions = {flag: "r"};JSON.parse(await fs.readFile(file, readingOptions));',
@@ -137,6 +143,12 @@ test.snapshot({
 				const readingOptions = {encoding: "utf8"};
 				JSON.parse(buffer);
 			}
+		`,
+		outdent`
+			const options = {encoding: null};
+			const buffer = fs.readFile(file, options);
+			Object.defineProperty(options, 'other', {set() {}});
+			JSON.parse(buffer);
 		`,
 		outdent`
 			const buffer = fs.readFile(file); /* Should report */

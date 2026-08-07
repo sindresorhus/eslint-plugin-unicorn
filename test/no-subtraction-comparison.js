@@ -71,6 +71,7 @@ test.snapshot({
 		'(foo.length) - (bar.length) > 0',
 		'const modes = new Set([\'foo\']); modes.clear(); (modes.size ? 1 : \'x\') - (modes.size ? 1 : \'x\') === 0',
 		'const modes = new Set([\'foo\']); modes.clear(); ((modes.size && 1) || value) - 1 === 0',
+		'const object = {value: true}; Object.defineProperty(object, \'value\', {get() { return false; }}); (object.value ? 1 : value) - 1 === 0',
 		{
 			code: 'const modes = new Set([\'foo\']); modes.clear(); ((modes.size ? 1 : value) as number) - 1 === 0',
 			languageOptions: {parser: parsers.typescript},

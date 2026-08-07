@@ -1,6 +1,7 @@
-import {findVariable, getStaticValue, getPropertyName} from '@eslint-community/eslint-utils';
+import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {removeArgument} from './fix/index.js';
+import {getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID_STRING = 'consistent-json-file-read/string';
 const MESSAGE_ID_BUFFER = 'consistent-json-file-read/buffer';
@@ -51,8 +52,42 @@ function getIdentifierDeclaration(node, scope) {
 	return getIdentifierDeclaration(identifier.parent.init, variable.scope);
 }
 
-const isUtf8EncodingStringNode = (node, scope) =>
-	isUtf8EncodingString(getStaticValue(node, scope)?.value);
+const hasEncodingAccessorDefinition = (node, sourceCode) => {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(sourceCode.getScope(node), node);
+	return Boolean(variable?.references.some(reference => {
+		const callExpression = reference.identifier.parent;
+		if (
+			callExpression?.type !== 'CallExpression'
+			|| callExpression.callee.type !== 'MemberExpression'
+			|| callExpression.callee.object.type !== 'Identifier'
+			|| callExpression.callee.object.name !== 'Object'
+			|| callExpression.callee.property.type !== 'Identifier'
+			|| callExpression.callee.property.name !== 'defineProperty'
+			|| callExpression.arguments[0] !== reference.identifier
+			|| !callExpression.arguments[1]
+			|| callExpression.arguments[2]?.type !== 'ObjectExpression'
+			|| getStaticValueIfNoSideEffects(callExpression.arguments[1], {sourceCode})?.value !== 'encoding'
+		) {
+			return false;
+		}
+
+		return callExpression.arguments[2].properties.some(property => {
+			if (property.type !== 'Property') {
+				return false;
+			}
+
+			const propertyName = getPropertyName(property, sourceCode.getScope(property));
+			return propertyName === 'get' || propertyName === 'set';
+		});
+	}));
+};
+
+const isUtf8EncodingStringNode = (node, sourceCode) =>
+	isUtf8EncodingString(getStaticValueIfNoSideEffects(node, {sourceCode})?.value);
 
 const isUtf8EncodingString = value => {
 	if (typeof value !== 'string') {
@@ -71,22 +106,26 @@ const isSingleEncodingOptionObject = value =>
 	&& Object.keys(value).length === 1
 	&& Object.hasOwn(value, 'encoding');
 
-function isUtf8Encoding(node, scope) {
+function isUtf8Encoding(node, scope, sourceCode) {
+	if (hasEncodingAccessorDefinition(node, sourceCode)) {
+		return false;
+	}
+
 	if (
 		node.type === 'ObjectExpression'
 		&& node.properties.length === 1
 		&& node.properties[0].type === 'Property'
 		&& getPropertyName(node.properties[0], scope) === 'encoding'
-		&& isUtf8EncodingStringNode(node.properties[0].value, scope)
+		&& isUtf8EncodingStringNode(node.properties[0].value, sourceCode)
 	) {
 		return true;
 	}
 
-	if (isUtf8EncodingStringNode(node, scope)) {
+	if (isUtf8EncodingStringNode(node, sourceCode)) {
 		return true;
 	}
 
-	const staticValue = getStaticValue(node, scope);
+	const staticValue = getStaticValueIfNoSideEffects(node, {sourceCode});
 	if (!staticValue) {
 		return false;
 	}
@@ -96,8 +135,12 @@ function isUtf8Encoding(node, scope) {
 		&& isUtf8EncodingString(value.encoding));
 }
 
-function isBufferEncoding(node, scope) {
-	const staticValue = getStaticValue(node, scope);
+function isBufferEncoding(node, scope, sourceCode) {
+	if (hasEncodingAccessorDefinition(node, sourceCode)) {
+		return false;
+	}
+
+	const staticValue = getStaticValueIfNoSideEffects(node, {sourceCode});
 	if (!staticValue) {
 		return false;
 	}
@@ -176,7 +219,7 @@ const create = context => {
 			}
 
 			const [, optionsNode] = node.arguments;
-			if (!isBufferEncoding(optionsNode, scope)) {
+			if (!isBufferEncoding(optionsNode, scope, sourceCode)) {
 				return;
 			}
 
@@ -192,7 +235,7 @@ const create = context => {
 		}
 
 		const [, charsetNode] = node.arguments;
-		if (!isUtf8Encoding(charsetNode, scope)) {
+		if (!isUtf8Encoding(charsetNode, scope, sourceCode)) {
 			return;
 		}
 

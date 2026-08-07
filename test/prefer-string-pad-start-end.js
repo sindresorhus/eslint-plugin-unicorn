@@ -67,11 +67,42 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'const modes = new Set(["foo"]); modes.clear(); const target = (modes.size && "x") || value; const foo = "*".repeat(10 - target.length) + target;',
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, "value", {get() { return false; }});
+			const target = object.value ? "x" : value;
+			const foo = "*".repeat(10 - target.length) + target;
+		`,
+		'const object = {value: "*"}; Object.defineProperty(object, "value", {get() { return 1; }}); const target = "x"; const foo = (0, object.value).repeat(10 - target.length) + target;',
+		outdent`
+			let value = 'x';
+			const object = {};
+			Object.defineProperty(object, 'trigger', {get() { value = 1; return 0; }});
+			const target = (object.trigger, value);
+			const foo = '*'.repeat(10 - target.length) + target;
+		`,
 	],
 	invalid: [
 		{
 			code: 'const foo = " ".repeat(10 - bar.length) + bar;',
 			output: 'const foo = bar.padStart(10);',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: outdent`
+				const object = {};
+				Object.defineProperty(object, 'value', {get() { return 'x'; }});
+				const stringValue = 'y';
+				const target = (object.value, stringValue);
+				const foo = '*'.repeat(10 - target.length) + target;
+			`,
+			output: outdent`
+				const object = {};
+				Object.defineProperty(object, 'value', {get() { return 'x'; }});
+				const stringValue = 'y';
+				const target = (object.value, stringValue);
+				const foo = target.padStart(10, '*');
+			`,
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		// A target that is known to be a string must still be reported

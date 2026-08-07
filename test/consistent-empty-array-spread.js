@@ -13,6 +13,7 @@ test.snapshot({
 		'const modes = new Set(["foo"]); modes.clear(); [...(modes.size ? [] : (modes.size ? "x" : []))]',
 		'const modes = new Set(["foo"]); modes.clear(); [...(modes.size ? [] : ((modes.size && "x") || []))]',
 		'const modes = new Set(["foo"]); modes.clear(); [...(modes.size ? (modes.size ? [] : "x") : [])]',
+		'const object = {value: ""}; Object.defineProperty(object, "value", {get() { return []; }}); [...(object.value ? [] : object.value)]',
 		'[...(test ? "" : unknown)]',
 		'[...(test ? unknown : "")]',
 		'[...(test ? [] : unknown)]',

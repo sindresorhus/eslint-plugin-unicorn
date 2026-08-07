@@ -53,6 +53,8 @@ test.snapshot({
 		'const map = new Map(); map[Symbol.toStringTag];',
 		'const map = new Map(); map[condition ? Symbol.iterator : Symbol.toStringTag];',
 		'const map = new Map(); map[(0, Symbol.iterator)];',
+		'const map = new Map(); map[(0, Symbol.toStringTag)];',
+		'const map = new Map(); map[(sideEffect(), "foo")];',
 
 		// Inherited `Object.prototype` members
 		'const map = new Map(); map["toString"];',
@@ -104,6 +106,9 @@ test.snapshot({
 		'const map = new Map(); map[+(condition ? 0 : 1)];',
 		'const map = new Map(); map[+(condition ? "size" : "get")];',
 		'const map = new Map(); map[typeof Symbol.iterator];',
+		'const object = {value: "iterator"}; Object.defineProperty(object, "value", {get() { return "notThere"; }}); const map = new Map(); map[Symbol[object.value]];',
+		'const map = new Map(); map[(0, "foo")];',
+		'const map = new Map(); map[(0, 0)];',
 		// Dynamic template key
 		'const map = new Map(); map[`${prefix}foo`];', // eslint-disable-line no-template-curly-in-string
 

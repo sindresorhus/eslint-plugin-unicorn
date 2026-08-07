@@ -18,9 +18,10 @@ import {
 import {
 	getBaseTypes,
 	getTypeSymbol,
-	isDefaultLibrarySymbol,
 	getStaticValueIfNoSideEffects,
 	isBranchExpression,
+	hasPotentiallyMutableMemberAccess,
+	isDefaultLibrarySymbol,
 	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -85,9 +86,11 @@ const getStaticPropertyName = (property, context) =>
 
 const getStaticValueForNode = (node, context) => {
 	const staticValueNode = unwrapTypeScriptExpression(node);
-	return isBranchExpression(staticValueNode)
-		? getStaticValueIfNoSideEffects(staticValueNode, context)
-		: getStaticValue(staticValueNode, context.sourceCode.getScope(node));
+	if (isBranchExpression(staticValueNode) || hasPotentiallyMutableMemberAccess(staticValueNode, context)) {
+		return getStaticValueIfNoSideEffects(staticValueNode, context);
+	}
+
+	return getStaticValue(staticValueNode, context.sourceCode.getScope(node));
 };
 
 const hasCommentsInside = (node, context) =>

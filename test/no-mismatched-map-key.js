@@ -111,6 +111,7 @@ test.snapshot({
 			}
 		`,
 		'const modes = new Set(["foo"]); modes.clear(); if (map.has((modes.size && 1) || key)) { map.get(1); }',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); if (map.has(object.value ? 2 : key)) { map.get(1); }',
 		{
 			code: 'const modes = new Set(["foo"]); modes.clear(); if (map.has((modes.size ? 1 : key) as number)) { map.get(1); }',
 			languageOptions: {parser: parsers.typescript},

@@ -1,10 +1,15 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isMethodCall,
 	isStringLiteral,
 } from './ast/index.js';
 import {isRegExpEscapeReplaceCall} from './shared/regexp-escape.js';
-import {getParenthesizedText, isKnownNonString} from './utils/index.js';
+import {
+	getParenthesizedText,
+	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
+	isKnownNonString,
+} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -62,8 +67,8 @@ const isDefaultImportSpecifier = specifier =>
 const isTrackedVariable = (identifier, variables, sourceCode) =>
 	variables.has(findVariable(sourceCode.getScope(identifier), identifier));
 
-const isStaticNonString = (node, sourceCode) => {
-	const result = getStaticValue(node, sourceCode.getScope(node));
+const isStaticNonString = (node, context) => {
+	const result = getStaticValueIfNoSideEffects(node, context);
 	return Boolean(result) && typeof result.value !== 'string';
 };
 
@@ -226,8 +231,11 @@ const create = context => {
 
 		const [argument] = node.arguments;
 		if (
-			isKnownNonString(argument, context)
-			|| isStaticNonString(argument, sourceCode)
+			(
+				!hasPotentiallyMutableMemberAccess(argument, context)
+				&& isKnownNonString(argument, context)
+			)
+			|| isStaticNonString(argument, context)
 		) {
 			return;
 		}

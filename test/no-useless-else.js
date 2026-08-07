@@ -120,8 +120,8 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			const object = {};
-			Object.defineProperty(object, 'value', {get() { return true; }});
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return false; }});
 
 			if (condition) {
 				if (object.value) {
@@ -132,7 +132,50 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			const object = {};
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					if (object.value && true) {
+						throw new Error();
+					}
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					if (object?.value) {
+						throw new Error();
+					}
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
+			const getterKey = 'value';
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					if (object[getterKey]) {
+						throw new Error();
+					}
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
 			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
 
 			if (condition) {
@@ -144,7 +187,7 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			const object = {};
+			const object = {value: true};
 			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
 
 			if (condition) {
@@ -156,7 +199,7 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			const object = {};
+			const object = {value: true};
 			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
 
 			if (condition) {

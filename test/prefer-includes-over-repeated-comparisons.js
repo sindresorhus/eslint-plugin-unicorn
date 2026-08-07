@@ -75,6 +75,7 @@ test.snapshot({
 	],
 	invalid: [
 		'value === "a" || value === "b" || value === "c";',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return NaN; }}); value === (object.value ? NaN : other) || value === 2 || value === 3;',
 		// `undefined`/`null` are fine as compared values when the subject is shared (#3304)
 		'value === undefined || value === "a" || value === "b";',
 		{

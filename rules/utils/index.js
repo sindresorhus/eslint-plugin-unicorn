@@ -49,6 +49,7 @@ export {default as getConstVariableInitializer} from './get-const-variable-initi
 export {
 	default as getStaticValueIfNoSideEffects,
 	isBranchExpression,
+	hasPotentiallyMutableMemberAccess,
 } from './get-static-value.js';
 export {getMemberAccessOperatorRange} from './member-expression.js';
 export {

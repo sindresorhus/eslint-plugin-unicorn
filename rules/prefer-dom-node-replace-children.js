@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getStaticStringValue,
 	isCallExpression,
@@ -11,12 +11,14 @@ import {
 	isNodeValueNotDomNode,
 	isSameReference,
 	isValueNotUsable,
+	hasPotentiallyMutableMemberAccess,
 	mayBeHtmlTemplateElement,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldReportReplaceChildrenReceiver,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
+	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-dom-node-replace-children';
@@ -43,7 +45,7 @@ const getStaticStringValueFromScope = (node, context) => {
 		return string;
 	}
 
-	const result = getStaticValue(node, context.sourceCode.getScope(node));
+	const result = getStaticValueIfNoSideEffects(node, context);
 	return typeof result?.value === 'string' ? result.value : undefined;
 };
 
@@ -131,7 +133,7 @@ const isUnknownOrHtmlNamespace = (node, context) => {
 		return string === HTML_NAMESPACE;
 	}
 
-	const result = getStaticValue(node, context.sourceCode.getScope(node));
+	const result = getStaticValueIfNoSideEffects(node, context);
 	return !result || result.value === HTML_NAMESPACE;
 };
 
@@ -149,7 +151,9 @@ const mayCreateHtmlTemplateElement = (node, context, visitedVariables = new Set(
 			maximumArguments: 2,
 		})
 	) {
-		return getStaticStringValueFromScope(node.arguments[0], context)?.toLowerCase() === 'template';
+		const tagName = getStaticStringValueFromScope(node.arguments[0], context);
+		return tagName?.toLowerCase() === 'template'
+			|| (tagName === undefined && hasPotentiallyMutableMemberAccess(node.arguments[0], context));
 	}
 
 	if (

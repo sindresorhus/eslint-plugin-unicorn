@@ -278,6 +278,18 @@ test.snapshot({
 				return foo.includes(value);
 			}
 		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 2; }});
+			const foo = [object.value, 2];
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
 		// Unsupported initializer shapes
 		outdent`
 			const foo = [1, , 2];
@@ -1091,6 +1103,17 @@ test.snapshot({
 
 test.snapshot({
 	valid: [
+		{
+			code: outdent`
+				const object = {length: 5};
+				Object.defineProperty(object, 'length', {get() { return 1; }});
+				const foo = Array(object.length);
+				function unicorn(value) {
+					return foo.includes(value);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
 		{
 			code: outdent`
 				const foo = [1, 2, 3, 4];

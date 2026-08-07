@@ -21,6 +21,9 @@ test.snapshot({
 		'const {foo, [key]: value, ...rest} = object;',
 		'const {[key]: {foo}, ...rest} = object;',
 		'const {[`key${suffix}`]: value, ...rest} = object;', // eslint-disable-line no-template-curly-in-string
+		`const object = {key: 'foo'};
+Object.defineProperty(object, 'key', {get() { return 'bar'; }});
+const {[object.key]: value, ...rest} = object;`,
 		'({[key]: value, ...rest} = object);',
 		'function function_({[key]: value, ...rest}) {}',
 		'const [{foo}] = array;',
@@ -53,6 +56,7 @@ test.snapshot({
 		// A static computed key is never dynamic, so a rest element does not exempt it
 		'const {["key"]: value, ...rest} = object;',
 		'const {[`key`]: value, ...rest} = object;',
+		'const {[({key: "foo"}).key]: value, ...rest} = object;',
 		'const {["foo" + "bar"]: value, ...rest} = object;',
 		'const {[undefined]: value, ...rest} = object;',
 		'const {[Math.PI]: value, ...rest} = object;',

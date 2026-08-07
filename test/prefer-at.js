@@ -399,6 +399,7 @@ const setCheckAllIndexAccessTrue = cases => cases.map(testCase => {
 });
 test.snapshot({
 	valid: setCheckAllIndexAccessTrue([
+		'const object = {value: true}; Object.defineProperty(object, \'value\', {get() { return false; }}); array[object.value ? 1 : index];',
 		'++array[1]',
 		'const offset = 5;const extraArgument = 6;string.charAt(offset + 9, extraArgument)',
 		'array[unknown]',

@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isMethodCall,
 	isNewExpression,
@@ -6,6 +6,7 @@ import {
 } from './ast/index.js';
 import {
 	getParenthesizedRange,
+	getStaticValueIfNoSideEffects,
 	isKnownNonString,
 	isSameIdentifier,
 	isTypeImportSpecifier,
@@ -61,13 +62,13 @@ const isUrlSearchParametersAvailable = (node, context) => {
 };
 
 const getStaticNumberValue = (node, context) =>
-	getStaticValue(node, context.sourceCode.getScope(node))?.value;
+	getStaticValueIfNoSideEffects(node, context)?.value;
 
 const isStaticString = (node, value) =>
 	getStaticStringValue(unwrapTypeScriptExpression(node)) === value;
 
 const isStaticNonString = (node, context) => {
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
 	return Boolean(staticValue) && typeof staticValue.value !== 'string';
 };
 

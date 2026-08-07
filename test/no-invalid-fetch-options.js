@@ -63,6 +63,8 @@ test.snapshot({
 		`,
 		'const modes = new Set(["foo"]); modes.clear(); fetch(url, {method: modes.size && "GET", body});',
 		'const modes = new Set(["foo"]); modes.clear(); new Request(url, {method: modes.size ? "HEAD" : "POST", body});',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); fetch(url, {method: object.value ? "GET" : "POST", body});',
+		'fetch(url, {method: (sideEffect(), "GET"), body});',
 	],
 	invalid: [
 		'fetch(url, {body})',
@@ -73,6 +75,8 @@ test.snapshot({
 		'new Request(url, {method: "HEAD", body})',
 		'fetch(url, {method: "head", body})',
 		'new Request(url, {method: "head", body})',
+		'fetch(url, {method: true ? "GET" : "POST", body})',
+		'new Request(url, {method: false ? "POST" : "HEAD", body})',
 		'const method = "head"; new Request(url, {method, body: "foo=bar"})',
 		'const method = "head"; fetch(url, {method, body: "foo=bar"})',
 		'fetch(url, {body}, extraArgument)',

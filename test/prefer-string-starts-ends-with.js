@@ -133,6 +133,11 @@ test({
 				}],
 			};
 		}),
+		{
+			code: 'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); /^foo/.test(object.value ? "foo" : value)',
+			output: 'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); (object.value ? "foo" : value).startsWith(\'foo\')',
+			errors: [{messageId: MESSAGE_STARTS_WITH, suggestions: 3}],
+		},
 		// String in variable. Don't autofix known, non-strings which don't have a startsWith/endsWith function.
 		{
 			code: 'const foo = {}; /^abc/.test(foo);',
