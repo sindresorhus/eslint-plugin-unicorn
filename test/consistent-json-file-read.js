@@ -43,6 +43,15 @@ JSON.parse(await fs.readFile(file, options));`,
 		`const options = {encoding: null};
 Object.defineProperties(options, {encoding: {get() { return 'utf8'; }}});
 JSON.parse(await fs.readFile(file, options));`,
+		`const options = {encoding: null};
+const alias = options;
+Object.defineProperty(alias, 'encoding', {get() { return 'utf8'; }});
+JSON.parse(await fs.readFile(file, options));`,
+		`const options = {encoding: null};
+const alias = options;
+const secondAlias = alias;
+Object.defineProperties(secondAlias, {encoding: {get() { return 'utf8'; }}});
+JSON.parse(await fs.readFile(file, options));`,
 		`const key = 'encoding';
 const descriptorKey = 'get';
 const options = {encoding: null};

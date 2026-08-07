@@ -52,7 +52,7 @@ function getIdentifierDeclaration(node, scope) {
 	return getIdentifierDeclaration(identifier.parent.init, variable.scope);
 }
 
-const hasEncodingAccessorDefinition = (node, sourceCode) => {
+const hasEncodingAccessorDefinition = (node, sourceCode, visitedVariables = new Set()) => {
 	if (node.type !== 'Identifier') {
 		return false;
 	}
@@ -68,38 +68,49 @@ const hasEncodingAccessorDefinition = (node, sourceCode) => {
 		});
 
 	const variable = findVariable(sourceCode.getScope(node), node);
-	return Boolean(variable?.references.some(reference => {
+	if (!variable || visitedVariables.has(variable)) {
+		return false;
+	}
+
+	visitedVariables.add(variable);
+	const result = variable.references.some(reference => {
 		const callExpression = reference.identifier.parent;
 		if (
-			callExpression?.type !== 'CallExpression'
-			|| callExpression.callee.type !== 'MemberExpression'
-			|| callExpression.callee.object.type !== 'Identifier'
-			|| callExpression.callee.object.name !== 'Object'
-			|| callExpression.arguments[0] !== reference.identifier
+			callExpression?.type === 'CallExpression'
+			&& callExpression.callee.type === 'MemberExpression'
+			&& callExpression.callee.object.type === 'Identifier'
+			&& callExpression.callee.object.name === 'Object'
+			&& callExpression.arguments[0] === reference.identifier
 		) {
-			return false;
-		}
+			const method = getPropertyName(callExpression.callee, sourceCode.getScope(callExpression.callee));
+			if (method === 'defineProperty') {
+				if (!callExpression.arguments[1]) {
+					return false;
+				}
 
-		const method = getPropertyName(callExpression.callee, sourceCode.getScope(callExpression.callee));
-		if (method === 'defineProperty') {
-			if (!callExpression.arguments[1]) {
-				return false;
+				return getStaticValueIfNoSideEffects(callExpression.arguments[1], {sourceCode})?.value === 'encoding'
+					&& hasAccessorDescriptor(callExpression.arguments[2]);
 			}
 
-			return getStaticValueIfNoSideEffects(callExpression.arguments[1], {sourceCode})?.value === 'encoding'
-				&& hasAccessorDescriptor(callExpression.arguments[2]);
+			if (method === 'defineProperties' && callExpression.arguments[1]?.type === 'ObjectExpression') {
+				return callExpression.arguments[1].properties.some(property =>
+					property.type === 'Property'
+					&& getPropertyName(property, sourceCode.getScope(property)) === 'encoding'
+					&& hasAccessorDescriptor(property.value),
+				);
+			}
 		}
 
-		if (method !== 'defineProperties' || callExpression.arguments[1]?.type !== 'ObjectExpression') {
-			return false;
-		}
-
-		return callExpression.arguments[1].properties.some(property =>
-			property.type === 'Property'
-			&& getPropertyName(property, sourceCode.getScope(property)) === 'encoding'
-			&& hasAccessorDescriptor(property.value),
-		);
-	}));
+		const variableDeclarator = reference.identifier.parent;
+		return variableDeclarator.type === 'VariableDeclarator'
+			&& variableDeclarator.init === reference.identifier
+			&& variableDeclarator.id.type === 'Identifier'
+			&& variableDeclarator.parent.type === 'VariableDeclaration'
+			&& variableDeclarator.parent.kind === 'const'
+			&& hasEncodingAccessorDefinition(variableDeclarator.id, sourceCode, visitedVariables);
+	});
+	visitedVariables.delete(variable);
+	return result;
 };
 
 const isUtf8EncodingStringNode = (node, sourceCode) =>

@@ -203,6 +203,10 @@ test({
 			errors,
 		},
 		{
+			code: 'new Proxy(target, {has() { return [1].length; }});',
+			errors,
+		},
+		{
 			code: 'new Proxy(target, {deleteProperty: () => 0});',
 			output: 'new Proxy(target, {deleteProperty: () => false});',
 			errors,

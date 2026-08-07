@@ -33,6 +33,14 @@ const getConstVariableDefinition = (node, context) => {
 	return {variable, initializer: definition.node.init};
 };
 
+const getChildNodes = node => Object.entries(node)
+	.filter(([key]) =>
+		!['parent', 'loc', 'range'].includes(key)
+		&& !(node.type === 'Property' && key === 'key' && !node.computed),
+	)
+	.flatMap(([, value]) => Array.isArray(value) ? value : [value])
+	.filter(value => value?.type);
+
 export const hasSideEffectfulConstInitializer = (node, context, visitedVariables = new Set()) => {
 	const definition = getConstVariableDefinition(node, context);
 	if (!definition) {
@@ -44,8 +52,20 @@ export const hasSideEffectfulConstInitializer = (node, context, visitedVariables
 	}
 
 	visitedVariables.add(definition.variable);
+	const hasSideEffectfulConstReference = node => {
+		if (node.type === 'Identifier') {
+			return hasSideEffectfulConstInitializer(node, context, visitedVariables);
+		}
+
+		if (['FunctionExpression', 'ArrowFunctionExpression', 'ClassExpression'].includes(node.type)) {
+			return false;
+		}
+
+		return getChildNodes(node).some(child => hasSideEffectfulConstReference(child));
+	};
+
 	const result = hasSideEffect(definition.initializer, context.sourceCode, {considerGetters: true})
-		|| hasSideEffectfulConstInitializer(definition.initializer, context, visitedVariables);
+		|| hasSideEffectfulConstReference(definition.initializer);
 	visitedVariables.delete(definition.variable);
 	return result;
 };
@@ -158,14 +178,6 @@ const isSafeStaticMember = (node, context, visitedVariables) => {
 
 	return isSafeStaticMemberObject(node.object, propertyName, context, visitedVariables);
 };
-
-const getChildNodes = node => Object.entries(node)
-	.filter(([key]) =>
-		!['parent', 'loc', 'range'].includes(key)
-		&& !(node.type === 'Property' && key === 'key' && !node.computed),
-	)
-	.flatMap(([, value]) => Array.isArray(value) ? value : [value])
-	.filter(value => value?.type);
 
 export const hasPotentiallyMutableMemberAccess = (node, context, visitedVariables = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
