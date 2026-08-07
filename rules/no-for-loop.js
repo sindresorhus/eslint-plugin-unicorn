@@ -1,12 +1,15 @@
 import {getStaticValue, isClosingParenToken} from '@eslint-community/eslint-utils';
 import {
 	getAvailableVariableName,
+	getConstVariableInitializer,
 	getScopes,
 	getVariableByName,
 	singular,
 	toLocation,
 	getReferences,
 	getStaticValueIfNoSideEffects,
+	isBoolean,
+	isNumber,
 	isArray,
 	isNullishType,
 	isUnknownType,
@@ -744,6 +747,11 @@ const getReferencesInChildScopes = (scope, name) =>
 	getReferences(scope).filter(reference => reference.identifier.name === name);
 
 const isStaticNonArray = (node, context) => {
+	const initializer = getConstVariableInitializer(node, context);
+	if (initializer && (isNumber(initializer, context) || isBoolean(initializer, context))) {
+		return true;
+	}
+
 	const staticResult = getStaticValueIfNoSideEffects(node, context);
 	if (staticResult) {
 		return !Array.isArray(staticResult.value);

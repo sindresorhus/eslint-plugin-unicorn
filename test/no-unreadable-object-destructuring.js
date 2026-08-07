@@ -24,6 +24,11 @@ test.snapshot({
 		`const object = {key: 'foo'};
 Object.defineProperty(object, 'key', {get() { return 'bar'; }});
 const {[object.key]: value, ...rest} = object;`,
+		`Object.prototype.toString = () => '';
+const key = String({});
+const {[key]: value, ...rest} = object;`,
+		`Object.prototype.toString = () => '';
+const {[String({})]: value, ...rest} = object;`,
 		'({[key]: value, ...rest} = object);',
 		'function function_({[key]: value, ...rest}) {}',
 		'const [{foo}] = array;',

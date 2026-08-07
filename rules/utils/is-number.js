@@ -1,7 +1,8 @@
 import {isNumericLiteral} from '../ast/index.js';
+import isString from './is-string.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 import {createTypeCheckers, target, unknown} from './type-helpers.js';
-import getStaticValueIfNoSideEffects, {hasPotentiallyMutableMemberAccess} from './get-static-value.js';
+import getStaticValueIfNoSideEffects from './get-static-value.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -65,6 +66,25 @@ const isMathMethodCall = node =>
 // `Number(…)`
 const isNumberCall = node => isFunctionCall(node, 'Number');
 
+const stringNumberMethods = new Set([
+	'charCodeAt',
+	'codePointAt',
+	'indexOf',
+	'lastIndexOf',
+	'localeCompare',
+	'search',
+]);
+
+const isStringNumberMethodCall = (node, context) =>
+	node.type === 'CallExpression'
+	&& !node.optional
+	&& node.callee.type === 'MemberExpression'
+	&& !node.callee.computed
+	&& !node.callee.optional
+	&& node.callee.property.type === 'Identifier'
+	&& stringNumberMethods.has(node.callee.property.name)
+	&& isString(node.callee.object, context);
+
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number#static_properties
 const numberProperties = new Set([
 	'EPSILON',
@@ -100,13 +120,12 @@ const isNumberTypeAnnotation = node =>
 // `function foo(bar: number) {}`, `const foo: number = …`
 const hasNumberTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isNumberTypeAnnotation);
 
-const isLengthProperty = (node, context) =>
+const isLengthProperty = node =>
 	node.type === 'MemberExpression'
 	&& !node.computed
 	&& !node.optional
 	&& node.property.type === 'Identifier'
-	&& node.property.name === 'length'
-	&& !hasPotentiallyMutableMemberAccess(node, context);
+	&& node.property.name === 'length';
 
 // `+` and `>>>` operators are handled separately
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
@@ -118,10 +137,11 @@ export default function isNumber(node, context) {
 		|| isMathProperty(node)
 		|| isMathMethodCall(node)
 		|| isNumberCall(node)
+		|| isStringNumberMethodCall(node, context)
 		|| isNumberProperty(node)
 		|| isNumberMethodCall(node)
 		|| isGlobalParseToNumberFunctionCall(node)
-		|| isLengthProperty(node, context)
+		|| isLengthProperty(node)
 	) {
 		return true;
 	}

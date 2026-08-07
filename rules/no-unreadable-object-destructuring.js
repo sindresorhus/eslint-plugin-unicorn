@@ -1,5 +1,11 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {getStaticValueIfNoSideEffects, isGlobalIdentifier, isTypeScriptExpressionWrapper} from './utils/index.js';
+import {
+	getStaticValueIfNoSideEffects,
+	hasSideEffectfulConstInitializer,
+	hasPotentiallyMutableMemberAccess,
+	isGlobalIdentifier,
+	isTypeScriptExpressionWrapper,
+} from './utils/index.js';
 
 const MESSAGE_ID_COMPUTED_KEY = 'computed-key';
 const MESSAGE_ID_NESTED_ARRAY = 'nested-array';
@@ -11,6 +17,26 @@ const messages = {
 	[MESSAGE_ID_NESTED_ARRAY]: 'Do not use array destructuring inside object destructuring.',
 	[MESSAGE_ID_DEEP_OBJECT]: 'Do not use object destructuring deeper than two levels.',
 	[MESSAGE_ID_PROPERTY_ASSIGNMENT]: 'Do not assign destructured values to object properties.',
+};
+
+const staticGlobalProperties = new Map([
+	['Math', new Set(['E', 'LN2', 'LN10', 'LOG2E', 'LOG10E', 'PI', 'SQRT1_2', 'SQRT2'])],
+	['String', new Set(['raw'])],
+]);
+
+const isKnownStaticGlobalExpression = (node, context) => {
+	const property = node.type === 'TaggedTemplateExpression' ? node.tag : node;
+	if (
+		property.type !== 'MemberExpression'
+		|| property.computed
+		|| property.object.type !== 'Identifier'
+		|| !isGlobalIdentifier(property.object, context)
+		|| property.property.type !== 'Identifier'
+	) {
+		return false;
+	}
+
+	return staticGlobalProperties.get(property.object.name)?.has(property.property.name) ?? false;
 };
 
 function getParentPattern(node) {
@@ -72,14 +98,23 @@ function getObjectPatternDepth(node) {
 }
 
 function isStaticComputedKey(node, context) {
-	if (getStaticValueIfNoSideEffects(node, context) !== undefined) {
-		return true;
+	if (hasSideEffectfulConstInitializer(node, context)) {
+		return false;
 	}
 
 	if (
 		node.type === 'MemberExpression'
 		&& !isGlobalIdentifier(node.object, context)
+		&& hasPotentiallyMutableMemberAccess(node, context)
 	) {
+		return false;
+	}
+
+	if (getStaticValueIfNoSideEffects(node, context) !== undefined) {
+		return true;
+	}
+
+	if (!isKnownStaticGlobalExpression(node, context)) {
 		return false;
 	}
 

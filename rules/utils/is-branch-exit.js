@@ -1,4 +1,4 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
@@ -1833,7 +1833,9 @@ export default function isBranchExit(branch, context, branchAlwaysExits) {
 	}
 
 	if (branch.type === 'IfStatement' || branch.type === 'ConditionalExpression') {
-		const staticValue = getStaticValueIfNoSideEffects(branch.test, context);
+		const staticValue = hasSideEffect(branch.test, context.sourceCode, {considerGetters: true})
+			? undefined
+			: getStaticValueIfNoSideEffects(branch.test, context);
 		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(branch.test, context)) {
 			const selectedBranch = staticValue.value ? branch.consequent : branch.alternate;
 			return Boolean(selectedBranch && isBranchExit(selectedBranch, context, branchAlwaysExits));

@@ -79,6 +79,7 @@ object[object.value];`,
 	],
 	invalid: [
 		'object[{}]',
+		'const key = Object.freeze({}); object[key]',
 		'object[[]]',
 		'object[Array()]',
 		'object[Array.from(iterable)]',
