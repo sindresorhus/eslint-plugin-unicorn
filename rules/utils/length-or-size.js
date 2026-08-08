@@ -84,6 +84,20 @@ const getLastObjectProperty = (objectExpression, propertyName, context) => {
 	}
 };
 
+const hasUnknownObjectProperty = (objectExpression, context) =>
+	objectExpression?.type !== 'ObjectExpression'
+	|| objectExpression.properties.some(property =>
+		property.type === 'SpreadElement'
+		|| (property.type === 'Property'
+			&& property.computed
+			&& getPropertyName(property, context.sourceCode.getScope(property)) === undefined),
+	);
+
+const isUnconditionallyExecutedSwitchCase = node =>
+	node.parent?.type === 'SwitchCase'
+	&& node.parent.test === null
+	&& node.parent.parent.cases.length === 1;
+
 const getObjectPropertyDefinition = (reference, propertyName, context) => {
 	const callExpression = getObjectMethodCallExpression(reference, context);
 	if (!callExpression) {
@@ -239,8 +253,10 @@ const isConditionallyExecuted = (node, context) => {
 			(parent.type === 'LogicalExpression' && parent.right === current)
 			|| (parent.type === 'ForStatement' && (parent.body === current || parent.update === current))
 			|| (['WhileStatement', 'ForInStatement', 'ForOfStatement'].includes(parent.type) && parent.body === current)
-			|| (parent.type === 'SwitchCase' && parent.consequent.includes(current))
+			|| (parent.type === 'SwitchCase' && parent.consequent.includes(current) && !isUnconditionallyExecutedSwitchCase(current))
 			|| (parent.type === 'CatchClause' && parent.body === current)
+			|| (parent.type === 'TryStatement' && parent.block === current)
+			|| (parent.type === 'AssignmentPattern' && parent.right === current)
 			|| (parent.type === 'CallExpression'
 				&& (parent.optional || parent.callee.optional)
 				&& parent.arguments.includes(current))
@@ -271,19 +287,16 @@ const isPropertyMutation = (reference, propertyName, context) => {
 	if (callExpression) {
 		const method = getPropertyName(callExpression.callee, context.sourceCode.getScope(callExpression.callee));
 		if (method === 'assign') {
+			if (callExpression.arguments.length < 2) {
+				return false;
+			}
+
 			if (getObjectAssignPropertyValue(reference, propertyName, context)) {
 				return true;
 			}
 
 			const source = callExpression.arguments[1];
-			return callExpression.arguments.length !== 2
-				|| source?.type !== 'ObjectExpression'
-				|| source.properties.some(property =>
-					property.type === 'SpreadElement'
-					|| (property.type === 'Property'
-						&& property.computed
-						&& getPropertyName(property, context.sourceCode.getScope(property)) === undefined),
-				);
+			return callExpression.arguments.length !== 2 || hasUnknownObjectProperty(source, context);
 		}
 
 		if (method === 'defineProperty') {
@@ -294,13 +307,7 @@ const isPropertyMutation = (reference, propertyName, context) => {
 
 		if (method === 'defineProperties') {
 			const definitions = callExpression.arguments[1];
-			return definitions?.type !== 'ObjectExpression'
-				|| definitions.properties.some(property =>
-					property.type === 'SpreadElement'
-					|| (property.type === 'Property'
-						&& property.computed
-						&& getPropertyName(property, context.sourceCode.getScope(property)) === undefined),
-				);
+			return hasUnknownObjectProperty(definitions, context);
 		}
 	}
 
@@ -430,7 +437,7 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 		}
 	}
 
-	// Nested execution contexts may run before or after the read, and unknown mutations may change the value.
+	// Conditionally executed code may run before or after the read, and unknown mutations may change the value.
 	if (hasUnknownEffect) {
 		return true;
 	}

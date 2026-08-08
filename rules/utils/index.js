@@ -52,6 +52,7 @@ export {
 	isBranchExpression,
 	isSafeStaticPassThroughCall,
 	hasPotentiallyMutableMemberAccess,
+	hasPotentiallyMutableBinding,
 	hasSideEffectfulConstInitializer,
 } from './get-static-value.js';
 export {getMemberAccessOperatorRange} from './member-expression.js';
