@@ -366,6 +366,82 @@ export const hasPotentiallyMutableMemberAccess = (node, context, visitedVariable
 	return getChildNodes(node).some(child => hasPotentiallyMutableMemberAccess(child, context, visitedVariables));
 };
 
+const hasPotentiallyMutableBindingInEvaluatedPath = (node, context, visitedVariables = new Set()) => {
+	node = unwrapTypeScriptExpression(node);
+
+	if (node.type === 'Identifier') {
+		const variable = findVariable(context.sourceCode.getScope(node), node);
+		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+		if (definition?.type !== 'Variable') {
+			return false;
+		}
+
+		if (definition.parent?.kind !== 'const') {
+			return true;
+		}
+
+		if (!definition.node.init || visitedVariables.has(variable)) {
+			return false;
+		}
+
+		visitedVariables.add(variable);
+		const result = hasPotentiallyMutableBindingInEvaluatedPath(definition.node.init, context, visitedVariables);
+		visitedVariables.delete(variable);
+		return result;
+	}
+
+	if (node.type === 'ConditionalExpression') {
+		if (hasPotentiallyMutableBindingInEvaluatedPath(node.test, context, visitedVariables)) {
+			return true;
+		}
+
+		const staticValue = getStaticValueIfNoSideEffectsInternal(node.test, context, visitedVariables);
+		if (staticValue !== undefined) {
+			return hasPotentiallyMutableBindingInEvaluatedPath(
+				staticValue.value ? node.consequent : node.alternate,
+				context,
+				visitedVariables,
+			);
+		}
+
+		return hasPotentiallyMutableBindingInEvaluatedPath(node.consequent, context, visitedVariables)
+			|| hasPotentiallyMutableBindingInEvaluatedPath(node.alternate, context, visitedVariables);
+	}
+
+	if (node.type === 'LogicalExpression') {
+		if (hasPotentiallyMutableBindingInEvaluatedPath(node.left, context, visitedVariables)) {
+			return true;
+		}
+
+		const staticValue = getStaticValueIfNoSideEffectsInternal(node.left, context, visitedVariables);
+		if (staticValue !== undefined) {
+			let evaluatesRight;
+			if (node.operator === '&&') {
+				evaluatesRight = Boolean(staticValue.value);
+			} else if (node.operator === '||') {
+				evaluatesRight = !staticValue.value;
+			} else {
+				evaluatesRight = staticValue.value === null || staticValue.value === undefined;
+			}
+
+			return evaluatesRight
+				&& hasPotentiallyMutableBindingInEvaluatedPath(node.right, context, visitedVariables);
+		}
+
+		return hasPotentiallyMutableBindingInEvaluatedPath(node.right, context, visitedVariables);
+	}
+
+	if (node.type === 'SequenceExpression') {
+		return node.expressions.some(expression => hasPotentiallyMutableBindingInEvaluatedPath(expression, context, visitedVariables));
+	}
+
+	if (unevaluatedExpressionTypes.has(node.type)) {
+		return false;
+	}
+
+	return getChildNodes(node).some(child => hasPotentiallyMutableBindingInEvaluatedPath(child, context, visitedVariables));
+};
+
 const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
 	const {sourceCode} = context;
@@ -381,10 +457,13 @@ const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables =
 	return getStaticValueFromEslintUtilities(node, sourceCode.getScope(node)) ?? undefined;
 };
 
-// Static-value evaluation is not flow-sensitive, so mutable bindings cannot be used for control-flow decisions.
-export const getStaticValueForControlFlow = (node, context) => hasPotentiallyMutableBinding(node, context)
-	? undefined
-	: getStaticValueIfNoSideEffectsInternal(node, context);
+// `getStaticValue` is not flow-sensitive, so reject mutable bindings on any path that can be evaluated.
+export const getStaticValueForControlFlow = (node, context) => {
+	const staticValue = getStaticValueIfNoSideEffectsInternal(node, context);
+	return staticValue !== undefined && !hasPotentiallyMutableBindingInEvaluatedPath(node, context)
+		? staticValue
+		: undefined;
+};
 
 /**
 Get the static value of a node only when evaluating it has no side effects or unsupported mutable member reads.

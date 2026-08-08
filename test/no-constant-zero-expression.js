@@ -100,3 +100,13 @@ value * 0;`,
 		{code: 'x! & 0;', languageOptions: {parser: parsers.typescript}},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const alias = condition; var condition = true; (alias ? 1 : NaN) * 0;',
+			errors: [{messageId: 'no-constant-zero-expression/error', suggestions: 0}],
+		},
+	],
+});

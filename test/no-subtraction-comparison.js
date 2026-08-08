@@ -89,3 +89,13 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const alias = condition; var condition = true; (alias ? 1 : value) - 1 === 0',
+			errors: [{messageId: 'no-subtraction-comparison/error', suggestions: 1}],
+		},
+	],
+});

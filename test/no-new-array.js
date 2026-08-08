@@ -131,5 +131,15 @@ test({
 			output: noAutofixOutput,
 			errors: [{messageId: 'error', suggestions: 2}],
 		},
+		{
+			code: 'const array = []; new Array(1 + array.length);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'error', suggestions: 2}],
+		},
+		{
+			code: 'const alias = condition; var condition = true; new Array(alias ? "x" : 1);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'error', suggestions: 2}],
+		},
 	],
 });

@@ -12,6 +12,7 @@ test.snapshot({
 		'parseInt(value, 2);',
 		'Number.parseInt(value, 8);',
 		'parseInt(value, radix);',
+		'const alias = condition; var condition = true; parseInt(value, alias ? 10 : radix);',
 		'const modes = new Set([\'foo\']); modes.clear(); parseInt(value, modes.size ? 10 : 2);',
 		'const modes = new Set([\'foo\']); modes.clear(); parseInt(value, +(modes.size ? 10 : 2));',
 		{

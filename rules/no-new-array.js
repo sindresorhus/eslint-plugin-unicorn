@@ -3,7 +3,7 @@ import {
 	needsSemicolon,
 	isNumber,
 	isString,
-	getStaticValueIfNoSideEffects,
+	getStaticValueForControlFlow,
 } from './utils/index.js';
 import {isNewExpression} from './ast/index.js';
 
@@ -85,7 +85,7 @@ function getProblem(context, node) {
 	}
 
 	const onlyElementText = `${maybeSemiColon}[${text}]`;
-	const result = getStaticValueIfNoSideEffects(argumentNode, context);
+	const result = getStaticValueForControlFlow(argumentNode, context);
 	if (result !== undefined && typeof result.value !== 'number') {
 		problem.fix = fixer => fixer.replaceText(node, onlyElementText);
 		return problem;

@@ -24,6 +24,7 @@ test.snapshot({
 		'const modes = new Set(["foo"]); modes.clear(); +((modes.size && value) || "value");',
 		'const modes = new Set(["foo"]); modes.clear(); Boolean(modes.size ? true : value);',
 		'const modes = new Set(["foo"]); modes.clear(); String(modes.size ? "x" : value);',
+		'const alias = condition; var condition = true; String(alias ? "x" : value);',
 		'const modes = new Set(["foo"]); modes.clear(); BigInt(modes.size ? 1n : value);',
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); Boolean(object.value ? true : value);',
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); String(object.value ? "x" : value);',

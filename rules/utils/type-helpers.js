@@ -9,7 +9,7 @@ import {
 	isNullishType,
 	isUnknownType,
 } from './types.js';
-import getStaticValueIfNoSideEffects from './get-static-value.js';
+import {getStaticValueForControlFlow} from './get-static-value.js';
 
 const target = 'target';
 const nonTarget = 'non-target';
@@ -437,7 +437,7 @@ const getTypeFromTypeInformation = (node, context, options) => {
 };
 
 const getTypeFromStaticValue = (node, context, options) => {
-	const result = getStaticValueIfNoSideEffects(node, context);
+	const result = getStaticValueForControlFlow(node, context);
 
 	if (!result) {
 		return unknown;

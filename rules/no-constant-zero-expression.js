@@ -1,5 +1,5 @@
 import {isLiteral} from './ast/index.js';
-import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import {getStaticValueForControlFlow} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-constant-zero-expression/error';
 const MESSAGE_ID_SUGGESTION = 'no-constant-zero-expression/suggestion';
@@ -52,7 +52,7 @@ const create = context => {
 		// Only suggest replacing with `0` when the whole expression provably folds to exactly `+0`.
 		// `getStaticValue` resolves only side-effect-free constants, and `Object.is(…, 0)` excludes
 		// `-0` (e.g. `-5 * 0`, `0 / -5`) and `NaN` (e.g. `0 / 0`), so those are reported without a suggestion.
-		const staticValue = getStaticValueIfNoSideEffects(node, context);
+		const staticValue = getStaticValueForControlFlow(node, context);
 		if (
 			staticValue
 			&& Object.is(staticValue.value, 0)

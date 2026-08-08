@@ -56,6 +56,8 @@ test.snapshot({
 		'const modes = new Set(["foo"]); modes.clear(); foo[modes.size ? "then" : "value"] = 1',
 		'const modes = new Set(["foo"]); modes.clear(); foo[(modes.size && "then") || key] = 1',
 		'let condition = true; condition = false; foo[condition ? "then" : "value"] = 1',
+		'const alias = condition; var condition = true; foo[alias ? "then" : "value"] = 1',
+		'const alias = condition; var condition = true; foo[(0, alias ? "then" : "value")] = 1',
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); foo[object.value ? "then" : key] = 1',
 
 		// `Object.fromEntries`

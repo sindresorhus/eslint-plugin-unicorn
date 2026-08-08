@@ -2,7 +2,7 @@ import {isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 import {createTypeCheckers, target, unknown} from './type-helpers.js';
-import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
+import {getStaticValueForControlFlow} from './get-static-value.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -110,7 +110,7 @@ const isNumberMethodCall = node =>
 const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt') || isFunctionCall(node, 'parseFloat');
 
 const isStaticNumber = (node, context) =>
-	typeof getStaticValueIfNoSideEffects(node, context)?.value === 'number';
+	typeof getStaticValueForControlFlow(node, context)?.value === 'number';
 
 // Only the bare `number` keyword and numeric literal types (`5`), never the boxed `Number` object (which doesn't coerce the same way), unions, or generics, so accuracy stays high
 const isNumberTypeAnnotation = node =>

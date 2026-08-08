@@ -1,5 +1,5 @@
 import {isLiteral} from './ast/index.js';
-import {getParenthesizedText, getStaticValueIfNoSideEffects, isNumber} from './utils/index.js';
+import {getParenthesizedText, getStaticValueForControlFlow, isNumber} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-subtraction-comparison/error';
 const MESSAGE_ID_SUGGESTION = 'no-subtraction-comparison/suggestion';
@@ -27,7 +27,7 @@ const strictOrderingOperators = new Set(['>', '<']);
 const isZero = node => isLiteral(node, 0);
 const isSubtraction = node => node.type === 'BinaryExpression' && node.operator === '-';
 const isFiniteStaticNumber = (node, context) => {
-	const value = getStaticValueIfNoSideEffects(node, context)?.value;
+	const value = getStaticValueForControlFlow(node, context)?.value;
 	return typeof value === 'number' && Number.isFinite(value);
 };
 
