@@ -23,6 +23,29 @@ const messageArgumentIndexes = new Map([
 	['SuppressedError', 2],
 ]);
 
+const isSafeObjectFreezeArgument = (node, context) => {
+	if (!node) {
+		return false;
+	}
+
+	if (node.type === 'ObjectExpression') {
+		return !hasPotentiallyMutableMemberAccess(node, context);
+	}
+
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	return definition?.type === 'Variable'
+		&& definition.parent?.kind === 'const'
+		&& definition.node.id === definition.name
+		&& definition.node.init?.type === 'ObjectExpression'
+		&& !hasPotentiallyMutableMemberAccess(definition.node.init, context)
+		&& variable.references.every(reference => reference.init || reference.identifier === node);
+};
+
 const isObjectFreezeMemberExpression = (node, context) => {
 	if (node.type === 'Identifier') {
 		const variable = findVariable(context.sourceCode.getScope(node), node);
@@ -43,7 +66,7 @@ const isObjectFreezeMemberExpression = (node, context) => {
 		&& node.object.callee.object.name === 'Object'
 		&& node.object.callee.property.type === 'Identifier'
 		&& node.object.callee.property.name === 'freeze'
-		&& node.object.arguments[0]?.type === 'ObjectExpression';
+		&& isSafeObjectFreezeArgument(node.object.arguments[0], context);
 };
 
 const getStaticValueForNode = (node, context) => {

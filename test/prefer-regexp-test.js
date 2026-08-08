@@ -5,6 +5,7 @@ import {getTester} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 const fixtureDirectory = fileURLToPath(new URL('fixtures/prefer-regexp-test/', import.meta.url));
+const noAutofixOutput = /./.exec('');
 
 const typeAware = code => ({
 	code,
@@ -546,4 +547,15 @@ ruleTest({
 					},
 				],
 			}),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'const re = /a/y; if (foo.search(re) !== -1);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'string-search', suggestions: 1}],
+		},
+	],
 });

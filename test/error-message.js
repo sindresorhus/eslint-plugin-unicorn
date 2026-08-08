@@ -114,6 +114,17 @@ test.snapshot({
 				new Error(Object.freeze({value: 1}).value);
 			}
 		`,
+		'new Error(Object.freeze().value);',
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(Object.freeze({message: object.value}).message);
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(Object.freeze({get message() { return object.value; }}).message);
+		`,
 		outdent`
 			const object = {value: 1};
 			Object.defineProperty(object, 'value', {get() { return 'message'; }});
@@ -156,6 +167,7 @@ test.snapshot({
 		// A primitive non-string literal is resolved via `getStaticValue`
 		'throw new Error(false)',
 		'const condition = true; let value; new Error(condition ? {} : value);',
+		'const object = {value: 1}; new Error(Object.freeze(object).value);',
 		'const error = new RangeError;',
 		'throw Object.assign(new Error(), {foo})',
 	],
