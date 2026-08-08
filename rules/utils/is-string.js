@@ -1,6 +1,7 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
-import {getStaticValueForControlFlow} from './get-static-value.js';
+import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
 import {
 	createTypeCheckers,
 	target,
@@ -44,6 +45,22 @@ const isStringTypeAnnotation = node => {
 
 const getStaticType = value =>
 	typeof value === 'string' ? target : unknown;
+
+const isUnmodifiedMutableVariable = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	return Boolean(
+		definition?.type === 'Variable'
+		&& (definition.parent?.kind === 'let' || definition.parent?.kind === 'var')
+		&& definition.node.id === definition.name
+		&& definition.node.init
+		&& variable.references.every(reference => !reference.isWrite() || reference.init),
+	);
+};
 
 const isStringNode = (node, context) => {
 	if (
@@ -111,7 +128,10 @@ export default function isString(node, context) {
 		return true;
 	}
 
-	return typeof getStaticValueForControlFlow(node, context)?.value === 'string';
+	const staticValue = isUnmodifiedMutableVariable(node, context)
+		? getStaticValueIfNoSideEffects(node, context)
+		: getStaticValueForControlFlow(node, context);
+	return typeof staticValue?.value === 'string';
 }
 
 export {

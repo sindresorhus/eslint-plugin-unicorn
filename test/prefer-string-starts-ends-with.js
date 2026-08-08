@@ -60,6 +60,8 @@ test({
 		'foo.indexOf("bar") === 0',
 		'foo.indexOf("bar") !== 0',
 		'0 === foo.indexOf("bar")',
+		// Mutated variable receiver
+		'let foo = "hello"; foo = 123; foo.indexOf("h") === 0',
 		// `indexOf` — wrong comparison
 		'foo.indexOf("bar") === 1',
 		'foo.indexOf("bar") > 0',
