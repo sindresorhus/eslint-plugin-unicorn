@@ -6,7 +6,7 @@ import {
 	isLoop,
 } from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
-import getStaticValueIfNoSideEffects, {isSafeStaticPassThroughCall} from './get-static-value.js';
+import getStaticValueIfNoSideEffects, {hasPotentiallyMutableBinding, isSafeStaticPassThroughCall} from './get-static-value.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 
 /**
@@ -1837,7 +1837,11 @@ export default function isBranchExit(branch, context, branchAlwaysExits) {
 			&& !isSafeStaticPassThroughCall(branch.test, context)
 			? undefined
 			: getStaticValueIfNoSideEffects(branch.test, context);
-		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(branch.test, context)) {
+		if (
+			staticValue !== undefined
+			&& !hasPotentiallyMutableBinding(branch.test, context)
+			&& isDefinitelyNotThrowingExpression(branch.test, context)
+		) {
 			const selectedBranch = staticValue.value ? branch.consequent : branch.alternate;
 			return Boolean(selectedBranch && isBranchExit(selectedBranch, context, branchAlwaysExits));
 		}

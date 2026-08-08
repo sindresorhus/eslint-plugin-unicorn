@@ -6,6 +6,20 @@ const {test} = getTester(import.meta, 'no-useless-else');
 test.snapshot({
 	valid: [
 		outdent`
+			function qux() {
+				let condition = true;
+				condition = false;
+
+				if (outerCondition) {
+					if (condition) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
 			const regex = /foo/g;
 			regex.exec('foo');
 

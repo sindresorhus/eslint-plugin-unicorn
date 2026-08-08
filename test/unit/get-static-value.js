@@ -3,6 +3,7 @@ import test from 'ava';
 import {
 	getStaticRegExp,
 	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableBinding,
 	hasPotentiallyMutableMemberAccess,
 } from '../../rules/utils/index.js';
 
@@ -79,6 +80,18 @@ test('preserves safe static primitives and pass-through calls', t => {
 		const result = evaluate(`const result = Object.${method}({value: true});`, getStaticValueIfNoSideEffects);
 		t.true(result?.value.value);
 	}
+});
+
+test('detects potentially mutable variable bindings', t => {
+	for (const code of [
+		'let value = true; value = false; const result = value;',
+		'var value = true; value = false; const result = value;',
+		'let value = true; const alias = value; const result = alias;',
+	]) {
+		t.true(evaluate(code, hasPotentiallyMutableBinding));
+	}
+
+	t.false(evaluate('const value = true; const result = value;', hasPotentiallyMutableBinding));
 });
 
 test('preserves known static global properties', t => {

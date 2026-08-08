@@ -163,6 +163,35 @@ const getChildNodes = node => Object.entries(node)
 	.flatMap(([, value]) => Array.isArray(value) ? value : [value])
 	.filter(value => value?.type);
 
+export const hasPotentiallyMutableBinding = (node, context, visitedVariables = new Set()) => {
+	if (node.type === 'Identifier') {
+		const variable = findVariable(context.sourceCode.getScope(node), node);
+		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+		if (definition?.type !== 'Variable') {
+			return false;
+		}
+
+		if (definition.parent?.kind !== 'const') {
+			return true;
+		}
+
+		if (!definition.node.init || visitedVariables.has(variable)) {
+			return false;
+		}
+
+		visitedVariables.add(variable);
+		const result = hasPotentiallyMutableBinding(definition.node.init, context, visitedVariables);
+		visitedVariables.delete(variable);
+		return result;
+	}
+
+	if (unevaluatedExpressionTypes.has(node.type)) {
+		return false;
+	}
+
+	return getChildNodes(node).some(child => hasPotentiallyMutableBinding(child, context, visitedVariables));
+};
+
 const hasSideEffectfulConstReference = (node, context, visitedVariables) => {
 	if (node.type === 'Identifier') {
 		return hasSideEffectfulConstInitializer(node, context, visitedVariables);
