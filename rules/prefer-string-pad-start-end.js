@@ -2,6 +2,7 @@ import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMemberExpression, isMethodCall, isNumericLiteral} from './ast/index.js';
 import {
 	getParenthesizedText,
+	getStaticValueForControlFlow,
 	getStaticValueIfNoSideEffects,
 	hasSideEffectfulConstInitializer,
 	hasPotentiallyMutableMemberAccess,
@@ -94,7 +95,9 @@ const getStaticValueResult = (node, context) => {
 		return;
 	}
 
-	const result = getStaticValueIfNoSideEffects(staticValueNode, context);
+	const result = isBranchExpression(staticValueNode)
+		? getStaticValueForControlFlow(staticValueNode, context)
+		: getStaticValueIfNoSideEffects(staticValueNode, context);
 	if (staticValueNode.type !== 'SequenceExpression') {
 		return result;
 	}

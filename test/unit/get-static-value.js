@@ -2,6 +2,7 @@ import {Linter} from 'eslint';
 import test from 'ava';
 import {
 	getStaticRegExp,
+	getStaticValueForControlFlow,
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableBinding,
 	hasPotentiallyMutableMemberAccess,
@@ -87,11 +88,23 @@ test('detects potentially mutable variable bindings', t => {
 		'let value = true; value = false; const result = value;',
 		'var value = true; value = false; const result = value;',
 		'let value = true; const alias = value; const result = alias;',
+		'const alias = value; let value = true; const result = alias;',
 	]) {
 		t.true(evaluate(code, hasPotentiallyMutableBinding));
 	}
 
 	t.false(evaluate('const value = true; const result = value;', hasPotentiallyMutableBinding));
+});
+
+test('does not use mutable bindings for control-flow decisions', t => {
+	for (const code of [
+		'const alias = value; let value = true; const result = alias;',
+		'const alias = value; var value = true; const result = alias;',
+	]) {
+		t.is(evaluate(code, getStaticValueForControlFlow), undefined);
+	}
+
+	t.true(evaluate('const value = true; const result = value;', getStaticValueForControlFlow)?.value);
 });
 
 test('preserves known static global properties', t => {

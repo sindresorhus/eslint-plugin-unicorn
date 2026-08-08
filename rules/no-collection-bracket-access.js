@@ -7,6 +7,7 @@ import {
 	isLeftHandSide,
 	getParenthesizedText,
 	getStaticValueIfNoSideEffects,
+	getStaticValueForControlFlow,
 	getConstVariableInitializer,
 	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
@@ -87,7 +88,9 @@ function getStaticPropertyValues(node, context) {
 		return skipPropertyCheck;
 	}
 
-	const staticResult = getStaticValueIfNoSideEffects(node, context);
+	const staticResult = isBranch
+		? getStaticValueForControlFlow(node, context)
+		: getStaticValueIfNoSideEffects(node, context);
 	if (staticResult) {
 		return [staticResult.value];
 	}

@@ -18,6 +18,7 @@ import {
 import {
 	getBaseTypes,
 	getTypeSymbol,
+	getStaticValueForControlFlow,
 	getStaticValueIfNoSideEffects,
 	isBranchExpression,
 	hasPotentiallyMutableMemberAccess,
@@ -87,12 +88,15 @@ const getStaticPropertyName = (property, context) =>
 
 const getStaticValueForNode = (node, context) => {
 	const staticValueNode = unwrapTypeScriptExpression(node);
+	const isBranch = isBranchExpression(staticValueNode);
 	if (
-		isBranchExpression(staticValueNode)
+		isBranch
 		|| hasPotentiallyMutableMemberAccess(staticValueNode, context)
 		|| hasSideEffectfulConstInitializer(staticValueNode, context)
 	) {
-		return getStaticValueIfNoSideEffects(staticValueNode, context);
+		return isBranch
+			? getStaticValueForControlFlow(staticValueNode, context)
+			: getStaticValueIfNoSideEffects(staticValueNode, context);
 	}
 
 	return getStaticValue(staticValueNode, context.sourceCode.getScope(node));

@@ -3,6 +3,7 @@ import {isCallOrNewExpression} from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
 import {
 	getStaticValueIfNoSideEffects,
+	getStaticValueForControlFlow,
 	isBranchExpression,
 	hasPotentiallyMutableMemberAccess,
 	unwrapTypeScriptExpression,
@@ -46,12 +47,15 @@ const isObjectFreezeMemberExpression = (node, context) => {
 
 const getStaticValueForNode = (node, context) => {
 	const staticValueNode = unwrapTypeScriptExpression(node);
-	if (isBranchExpression(staticValueNode) || hasPotentiallyMutableMemberAccess(staticValueNode, context)) {
+	const isBranch = isBranchExpression(staticValueNode);
+	if (isBranch || hasPotentiallyMutableMemberAccess(staticValueNode, context)) {
 		if (isObjectFreezeMemberExpression(staticValueNode, context)) {
 			return getStaticValue(staticValueNode, context.sourceCode.getScope(node));
 		}
 
-		return getStaticValueIfNoSideEffects(staticValueNode, context);
+		return isBranch
+			? getStaticValueForControlFlow(staticValueNode, context)
+			: getStaticValueIfNoSideEffects(staticValueNode, context);
 	}
 
 	return getStaticValue(staticValueNode, context.sourceCode.getScope(node));

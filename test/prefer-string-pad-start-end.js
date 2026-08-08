@@ -70,6 +70,7 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'const modes = new Set(["foo"]); modes.clear(); const target = (modes.size && "x") || value; const foo = "*".repeat(10 - target.length) + target;',
+		'let condition = true; condition = false; const target = condition ? "x" : 1; const foo = "*".repeat(10 - target.length) + target;',
 		outdent`
 			const object = {value: true};
 			Object.defineProperty(object, "value", {get() { return false; }});

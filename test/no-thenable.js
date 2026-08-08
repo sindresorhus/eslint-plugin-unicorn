@@ -55,6 +55,7 @@ test.snapshot({
 		'foo[Symbol.property] = 1',
 		'const modes = new Set(["foo"]); modes.clear(); foo[modes.size ? "then" : "value"] = 1',
 		'const modes = new Set(["foo"]); modes.clear(); foo[(modes.size && "then") || key] = 1',
+		'let condition = true; condition = false; foo[condition ? "then" : "value"] = 1',
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); foo[object.value ? "then" : key] = 1',
 
 		// `Object.fromEntries`
