@@ -4,6 +4,7 @@ import isLogicalExpression from './is-logical-expression.js';
 import isLeftHandSide from './is-left-hand-side.js';
 import isSameReference from './is-same-reference.js';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
+import hasOptionalChainElement from './has-optional-chain-element.js';
 import isGlobalIdentifier from './is-global-identifier.js';
 
 const shapeProperties = new Set(['depth', 'height', 'width']);
@@ -257,8 +258,12 @@ const isConditionallyExecuted = (node, context) => {
 			|| (parent.type === 'CatchClause' && parent.body === current)
 			|| (parent.type === 'TryStatement' && parent.block === current)
 			|| (parent.type === 'AssignmentPattern' && parent.right === current)
+			|| (parent.type === 'MemberExpression'
+				&& parent.computed
+				&& parent.property === current
+				&& hasOptionalChainElement(parent))
 			|| (parent.type === 'CallExpression'
-				&& (parent.optional || parent.callee.optional)
+				&& (parent.optional || hasOptionalChainElement(parent.callee))
 				&& parent.arguments.includes(current))
 		) {
 			return true;

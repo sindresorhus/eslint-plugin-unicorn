@@ -356,6 +356,9 @@ test.snapshot({
 		'const foo = {length: -1}; Object.defineProperties(foo, {...definitions}); if (foo.length) {}',
 		'const foo = {length: -1}; Object.defineProperty(foo, propertyName, {value: 123}); if (foo.length) {}',
 		'const foo = {length: -1}; Object.assign(foo, {other: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; maybe?.[foo.length = 123]; if (foo.length) {}',
+		'const foo = {length: -1}; maybe?.property[foo.length = 123]; if (foo.length) {}',
+		'const foo = {length: -1}; maybe?.property.method(foo.length = 123); if (foo.length) {}',
 		'const foo = {length: 123}; Object.assign?.(foo, {length: \'x\'}); if (foo.length) {}',
 		// Class field initializers run in a separate execution context.
 		'const foo = {length: -1}; class A {field = (foo.length = "x");} new A(); if (foo.length) {}',
