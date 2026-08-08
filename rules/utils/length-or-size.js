@@ -1,6 +1,7 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {isMemberExpression} from '../ast/index.js';
+import {isFunction, isMemberExpression} from '../ast/index.js';
 import isLogicalExpression from './is-logical-expression.js';
+import isLeftHandSide from './is-left-hand-side.js';
 import isSameReference from './is-same-reference.js';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
 import isGlobalIdentifier from './is-global-identifier.js';
@@ -75,6 +76,14 @@ const isAccessorDefinition = (reference, propertyName, context) => {
 	return Boolean(descriptor && isAccessorDescriptor(descriptor, context));
 };
 
+const getEnclosingExecutionContext = node => {
+	for (let current = node.parent; current; current = current.parent) {
+		if (isFunction(current) || current.type === 'StaticBlock') {
+			return current;
+		}
+	}
+};
+
 const getReferencedMemberExpression = reference => {
 	let node = reference.identifier;
 	while (node.parent?.type === 'MemberExpression' && node.parent.object === node) {
@@ -99,11 +108,8 @@ const isPropertyMutation = (reference, propertyName, context) => {
 	}
 
 	const {parent} = node;
-	return (
-		(parent?.type === 'AssignmentExpression' && parent.left === node)
-		|| (parent?.type === 'UpdateExpression' && parent.argument === node)
-		|| (parent?.type === 'UnaryExpression' && parent.operator === 'delete' && parent.argument === node)
-	);
+	return isLeftHandSide(node)
+		|| ((parent?.type === 'ForOfStatement' || parent?.type === 'ForInStatement') && parent.left === node);
 };
 
 const isPropertyRead = (reference, propertyName, context) => {
@@ -162,20 +168,43 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 
 	const propertyName = getPropertyName(memberExpression, context.sourceCode.getScope(memberExpression));
 	const nonInitializationReferences = variable.references.filter(reference => !reference.init);
+	const enclosingExecutionContext = getEnclosingExecutionContext(memberExpression);
+	let hasNestedExecutionEffect = false;
 	let hasAccessorDefinition = false;
 	for (const reference of nonInitializationReferences) {
+		const isInNestedExecutionContext = getEnclosingExecutionContext(reference.identifier) !== enclosingExecutionContext;
 		if (isPropertyMutation(reference, propertyName, context)) {
+			if (isInNestedExecutionContext) {
+				hasNestedExecutionEffect = true;
+				continue;
+			}
+
 			return false;
 		}
 
 		if (isAccessorDefinition(reference, propertyName, context)) {
+			if (isInNestedExecutionContext) {
+				hasNestedExecutionEffect = true;
+				continue;
+			}
+
 			hasAccessorDefinition = true;
 			continue;
 		}
 
 		if (!isPropertyRead(reference, propertyName, context)) {
+			if (isInNestedExecutionContext) {
+				hasNestedExecutionEffect = true;
+				continue;
+			}
+
 			return false;
 		}
+	}
+
+	// Nested execution contexts may run before or after the read, so treat effects from them as unknown.
+	if (hasNestedExecutionEffect) {
+		return true;
 	}
 
 	if (hasAccessorDefinition) {

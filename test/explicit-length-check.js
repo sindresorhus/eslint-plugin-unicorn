@@ -320,6 +320,12 @@ test.snapshot({
 				}
 			}
 		`,
+		// A hoisted function can mutate the property before the read. The flow is unknown, so this is ignored.
+		'const foo = {length: 123}; mutate(); if (foo.length) {} function mutate() { Object.defineProperty(foo, \'length\', {get() { return \'x\'; }}); }',
+		// An uncalled function may still be called indirectly, so this is ignored.
+		'const foo = {length: -1}; function mutate() { foo.length = 123; } if (foo.length) {}',
+		// A nested function may mutate the property after the read, but flow analysis is intentionally best effort.
+		'const foo = {length: 123}; if (foo.length) {} mutate(); function mutate() { Object.defineProperty(foo, \'length\', {get() { return \'x\'; }}); }',
 	],
 	invalid: [
 		outdent`
@@ -348,6 +354,11 @@ test.snapshot({
 		// A later property write invalidates the initial static value.
 		'const foo = {length: -1}; foo.length = 123; if (foo.length) {}',
 		'const foo = {length: -1}; Object.assign(foo, {length: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; [foo.length] = [123]; if (foo.length) {}',
+		'const foo = {length: -1}; [...foo.length] = [[123]]; if (foo.length) {}',
+		'const foo = {length: -1}; ({length: foo.length} = {length: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; for (foo.length of [123]) {} if (foo.length) {}',
+		'const foo = {length: -1}; for (foo.length in {key: true}) {} if (foo.length) {}',
 		'if (foo.bar && foo.bar.length) {}',
 		'if (foo.length || foo.bar()) {}',
 		'if (!!(!!foo.length)) {}',
