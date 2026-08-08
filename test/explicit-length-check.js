@@ -326,6 +326,25 @@ test.snapshot({
 		'const foo = {length: -1}; function mutate() { foo.length = 123; } if (foo.length) {}',
 		// A nested function may mutate the property after the read, but flow analysis is intentionally best effort.
 		'const foo = {length: 123}; if (foo.length) {} mutate(); function mutate() { Object.defineProperty(foo, \'length\', {get() { return \'x\'; }}); }',
+		// The assigned value is not known to be a number, so this is ignored.
+		'const foo = {length: -1}; foo.length = \'x\'; if (foo.length) {}',
+		'const foo = {length: 123}; foo.length = \'x\'; if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperty(foo, \'length\', {value: \'x\'}); if (foo.length) {}',
+		'const foo = {length: 123}; Object.defineProperty(foo, \'length\', {value: \'x\'}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.assign(foo, {length: \'x\'}); if (foo.length) {}',
+		// Class field initializers run in a separate execution context.
+		'const foo = {length: -1}; class A {field = (foo.length = "x");} new A(); if (foo.length) {}',
+		'const foo = {length: -1}; class A {[foo.length = "x"]() {}} if (foo.length) {}',
+		{
+			code: 'const foo = {length: -1}; class A {accessor field = (foo.length = "x");} new A(); if (foo.length) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Destructuring can assign a nonnumeric value, so this is ignored.
+		'const foo = {length: -1}; [...foo.length] = [[123]]; if (foo.length) {}',
+		// `for...in` assigns a string property name.
+		'const foo = {length: -1}; for (foo.length in {key: true}) {} if (foo.length) {}',
+		'const foo = {length: 123}; for (foo.length in {key: true}) {} if (foo.length) {}',
+		'const foo = {length: -1}; for (foo.length of [\'x\']) {} if (foo.length) {}',
 	],
 	invalid: [
 		outdent`
@@ -354,11 +373,10 @@ test.snapshot({
 		// A later property write invalidates the initial static value.
 		'const foo = {length: -1}; foo.length = 123; if (foo.length) {}',
 		'const foo = {length: -1}; Object.assign(foo, {length: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperty(foo, \'length\', {value: 123}); if (foo.length) {}',
 		'const foo = {length: -1}; [foo.length] = [123]; if (foo.length) {}',
-		'const foo = {length: -1}; [...foo.length] = [[123]]; if (foo.length) {}',
 		'const foo = {length: -1}; ({length: foo.length} = {length: 123}); if (foo.length) {}',
 		'const foo = {length: -1}; for (foo.length of [123]) {} if (foo.length) {}',
-		'const foo = {length: -1}; for (foo.length in {key: true}) {} if (foo.length) {}',
 		'if (foo.bar && foo.bar.length) {}',
 		'if (foo.length || foo.bar()) {}',
 		'if (!!(!!foo.length)) {}',

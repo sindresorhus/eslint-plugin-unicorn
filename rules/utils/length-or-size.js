@@ -7,6 +7,15 @@ import getStaticValueIfNoSideEffects from './get-static-value.js';
 import isGlobalIdentifier from './is-global-identifier.js';
 
 const shapeProperties = new Set(['depth', 'height', 'width']);
+const executionContextTypes = new Set([
+	'AccessorProperty',
+	'MethodDefinition',
+	'PropertyDefinition',
+	'StaticBlock',
+	'TSAbstractAccessorProperty',
+	'TSAbstractMethodDefinition',
+	'TSAbstractPropertyDefinition',
+]);
 
 export function isLengthOrSizeMemberExpression(node) {
 	return isMemberExpression(node, {
@@ -71,14 +80,127 @@ const getObjectPropertyDefinition = (reference, propertyName, context) => {
 	)?.value;
 };
 
+const getObjectAssignPropertyValue = (reference, propertyName, context) => {
+	const callExpression = reference.identifier.parent;
+	if (
+		callExpression?.type !== 'CallExpression'
+		|| callExpression.callee.type !== 'MemberExpression'
+		|| callExpression.callee.object.type !== 'Identifier'
+		|| !isGlobalIdentifier(callExpression.callee.object, context)
+		|| callExpression.callee.property.type !== 'Identifier'
+		|| callExpression.callee.property.name !== 'assign'
+		|| callExpression.arguments[0] !== reference.identifier
+		|| callExpression.arguments[1]?.type !== 'ObjectExpression'
+	) {
+		return;
+	}
+
+	return callExpression.arguments[1].properties.find(property =>
+		property.type === 'Property'
+		&& getPropertyName(property, context.sourceCode.getScope(property)) === propertyName,
+	)?.value;
+};
+
 const isAccessorDefinition = (reference, propertyName, context) => {
 	const descriptor = getObjectPropertyDefinition(reference, propertyName, context);
 	return Boolean(descriptor && isAccessorDescriptor(descriptor, context));
 };
 
+const getAssignmentValue = (node, context) => {
+	const path = [];
+	let current = node;
+	for (;;) {
+		const {parent} = current;
+		if (!parent) {
+			return;
+		}
+
+		if (parent.type === 'AssignmentExpression') {
+			if (parent.left !== current || parent.operator !== '=') {
+				return;
+			}
+
+			let value = parent.right;
+			for (const pathPart of path.toReversed()) {
+				if (!value) {
+					return;
+				}
+
+				if (pathPart.type === 'array') {
+					value = value.type === 'ArrayExpression' ? value.elements[pathPart.index] : undefined;
+				} else {
+					value = value.type === 'ObjectExpression'
+						? value.properties.find(property =>
+							property.type === 'Property'
+							&& getPropertyName(property, context.sourceCode.getScope(property)) === pathPart.propertyName,
+						)?.value
+						: undefined;
+				}
+			}
+
+			return value;
+		}
+
+		if (parent.type === 'ArrayPattern') {
+			const index = parent.elements.indexOf(current);
+			if (index === -1) {
+				return;
+			}
+
+			path.push({type: 'array', index});
+		} else if (parent.type === 'Property' && parent.parent.type === 'ObjectPattern') {
+			path.push({
+				type: 'object',
+				propertyName: getPropertyName(parent, context.sourceCode.getScope(parent)),
+			});
+		} else if (parent.type === 'RestElement' || parent.type === 'AssignmentPattern') {
+			return;
+		}
+
+		current = parent;
+	}
+};
+
+const isKnownNonNegativeInteger = (node, context) => {
+	if (!node) {
+		return false;
+	}
+
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	return Boolean(staticValue && Number.isSafeInteger(staticValue.value) && staticValue.value >= 0);
+};
+
+const isKnownNumericPropertyMutation = (reference, propertyName, context) => {
+	const descriptor = getObjectPropertyDefinition(reference, propertyName, context);
+	if (descriptor) {
+		const value = descriptor.properties.find(property =>
+			property.type === 'Property'
+			&& getPropertyName(property, context.sourceCode.getScope(property)) === 'value',
+		)?.value;
+		return isKnownNonNegativeInteger(value, context);
+	}
+
+	const node = getReferencedMemberExpression(reference);
+	if (!node) {
+		return isKnownNonNegativeInteger(getObjectAssignPropertyValue(reference, propertyName, context), context);
+	}
+
+	const {parent} = node;
+	if (parent?.type === 'ForInStatement') {
+		return false;
+	}
+
+	if (parent?.type === 'ForOfStatement') {
+		const staticValue = getStaticValueIfNoSideEffects(parent.right, context)?.value;
+		return Array.isArray(staticValue) && staticValue.length > 0 && staticValue.every(value => Number.isSafeInteger(value) && value >= 0);
+	}
+
+	return isKnownNonNegativeInteger(getAssignmentValue(node, context), context);
+};
+
 const getEnclosingExecutionContext = node => {
 	for (let current = node.parent; current; current = current.parent) {
-		if (isFunction(current) || current.type === 'StaticBlock') {
+		if (isFunction(current) || executionContextTypes.has(current.type)) {
 			return current;
 		}
 	}
@@ -99,6 +221,10 @@ const isPropertyMutation = (reference, propertyName, context) => {
 		return !isAccessorDescriptor(descriptor, context);
 	}
 
+	if (getObjectAssignPropertyValue(reference, propertyName, context)) {
+		return true;
+	}
+
 	const node = getReferencedMemberExpression(reference);
 	if (
 		!node
@@ -110,6 +236,16 @@ const isPropertyMutation = (reference, propertyName, context) => {
 	const {parent} = node;
 	return isLeftHandSide(node)
 		|| ((parent?.type === 'ForOfStatement' || parent?.type === 'ForInStatement') && parent.left === node);
+};
+
+const isForInPropertyMutation = (reference, propertyName, context) => {
+	const node = getReferencedMemberExpression(reference);
+	return Boolean(
+		node
+		&& getPropertyName(node, context.sourceCode.getScope(node)) === propertyName
+		&& node.parent?.type === 'ForInStatement'
+		&& node.parent.left === node,
+	);
 };
 
 const isPropertyRead = (reference, propertyName, context) => {
@@ -169,22 +305,29 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 	const propertyName = getPropertyName(memberExpression, context.sourceCode.getScope(memberExpression));
 	const nonInitializationReferences = variable.references.filter(reference => !reference.init);
 	const enclosingExecutionContext = getEnclosingExecutionContext(memberExpression);
-	let hasNestedExecutionEffect = false;
+	let hasUnknownEffect = false;
+	let hasKnownNumericMutation = false;
 	let hasAccessorDefinition = false;
 	for (const reference of nonInitializationReferences) {
 		const isInNestedExecutionContext = getEnclosingExecutionContext(reference.identifier) !== enclosingExecutionContext;
+		if (isForInPropertyMutation(reference, propertyName, context)) {
+			hasUnknownEffect = true;
+			continue;
+		}
+
 		if (isPropertyMutation(reference, propertyName, context)) {
-			if (isInNestedExecutionContext) {
-				hasNestedExecutionEffect = true;
-				continue;
+			if (!isInNestedExecutionContext && isKnownNumericPropertyMutation(reference, propertyName, context)) {
+				hasKnownNumericMutation = true;
+			} else {
+				hasUnknownEffect = true;
 			}
 
-			return false;
+			continue;
 		}
 
 		if (isAccessorDefinition(reference, propertyName, context)) {
 			if (isInNestedExecutionContext) {
-				hasNestedExecutionEffect = true;
+				hasUnknownEffect = true;
 				continue;
 			}
 
@@ -194,7 +337,7 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 
 		if (!isPropertyRead(reference, propertyName, context)) {
 			if (isInNestedExecutionContext) {
-				hasNestedExecutionEffect = true;
+				hasUnknownEffect = true;
 				continue;
 			}
 
@@ -202,9 +345,13 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 		}
 	}
 
-	// Nested execution contexts may run before or after the read, so treat effects from them as unknown.
-	if (hasNestedExecutionEffect) {
+	// Nested execution contexts may run before or after the read, and unknown mutations may change the value.
+	if (hasUnknownEffect) {
 		return true;
+	}
+
+	if (hasKnownNumericMutation) {
+		return false;
 	}
 
 	if (hasAccessorDefinition) {
