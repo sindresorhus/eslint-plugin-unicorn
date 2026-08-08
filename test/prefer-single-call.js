@@ -125,6 +125,12 @@ test.snapshot({
 	],
 	invalid: [
 		outdent`
+			const object = {value: 0};
+			Object.defineProperty(object, 'value', {get() { return foo.length; }});
+			foo.push(1);
+			foo.push(object.value);
+		`,
+		outdent`
 			foo.push(1);
 			foo.push(2);
 		`,

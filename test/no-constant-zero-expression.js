@@ -67,6 +67,13 @@ test.snapshot({
 		// Side-effecting / non-static operands (reported, no suggestion)
 		'foo.bar * 0;',
 		'foo() * 0;',
+		`const object = {value: 1};
+Object.defineProperty(object, 'value', {get() { return 1n; }});
+object.value * 0;`,
+		`const object = {value: 1};
+Object.defineProperty(object, 'value', {get() { return 1n; }});
+const value = object.value;
+value * 0;`,
 
 		// Foldable via a constant binding resolved through scope (suggestion → `0`)
 		'const a = 5;\na * 0;',
@@ -91,5 +98,15 @@ test.snapshot({
 		// TypeScript
 		{code: '(x as number) * 0;', languageOptions: {parser: parsers.typescript}},
 		{code: 'x! & 0;', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const alias = condition; var condition = true; (alias ? 1 : NaN) * 0;',
+			errors: [{messageId: 'no-constant-zero-expression/error', suggestions: 0}],
+		},
 	],
 });

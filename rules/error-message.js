@@ -1,6 +1,13 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isCallOrNewExpression} from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
+import {
+	getStaticValueIfNoSideEffects,
+	getStaticValueForControlFlow,
+	isBranchExpression,
+	hasPotentiallyMutableMemberAccess,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
 const MESSAGE_ID_EMPTY_MESSAGE = 'message-is-empty-string';
@@ -15,6 +22,68 @@ const messageArgumentIndexes = new Map([
 	['AggregateError', 1],
 	['SuppressedError', 2],
 ]);
+
+const isSafeObjectFreezeArgument = (node, context) => {
+	if (!node) {
+		return false;
+	}
+
+	if (node.type === 'ObjectExpression') {
+		return !hasPotentiallyMutableMemberAccess(node, context);
+	}
+
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	return definition?.type === 'Variable'
+		&& definition.parent?.kind === 'const'
+		&& definition.node.id === definition.name
+		&& definition.node.init?.type === 'ObjectExpression'
+		&& !hasPotentiallyMutableMemberAccess(definition.node.init, context)
+		&& variable.references.every(reference => reference.init || reference.identifier === node);
+};
+
+const isObjectFreezeMemberExpression = (node, context) => {
+	if (node.type === 'Identifier') {
+		const variable = findVariable(context.sourceCode.getScope(node), node);
+		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+		node = definition?.type === 'Variable'
+			&& definition.parent?.kind === 'const'
+			&& definition.node.id === definition.name
+			&& definition.node.init
+			? definition.node.init
+			: node;
+	}
+
+	return node.type === 'MemberExpression'
+		&& node.object.type === 'CallExpression'
+		&& node.object.callee.type === 'MemberExpression'
+		&& !node.object.callee.computed
+		&& node.object.callee.object.type === 'Identifier'
+		&& node.object.callee.object.name === 'Object'
+		&& node.object.callee.property.type === 'Identifier'
+		&& node.object.callee.property.name === 'freeze'
+		&& isSafeObjectFreezeArgument(node.object.arguments[0], context);
+};
+
+const getStaticValueForNode = (node, context) => {
+	const staticValueNode = unwrapTypeScriptExpression(node);
+	const isBranch = isBranchExpression(staticValueNode);
+	if (isBranch || hasPotentiallyMutableMemberAccess(staticValueNode, context)) {
+		if (isObjectFreezeMemberExpression(staticValueNode, context)) {
+			return getStaticValue(staticValueNode, context.sourceCode.getScope(node));
+		}
+
+		return isBranch
+			? getStaticValueForControlFlow(staticValueNode, context)
+			: getStaticValueIfNoSideEffects(staticValueNode, context);
+	}
+
+	return getStaticValue(staticValueNode, context.sourceCode.getScope(node));
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -49,7 +118,7 @@ const create = context => {
 			};
 		}
 
-		// These types can't be string, and `getStaticValue` may don't know the value
+		// These types can't be string, and `getStaticValue` may not know the value
 		// Add more types, if issue reported
 		if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
 			return {
@@ -58,7 +127,7 @@ const create = context => {
 			};
 		}
 
-		const staticResult = getStaticValue(node, context.sourceCode.getScope(node));
+		const staticResult = getStaticValueForNode(node, context);
 
 		// We don't know the value of `message`
 		if (!staticResult) {

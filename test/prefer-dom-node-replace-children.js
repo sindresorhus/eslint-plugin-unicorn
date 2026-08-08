@@ -45,6 +45,10 @@ test({
 		'element.textContent = "";',
 		'element["outerHTML"] = "";',
 		'document.createElement("template").innerHTML = "";',
+		'document.createElement(({tagName: "template"}).tagName).innerHTML = "";',
+		`const options = {tagName: 'div'};
+Object.defineProperty(options, 'tagName', {get() { return 'template'; }});
+document.createElement(options.tagName).innerHTML = '';`,
 		'document.createElement("TEMPLATE", options).innerHTML = "";',
 		'const element = document.createElement("template"); element.innerHTML = "";',
 		'const element = document.createElementNS("http://www.w3.org/1999/xhtml", "template"); element.innerHTML = "";',

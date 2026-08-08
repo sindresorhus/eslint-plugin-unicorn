@@ -8,6 +8,9 @@ test.snapshot({
 	valid: [
 		// No global flag
 		'foo.replace(/a/, bar)',
+		'const modes = new Set([\'foo\']); modes.clear(); foo.replace(modes.size ? /a/g : /a/, bar)',
+		'const modes = new Set([\'foo\']); modes.clear(); foo.replace((modes.size && /a/g) || pattern, bar)',
+		'const object = {value: true}; Object.defineProperty(object, \'value\', {get() { return false; }}); foo.replace(object.value ? /a/g : pattern, bar)',
 		'foo.replaceAll(/a/, bar)',
 		// Not regex literal
 		'foo.replace("string", bar)',

@@ -86,6 +86,156 @@ test.snapshot({
 				baz();
 			}
 		`,
+		// The condition depends on a mutable collection, so the throw is conditional.
+		outdent`
+			const MODE_GROUP = new Set(['foo', 'bar']);
+
+			const args = new Map();
+
+			const modes = new Set();
+			if (args.has('modes')) {
+				for (const mode of args.get('modes').split(',')) {
+					const trimmed = mode.trim();
+					if (MODE_GROUP.has(trimmed)) {
+						modes.add(trimmed);
+					}
+				}
+
+				if (!modes.size) {
+					throw new Error('No valid modes');
+				}
+			} else {
+				for (const mode of MODE_GROUP) {
+					modes.add(mode);
+				}
+			}
+		`,
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			if (condition) {
+				modes.size ? process.exit() : doSomething();
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return false; }});
+
+			if (condition) {
+				if (object.value) {
+					throw new Error();
+				}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					if (object.value && true) {
+						throw new Error();
+					}
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					if (object?.value) {
+						throw new Error();
+					}
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
+			const getterKey = 'value';
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					if (object[getterKey]) {
+						throw new Error();
+					}
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					object.value(process.exit(1));
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					object.value.foo(process.exit(1));
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { throw new Error(); }});
+
+			if (condition) {
+				try {
+					(object?.value)[process.exit(1)];
+				} catch {}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			let modes = new Set(['foo']);
+
+			if (condition) {
+				if ((modes = new Set()).size) {
+					throw new Error();
+				}
+			} else {
+				doSomethingElse();
+			}
+		`,
+		outdent`
+			function qux() {
+				const modes = new Set(['foo']);
+				modes.clear();
+
+				if (foo) {
+					if (modes.size) {
+						return;
+					}
+					bar();
+				} else {
+					baz();
+				}
+			}
+		`,
 		outdent`
 			function qux() {
 				if (foo) {
@@ -672,6 +822,24 @@ test.snapshot({
 				throw new Error();
 			} else {
 				bar();
+			}
+		`,
+		outdent`
+			function qux() {
+				if (false) {
+					return;
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (true) {
+					return;
+				} else {
+					bar();
+				}
 			}
 		`,
 		outdent`

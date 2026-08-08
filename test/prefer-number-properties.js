@@ -126,6 +126,51 @@ test({
 			name: 'parseInt',
 		}),
 		invalidMethodTest({
+			code: outdent`
+				const modes = new Set(['foo']);
+				modes.clear();
+				parseInt('10', modes.size ? 10 : 2);
+			`,
+			output: outdent`
+				const modes = new Set(['foo']);
+				modes.clear();
+				Number.parseInt('10', modes.size ? 10 : 2);
+			`,
+			name: 'parseInt',
+		}),
+		{
+			code: outdent`
+				const modes = new Set(['foo']);
+				modes.clear();
+				parseInt('10', (modes.size ? 10 : 2) as number);
+			`,
+			output: outdent`
+				const modes = new Set(['foo']);
+				modes.clear();
+				Number.parseInt('10', (modes.size ? 10 : 2) as number);
+			`,
+			errors: [createError('parseInt')],
+			languageOptions: {parser: parsers.typescript},
+		},
+		invalidMethodTest({
+			code: 'const modes = new Set(["foo"]); modes.clear(); parseInt("10", (modes.size && 10) || radix);',
+			output: 'const modes = new Set(["foo"]); modes.clear(); Number.parseInt("10", (modes.size && 10) || radix);',
+			name: 'parseInt',
+		}),
+		invalidMethodTest({
+			code: outdent`
+				const object = {value: true};
+				Object.defineProperty(object, 'value', {get() { return false; }});
+				parseInt('10', object.value ? 10 : radix);
+			`,
+			output: outdent`
+				const object = {value: true};
+				Object.defineProperty(object, 'value', {get() { return false; }});
+				Number.parseInt('10', object.value ? 10 : radix);
+			`,
+			name: 'parseInt',
+		}),
+		invalidMethodTest({
 			// Radix `0` (treated as base-10 at runtime) is still flagged
 			code: 'parseInt("10", 0);',
 			output: 'Number.parseInt("10", 0);',

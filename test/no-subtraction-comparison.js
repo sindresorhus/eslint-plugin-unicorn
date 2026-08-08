@@ -69,6 +69,13 @@ test.snapshot({
 		'a.length - b.length - c > 0',
 		// Parenthesized operands are preserved
 		'(foo.length) - (bar.length) > 0',
+		'const modes = new Set([\'foo\']); modes.clear(); (modes.size ? 1 : \'x\') - (modes.size ? 1 : \'x\') === 0',
+		'const modes = new Set([\'foo\']); modes.clear(); ((modes.size && 1) || value) - 1 === 0',
+		'const object = {value: true}; Object.defineProperty(object, \'value\', {get() { return false; }}); (object.value ? 1 : value) - 1 === 0',
+		{
+			code: 'const modes = new Set([\'foo\']); modes.clear(); ((modes.size ? 1 : value) as number) - 1 === 0',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// The whole subtraction parenthesized
 		'(a - b) > 0',
 		// Optional chaining isn't provably numeric → suggestion
@@ -79,6 +86,16 @@ test.snapshot({
 		{
 			code: '(a as number) - (b as number) > 0',
 			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const alias = condition; var condition = true; (alias ? 1 : value) - 1 === 0',
+			errors: [{messageId: 'no-subtraction-comparison/error', suggestions: 1}],
 		},
 	],
 });

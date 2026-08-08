@@ -53,6 +53,7 @@ test.snapshot({
 		'import escapeStringRegexp from \'escape-string-regexp\'; const escaped = escapeStringRegexp(42);',
 		'import escapeStringRegexp from \'escape-string-regexp\'; function foo(escapeStringRegexp) { return escapeStringRegexp(string); }',
 		'import lodash from \'lodash\'; const escaped = lodash.escapeRegExp?.(string);',
+		'import escapeStringRegexp from \'escape-string-regexp\'; const escaped = escapeStringRegexp(({value: 42}).value);',
 		'import lodash from \'lodash\'; const escaped = lodash[escapeRegExp](string);',
 		'import lodash from \'lodash\'; function foo(lodash) { return lodash.escapeRegExp(string); }',
 		'import lodash from \'lodash\'; const escaped = lodash.escapeRegExp(null);',
@@ -98,6 +99,10 @@ test.snapshot({
 		'import * as lodash from \'lodash-es\'; const escaped = lodash.escapeRegExp(string);',
 		'const lodash = require(\'lodash\'); const escaped = lodash.escapeRegExp(string);',
 		'const escaped = _.escapeRegExp(string);',
+		`import escapeStringRegexp from 'escape-string-regexp';
+const object = {value: 42};
+Object.defineProperty(object, 'value', {get() { return 'value'; }});
+const escaped = escapeStringRegexp(object.value);`,
 		'import escapeStringRegexp from \'escape-string-regexp\'; const escaped = escapeStringRegexp(/* string */ string);',
 	],
 });

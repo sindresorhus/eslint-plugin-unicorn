@@ -1,6 +1,6 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isBigIntLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
+import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {
 	createTypeCheckers,
 	target,
@@ -78,7 +78,7 @@ export default function isBigInt(node, context) {
 		return true;
 	}
 
-	return typeof getStaticValue(node, context.sourceCode.getScope(node))?.value === 'bigint';
+	return typeof getStaticValueIfNoSideEffects(node, context)?.value === 'bigint';
 }
 
 export {

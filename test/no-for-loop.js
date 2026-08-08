@@ -35,6 +35,24 @@ const typeAware = (code, output) => ({
 
 test({
 	valid: [
+		outdent`
+			const value = Number(1);
+			for (let index = 0; index < value.length; index++) {
+				console.log(value[index]);
+			}
+		`,
+		outdent`
+			const value = '123'.indexOf('1');
+			for (let index = 0; index < value.length; index++) {
+				console.log(value[index]);
+			}
+		`,
+		outdent`
+			const value = '123'.includes('1');
+			for (let index = 0; index < value.length; index++) {
+				console.log(value[index]);
+			}
+		`,
 		'for (;;);',
 		'for (;;) {}',
 		'for (a;; c) { d }',
@@ -279,11 +297,39 @@ test({
 
 		// With variable containing static, non-array value.
 		'const notArray = "abc"; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
+		outdent`
+			const text = '123'.slice(1);
+			for (let i = 0; i < text.length; i++) {
+				console.log(text[i]);
+			}
+		`,
 		'const notArray = 123; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
 		'const notArray = true; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
+		outdent`
+			const object = {value: []};
+			Object.defineProperty(object, 'value', {get() { return new Set(); }});
+			for (let i = 0; i < object.value.length; i++) {
+				console.log(object.value[i]);
+			}
+		`,
 	],
 
 	invalid: [
+		{
+			code: outdent`
+				const array = [1].slice();
+				for (let i = 0; i < array.length; i++) {
+					console.log(array[i]);
+				}
+			`,
+			output: outdent`
+				const array = [1].slice();
+				for (const element of array) {
+					console.log(element);
+				}
+			`,
+			errors: 1,
+		},
 		// Cached-length pattern
 		testCase(outdent`
 			for (let i = 0, j = arr.length; i < j; i += 1) {

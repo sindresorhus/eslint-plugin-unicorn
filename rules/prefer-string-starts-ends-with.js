@@ -1,4 +1,3 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
 	getParenthesizedText,
@@ -9,6 +8,7 @@ import {
 	isKnownNonString,
 	isString,
 	isSameReference,
+	getStaticValueIfNoSideEffects,
 	needsSemicolon,
 } from './utils/index.js';
 import {
@@ -64,7 +64,7 @@ const getNumericLiteralValue = node => {
 const isLengthProperty = node => isMemberExpression(node, {property: 'length'});
 
 const getStaticStringLength = (node, context) => {
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
 
 	if (typeof staticValue?.value === 'string') {
 		return staticValue.value.length;
@@ -194,7 +194,7 @@ const create = context => {
 			);
 		let isNonString = false;
 		if (!isTargetString) {
-			const staticValue = getStaticValue(target, sourceCode.getScope(target));
+			const staticValue = getStaticValueIfNoSideEffects(target, context);
 
 			if (staticValue) {
 				isTargetString = typeof staticValue.value === 'string';

@@ -1,7 +1,7 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {isReference, isSame, unwrapExpression} from './utils/comparison.js';
-import {isComparableStaticValue, isKnownNonMap} from './utils/index.js';
+import {getStaticValueIfNoSideEffects, isComparableStaticValue, isKnownNonMap} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -68,8 +68,7 @@ function getMapHasCall(node) {
 }
 
 function getComparableStaticValue(node, context) {
-	const {sourceCode} = context;
-	const result = getStaticValue(unwrapExpression(node), sourceCode.getScope(node));
+	const result = getStaticValueIfNoSideEffects(unwrapExpression(node), context);
 
 	if (
 		result

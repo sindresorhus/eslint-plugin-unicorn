@@ -53,6 +53,12 @@ test.snapshot({
 		'typeof foo.then',
 		'foo.then != 1',
 		'foo[Symbol.property] = 1',
+		'const modes = new Set(["foo"]); modes.clear(); foo[modes.size ? "then" : "value"] = 1',
+		'const modes = new Set(["foo"]); modes.clear(); foo[(modes.size && "then") || key] = 1',
+		'let condition = true; condition = false; foo[condition ? "then" : "value"] = 1',
+		'const alias = condition; var condition = true; foo[alias ? "then" : "value"] = 1',
+		'const alias = condition; var condition = true; foo[(0, alias ? "then" : "value")] = 1',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); foo[object.value ? "then" : key] = 1',
 
 		// `Object.fromEntries`
 		'Object.fromEntries([then, 1])',
@@ -81,6 +87,9 @@ test.snapshot({
 		'Object.defineProperty(foo, ...["then", 1])',
 		'Object.defineProperty(foo, Symbol.property, 1)',
 		'Reflect.defineProperty(foo, Symbol.property, 1)',
+		'const modes = new Set([\'foo\']); modes.clear(); Object.defineProperty(foo, modes.size ? \'then\' : \'value\', descriptor)',
+		'const modes = new Set([\'foo\']); modes.clear(); Object.defineProperty(foo, (modes.size && \'then\') || key, descriptor)',
+		'const object = {value: true}; Object.defineProperty(object, \'value\', {get() { return false; }}); Object.defineProperty(foo, object.value ? \'then\' : key, descriptor)',
 
 		// `export`
 		'export {default} from "then"',

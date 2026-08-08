@@ -44,9 +44,13 @@ test.snapshot({
 		'[...Array(3.5).keys()];',
 		'Array.from(Array(3.5).keys());',
 		'[...Array(-1).keys()];',
+		'[...Array(({value: -1}).value).keys()];',
 		'[...Array(2 ** 32).keys()];',
 		'const length = "3"; [...Array(length).keys()];',
 		'const length = -1; Array.from(new Array(length).keys());',
+		`const object = {value: 3};
+Object.defineProperty(object, 'value', {get() { return -1; }});
+[...Array(object.value).keys()];`,
 		'for (const index of Array(length).keys()) {}',
 		'const Array = value; [...Array(length).keys()];',
 		'function foo(Array) { return [...Array(length).keys()]; }',

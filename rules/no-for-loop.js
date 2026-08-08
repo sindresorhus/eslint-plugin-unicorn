@@ -1,14 +1,19 @@
-import {isClosingParenToken, getStaticValue} from '@eslint-community/eslint-utils';
+import {getStaticValue, isClosingParenToken} from '@eslint-community/eslint-utils';
 import {
 	getAvailableVariableName,
+	getConstVariableInitializer,
 	getScopes,
 	getVariableByName,
 	singular,
 	toLocation,
 	getReferences,
+	getStaticValueIfNoSideEffects,
+	isBoolean,
+	isNumber,
 	isArray,
 	isNullishType,
 	isUnknownType,
+	hasPotentiallyMutableMemberAccess,
 } from './utils/index.js';
 import {
 	isCallExpression,
@@ -741,9 +746,28 @@ const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) =>
 const getReferencesInChildScopes = (scope, name) =>
 	getReferences(scope).filter(reference => reference.identifier.name === name);
 
-const isStaticNonArray = (node, scope) => {
-	const staticResult = getStaticValue(node, scope);
-	return Boolean(staticResult && !Array.isArray(staticResult.value));
+const isStaticNonArray = (node, context) => {
+	const initializer = getConstVariableInitializer(node, context);
+	if (initializer && (isNumber(initializer, context) || isBoolean(initializer, context))) {
+		return true;
+	}
+
+	const staticResult = getStaticValueIfNoSideEffects(node, context);
+	if (staticResult) {
+		return !Array.isArray(staticResult.value);
+	}
+
+	const fallbackStaticResult = getStaticValue(node, context.sourceCode.getScope(node));
+	if (!fallbackStaticResult) {
+		return false;
+	}
+
+	if (hasPotentiallyMutableMemberAccess(node, context)) {
+		// A static string may be produced by a method call. Keep this guard because reporting it would be a false positive.
+		return typeof fallbackStaticResult.value === 'string';
+	}
+
+	return !Array.isArray(fallbackStaticResult.value);
 };
 
 const getUpdateExpressionInfo = (forStatement, indexIdentifierName, cachedLengthIdentifier) => {
@@ -778,12 +802,12 @@ const create = context => {
 		}
 
 		const {arrayIdentifier, cachedLengthIdentifier, indexIdentifierName} = loopInfo;
-		const scope = sourceCode.getScope(node);
-		if (isStaticNonArray(arrayIdentifier, scope)) {
+		if (isStaticNonArray(arrayIdentifier, context)) {
 			// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
 			return;
 		}
 
+		const scope = sourceCode.getScope(node);
 		const arrayVariable = getVariableByName(arrayIdentifier.name, scope);
 		const {
 			isStandardUpdateExpression,

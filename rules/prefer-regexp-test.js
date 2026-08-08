@@ -1,4 +1,4 @@
-import {findVariable, isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue, isParenthesized} from '@eslint-community/eslint-utils';
 import {checkVueTemplate} from './utils/rule.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
@@ -19,6 +19,9 @@ import {
 	isString,
 	isUnknownType,
 	isGlobalBooleanCall,
+	getStaticRegExp,
+	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 
@@ -40,6 +43,7 @@ const messages = {
 };
 
 const isLiteralZero = node => isLiteral(node, 0);
+const isRegExpValue = value => Object.prototype.toString.call(value) === '[object RegExp]';
 
 function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context) {
 	const {sourceCode} = context;
@@ -48,7 +52,7 @@ function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, cont
 	let stringText = sourceCode.getText(stringNode);
 	if (
 		!isParenthesized(regexpNode, sourceCode)
-		// Only `SequenceExpression` need to add parentheses
+		// Only `SequenceExpression` needs parentheses.
 		&& stringNode.type === 'SequenceExpression'
 	) {
 		stringText = `(${stringText})`;
@@ -121,14 +125,13 @@ const cases = [
 
 const isRegExpNode = node => isRegexLiteral(node) || isNewExpression(node, {name: 'RegExp'});
 
-const getRegExpFromStaticValue = value => {
-	if (Object.prototype.toString.call(value) === '[object RegExp]') {
-		return value;
+const getStaticValueType = (node, context) => {
+	const result = getStaticValueIfNoSideEffects(node, context);
+	if (!result && hasPotentiallyMutableMemberAccess(node, context)) {
+		const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+		return staticValue && staticValue.value !== undefined ? OTHER : UNKNOWN;
 	}
-};
 
-const getStaticValueType = (node, scope) => {
-	const result = getStaticValue(node, scope);
 	if (!result) {
 		return UNKNOWN;
 	}
@@ -137,7 +140,7 @@ const getStaticValueType = (node, scope) => {
 		return STRING;
 	}
 
-	if (getRegExpFromStaticValue(result.value)) {
+	if (isRegExpValue(result.value)) {
 		return REGEXP;
 	}
 
@@ -408,8 +411,7 @@ function getExpressionType(node, context, visitedVariables = new Set()) {
 		}
 	}
 
-	const scope = context.sourceCode.getScope(node);
-	const staticType = getStaticValueType(node, scope);
+	const staticType = getStaticValueType(node, context);
 	if (staticType !== UNKNOWN) {
 		return staticType;
 	}
@@ -627,10 +629,10 @@ const create = context => {
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
 
-			const regexpScope = context.sourceCode.getScope(regexpNode);
-			const staticResult = getStaticValue(regexpNode, regexpScope);
-			const staticRegExp = staticResult ? getRegExpFromStaticValue(staticResult.value) : undefined;
-			const isRegExp = isRegExpNode(regexpNode);
+			const staticRegExp = getStaticRegExp(regexpNode, context);
+			const isSafeRegExp = isRegexLiteral(regexpNode)
+				? !regexpNode.regex.flags.includes('g') && !regexpNode.regex.flags.includes('y')
+				: Boolean(staticRegExp && !staticRegExp.global && !staticRegExp.sticky);
 			const stringType = getExpressionType(nodes.stringNode, context);
 			const regexpType = getExpressionType(regexpNode, context);
 
@@ -676,7 +678,7 @@ const create = context => {
 				lengthCheck,
 				searchCheck,
 				callExpression: node,
-				isRegExp,
+				isRegExp: isSafeRegExp,
 				staticRegExp,
 			});
 

@@ -18,6 +18,11 @@ import {
 import {
 	getBaseTypes,
 	getTypeSymbol,
+	getStaticValueForControlFlow,
+	getStaticValueIfNoSideEffects,
+	isBranchExpression,
+	hasPotentiallyMutableMemberAccess,
+	hasSideEffectfulConstInitializer,
 	isDefaultLibrarySymbol,
 	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
@@ -81,8 +86,21 @@ const getStaticPropertyName = (property, context) =>
 		? getPropertyName(property, context.sourceCode.getScope(property)) ?? undefined
 		: undefined;
 
-const getStaticValueForNode = (node, context) =>
-	getStaticValue(unwrapTypeScriptExpression(node), context.sourceCode.getScope(node));
+const getStaticValueForNode = (node, context) => {
+	const staticValueNode = unwrapTypeScriptExpression(node);
+	const isBranch = isBranchExpression(staticValueNode);
+	if (
+		isBranch
+		|| hasPotentiallyMutableMemberAccess(staticValueNode, context)
+		|| hasSideEffectfulConstInitializer(staticValueNode, context)
+	) {
+		return isBranch
+			? getStaticValueForControlFlow(staticValueNode, context)
+			: getStaticValueIfNoSideEffects(staticValueNode, context);
+	}
+
+	return getStaticValue(staticValueNode, context.sourceCode.getScope(node));
+};
 
 const hasCommentsInside = (node, context) =>
 	context.sourceCode.getCommentsInside(node).length > 0;

@@ -320,6 +320,63 @@ test.snapshot({
 				}
 			}
 		`,
+		// A hoisted function can mutate the property before the read. The flow is unknown, so this is ignored.
+		'const foo = {length: 123}; mutate(); if (foo.length) {} function mutate() { Object.defineProperty(foo, \'length\', {get() { return \'x\'; }}); }',
+		// An uncalled function may still be called indirectly, so this is ignored.
+		'const foo = {length: -1}; function mutate() { foo.length = 123; } if (foo.length) {}',
+		// A nested function may mutate the property after the read, but flow analysis is intentionally best effort.
+		'const foo = {length: 123}; if (foo.length) {} mutate(); function mutate() { Object.defineProperty(foo, \'length\', {get() { return \'x\'; }}); }',
+		// The assigned value is not known to be a number, so this is ignored.
+		'const foo = {length: -1}; foo.length = \'x\'; if (foo.length) {}',
+		'const foo = {length: 123}; foo.length = \'x\'; if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperty(foo, \'length\', {value: \'x\'}); if (foo.length) {}',
+		'const foo = {length: 123}; Object.defineProperty(foo, \'length\', {value: \'x\'}); if (foo.length) {}',
+		'const foo = {length: -1}; const descriptor = {value: \'x\'}; Object.defineProperty(foo, \'length\', descriptor); if (foo.length) {}',
+		'const foo = {length: -1}; Object.assign(foo, {length: \'x\'}); if (foo.length) {}',
+		'const foo = {length: -1}; const values = {length: \'x\'}; Object.assign(foo, values); if (foo.length) {}',
+		'const foo = {length: -1}; const values = {length: \'x\'}; Object.assign(foo, {length: 123}, values); if (foo.length) {}',
+		'const foo = {length: -1}; Object.assign(foo, {length: 123, length: \'x\'}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperty(foo, \'length\', {value: 123, value: \'x\'}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperty(foo, \'length\', {value: 123, ...descriptor}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperties(foo, {length: {value: 123}, length: {value: \'x\'}}); if (foo.length) {}',
+		'const foo = {length: -1}; ({length: foo.length} = {length: 123, length: \'x\'}); if (foo.length) {}',
+		'const foo = {length: -1}; ({length: foo.length = 123} = {length: 456}); if (foo.length) {}',
+		'const foo = {length: -1}; const {value = (foo.length = 123)} = {value: 0}; if (foo.length) {}',
+		'const foo = {length: -1}; try { if (condition) throw new Error(); foo.length = 123; } catch {} if (foo.length) {}',
+		'const foo = {length: -1}; if (condition) foo.length = 123; if (foo.length) {}',
+		'const foo = {length: -1}; condition && (foo.length = 123); if (foo.length) {}',
+		'const foo = {length: -1}; condition ? foo.length = 123 : 0; if (foo.length) {}',
+		'const foo = {length: -1}; while (condition) foo.length = 123; if (foo.length) {}',
+		'const foo = {length: -1}; for (; condition;) foo.length = 123; if (foo.length) {}',
+		'const foo = {length: -1}; switch (value) { case 1: foo.length = 123; } if (foo.length) {}',
+		'const foo = {length: -1}; try {} catch { foo.length = 123; } if (foo.length) {}',
+		'const foo = {length: -1}; Object.assign?.(foo, {length: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; object?.method(foo.length = 123); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperties(foo, definitions); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperties(foo, {...definitions}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperty(foo, propertyName, {value: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.assign(foo, {other: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; maybe?.[foo.length = 123]; if (foo.length) {}',
+		'const foo = {length: -1}; maybe?.property[foo.length = 123]; if (foo.length) {}',
+		'const foo = {length: -1}; maybe?.property.method(foo.length = 123); if (foo.length) {}',
+		'const foo = {length: 123}; Object.assign?.(foo, {length: \'x\'}); if (foo.length) {}',
+		// A later property write does not affect an earlier read.
+		'const foo = {length: -1}; if (foo.length) {} foo.length = 123;',
+		'const foo = {length: -1}; if (foo.length) {} Object.assign(foo, {length: 123});',
+		'const foo = {length: -1}; if (foo.length) {} Object.defineProperty(foo, \'length\', {value: 123});',
+		// Class field initializers run in a separate execution context.
+		'const foo = {length: -1}; class A {field = (foo.length = "x");} new A(); if (foo.length) {}',
+		'const foo = {length: -1}; class A {[foo.length = "x"]() {}} if (foo.length) {}',
+		{
+			code: 'const foo = {length: -1}; class A {accessor field = (foo.length = "x");} new A(); if (foo.length) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Destructuring can assign a nonnumeric value, so this is ignored.
+		'const foo = {length: -1}; [...foo.length] = [[123]]; if (foo.length) {}',
+		// `for...in` assigns a string property name.
+		'const foo = {length: -1}; for (foo.length in {key: true}) {} if (foo.length) {}',
+		'const foo = {length: 123}; for (foo.length in {key: true}) {} if (foo.length) {}',
+		'const foo = {length: -1}; for (foo.length of [\'x\']) {} if (foo.length) {}',
 	],
 	invalid: [
 		outdent`
@@ -345,6 +402,13 @@ test.snapshot({
 			code: 'const foo = { length: 123 }; if (foo.length) {}',
 			options: [{'non-zero': 'not-equal'}],
 		},
+		// A later property write invalidates the initial static value.
+		'const foo = {length: -1}; foo.length = 123; if (foo.length) {}',
+		'const foo = {length: -1}; Object.assign(foo, {length: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperty(foo, \'length\', {value: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; [foo.length] = [123]; if (foo.length) {}',
+		'const foo = {length: -1}; ({length: foo.length} = {length: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; for (foo.length of [123]) {} if (foo.length) {}',
 		'if (foo.bar && foo.bar.length) {}',
 		'if (foo.length || foo.bar()) {}',
 		'if (!!(!!foo.length)) {}',
@@ -386,6 +450,16 @@ test.snapshot({
 		'switch(foo){case!foo.length:{}}',
 		'for(const a of!foo.length);',
 		'for(const a in!foo.length);',
+		'const foo = {length: -1}; if (true) foo.length = 123; if (foo.length) {}',
+		'const foo = {length: -1}; if (false) {} else foo.length = 123; if (foo.length) {}',
+		'const foo = {length: -1}; true ? foo.length = 123 : 0; if (foo.length) {}',
+		'const foo = {length: -1}; false ? 0 : foo.length = 123; if (foo.length) {}',
+		'const foo = {length: -1}; Object.assign(foo, {length: \'x\', length: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperty(foo, \'length\', {value: \'x\', value: 123}); if (foo.length) {}',
+		'const foo = {length: -1}; Object.defineProperties(foo, {length: {value: \'x\'}, length: {value: 123}}); if (foo.length) {}',
+		'const foo = {length: -1}; ({length: foo.length} = {length: \'x\', length: 123}); if (foo.length) {}',
+		'const foo = {length: 123}; Object.assign(foo); if (foo.length) {}',
+		'const foo = {length: -1}; switch (value) { default: foo.length = 123; } if (foo.length) {}',
 	],
 });
 

@@ -1,9 +1,10 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {getStaticValue as getStaticValueFromEslintUtilities} from '@eslint-community/eslint-utils';
 import {
 	hasOptionalChainElement,
 	hasSameObjectShapePropertyCheck,
 	isKnownNonCollectionLengthOrSize,
 	isLengthOrSizeMemberExpression,
+	getStaticValueForControlFlow,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -23,6 +24,29 @@ const flipOperator = {
 	'!=': '!=',
 };
 
+const isKnownStaticProperty = node => {
+	node = unwrapTypeScriptExpression(node);
+	if (node.type === 'UnaryExpression' && (node.operator === '+' || node.operator === '-')) {
+		node = unwrapTypeScriptExpression(node.argument);
+	}
+
+	return node.type === 'MemberExpression'
+		&& (!node.computed || node.property.type === 'Literal')
+		&& node.object.type === 'Identifier'
+		&& (node.object.name === 'Math' || node.object.name === 'Number');
+};
+
+const getStaticComparisonValue = (node, context) => {
+	const staticValue = getStaticValueForControlFlow(node, context);
+	if (staticValue !== undefined) {
+		return staticValue.value;
+	}
+
+	return isKnownStaticProperty(node)
+		? getStaticValueFromEslintUtilities(node, context.sourceCode.getScope(node))?.value
+		: undefined;
+};
+
 function getComparisonSubject(node, context) {
 	const left = unwrapTypeScriptExpression(node.left);
 	const right = unwrapTypeScriptExpression(node.right);
@@ -31,7 +55,7 @@ function getComparisonSubject(node, context) {
 		return {
 			memberExpression: left,
 			operator: node.operator,
-			value: getStaticValue(right, context.sourceCode.getScope(right))?.value,
+			value: getStaticComparisonValue(right, context),
 		};
 	}
 
@@ -39,7 +63,7 @@ function getComparisonSubject(node, context) {
 		return {
 			memberExpression: right,
 			operator: flipOperator[node.operator],
-			value: getStaticValue(left, context.sourceCode.getScope(left))?.value,
+			value: getStaticComparisonValue(left, context),
 		};
 	}
 }

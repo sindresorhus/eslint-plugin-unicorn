@@ -45,6 +45,10 @@ test.snapshot({
 		'Object.defineProperty(foo, Symbol.iterator, {value: 1});\nObject.defineProperty(foo, Symbol.iterator, {value: 2});',
 		'Object.defineProperty(foo, key, {value: 1});\nObject.defineProperty(foo, key, {value: 2});',
 		'Object.defineProperty(foo, keys.name, {value: 1});\nObject.defineProperty(foo, keys.name, {value: 2});',
+		`const object = {value: 'bar'};
+Object.defineProperty(object, 'value', {get() { return 'baz'; }});
+Object.defineProperty(foo, object.value, {value: 1});
+Object.defineProperty(foo, 'baz', {value: 2});`,
 		{
 			code: 'Object.defineProperty(foo as Foo, "bar", {value: 1});\nObject.defineProperty(foo, "baz", {value: 2});',
 			languageOptions: {parser: parsers.typescript},

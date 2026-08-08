@@ -1,6 +1,5 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isLiteral} from './ast/index.js';
-import {getParenthesizedText, isNumber} from './utils/index.js';
+import {getParenthesizedText, getStaticValueForControlFlow, isNumber} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-subtraction-comparison/error';
 const MESSAGE_ID_SUGGESTION = 'no-subtraction-comparison/suggestion';
@@ -27,8 +26,8 @@ const strictOrderingOperators = new Set(['>', '<']);
 
 const isZero = node => isLiteral(node, 0);
 const isSubtraction = node => node.type === 'BinaryExpression' && node.operator === '-';
-const isFiniteStaticNumber = (node, scope) => {
-	const value = getStaticValue(node, scope)?.value;
+const isFiniteStaticNumber = (node, context) => {
+	const value = getStaticValueForControlFlow(node, context)?.value;
 	return typeof value === 'number' && Number.isFinite(value);
 };
 
@@ -69,10 +68,9 @@ const create = context => {
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		const fix = fixer => fixer.replaceText(node, replacement);
 
-		const scope = sourceCode.getScope(node);
 		const canAutofix = strictOrderingOperators.has(operator)
-			? isNumber(left, scope) && isNumber(right, scope)
-			: isFiniteStaticNumber(left, scope) && isFiniteStaticNumber(right, scope);
+			? isNumber(left, context) && isNumber(right, context)
+			: isFiniteStaticNumber(left, context) && isFiniteStaticNumber(right, context);
 
 		if (canAutofix) {
 			problem.fix = fix;

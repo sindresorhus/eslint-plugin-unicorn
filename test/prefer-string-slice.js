@@ -53,6 +53,27 @@ test({
 
 	invalid: [
 		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); foo.substr(modes.size ? 0 : 1, length);',
+			errors: errorsSubstr,
+		},
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); foo.substr((modes.size ? 0 : 1) as number, length);',
+			errors: errorsSubstr,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); foo.substr(+(modes.size ? 0 : 1), length);',
+			errors: errorsSubstr,
+		},
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); foo.substr((modes.size && 0) || index, length);',
+			errors: errorsSubstr,
+		},
+		{
+			code: 'const object = {value: true}; Object.defineProperty(object, "value", {get() { return 0; }}); foo.substr(object.value ? 0 : index, length);',
+			errors: errorsSubstr,
+		},
+		{
 			code: 'foo.substr()',
 			output: 'foo.slice()',
 			errors: errorsSubstr,

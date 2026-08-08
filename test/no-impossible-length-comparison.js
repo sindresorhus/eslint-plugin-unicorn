@@ -50,11 +50,44 @@ test({
 		'const value = {size: "small"}; if (value.size < 0) {}',
 		'const value = {length: NaN}; if (value.length < 0) {}',
 		'const value = {length: Infinity}; if (value.length < 0) {}',
+		'const value = {length: -1}; value.length; if (value.length < 0) {}',
 		'if (dimensions.width && dimensions.length < 0) {}',
 		'if ((dimensions.width && dimensions.length < 0) || fallback) {}',
 		'if (dimensions.height && dimensions.size === -1) {}',
 		'if (dimensions.depth && -1 < dimensions.length) {}',
 		'if (array.length !== 0) {}',
+		outdent`
+			const modes = new Set();
+			modes.add('foo');
+			if (array.length < modes.size) {}
+		`,
+		'const modes = new Set(["foo"]); modes.clear(); if (array.length < (modes.size ? -1 : 1)) {}',
+		'const modes = new Set(["foo"]); modes.clear(); if (array.length < (modes.size && -1)) {}',
+		'let condition = true; condition = false; if (array.length < (condition ? -1 : lowerBound)) {}',
+		'const alias = condition; var condition = true; if (array.length < (alias ? -1 : lowerBound)) {}',
+		'const alias = condition; var condition = true; if (array.length < (0, alias ? -1 : lowerBound)) {}',
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return false; }});
+			if (array.length < (object.value ? -1 : lowerBound)) {}
+		`,
+		`const object = {length: 1};
+Object.defineProperty(object, 'length', {get() { return -1; }});
+if (object.length >= 0) {}`,
+		`const object = {length: 1};
+Object.defineProperties(object, {length: {get() { return -1; }}});
+if (object.length >= 0) {}`,
+		`const key = 'length';
+const object = {length: 1};
+Object.defineProperty(object, key, {get() { return -1; }});
+if (object.length >= 0) {}`,
+		`const object = {length: 1};
+Object.defineProperties(object, {['length']: {get() { return -1; }}});
+if (object.length >= 0) {}`,
+		`const key = 'length';
+const object = {length: 1};
+Object.defineProperties(object, {[key]: {get() { return -1; }}});
+if (object.length >= 0) {}`,
 	],
 	invalid: [
 		{
@@ -95,6 +128,18 @@ test({
 		},
 		{
 			code: 'if (array.length < -Number.EPSILON) {}',
+			errors: [error],
+		},
+		{
+			code: 'if (array.length < +Number.MIN_SAFE_INTEGER) {}',
+			errors: [error],
+		},
+		{
+			code: 'if (array.length < Number[\'MIN_SAFE_INTEGER\']) {}',
+			errors: [error],
+		},
+		{
+			code: 'if (array.length < -Math[\'PI\']) {}',
 			errors: [error],
 		},
 		{

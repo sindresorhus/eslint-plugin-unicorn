@@ -51,7 +51,12 @@ test.snapshot({
 		// Well-known `Symbol` keys
 		'const map = new Map(); map[Symbol.iterator];',
 		'const map = new Map(); map[Symbol.toStringTag];',
+		'const key = Symbol.iterator; const map = new Map(); map[key];',
+		'const property = "iterator"; const map = new Map(); map[Symbol[property]];',
 		'const map = new Map(); map[condition ? Symbol.iterator : Symbol.toStringTag];',
+		'const map = new Map(); map[(0, Symbol.iterator)];',
+		'const map = new Map(); map[(0, Symbol.toStringTag)];',
+		'const map = new Map(); map[(sideEffect(), "foo")];',
 
 		// Inherited `Object.prototype` members
 		'const map = new Map(); map["toString"];',
@@ -60,6 +65,11 @@ test.snapshot({
 
 		// Key resolves to a member name through a variable
 		'const map = new Map(); const key = "size"; map[key];',
+		'const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[modes.size ? "foo" : "get"];',
+		typescript('const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[(modes.size ? "foo" : "get") as string];'),
+		'const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[(modes.size && "get") || "foo"];',
+		typescript('const modes = new Set(["foo"]); modes.clear(); const map = new Map(); map[((modes.size && "get") || "foo") as string];'),
+		'let key = "foo"; const map = new Map(); map[(key = "size", key)];',
 
 		// Not a known collection
 		'array[0];',
@@ -95,6 +105,13 @@ test.snapshot({
 		'const map = new Map(); const key = "foo"; map[key];',
 		// One branch is a real member, but the other is a collection entry key
 		'const set = new Set(); set[condition ? "add" : "foo"]("foo");',
+		'const alias = condition; var condition = true; const map = new Map(); map[alias ? "get" : "foo"]();',
+		'const map = new Map(); map[+(condition ? 0 : 1)];',
+		'const map = new Map(); map[+(condition ? "size" : "get")];',
+		'const map = new Map(); map[typeof Symbol.iterator];',
+		'const object = {value: "iterator"}; Object.defineProperty(object, "value", {get() { return "notThere"; }}); const map = new Map(); map[Symbol[object.value]];',
+		'const map = new Map(); map[(0, "foo")];',
+		'const map = new Map(); map[(0, 0)];',
 		// Dynamic template key
 		'const map = new Map(); map[`${prefix}foo`];', // eslint-disable-line no-template-curly-in-string
 

@@ -1,5 +1,6 @@
-import {getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
+import {getPropertyName} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
+import {getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-temporal';
 const MESSAGE_ID_PARSE = 'prefer-temporal/parse';
@@ -105,7 +106,7 @@ function getNewDateProblem({node}, context) {
 		return {node, messageId: MESSAGE_ID, data: {description: 'new Date(…)'}};
 	}
 
-	const staticValue = getStaticValue(argumentNode, sourceCode.getScope(argumentNode));
+	const staticValue = getStaticValueIfNoSideEffects(argumentNode, context);
 
 	// `new Date(milliseconds)` — a number argument is always epoch milliseconds.
 	// `Temporal.Instant.fromEpochMilliseconds()` throws on a non-integer or out-of-range value, whereas `Date` returns an invalid date or truncates. The whole valid epoch-millisecond range fits within the safe integers, so only suggest it for those.

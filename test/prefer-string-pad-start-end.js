@@ -32,6 +32,9 @@ test({
 		'const foo = bar + "*".repeat(10 - baz.length);',
 		'const foo = "*".repeat(10 - true.length) + true;',
 		'const value = 42; const foo = "*".repeat(width - value.length) + value;',
+		'const value = Number(1); const foo = "*".repeat(width - value.length) + value;',
+		'const value = Boolean(1); const foo = "*".repeat(width - value.length) + value;',
+		'const value = Object.freeze(42); const foo = "*".repeat(width - value.length) + value;',
 		'const value = function () {}; const foo = "*".repeat(width - value.length) + value;',
 		'const value = class {}; const foo = value + "*".repeat(width - value.length);',
 		'function value() {} const foo = "*".repeat(width - value.length) + value;',
@@ -61,11 +64,71 @@ test({
 		'const foo = ("*".repeat(10n) + value).slice(-10n);',
 		'const foo = ("*".repeat(width) + function () {}).slice(-width);',
 		'const foo = (class {} + "*".repeat(width)).slice(0, width);',
+		'const modes = new Set(["foo"]); modes.clear(); const target = modes.size ? "x" : 1; const foo = "*".repeat(10 - target.length) + target;',
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); const target = (modes.size ? "x" : 1) as string; const foo = "*".repeat(10 - target.length) + target;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const modes = new Set(["foo"]); modes.clear(); const target = (modes.size && "x") || value; const foo = "*".repeat(10 - target.length) + target;',
+		'let condition = true; condition = false; const target = condition ? "x" : 1; const foo = "*".repeat(10 - target.length) + target;',
+		'const alias = condition; var condition = true; const target = alias ? "x" : 1; const foo = "*".repeat(10 - target.length) + target;',
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, "value", {get() { return false; }});
+			const target = object.value ? "x" : value;
+			const foo = "*".repeat(10 - target.length) + target;
+		`,
+		'const object = {value: "*"}; Object.defineProperty(object, "value", {get() { return 1; }}); const target = "x"; const foo = (0, object.value).repeat(10 - target.length) + target;',
+		outdent`
+			let value = 'x';
+			const object = {};
+			Object.defineProperty(object, 'trigger', {get() { value = 1; return 0; }});
+			const target = (object.trigger, value);
+			const foo = '*'.repeat(10 - target.length) + target;
+		`,
 	],
 	invalid: [
 		{
 			code: 'const foo = " ".repeat(10 - bar.length) + bar;',
 			output: 'const foo = bar.padStart(10);',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const condition = true; let value; const target = condition ? "x" : value; const foo = "*".repeat(10 - target.length) + target;',
+			output: 'const condition = true; let value; const target = condition ? "x" : value; const foo = target.padStart(10, "*");',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'let target = 42; target = "x"; const foo = "*".repeat(10 - target.length) + target;',
+			output: 'let target = 42; target = "x"; const foo = target.padStart(10, "*");',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'function target() {} target = "x"; const foo = "*".repeat(10 - target.length) + target;',
+			output: 'function target() {} target = "x"; const foo = target.padStart(10, "*");',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'function target() {} var target = "x"; const foo = "*".repeat(10 - target.length) + target;',
+			output: 'function target() {} var target = "x"; const foo = target.padStart(10, "*");',
+			errors: [{messageId: MESSAGE_ID}],
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: outdent`
+				const object = {};
+				Object.defineProperty(object, 'value', {get() { return 'x'; }});
+				const stringValue = 'y';
+				const target = (object.value, stringValue);
+				const foo = '*'.repeat(10 - target.length) + target;
+			`,
+			output: outdent`
+				const object = {};
+				Object.defineProperty(object, 'value', {get() { return 'x'; }});
+				const stringValue = 'y';
+				const target = (object.value, stringValue);
+				const foo = target.padStart(10, '*');
+			`,
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		// A target that is known to be a string must still be reported

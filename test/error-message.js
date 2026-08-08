@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -46,6 +46,97 @@ test.snapshot({
 				name: 'Unauthorized',
 			});
 		`,
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			new Error(modes.size ? {} : 'ok');
+		`,
+		{
+			code: outdent`
+				const modes = new Set(['foo']);
+				modes.clear();
+				new Error((modes.size ? {} : 'ok') as any);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			new Error(modes.size || 'ok');
+		`,
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			new Error((modes.size && {}) || 'ok');
+		`,
+		outdent`
+			let condition = true;
+			condition = false;
+			new Error(condition ? {} : 'ok');
+		`,
+		'const alias = condition; var condition = true; new Error(alias ? {} : \'ok\');',
+		outdent`
+			let modes = new Set(['foo']);
+			new Error((modes = new Set()).size ? {} : 'ok');
+		`,
+		outdent`
+			let message = 42;
+			message = 'valid';
+			new Error(message);
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return false; }});
+			new Error(object.value ? '' : message);
+		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(object.value);
+		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(object.value + 1);
+		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(({value: object.value}).value);
+		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error([object.value][0]);
+		`,
+		outdent`
+			function test(Object) {
+				new Error(Object.freeze({value: 1}).value);
+			}
+		`,
+		outdent`
+			function test(Object) {
+				const object = {value: 1};
+				new Error(Object.freeze(object).value);
+			}
+		`,
+		'new Error(Object.freeze().value);',
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(Object.freeze({message: object.value}).message);
+		`,
+		outdent`
+			const object = {value: true};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(Object.freeze({get message() { return object.value; }}).message);
+		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(Object.freeze(object).value);
+		`,
+		'new Error(Object.freeze({get value() { return "message"; }}).value);',
 	],
 	invalid: [
 		'throw new Error()',
@@ -81,6 +172,8 @@ test.snapshot({
 		'throw new Error(lineNumber=2)',
 		// A primitive non-string literal is resolved via `getStaticValue`
 		'throw new Error(false)',
+		'const condition = true; let value; new Error(condition ? {} : value);',
+		'const object = {value: 1}; new Error(Object.freeze(object).value);',
 		'const error = new RangeError;',
 		'throw Object.assign(new Error(), {foo})',
 	],

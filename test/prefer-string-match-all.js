@@ -42,6 +42,31 @@ test.snapshot({
 			while ((match = regexp.exec(string)) !== null) {}
 		`,
 		outdent`
+			const options = {flags: 'g'};
+			Object.defineProperty(options, 'flags', {get() { return ''; }});
+			const regexp = new RegExp('foo', options.flags);
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		outdent`
+			const options = {flags: 'g'};
+			Object.defineProperty(options, 'flags', {get() { return ''; }});
+			const flags = options.flags;
+			const regexp = new RegExp('foo', flags);
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		outdent`
+			const object = {value: 'foo'};
+			Object.defineProperty(object, 'value', {get() { return {toString() { return 'bar'; }}; }});
+			const regexp = /foo/g;
+			const string = object.value;
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		outdent`
 			const regexp = /(?:)/g;
 			const string = 'foofoo';
 			let match;
