@@ -44,20 +44,49 @@ function getLogicalExpressionOperands(node) {
 
 const isAccessorDescriptor = (node, context) =>
 	node?.type === 'ObjectExpression'
+	&& node.properties.every(property => property.type !== 'SpreadElement')
 	&& node.properties.some(property =>
 		property.type === 'Property'
 		&& ['get', 'set'].includes(getPropertyName(property, context.sourceCode.getScope(property))),
 	);
 
-const getObjectPropertyDefinition = (reference, propertyName, context) => {
+const getObjectMethodCallExpression = (reference, context) => {
 	const callExpression = reference.identifier.parent;
 	if (
 		callExpression?.type !== 'CallExpression'
+		|| callExpression.optional
 		|| callExpression.callee.type !== 'MemberExpression'
+		|| callExpression.callee.optional
 		|| callExpression.callee.object.type !== 'Identifier'
 		|| !isGlobalIdentifier(callExpression.callee.object, context)
 		|| callExpression.arguments[0] !== reference.identifier
 	) {
+		return;
+	}
+
+	return callExpression;
+};
+
+const getLastObjectProperty = (objectExpression, propertyName, context) => {
+	for (const property of objectExpression.properties.toReversed()) {
+		if (property.type === 'SpreadElement') {
+			return;
+		}
+
+		const name = getPropertyName(property, context.sourceCode.getScope(property));
+		if (name === undefined && property.computed) {
+			return;
+		}
+
+		if (name === propertyName) {
+			return property;
+		}
+	}
+};
+
+const getObjectPropertyDefinition = (reference, propertyName, context) => {
+	const callExpression = getObjectMethodCallExpression(reference, context);
+	if (!callExpression) {
 		return;
 	}
 
@@ -74,31 +103,22 @@ const getObjectPropertyDefinition = (reference, propertyName, context) => {
 		return;
 	}
 
-	return callExpression.arguments[1].properties.find(property =>
-		property.type === 'Property'
-		&& getPropertyName(property, context.sourceCode.getScope(property)) === propertyName,
-	)?.value;
+	return getLastObjectProperty(callExpression.arguments[1], propertyName, context)?.value;
 };
 
 const getObjectAssignPropertyValue = (reference, propertyName, context) => {
-	const callExpression = reference.identifier.parent;
+	const callExpression = getObjectMethodCallExpression(reference, context);
 	if (
-		callExpression?.type !== 'CallExpression'
-		|| callExpression.callee.type !== 'MemberExpression'
-		|| callExpression.callee.object.type !== 'Identifier'
-		|| !isGlobalIdentifier(callExpression.callee.object, context)
-		|| callExpression.callee.property.type !== 'Identifier'
-		|| callExpression.callee.property.name !== 'assign'
-		|| callExpression.arguments[0] !== reference.identifier
-		|| callExpression.arguments[1]?.type !== 'ObjectExpression'
+		!callExpression
+		|| getPropertyName(callExpression.callee, context.sourceCode.getScope(callExpression.callee)) !== 'assign'
+		|| callExpression.arguments.length !== 2
+		|| callExpression.arguments[1].type !== 'ObjectExpression'
+		|| callExpression.arguments[1].properties.some(property => property.type === 'SpreadElement')
 	) {
 		return;
 	}
 
-	return callExpression.arguments[1].properties.find(property =>
-		property.type === 'Property'
-		&& getPropertyName(property, context.sourceCode.getScope(property)) === propertyName,
-	)?.value;
+	return getLastObjectProperty(callExpression.arguments[1], propertyName, context)?.value;
 };
 
 const isAccessorDefinition = (reference, propertyName, context) => {
@@ -130,10 +150,7 @@ const getAssignmentValue = (node, context) => {
 					value = value.type === 'ArrayExpression' ? value.elements[pathPart.index] : undefined;
 				} else {
 					value = value.type === 'ObjectExpression'
-						? value.properties.find(property =>
-							property.type === 'Property'
-							&& getPropertyName(property, context.sourceCode.getScope(property)) === pathPart.propertyName,
-						)?.value
+						? getLastObjectProperty(value, pathPart.propertyName, context)?.value
 						: undefined;
 				}
 			}
@@ -172,11 +189,8 @@ const isKnownNonNegativeInteger = (node, context) => {
 
 const isKnownNumericPropertyMutation = (reference, propertyName, context) => {
 	const descriptor = getObjectPropertyDefinition(reference, propertyName, context);
-	if (descriptor) {
-		const value = descriptor.properties.find(property =>
-			property.type === 'Property'
-			&& getPropertyName(property, context.sourceCode.getScope(property)) === 'value',
-		)?.value;
+	if (descriptor?.type === 'ObjectExpression') {
+		const value = getLastObjectProperty(descriptor, 'value', context)?.value;
 		return isKnownNonNegativeInteger(value, context);
 	}
 
@@ -206,6 +220,38 @@ const getEnclosingExecutionContext = node => {
 	}
 };
 
+const isConditionallyExecuted = (node, context) => {
+	for (let current = node; current.parent; current = current.parent) {
+		const {parent} = current;
+		if (
+			(parent.type === 'IfStatement' || parent.type === 'ConditionalExpression')
+			&& (parent.consequent === current || parent.alternate === current)
+		) {
+			const staticValue = getStaticValueIfNoSideEffects(parent.test, context);
+			if (staticValue && Boolean(staticValue.value) === (parent.consequent === current)) {
+				continue;
+			}
+
+			return true;
+		}
+
+		if (
+			(parent.type === 'LogicalExpression' && parent.right === current)
+			|| (parent.type === 'ForStatement' && (parent.body === current || parent.update === current))
+			|| (['WhileStatement', 'ForInStatement', 'ForOfStatement'].includes(parent.type) && parent.body === current)
+			|| (parent.type === 'SwitchCase' && parent.consequent.includes(current))
+			|| (parent.type === 'CatchClause' && parent.body === current)
+			|| (parent.type === 'CallExpression'
+				&& (parent.optional || parent.callee.optional)
+				&& parent.arguments.includes(current))
+		) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 const getReferencedMemberExpression = reference => {
 	let node = reference.identifier;
 	while (node.parent?.type === 'MemberExpression' && node.parent.object === node) {
@@ -221,8 +267,41 @@ const isPropertyMutation = (reference, propertyName, context) => {
 		return !isAccessorDescriptor(descriptor, context);
 	}
 
-	if (getObjectAssignPropertyValue(reference, propertyName, context)) {
-		return true;
+	const callExpression = getObjectMethodCallExpression(reference, context);
+	if (callExpression) {
+		const method = getPropertyName(callExpression.callee, context.sourceCode.getScope(callExpression.callee));
+		if (method === 'assign') {
+			if (getObjectAssignPropertyValue(reference, propertyName, context)) {
+				return true;
+			}
+
+			const source = callExpression.arguments[1];
+			return callExpression.arguments.length !== 2
+				|| source?.type !== 'ObjectExpression'
+				|| source.properties.some(property =>
+					property.type === 'SpreadElement'
+					|| (property.type === 'Property'
+						&& property.computed
+						&& getPropertyName(property, context.sourceCode.getScope(property)) === undefined),
+				);
+		}
+
+		if (method === 'defineProperty') {
+			const propertyKey = callExpression.arguments[1];
+			const staticValue = propertyKey && getStaticValueIfNoSideEffects(propertyKey, context);
+			return !staticValue || staticValue.value === propertyName;
+		}
+
+		if (method === 'defineProperties') {
+			const definitions = callExpression.arguments[1];
+			return definitions?.type !== 'ObjectExpression'
+				|| definitions.properties.some(property =>
+					property.type === 'SpreadElement'
+					|| (property.type === 'Property'
+						&& property.computed
+						&& getPropertyName(property, context.sourceCode.getScope(property)) === undefined),
+				);
+		}
 	}
 
 	const node = getReferencedMemberExpression(reference);
@@ -254,7 +333,12 @@ const isPropertyRead = (reference, propertyName, context) => {
 		!node
 		|| getPropertyName(node, context.sourceCode.getScope(node)) !== propertyName
 	) {
-		return false;
+		const callExpression = getObjectMethodCallExpression(reference, context);
+		const method = callExpression && getPropertyName(callExpression.callee, context.sourceCode.getScope(callExpression.callee));
+		return Boolean(
+			callExpression
+			&& ['assign', 'defineProperty', 'defineProperties'].includes(method),
+		);
 	}
 
 	const {parent} = node;
@@ -309,14 +393,15 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 	let hasKnownNumericMutation = false;
 	let hasAccessorDefinition = false;
 	for (const reference of nonInitializationReferences) {
-		const isInNestedExecutionContext = getEnclosingExecutionContext(reference.identifier) !== enclosingExecutionContext;
+		const isInUnknownExecutionContext = getEnclosingExecutionContext(reference.identifier) !== enclosingExecutionContext
+			|| isConditionallyExecuted(reference.identifier, context);
 		if (isForInPropertyMutation(reference, propertyName, context)) {
 			hasUnknownEffect = true;
 			continue;
 		}
 
 		if (isPropertyMutation(reference, propertyName, context)) {
-			if (!isInNestedExecutionContext && isKnownNumericPropertyMutation(reference, propertyName, context)) {
+			if (!isInUnknownExecutionContext && isKnownNumericPropertyMutation(reference, propertyName, context)) {
 				hasKnownNumericMutation = true;
 			} else {
 				hasUnknownEffect = true;
@@ -326,7 +411,7 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 		}
 
 		if (isAccessorDefinition(reference, propertyName, context)) {
-			if (isInNestedExecutionContext) {
+			if (isInUnknownExecutionContext) {
 				hasUnknownEffect = true;
 				continue;
 			}
@@ -336,7 +421,7 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 		}
 
 		if (!isPropertyRead(reference, propertyName, context)) {
-			if (isInNestedExecutionContext) {
+			if (isInUnknownExecutionContext) {
 				hasUnknownEffect = true;
 				continue;
 			}
