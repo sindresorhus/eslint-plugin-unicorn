@@ -381,6 +381,11 @@ const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables =
 	return getStaticValueFromEslintUtilities(node, sourceCode.getScope(node)) ?? undefined;
 };
 
+// Static-value evaluation is not flow-sensitive, so mutable bindings cannot be used for control-flow decisions.
+export const getStaticValueForControlFlow = (node, context) => hasPotentiallyMutableBinding(node, context)
+	? undefined
+	: getStaticValueIfNoSideEffectsInternal(node, context);
+
 /**
 Get the static value of a node only when evaluating it has no side effects or unsupported mutable member reads.
 

@@ -11,7 +11,7 @@ import {
 	isProcessExitCallAlwaysEvaluated,
 	isProcessExitExpressionAtStart,
 	isTypeScriptExpressionWrapper,
-	getStaticValueIfNoSideEffects,
+	getStaticValueForControlFlow,
 } from './utils/index.js';
 
 /**
@@ -767,7 +767,7 @@ const create = context => {
 	});
 
 	context.onExit('IfStatement', node => {
-		const staticValue = getStaticValueIfNoSideEffects(node.test, context);
+		const staticValue = getStaticValueForControlFlow(node.test, context);
 		let selectedBranch;
 		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(node.test, context)) {
 			selectedBranch = staticValue.value ? node.consequent : node.alternate;

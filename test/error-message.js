@@ -70,6 +70,11 @@ test.snapshot({
 			new Error((modes.size && {}) || 'ok');
 		`,
 		outdent`
+			let condition = true;
+			condition = false;
+			new Error(condition ? {} : 'ok');
+		`,
+		outdent`
 			let modes = new Set(['foo']);
 			new Error((modes = new Set()).size ? {} : 'ok');
 		`,

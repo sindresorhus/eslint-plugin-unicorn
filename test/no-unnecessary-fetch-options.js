@@ -27,6 +27,8 @@ test.snapshot({
 		'const modes = new Set(["foo"]); modes.clear(); fetch(url, {body: modes.size ? undefined : value})',
 		'const modes = new Set(["foo"]); modes.clear(); fetch(url, {body: modes.size && undefined})',
 		'const modes = new Set(["foo"]); modes.clear(); fetch(url, {keepalive: (modes.size && false) || value})',
+		'let condition = true; condition = false; fetch(url, {method: condition ? "GET" : value})',
+		'let condition = true; condition = false; fetch(url, {signal: condition ? undefined : value})',
 		typeAware('const modes = new Set(["foo"]); modes.clear(); fetch(url, {method: (modes.size ? "GET" : value) as string})'),
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); fetch(url, {method: object.value ? "GET" : value})',
 		'const object = {value: "GET"}; Object.defineProperty(object, "value", {get() { return "POST"; }}); fetch("/", {method: object.value})',

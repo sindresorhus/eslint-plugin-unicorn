@@ -6,7 +6,7 @@ import {
 	isLoop,
 } from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
-import getStaticValueIfNoSideEffects, {hasPotentiallyMutableBinding, isSafeStaticPassThroughCall} from './get-static-value.js';
+import {getStaticValueForControlFlow, isSafeStaticPassThroughCall} from './get-static-value.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 
 /**
@@ -22,11 +22,6 @@ const unwrapTransparentTypeScriptExpression = node => {
 
 	return node;
 };
-
-// `getStaticValue` is not flow-sensitive, so mutable bindings cannot be used for control-flow decisions.
-const getStaticValueForControlFlow = (node, context) => hasPotentiallyMutableBinding(node, context)
-	? undefined
-	: getStaticValueIfNoSideEffects(node, context);
 
 export const isProcessExitCall = (node, context) => {
 	const callee = unwrapTransparentTypeScriptExpression(node?.callee);

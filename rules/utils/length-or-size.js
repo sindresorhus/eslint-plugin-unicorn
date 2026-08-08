@@ -3,7 +3,7 @@ import {isFunction, isMemberExpression} from '../ast/index.js';
 import isLogicalExpression from './is-logical-expression.js';
 import isLeftHandSide from './is-left-hand-side.js';
 import isSameReference from './is-same-reference.js';
-import getStaticValueIfNoSideEffects from './get-static-value.js';
+import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
 import hasOptionalChainElement from './has-optional-chain-element.js';
 import isGlobalIdentifier from './is-global-identifier.js';
 
@@ -109,7 +109,7 @@ const getObjectPropertyDefinition = (reference, propertyName, context) => {
 	if (method === 'defineProperty') {
 		const propertyKey = callExpression.arguments[1];
 		return propertyKey
-			&& getStaticValueIfNoSideEffects(propertyKey, context)?.value === propertyName
+			&& getStaticValueForControlFlow(propertyKey, context)?.value === propertyName
 			? callExpression.arguments[2]
 			: undefined;
 	}
@@ -198,7 +198,7 @@ const isKnownNonNegativeInteger = (node, context) => {
 		return false;
 	}
 
-	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	const staticValue = getStaticValueForControlFlow(node, context);
 	return Boolean(staticValue && Number.isSafeInteger(staticValue.value) && staticValue.value >= 0);
 };
 
@@ -220,7 +220,7 @@ const isKnownNumericPropertyMutation = (reference, propertyName, context) => {
 	}
 
 	if (parent?.type === 'ForOfStatement') {
-		const staticValue = getStaticValueIfNoSideEffects(parent.right, context)?.value;
+		const staticValue = getStaticValueForControlFlow(parent.right, context)?.value;
 		return Array.isArray(staticValue) && staticValue.length > 0 && staticValue.every(value => Number.isSafeInteger(value) && value >= 0);
 	}
 
@@ -242,7 +242,7 @@ const isConditionallyExecuted = (node, context) => {
 			(parent.type === 'IfStatement' || parent.type === 'ConditionalExpression')
 			&& (parent.consequent === current || parent.alternate === current)
 		) {
-			const staticValue = getStaticValueIfNoSideEffects(parent.test, context);
+			const staticValue = getStaticValueForControlFlow(parent.test, context);
 			if (staticValue && Boolean(staticValue.value) === (parent.consequent === current)) {
 				continue;
 			}
@@ -306,7 +306,7 @@ const isPropertyMutation = (reference, propertyName, context) => {
 
 		if (method === 'defineProperty') {
 			const propertyKey = callExpression.arguments[1];
-			const staticValue = propertyKey && getStaticValueIfNoSideEffects(propertyKey, context);
+			const staticValue = propertyKey && getStaticValueForControlFlow(propertyKey, context);
 			return !staticValue || staticValue.value === propertyName;
 		}
 
