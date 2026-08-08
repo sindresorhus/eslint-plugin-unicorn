@@ -32,6 +32,14 @@ test.snapshot({
 		'const object = {}; if (key in object) { delete object[getKey()]; }',
 		outdent`
 			const object = {key: true};
+			const key = {value: 'key'};
+			Object.defineProperty(key, 'value', {get() { return Math.random() ? 'key' : 'other'; }});
+			if (key.value in object) {
+				delete object[key.value];
+			}
+		`,
+		outdent`
+			const object = {key: true};
 			const key = {
 				toString() {
 					sideEffect();

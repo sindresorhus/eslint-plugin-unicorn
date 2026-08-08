@@ -1,9 +1,10 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getDuplicateArrayElements,
 	getVariableIdentifiers,
 	isComparableStaticValue,
 	isLeftHandSide,
+	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
 import {getStaticStringValue, isCallOrNewExpression, isMethodCall} from './ast/index.js';
 
@@ -147,8 +148,8 @@ const isArrayLength = value =>
 	isNonNegativeInteger(value)
 	&& value <= MAX_ARRAY_LENGTH;
 
-const getStaticArrayLength = (node, scope) => {
-	const result = getStaticValue(node, scope);
+const getStaticArrayLength = (node, context) => {
+	const result = getStaticValueIfNoSideEffects(node, context);
 
 	if (isArrayLength(result?.value)) {
 		return result.value;
@@ -158,7 +159,7 @@ const getStaticArrayLength = (node, scope) => {
 const hasSpread = nodes => nodes.some(node => node?.type === 'SpreadElement');
 
 const isStaticComparableArrayElement = (element, context) => {
-	const result = getStaticValue(element, context.sourceCode.getScope(element));
+	const result = getStaticValueIfNoSideEffects(element, context);
 
 	return result
 		&& isComparableStaticValue(result.value)
@@ -188,7 +189,7 @@ const isLengthProperty = property => {
 	);
 };
 
-const getObjectLength = (node, scope) => {
+const getObjectLength = (node, context) => {
 	if (
 		node.type !== 'ObjectExpression'
 		|| node.properties.length !== 1
@@ -199,11 +200,11 @@ const getObjectLength = (node, scope) => {
 	const [property] = node.properties;
 
 	if (isLengthProperty(property)) {
-		return getStaticArrayLength(property.value, scope);
+		return getStaticArrayLength(property.value, context);
 	}
 };
 
-const getArrayFromSize = (node, scope) => {
+const getArrayFromSize = (node, context) => {
 	const [source] = node.arguments;
 
 	if (!source || source.type === 'SpreadElement') {
@@ -215,14 +216,14 @@ const getArrayFromSize = (node, scope) => {
 	}
 
 	if (getStaticStringValue(source) !== undefined) {
-		const result = getStaticValue(source, scope);
+		const result = getStaticValueIfNoSideEffects(source, context);
 		return typeof result?.value === 'string' ? [...result.value].length : undefined;
 	}
 
-	return getObjectLength(source, scope);
+	return getObjectLength(source, context);
 };
 
-const getArrayConstructorSize = (node, scope) => {
+const getArrayConstructorSize = (node, context) => {
 	if (hasSpread(node.arguments)) {
 		return;
 	}
@@ -231,7 +232,7 @@ const getArrayConstructorSize = (node, scope) => {
 		return node.arguments.length;
 	}
 
-	const result = getStaticValue(node.arguments[0], scope);
+	const result = getStaticValueIfNoSideEffects(node.arguments[0], context);
 
 	if (!result) {
 		return;
@@ -248,7 +249,7 @@ const getArrayConstructorSize = (node, scope) => {
 	}
 };
 
-const getKnownArraySize = (node, scope) => {
+const getKnownArraySize = (node, context) => {
 	if (node.type === 'ArrayExpression') {
 		return hasSpread(node.elements) ? undefined : node.elements.length;
 	}
@@ -259,7 +260,7 @@ const getKnownArraySize = (node, scope) => {
 			optional: false,
 		})
 	) {
-		return getArrayConstructorSize(node, scope);
+		return getArrayConstructorSize(node, context);
 	}
 
 	if (
@@ -281,7 +282,7 @@ const getKnownArraySize = (node, scope) => {
 			optionalMember: false,
 		})
 	) {
-		return getArrayFromSize(node, scope);
+		return getArrayFromSize(node, context);
 	}
 };
 
@@ -493,7 +494,7 @@ const create = context => {
 		}
 
 		if (minimumItems > 0) {
-			const arraySize = getKnownArraySize(parent.init, sourceCode.getScope(parent.init));
+			const arraySize = getKnownArraySize(parent.init, context);
 			if (
 				arraySize === undefined
 				|| arraySize < minimumItems

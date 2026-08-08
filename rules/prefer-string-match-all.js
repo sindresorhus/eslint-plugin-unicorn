@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import regjsparser from 'regjsparser';
 import {
 	isFunction,
@@ -7,6 +7,7 @@ import {
 	isNullLiteral,
 	isRegexLiteral,
 } from './ast/index.js';
+import {getStaticRegExp, getStaticValueIfNoSideEffects, hasPotentiallyMutableMemberAccess} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID = 'prefer-string-match-all';
@@ -105,7 +106,8 @@ const getRegExpVariable = (node, sourceCode) => {
 	return findVariable(sourceCode.getScope(node), node);
 };
 
-const isStaticConstStringIdentifier = (node, sourceCode) => {
+const isStaticConstStringIdentifier = (node, context) => {
+	const {sourceCode} = context;
 	if (node.type !== 'Identifier') {
 		return false;
 	}
@@ -120,11 +122,15 @@ const isStaticConstStringIdentifier = (node, sourceCode) => {
 		return false;
 	}
 
-	const staticResult = getStaticValue(node, sourceCode.getScope(node));
+	const staticResult = getStaticValueIfNoSideEffects(node, context);
+	if (staticResult && definition.node.init && hasPotentiallyMutableMemberAccess(definition.node.init, context)) {
+		return false;
+	}
+
 	return typeof staticResult?.value === 'string';
 };
 
-const isGlobalRegExpDefinition = variable => {
+const isGlobalRegExpDefinition = (variable, context) => {
 	if (variable.defs.length !== 1) {
 		return false;
 	}
@@ -138,23 +144,17 @@ const isGlobalRegExpDefinition = variable => {
 		return false;
 	}
 
-	if (
-		!isRegexLiteral(init)
-		&& !isNewExpression(init, {name: 'RegExp'})
-	) {
+	if (!isRegexLiteral(init) && !isNewExpression(init, {name: 'RegExp'})) {
 		return false;
 	}
 
-	const staticResult = getStaticValue(init, variable.scope);
-
-	if (!staticResult) {
+	const value = getStaticRegExp(init, context);
+	if (!value) {
 		return false;
 	}
 
-	const {value} = staticResult;
 	return (
-		Object.prototype.toString.call(value) === '[object RegExp]'
-		&& value.global
+		value.global
 		&& !canMatchEmptyString(value)
 	);
 };
@@ -280,12 +280,12 @@ const create = context => {
 		}
 
 		const regexpVariable = getRegExpVariable(regexpNode, sourceCode);
-		if (!regexpVariable || !isGlobalRegExpDefinition(regexpVariable)) {
+		if (!regexpVariable || !isGlobalRegExpDefinition(regexpVariable, context)) {
 			return;
 		}
 
 		if (
-			!isStaticConstStringIdentifier(stringNode, sourceCode)
+			!isStaticConstStringIdentifier(stringNode, context)
 			|| !isRegExpVariableDeclaredInLoopScope(regexpVariable, node)
 			|| !isRegExpVariableOnlyUsedInCondition(regexpVariable, node)
 		) {

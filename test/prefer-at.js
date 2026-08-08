@@ -20,6 +20,9 @@ test.snapshot({
 		'array[array.length - 0];',
 		'array[array.length + 1]',
 		'array[array.length + -1]',
+		'const modes = new Set([\'foo\']); modes.clear(); array[modes.size ? 1 : \'x\'];',
+		'const modes = new Set([\'foo\']); modes.clear(); array[(modes.size && 1) || index];',
+		typeAware('const modes = new Set([\'foo\']); modes.clear(); array[(modes.size ? 1 : index) as number];'),
 		'foo[bar.length - 1]',
 		// LHS
 		'array[array.length - 1] = 1',
@@ -396,6 +399,7 @@ const setCheckAllIndexAccessTrue = cases => cases.map(testCase => {
 });
 test.snapshot({
 	valid: setCheckAllIndexAccessTrue([
+		'const object = {value: true}; Object.defineProperty(object, \'value\', {get() { return false; }}); array[object.value ? 1 : index];',
 		'++array[1]',
 		'const offset = 5;const extraArgument = 6;string.charAt(offset + 9, extraArgument)',
 		'array[unknown]',

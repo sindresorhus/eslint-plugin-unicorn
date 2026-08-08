@@ -62,6 +62,9 @@ test.snapshot({
 		'function foo(Date) { object[Date] }',
 		'function foo(Infinity) { object[Infinity] }',
 		'function foo(parseInt) { object[parseInt] }',
+		`const object = {value: 4n};
+Object.defineProperty(object, 'value', {get() { return 'key'; }});
+object[object.value];`,
 		'let key = {}; object[key]',
 		'var key = []; object[key]',
 		'const object = {[symbol]: value}',
@@ -76,6 +79,7 @@ test.snapshot({
 	],
 	invalid: [
 		'object[{}]',
+		'const key = Object.freeze({}); object[key]',
 		'object[[]]',
 		'object[Array()]',
 		'object[Array.from(iterable)]',

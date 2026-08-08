@@ -1,5 +1,4 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
-import {isLeftHandSide, isValueNotUsable} from './utils/index.js';
+import {isLeftHandSide, isValueNotUsable, getStaticValueIfNoSideEffects} from './utils/index.js';
 import {appendArgument} from './fix/index.js';
 import {
 	isStringLiteral,
@@ -17,8 +16,8 @@ const isSupportedSeparator = node =>
 	(isStringLiteral(node) && node.value !== '')
 	|| isRegexLiteral(node);
 
-const getNonNegativeIntegerValue = (node, sourceCode) => {
-	const staticValue = getStaticValue(node, sourceCode.getScope(node));
+const getNonNegativeIntegerValue = (node, context) => {
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
 
 	if (
 		!staticValue
@@ -85,7 +84,7 @@ const create = context => {
 			return;
 		}
 
-		const index = getNonNegativeIntegerValue(node.property, sourceCode);
+		const index = getNonNegativeIntegerValue(node.property, context);
 		if (index === undefined) {
 			return;
 		}
@@ -106,7 +105,7 @@ const create = context => {
 			return;
 		}
 
-		const index = getNonNegativeIntegerValue(node.arguments[0], sourceCode);
+		const index = getNonNegativeIntegerValue(node.arguments[0], context);
 		if (index === undefined) {
 			return;
 		}

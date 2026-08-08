@@ -617,6 +617,7 @@ test.snapshot({
 		'const pattern = {global: "yes"}; const completed = pattern.global;',
 		'const pattern = /unicorn/; const completed = pattern.source;',
 		'const pattern = /unicorn/; const completed = pattern.lastIndex;',
+		'const pattern = /unicorn/; const completed = pattern?.global;',
 		'const completed = pattern?.global;',
 		'const set = new Set(); const completed = set?.has(value);',
 		'const completed = new WeakSet().isSubsetOf(value);',
@@ -713,6 +714,9 @@ test.snapshot({
 		},
 		typescript('const completed: boolean | undefined = true;'),
 		typescript('type MaybeBoolean = boolean | undefined; const completed: MaybeBoolean = true;'),
+		`const object = {value: true};
+Object.defineProperty(object, 'value', {get() { return 1; }});
+const completed = object.value;`,
 		typeAware('declare function useRef<T>(value: T): {current: T}; const consentRef = useRef(false);'),
 		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentRef = useRef(false);'),
 		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentReference = useRef(false);'),
@@ -852,7 +856,6 @@ test.snapshot({
 		'const completed = /unicorn/d.hasIndices;',
 		'const pattern = /unicorn/; const completed = pattern.test(value);',
 		'const pattern = /unicorn/; const completed = pattern.global;',
-		'const pattern = /unicorn/; const completed = pattern?.global;',
 		'const pattern = /unicorn/; const completed = pattern["sticky"];',
 		'const pattern = new RegExp("unicorn"); const completed = pattern.test(value);',
 		'const pattern = new RegExp("unicorn"); const completed = pattern.multiline;',

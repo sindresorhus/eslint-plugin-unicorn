@@ -1,5 +1,6 @@
-import {findVariable, getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import resolveVariableName from './resolve-variable-name.js';
+import getStaticValueIfNoSideEffects from './get-static-value.js';
 
 const booleanBinaryOperators = new Set([
 	'>',
@@ -46,7 +47,7 @@ const booleanPropertiesByExpressionKind = new Map([
 ]);
 
 const isBooleanStaticValue = (node, context) =>
-	typeof getStaticValue(node, context.sourceCode.getScope(node))?.value === 'boolean';
+	typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean';
 
 function isBooleanTypeScriptType(type, checker) {
 	if (!type) {

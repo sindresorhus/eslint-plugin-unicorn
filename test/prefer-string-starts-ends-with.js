@@ -133,6 +133,11 @@ test({
 				}],
 			};
 		}),
+		{
+			code: 'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); /^foo/.test(object.value ? "foo" : value)',
+			output: 'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); (object.value ? "foo" : value).startsWith(\'foo\')',
+			errors: [{messageId: MESSAGE_STARTS_WITH, suggestions: 3}],
+		},
 		// String in variable. Don't autofix known, non-strings which don't have a startsWith/endsWith function.
 		{
 			code: 'const foo = {}; /^abc/.test(foo);',
@@ -473,6 +478,16 @@ test({
 		'"shark".slice(-5) === /shark/',
 		// Unknown compared value
 		'"shark".slice(0, 5) === prefix',
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			'foo'.slice(0, 1) === (modes.size ? 'f' : 'foo');
+		`,
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			'foo'.slice(0, 1) === ((modes.size && 'f') || prefix);
+		`,
 	],
 	invalid: [
 		// Static prefix

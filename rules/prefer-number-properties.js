@@ -1,8 +1,8 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import {replaceReferenceIdentifier, fixSpaceAroundKeyword} from './fix/index.js';
 import isLeftHandSide from './utils/is-left-hand-side.js';
 import isNumber from './utils/is-number.js';
+import {getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -54,7 +54,8 @@ function isBase10OrNoRadixParseIntCall(node, context) {
 		return false;
 	}
 
-	return getStaticValue(radix, context.sourceCode.getScope(radix))?.value === 10;
+	const staticValue = getStaticValueIfNoSideEffects(radix, context);
+	return staticValue?.value === 10;
 }
 
 // `isNaN`/`isFinite` differ from `Number.isNaN`/`Number.isFinite` only because they coerce their argument to a number first; when the single argument is already a number, the rewrite is safe to auto-fix
@@ -73,7 +74,7 @@ const isCallWithNumberArgument = (node, context) => {
 		return false;
 	}
 
-	return isNumber(firstArgument, context.sourceCode.getScope(node));
+	return isNumber(firstArgument, context);
 };
 
 function getPropertyProblem(reference, context) {

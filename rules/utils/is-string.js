@@ -1,6 +1,6 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
+import {getStaticValueForControlFlow} from './get-static-value.js';
 import {
 	createTypeCheckers,
 	target,
@@ -111,7 +111,7 @@ export default function isString(node, context) {
 		return true;
 	}
 
-	return typeof getStaticValue(node, context.sourceCode.getScope(node))?.value === 'string';
+	return typeof getStaticValueForControlFlow(node, context)?.value === 'string';
 }
 
 export {

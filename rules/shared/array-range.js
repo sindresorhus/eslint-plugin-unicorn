@@ -1,10 +1,9 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isCallExpression,
 	isMethodCall,
 	isNewExpression,
 } from '../ast/index.js';
-import {unwrapTypeScriptExpression} from '../utils/index.js';
+import {getStaticValueIfNoSideEffects, hasPotentiallyMutableMemberAccess, unwrapTypeScriptExpression} from '../utils/index.js';
 
 const MAXIMUM_ARRAY_LENGTH = (2 ** 32) - 1;
 
@@ -16,9 +15,11 @@ const isValidArrayLength = value => (
 );
 
 const hasInvalidStaticArrayLength = (node, context) => {
-	const result = getStaticValue(node, context.sourceCode.getScope(node));
+	const result = getStaticValueIfNoSideEffects(node, context);
 
-	return result ? !isValidArrayLength(result.value) : false;
+	return Boolean(result
+		? !isValidArrayLength(result.value)
+		: hasPotentiallyMutableMemberAccess(node, context));
 };
 
 const isArrayConstructorWithOneArgument = (node, context) => (

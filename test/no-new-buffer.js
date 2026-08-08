@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -13,6 +13,18 @@ test.snapshot({
 		'const buffer = Buffer.alloc(10)',
 	],
 	invalid: [
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			new Buffer(modes.size ? 'x' : 1);
+		`,
+		'const modes = new Set(["foo"]); modes.clear(); new Buffer((modes.size && "x") || value);',
+		'const alias = condition; var condition = true; new Buffer(alias ? "x" : 1);',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); new Buffer(object.value ? "x" : value);',
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); new Buffer((modes.size ? 1 : "x") as string);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// `new Buffer(array)`
 		// https://nodejs.org/api/buffer.html#buffer_new_buffer_array
 		'const buffer = new Buffer([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])',

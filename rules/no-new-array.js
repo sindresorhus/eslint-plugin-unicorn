@@ -1,8 +1,9 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
 	needsSemicolon,
 	isNumber,
+	isString,
+	getStaticValueForControlFlow,
 } from './utils/index.js';
 import {isNewExpression} from './ast/index.js';
 
@@ -15,6 +16,27 @@ const messages = {
 	[MESSAGE_ID_LENGTH]: 'The argument is the length of array.',
 	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is the only element of array.',
 	[MESSAGE_ID_SPREAD]: 'Spread the argument.',
+};
+
+const hasUnsafeLengthProperty = (node, context, visitorKeys) => {
+	if (
+		node.type === 'MemberExpression'
+		&& !node.computed
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'length'
+	) {
+		return !isString(node.object, context);
+	}
+
+	for (const key of visitorKeys[node.type] ?? []) {
+		const child = node[key];
+		const children = Array.isArray(child) ? child : [child];
+		if (children.some(child => child && hasUnsafeLengthProperty(child, context, visitorKeys))) {
+			return true;
+		}
+	}
+
+	return false;
 };
 
 function getProblem(context, node) {
@@ -57,15 +79,14 @@ function getProblem(context, node) {
 	}
 
 	const fromLengthText = `Array.from(${text === 'length' ? '{length}' : `{length: ${text}}`})`;
-	const scope = sourceCode.getScope(node);
-	if (isNumber(argumentNode, scope)) {
+	if (isNumber(argumentNode, context) && !hasUnsafeLengthProperty(argumentNode, context, sourceCode.visitorKeys)) {
 		problem.fix = fixer => fixer.replaceText(node, fromLengthText);
 		return problem;
 	}
 
 	const onlyElementText = `${maybeSemiColon}[${text}]`;
-	const result = getStaticValue(argumentNode, scope);
-	if (result !== null && typeof result.value !== 'number') {
+	const result = getStaticValueForControlFlow(argumentNode, context);
+	if (result !== undefined && typeof result.value !== 'number') {
 		problem.fix = fixer => fixer.replaceText(node, onlyElementText);
 		return problem;
 	}

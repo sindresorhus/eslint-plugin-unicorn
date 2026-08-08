@@ -1,7 +1,7 @@
 import {MIMEType} from 'node:util';
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from './ast/index.js';
 import {replaceStringRaw} from './fix/index.js';
+import {getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID_INVALID = 'no-invalid-file-input-accept/invalid';
 const MESSAGE_ID_STATIC = 'no-invalid-file-input-accept/static';
@@ -151,8 +151,7 @@ const getJsxName = node => {
 const getJsxAttribute = (node, name) => node.attributes.find(attribute => attribute.type === 'JSXAttribute' && getJsxName(attribute.name) === name);
 
 const getStaticExpressionValue = (context, node) => {
-	const scope = context.sourceCode.getScope(node);
-	const staticValue = getStaticValue(node, scope)?.value;
+	const staticValue = getStaticValueIfNoSideEffects(node, context)?.value;
 	if (typeof staticValue !== 'string') {
 		return;
 	}

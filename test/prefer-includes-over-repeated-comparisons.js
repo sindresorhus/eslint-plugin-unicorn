@@ -36,6 +36,12 @@ test.snapshot({
 		'foo === bar || foo === foo;',
 		'foo === 1 || bar === 1;',
 		'value === "a" || value === "b";',
+		'const modes = new Set(["foo"]); modes.clear(); value === (modes.size ? 1 : NaN) || value === 2;',
+		'const modes = new Set(["foo"]); modes.clear(); value === ((modes.size && NaN) || other) || value === 2;',
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); value === ((modes.size ? NaN : other) as number) || value === 2;',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'"a" === value || "b" === value;',
 		'value === "a" || "b" === value;',
 		'value === first || value === second;',
@@ -69,6 +75,7 @@ test.snapshot({
 	],
 	invalid: [
 		'value === "a" || value === "b" || value === "c";',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return NaN; }}); value === (object.value ? NaN : other) || value === 2 || value === 3;',
 		// `undefined`/`null` are fine as compared values when the subject is shared (#3304)
 		'value === undefined || value === "a" || value === "b";',
 		{

@@ -12,9 +12,11 @@ import {removeStatement} from './fix/index.js';
 import {
 	getLastTrailingCommentOnSameLine,
 	hasCommentInRange,
+	hasPotentiallyMutableMemberAccess,
 	isGlobalIdentifier,
 	isLeftHandSide,
 	isTypeScriptExpressionWrapper,
+	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-abort-signal-timeout';
@@ -234,7 +236,14 @@ const hasCommentBetween = (context, leftNode, rightNode) => {
 };
 
 const isValidAbortSignalTimeoutDelay = (node, context) => {
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	if (
+		!staticValue
+		&& hasPotentiallyMutableMemberAccess(node, context)
+		&& getStaticValue(node, context.sourceCode.getScope(node))
+	) {
+		return false;
+	}
 
 	if (!staticValue) {
 		return true;

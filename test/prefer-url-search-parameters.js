@@ -26,6 +26,7 @@ test.snapshot({
 		'query.split("&").map(part => part.split("=", 3));',
 		'query.split("&").map(part => part.split("=", limit));',
 		'const limit = 3; query.split("&").map(part => part.split("=", limit));',
+		'const options = {limit: 2}; Object.defineProperty(options, "limit", {get() { return 1; }}); query.split("&").map(part => part.split("=", options.limit));',
 		'query.split("&").map(part => part?.split("="));',
 		'query.split("&").map(part => part["split"]("="));',
 		'query.split("&")?.map(part => part.split("="));',

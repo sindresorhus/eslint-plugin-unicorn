@@ -2,7 +2,14 @@ import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMemberExpression, isMethodCall, isNumericLiteral} from './ast/index.js';
 import {
 	getParenthesizedText,
+	getStaticValueForControlFlow,
+	getStaticValueIfNoSideEffects,
+	hasSideEffectfulConstInitializer,
+	hasPotentiallyMutableMemberAccess,
+	isBoolean,
+	isBranchExpression,
 	isKnownNonString,
+	isNumber,
 	isSameReference,
 	needsSemicolon,
 } from './utils/index.js';
@@ -20,7 +27,7 @@ const isLengthMemberExpression = node => isMemberExpression(node, {
 });
 
 const getStaticString = (node, context) => {
-	const result = getStaticValue(node, context.sourceCode.getScope(node));
+	const result = getStaticValueResult(node, context);
 
 	if (typeof result?.value === 'string') {
 		return result.value;
@@ -28,7 +35,19 @@ const getStaticString = (node, context) => {
 };
 
 const isStaticNonString = (node, context) => {
-	const result = getStaticValue(node, context.sourceCode.getScope(node));
+	const staticValueNode = getIdentifierValueNode(node, context) ?? node;
+	if (
+		staticValueNode.type === 'SequenceExpression'
+		&& hasPotentiallyMutableMemberAccess(staticValueNode, context)
+	) {
+		const finalResult = getStaticValueIfNoSideEffects(staticValueNode.expressions.at(-1), context);
+		return !finalResult || typeof finalResult.value !== 'string';
+	}
+
+	const result = getStaticValueResult(staticValueNode, context);
+	if (isBranchExpression(staticValueNode)) {
+		return !result || typeof result.value !== 'string';
+	}
 
 	return result && typeof result.value !== 'string';
 };
@@ -50,25 +69,55 @@ const getIdentifierValueNode = (node, context) => {
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	const definition = variable?.defs[0];
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	const hasNonInitializationWrite = variable?.references.some(reference => reference.isWrite() && !reference.init);
 
 	// Only the binding itself counts. A parameter's definition node is the enclosing function, which says nothing about the parameter.
-	if (definition?.type === 'FunctionName' || definition?.type === 'ClassName') {
+	if (!hasNonInitializationWrite && (definition?.type === 'FunctionName' || definition?.type === 'ClassName')) {
 		return definition.node;
 	}
 
 	// The initializer only describes the variable when it is bound directly. In `const [bar] = ["x"]` the initializer is an array but `bar` is a string.
-	if (definition?.type === 'Variable' && definition.node.id === definition.name) {
+	if (
+		!hasNonInitializationWrite
+		&& definition?.type === 'Variable'
+		&& definition.parent?.kind === 'const'
+		&& definition.node.id === definition.name
+		&& definition.node.init
+	) {
 		return definition.node.init;
 	}
 };
 
-const isClearlyNonStringTarget = (node, context) => (
-	clearlyNonStringTargetTypes.has(node.type)
-	|| isStaticNonString(node, context)
-	|| clearlyNonStringTargetTypes.has(getIdentifierValueNode(node, context)?.type)
-	|| isKnownNonString(node, context)
-);
+const getStaticValueResult = (node, context) => {
+	const staticValueNode = getIdentifierValueNode(node, context) ?? node;
+	if (hasSideEffectfulConstInitializer(node, context)) {
+		return;
+	}
+
+	const result = isBranchExpression(staticValueNode)
+		? getStaticValueForControlFlow(staticValueNode, context)
+		: getStaticValueIfNoSideEffects(staticValueNode, context);
+	if (staticValueNode.type !== 'SequenceExpression') {
+		return result;
+	}
+
+	if (staticValueNode.expressions.some(expression => hasPotentiallyMutableMemberAccess(expression, context))) {
+		return;
+	}
+
+	return result ?? getStaticValue(staticValueNode, context.sourceCode.getScope(staticValueNode));
+};
+
+const isClearlyNonStringTarget = (node, context) => {
+	const valueNode = getIdentifierValueNode(node, context) ?? node;
+	return clearlyNonStringTargetTypes.has(node.type)
+		|| isStaticNonString(node, context)
+		|| clearlyNonStringTargetTypes.has(valueNode.type)
+		|| isNumber(valueNode, context)
+		|| isBoolean(valueNode, context)
+		|| isKnownNonString(node, context);
+};
 
 const hasCommentsInside = (node, context) => context.sourceCode.getCommentsInside(node).length > 0;
 

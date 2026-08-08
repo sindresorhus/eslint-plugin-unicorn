@@ -5,6 +5,7 @@ import {getTester} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 const fixtureDirectory = fileURLToPath(new URL('fixtures/prefer-regexp-test/', import.meta.url));
+const noAutofixOutput = /./.exec('');
 
 const typeAware = code => ({
 	code,
@@ -113,6 +114,11 @@ ruleTest.snapshot({
 		'const pattern = {}; if (foo.match(pattern)) {}',
 		'const pattern = () => {}; if (foo.match(pattern)) {}',
 		'const pattern = 1 + 2; if (foo.match(pattern)) {}',
+		outdent`
+			const object = {pattern: /regexp/};
+			Object.defineProperty(object, 'pattern', {get() { return 'regexp'; }});
+			if (foo.match(object.pattern)) {}
+		`,
 
 		// Known non-RegExp receivers
 		'if ("regexp".exec(foo)) {}',
@@ -224,6 +230,10 @@ ruleTest.snapshot({
 		'const bar = {bar: /a/}; if (foo.match(bar.baz)) {}',
 		'if (foo.match(bar.baz())) {}',
 		'if (foo.match(new RegExp("re", "g"))) {}',
+		outdent`
+			const options = {toString() { sideEffect(); return 'a'; }};
+			if (getString().match(new RegExp(options))) {}
+		`,
 		'if (foo.match(new SomeRegExp())) {}',
 		'if (foo.match(new SomeRegExp)) {}',
 		'if (foo.match(bar?.baz)) {}',
@@ -260,7 +270,7 @@ ruleTest.snapshot({
 				) {}
 			}
 		`,
-		// This will still fix to `.test()`
+		// This will still be fixed to `.test()`.
 		outdent`
 			const regex = new RegExp('[.!?]\\s*$');
 			if (foo.match(regex)) {}
@@ -503,8 +513,7 @@ const supportsUnicodeSets = (() => {
 		return false;
 	}
 })();
-// These cases can be auto-fixed in environments supports `v` flag (eg, Node.js v20),
-// But will use suggestions instead in environments doesn't support `v` flag.
+// These cases can be auto-fixed in environments that support the `v` flag (e.g. Node.js v20), but use suggestions in environments that don't support the `v` flag.
 ruleTest({
 	valid: [],
 	invalid: [
@@ -537,4 +546,25 @@ ruleTest({
 					},
 				],
 			}),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'const re = /a/y; if (foo.search(re) !== -1);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'string-search', suggestions: 1}],
+		},
+		{
+			code: 'const re = new RegExp("a", "y"); if (foo.search(re) !== -1);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'string-search', suggestions: 1}],
+		},
+		{
+			code: 'if (foo.search(new RegExp("a", "y")) !== -1);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'string-search', suggestions: 1}],
+		},
+	],
 });

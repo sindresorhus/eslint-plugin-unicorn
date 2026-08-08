@@ -16,6 +16,11 @@ test.snapshot({
 		'new globalThis.Set([1, 1])',
 		'new Set([foo(), foo()])',
 		'new Set([foo.bar, foo.baz])',
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 2; }});
+			new Set([object.value, 1]);
+		`,
 		'new Set([foo, ...bar, baz])',
 		outdent`
 			const foo = {};

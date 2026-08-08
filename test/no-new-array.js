@@ -1,7 +1,8 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const noAutofixOutput = /./.exec('');
 
 test.snapshot({
 	valid: [
@@ -17,6 +18,17 @@ test.snapshot({
 		'const array = Array(1)',
 	],
 	invalid: [
+		outdent`
+			const modes = new Set(['foo']);
+			modes.clear();
+			new Array(modes.size ? 1 : 'x');
+		`,
+		'const modes = new Set(["foo"]); modes.clear(); new Array((modes.size && 1) || value);',
+		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); new Array(object.value ? 1 : value);',
+		{
+			code: 'const modes = new Set(["foo"]); modes.clear(); new Array((modes.size ? "x" : 1) as number);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const array = new Array(1)',
 		// This is actually `[]`, but we fix to `Array.from({length: zero})`
 		outdent`
@@ -50,6 +62,8 @@ test.snapshot({
 		'new Array(-Math.PI)',
 		'new Array(-"-2")',
 		'new Array(foo.length)',
+		'const array = [1]; new Array(array.length)',
+		'const text = "foo"; new Array(text.length)',
 		'const foo = 1; new Array(foo + 2)',
 		'new Array(foo - 2)',
 		'new Array(foo -= 2)',
@@ -106,5 +120,26 @@ test.snapshot({
 			const foo = []
 			new Array(...bar).forEach(baz)
 		`,
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const object = {}; Object.defineProperty(object, "length", {get() { return "foo"; }}); new Array(object.length);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'error', suggestions: 2}],
+		},
+		{
+			code: 'const array = []; new Array(1 + array.length);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'error', suggestions: 2}],
+		},
+		{
+			code: 'const alias = condition; var condition = true; new Array(alias ? "x" : 1);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'error', suggestions: 2}],
+		},
 	],
 });

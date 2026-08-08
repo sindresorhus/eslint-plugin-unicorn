@@ -36,6 +36,35 @@ test.snapshot({
 		'JSON.parse(await fs.readFile(file, {flag: "r"}));',
 		'JSON.parse(await fs.readFile(file, {encoding: null, flag: "r"}));',
 		'JSON.parse(await fs.readFile(file, {encoding: "utf8", extraProperty: "utf8"}));',
+		'const options = {}; Object.defineProperty(options); JSON.parse(await fs.readFile(file, options));',
+		`const options = {encoding: null};
+Object.defineProperty(options, 'encoding', {get() { return 'utf8'; }});
+JSON.parse(await fs.readFile(file, options));`,
+		`const options = {encoding: null};
+Object.defineProperties(options, {encoding: {get() { return 'utf8'; }}});
+JSON.parse(await fs.readFile(file, options));`,
+		`const options = {encoding: null};
+const alias = options;
+Object.defineProperty(alias, 'encoding', {get() { return 'utf8'; }});
+JSON.parse(await fs.readFile(file, options));`,
+		`const options = {encoding: null};
+const alias = options;
+const secondAlias = alias;
+Object.defineProperties(secondAlias, {encoding: {get() { return 'utf8'; }}});
+JSON.parse(await fs.readFile(file, options));`,
+		`const key = 'encoding';
+const descriptorKey = 'get';
+const options = {encoding: null};
+Object.defineProperties(options, {[key]: {[descriptorKey]() { return 'utf8'; }}});
+JSON.parse(await fs.readFile(file, options));`,
+		`const options = {encoding: null};
+Object.defineProperty(options, 'encoding', {['get']() { return 'utf8'; }});
+JSON.parse(await fs.readFile(file, options));`,
+		outdent`
+			const options = {encoding: null};
+			Object.defineProperty(options, 'encoding', {set() {}});
+			JSON.parse(await fs.readFile(file, options));
+		`,
 		'JSON.parse(await fs.readFile(file, {...encoding}));',
 		'JSON.parse(await fs.readFile(file, {encoding: unknown}));',
 		'const readingOptions = {flag: "r"};JSON.parse(await fs.readFile(file, readingOptions));',
@@ -137,6 +166,12 @@ test.snapshot({
 				const readingOptions = {encoding: "utf8"};
 				JSON.parse(buffer);
 			}
+		`,
+		outdent`
+			const options = {encoding: null};
+			const buffer = fs.readFile(file, options);
+			Object.defineProperty(options, 'other', {set() {}});
+			JSON.parse(buffer);
 		`,
 		outdent`
 			const buffer = fs.readFile(file); /* Should report */

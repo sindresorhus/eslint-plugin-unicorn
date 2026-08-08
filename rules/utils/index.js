@@ -46,6 +46,16 @@ export {
 	hasMultilineToken,
 } from './block-scope.js';
 export {default as getConstVariableInitializer} from './get-const-variable-initializer.js';
+export {
+	default as getStaticValueIfNoSideEffects,
+	getStaticValueForControlFlow,
+	getStaticRegExp,
+	isBranchExpression,
+	isSafeStaticPassThroughCall,
+	hasPotentiallyMutableMemberAccess,
+	hasPotentiallyMutableBinding,
+	hasSideEffectfulConstInitializer,
+} from './get-static-value.js';
 export {getMemberAccessOperatorRange} from './member-expression.js';
 export {
 	hasSameObjectShapePropertyCheck,

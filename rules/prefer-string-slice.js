@@ -1,7 +1,7 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	getParenthesizedText,
 	getParenthesizedRange,
+	getStaticValueIfNoSideEffects,
 	isKnownNonString,
 	isSameReference,
 } from './utils/index.js';
@@ -84,8 +84,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 	}
 
 	const {sourceCode} = context;
-	const scope = sourceCode.getScope(node);
-	const firstArgumentStaticResult = getStaticValue(firstArgument, scope);
+	const firstArgumentStaticResult = getStaticValueIfNoSideEffects(firstArgument, context);
 	const secondArgumentRange = getParenthesizedRange(secondArgument, context);
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, context);
 

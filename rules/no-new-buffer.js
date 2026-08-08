@@ -1,7 +1,7 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {switchNewExpressionToCallExpression} from './fix/index.js';
 import isNumber from './utils/is-number.js';
 import {isNewExpression} from './ast/index.js';
+import {getStaticValueForControlFlow} from './utils/index.js';
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -12,7 +12,7 @@ const messages = {
 	[SUGGESTION]: 'Switch to `Buffer.{{replacement}}()`.',
 };
 
-const inferMethod = (bufferArguments, scope) => {
+const inferMethod = (bufferArguments, context) => {
 	if (bufferArguments.length !== 1) {
 		return 'from';
 	}
@@ -26,11 +26,11 @@ const inferMethod = (bufferArguments, scope) => {
 		return 'from';
 	}
 
-	if (isNumber(firstArgument, scope)) {
+	if (isNumber(firstArgument, context)) {
 		return 'alloc';
 	}
 
-	const staticResult = getStaticValue(firstArgument, scope);
+	const staticResult = getStaticValueForControlFlow(firstArgument, context);
 	if (staticResult) {
 		const {value} = staticResult;
 		if (
@@ -51,13 +51,12 @@ function fix(node, context, method) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
 	context.on('NewExpression', node => {
 		if (!isNewExpression(node, {name: 'Buffer'})) {
 			return;
 		}
 
-		const method = inferMethod(node.arguments, sourceCode.getScope(node));
+		const method = inferMethod(node.arguments, context);
 
 		if (method) {
 			return {
