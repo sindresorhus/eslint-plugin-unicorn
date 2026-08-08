@@ -270,7 +270,7 @@ ruleTest.snapshot({
 				) {}
 			}
 		`,
-		// This will still fix to `.test()`
+		// This will still be fixed to `.test()`.
 		outdent`
 			const regex = new RegExp('[.!?]\\s*$');
 			if (foo.match(regex)) {}
@@ -513,8 +513,7 @@ const supportsUnicodeSets = (() => {
 		return false;
 	}
 })();
-// These cases can be auto-fixed in environments supports `v` flag (eg, Node.js v20),
-// But will use suggestions instead in environments doesn't support `v` flag.
+// These cases can be auto-fixed in environments that support the `v` flag (e.g. Node.js v20), but use suggestions in environments that don't support the `v` flag.
 ruleTest({
 	valid: [],
 	invalid: [
@@ -554,6 +553,16 @@ ruleTest({
 	invalid: [
 		{
 			code: 'const re = /a/y; if (foo.search(re) !== -1);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'string-search', suggestions: 1}],
+		},
+		{
+			code: 'const re = new RegExp("a", "y"); if (foo.search(re) !== -1);',
+			output: noAutofixOutput,
+			errors: [{messageId: 'string-search', suggestions: 1}],
+		},
+		{
+			code: 'if (foo.search(new RegExp("a", "y")) !== -1);',
 			output: noAutofixOutput,
 			errors: [{messageId: 'string-search', suggestions: 1}],
 		},

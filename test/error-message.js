@@ -114,6 +114,12 @@ test.snapshot({
 				new Error(Object.freeze({value: 1}).value);
 			}
 		`,
+		outdent`
+			function test(Object) {
+				const object = {value: 1};
+				new Error(Object.freeze(object).value);
+			}
+		`,
 		'new Error(Object.freeze().value);',
 		outdent`
 			const object = {value: true};
