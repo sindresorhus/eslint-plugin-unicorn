@@ -52,7 +52,7 @@ function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, cont
 	let stringText = sourceCode.getText(stringNode);
 	if (
 		!isParenthesized(regexpNode, sourceCode)
-		// Only `SequenceExpression` need to add parentheses
+		// Only `SequenceExpression` needs parentheses.
 		&& stringNode.type === 'SequenceExpression'
 	) {
 		stringText = `(${stringText})`;
