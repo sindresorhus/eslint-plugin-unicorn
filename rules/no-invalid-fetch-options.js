@@ -4,7 +4,7 @@ import {
 	isUndefined,
 	isNullLiteral,
 } from './ast/index.js';
-import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import {getStaticValueForControlFlow} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-invalid-fetch-options';
 const messages = {
@@ -53,7 +53,7 @@ function getFetchOptionsProblem(context, node) {
 
 	const methodValue = methodProperty.value;
 
-	let method = getStaticValueIfNoSideEffects(methodValue, context)?.value;
+	let method = getStaticValueForControlFlow(methodValue, context)?.value;
 
 	if (typeof method !== 'string') {
 		return;

@@ -60,6 +60,11 @@ JSON.parse(await fs.readFile(file, options));`,
 		`const options = {encoding: null};
 Object.defineProperty(options, 'encoding', {['get']() { return 'utf8'; }});
 JSON.parse(await fs.readFile(file, options));`,
+		outdent`
+			const options = {encoding: null};
+			Object.defineProperty(options, 'encoding', {set() {}});
+			JSON.parse(await fs.readFile(file, options));
+		`,
 		'JSON.parse(await fs.readFile(file, {...encoding}));',
 		'JSON.parse(await fs.readFile(file, {encoding: unknown}));',
 		'const readingOptions = {flag: "r"};JSON.parse(await fs.readFile(file, readingOptions));',

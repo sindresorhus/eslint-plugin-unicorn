@@ -88,6 +88,7 @@ test('detects potentially mutable variable bindings', t => {
 		'let value = true; value = false; const result = value;',
 		'var value = true; value = false; const result = value;',
 		'let value = true; const alias = value; const result = alias;',
+		'let value = true; const alias = value; value = false; const result = alias;',
 		'const alias = value; let value = true; const result = alias;',
 	]) {
 		t.true(evaluate(code, hasPotentiallyMutableBinding));
@@ -100,11 +101,33 @@ test('does not use mutable bindings for control-flow decisions', t => {
 	for (const code of [
 		'const alias = value; let value = true; const result = alias;',
 		'const alias = value; var value = true; const result = alias;',
+		'let value = true; const alias = value; value = false; const result = alias;',
 	]) {
 		t.is(evaluate(code, getStaticValueForControlFlow), undefined);
 	}
 
 	t.true(evaluate('const value = true; const result = value;', getStaticValueForControlFlow)?.value);
+});
+
+test('ignores mutable bindings in statically unreachable branches', t => {
+	for (const [code, expected] of [
+		['const condition = true; let value; const result = condition ? {} : value;', {}],
+		['const condition = false; let value; const result = condition ? value : {};', {}],
+		['const condition = true; let value; const result = condition || value;', true],
+		['const condition = false; let value; const result = condition && value;', false],
+	]) {
+		t.deepEqual(evaluate(code, getStaticValueForControlFlow)?.value, expected);
+	}
+});
+
+test('rejects mutable bindings on evaluated short-circuit paths', t => {
+	for (const code of [
+		'const condition = true; let value; const result = condition && value;',
+		'const condition = false; let value; const result = condition || value;',
+		'const condition = null; let value; const result = condition ?? value;',
+	]) {
+		t.is(evaluate(code, getStaticValueForControlFlow), undefined);
+	}
 });
 
 test('preserves known static global properties', t => {

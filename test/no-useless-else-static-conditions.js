@@ -20,6 +20,52 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				let value = true;
+				const alias = value;
+				value = false;
+
+				if (condition) {
+					if (alias) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				const modes = new Set(['foo']);
+				modes.clear();
+
+				if (condition) {
+					if (modes?.size) {
+						return;
+					}
+				} else {
+					bar();
+				}
+			}
+		`,
+		{
+			code: outdent`
+				function qux() {
+					const modes = new Set(['foo']);
+					modes.clear();
+
+					if (condition) {
+						if ((modes.size as number)) {
+							return;
+						}
+					} else {
+						bar();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
 			const regex = /foo/g;
 			regex.exec('foo');
 

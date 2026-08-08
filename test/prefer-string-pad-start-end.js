@@ -71,6 +71,7 @@ test({
 		},
 		'const modes = new Set(["foo"]); modes.clear(); const target = (modes.size && "x") || value; const foo = "*".repeat(10 - target.length) + target;',
 		'let condition = true; condition = false; const target = condition ? "x" : 1; const foo = "*".repeat(10 - target.length) + target;',
+		'const alias = condition; var condition = true; const target = alias ? "x" : 1; const foo = "*".repeat(10 - target.length) + target;',
 		outdent`
 			const object = {value: true};
 			Object.defineProperty(object, "value", {get() { return false; }});
@@ -90,6 +91,11 @@ test({
 		{
 			code: 'const foo = " ".repeat(10 - bar.length) + bar;',
 			output: 'const foo = bar.padStart(10);',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const condition = true; let value; const target = condition ? "x" : value; const foo = "*".repeat(10 - target.length) + target;',
+			output: 'const condition = true; let value; const target = condition ? "x" : value; const foo = target.padStart(10, "*");',
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{

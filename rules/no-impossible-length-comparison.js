@@ -4,7 +4,7 @@ import {
 	hasSameObjectShapePropertyCheck,
 	isKnownNonCollectionLengthOrSize,
 	isLengthOrSizeMemberExpression,
-	getStaticValueIfNoSideEffects,
+	getStaticValueForControlFlow,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -37,7 +37,7 @@ const isKnownStaticProperty = node => {
 };
 
 const getStaticComparisonValue = (node, context) => {
-	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	const staticValue = getStaticValueForControlFlow(node, context);
 	if (staticValue !== undefined) {
 		return staticValue.value;
 	}

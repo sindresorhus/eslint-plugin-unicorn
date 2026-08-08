@@ -379,6 +379,7 @@ export function hasSameObjectShapePropertyCheck({node, lengthOrSizeNode}) {
 }
 
 export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
+	const {sourceCode} = context;
 	const staticValue = getStaticValueIfNoSideEffects(memberExpression, context);
 	if (staticValue) {
 		return !Number.isSafeInteger(staticValue.value) || staticValue.value < 0;
@@ -407,6 +408,10 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 	for (const reference of nonInitializationReferences) {
 		const isInUnknownExecutionContext = getEnclosingExecutionContext(reference.identifier) !== enclosingExecutionContext
 			|| isConditionallyExecuted(reference.identifier, context);
+		if (!isInUnknownExecutionContext && sourceCode.getRange(reference.identifier)[0] > sourceCode.getRange(memberExpression)[0]) {
+			continue;
+		}
+
 		if (isForInPropertyMutation(reference, propertyName, context)) {
 			hasUnknownEffect = true;
 			continue;

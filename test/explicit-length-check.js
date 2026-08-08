@@ -360,6 +360,10 @@ test.snapshot({
 		'const foo = {length: -1}; maybe?.property[foo.length = 123]; if (foo.length) {}',
 		'const foo = {length: -1}; maybe?.property.method(foo.length = 123); if (foo.length) {}',
 		'const foo = {length: 123}; Object.assign?.(foo, {length: \'x\'}); if (foo.length) {}',
+		// A later property write does not affect an earlier read.
+		'const foo = {length: -1}; if (foo.length) {} foo.length = 123;',
+		'const foo = {length: -1}; if (foo.length) {} Object.assign(foo, {length: 123});',
+		'const foo = {length: -1}; if (foo.length) {} Object.defineProperty(foo, \'length\', {value: 123});',
 		// Class field initializers run in a separate execution context.
 		'const foo = {length: -1}; class A {field = (foo.length = "x");} new A(); if (foo.length) {}',
 		'const foo = {length: -1}; class A {[foo.length = "x"]() {}} if (foo.length) {}',

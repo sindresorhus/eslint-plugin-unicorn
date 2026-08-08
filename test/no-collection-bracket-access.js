@@ -105,6 +105,7 @@ test.snapshot({
 		'const map = new Map(); const key = "foo"; map[key];',
 		// One branch is a real member, but the other is a collection entry key
 		'const set = new Set(); set[condition ? "add" : "foo"]("foo");',
+		'const alias = condition; var condition = true; const map = new Map(); map[alias ? "get" : "foo"]();',
 		'const map = new Map(); map[+(condition ? 0 : 1)];',
 		'const map = new Map(); map[+(condition ? "size" : "get")];',
 		'const map = new Map(); map[typeof Symbol.iterator];',

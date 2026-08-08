@@ -1,7 +1,7 @@
 import {switchNewExpressionToCallExpression} from './fix/index.js';
 import isNumber from './utils/is-number.js';
 import {isNewExpression} from './ast/index.js';
-import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import {getStaticValueForControlFlow} from './utils/index.js';
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -30,7 +30,7 @@ const inferMethod = (bufferArguments, context) => {
 		return 'alloc';
 	}
 
-	const staticResult = getStaticValueIfNoSideEffects(firstArgument, context);
+	const staticResult = getStaticValueForControlFlow(firstArgument, context);
 	if (staticResult) {
 		const {value} = staticResult;
 		if (

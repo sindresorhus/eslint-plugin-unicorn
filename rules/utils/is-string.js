@@ -1,6 +1,6 @@
 import {isStringLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
-import getStaticValueIfNoSideEffects from './get-static-value.js';
+import {getStaticValueForControlFlow} from './get-static-value.js';
 import {
 	createTypeCheckers,
 	target,
@@ -111,7 +111,7 @@ export default function isString(node, context) {
 		return true;
 	}
 
-	return typeof getStaticValueIfNoSideEffects(node, context)?.value === 'string';
+	return typeof getStaticValueForControlFlow(node, context)?.value === 'string';
 }
 
 export {

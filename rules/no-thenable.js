@@ -1,5 +1,5 @@
 import {isMethodCall} from './ast/index.js';
-import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import {getStaticValueForControlFlow} from './utils/index.js';
 
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
 const MESSAGE_ID_EXPORT = 'no-thenable-export';
@@ -10,8 +10,10 @@ const messages = {
 	[MESSAGE_ID_CLASS]: 'Do not add `then` to a class.',
 };
 
+const getStaticKeyValue = (node, context) => getStaticValueForControlFlow(node, context)?.value;
+
 const isStringThen = (node, context) =>
-	getStaticValueIfNoSideEffects(node, context)?.value === 'then';
+	getStaticKeyValue(node, context) === 'then';
 
 // Resolves the property/member key name, avoiding the cost of `sourceCode.getScope()`
 // for the common non-computed and string-literal cases. Only computed keys that
@@ -27,7 +29,7 @@ const isThenKey = (node, context) => {
 		return keyNode.name === 'then';
 	}
 
-	return getStaticValueIfNoSideEffects(keyNode, context)?.value === 'then';
+	return getStaticKeyValue(keyNode, context) === 'then';
 };
 
 const cases = [

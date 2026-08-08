@@ -21,6 +21,11 @@ test.snapshot({
 			Object.defineProperty(base, 'value', {get() { return 'https://example.com/a/b'; }});
 			new URL('./?query', base.value);
 		`,
+		outdent`
+			const base = {value: 'https://example.com/a/b/'};
+			Object.defineProperty(base, 'value', {get() { return 'https://example.com/a/b'; }});
+			new URL('./?query', base.value);
+		`,
 		'const base = new URL("./", import.meta.url)',
 		'new URL',
 		'new URL(0, base)',

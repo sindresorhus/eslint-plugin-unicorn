@@ -61,6 +61,8 @@ test.snapshot({
 			modes.clear();
 			fetch(url, {method: modes.size ? 'GET' : 'POST', body});
 		`,
+		'const alias = condition; var condition = true; fetch(url, {method: alias ? "GET" : "POST", body});',
+		'const alias = condition; var condition = true; fetch(url, {method: (0, alias ? "GET" : "POST"), body});',
 		'const modes = new Set(["foo"]); modes.clear(); fetch(url, {method: modes.size && "GET", body});',
 		'const modes = new Set(["foo"]); modes.clear(); new Request(url, {method: modes.size ? "HEAD" : "POST", body});',
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); fetch(url, {method: object.value ? "GET" : "POST", body});',
@@ -77,6 +79,7 @@ test.snapshot({
 		'new Request(url, {method: "head", body})',
 		'fetch(url, {method: true ? "GET" : "POST", body})',
 		'new Request(url, {method: false ? "POST" : "HEAD", body})',
+		'const condition = true; let value; fetch(url, {method: condition ? "GET" : value, body})',
 		'const method = "head"; new Request(url, {method, body: "foo=bar"})',
 		'const method = "head"; fetch(url, {method, body: "foo=bar"})',
 		'fetch(url, {body}, extraArgument)',

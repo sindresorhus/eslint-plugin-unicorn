@@ -630,7 +630,9 @@ const create = context => {
 			const {methodNode, regexpNode} = nodes;
 
 			const staticRegExp = getStaticRegExp(regexpNode, context);
-			const isSafeRegExp = isRegexLiteral(regexpNode) || Boolean(staticRegExp);
+			const isSafeRegExp = isRegexLiteral(regexpNode)
+				? !regexpNode.regex.flags.includes('g')
+				: Boolean(staticRegExp && !staticRegExp.global);
 			const stringType = getExpressionType(nodes.stringNode, context);
 			const regexpType = getExpressionType(regexpNode, context);
 

@@ -42,7 +42,8 @@ const isObjectFreezeMemberExpression = (node, context) => {
 		&& node.object.callee.object.type === 'Identifier'
 		&& node.object.callee.object.name === 'Object'
 		&& node.object.callee.property.type === 'Identifier'
-		&& node.object.callee.property.name === 'freeze';
+		&& node.object.callee.property.name === 'freeze'
+		&& node.object.arguments[0]?.type === 'ObjectExpression';
 };
 
 const getStaticValueForNode = (node, context) => {

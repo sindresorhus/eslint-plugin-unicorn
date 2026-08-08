@@ -64,6 +64,8 @@ test({
 		'const modes = new Set(["foo"]); modes.clear(); if (array.length < (modes.size ? -1 : 1)) {}',
 		'const modes = new Set(["foo"]); modes.clear(); if (array.length < (modes.size && -1)) {}',
 		'let condition = true; condition = false; if (array.length < (condition ? -1 : lowerBound)) {}',
+		'const alias = condition; var condition = true; if (array.length < (alias ? -1 : lowerBound)) {}',
+		'const alias = condition; var condition = true; if (array.length < (0, alias ? -1 : lowerBound)) {}',
 		outdent`
 			const object = {value: true};
 			Object.defineProperty(object, 'value', {get() { return false; }});

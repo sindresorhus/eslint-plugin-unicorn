@@ -74,6 +74,7 @@ test.snapshot({
 			condition = false;
 			new Error(condition ? {} : 'ok');
 		`,
+		'const alias = condition; var condition = true; new Error(alias ? {} : \'ok\');',
 		outdent`
 			let modes = new Set(['foo']);
 			new Error((modes = new Set()).size ? {} : 'ok');
@@ -113,6 +114,12 @@ test.snapshot({
 				new Error(Object.freeze({value: 1}).value);
 			}
 		`,
+		outdent`
+			const object = {value: 1};
+			Object.defineProperty(object, 'value', {get() { return 'message'; }});
+			new Error(Object.freeze(object).value);
+		`,
+		'new Error(Object.freeze({get value() { return "message"; }}).value);',
 	],
 	invalid: [
 		'throw new Error()',
@@ -148,6 +155,7 @@ test.snapshot({
 		'throw new Error(lineNumber=2)',
 		// A primitive non-string literal is resolved via `getStaticValue`
 		'throw new Error(false)',
+		'const condition = true; let value; new Error(condition ? {} : value);',
 		'const error = new RangeError;',
 		'throw Object.assign(new Error(), {foo})',
 	],
