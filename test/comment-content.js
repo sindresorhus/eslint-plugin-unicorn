@@ -636,7 +636,7 @@ test('preserves syntax masking after Unicode characters', t => {
 
 test('preserves custom replacement regex semantics', t => {
 	const linter = new Linter({configType: 'flat'});
-	const code = '// astérisque\n/** @param url - See {@link url}, {@link foo\\}api}, and {@inheritdoc}.\n * @template url,\n * api\n * @template {url}\n * api - Provides the api. */';
+	const code = '// astérisque\n/** @param url - See {@link url}, {@link foo\\}api}, and {@inheritdoc}.\n * @template [name=json],\n * api\n * @template {url}\n * api - Provides the api. */';
 	const config = {
 		...JAVASCRIPT_CONFIG,
 		rules: {
@@ -661,7 +661,7 @@ test('preserves custom replacement regex semantics', t => {
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
 
 	t.true(result.fixed);
-	t.is(result.output, '// ASTérisque\n/** @param url - See {@link url}, {@link foo\\}api}, and {@inheritdoc}.\n * @template url,\n * api\n * @template {url}\n * api - Provides the API. */');
+	t.is(result.output, '// ASTérisque\n/** @param url - See {@link url}, {@link foo\\}api}, and {@inheritdoc}.\n * @template [name=json],\n * api\n * @template {url}\n * api - Provides the API. */');
 });
 
 test('ignores custom replacement matches that overlap masked regions', t => {
@@ -1259,7 +1259,6 @@ test('ignores JSDoc syntax and fixes tag descriptions', t => {
 	 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
 	t.is(result.output, `/**
 	 * @param url - Requested URL from the API.
 	 * @param [options.url=https://example.com] - Configure the API.
@@ -1279,9 +1278,13 @@ test('ignores JSDoc type and symbol references', t => {
 	 * @augments api
 	 * @exception {url}
 	 */`;
-	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
+	t.deepEqual(verifyJavaScript(code), []);
+});
+
+test('fixes JSDoc inline-link labels', t => {
+	t.is(verifyAndFixJavaScript('/** {@link url json} {@linkcode api json} {@linkplain url json} {@tutorial guide json} */').output,
+		'/** {@link url JSON} {@linkcode api JSON} {@linkplain url JSON} {@tutorial guide JSON} */');
 });
 
 test('fixes JSDoc callback descriptions', t => {
@@ -1299,7 +1302,6 @@ test('fixes JSDoc callback descriptions', t => {
 		+ '\t */';
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
 	t.is(result.output, code.replaceAll('api.', 'API.').replaceAll('json output', 'JSON output').replace('json}\n', 'JSON}\n').replace('json values', 'JSON values').replace('api is', 'API is'));
 	t.is(verifyAndFixJavaScript('/*** @param url */').output, '/*** @param URL */');
 });
@@ -1308,7 +1310,6 @@ test('continues checking prose after an unterminated JSDoc type', t => {
 	const code = '/**\n * @type {\n * @returns json output\n * @see {@link url\n * @param value - The api.\n */';
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
 	t.is(result.output, code.replace('json', 'JSON').replace('api', 'API'));
 });
 

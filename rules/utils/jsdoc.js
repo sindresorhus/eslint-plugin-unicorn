@@ -237,6 +237,7 @@ function maskJSDocumentTemplate(characters, text, start, end) {
 function getJSDocumentInlineTagEnd(text, start, end) {
 	let quote;
 	let targetEnd;
+	let hasTarget;
 
 	for (let index = start; index < end; index++) {
 		const character = text[index];
@@ -256,13 +257,20 @@ function getJSDocumentInlineTagEnd(text, start, end) {
 
 		if (quoteCharacters.includes(character)) {
 			quote = character;
+			hasTarget = true;
 		} else if (character === '|' && targetEnd === undefined) {
 			targetEnd = index;
+		} else if (/\s/v.test(character)) {
+			if (hasTarget && targetEnd === undefined) {
+				targetEnd = index;
+			}
 		} else if (character === '}') {
 			return {
 				targetEnd: targetEnd ?? index,
 				end: index,
 			};
+		} else {
+			hasTarget = true;
 		}
 	}
 
