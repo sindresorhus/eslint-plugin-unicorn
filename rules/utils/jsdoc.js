@@ -3,7 +3,7 @@ const quoteCharacters = '"\'`';
 const jsdocTagPattern = /^\s*\*?\s*(?<tag>@[\d\p{Letter}][\d\p{Letter}\-]*!?)(?=\s|$)/v;
 const jsdocTypeAndNameTagNames = new Set(['param', 'arg', 'argument', 'property', 'prop', 'typedef', 'callback', 'member', 'var', 'const', 'constant', 'class', 'constructor', 'module', 'namespace']);
 const jsdocStructuredTypeTagNames = new Set(['type', 'this', 'extends', 'augments', 'implements', 'satisfies', 'import', 'package', 'enum']);
-const jsdocTypeTagNames = new Set(['returns', 'return', 'throws', 'exception', 'yields', 'yield']);
+const jsdocTypeTagNames = new Set(['returns', 'return', 'throws', 'exception', 'yields', 'yield', 'private', 'protected', 'public']);
 const jsdocNameTagNames = new Set([
 	'access',
 	'alias',
@@ -164,7 +164,7 @@ function maskJSDocumentValue(characters, text, start, end) {
 
 function maskJSDocumentType(characters, text, start, end) {
 	start = skipJSDocumentHorizontalWhitespace(text, start, end);
-	if (text[start] !== '{') {
+	if (text[start] !== '{' || jsdocInlineTagStartPattern.test(text.slice(start, end))) {
 		return start;
 	}
 

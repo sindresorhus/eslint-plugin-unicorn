@@ -1282,28 +1282,57 @@ test('ignores JSDoc type and symbol references', t => {
 	t.deepEqual(verifyJavaScript(code), []);
 });
 
+test('ignores optional JSDoc types and metadata values', t => {
+	const code = '/**\n * @private {api}\n * @protected {url}\n * @public {json}\n * @author nodejs\n * @version json\n * @since api\n */';
+
+	t.is(verifyAndFixJavaScript(code).output, code);
+});
+
 test('fixes JSDoc inline-link labels', t => {
-	t.is(verifyAndFixJavaScript('/** {@link url json api} {@linkcode api json output} {@linkplain url json output} {@tutorial guide json output} */').output,
-		'/** {@link url JSON API} {@linkcode api JSON output} {@linkplain url JSON output} {@tutorial guide JSON output} */');
+	const code = '/** {@link url json api} '
+		+ '{@link url|json output} {@linkcode api json output} '
+		+ '{@linkplain url json output} {@tutorial guide json output} */';
+	const expected = '/** {@link url JSON API} '
+		+ '{@link url|JSON output} {@linkcode api JSON output} '
+		+ '{@linkplain url JSON output} {@tutorial guide JSON output} */';
+
+	t.is(verifyAndFixJavaScript(code).output, expected);
+});
+
+test('fixes inline links at the start of JSDoc tag descriptions', t => {
+	const code = '/**\n * @returns {@link api|json}\n * @return {@link api json output}\n'
+		+ ' * @throws {@link api|json output}\n * @exception {@link api json output}\n'
+		+ ' * @yields {@link api|json output}\n * @yield {@link api json output}\n */';
+	const expected = '/**\n * @returns {@link api|JSON}\n * @return {@link api JSON output}\n'
+		+ ' * @throws {@link api|JSON output}\n * @exception {@link api JSON output}\n'
+		+ ' * @yields {@link api|JSON output}\n * @yield {@link api JSON output}\n */';
+
+	t.is(verifyAndFixJavaScript(code).output, expected);
+	t.deepEqual(verifyJavaScript(expected), []);
+});
+
+test('handles single-line JSDoc tags without treating /*** as JSDoc', t => {
+	t.is(verifyAndFixJavaScript('/** @param url - See the api. */').output,
+		'/** @param url - See the API. */');
+	t.is(verifyAndFixJavaScript('/*** @param url */').output, '/*** @param URL */');
 });
 
 test('fixes JSDoc callback descriptions', t => {
-	const code = '/**\n'
-		+ '\t * @callback url - Handles the api.\n'
-		+ '\t * @class {url} url - Represents the api.\n'
-		+ '\t * @module {json} json - Exposes the api.\n'
-		+ '\t * @namespace {url} url - Groups the api.\n'
-		+ '\t * @template {url} url - Provides json values.\n'
-		+ '\t * @return {url} Returns json output.\n'
-		+ '\t * @yield {url} Yields json output.\n'
-		+ '\t * @exception {url} Handles the api.\n'
-		+ '\t * @see {@link url|json}\n'
-		+ '\t * @see api - See the json output.\n'
-		+ '\t */';
+	const code = `/**
+	 * @callback url - Handles the api.
+	 * @class {url} url - Represents the api.
+	 * @module {json} json - Exposes the api.
+	 * @namespace {url} url - Groups the api.
+	 * @template {url} url - Provides json values.
+	 * @return {url} Returns json output.
+	 * @yield {url} Yields json output.
+	 * @exception {url} Handles the api.
+	 * @see {@link url|json}
+	 * @see api - See the json output.
+	 */`;
 	const result = verifyAndFixJavaScript(code);
 
 	t.is(result.output, code.replaceAll('api.', 'API.').replaceAll('json output', 'JSON output').replace('json}\n', 'JSON}\n').replace('json values', 'JSON values'));
-	t.is(verifyAndFixJavaScript('/*** @param url */').output, '/*** @param URL */');
 });
 
 test('continues checking prose after an unterminated JSDoc type', t => {
