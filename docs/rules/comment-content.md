@@ -17,6 +17,8 @@ It only reports one replacement per comment at a time.
 
 It focuses on prose-like comment text and skips obvious non-prose regions such as code snippets, including commented-out multi-line code, links, paths, structured data, and command examples.
 
+In JSDoc comments, it skips structured tag syntax such as parameter names, type expressions, and symbol references, while continuing to check prose in tag descriptions.
+
 ## Examples
 
 ```js

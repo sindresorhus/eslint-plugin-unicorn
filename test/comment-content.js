@@ -636,7 +636,7 @@ test('preserves syntax masking after Unicode characters', t => {
 
 test('preserves custom replacement regex semantics', t => {
 	const linter = new Linter({configType: 'flat'});
-	const code = '// astérisque';
+	const code = '// astérisque\n/** @param url - See {@link url}, {@link foo\\}api}, and {@inheritdoc}.\n * @template url,\n * api\n * @template {url}\n * api - Provides the api. */';
 	const config = {
 		...JAVASCRIPT_CONFIG,
 		rules: {
@@ -649,6 +649,10 @@ test('preserves custom replacement regex semantics', t => {
 							replacement: 'AST',
 							caseSensitive: false,
 						},
+						'\\bparam\\b': 'PARAM',
+						'\\b(?:link|inheritdoc)\\b': 'LINK',
+						'\\burl\\b': 'URL',
+						'\\bapi\\b': 'API',
 					},
 				},
 			],
@@ -657,7 +661,7 @@ test('preserves custom replacement regex semantics', t => {
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
 
 	t.true(result.fixed);
-	t.is(result.output, '// ASTérisque');
+	t.is(result.output, '// ASTérisque\n/** @param url - See {@link url}, {@link foo\\}api}, and {@inheritdoc}.\n * @template url,\n * api\n * @template {url}\n * api - Provides the API. */');
 });
 
 test('ignores custom replacement matches that overlap masked regions', t => {
@@ -1240,6 +1244,72 @@ test('ignores fenced code blocks in JSDoc comments', t => {
 	t.false(result.fixed);
 	t.is(result.output, code);
 	t.deepEqual(messages, []);
+});
+
+test('ignores JSDoc syntax and fixes tag descriptions', t => {
+	const code = `/**
+	 * @param url - Requested url from the api.
+	 * @param [options.url=https://example.com] - Configure the api.
+	 * @param {{url: string}} settings - Configure the api.
+	 * @property {url} options.url - The url value.
+	 * @returns {url} Rendered {@link url|json} for the url.
+	 * @throws {url} When the api returns json.
+	 * @typedef {url} url - A json result.
+	 * @callback url - Handles the API.
+	 */`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `/**
+	 * @param url - Requested URL from the API.
+	 * @param [options.url=https://example.com] - Configure the API.
+	 * @param {{url: string}} settings - Configure the API.
+	 * @property {url} options.url - The URL value.
+	 * @returns {url} Rendered {@link url|JSON} for the URL.
+	 * @throws {url} When the API returns JSON.
+	 * @typedef {url} url - A JSON result.
+	 * @callback url - Handles the API.
+	 */`);
+});
+
+test('ignores JSDoc type and symbol references', t => {
+	const code = `/**
+	 * @type {url}
+	 * @extends url
+	 * @augments api
+	 * @exception {url}
+	 */`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+});
+
+test('fixes JSDoc callback descriptions', t => {
+	const code = '/**\n'
+		+ '\t * @callback url - Handles the api.\n'
+		+ '\t * @class {url} url - Represents the api.\n'
+		+ '\t * @module {json} json - Exposes the api.\n'
+		+ '\t * @namespace {url} url - Groups the api.\n'
+		+ '\t * @template {url} url - Provides json values.\n'
+		+ '\t * @return {url} Returns json output.\n'
+		+ '\t * @yield {url} Yields json output.\n'
+		+ '\t * @exception {url} Handles the api.\n'
+		+ '\t * @see {@link url|json}\n'
+		+ '\t * @see api is described here.\n'
+		+ '\t */';
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, code.replaceAll('api.', 'API.').replaceAll('json output', 'JSON output').replace('json}\n', 'JSON}\n').replace('json values', 'JSON values').replace('api is', 'API is'));
+	t.is(verifyAndFixJavaScript('/*** @param url */').output, '/*** @param URL */');
+});
+
+test('continues checking prose after an unterminated JSDoc type', t => {
+	const code = '/**\n * @type {\n * @returns json output\n * @see {@link url\n * @param value - The api.\n */';
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, code.replace('json', 'JSON').replace('api', 'API'));
 });
 
 test('ignores JSDoc example sections', t => {
