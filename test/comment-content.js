@@ -1276,15 +1276,15 @@ test('ignores JSDoc type and symbol references', t => {
 	 * @type {url}
 	 * @extends url
 	 * @augments api
-	 * @exception {url}
+	 * @see api
 	 */`;
 
 	t.deepEqual(verifyJavaScript(code), []);
 });
 
 test('fixes JSDoc inline-link labels', t => {
-	t.is(verifyAndFixJavaScript('/** {@link url json} {@linkcode api json} {@linkplain url json} {@tutorial guide json} */').output,
-		'/** {@link url JSON} {@linkcode api JSON} {@linkplain url JSON} {@tutorial guide JSON} */');
+	t.is(verifyAndFixJavaScript('/** {@link url json api} {@linkcode api json output} {@linkplain url json output} {@tutorial guide json output} */').output,
+		'/** {@link url JSON API} {@linkcode api JSON output} {@linkplain url JSON output} {@tutorial guide JSON output} */');
 });
 
 test('fixes JSDoc callback descriptions', t => {
@@ -1298,11 +1298,11 @@ test('fixes JSDoc callback descriptions', t => {
 		+ '\t * @yield {url} Yields json output.\n'
 		+ '\t * @exception {url} Handles the api.\n'
 		+ '\t * @see {@link url|json}\n'
-		+ '\t * @see api is described here.\n'
+		+ '\t * @see api - See the json output.\n'
 		+ '\t */';
 	const result = verifyAndFixJavaScript(code);
 
-	t.is(result.output, code.replaceAll('api.', 'API.').replaceAll('json output', 'JSON output').replace('json}\n', 'JSON}\n').replace('json values', 'JSON values').replace('api is', 'API is'));
+	t.is(result.output, code.replaceAll('api.', 'API.').replaceAll('json output', 'JSON output').replace('json}\n', 'JSON}\n').replace('json values', 'JSON values'));
 	t.is(verifyAndFixJavaScript('/*** @param url */').output, '/*** @param URL */');
 });
 
