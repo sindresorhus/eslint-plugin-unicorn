@@ -1286,6 +1286,7 @@ test('ignores optional JSDoc types and metadata values', t => {
 	const code = '/**\n * @private {api}\n * @protected {url}\n * @public {json}\n * @author nodejs\n * @version json\n * @since api\n */';
 
 	t.is(verifyAndFixJavaScript(code).output, code);
+	t.deepEqual(verifyJavaScript(code), []);
 });
 
 test('fixes JSDoc inline-link labels', t => {
@@ -1315,6 +1316,25 @@ test('handles single-line JSDoc tags without treating /*** as JSDoc', t => {
 	t.is(verifyAndFixJavaScript('/** @param url - See the api. */').output,
 		'/** @param url - See the API. */');
 	t.is(verifyAndFixJavaScript('/*** @param url */').output, '/*** @param URL */');
+});
+
+test('fixes free-form JSDoc @see text', t => {
+	t.is(verifyAndFixJavaScript('/** @see api is described here with json. */').output,
+		'/** @see API is described here with JSON. */');
+});
+
+test('fixes free-form JSDoc @see text after a namepath', t => {
+	const code = `/**
+	 * @see {@link url|json}
+	 * @see api - See the json output.
+	 * @see api is described here with json.
+	 */`;
+
+	t.is(verifyAndFixJavaScript(code).output, `/**
+	 * @see {@link url|JSON}
+	 * @see api - See the JSON output.
+	 * @see API is described here with JSON.
+	 */`);
 });
 
 test('fixes JSDoc callback descriptions', t => {
