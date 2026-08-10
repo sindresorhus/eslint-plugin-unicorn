@@ -1,6 +1,7 @@
 import {
 	getComments,
 	isEslintDisableOrEnableDirective,
+	maskJSDocumentSyntax,
 	normalizeComment,
 	onRoot,
 } from './utils/index.js';
@@ -319,6 +320,16 @@ function getCommentValueStart(comment, sourceCode) {
 	}
 
 	return range[0] + valueOffset;
+}
+
+function isJSDocumentComment(comment, sourceCode) {
+	if (comment.type !== 'Block') {
+		return false;
+	}
+
+	const [start] = sourceCode.getRange(comment);
+
+	return sourceCode.text.startsWith('/**', start) && sourceCode.text[start + 3] !== '*';
 }
 
 const eslintDirectivePattern = new RegExp(String.raw`^\s*(?:eslint(?:-env)?|global|exported)${unicodeWordBoundaryEndPattern}`, 'v');
@@ -969,7 +980,7 @@ function maskMarkupTags(characters, text) {
 	}
 }
 
-function getSearchableCommentValue(commentValue) {
+function getSearchableCommentValue(commentValue, isJSDocument) {
 	/*
 	Mask ignored comment regions with fixed-width sentinel characters before running replacement regexes. This keeps every index identical to the original comment for autofix, prevents custom replacements from treating masked regions as normal whitespace, and keeps region-level exclusions out of the per-match skip path. Only neighbor-sensitive cases such as filenames, paths, member access, and punctuation-adjacent matches remain match-local checks.
 	*/
@@ -977,6 +988,10 @@ function getSearchableCommentValue(commentValue) {
 
 	maskFencedCodeBlocks(characters, commentValue);
 	maskJsdocExamples(characters, commentValue);
+	if (isJSDocument) {
+		maskJSDocumentSyntax(characters, commentValue);
+	}
+
 	maskIgnoredLines(characters, commentValue);
 	maskInlineCodeAndQuotedStrings(characters, commentValue);
 	maskPattern(characters, commentValue, urlPattern);
@@ -1059,7 +1074,7 @@ function getReplacementProblem(comment, sourceCode, replacements, checkUniformCa
 	}
 
 	let bestProblem;
-	const searchableCommentValue = getSearchableCommentValue(comment.value);
+	const searchableCommentValue = getSearchableCommentValue(comment.value, isJSDocumentComment(comment, sourceCode));
 	const lowercaseSearchableCommentValue = searchableCommentValue.includes(unfoldableCharacter)
 		? undefined
 		: searchableCommentValue.toLowerCase();
