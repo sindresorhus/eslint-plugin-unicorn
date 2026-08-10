@@ -189,7 +189,7 @@ const getImplicitReturnFix = (node, returnStatement, context) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const indentationUnit = getIndentationUnit(sourceCode);
+	let indentationUnit;
 
 	context.on('ArrowFunctionExpression', node => {
 		if (hasCommentsInside(node, sourceCode)) {
@@ -214,6 +214,7 @@ const create = context => {
 			return;
 		}
 
+		indentationUnit ??= getIndentationUnit(sourceCode);
 		const fix = getExplicitReturnFix(node, context, indentationUnit);
 		return {
 			node,
