@@ -94,7 +94,7 @@ const isPropertyDefinition = (node, name) =>
 	&& node.key.name === name;
 
 const isValidNameProperty = (nameProperty, className) =>
-	getStaticStringValue(nameProperty?.value) === className;
+	getStaticStringValue(unwrapTypeScriptExpression(nameProperty?.value)) === className;
 
 const isMessageAccessor = (node, kind) =>
 	node.type === 'MethodDefinition'
@@ -106,9 +106,13 @@ const isMessageAccessor = (node, kind) =>
 
 const isMissingOrUndefined = node =>
 	!node
-	|| isUndefined(node);
+	|| isUndefined(unwrapTypeScriptExpression(node));
 
 const getParameterIdentifier = parameter => {
+	if (parameter?.type === 'TSParameterProperty') {
+		return getParameterIdentifier(parameter.parameter);
+	}
+
 	if (parameter?.type === 'Identifier') {
 		return parameter;
 	}
@@ -122,7 +126,7 @@ const getParameterIdentifier = parameter => {
 };
 
 const isOptionsIdentifier = node =>
-	getParameterIdentifier(node)?.name === 'options';
+	getParameterIdentifier(unwrapTypeScriptExpression(node))?.name === 'options';
 
 const isSameText = (left, right, sourceCode) =>
 	sourceCode.getText(left) === sourceCode.getText(right);
@@ -216,9 +220,11 @@ const fixSuperMessageArgument = (sourceCode, superCallExpression, messageArgumen
 	}
 };
 
-const isSameIdentifier = (node, identifier) =>
-	node?.type === 'Identifier'
-	&& node.name === identifier.name;
+const isSameIdentifier = (node, identifier) => {
+	node = unwrapTypeScriptExpression(node);
+	return node?.type === 'Identifier'
+		&& node.name === identifier.name;
+};
 
 // Whether `super()` already forwards the error options inline, e.g. `super('Fixed message', {cause})`.
 const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) => {
@@ -226,9 +232,10 @@ const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) =>
 		return false;
 	}
 
-	const [messageArgument, optionsArgument] = superCallExpression.arguments;
+	const [messageArgument, rawOptionsArgument] = superCallExpression.arguments;
+	const optionsArgument = unwrapTypeScriptExpression(rawOptionsArgument);
 	return superCallExpression.arguments.length === 2
-		&& getStaticStringValue(messageArgument) !== undefined
+		&& getStaticStringValue(unwrapTypeScriptExpression(messageArgument)) !== undefined
 		&& optionsArgument.type === 'ObjectExpression'
 		&& optionsArgument.properties.length === 1
 		&& getPropertyName(optionsArgument.properties[0]) === 'cause';
@@ -321,7 +328,7 @@ function getInvalidErrorNameProblem(constructorBodyNode, constructorBody, errorD
 		return;
 	}
 
-	if (getStaticStringValue(nameExpression.expression.right) !== name) {
+	if (getStaticStringValue(unwrapTypeScriptExpression(nameExpression.expression.right)) !== name) {
 		return createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
 	}
 }
@@ -338,8 +345,8 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 	const constructorBody = constructorBodyNode.body;
 	const {hasMessageGetter, hasMessageSetter, checkOptions} = errorDefinition;
 
-	const superExpression = constructorBody.find(bodyNode => isSuperExpression(bodyNode));
 	const superExpressionIndex = constructorBody.findIndex(bodyNode => isSuperExpression(bodyNode));
+	const superExpression = constructorBody[superExpressionIndex];
 	const messageExpressionIndex = constructorBody.findIndex(bodyNode => isAssignmentExpression(bodyNode, 'message'));
 	const hasMessageAccessor = hasMessageGetter || hasMessageSetter;
 	let hasConstructorBodyProblem = false;
@@ -458,7 +465,8 @@ function * customErrorDefinition(context, node) {
 
 	const {body} = node.body;
 	const {sourceCode} = context;
-	const constructor = body.find(x => x.kind === 'constructor');
+	const constructor = body.find(classNode => classNode.kind === 'constructor' && classNode.value.body)
+		?? body.find(classNode => classNode.kind === 'constructor');
 	const nameProperty = body.find(classNode => isPropertyDefinition(classNode, 'name'));
 
 	if (!constructor) {
@@ -541,6 +549,7 @@ const create = context => {
 	context.on('AssignmentExpression', node => {
 		if (
 			node.left.type === 'MemberExpression'
+			&& !node.left.computed
 			&& node.left.object.type === 'Identifier'
 			&& node.left.object.name === 'exports'
 		) {

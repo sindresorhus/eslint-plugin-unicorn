@@ -32,6 +32,14 @@ const tests = {
 			}
 		`,
 		outdent`
+			exports['FooError'] = class FooError extends Error {
+				constructor(message, options) {
+					super(message, options);
+					this.name = 'FooError';
+				}
+			};
+		`,
+		outdent`
 			class FooError extends Http.ProtocolError {
 				constructor(message, options) {
 					super(message, options);
@@ -1344,6 +1352,35 @@ test.typescript({
 				}
 			}
 		`,
+		outdent`
+			class FooError extends Error {
+				constructor(message: string, public readonly options: ErrorOptions) {
+					super(message, options);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				name = 'FooError' as const;
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor(message: string, options: ErrorOptions) {
+					super(message!, options!);
+					this.name = 'FooError' as const;
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor(cause: unknown) {
+					super('Fixed message', ({cause} as ErrorOptions));
+					this.name = 'FooError' as const;
+				}
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -1433,6 +1470,112 @@ test.typescript({
 		},
 		{
 			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public readonly requestId: string) {
+						super(\`Result for id "\${requestId}" does not exist\`);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public readonly requestId: string, options: ErrorOptions) {
+						super(\`Result for id "\${requestId}" does not exist\`, options);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public readonly requestId?: string) {
+						super(\`Result for id "\${requestId}" does not exist\`);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public readonly requestId?: string, options?: ErrorOptions) {
+						super(\`Result for id "\${requestId}" does not exist\`, options);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public readonly requestId: string = 'unknown') {
+						super(\`Result for id "\${requestId}" does not exist\`);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public readonly requestId: string = 'unknown', options: ErrorOptions) {
+						super(\`Result for id "\${requestId}" does not exist\`, options);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public options: ErrorOptions) {
+						super();
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+			output: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public options: ErrorOptions) {
+						super(undefined, options);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public message: string) {
+						super();
+						this.message = message;
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+			output: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public message: string, options: ErrorOptions) {
+						super(message, options);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
 				class FooError extends (Error satisfies typeof Error) {
 					constructor(message) {
 						super(message);
@@ -1446,6 +1589,42 @@ test.typescript({
 					constructor(message, options) {
 						super(message, options);
 						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(message: string, public readonly details: ErrorOptions) {
+						super(message, details);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				invalidOptionsParameterError,
+			],
+		},
+		{
+			code: outdent`
+				class OverloadedError extends Error {
+					constructor(message: string);
+					constructor(message: string, options?: ErrorOptions) {
+						super(message);
+						this.name = 'OverloadedError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+			output: outdent`
+				class OverloadedError extends Error {
+					constructor(message: string);
+					constructor(message: string, options?: ErrorOptions) {
+						super(message, options);
+						this.name = 'OverloadedError';
 					}
 				}
 			`,
