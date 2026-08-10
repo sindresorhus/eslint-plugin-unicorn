@@ -140,6 +140,8 @@ const prepareOptions = ({
 	};
 };
 
+const defaultPreparedOptions = prepareOptions();
+
 const getReplacementForPart = (part, replacements) => {
 	const replacement = replacements.get(part) ?? replacements.get(lowerFirst(part));
 	if (!replacement) {
@@ -173,7 +175,9 @@ const createProblem = (node, replacement) => ({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const options = prepareOptions(context.options[0]);
+	const options = Object.keys(context.options[0]).length === 0
+		? defaultPreparedOptions
+		: prepareOptions(context.options[0]);
 
 	const identifierToOuterClassVariable = new WeakMap();
 	const scopeToNamesGeneratedByFixer = new WeakMap();

@@ -233,6 +233,18 @@ const getTrapFunction = (property, sourceCode) => {
 	};
 };
 
+const isProxyTrapFunction = (node, sourceCode) => {
+	const property = node.parent;
+	const handler = property?.parent;
+	const proxyCall = handler?.parent;
+
+	return property?.value === node
+		&& handler?.type === 'ObjectExpression'
+		&& proxyCall?.arguments?.[1] === handler
+		&& isProxyCall(proxyCall)
+		&& Boolean(getTrapFunction(property, sourceCode));
+};
+
 const getTrapFunctionProblem = ({functionNode, name}, sourceCode, functionBodyAlwaysExits) => {
 	if (functionNode.async || functionNode.generator) {
 		return createProblem(functionNode, name);
@@ -277,32 +289,36 @@ const create = context => {
 	const segmentSetStack = [];
 	const currentSegments = () => segmentSetStack.at(-1);
 
-	context.on('onCodePathStart', () => {
-		segmentSetStack.push(new Set());
+	context.on('onCodePathStart', (_codePath, node) => {
+		segmentSetStack.push(isProxyTrapFunction(node, sourceCode) ? new Set() : undefined);
 	});
 	context.on('onCodePathEnd', () => {
 		segmentSetStack.pop();
 	});
 	context.on('onCodePathSegmentStart', segment => {
-		currentSegments().add(segment);
+		currentSegments()?.add(segment);
 	});
 	context.on('onCodePathSegmentEnd', segment => {
-		currentSegments().delete(segment);
+		currentSegments()?.delete(segment);
 	});
 	context.on('onUnreachableCodePathSegmentStart', segment => {
-		currentSegments().add(segment);
+		currentSegments()?.add(segment);
 	});
 	context.on('onUnreachableCodePathSegmentEnd', segment => {
-		currentSegments().delete(segment);
+		currentSegments()?.delete(segment);
 	});
 
 	// Snapshot reachability at function body exit, before code path segments end.
 	context.onExit('BlockStatement', body => {
-		if (!(functionTypes.has(body.parent?.type) && body.parent.body === body)) {
+		const segments = currentSegments();
+		if (
+			!segments
+			|| !(functionTypes.has(body.parent?.type) && body.parent.body === body)
+		) {
 			return;
 		}
 
-		const isAllUnreachable = [...currentSegments()].every(segment => !segment.reachable);
+		const isAllUnreachable = [...segments].every(segment => !segment.reachable);
 		const hasSimpleExit = isBranchExit(body, context, isReturnOrThrowStatement)
 			|| isProcessExitBranch(body, context);
 		functionBodyAlwaysExits.set(body.parent, isAllUnreachable || hasSimpleExit);

@@ -32,162 +32,128 @@ const isThenKey = (node, context) => {
 	return getStaticKeyValue(keyNode, context) === 'then';
 };
 
-const cases = [
+/** @param {import('eslint').Rule.RuleContext} context */
+const create = context => {
 	// `{then() {}}`,
 	// `{get then() {}}`,
 	// `{[computedKey]() {}}`,
 	// `{get [computedKey]() {}}`,
-	{
-		selector: 'ObjectExpression',
-		* getNodes(node, context) {
-			for (const property of node.properties) {
-				if (property.type === 'Property' && isThenKey(property, context)) {
-					yield property.key;
-				}
+	context.on('ObjectExpression', function * (node) {
+		for (const property of node.properties) {
+			if (property.type === 'Property' && isThenKey(property, context)) {
+				yield {node: property.key, messageId: MESSAGE_ID_OBJECT};
 			}
-		},
-		messageId: MESSAGE_ID_OBJECT,
-	},
+		}
+	});
+
 	// `class Foo {then}`,
 	// `class Foo {static then}`,
 	// `class Foo {get then() {}}`,
 	// `class Foo {static get then() {}}`,
-	{
-		selectors: ['PropertyDefinition', 'MethodDefinition'],
-		* getNodes(node, context) {
-			if (isThenKey(node, context)) {
-				yield node.key;
-			}
-		},
-		messageId: MESSAGE_ID_CLASS,
-	},
+	context.on(['PropertyDefinition', 'MethodDefinition'], node => {
+		if (isThenKey(node, context)) {
+			return {node: node.key, messageId: MESSAGE_ID_CLASS};
+		}
+	});
+
 	// `foo.then = …`
 	// `foo[computedKey] = …`
-	{
-		selector: 'MemberExpression',
-		* getNodes(node, context) {
-			if (!(node.parent.type === 'AssignmentExpression' && node.parent.left === node)) {
-				return;
-			}
+	context.on('MemberExpression', node => {
+		if (
+			node.parent.type === 'AssignmentExpression'
+			&& node.parent.left === node
+			&& isThenKey(node, context)
+		) {
+			return {node: node.property, messageId: MESSAGE_ID_OBJECT};
+		}
+	});
 
-			if (isThenKey(node, context)) {
-				yield node.property;
-			}
-		},
-		messageId: MESSAGE_ID_OBJECT,
-	},
-	// `Object.defineProperty(foo, 'then', …)`
-	// `Reflect.defineProperty(foo, 'then', …)`
-	{
-		selector: 'CallExpression',
-		* getNodes(node, context) {
-			if (!isMethodCall(node, {
+	context.on('CallExpression', function * (node) {
+		// `Object.defineProperty(foo, 'then', …)`
+		// `Reflect.defineProperty(foo, 'then', …)`
+		if (
+			isMethodCall(node, {
 				objects: ['Object', 'Reflect'],
 				method: 'defineProperty',
 				minimumArguments: 3,
 				optionalCall: false,
 				optionalMember: false,
-			}) || node.arguments[0].type === 'SpreadElement') {
-				return;
-			}
-
+			})
+			&& node.arguments[0].type !== 'SpreadElement'
+		) {
 			const [, secondArgument] = node.arguments;
 			if (isStringThen(secondArgument, context)) {
-				yield secondArgument;
+				yield {node: secondArgument, messageId: MESSAGE_ID_OBJECT};
 			}
-		},
-		messageId: MESSAGE_ID_OBJECT,
-	},
-	// `Object.fromEntries([['then', …]])`
-	{
-		selector: 'CallExpression',
-		* getNodes(node, context) {
-			if (!(
-				isMethodCall(node, {
-					object: 'Object',
-					method: 'fromEntries',
-					argumentsLength: 1,
-					optionalCall: false,
-					optionalMember: false,
-				})
-				&& node.arguments[0].type === 'ArrayExpression'
-			)) {
-				return;
+		}
+
+		// `Object.fromEntries([['then', …]])`
+		if (!(
+			isMethodCall(node, {
+				object: 'Object',
+				method: 'fromEntries',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& node.arguments[0].type === 'ArrayExpression'
+		)) {
+			return;
+		}
+
+		for (const pairs of node.arguments[0].elements) {
+			if (!(pairs?.type === 'ArrayExpression'
+				&& pairs.elements[0]) || pairs.elements[0].type === 'SpreadElement') {
+				continue;
 			}
 
-			for (const pairs of node.arguments[0].elements) {
-				if (!(pairs?.type === 'ArrayExpression'
-					&& pairs.elements[0]) || pairs.elements[0].type === 'SpreadElement') {
-					continue;
-				}
+			const [key] = pairs.elements;
 
-				const [key] = pairs.elements;
+			if (isStringThen(key, context)) {
+				yield {node: key, messageId: MESSAGE_ID_OBJECT};
+			}
+		}
+	});
 
-				if (isStringThen(key, context)) {
-					yield key;
-				}
-			}
-		},
-		messageId: MESSAGE_ID_OBJECT,
-	},
-	// `export {then}`
-	{
-		selector: 'Identifier',
-		* getNodes(node) {
-			if (
-				node.name === 'then'
-				&& node.parent.type === 'ExportSpecifier'
-				&& node.parent.exported === node
-			) {
-				yield node;
-			}
-		},
-		messageId: MESSAGE_ID_EXPORT,
-	},
-	// `export function then() {}`,
-	// `export class then {}`,
-	{
-		selector: 'Identifier',
-		* getNodes(node) {
-			if (
-				node.name === 'then'
-				&& (node.parent.type === 'FunctionDeclaration' || node.parent.type === 'ClassDeclaration')
-				&& node.parent.id === node
-				&& node.parent.parent.type === 'ExportNamedDeclaration'
-				&& node.parent.parent.declaration === node.parent
-			) {
-				yield node;
-			}
-		},
-		messageId: MESSAGE_ID_EXPORT,
-	},
+	context.on('Identifier', node => {
+		if (node.name !== 'then') {
+			return;
+		}
+
+		// `export {then}`
+		if (
+			node.parent.type === 'ExportSpecifier'
+			&& node.parent.exported === node
+		) {
+			return {node, messageId: MESSAGE_ID_EXPORT};
+		}
+
+		// `export function then() {}`,
+		// `export class then {}`,
+		if (
+			(node.parent.type === 'FunctionDeclaration' || node.parent.type === 'ClassDeclaration')
+			&& node.parent.id === node
+			&& node.parent.parent.type === 'ExportNamedDeclaration'
+			&& node.parent.parent.declaration === node.parent
+		) {
+			return {node, messageId: MESSAGE_ID_EXPORT};
+		}
+	});
+
 	// `export const … = …`;
-	{
-		selector: 'VariableDeclaration',
-		* getNodes(node, context) {
-			if (!(node.parent.type === 'ExportNamedDeclaration' && node.parent.declaration === node)) {
-				return;
-			}
+	context.on('VariableDeclaration', function * (node) {
+		if (!(node.parent.type === 'ExportNamedDeclaration' && node.parent.declaration === node)) {
+			return;
+		}
 
-			for (const variable of context.sourceCode.getDeclaredVariables(node)) {
-				if (variable.name === 'then') {
-					yield * variable.identifiers;
+		for (const variable of context.sourceCode.getDeclaredVariables(node)) {
+			if (variable.name === 'then') {
+				for (const identifier of variable.identifiers) {
+					yield {node: identifier, messageId: MESSAGE_ID_EXPORT};
 				}
 			}
-		},
-		messageId: MESSAGE_ID_EXPORT,
-	},
-];
-
-/** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	for (const {selector, selectors, messageId, getNodes} of cases) {
-		context.on(selector ?? selectors, function * (node) {
-			for (const problematicNode of getNodes(node, context)) {
-				yield {node: problematicNode, messageId};
-			}
-		});
-	}
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

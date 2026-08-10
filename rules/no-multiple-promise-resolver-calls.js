@@ -627,6 +627,8 @@ const isSynchronousCodePath = (codePath, node) => (
 	)
 );
 
+const getCodePathLastStatement = node => node.type === 'StaticBlock' ? node.body.at(-1) : node;
+
 function isContinueAcrossFinally(node) {
 	if (node.type !== 'ContinueStatement') {
 		return false;
@@ -670,6 +672,10 @@ const create = context => {
 	let currentCodePathState;
 
 	const startSegment = (segment, node) => {
+		if (!currentCodePathState.hasResolverReferences) {
+			return;
+		}
+
 		currentCodePathState.currentSegments.add(segment);
 		if (
 			currentCodePathState.terminatedFinallyBlocks.has(node)
@@ -687,6 +693,10 @@ const create = context => {
 	};
 
 	const endSegment = segment => {
+		if (!currentCodePathState.hasResolverReferences) {
+			return;
+		}
+
 		currentCodePathState.currentSegments.delete(segment);
 	};
 
@@ -724,9 +734,12 @@ const create = context => {
 
 	context.on('onCodePathEnd', () => {
 		const codePathState = currentCodePathState;
-		const lastStatement = codePathState.node.type === 'StaticBlock'
-			? codePathState.node.body.at(-1)
-			: codePathState.node;
+		if (!codePathState.hasResolverReferences) {
+			currentCodePathState = codePathState.upper;
+			return;
+		}
+
+		const lastStatement = getCodePathLastStatement(codePathState.node);
 		const isProcessExitAtStart = codePathState.node.type === 'StaticBlock'
 			? isProcessExitBlockAtStart(codePathState.node, context)
 			: isProcessExitExpressionAtStart(codePathState.node, context);
@@ -767,6 +780,10 @@ const create = context => {
 	});
 
 	context.onExit('IfStatement', node => {
+		if (!currentCodePathState.hasResolverReferences) {
+			return;
+		}
+
 		const staticValue = getStaticValueForControlFlow(node.test, context);
 		let selectedBranch;
 		if (staticValue !== undefined && isDefinitelyNotThrowingExpression(node.test, context)) {
@@ -789,6 +806,10 @@ const create = context => {
 	context.on('onCodePathSegmentEnd', endSegment);
 	context.on('onUnreachableCodePathSegmentEnd', endSegment);
 	context.on('onCodePathSegmentLoop', (previousSegment, segment, node) => {
+		if (!currentCodePathState.hasResolverReferences) {
+			return;
+		}
+
 		if (
 			!hasFalsyLiteralTest(node)
 			&& !isContinueAcrossFinally(node)
@@ -808,6 +829,10 @@ const create = context => {
 		'ThrowStatement',
 		'YieldExpression',
 	], node => {
+		if (!currentCodePathState.hasResolverReferences) {
+			return;
+		}
+
 		if (isProcessExitCallAlwaysEvaluated(node, context)) {
 			if (
 				!isInAlwaysProvidedParameterDefault(node, context)
@@ -827,10 +852,6 @@ const create = context => {
 				}
 			}
 
-			return;
-		}
-
-		if (!currentCodePathState.hasResolverReferences) {
 			return;
 		}
 
@@ -885,6 +906,10 @@ const create = context => {
 		'TemplateLiteral',
 		'YieldExpression',
 	], node => {
+		if (!currentCodePathState.hasResolverReferences) {
+			return;
+		}
+
 		if (!isProcessExitExpressionAtStart(node, context)) {
 			return;
 		}
