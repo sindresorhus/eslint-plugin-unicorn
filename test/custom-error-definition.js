@@ -116,7 +116,7 @@ const tests = {
 				}
 			}
 		`,
-		// Inline options with a hard-coded message built from a template literal
+		// Inline options with a hard-coded message provided as a no-substitution template literal
 		outdent`
 			class FooError extends Error {
 				constructor(cause) {
@@ -125,12 +125,70 @@ const tests = {
 				}
 			}
 		`,
-		// Inline options forwarded to a custom `*Error` super class (the reported real-world case)
+		// Inline options forwarded to a custom `*Error` superclass (the reported real-world case)
 		outdent`
 			class TimeoutError extends FetchError {
 				constructor(cause) {
 					super('The request timed out', {cause});
 					this.name = 'TimeoutError';
+				}
+			}
+		`,
+		// The second argument of a custom error base class is not necessarily `ErrorOptions`
+		outdent`
+			class UserNotFoundError extends GraphQLError {
+				constructor(userId) {
+					super(\`User "\${userId}" does not exist\`, {extensions: {code: 'NOT_FOUND'}});
+					this.name = 'UserNotFoundError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends GraphQLError {
+				constructor(message, extensions) {
+					super(message, extensions);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends GraphQLError {
+				constructor(message, details) {
+					super(message);
+					this.details = details;
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Custom.Error {
+				constructor(message) {
+					super(message);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends AggregateError {
+				constructor(errors, message, options) {
+					super(errors, message, options);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends SuppressedError {
+				constructor(error, suppressed, message) {
+					super(error, suppressed, message);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends globalThis.AggregateError {
+				constructor(errors, message, options) {
+					super(errors, message, options);
+					this.name = 'FooError';
 				}
 			}
 		`,
@@ -1045,6 +1103,32 @@ const tests = {
 			],
 		},
 		{
+			code: outdent`
+				class FooError extends globalThis.Error {
+					constructor(message, details) {
+						super(message, details);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				invalidOptionsParameterError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends TypeError {
+					constructor(message, details) {
+						super(message, details);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				invalidOptionsParameterError,
+			],
+		},
+		{
 			// Second parameter named `opts` instead of `options`
 			code: outdent`
 				class FooError extends Error {
@@ -1252,6 +1336,14 @@ test.typescript({
 				}
 			}
 		`,
+		outdent`
+			class UserNotFoundError extends GraphQLError {
+				constructor(userId: string) {
+					super(\`User "\${userId}" does not exist\`, {extensions: {code: 'NOT_FOUND'}});
+					this.name = 'UserNotFoundError';
+				}
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -1318,6 +1410,106 @@ test.typescript({
 						this.name = 'FooError';
 					}
 				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends (globalThis.Error as typeof Error) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [missingOptionsParameterError],
+			output: outdent`
+				class FooError extends (globalThis.Error as typeof Error) {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends (Error satisfies typeof Error) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [missingOptionsParameterError],
+			output: outdent`
+				class FooError extends (Error satisfies typeof Error) {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends (Error!) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [missingOptionsParameterError],
+			output: outdent`
+				class FooError extends (Error!) {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends (<typeof Error>Error) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [missingOptionsParameterError],
+			output: outdent`
+				class FooError extends (<typeof Error>Error) {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: 'class FooError extends (GraphQLError as typeof GraphQLError) { name = \'WrongError\'; }',
+			errors: [invalidNameError('FooError')],
+			output: 'class FooError extends (GraphQLError as typeof GraphQLError) { name = \'FooError\'; }',
+		},
+		{
+			code: outdent`
+				exports.fooError = class FooError extends (GraphQLError as typeof GraphQLError) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				};
+			`,
+			errors: [invalidExportError],
+			output: outdent`
+				exports.FooError = class FooError extends (GraphQLError as typeof GraphQLError) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				};
 			`,
 		},
 	],

@@ -3,11 +3,13 @@ import {
 	upperFirst,
 	getParenthesizedText,
 	isNodeMatchesNameOrPath,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
 	getStaticStringValue,
 	isUndefined,
 } from './ast/index.js';
+import builtinErrors from './shared/builtin-errors.js';
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER = 'doNotPassMessageToSuper';
@@ -27,6 +29,8 @@ const messages = {
 };
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
+// `AggregateError` accepts `ErrorOptions` as its third argument, and `SuppressedError` does not accept it.
+const errorBasesWithoutStandardOptions = new Set(['AggregateError', 'SuppressedError']);
 
 const getClassName = name => upperFirst(name).replace(/(?:error)?$/i, 'Error');
 
@@ -49,8 +53,21 @@ const getSuperClassName = superClass => {
 };
 
 const hasValidSuperClass = node => {
-	const superClassName = getSuperClassName(node.superClass);
+	const superClass = unwrapTypeScriptExpression(node.superClass);
+	const superClassName = getSuperClassName(superClass);
 	return Boolean(superClassName) && nameRegexp.test(superClassName);
+};
+
+const isNativeErrorBaseWithStandardOptions = node => {
+	const superClass = unwrapTypeScriptExpression(node.superClass);
+	const superClassName = getSuperClassName(superClass);
+
+	return builtinErrors.includes(superClassName)
+		&& !errorBasesWithoutStandardOptions.has(superClassName)
+		&& (
+			superClass.type === 'Identifier'
+			|| isNodeMatchesNameOrPath(superClass, `globalThis.${superClassName}`)
+		);
 };
 
 const isSuperExpression = node =>
@@ -479,7 +496,7 @@ function * customErrorDefinition(context, node) {
 		nameProperty,
 		hasMessageGetter,
 		hasMessageSetter,
-		checkOptions: name === className,
+		checkOptions: name === className && isNativeErrorBaseWithStandardOptions(node),
 	});
 }
 
