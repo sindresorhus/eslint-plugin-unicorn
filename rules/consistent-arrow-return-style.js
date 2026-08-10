@@ -65,10 +65,22 @@ const getReturnStatement = node => {
 const hasCommentsInside = (node, sourceCode) => sourceCode.getCommentsInside(node).length > 0;
 
 const getLineIndent = (sourceCode, node) => {
-	const [start] = sourceCode.getRange(node);
-	const {line, column} = sourceCode.getLocFromIndex(start);
+	const {line, column} = sourceCode.getLoc(node).start;
 
 	return /^[\t ]*/.exec(sourceCode.lines[line - 1].slice(0, column))[0];
+};
+
+const getIndentationUnit = sourceCode => {
+	const lines = [...sourceCode.lines];
+	for (const token of sourceCode.getTokens(sourceCode.ast, {includeComments: true})) {
+		const {start, end} = sourceCode.getLoc(token);
+		if (start.line !== end.line) {
+			lines.fill('', start.line, end.line);
+		}
+	}
+
+	const {type, indent} = detectIndent(lines.join('\n'));
+	return type === 'space' ? indent : '\t';
 };
 
 const getArrowToken = (node, context) => {
@@ -105,9 +117,8 @@ const getReturnArgumentText = (returnArgument, context) => {
 	const needsParentheses = text.trimStart().startsWith('{')
 		|| returnArgumentTypesRequiringParentheses.has(underlyingExpression.type)
 		|| (
-			underlyingExpression.type === 'BinaryExpression'
-			&& underlyingExpression.operator === 'in'
-			&& isInsideForStatementInitializer(returnArgument)
+			isInsideForStatementInitializer(returnArgument)
+			&& context.sourceCode.getTokens(returnArgument).some(token => token.type === 'Keyword' && token.value === 'in')
 		);
 
 	if (isParenthesized(returnArgument, context) || !needsParentheses) {
@@ -178,8 +189,7 @@ const getImplicitReturnFix = (node, returnStatement, context) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const detectedIndentation = detectIndent(sourceCode.lines.join('\n'));
-	const indentationUnit = detectedIndentation.type === 'tab' ? '\t' : detectedIndentation.indent || '\t';
+	const indentationUnit = getIndentationUnit(sourceCode);
 
 	context.on('ArrowFunctionExpression', node => {
 		if (hasCommentsInside(node, sourceCode)) {
