@@ -192,6 +192,9 @@ function normalizeReplacement(pattern, options, isDefaultReplacement) {
 	};
 }
 
+const normalizedDefaultReplacements = Object.entries(defaultReplacements)
+	.map(([pattern, replacement]) => normalizeReplacement(pattern, replacement, true));
+
 // A pattern that is one literal word cannot match unless that word appears in the text.
 function hasRequiredText({requiredText, caseSensitive}, commentValue, lowercaseCommentValue) {
 	if (requiredText === undefined) {
@@ -206,6 +209,10 @@ function hasRequiredText({requiredText, caseSensitive}, commentValue, lowercaseC
 }
 
 function prepareReplacements({extendDefaultReplacements = true, replacements = {}} = {}) {
+	if (extendDefaultReplacements && Object.keys(replacements).length === 0) {
+		return normalizedDefaultReplacements;
+	}
+
 	const mergedReplacements = extendDefaultReplacements
 		? {...defaultReplacements, ...replacements}
 		: replacements;

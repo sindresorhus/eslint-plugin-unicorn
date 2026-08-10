@@ -117,6 +117,10 @@ test({
 	],
 	invalid: [
 		{
+			code: 'const trap = "set"; new Proxy(target, {[trap]() {}});',
+			errors,
+		},
+		{
 			code: 'new Proxy(target, {set(target, property, value) { target[property] = value; }});',
 			errors,
 		},

@@ -17,9 +17,11 @@ const isSameValueZero = (left, right) =>
 		&& Number.isNaN(right)
 	);
 
+const undefinedStaticValueResult = {value: undefined};
+
 const getComparableStaticElementValueResult = (element, context) => {
 	if (!element) {
-		return {value: undefined};
+		return undefinedStaticValueResult;
 	}
 
 	const result = getStaticValueIfNoSideEffects(element, context);
@@ -31,9 +33,9 @@ const getComparableStaticElementValueResult = (element, context) => {
 	return {value: result.value};
 };
 
-const isDuplicateValue = (leftElement, rightElement, context) => {
-	const leftStaticValueResult = getComparableStaticElementValueResult(leftElement, context);
-	const rightStaticValueResult = getComparableStaticElementValueResult(rightElement, context);
+const isDuplicateValue = (leftElementData, rightElementData) => {
+	const {element: leftElement, staticValueResult: leftStaticValueResult} = leftElementData;
+	const {element: rightElement, staticValueResult: rightStaticValueResult} = rightElementData;
 
 	if (
 		leftStaticValueResult
@@ -55,7 +57,7 @@ const isDuplicateValue = (leftElement, rightElement, context) => {
 };
 
 const getDuplicateArrayElements = (elements, context) => {
-	const checkedElements = [];
+	const checkedElementData = [];
 	const duplicateElements = [];
 
 	for (const element of elements) {
@@ -63,11 +65,15 @@ const getDuplicateArrayElements = (elements, context) => {
 			continue;
 		}
 
-		if (checkedElements.some(checkedElement => isDuplicateValue(checkedElement, element, context))) {
+		const elementData = {
+			element,
+			staticValueResult: getComparableStaticElementValueResult(element, context),
+		};
+		if (checkedElementData.some(checkedData => isDuplicateValue(checkedData, elementData))) {
 			duplicateElements.push(element);
 		}
 
-		checkedElements.push(element);
+		checkedElementData.push(elementData);
 	}
 
 	return duplicateElements;
