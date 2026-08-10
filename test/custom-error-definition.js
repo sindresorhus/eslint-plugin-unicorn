@@ -1362,6 +1362,14 @@ test.typescript({
 		`,
 		outdent`
 			class FooError extends Error {
+				constructor(message: string, public options: ErrorOptions = {}) {
+					super(message, options);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
 				name = 'FooError' as const;
 			}
 		`,
@@ -1376,7 +1384,7 @@ test.typescript({
 		outdent`
 			class FooError extends Error {
 				constructor(cause: unknown) {
-					super('Fixed message', ({cause} as ErrorOptions));
+					super('Fixed message' as string, ({cause} as ErrorOptions));
 					this.name = 'FooError' as const;
 				}
 			}
@@ -1470,6 +1478,27 @@ test.typescript({
 		},
 		{
 			code: outdent`
+				class FooError extends Error {
+					constructor(message: string) {
+						super(undefined as string);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message: string, options: ErrorOptions) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
 				class ParameterPropertyError extends Error {
 					constructor(public readonly requestId: string) {
 						super(\`Result for id "\${requestId}" does not exist\`);
@@ -1488,6 +1517,55 @@ test.typescript({
 					}
 				}
 			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public readonly requestId: string /* Request ID */) {
+						super(\`Result for id "\${requestId}" does not exist\`);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public message: string) {
+						super(message!);
+						this.message = message;
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+			output: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public message: string, options: ErrorOptions) {
+						super(message!, options);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public message: string /* Message */) {
+						super();
+						this.message = message;
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
 		},
 		{
 			code: outdent`

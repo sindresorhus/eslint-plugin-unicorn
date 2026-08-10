@@ -1,4 +1,4 @@
-import {getPropertyName} from '@eslint-community/eslint-utils';
+import {getPropertyName, isCommentToken} from '@eslint-community/eslint-utils';
 import {
 	upperFirst,
 	getParenthesizedText,
@@ -128,8 +128,11 @@ const getParameterIdentifier = parameter => {
 const isOptionsIdentifier = node =>
 	getParameterIdentifier(unwrapTypeScriptExpression(node))?.name === 'options';
 
-const isSameText = (left, right, sourceCode) =>
-	sourceCode.getText(left) === sourceCode.getText(right);
+const hasCommentAfter = (sourceCode, node) =>
+	isCommentToken(sourceCode.getTokenAfter(node, {includeComments: true}));
+
+const isSameUnwrappedText = (left, right, sourceCode) =>
+	sourceCode.getText(unwrapTypeScriptExpression(left)) === sourceCode.getText(unwrapTypeScriptExpression(right));
 
 const hasThisOrSuper = (node, visitorKeys) => {
 	if (node.type === 'ThisExpression' || node.type === 'Super') {
@@ -193,13 +196,16 @@ const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumen
 
 const fixMissingOptionsParameter = (context, constructor, superCallExpression, messageArgumentText) => function * (fixer) {
 	const {sourceCode} = context;
-	const superOptionsFix = fixSuperOptionsArgument(sourceCode, superCallExpression, messageArgumentText)(fixer);
+	const firstParameter = constructor.value.params[0];
+	if (hasCommentAfter(sourceCode, firstParameter)) {
+		return;
+	}
 
+	const superOptionsFix = fixSuperOptionsArgument(sourceCode, superCallExpression, messageArgumentText)(fixer);
 	if (!superOptionsFix) {
 		return;
 	}
 
-	const firstParameter = constructor.value.params[0];
 	yield fixer.insertTextAfter(firstParameter, `, ${getOptionsParameterText(firstParameter)}`);
 	yield superOptionsFix;
 };
@@ -389,6 +395,10 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 					&& !isOptionsIdentifier(firstParameter);
 				const shouldAddOptionsArgument = shouldAddOptionsParameter || isOptionsIdentifier(secondParameter);
 
+				if (shouldAddOptionsParameter && hasCommentAfter(sourceCode, firstParameter)) {
+					return;
+				}
+
 				if (superExpression.expression.arguments.length === 0) {
 					if (
 						messageExpressionIndex !== superExpressionIndex + 1
@@ -406,7 +416,7 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 							? `${getParenthesizedText(rhs, context)}, options`
 							: getParenthesizedText(rhs, context),
 					);
-				} else if (!isSameText(superExpression.expression.arguments[0], rhs, sourceCode)) {
+				} else if (!isSameUnwrappedText(superExpression.expression.arguments[0], rhs, sourceCode)) {
 					return;
 				} else if (
 					shouldAddOptionsArgument
