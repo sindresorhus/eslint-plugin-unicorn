@@ -11,7 +11,7 @@
 
 Enforces a consistent way of defining `Error` subclasses. It works with superclasses whose names match the rule's `*Error` naming pattern.
 
-When a named error constructor accepts a message, it should also accept `options` and pass it to `super()` so native `Error#cause` is preserved. This convention is only enforced for native error bases that accept `ErrorOptions` as their second parameter.
+When a named error constructor accepts a message, it should also accept `options` and pass it to `super()` so native `Error#cause` is preserved. This convention is only enforced for native error bases that accept `ErrorOptions` as their second parameter. `AggregateError` accepts `ErrorOptions` as its third parameter, while `SuppressedError` does not accept `ErrorOptions`, so neither uses this convention.
 
 Custom error base classes may use different constructor parameters, so the rule does not enforce the native `ErrorOptions` convention for them.
 

@@ -28,8 +28,8 @@ const messages = {
 };
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
-// `AggregateError` uses the third argument for `ErrorOptions`; `SuppressedError` does not accept it.
-const errorOptionsUnsupportedBases = new Set(['AggregateError', 'SuppressedError']);
+// `AggregateError` accepts `ErrorOptions` as its third argument, and `SuppressedError` does not accept it.
+const errorBasesWithoutStandardOptions = new Set(['AggregateError', 'SuppressedError']);
 
 const getClassName = name => upperFirst(name).replace(/(?:error)?$/i, 'Error');
 
@@ -56,24 +56,15 @@ const hasValidSuperClass = node => {
 	return Boolean(superClassName) && nameRegexp.test(superClassName);
 };
 
-const isErrorOptionsBase = node => {
-	const {superClass} = node;
+const isNativeErrorBaseWithStandardOptions = node => {
+	const superClassName = getSuperClassName(node.superClass);
 
-	if (superClass?.type === 'Identifier') {
-		return builtinErrors.includes(superClass.name)
-			&& !errorOptionsUnsupportedBases.has(superClass.name);
-	}
-
-	if (superClass?.type !== 'MemberExpression') {
-		return false;
-	}
-
-	return !superClass.computed
-		&& superClass.object.type === 'Identifier'
-		&& superClass.object.name === 'globalThis'
-		&& superClass.property.type === 'Identifier'
-		&& builtinErrors.includes(superClass.property.name)
-		&& !errorOptionsUnsupportedBases.has(superClass.property.name);
+	return builtinErrors.includes(superClassName)
+		&& !errorBasesWithoutStandardOptions.has(superClassName)
+		&& (
+			node.superClass.type === 'Identifier'
+			|| isNodeMatchesNameOrPath(node.superClass, `globalThis.${superClassName}`)
+		);
 };
 
 const isSuperExpression = node =>
@@ -502,7 +493,7 @@ function * customErrorDefinition(context, node) {
 		nameProperty,
 		hasMessageGetter,
 		hasMessageSetter,
-		checkOptions: name === className && isErrorOptionsBase(node),
+		checkOptions: name === className && isNativeErrorBaseWithStandardOptions(node),
 	});
 }
 

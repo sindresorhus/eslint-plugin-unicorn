@@ -161,6 +161,14 @@ const tests = {
 			}
 		`,
 		outdent`
+			class FooError extends Custom.Error {
+				constructor(message) {
+					super(message);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
 			class FooError extends AggregateError {
 				constructor(errors, message, options) {
 					super(errors, message, options);
@@ -172,6 +180,14 @@ const tests = {
 			class FooError extends SuppressedError {
 				constructor(error, suppressed, message) {
 					super(error, suppressed, message);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends globalThis.AggregateError {
+				constructor(errors, message, options) {
+					super(errors, message, options);
 					this.name = 'FooError';
 				}
 			}
