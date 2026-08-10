@@ -1488,5 +1488,29 @@ test.typescript({
 				}
 			`,
 		},
+		{
+			code: 'class FooError extends (GraphQLError as typeof GraphQLError) { name = \'WrongError\'; }',
+			errors: [invalidNameError('FooError')],
+			output: 'class FooError extends (GraphQLError as typeof GraphQLError) { name = \'FooError\'; }',
+		},
+		{
+			code: outdent`
+				exports.fooError = class FooError extends (GraphQLError as typeof GraphQLError) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				};
+			`,
+			errors: [invalidExportError],
+			output: outdent`
+				exports.FooError = class FooError extends (GraphQLError as typeof GraphQLError) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				};
+			`,
+		},
 	],
 });
