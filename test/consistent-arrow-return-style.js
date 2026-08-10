@@ -97,6 +97,14 @@ ruleTest({
 		languageOptions: {parser: parsers.typescript},
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {
+		code: 'for (const value = () => { return foo || bar in baz; }; ; ) {}',
+		output: 'for (const value = () => (foo || bar in baz); ; ) {}',
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'for (const value = () => { return () => foo in bar; }; ; ) {}',
+		output: 'for (const value = () => (() => foo in bar); ; ) {}',
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
 		code: 'const value = () => foo(\n\t() => {\n\t\treturn bar;\n\t},\n);',
 		output: 'const value = () => {\n\treturn foo(\n\t\t() => {\n\t\t\treturn bar;\n\t\t},\n\t);\n};',
 		errors: [
@@ -110,6 +118,26 @@ ruleTest({
 	}, {
 		code: 'const value = () => foo(\r\n\t\tbar,\r\n\t);',
 		output: 'const value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\r\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const value = (data, status) => Response.json(data, {\n  status,\n  statusText: \'OK\',\n});',
+		output: 'const value = (data, status) => {\n  return Response.json(data, {\n    status,\n    statusText: \'OK\',\n  });\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const value = (data, status) =>\n  Response.json(data, {\n    status,\n    statusText: \'OK\',\n  });',
+		output: 'const value = (data, status) => {\n  return Response.json(data, {\n    status,\n    statusText: \'OK\',\n  });\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const template = `\n        content\n        content\n`;\nconst value = () => foo(\n  bar,\n);',
+		output: 'const template = `\n        content\n        content\n`;\nconst value = () => {\n  return foo(\n    bar,\n  );\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: '/*\n        content\n        content\n*/\nconst value = () => foo(\n  bar,\n);',
+		output: '/*\n        content\n        content\n*/\nconst value = () => {\n  return foo(\n    bar,\n  );\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'if (condition) {\n    const value = () => foo(\n        bar,\n    );\n}',
+		output: 'if (condition) {\n    const value = () => {\n        return foo(\n            bar,\n        );\n    };\n}',
 		errors: [{messageId: 'useExplicitReturn'}],
 	}, {
 		code: 'const values = [\r\t() => foo(\r\t\tbar,\r\t),\r];',
