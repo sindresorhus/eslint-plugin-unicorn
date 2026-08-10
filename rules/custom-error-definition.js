@@ -1,8 +1,10 @@
-import {getPropertyName} from '@eslint-community/eslint-utils';
+import {getPropertyName, isCommentToken} from '@eslint-community/eslint-utils';
 import {
 	upperFirst,
 	getParenthesizedText,
+	hasCommentInRange,
 	isNodeMatchesNameOrPath,
+	isParenthesized,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -94,7 +96,7 @@ const isPropertyDefinition = (node, name) =>
 	&& node.key.name === name;
 
 const isValidNameProperty = (nameProperty, className) =>
-	getStaticStringValue(nameProperty?.value) === className;
+	getStaticStringValue(unwrapTypeScriptExpression(nameProperty?.value)) === className;
 
 const isMessageAccessor = (node, kind) =>
 	node.type === 'MethodDefinition'
@@ -106,9 +108,13 @@ const isMessageAccessor = (node, kind) =>
 
 const isMissingOrUndefined = node =>
 	!node
-	|| isUndefined(node);
+	|| isUndefined(unwrapTypeScriptExpression(node));
 
 const getParameterIdentifier = parameter => {
+	if (parameter?.type === 'TSParameterProperty') {
+		return getParameterIdentifier(parameter.parameter);
+	}
+
 	if (parameter?.type === 'Identifier') {
 		return parameter;
 	}
@@ -122,10 +128,13 @@ const getParameterIdentifier = parameter => {
 };
 
 const isOptionsIdentifier = node =>
-	getParameterIdentifier(node)?.name === 'options';
+	getParameterIdentifier(unwrapTypeScriptExpression(node))?.name === 'options';
 
-const isSameText = (left, right, sourceCode) =>
-	sourceCode.getText(left) === sourceCode.getText(right);
+const hasCommentImmediatelyAfter = (sourceCode, node) =>
+	isCommentToken(sourceCode.getTokenAfter(node, {includeComments: true}));
+
+const isSameUnwrappedText = (left, right, sourceCode) =>
+	sourceCode.getText(unwrapTypeScriptExpression(left)) === sourceCode.getText(unwrapTypeScriptExpression(right));
 
 const hasThisOrSuper = (node, visitorKeys) => {
 	if (node.type === 'ThisExpression' || node.type === 'Super') {
@@ -167,7 +176,12 @@ const getOptionsParameterText = firstParameter => {
 	return parameterIdentifier.optional ? 'options?: ErrorOptions' : 'options: ErrorOptions';
 };
 
-const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumentText) => fixer => {
+const fixSuperOptionsArgument = (context, superCallExpression, messageArgumentText) => fixer => {
+	const {sourceCode} = context;
+	if (sourceCode.getCommentsInside(superCallExpression).length > 0) {
+		return;
+	}
+
 	const superArguments = superCallExpression.arguments;
 
 	if (superArguments.length === 0) {
@@ -176,6 +190,10 @@ const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumen
 	}
 
 	if (superArguments.length === 1) {
+		if (isParenthesized(superArguments[0], context)) {
+			return;
+		}
+
 		if (
 			messageArgumentText !== 'undefined'
 			&& isMissingOrUndefined(superArguments[0])
@@ -189,18 +207,26 @@ const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumen
 
 const fixMissingOptionsParameter = (context, constructor, superCallExpression, messageArgumentText) => function * (fixer) {
 	const {sourceCode} = context;
-	const superOptionsFix = fixSuperOptionsArgument(sourceCode, superCallExpression, messageArgumentText)(fixer);
+	const firstParameter = constructor.value.params[0];
+	if (hasCommentImmediatelyAfter(sourceCode, firstParameter)) {
+		return;
+	}
 
+	const superOptionsFix = fixSuperOptionsArgument(context, superCallExpression, messageArgumentText)(fixer);
 	if (!superOptionsFix) {
 		return;
 	}
 
-	const firstParameter = constructor.value.params[0];
 	yield fixer.insertTextAfter(firstParameter, `, ${getOptionsParameterText(firstParameter)}`);
 	yield superOptionsFix;
 };
 
-const fixSuperMessageArgument = (sourceCode, superCallExpression, messageArgumentText) => fixer => {
+const fixSuperMessageArgument = (context, superCallExpression, messageArgumentText) => fixer => {
+	const {sourceCode} = context;
+	if (sourceCode.getCommentsInside(superCallExpression).length > 0) {
+		return;
+	}
+
 	const superArguments = superCallExpression.arguments;
 
 	if (superArguments.length === 0) {
@@ -209,6 +235,10 @@ const fixSuperMessageArgument = (sourceCode, superCallExpression, messageArgumen
 	}
 
 	if (isMissingOrUndefined(superArguments[0])) {
+		if (isParenthesized(superArguments[0], context)) {
+			return;
+		}
+
 		return fixer.replaceText(
 			superArguments[0],
 			superArguments.length === 1 ? `${messageArgumentText}, options` : messageArgumentText,
@@ -216,9 +246,11 @@ const fixSuperMessageArgument = (sourceCode, superCallExpression, messageArgumen
 	}
 };
 
-const isSameIdentifier = (node, identifier) =>
-	node?.type === 'Identifier'
-	&& node.name === identifier.name;
+const isSameIdentifier = (node, identifier) => {
+	node = unwrapTypeScriptExpression(node);
+	return node?.type === 'Identifier'
+		&& node.name === identifier.name;
+};
 
 // Whether `super()` already forwards the error options inline, e.g. `super('Fixed message', {cause})`.
 const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) => {
@@ -226,9 +258,10 @@ const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) =>
 		return false;
 	}
 
-	const [messageArgument, optionsArgument] = superCallExpression.arguments;
+	const [messageArgument, rawOptionsArgument] = superCallExpression.arguments;
+	const optionsArgument = unwrapTypeScriptExpression(rawOptionsArgument);
 	return superCallExpression.arguments.length === 2
-		&& getStaticStringValue(messageArgument) !== undefined
+		&& getStaticStringValue(unwrapTypeScriptExpression(messageArgument)) !== undefined
 		&& optionsArgument.type === 'ObjectExpression'
 		&& optionsArgument.properties.length === 1
 		&& getPropertyName(optionsArgument.properties[0]) === 'cause';
@@ -256,7 +289,7 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 			};
 
 			if (!isSameIdentifier(superCallExpression.arguments[0], firstParameterIdentifier)) {
-				problem.fix = fixSuperOptionsArgument(context.sourceCode, superCallExpression, 'undefined');
+				problem.fix = fixSuperOptionsArgument(context, superCallExpression, 'undefined');
 			}
 
 			return problem;
@@ -296,7 +329,7 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		return {
 			node: superCallExpression,
 			messageId: MESSAGE_ID_PASS_MESSAGE_TO_SUPER,
-			fix: fixSuperMessageArgument(context.sourceCode, superCallExpression, messageArgumentText),
+			fix: fixSuperMessageArgument(context, superCallExpression, messageArgumentText),
 		};
 	}
 
@@ -304,7 +337,7 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		return {
 			node: superCallExpression,
 			messageId: MESSAGE_ID_PASS_OPTIONS_TO_SUPER,
-			fix: fixSuperOptionsArgument(context.sourceCode, superCallExpression, messageArgumentText),
+			fix: fixSuperOptionsArgument(context, superCallExpression, messageArgumentText),
 		};
 	}
 };
@@ -321,7 +354,7 @@ function getInvalidErrorNameProblem(constructorBodyNode, constructorBody, errorD
 		return;
 	}
 
-	if (getStaticStringValue(nameExpression.expression.right) !== name) {
+	if (getStaticStringValue(unwrapTypeScriptExpression(nameExpression.expression.right)) !== name) {
 		return createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
 	}
 }
@@ -338,8 +371,8 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 	const constructorBody = constructorBodyNode.body;
 	const {hasMessageGetter, hasMessageSetter, checkOptions} = errorDefinition;
 
-	const superExpression = constructorBody.find(bodyNode => isSuperExpression(bodyNode));
 	const superExpressionIndex = constructorBody.findIndex(bodyNode => isSuperExpression(bodyNode));
+	const superExpression = constructorBody[superExpressionIndex];
 	const messageExpressionIndex = constructorBody.findIndex(bodyNode => isAssignmentExpression(bodyNode, 'message'));
 	const hasMessageAccessor = hasMessageGetter || hasMessageSetter;
 	let hasConstructorBodyProblem = false;
@@ -374,15 +407,44 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
 			* fix(fixer) {
+				if (messageExpressionIndex < superExpressionIndex) {
+					return;
+				}
+
 				const rhs = expression.expression.right;
 				const [firstParameter, secondParameter] = constructor.value.params;
 				const firstParameterIdentifier = getParameterIdentifier(firstParameter);
 				const shouldAddOptionsParameter = constructor.value.params.length === 1
 					&& firstParameterIdentifier
 					&& !isOptionsIdentifier(firstParameter);
+				const start = messageExpressionIndex === 0
+					? sourceCode.getRange(constructorBodyNode)[0]
+					: sourceCode.getRange(constructorBody[messageExpressionIndex - 1])[1];
+				const [, end] = sourceCode.getRange(expression);
+
+				if (
+					shouldAddOptionsParameter
+					&& hasCommentImmediatelyAfter(sourceCode, firstParameter)
+				) {
+					return;
+				}
+
+				if (hasCommentInRange(context, [start, end])) {
+					return;
+				}
+
+				if (hasCommentImmediatelyAfter(sourceCode, expression)) {
+					return;
+				}
+
+				const superCallExpression = superExpression.expression;
+				if (sourceCode.getCommentsInside(superCallExpression).length > 0) {
+					return;
+				}
+
 				const shouldAddOptionsArgument = shouldAddOptionsParameter || isOptionsIdentifier(secondParameter);
 
-				if (superExpression.expression.arguments.length === 0) {
+				if (superCallExpression.arguments.length === 0) {
 					if (
 						messageExpressionIndex !== superExpressionIndex + 1
 						|| hasThisOrSuper(rhs, sourceCode.visitorKeys)
@@ -390,32 +452,31 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 						return;
 					}
 
-					const [start] = sourceCode.getRange(superExpression);
-					// This part crashes on ESLint 10, but it's still not correct.
-					// There can be spaces, comments after `super`
-					yield fixer.insertTextAfterRange(
-						[start, start + 6],
+					// Use the parenthesis token to preserve spacing between `super` and `(`.
+					const openingParenthesis = sourceCode.getTokenAfter(superCallExpression.callee, token => token.value === '(');
+					yield fixer.insertTextAfter(
+						openingParenthesis,
 						shouldAddOptionsArgument
 							? `${getParenthesizedText(rhs, context)}, options`
 							: getParenthesizedText(rhs, context),
 					);
-				} else if (!isSameText(superExpression.expression.arguments[0], rhs, sourceCode)) {
+				} else if (!isSameUnwrappedText(superCallExpression.arguments[0], rhs, sourceCode)) {
 					return;
 				} else if (
 					shouldAddOptionsArgument
-					&& superExpression.expression.arguments.length === 1
+					&& superCallExpression.arguments.length === 1
 				) {
-					yield fixer.insertTextAfter(superExpression.expression.arguments[0], ', options');
+					if (isParenthesized(superCallExpression.arguments[0], context)) {
+						return;
+					}
+
+					yield fixer.insertTextAfter(superCallExpression.arguments[0], ', options');
 				}
 
 				if (shouldAddOptionsParameter) {
 					yield fixer.insertTextAfter(firstParameter, `, ${getOptionsParameterText(firstParameter)}`);
 				}
 
-				const start = messageExpressionIndex === 0
-					? sourceCode.getRange(constructorBodyNode)[0]
-					: sourceCode.getRange(constructorBody[messageExpressionIndex - 1])[1];
-				const [, end] = sourceCode.getRange(expression);
 				yield fixer.removeRange([start, end]);
 			},
 		};
@@ -458,7 +519,8 @@ function * customErrorDefinition(context, node) {
 
 	const {body} = node.body;
 	const {sourceCode} = context;
-	const constructor = body.find(x => x.kind === 'constructor');
+	const constructor = body.find(classNode => classNode.kind === 'constructor' && classNode.value.body)
+		?? body.find(classNode => classNode.kind === 'constructor');
 	const nameProperty = body.find(classNode => isPropertyDefinition(classNode, 'name'));
 
 	if (!constructor) {
@@ -471,6 +533,15 @@ function * customErrorDefinition(context, node) {
 			...createInvalidNameError(nameProperty?.value ?? node, name),
 			fix(fixer) {
 				if (nameProperty?.value) {
+					const value = unwrapTypeScriptExpression(nameProperty.value);
+					if (getStaticStringValue(value) !== undefined) {
+						return fixer.replaceText(value, `'${name}'`);
+					}
+
+					if (sourceCode.getCommentsInside(nameProperty.value).length > 0) {
+						return;
+					}
+
 					return fixer.replaceText(nameProperty.value, `'${name}'`);
 				}
 
@@ -500,7 +571,7 @@ function * customErrorDefinition(context, node) {
 	});
 }
 
-const customErrorExport = (context, node) => {
+const customErrorExport = node => {
 	const maybeError = node.right;
 
 	if (maybeError.type !== 'ClassExpression') {
@@ -517,16 +588,24 @@ const customErrorExport = (context, node) => {
 
 	// Assume rule has already fixed the error name
 	const errorName = maybeError.id.name;
-	const exportsName = node.left.property.name;
+	const isComputed = node.left.computed;
+	const exportProperty = node.left.property;
+	const exportPropertyValue = unwrapTypeScriptExpression(exportProperty);
+	const exportsName = isComputed
+		? getStaticStringValue(exportPropertyValue)
+		: exportProperty.name;
 
-	if (exportsName === errorName) {
+	if (exportsName === undefined || exportsName === errorName) {
 		return;
 	}
 
+	const propertyToReplace = isComputed ? exportPropertyValue : exportProperty;
+	const replacementText = isComputed ? `'${errorName}'` : errorName;
+
 	return {
-		node: node.left.property,
+		node: exportProperty,
 		messageId: MESSAGE_ID_INVALID_EXPORT,
-		fix: fixer => fixer.replaceText(node.left.property, errorName),
+		fix: fixer => fixer.replaceText(propertyToReplace, replacementText),
 	};
 };
 
@@ -544,7 +623,7 @@ const create = context => {
 			&& node.left.object.type === 'Identifier'
 			&& node.left.object.name === 'exports'
 		) {
-			return customErrorExport(context, node);
+			return customErrorExport(node);
 		}
 	});
 };
