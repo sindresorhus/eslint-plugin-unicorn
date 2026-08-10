@@ -2,7 +2,9 @@ import {getPropertyName, isCommentToken} from '@eslint-community/eslint-utils';
 import {
 	upperFirst,
 	getParenthesizedText,
+	hasCommentInRange,
 	isNodeMatchesNameOrPath,
+	isParenthesized,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -128,7 +130,7 @@ const getParameterIdentifier = parameter => {
 const isOptionsIdentifier = node =>
 	getParameterIdentifier(unwrapTypeScriptExpression(node))?.name === 'options';
 
-const hasCommentAfter = (sourceCode, node) =>
+const hasCommentImmediatelyAfter = (sourceCode, node) =>
 	isCommentToken(sourceCode.getTokenAfter(node, {includeComments: true}));
 
 const isSameUnwrappedText = (left, right, sourceCode) =>
@@ -174,7 +176,12 @@ const getOptionsParameterText = firstParameter => {
 	return parameterIdentifier.optional ? 'options?: ErrorOptions' : 'options: ErrorOptions';
 };
 
-const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumentText) => fixer => {
+const fixSuperOptionsArgument = (context, superCallExpression, messageArgumentText) => fixer => {
+	const {sourceCode} = context;
+	if (sourceCode.getCommentsInside(superCallExpression).length > 0) {
+		return;
+	}
+
 	const superArguments = superCallExpression.arguments;
 
 	if (superArguments.length === 0) {
@@ -183,6 +190,10 @@ const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumen
 	}
 
 	if (superArguments.length === 1) {
+		if (isParenthesized(superArguments[0], context)) {
+			return;
+		}
+
 		if (
 			messageArgumentText !== 'undefined'
 			&& isMissingOrUndefined(superArguments[0])
@@ -197,11 +208,11 @@ const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumen
 const fixMissingOptionsParameter = (context, constructor, superCallExpression, messageArgumentText) => function * (fixer) {
 	const {sourceCode} = context;
 	const firstParameter = constructor.value.params[0];
-	if (hasCommentAfter(sourceCode, firstParameter)) {
+	if (hasCommentImmediatelyAfter(sourceCode, firstParameter)) {
 		return;
 	}
 
-	const superOptionsFix = fixSuperOptionsArgument(sourceCode, superCallExpression, messageArgumentText)(fixer);
+	const superOptionsFix = fixSuperOptionsArgument(context, superCallExpression, messageArgumentText)(fixer);
 	if (!superOptionsFix) {
 		return;
 	}
@@ -210,7 +221,12 @@ const fixMissingOptionsParameter = (context, constructor, superCallExpression, m
 	yield superOptionsFix;
 };
 
-const fixSuperMessageArgument = (sourceCode, superCallExpression, messageArgumentText) => fixer => {
+const fixSuperMessageArgument = (context, superCallExpression, messageArgumentText) => fixer => {
+	const {sourceCode} = context;
+	if (sourceCode.getCommentsInside(superCallExpression).length > 0) {
+		return;
+	}
+
 	const superArguments = superCallExpression.arguments;
 
 	if (superArguments.length === 0) {
@@ -219,6 +235,10 @@ const fixSuperMessageArgument = (sourceCode, superCallExpression, messageArgumen
 	}
 
 	if (isMissingOrUndefined(superArguments[0])) {
+		if (isParenthesized(superArguments[0], context)) {
+			return;
+		}
+
 		return fixer.replaceText(
 			superArguments[0],
 			superArguments.length === 1 ? `${messageArgumentText}, options` : messageArgumentText,
@@ -269,7 +289,7 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 			};
 
 			if (!isSameIdentifier(superCallExpression.arguments[0], firstParameterIdentifier)) {
-				problem.fix = fixSuperOptionsArgument(context.sourceCode, superCallExpression, 'undefined');
+				problem.fix = fixSuperOptionsArgument(context, superCallExpression, 'undefined');
 			}
 
 			return problem;
@@ -309,7 +329,7 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		return {
 			node: superCallExpression,
 			messageId: MESSAGE_ID_PASS_MESSAGE_TO_SUPER,
-			fix: fixSuperMessageArgument(context.sourceCode, superCallExpression, messageArgumentText),
+			fix: fixSuperMessageArgument(context, superCallExpression, messageArgumentText),
 		};
 	}
 
@@ -317,7 +337,7 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		return {
 			node: superCallExpression,
 			messageId: MESSAGE_ID_PASS_OPTIONS_TO_SUPER,
-			fix: fixSuperOptionsArgument(context.sourceCode, superCallExpression, messageArgumentText),
+			fix: fixSuperOptionsArgument(context, superCallExpression, messageArgumentText),
 		};
 	}
 };
@@ -387,19 +407,44 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
 			* fix(fixer) {
+				if (messageExpressionIndex < superExpressionIndex) {
+					return;
+				}
+
 				const rhs = expression.expression.right;
 				const [firstParameter, secondParameter] = constructor.value.params;
 				const firstParameterIdentifier = getParameterIdentifier(firstParameter);
 				const shouldAddOptionsParameter = constructor.value.params.length === 1
 					&& firstParameterIdentifier
 					&& !isOptionsIdentifier(firstParameter);
-				const shouldAddOptionsArgument = shouldAddOptionsParameter || isOptionsIdentifier(secondParameter);
+				const start = messageExpressionIndex === 0
+					? sourceCode.getRange(constructorBodyNode)[0]
+					: sourceCode.getRange(constructorBody[messageExpressionIndex - 1])[1];
+				const [, end] = sourceCode.getRange(expression);
 
-				if (shouldAddOptionsParameter && hasCommentAfter(sourceCode, firstParameter)) {
+				if (
+					shouldAddOptionsParameter
+					&& hasCommentImmediatelyAfter(sourceCode, firstParameter)
+				) {
 					return;
 				}
 
-				if (superExpression.expression.arguments.length === 0) {
+				if (hasCommentInRange(context, [start, end])) {
+					return;
+				}
+
+				if (hasCommentImmediatelyAfter(sourceCode, expression)) {
+					return;
+				}
+
+				const superCallExpression = superExpression.expression;
+				if (sourceCode.getCommentsInside(superCallExpression).length > 0) {
+					return;
+				}
+
+				const shouldAddOptionsArgument = shouldAddOptionsParameter || isOptionsIdentifier(secondParameter);
+
+				if (superCallExpression.arguments.length === 0) {
 					if (
 						messageExpressionIndex !== superExpressionIndex + 1
 						|| hasThisOrSuper(rhs, sourceCode.visitorKeys)
@@ -407,32 +452,31 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 						return;
 					}
 
-					const [start] = sourceCode.getRange(superExpression);
-					// This part crashes on ESLint 10, but it's still not correct.
-					// There can be spaces, comments after `super`
-					yield fixer.insertTextAfterRange(
-						[start, start + 6],
+					// Use the parenthesis token to preserve spacing between `super` and `(`.
+					const openingParenthesis = sourceCode.getTokenAfter(superCallExpression.callee, token => token.value === '(');
+					yield fixer.insertTextAfter(
+						openingParenthesis,
 						shouldAddOptionsArgument
 							? `${getParenthesizedText(rhs, context)}, options`
 							: getParenthesizedText(rhs, context),
 					);
-				} else if (!isSameUnwrappedText(superExpression.expression.arguments[0], rhs, sourceCode)) {
+				} else if (!isSameUnwrappedText(superCallExpression.arguments[0], rhs, sourceCode)) {
 					return;
 				} else if (
 					shouldAddOptionsArgument
-					&& superExpression.expression.arguments.length === 1
+					&& superCallExpression.arguments.length === 1
 				) {
-					yield fixer.insertTextAfter(superExpression.expression.arguments[0], ', options');
+					if (isParenthesized(superCallExpression.arguments[0], context)) {
+						return;
+					}
+
+					yield fixer.insertTextAfter(superCallExpression.arguments[0], ', options');
 				}
 
 				if (shouldAddOptionsParameter) {
 					yield fixer.insertTextAfter(firstParameter, `, ${getOptionsParameterText(firstParameter)}`);
 				}
 
-				const start = messageExpressionIndex === 0
-					? sourceCode.getRange(constructorBodyNode)[0]
-					: sourceCode.getRange(constructorBody[messageExpressionIndex - 1])[1];
-				const [, end] = sourceCode.getRange(expression);
 				yield fixer.removeRange([start, end]);
 			},
 		};

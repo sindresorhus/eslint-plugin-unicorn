@@ -563,6 +563,34 @@ const tests = {
 		{
 			code: outdent`
 				class FooError extends Error {
+					constructor(message, options) {
+						this.message = message;
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(message);
+						this.message = message; /* Keep this attached */
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
 					constructor(message) {
 						super();
 						this.message = message;
@@ -982,6 +1010,32 @@ const tests = {
 			code: outdent`
 				class FooError extends Error {
 					constructor(message, options) {
+						super(message /* Preserve this note */);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super((message));
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
 						super();
 						this.name = 'FooError';
 					}
@@ -1019,6 +1073,19 @@ const tests = {
 					}
 				}
 			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(undefined /* Preserve this note */, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageArgumentToSuperError,
+			],
 		},
 		{
 			code: outdent`
@@ -1074,6 +1141,19 @@ const tests = {
 					}
 				}
 			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super(undefined /* Preserve this note */);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
 		},
 		{
 			code: outdent`
@@ -1164,6 +1244,43 @@ const tests = {
 				class FooError extends Error {
 					constructor() {
 						super(foo.error);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor() {
+						super ( );
+						this.message = foo.error;
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor() {
+						super (foo.error );
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor() {
+						super();
+						// Explain why this message is customized.
+						this.message = foo.error;
 						this.name = 'FooError';
 					}
 				}
@@ -1389,6 +1506,14 @@ test.typescript({
 				}
 			}
 		`,
+		outdent`
+			class FooError extends Error {
+				constructor(cause: unknown) {
+					super('Fixed message' satisfies string, ({cause} satisfies ErrorOptions));
+					this.name = 'FooError' as const;
+				}
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -1499,6 +1624,74 @@ test.typescript({
 		},
 		{
 			code: outdent`
+				class FooError extends Error {
+					constructor(message: string) {
+						super((message as string));
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message: string) {
+						super(undefined /* Preserve this note */ as string);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message: string) {
+						super(message satisfies string);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message: string, options: ErrorOptions) {
+						super(message satisfies string, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message: string) {
+						super(<string>message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message: string, options: ErrorOptions) {
+						super(<string>message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
 				class ParameterPropertyError extends Error {
 					constructor(public readonly requestId: string) {
 						super(\`Result for id "\${requestId}" does not exist\`);
@@ -1534,6 +1727,27 @@ test.typescript({
 		{
 			code: outdent`
 				class ParameterPropertyError extends Error {
+					constructor(message: string, public readonly options: ErrorOptions) {
+						super(message);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+			output: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(message: string, public readonly options: ErrorOptions) {
+						super(message, options);
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
 					constructor(public message: string) {
 						super(message!);
 						this.message = message;
@@ -1552,6 +1766,20 @@ test.typescript({
 					}
 				}
 			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(message: string, options: ErrorOptions) {
+						super(message);
+						this.message = /* Preserve this note */ message!;
+						this.name = 'ParameterPropertyError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
 		},
 		{
 			code: outdent`
