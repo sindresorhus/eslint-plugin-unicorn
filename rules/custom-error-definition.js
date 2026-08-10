@@ -3,6 +3,7 @@ import {
 	upperFirst,
 	getParenthesizedText,
 	isNodeMatchesNameOrPath,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
 	getStaticStringValue,
@@ -52,18 +53,20 @@ const getSuperClassName = superClass => {
 };
 
 const hasValidSuperClass = node => {
-	const superClassName = getSuperClassName(node.superClass);
+	const superClass = unwrapTypeScriptExpression(node.superClass);
+	const superClassName = getSuperClassName(superClass);
 	return Boolean(superClassName) && nameRegexp.test(superClassName);
 };
 
 const isNativeErrorBaseWithStandardOptions = node => {
-	const superClassName = getSuperClassName(node.superClass);
+	const superClass = unwrapTypeScriptExpression(node.superClass);
+	const superClassName = getSuperClassName(superClass);
 
 	return builtinErrors.includes(superClassName)
 		&& !errorBasesWithoutStandardOptions.has(superClassName)
 		&& (
-			node.superClass.type === 'Identifier'
-			|| isNodeMatchesNameOrPath(node.superClass, `globalThis.${superClassName}`)
+			superClass.type === 'Identifier'
+			|| isNodeMatchesNameOrPath(superClass, `globalThis.${superClassName}`)
 		);
 };
 

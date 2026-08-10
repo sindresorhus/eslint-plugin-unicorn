@@ -1412,5 +1412,81 @@ test.typescript({
 				}
 			`,
 		},
+		{
+			code: outdent`
+				class FooError extends (globalThis.Error as typeof Error) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [missingOptionsParameterError],
+			output: outdent`
+				class FooError extends (globalThis.Error as typeof Error) {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends (Error satisfies typeof Error) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [missingOptionsParameterError],
+			output: outdent`
+				class FooError extends (Error satisfies typeof Error) {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends (Error!) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [missingOptionsParameterError],
+			output: outdent`
+				class FooError extends (Error!) {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends (<typeof Error>Error) {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [missingOptionsParameterError],
+			output: outdent`
+				class FooError extends (<typeof Error>Error) {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
 	],
 });
