@@ -8,6 +8,7 @@ import {
 	getStaticStringValue,
 	isUndefined,
 } from './ast/index.js';
+import builtinErrors from './shared/builtin-errors.js';
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER = 'doNotPassMessageToSuper';
@@ -51,6 +52,21 @@ const getSuperClassName = superClass => {
 const hasValidSuperClass = node => {
 	const superClassName = getSuperClassName(node.superClass);
 	return Boolean(superClassName) && nameRegexp.test(superClassName);
+};
+
+const isNativeErrorBase = node => {
+	const {superClass} = node;
+
+	if (superClass?.type === 'Identifier') {
+		return builtinErrors.includes(superClass.name);
+	}
+
+	return superClass?.type === 'MemberExpression'
+		&& !superClass.computed
+		&& superClass.object.type === 'Identifier'
+		&& superClass.object.name === 'globalThis'
+		&& superClass.property.type === 'Identifier'
+		&& builtinErrors.includes(superClass.property.name);
 };
 
 const isSuperExpression = node =>
@@ -217,7 +233,7 @@ const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) =>
 		&& getPropertyName(optionsArgument.properties[0]) === 'cause';
 };
 
-const getErrorOptionsProblem = (context, constructor, superExpression, hasMessageAccessor) => {
+const getErrorOptionsProblem = (context, constructor, superExpression, errorDefinition) => {
 	const parameters = constructor.value.params;
 	const firstParameter = parameters[0];
 	const firstParameterIdentifier = getParameterIdentifier(firstParameter);
@@ -229,7 +245,12 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		return;
 	}
 
+	const {hasMessageGetter, hasMessageSetter, isCustomErrorBase} = errorDefinition;
+	const hasMessageAccessor = hasMessageGetter || hasMessageSetter;
 	const superCallExpression = superExpression.expression;
+	if (isCustomErrorBase && superCallExpression.arguments.length >= 2) {
+		return;
+	}
 
 	if (isOptionsIdentifier(firstParameter)) {
 		if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
@@ -319,7 +340,7 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 	}
 
 	const constructorBody = constructorBodyNode.body;
-	const {hasMessageGetter, hasMessageSetter, checkOptions} = errorDefinition;
+	const {hasMessageGetter, hasMessageSetter, checkOptions, isCustomErrorBase} = errorDefinition;
 
 	const superExpression = constructorBody.find(bodyNode => isSuperExpression(bodyNode));
 	const superExpressionIndex = constructorBody.findIndex(bodyNode => isSuperExpression(bodyNode));
@@ -412,7 +433,7 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 	}
 
 	if (hasValidName && checkOptions && !hasConstructorBodyProblem) {
-		const errorOptionsProblem = getErrorOptionsProblem(context, constructor, superExpression, hasMessageAccessor);
+		const errorOptionsProblem = getErrorOptionsProblem(context, constructor, superExpression, errorDefinition);
 
 		if (errorOptionsProblem) {
 			yield errorOptionsProblem;
@@ -480,6 +501,7 @@ function * customErrorDefinition(context, node) {
 		hasMessageGetter,
 		hasMessageSetter,
 		checkOptions: name === className,
+		isCustomErrorBase: !isNativeErrorBase(node),
 	});
 }
 

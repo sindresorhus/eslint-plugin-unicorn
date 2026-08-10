@@ -134,6 +134,23 @@ const tests = {
 				}
 			}
 		`,
+		// The second argument of a custom error base class is not necessarily `ErrorOptions`
+		outdent`
+			class UserNotFoundError extends GraphQLError {
+				constructor(userId) {
+					super(\`User "\${userId}" does not exist\`, {extensions: {code: 'NOT_FOUND'}});
+					this.name = 'UserNotFoundError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends GraphQLError {
+				constructor(message) {
+					super(message, {extensions: {code: 'CUSTOM'}});
+					this.name = 'FooError';
+				}
+			}
+		`,
 		outdent`
 			class FooError extends Error {
 				constructor() {
@@ -1043,6 +1060,40 @@ const tests = {
 			errors: [
 				invalidOptionsParameterError,
 			],
+		},
+		{
+			code: outdent`
+				class FooError extends globalThis.Error {
+					constructor(message, details) {
+						super(message, details);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				invalidOptionsParameterError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends GraphQLError {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends GraphQLError {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
 		},
 		{
 			// Second parameter named `opts` instead of `options`

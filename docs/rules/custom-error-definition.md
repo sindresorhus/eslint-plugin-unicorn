@@ -13,6 +13,8 @@ Enforces the only valid way of `Error` subclassing. It works with any super clas
 
 When a named error constructor accepts a message, it should also accept `options` and pass it to `super()` so native `Error#cause` is preserved.
 
+Custom error base classes may use the second `super()` argument for a different purpose. When that argument is already present, the rule does not require an additional `options` parameter.
+
 ## Examples
 
 ```js
