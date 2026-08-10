@@ -9,11 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforces the only valid way of `Error` subclassing. It works with any super class that ends in `Error`.
+Enforces the only valid way of `Error` subclassing. It works with any superclass whose name ends in `Error`.
 
 When a named error constructor accepts a message, it should also accept `options` and pass it to `super()` so native `Error#cause` is preserved.
 
-Custom error base classes may use the second `super()` argument for a different purpose. When that argument is already present, the rule does not require an additional `options` parameter.
+Custom error base classes may use the second `super()` argument for a different purpose. When a second `super()` argument is already present, the rule does not enforce the native `options` parameter or forwarding convention.
 
 ## Examples
 

@@ -125,7 +125,7 @@ const tests = {
 				}
 			}
 		`,
-		// Inline options forwarded to a custom `*Error` super class (the reported real-world case)
+		// Inline options forwarded to a custom `*Error` superclass (the reported real-world case)
 		outdent`
 			class TimeoutError extends FetchError {
 				constructor(cause) {
@@ -147,6 +147,14 @@ const tests = {
 			class FooError extends GraphQLError {
 				constructor(message) {
 					super(message, {extensions: {code: 'CUSTOM'}});
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends GraphQLError {
+				constructor(message, extensions) {
+					super(message, extensions);
 					this.name = 'FooError';
 				}
 			}
@@ -1300,6 +1308,14 @@ test.typescript({
 				constructor(message: string, options: ErrorOptions) {
 					super(message, options);
 					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class UserNotFoundError extends GraphQLError {
+				constructor(userId: string) {
+					super(\`User "\${userId}" does not exist\`, {extensions: {code: 'NOT_FOUND'}});
+					this.name = 'UserNotFoundError';
 				}
 			}
 		`,

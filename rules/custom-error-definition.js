@@ -340,7 +340,7 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 	}
 
 	const constructorBody = constructorBodyNode.body;
-	const {hasMessageGetter, hasMessageSetter, checkOptions, isCustomErrorBase} = errorDefinition;
+	const {hasMessageGetter, hasMessageSetter, checkOptions} = errorDefinition;
 
 	const superExpression = constructorBody.find(bodyNode => isSuperExpression(bodyNode));
 	const superExpressionIndex = constructorBody.findIndex(bodyNode => isSuperExpression(bodyNode));
