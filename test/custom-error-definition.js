@@ -591,6 +591,34 @@ const tests = {
 		{
 			code: outdent`
 				class FooError extends Error {
+					constructor(message, options) {
+						super(message /* Keep this attached */);
+						this.message = message;
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super((message));
+						this.message = message;
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
 					constructor(message) {
 						super();
 						this.message = message;
@@ -741,6 +769,25 @@ const tests = {
 			errors: [invalidExportError],
 			output: outdent`
 				exports.FooError = class FooError extends Error {
+					constructor(error, options) {
+						super(error, options);
+						this.name = 'FooError';
+					}
+				};
+			`,
+		},
+		{
+			code: outdent`
+				exports['fooError'] = class FooError extends Error {
+					constructor(error, options) {
+						super(error, options);
+						this.name = 'FooError';
+					}
+				};
+			`,
+			errors: [invalidExportError],
+			output: outdent`
+				exports['FooError'] = class FooError extends Error {
 					constructor(error, options) {
 						super(error, options);
 						this.name = 'FooError';
@@ -1073,6 +1120,19 @@ const tests = {
 					}
 				}
 			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super((undefined), options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageArgumentToSuperError,
+			],
 		},
 		{
 			code: outdent`
@@ -1543,6 +1603,19 @@ test.typescript({
 		{
 			code: outdent`
 				class FooError extends Error {
+					name = ('Wrong' /* Keep this note */ as const);
+				}
+			`,
+			errors: [invalidNameError('FooError')],
+			output: outdent`
+				class FooError extends Error {
+					name = ('FooError' /* Keep this note */ as const);
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
 					constructor(message: string) {
 						super(message);
 						this.name = 'FooError';
@@ -1710,6 +1783,18 @@ test.typescript({
 					}
 				}
 			`,
+		},
+		{
+			code: outdent`
+				class ParameterPropertyError extends Error {
+					constructor(public readonly requestId: string, options: ErrorOptions) {
+						super(\`Result for id "\${requestId}" does not exist\`, options);
+					}
+				}
+			`,
+			errors: [
+				invalidNameError('ParameterPropertyError'),
+			],
 		},
 		{
 			code: outdent`

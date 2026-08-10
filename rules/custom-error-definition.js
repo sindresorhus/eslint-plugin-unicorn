@@ -533,6 +533,15 @@ function * customErrorDefinition(context, node) {
 			...createInvalidNameError(nameProperty?.value ?? node, name),
 			fix(fixer) {
 				if (nameProperty?.value) {
+					const value = unwrapTypeScriptExpression(nameProperty.value);
+					if (getStaticStringValue(value) !== undefined) {
+						return fixer.replaceText(value, `'${name}'`);
+					}
+
+					if (sourceCode.getCommentsInside(nameProperty.value).length > 0) {
+						return;
+					}
+
 					return fixer.replaceText(nameProperty.value, `'${name}'`);
 				}
 
@@ -579,16 +588,20 @@ const customErrorExport = (context, node) => {
 
 	// Assume rule has already fixed the error name
 	const errorName = maybeError.id.name;
-	const exportsName = node.left.property.name;
+	const exportProperty = node.left.property;
+	const exportPropertyValue = unwrapTypeScriptExpression(exportProperty);
+	const exportsName = node.left.computed
+		? getStaticStringValue(exportPropertyValue)
+		: exportProperty.name;
 
-	if (exportsName === errorName) {
+	if (exportsName === undefined || exportsName === errorName) {
 		return;
 	}
 
 	return {
-		node: node.left.property,
+		node: exportProperty,
 		messageId: MESSAGE_ID_INVALID_EXPORT,
-		fix: fixer => fixer.replaceText(node.left.property, errorName),
+		fix: fixer => fixer.replaceText(node.left.computed ? exportPropertyValue : exportProperty, node.left.computed ? `'${errorName}'` : errorName),
 	};
 };
 
@@ -603,7 +616,6 @@ const create = context => {
 	context.on('AssignmentExpression', node => {
 		if (
 			node.left.type === 'MemberExpression'
-			&& !node.left.computed
 			&& node.left.object.type === 'Identifier'
 			&& node.left.object.name === 'exports'
 		) {
