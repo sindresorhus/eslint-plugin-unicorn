@@ -40,6 +40,15 @@ const tests = {
 			};
 		`,
 		outdent`
+			const exportName = 'FooError';
+			exports[exportName] = class FooError extends Error {
+				constructor(message, options) {
+					super(message, options);
+					this.name = 'FooError';
+				}
+			};
+		`,
+		outdent`
 			class FooError extends Http.ProtocolError {
 				constructor(message, options) {
 					super(message, options);
@@ -1586,6 +1595,25 @@ test.typescript({
 				}
 			`,
 			errors: [invalidNameError('ValidationError')],
+		},
+		{
+			code: outdent`
+				exports[('fooError' as const)] = class FooError extends Error {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				};
+			`,
+			errors: [invalidExportError],
+			output: outdent`
+				exports[('FooError' as const)] = class FooError extends Error {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				};
+			`,
 		},
 		{
 			code: outdent`

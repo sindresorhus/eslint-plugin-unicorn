@@ -571,7 +571,7 @@ function * customErrorDefinition(context, node) {
 	});
 }
 
-const customErrorExport = (context, node) => {
+const customErrorExport = node => {
 	const maybeError = node.right;
 
 	if (maybeError.type !== 'ClassExpression') {
@@ -588,9 +588,10 @@ const customErrorExport = (context, node) => {
 
 	// Assume rule has already fixed the error name
 	const errorName = maybeError.id.name;
+	const isComputed = node.left.computed;
 	const exportProperty = node.left.property;
 	const exportPropertyValue = unwrapTypeScriptExpression(exportProperty);
-	const exportsName = node.left.computed
+	const exportsName = isComputed
 		? getStaticStringValue(exportPropertyValue)
 		: exportProperty.name;
 
@@ -598,10 +599,13 @@ const customErrorExport = (context, node) => {
 		return;
 	}
 
+	const propertyToReplace = isComputed ? exportPropertyValue : exportProperty;
+	const replacementText = isComputed ? `'${errorName}'` : errorName;
+
 	return {
 		node: exportProperty,
 		messageId: MESSAGE_ID_INVALID_EXPORT,
-		fix: fixer => fixer.replaceText(node.left.computed ? exportPropertyValue : exportProperty, node.left.computed ? `'${errorName}'` : errorName),
+		fix: fixer => fixer.replaceText(propertyToReplace, replacementText),
 	};
 };
 
@@ -619,7 +623,7 @@ const create = context => {
 			&& node.left.object.type === 'Identifier'
 			&& node.left.object.name === 'exports'
 		) {
-			return customErrorExport(context, node);
+			return customErrorExport(node);
 		}
 	});
 };
