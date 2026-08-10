@@ -9,11 +9,21 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforces the only valid way of `Error` subclassing. It works with any superclass whose name ends in `Error`.
+Enforces a consistent way of defining `Error` subclasses. It works with superclasses whose names match the rule's `*Error` naming pattern.
 
-When a named error constructor accepts a message, it should also accept `options` and pass it to `super()` so native `Error#cause` is preserved.
+When a named error constructor accepts a message, it should also accept `options` and pass it to `super()` so native `Error#cause` is preserved. This convention is only enforced for native error bases that accept `ErrorOptions` as their second parameter.
 
-Custom error base classes may use the second `super()` argument for a different purpose. When a second `super()` argument is already present, the rule does not enforce the native `options` parameter or forwarding convention.
+Custom error base classes may use different constructor parameters, so the rule does not enforce the native `ErrorOptions` convention for them.
+
+```js
+// ✅
+class UserNotFoundError extends GraphQLError {
+	constructor(userId) {
+		super(`User "${userId}" does not exist`, {extensions: {code: 'NOT_FOUND'}});
+		this.name = 'UserNotFoundError';
+	}
+}
+```
 
 ## Examples
 

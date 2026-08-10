@@ -116,7 +116,7 @@ const tests = {
 				}
 			}
 		`,
-		// Inline options with a hard-coded message built from a template literal
+		// Inline options with a hard-coded message provided as a no-substitution template literal
 		outdent`
 			class FooError extends Error {
 				constructor(cause) {
@@ -145,16 +145,33 @@ const tests = {
 		`,
 		outdent`
 			class FooError extends GraphQLError {
-				constructor(message) {
-					super(message, {extensions: {code: 'CUSTOM'}});
+				constructor(message, extensions) {
+					super(message, extensions);
 					this.name = 'FooError';
 				}
 			}
 		`,
 		outdent`
 			class FooError extends GraphQLError {
-				constructor(message, extensions) {
-					super(message, extensions);
+				constructor(message, details) {
+					super(message);
+					this.details = details;
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends AggregateError {
+				constructor(errors, message, options) {
+					super(errors, message, options);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends SuppressedError {
+				constructor(error, suppressed, message) {
+					super(error, suppressed, message);
 					this.name = 'FooError';
 				}
 			}
@@ -1084,24 +1101,16 @@ const tests = {
 		},
 		{
 			code: outdent`
-				class FooError extends GraphQLError {
-					constructor(message) {
-						super(message);
+				class FooError extends TypeError {
+					constructor(message, details) {
+						super(message, details);
 						this.name = 'FooError';
 					}
 				}
 			`,
 			errors: [
-				missingOptionsParameterError,
+				invalidOptionsParameterError,
 			],
-			output: outdent`
-				class FooError extends GraphQLError {
-					constructor(message, options) {
-						super(message, options);
-						this.name = 'FooError';
-					}
-				}
-			`,
 		},
 		{
 			// Second parameter named `opts` instead of `options`

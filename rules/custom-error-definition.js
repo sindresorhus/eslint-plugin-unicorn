@@ -28,6 +28,8 @@ const messages = {
 };
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
+// `AggregateError` uses the third argument for `ErrorOptions`; `SuppressedError` does not accept it.
+const errorOptionsUnsupportedBases = new Set(['AggregateError', 'SuppressedError']);
 
 const getClassName = name => upperFirst(name).replace(/(?:error)?$/i, 'Error');
 
@@ -54,19 +56,24 @@ const hasValidSuperClass = node => {
 	return Boolean(superClassName) && nameRegexp.test(superClassName);
 };
 
-const isNativeErrorBase = node => {
+const isErrorOptionsBase = node => {
 	const {superClass} = node;
 
 	if (superClass?.type === 'Identifier') {
-		return builtinErrors.includes(superClass.name);
+		return builtinErrors.includes(superClass.name)
+			&& !errorOptionsUnsupportedBases.has(superClass.name);
 	}
 
-	return superClass?.type === 'MemberExpression'
-		&& !superClass.computed
+	if (superClass?.type !== 'MemberExpression') {
+		return false;
+	}
+
+	return !superClass.computed
 		&& superClass.object.type === 'Identifier'
 		&& superClass.object.name === 'globalThis'
 		&& superClass.property.type === 'Identifier'
-		&& builtinErrors.includes(superClass.property.name);
+		&& builtinErrors.includes(superClass.property.name)
+		&& !errorOptionsUnsupportedBases.has(superClass.property.name);
 };
 
 const isSuperExpression = node =>
@@ -233,7 +240,7 @@ const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) =>
 		&& getPropertyName(optionsArgument.properties[0]) === 'cause';
 };
 
-const getErrorOptionsProblem = (context, constructor, superExpression, errorDefinition) => {
+const getErrorOptionsProblem = (context, constructor, superExpression, hasMessageAccessor) => {
 	const parameters = constructor.value.params;
 	const firstParameter = parameters[0];
 	const firstParameterIdentifier = getParameterIdentifier(firstParameter);
@@ -245,12 +252,7 @@ const getErrorOptionsProblem = (context, constructor, superExpression, errorDefi
 		return;
 	}
 
-	const {hasMessageGetter, hasMessageSetter, isCustomErrorBase} = errorDefinition;
-	const hasMessageAccessor = hasMessageGetter || hasMessageSetter;
 	const superCallExpression = superExpression.expression;
-	if (isCustomErrorBase && superCallExpression.arguments.length >= 2) {
-		return;
-	}
 
 	if (isOptionsIdentifier(firstParameter)) {
 		if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
@@ -433,7 +435,7 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 	}
 
 	if (hasValidName && checkOptions && !hasConstructorBodyProblem) {
-		const errorOptionsProblem = getErrorOptionsProblem(context, constructor, superExpression, errorDefinition);
+		const errorOptionsProblem = getErrorOptionsProblem(context, constructor, superExpression, hasMessageAccessor);
 
 		if (errorOptionsProblem) {
 			yield errorOptionsProblem;
@@ -500,8 +502,7 @@ function * customErrorDefinition(context, node) {
 		nameProperty,
 		hasMessageGetter,
 		hasMessageSetter,
-		checkOptions: name === className,
-		isCustomErrorBase: !isNativeErrorBase(node),
+		checkOptions: name === className && isErrorOptionsBase(node),
 	});
 }
 
