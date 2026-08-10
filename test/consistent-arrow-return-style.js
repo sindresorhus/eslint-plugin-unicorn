@@ -112,6 +112,14 @@ ruleTest({
 		output: 'const value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\r\n};',
 		errors: [{messageId: 'useExplicitReturn'}],
 	}, {
+		code: 'const value = (data, status) => Response.json(data, {\n  status,\n  statusText: \'OK\',\n});',
+		output: 'const value = (data, status) => {\n  return Response.json(data, {\n    status,\n    statusText: \'OK\',\n  });\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const value = (data, status) =>\n  Response.json(data, {\n    status,\n    statusText: \'OK\',\n  });',
+		output: 'const value = (data, status) => {\n  return Response.json(data, {\n    status,\n    statusText: \'OK\',\n  });\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
 		code: 'const values = [\r\t() => foo(\r\t\tbar,\r\t),\r];',
 		output: 'const values = [\r\t() => {\r\t\treturn foo(\r\t\t\tbar,\r\t\t);\r\t},\r];',
 		errors: [{messageId: 'useExplicitReturn'}],

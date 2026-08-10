@@ -1,3 +1,4 @@
+import detectIndent from 'detect-indent';
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -121,7 +122,7 @@ const hasMultilineSignificantWhitespace = (node, sourceCode) =>
 		tokensWithSignificantWhitespace.has(token.type)
 		&& sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line);
 
-const getBodyText = (text, shouldIndent) => {
+const getBodyText = (text, shouldIndent, indentationUnit) => {
 	if (!shouldIndent) {
 		return text;
 	}
@@ -130,7 +131,7 @@ const getBodyText = (text, shouldIndent) => {
 	const linebreaks = text.match(/\r\n|[\n\r\u2028\u2029]/g);
 	let result = lines[0];
 	for (const [index, line] of lines.slice(1).entries()) {
-		result += linebreaks[index] + (line ? `\t${line}` : line);
+		result += linebreaks[index] + (line ? indentationUnit + line : line);
 	}
 
 	return result;
@@ -139,7 +140,7 @@ const getBodyText = (text, shouldIndent) => {
 const getLinebreak = (sourceCode, range) =>
 	sourceCode.text.slice(...range).match(linebreakPattern)?.[0] ?? '\n';
 
-const getExplicitReturnFix = (node, context) => {
+const getExplicitReturnFix = (node, context, indentationUnit) => {
 	const {sourceCode} = context;
 	const arrowToken = getArrowToken(node, context);
 	const bodyRange = getParenthesizedRange(node.body, context);
@@ -154,9 +155,10 @@ const getExplicitReturnFix = (node, context) => {
 	const bodyText = getBodyText(
 		node.body.type === 'ObjectExpression' ? sourceCode.getText(node.body) : sourceCode.text.slice(...bodyRange),
 		bodyStartsOnArrowLine,
+		indentationUnit,
 	);
 	const indentation = getLineIndent(sourceCode, arrowToken);
-	const replacement = `{${linebreak}${indentation}\treturn ${bodyText};${linebreak}${indentation}}`;
+	const replacement = `{${linebreak}${indentation}${indentationUnit}return ${bodyText};${linebreak}${indentation}}`;
 
 	return fixer => fixer.replaceTextRange([arrowEnd, bodyRange[1]], ` ${replacement}`);
 };
@@ -176,6 +178,8 @@ const getImplicitReturnFix = (node, returnStatement, context) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
+	const detectedIndentation = detectIndent(sourceCode.lines.join('\n'));
+	const indentationUnit = detectedIndentation.type === 'tab' ? '\t' : detectedIndentation.indent || '\t';
 
 	context.on('ArrowFunctionExpression', node => {
 		if (hasCommentsInside(node, sourceCode)) {
@@ -200,7 +204,7 @@ const create = context => {
 			return;
 		}
 
-		const fix = getExplicitReturnFix(node, context);
+		const fix = getExplicitReturnFix(node, context, indentationUnit);
 		return {
 			node,
 			messageId: MESSAGE_ID_EXPLICIT,
