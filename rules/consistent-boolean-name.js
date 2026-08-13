@@ -1,7 +1,7 @@
 import {isRegExp} from 'node:util/types';
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {renameVariable} from './fix/index.js';
-import {combineBooleanStates, getPromisedTypeBooleanState, getTypeBooleanState} from './utils/get-type-boolean-state.js';
+import {combineBooleanStates, getTypeBooleanState} from './utils/get-type-boolean-state.js';
 import resolveVariableName from './utils/resolve-variable-name.js';
 import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
 import {
@@ -677,10 +677,24 @@ function getPromisedTypeInformationBooleanState(node, context, allowNullish = tr
 			return unknown;
 		}
 
-		return getPromisedTypeBooleanState(nonNullableType, checker);
+		return getPossiblyPromisedTypeBooleanState(nonNullableType, checker, allowNullish);
 	} catch {
 		return unknown;
 	}
+}
+
+function getPossiblyPromisedTypeBooleanState(type, checker, allowNullish) {
+	const awaitedType = type.isUnion()
+		? checker.getAwaitedType(type)
+		: checker.getPromisedTypeOfPromise(type);
+	if (!awaitedType) {
+		return unknown;
+	}
+
+	const nonNullableType = checker.getNonNullableType(awaitedType);
+	return !allowNullish && nonNullableType !== awaitedType
+		? unknown
+		: getTypeBooleanState(nonNullableType, checker, new Set(), false);
 }
 
 function getTypeReferenceName(typeName) {
@@ -1615,7 +1629,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 			return getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
 				typeState: definitionTypeState,
 				getReturnTypeBooleanState: (returnType, context, scope, typeState) =>
-					getPromisedTypeAnnotationBooleanState(returnType, context, scope, typeState),
+					getPromisedTypeAnnotationBooleanState(returnType, context, scope, {...typeState, functionTypesAreBoolean: false}),
 				visitedInterfaceNames: new Set([name]),
 			});
 		});
@@ -1676,7 +1690,7 @@ function getPromisedTypeAnnotationBooleanState(node, context, scope, typeState) 
 			return unknown;
 		}
 
-		return getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, normalizedTypeState);
+		return getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {...normalizedTypeState, functionTypesAreBoolean: false});
 	}
 
 	if (node?.type === 'TSUnionType') {
@@ -1709,7 +1723,7 @@ function getPromisedTypeAnnotationBooleanState(node, context, scope, typeState) 
 
 	return node?.type === 'TSTypeReference'
 		? getPromisedTypeReferenceBooleanState(node, context, scope, normalizedTypeState)
-		: unknown;
+		: getTypeAnnotationBooleanState(node, context, scope, {...normalizedTypeState, functionTypesAreBoolean: false});
 }
 
 function getPromisedTypeMembersBooleanState(members, context, scope, typeState) {
@@ -1718,7 +1732,7 @@ function getPromisedTypeMembersBooleanState(members, context, scope, typeState) 
 
 	if (callSignatures.length > 0) {
 		return normalizedTypeState.functionTypesAreBoolean
-			? combineBooleanStates(callSignatures.map(member => getPromisedTypeAnnotationBooleanState(member.returnType, context, scope, normalizedTypeState)))
+			? combineBooleanStates(callSignatures.map(member => getPromisedTypeAnnotationBooleanState(member.returnType, context, scope, {...normalizedTypeState, functionTypesAreBoolean: false})))
 			: nonBoolean;
 	}
 
@@ -1782,17 +1796,7 @@ function getAsyncFunctionTypeInformationBooleanState(node, context, allowNullish
 				return unknown;
 			}
 
-			const promisedType = checker.getPromisedTypeOfPromise(nonNullableReturnType);
-			if (!promisedType) {
-				return unknown;
-			}
-
-			const nonNullableType = checker.getNonNullableType(promisedType);
-			if (!allowNullish && nonNullableType !== promisedType) {
-				return unknown;
-			}
-
-			return getTypeBooleanState(nonNullableType, checker, new Set(), false);
+			return getPossiblyPromisedTypeBooleanState(nonNullableReturnType, checker, allowNullish);
 		}));
 	} catch {
 		return unknown;
@@ -2083,8 +2087,16 @@ function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
 		return stateFromAsyncFunctionType;
 	}
 
+	const isCallable = isCallableTypeAnnotation(node, context, scope);
 	if (
-		isCallableTypeAnnotation(node, context, scope)
+		isCallable
+		&& getPromisedTypeAnnotationBooleanState(node, context, scope, {...normalizedTypeState, allowNullish: true}) === boolean
+	) {
+		return unknown;
+	}
+
+	if (
+		isCallable
 		&& isPromisedTypeAnnotation(node, context, scope)
 	) {
 		return unknown;
