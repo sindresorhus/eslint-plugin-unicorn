@@ -165,6 +165,9 @@ test.snapshot({
 		{code: '', filename: 'example.yaml', language: languages.yaml},
 		{code: '   \n\t ', filename: 'example.yaml', language: languages.yaml},
 		{code: '# comment', filename: 'example.yaml', language: languages.yaml},
+		{
+			code: '%YAML 1.2\n# comment', filename: 'example.yaml', options: [{allowComments: true}], language: languages.yaml,
+		},
 		{code: '---\n---', filename: 'example.yaml', language: languages.yaml},
 		// A genuinely empty file is still reported even under a plain-text parser.
 		{code: '', filename: '.gitignore', languageOptions: {parser: parserPlain}},
