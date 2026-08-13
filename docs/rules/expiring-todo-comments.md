@@ -19,7 +19,7 @@ With this rule, a TODO can have a condition right from the beginning to define i
 
 This rule will ignore all TODOs without conditions. For more information, read the below [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) section.
 
-This rule also supports CSS comments when linting CSS files with [`@eslint/css`](https://github.com/eslint/css), HTML comments when linting HTML files with [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), line comments in JSONC/JSON5 files when linting with [`@eslint/json`](https://github.com/eslint/json), and HTML comments in Markdown files when linting with [`@eslint/markdown`](https://github.com/eslint/markdown).
+This rule also supports CSS comments when linting CSS files with [`@eslint/css`](https://github.com/eslint/css), HTML comments when linting HTML files with [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), line comments in JSONC/JSON5 files when linting with [`@eslint/json`](https://github.com/eslint/json), HTML comments in Markdown files when linting with [`@eslint/markdown`](https://github.com/eslint/markdown), and comments in YAML files when linting with [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml).
 
 Quick overview of conditions:
 
@@ -208,6 +208,15 @@ When used with [`@eslint/markdown`](https://github.com/eslint/markdown), this ru
 # Heading
 ```
 
+### YAML
+
+When used with [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml), this rule can check comments in YAML files too.
+
+```yaml
+# TODO [2019-11-15]: Update this configuration.
+key: value
+```
+
 ## Disallow Warning Comments (no-warning-comments)
 
 This rule implements [`eslint/no-warning-comments`](https://eslint.org/docs/rules/no-warning-comments).
@@ -249,7 +258,7 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 - TODOs may or may not have a colon before the message such as
   `TODO [...]: message` or `TODO [...] message`.
 - If no proper argument is found, you'll be notified that the TODO is useless (See [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments)).
-- CSS, HTML, JSONC, JSON5, and Markdown comments are supported when using [`@eslint/css`](https://github.com/eslint/css), [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), [`@eslint/json`](https://github.com/eslint/json), and [`@eslint/markdown`](https://github.com/eslint/markdown).
+- CSS, HTML, JSONC, JSON5, Markdown, and YAML comments are supported when using [`@eslint/css`](https://github.com/eslint/css), [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), [`@eslint/json`](https://github.com/eslint/json), [`@eslint/markdown`](https://github.com/eslint/markdown), and [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml).
 
 ## Examples
 
