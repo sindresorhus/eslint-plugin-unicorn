@@ -1,7 +1,7 @@
 import {isRegExp} from 'node:util/types';
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {renameVariable} from './fix/index.js';
-import {combineBooleanStates, getPromisedTypeBooleanState, getTypeBooleanState} from './utils/get-type-boolean-state.js';
+import {combineBooleanStates, getTypeBooleanState} from './utils/get-type-boolean-state.js';
 import resolveVariableName from './utils/resolve-variable-name.js';
 import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
 import {
@@ -677,16 +677,16 @@ function getPromisedTypeInformationBooleanState(node, context, allowNullish = tr
 			return unknown;
 		}
 
-		return nonNullableType.isUnion()
-			? getPossiblyPromisedTypeBooleanState(nonNullableType, checker, allowNullish)
-			: getPromisedTypeBooleanState(nonNullableType, checker);
+		return getPossiblyPromisedTypeBooleanState(nonNullableType, checker, allowNullish);
 	} catch {
 		return unknown;
 	}
 }
 
 function getPossiblyPromisedTypeBooleanState(type, checker, allowNullish) {
-	const awaitedType = checker.getAwaitedType(type);
+	const awaitedType = type.isUnion()
+		? checker.getAwaitedType(type)
+		: checker.getPromisedTypeOfPromise(type);
 	if (!awaitedType) {
 		return unknown;
 	}
@@ -1796,21 +1796,7 @@ function getAsyncFunctionTypeInformationBooleanState(node, context, allowNullish
 				return unknown;
 			}
 
-			if (nonNullableReturnType.isUnion()) {
-				return getPossiblyPromisedTypeBooleanState(nonNullableReturnType, checker, allowNullish);
-			}
-
-			const promisedType = checker.getPromisedTypeOfPromise(nonNullableReturnType);
-			if (!promisedType) {
-				return unknown;
-			}
-
-			const nonNullableType = checker.getNonNullableType(promisedType);
-			if (!allowNullish && nonNullableType !== promisedType) {
-				return unknown;
-			}
-
-			return getTypeBooleanState(nonNullableType, checker, new Set(), false);
+			return getPossiblyPromisedTypeBooleanState(nonNullableReturnType, checker, allowNullish);
 		}));
 	} catch {
 		return unknown;

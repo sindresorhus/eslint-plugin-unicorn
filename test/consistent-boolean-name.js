@@ -1589,8 +1589,10 @@ test({
 				'declare const completed: () => boolean | Promise<boolean> | undefined;',
 				'declare const isReady: () => boolean | Promise<boolean> | undefined;',
 				'declare const isAvailable: (() => boolean | Promise<boolean>) | undefined;',
+				'declare const available: (() => boolean | Promise<boolean>) | undefined;',
 				'type MaybePromise<T> = T | Promise<T> | undefined;',
 				'declare const hasAccess: () => MaybePromise<boolean>;',
+				'declare const access: () => MaybePromise<boolean>;',
 			].join(' '),
 		}),
 		typeAware({
