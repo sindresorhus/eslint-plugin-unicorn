@@ -677,10 +677,24 @@ function getPromisedTypeInformationBooleanState(node, context, allowNullish = tr
 			return unknown;
 		}
 
-		return getPromisedTypeBooleanState(nonNullableType, checker);
+		return nonNullableType.isUnion()
+			? getPossiblyPromisedTypeBooleanState(nonNullableType, checker, allowNullish)
+			: getPromisedTypeBooleanState(nonNullableType, checker);
 	} catch {
 		return unknown;
 	}
+}
+
+function getPossiblyPromisedTypeBooleanState(type, checker, allowNullish) {
+	const awaitedType = checker.getAwaitedType(type);
+	if (!awaitedType) {
+		return unknown;
+	}
+
+	const nonNullableType = checker.getNonNullableType(awaitedType);
+	return !allowNullish && nonNullableType !== awaitedType
+		? unknown
+		: getTypeBooleanState(nonNullableType, checker, new Set(), false);
 }
 
 function getTypeReferenceName(typeName) {
@@ -1782,6 +1796,10 @@ function getAsyncFunctionTypeInformationBooleanState(node, context, allowNullish
 				return unknown;
 			}
 
+			if (nonNullableReturnType.isUnion()) {
+				return getPossiblyPromisedTypeBooleanState(nonNullableReturnType, checker, allowNullish);
+			}
+
 			const promisedType = checker.getPromisedTypeOfPromise(nonNullableReturnType);
 			if (!promisedType) {
 				return unknown;
@@ -2083,8 +2101,16 @@ function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
 		return stateFromAsyncFunctionType;
 	}
 
+	const isCallable = isCallableTypeAnnotation(node, context, scope);
 	if (
-		isCallableTypeAnnotation(node, context, scope)
+		isCallable
+		&& getPromisedTypeAnnotationBooleanState(node, context, scope, {...normalizedTypeState, allowNullish: true}) === boolean
+	) {
+		return unknown;
+	}
+
+	if (
+		isCallable
 		&& isPromisedTypeAnnotation(node, context, scope)
 	) {
 		return unknown;
