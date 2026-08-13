@@ -6,6 +6,7 @@ import css from '@eslint/css';
 import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import htmlEslintPlugin from '@html-eslint/eslint-plugin';
+import yml from 'eslint-plugin-yml';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
@@ -851,4 +852,82 @@ test('supports CSS comments with @eslint/css', t => {
 			},
 		],
 	);
+});
+
+test('supports YAML comments with eslint-plugin-yml', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify('key: value # TODO [2000-01-01]: Drop\n# TODO: Update config', {
+		files: ['**/*.yml'],
+		language: 'yml/yaml',
+		plugins: {
+			yml,
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': [
+				'error',
+				{
+					date: '2026-05-29',
+					checkDates: true,
+					checkDatesOnPullRequests: true,
+					allowWarningComments: false,
+				},
+			],
+		},
+	}, {
+		filename: 'fixture.yml',
+	});
+
+	t.deepEqual(
+		messages.map(({message, ruleId, line, column, endLine, endColumn}) => ({
+			message,
+			ruleId,
+			line,
+			column,
+			endLine,
+			endColumn,
+		})),
+		[
+			{
+				message: 'Past due date: 2000-01-01. Drop',
+				ruleId: 'unicorn/expiring-todo-comments',
+				line: 1,
+				column: 12,
+				endLine: 1,
+				endColumn: 37,
+			},
+			{
+				message: 'Unexpected \'todo\': \'TODO: Update config\'.',
+				ruleId: 'unicorn/expiring-todo-comments',
+				line: 2,
+				column: 1,
+				endLine: 2,
+				endColumn: 22,
+			},
+		],
+	);
+});
+
+test('supports ESLint disable directives in YAML', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify('# eslint-disable-next-line unicorn/expiring-todo-comments -- TODO reason\n# TODO: Update config\nkey: value', {
+		files: ['**/*.yaml'],
+		language: 'yml/yaml',
+		plugins: {
+			yml,
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': [
+				'error',
+				{
+					allowWarningComments: false,
+				},
+			],
+		},
+	}, {
+		filename: 'fixture.yaml',
+	});
+
+	t.deepEqual(messages, []);
 });

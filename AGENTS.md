@@ -100,8 +100,9 @@ Available identifiers:
 - `json/json`, `json/jsonc`, `json/json5` — [`@eslint/json`](https://github.com/eslint/json)
 - `markdown/commonmark`, `markdown/gfm` — [`@eslint/markdown`](https://github.com/eslint/markdown)
 - `html/html` — [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint)
+- `yml/yaml` — [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml)
 
-Most rules visit JavaScript AST nodes, so `js/js` is all they can support. But when a rule's logic is language-agnostic (filename, raw text, comments, or disable directives), support as many languages as is feasible. Root node types differ per language (`Program` for JS/TS and HTML, `StyleSheet` for CSS, `Document` for JSON, `root` for Markdown), so use `onRoot(context, listener)` to run on every root and `getComments(context)` for cross-language comments (both from `rules/utils/`). For reference, see `prefer-https` (`['*']`, raw-text scan) and `no-empty-file` (per-language root handlers).
+Most rules visit JavaScript AST nodes, so `js/js` is all they can support. But when a rule's logic is language-agnostic (filename, raw text, comments, or disable directives), support as many languages as is feasible. Root node types differ per language (`Program` for JS/TS, HTML, and YAML, `StyleSheet` for CSS, `Document` for JSON, `root` for Markdown), so use `onRoot(context, listener)` to run on every root and `getComments(context)` for cross-language comments (both from `rules/utils/`). For reference, see `prefer-https` (`['*']`, raw-text scan) and `no-empty-file` (per-language root handlers).
 
 ## Reusable utilities
 
