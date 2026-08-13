@@ -5,7 +5,6 @@ import eslintPlugin from 'eslint-plugin-eslint-plugin';
 import eslintPackageJson from 'eslint-package-json';
 import nodeStyleTextConfig from 'node-style-text/eslint-config';
 import internalRules from './scripts/internal-rules/index.js';
-import packageJsonRules from './scripts/package-json-rules.js';
 import eslintPluginUnicorn from './index.js';
 
 const disabledJsdocRules = Object.fromEntries(
@@ -34,27 +33,11 @@ for (const configBlock of xoConfig) {
 	}
 }
 
-const packageJsonConfig = {
-	...eslintPackageJson.configs.recommended,
-	rules: {
-		'package-json/dependency-version-range': ['error', {
-			range: 'caret',
-			dependencyTypes: ['dependencies'],
-		}],
-		'package-json/no-duplicate-dependencies': 'error',
-		'package-json/sort-dependencies': ['error', {
-			properties: ['dependencies', 'devDependencies', 'optionalDependencies'],
-		}],
-		'package-json/sort-scripts': 'error',
-	},
-};
-
 const config = [
 	...xoConfig,
-	packageJsonConfig,
+	eslintPackageJson.configs.recommended,
 	nodeStyleTextConfig,
 	internalRules,
-	packageJsonRules,
 	{
 		languageOptions: {
 			globals: {
@@ -69,6 +52,9 @@ const config = [
 			'.cache-eslint-remote-tester',
 			'eslint-remote-tester-results',
 			'test/integration/{fixtures,fixtures-local}/**',
+			'test/fixtures/no-unnecessary-polyfills/issue-2270-node-18-range/package.json',
+			'test/fixtures/no-unnecessary-polyfills/issue-2270-node-22/package.json',
+			'test/fixtures/no-unnecessary-polyfills/package-json-sectioned-browserslist/package.json',
 			// Snapshot fixtures are generated markdown and currently trigger
 			// markdown processor `getLoc` crashes under this ESLint setup.
 			'test/**/snapshots/**',
