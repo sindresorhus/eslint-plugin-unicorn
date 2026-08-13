@@ -95,4 +95,4 @@ Allow files that only contain comments:
 ]
 ```
 
-This allows files that only contain comments. Files with only a hashbang, directives, empty statements, or empty block statements are still reported.
+This allows files that only contain comments. Files with only a hashbang, directives, empty statements, empty block statements, YAML document markers, or YAML metadata without a value are still reported.

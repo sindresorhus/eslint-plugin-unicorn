@@ -42,12 +42,8 @@ const getYamlProblem = (context, node, allowComments) => {
 	}
 
 	const comments = getComments(context);
-	const hasEmptyMetadata = node.body.some(document =>
-		document.content?.type === 'YAMLWithMeta' && document.content.value === null,
-	);
-	const hasDirectives = node.body.some(document => document.directives.length > 0);
 
-	if (allowComments && comments.length > 0 && !hasDirectives && !hasEmptyMetadata) {
+	if (allowComments && comments.length > 0 && node.tokens.length === 0) {
 		return;
 	}
 
