@@ -3,9 +3,16 @@
 	"version": "73.0.0",
 	"description": "More than 300 powerful ESLint rules",
 	"license": "MIT",
-	"repository": "github:sindresorhus/eslint-plugin-unicorn",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sindresorhus/eslint-plugin-unicorn.git"
+	},
 	"funding": "https://github.com/sindresorhus/eslint-plugin-unicorn?sponsor=1",
-	"author": "Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)",
+	"author": {
+		"name": "Sindre Sorhus",
+		"email": "sindresorhus@gmail.com",
+		"url": "https://sindresorhus.com"
+	},
 	"type": "module",
 	"exports": {
 		"types": "./index.d.ts",
@@ -41,8 +48,8 @@
 	"files": [
 		"index.js",
 		"index.d.ts",
-		"configs",
-		"rules"
+		"rules",
+		"configs"
 	],
 	"keywords": [
 		"eslint",
