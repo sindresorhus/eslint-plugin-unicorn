@@ -1598,6 +1598,10 @@ test({
 			code: 'type Result<T> = T extends boolean ? T | Promise<T> : never; declare const isReady: () => Result<boolean>;',
 		}),
 		typeAware({
+			name: 'type-aware conditional possibly async PromiseLike aliases preserve boolean prefixes',
+			code: 'type Result<T> = T extends boolean ? T | PromiseLike<T> : never; declare const isReady: () => Result<boolean>;',
+		}),
+		typeAware({
 			name: 'type-aware conditional possibly async aliases with nullable results remain unknown',
 			code: 'type Result<T> = T extends boolean ? T | Promise<T | undefined> : never; declare const completed: () => Result<boolean>; declare const isReady: () => Result<boolean>;',
 		}),
@@ -1796,6 +1800,11 @@ test({
 		typeAware({
 			name: 'type-aware conditional possibly async aliases require prefixes',
 			code: 'type Result<T> = T extends boolean ? T | Promise<T> : never; declare const check: () => Result<boolean>;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typeAware({
+			name: 'type-aware conditional possibly async PromiseLike aliases require prefixes',
+			code: 'type Result<T> = T extends boolean ? T | PromiseLike<T> : never; declare const check: () => Result<boolean>;',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
 		}),
 		typescript({
