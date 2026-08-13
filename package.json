@@ -3,16 +3,9 @@
 	"version": "73.0.0",
 	"description": "More than 300 powerful ESLint rules",
 	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/sindresorhus/eslint-plugin-unicorn.git"
-	},
+	"repository": "github:sindresorhus/eslint-plugin-unicorn",
 	"funding": "https://github.com/sindresorhus/eslint-plugin-unicorn?sponsor=1",
-	"author": {
-		"name": "Sindre Sorhus",
-		"email": "sindresorhus@gmail.com",
-		"url": "https://sindresorhus.com"
-	},
+	"author": "Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)",
 	"type": "module",
 	"exports": {
 		"types": "./index.d.ts",
@@ -38,7 +31,7 @@
 		"lint:js": "eslint",
 		"lint:markdown": "markdownlint \"**/*.md\"",
 		"lint:non-js-languages": "node ./scripts/create-non-js-languages-list.js --check",
-		"lint:package-json": "npmPkgJsonLint .",
+		"lint:package-json": "eslint \"**/package.json\"",
 		"rename-rule": "node ./scripts/rename-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"run-rules-on-codebase": "eslint --config=./eslint.dogfooding.config.js",
 		"smoke": "eslint-remote-tester --config ./test/smoke/eslint-remote-tester.config.js",
@@ -48,8 +41,8 @@
 	"files": [
 		"index.js",
 		"index.d.ts",
-		"rules",
-		"configs"
+		"configs",
+		"rules"
 	],
 	"keywords": [
 		"eslint",
@@ -101,6 +94,7 @@
 		"eslint-ava-rule-tester": "^5.0.1",
 		"eslint-config-xo": "^0.56.0",
 		"eslint-doc-generator": "^3.6.0",
+		"eslint-package-json": "^0.3.0",
 		"eslint-plugin-eslint-plugin": "^7.4.1",
 		"eslint-plugin-jsdoc": "^63.0.11",
 		"eslint-plugin-unicorn": "^70.0.0",
@@ -112,7 +106,6 @@
 		"markdownlint-cli": "^0.49.0",
 		"nano-spawn": "^2.1.0",
 		"node-style-text": "^2.1.2",
-		"npm-package-json-lint": "10.4.1",
 		"npm-run-all2": "^9.0.2",
 		"open-editor": "^6.0.0",
 		"outdent": "^0.8.0",
