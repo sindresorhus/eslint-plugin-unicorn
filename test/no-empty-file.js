@@ -75,6 +75,7 @@ test.snapshot({
 			code: '<!-- comment -->', filename: 'example.md', options: [{allowComments: true}], language: languages.markdown,
 		},
 		{code: 'key: value', filename: 'example.yaml', language: languages.yaml},
+		{code: '&anchor value', filename: 'example.yaml', language: languages.yaml},
 		{code: '---\n---\nkey: value', filename: 'example.yaml', language: languages.yaml},
 		{
 			code: '# comment', filename: 'example.yaml', options: [{allowComments: true}], language: languages.yaml,
@@ -168,6 +169,7 @@ test.snapshot({
 		{
 			code: '%YAML 1.2\n# comment', filename: 'example.yaml', options: [{allowComments: true}], language: languages.yaml,
 		},
+		{code: '&anchor', filename: 'example.yaml', language: languages.yaml},
 		{code: '---\n---', filename: 'example.yaml', language: languages.yaml},
 		// A genuinely empty file is still reported even under a plain-text parser.
 		{code: '', filename: '.gitignore', languageOptions: {parser: parserPlain}},

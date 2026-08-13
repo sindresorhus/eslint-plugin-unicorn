@@ -31,8 +31,13 @@ const isTripleSlashDirective = node =>
 const hasTripleSlashDirectives = comments =>
 	comments.some(currentNode => isTripleSlashDirective(currentNode));
 
+const hasYamlContent = document => {
+	const {content} = document;
+	return content !== null && (content.type !== 'YAMLWithMeta' || content.value !== null);
+};
+
 const getYamlProblem = (context, node, allowComments) => {
-	if (node.body.some(document => document.content)) {
+	if (node.body.some(document => hasYamlContent(document))) {
 		return;
 	}
 
