@@ -20,6 +20,8 @@ Disallow any files only containing the following:
 - Directives
 - Empty statements
 - Empty block statements
+- YAML document markers
+- YAML metadata without a value
 - Hashbang
 
 ## Examples
