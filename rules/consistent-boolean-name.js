@@ -1615,7 +1615,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 			return getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
 				typeState: definitionTypeState,
 				getReturnTypeBooleanState: (returnType, context, scope, typeState) =>
-					getPromisedTypeAnnotationBooleanState(returnType, context, scope, typeState),
+					getPromisedTypeAnnotationBooleanState(returnType, context, scope, {...typeState, functionTypesAreBoolean: false}),
 				visitedInterfaceNames: new Set([name]),
 			});
 		});
@@ -1676,7 +1676,7 @@ function getPromisedTypeAnnotationBooleanState(node, context, scope, typeState) 
 			return unknown;
 		}
 
-		return getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, normalizedTypeState);
+		return getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {...normalizedTypeState, functionTypesAreBoolean: false});
 	}
 
 	if (node?.type === 'TSUnionType') {
@@ -1709,7 +1709,7 @@ function getPromisedTypeAnnotationBooleanState(node, context, scope, typeState) 
 
 	return node?.type === 'TSTypeReference'
 		? getPromisedTypeReferenceBooleanState(node, context, scope, normalizedTypeState)
-		: unknown;
+		: getTypeAnnotationBooleanState(node, context, scope, {...normalizedTypeState, functionTypesAreBoolean: false});
 }
 
 function getPromisedTypeMembersBooleanState(members, context, scope, typeState) {
@@ -1718,7 +1718,7 @@ function getPromisedTypeMembersBooleanState(members, context, scope, typeState) 
 
 	if (callSignatures.length > 0) {
 		return normalizedTypeState.functionTypesAreBoolean
-			? combineBooleanStates(callSignatures.map(member => getPromisedTypeAnnotationBooleanState(member.returnType, context, scope, normalizedTypeState)))
+			? combineBooleanStates(callSignatures.map(member => getPromisedTypeAnnotationBooleanState(member.returnType, context, scope, {...normalizedTypeState, functionTypesAreBoolean: false})))
 			: nonBoolean;
 	}
 

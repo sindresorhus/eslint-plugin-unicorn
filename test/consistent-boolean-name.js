@@ -1568,6 +1568,18 @@ test({
 		},
 		typescript({code: 'function download(completed: (() => Promise<boolean>) | undefined) {}', options: [{checkArguments: 'always'}]}),
 		typescript({
+			name: 'possibly async boolean callbacks allow boolean prefixes',
+			code: 'function run(shouldCheck: () => boolean | Promise<boolean>) {}',
+		}),
+		typescript({
+			name: 'possibly async PromiseLike boolean callbacks allow boolean prefixes',
+			code: 'function run(shouldCheck: () => boolean | PromiseLike<boolean>) {}',
+		}),
+		typescript({
+			name: 'generic possibly async boolean callbacks allow boolean prefixes',
+			code: 'type MaybePromise<T> = T | Promise<T>; function run(shouldCheck: () => MaybePromise<boolean>) {}',
+		}),
+		typescript({
 			name: 'nullable generic aliases remain unknown',
 			code: 'type Maybe<T> = T | undefined; const completed: Maybe<boolean> = true;',
 		}),
@@ -1738,6 +1750,46 @@ test({
 			name: 'async functions returning booleans require prefixes',
 			code: 'async function completed(): Promise<boolean> {}',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'possibly async boolean callbacks require prefixes',
+			code: 'function run(check: () => boolean | Promise<boolean>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'possibly async PromiseLike boolean callbacks require prefixes',
+			code: 'function run(check: () => boolean | PromiseLike<boolean>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'generic possibly async boolean callbacks require prefixes',
+			code: 'type MaybePromise<T> = T | Promise<T>; function run(check: () => MaybePromise<boolean>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'possibly async callbacks reject function-valued returns',
+			code: 'const isReady: () => (() => boolean) | Promise<boolean> = getReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'callable interfaces reject function-valued returns',
+			code: 'interface Predicate { (): () => boolean; } const isReady: Predicate = getReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'callable type literals reject function-valued returns',
+			code: 'const isReady: {(): () => boolean} = getReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'possibly async callbacks reject mixed non-boolean returns',
+			code: 'function run(shouldCheck: () => string | Promise<boolean>) {}',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'possibly async callbacks reject non-boolean Promise returns',
+			code: 'function run(shouldCheck: () => boolean | Promise<string>) {}',
+			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'async arrow functions resolve Promise aliases',
