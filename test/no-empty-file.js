@@ -74,6 +74,11 @@ test.snapshot({
 		{
 			code: '<!-- comment -->', filename: 'example.md', options: [{allowComments: true}], language: languages.markdown,
 		},
+		{code: 'key: value', filename: 'example.yaml', language: languages.yaml},
+		{code: '---\n---\nkey: value', filename: 'example.yaml', language: languages.yaml},
+		{
+			code: '# comment', filename: 'example.yaml', options: [{allowComments: true}], language: languages.yaml,
+		},
 		...[
 			'// comment',
 			'/* comment */',
@@ -157,6 +162,10 @@ test.snapshot({
 		{code: '', filename: 'example.md', language: languages.markdown},
 		{code: '   \n\t ', filename: 'example.md', language: languages.markdown},
 		{code: '<!-- comment -->', filename: 'example.md', language: languages.markdown},
+		{code: '', filename: 'example.yaml', language: languages.yaml},
+		{code: '   \n\t ', filename: 'example.yaml', language: languages.yaml},
+		{code: '# comment', filename: 'example.yaml', language: languages.yaml},
+		{code: '---\n---', filename: 'example.yaml', language: languages.yaml},
 		// A genuinely empty file is still reported even under a plain-text parser.
 		{code: '', filename: '.gitignore', languageOptions: {parser: parserPlain}},
 		// A whitespace-only file is still reported even under a plain-text parser.

@@ -2,6 +2,7 @@ import css from '@eslint/css';
 import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import htmlEslintPlugin from '@html-eslint/eslint-plugin';
+import yml from 'eslint-plugin-yml';
 
 const cssLanguage = {
 	name: 'css',
@@ -33,12 +34,19 @@ const markdownLanguage = {
 	plugins: {markdown},
 };
 
+const yamlLanguage = {
+	name: 'yaml',
+	language: 'yml/yaml',
+	plugins: {yml},
+};
+
 const languages = Object.fromEntries([
 	cssLanguage,
 	htmlLanguage,
 	jsoncLanguage,
 	json5Language,
 	markdownLanguage,
+	yamlLanguage,
 ].map(language => [language.name, language]));
 
 export default languages;

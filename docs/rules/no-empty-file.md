@@ -9,7 +9,7 @@
 
 Meaningless files clutter a codebase.
 
-This applies to files of any extension. It is tested with JavaScript, TypeScript, Vue ([`vue-eslint-parser`](https://github.com/vuejs/vue-eslint-parser)), HTML ([`@html-eslint/parser`](https://github.com/yeonjuan/html-eslint)), CSS ([`@eslint/css`](https://github.com/eslint/css)), Markdown ([`@eslint/markdown`](https://github.com/eslint/markdown)), and JSONC/JSON5 files ([`@eslint/json`](https://github.com/eslint/json)). Plain JSON files cannot be empty without a syntax error, but JSONC and JSON5 files can contain only comments, which counts as empty.
+This applies to files of any extension. It is tested with JavaScript, TypeScript, Vue ([`vue-eslint-parser`](https://github.com/vuejs/vue-eslint-parser)), HTML ([`@html-eslint/parser`](https://github.com/yeonjuan/html-eslint)), CSS ([`@eslint/css`](https://github.com/eslint/css)), Markdown ([`@eslint/markdown`](https://github.com/eslint/markdown)), JSONC/JSON5 files ([`@eslint/json`](https://github.com/eslint/json)), and YAML ([`eslint-plugin-yml`](https://ota-meshi.github.io/eslint-plugin-yml/)). Plain JSON files cannot be empty without a syntax error, but JSONC, JSON5, and YAML files can contain only comments, which counts as empty.
 
 Code extracted by a processor (for example, fenced code blocks in Markdown) is not treated as a file, so an empty extracted block is not reported.
 
@@ -95,4 +95,4 @@ Allow files that only contain comments:
 ]
 ```
 
-This only allows normal line and block comments. Files with only a hashbang, directives, empty statements, or empty block statements are still reported.
+This allows files that only contain comments. Files with only a hashbang, directives, empty statements, or empty block statements are still reported.
