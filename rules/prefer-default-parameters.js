@@ -4,14 +4,33 @@ import {functionTypes} from './ast/index.js';
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
 
-const isDefaultExpression = (left, right) =>
-	left
-	&& right
-	&& left.type === 'Identifier'
-	&& right.type === 'LogicalExpression'
-	&& (right.operator === '||' || right.operator === '??')
-	&& right.left.type === 'Identifier'
-	&& right.right.type === 'Literal';
+const getDefaultAssignment = (left, right, operator = '=') => {
+	if (!left || !right || left.type !== 'Identifier') {
+		return;
+	}
+
+	if (
+		operator === '='
+		&& right.type === 'LogicalExpression'
+		&& (right.operator === '||' || right.operator === '??')
+		&& right.left.type === 'Identifier'
+		&& right.right.type === 'Literal'
+	) {
+		return {
+			assignedIdentifier: left,
+			parameterIdentifier: right.left,
+			defaultValue: right.right,
+		};
+	}
+
+	if ((operator === '||=' || operator === '??=') && right.type === 'Literal') {
+		return {
+			assignedIdentifier: left,
+			parameterIdentifier: left,
+			defaultValue: right,
+		};
+	}
+};
 
 // Call-like expressions that may run side effects before the default-assignment.
 const callLikeExpressionTypes = new Set([
@@ -64,21 +83,14 @@ const hasSideEffects = (sourceCode, function_, node) => {
 	return false;
 };
 
-const hasExtraReferences = (assignment, references, left) => {
+const hasExtraReferences = (isAssignment, references, left) => {
 	// Parameter is referenced prior to default-assignment
-	if (assignment && references[0].identifier !== left) {
+	if (isAssignment && references[0].identifier !== left) {
 		return true;
 	}
 
 	// Old parameter is still referenced somewhere else
-	return !assignment && references.length > 1;
-};
-
-const isLastParameter = (parameters, parameter) => {
-	const lastParameter = parameters.at(-1);
-
-	// See 'default-param-last' rule
-	return parameter && parameter === lastParameter;
+	return !isAssignment && references.length > 1;
 };
 
 const needsParentheses = (sourceCode, function_) => {
@@ -122,25 +134,34 @@ const create = context => {
 	const {sourceCode} = context;
 	const functionStack = [];
 
-	const getDefaultParameterProblem = (node, left, right, assignment) => {
+	const getDefaultParameterProblem = (node, left, right, operator) => {
 		const currentFunction = functionStack.at(-1);
+		const defaultAssignment = getDefaultAssignment(left, right, operator);
 
-		if (!currentFunction || !isDefaultExpression(left, right)) {
+		if (
+			!currentFunction
+			|| !defaultAssignment
+			|| node.parent !== currentFunction.body
+			|| currentFunction.body.body.some(statement => statement.directive === 'use strict')
+		) {
 			return;
 		}
 
-		const {name: firstId} = left;
 		const {
-			left: {name: secondId},
-			right: {raw: literal},
-		} = right;
+			assignedIdentifier,
+			parameterIdentifier: {name: parameterName},
+			defaultValue: {raw: defaultValueText},
+		} = defaultAssignment;
+		const {name: assignedName} = assignedIdentifier;
+		const isAssignment = node.type === 'ExpressionStatement';
 
 		// Parameter is reassigned to a different identifier
-		if (assignment && firstId !== secondId) {
+		if (isAssignment && assignedName !== parameterName) {
 			return;
 		}
 
-		const variable = findVariable(sourceCode.getScope(node), secondId);
+		const scope = sourceCode.getScope(node);
+		const variable = findVariable(scope, parameterName);
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1122
 		// But can't reproduce, just ignore this case
@@ -151,31 +172,50 @@ const create = context => {
 
 		const {references} = variable;
 		const {params} = currentFunction;
-		const parameter = params.find(parameter =>
-			parameter.type === 'Identifier'
-			&& parameter.name === secondId);
+		const parameter = params.at(-1);
+
+		// See 'default-param-last' rule
+		if (parameter?.type !== 'Identifier' || parameter.name !== parameterName) {
+			return;
+		}
+
+		const assignedVariable = assignedName === parameterName ? variable : findVariable(scope, assignedName);
+		const hasParameterNameCollision = assignedVariable?.defs.some(definition =>
+			definition.type === 'Parameter'
+			&& definition.name !== parameter) ?? false;
 
 		if (
 			hasSideEffects(sourceCode, currentFunction, node)
-			|| hasExtraReferences(assignment, references, left)
-			|| !isLastParameter(params, parameter)
+			|| hasExtraReferences(isAssignment, references, left)
+			|| hasParameterNameCollision
 		) {
 			return;
 		}
 
+		const typeAnnotation = isAssignment ? parameter.typeAnnotation : assignedIdentifier.typeAnnotation;
+		const parameterText = typeAnnotation
+			? `${assignedName}${sourceCode.getText(typeAnnotation)}`
+			: assignedName;
 		const replacement = needsParentheses(sourceCode, currentFunction)
-			? `(${firstId} = ${literal})`
-			: `${firstId} = ${literal}`;
+			? `(${parameterText} = ${defaultValueText})`
+			: `${parameterText} = ${defaultValueText}`;
 
 		return {
 			node,
 			messageId: MESSAGE_ID,
 			suggest: [{
 				messageId: MESSAGE_ID_SUGGEST,
-				fix: fixer => [
-					fixer.replaceText(parameter, replacement),
-					fixDefaultExpression(fixer, sourceCode, node),
-				],
+				* fix(fixer, {abort}) {
+					if (
+						sourceCode.getCommentsInside(node).length > 0
+						|| sourceCode.getCommentsInside(parameter).length > 0
+					) {
+						return abort();
+					}
+
+					yield fixer.replaceText(parameter, replacement);
+					yield fixDefaultExpression(fixer, sourceCode, node);
+				},
 			}],
 		};
 	};
@@ -190,13 +230,13 @@ const create = context => {
 
 	context.on('AssignmentExpression', node => {
 		if (node.parent.type === 'ExpressionStatement' && node.parent.expression === node) {
-			return getDefaultParameterProblem(node.parent, node.left, node.right, true);
+			return getDefaultParameterProblem(node.parent, node.left, node.right, node.operator);
 		}
 	});
 
 	context.on('VariableDeclarator', node => {
-		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations[0] === node) {
-			return getDefaultParameterProblem(node.parent, node.id, node.init, false);
+		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations.length === 1) {
+			return getDefaultParameterProblem(node.parent, node.id, node.init);
 		}
 	});
 };
