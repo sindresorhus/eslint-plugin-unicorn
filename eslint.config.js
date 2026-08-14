@@ -2,6 +2,7 @@ import globals from 'globals';
 import xo from 'eslint-config-xo';
 import jsdocPlugin from 'eslint-plugin-jsdoc';
 import eslintPlugin from 'eslint-plugin-eslint-plugin';
+import eslintPackageJson from 'eslint-package-json';
 import nodeStyleTextConfig from 'node-style-text/eslint-config';
 import internalRules from './scripts/internal-rules/index.js';
 import eslintPluginUnicorn from './index.js';
@@ -10,9 +11,9 @@ const disabledJsdocRules = Object.fromEntries(
 	Object.keys(jsdocPlugin.rules).map(name => [`jsdoc/${name}`, 'off']),
 );
 
-// `eslint-config-xo` and `eslint-plugin-ava` both define `plugin json` for
-// different file scopes; keep everything as-is except dropping the duplicate JSON
-// entry on the package.json block to avoid flat-config plugin redefinition.
+// `eslint-config-xo` defines the `json` plugin for both package.json and generic
+// JSON files; drop it from the package.json block so the package-json config owns
+// the plugin in that overlapping scope.
 const xoConfig = xo().map(configBlock => {
 	if (!(configBlock.files?.includes('**/package.json') && configBlock.plugins?.json)) {
 		return configBlock;
@@ -34,6 +35,7 @@ for (const configBlock of xoConfig) {
 
 const config = [
 	...xoConfig,
+	eslintPackageJson.configs.recommended,
 	nodeStyleTextConfig,
 	internalRules,
 	{
@@ -50,6 +52,9 @@ const config = [
 			'.cache-eslint-remote-tester',
 			'eslint-remote-tester-results',
 			'test/integration/{fixtures,fixtures-local}/**',
+			'test/fixtures/no-unnecessary-polyfills/issue-2270-node-18-range/package.json',
+			'test/fixtures/no-unnecessary-polyfills/issue-2270-node-22/package.json',
+			'test/fixtures/no-unnecessary-polyfills/package-json-sectioned-browserslist/package.json',
 			// Snapshot fixtures are generated markdown and currently trigger
 			// markdown processor `getLoc` crashes under this ESLint setup.
 			'test/**/snapshots/**',
