@@ -388,6 +388,19 @@ test({
 		}),
 		invalidTestCase({
 			code: outdent`
+				function abc({baz}, foo) {
+					const bar = foo || 'bar';
+					console.log(baz, bar);
+				}
+			`,
+			suggestions: [outdent`
+				function abc({baz}, bar = 'bar') {
+					console.log(baz, bar);
+				}
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
 				const abc = function(foo) {
 					foo = foo || 123;
 				}
@@ -491,6 +504,26 @@ test({
 					messageId: 'preferDefaultParametersSuggest',
 					output: outdent`
 						function abc(foo: string = 'bar') {
+						}
+					`,
+				}],
+			}],
+		},
+		{
+			code: outdent`
+				function abc(foo: string | undefined) {
+					const bar: string = foo || 'bar';
+					consumeString(bar);
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{
+					messageId: 'preferDefaultParametersSuggest',
+					output: outdent`
+						function abc(bar: string = 'bar') {
+							consumeString(bar);
 						}
 					`,
 				}],

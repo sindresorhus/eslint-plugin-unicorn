@@ -83,14 +83,14 @@ const hasSideEffects = (sourceCode, function_, node) => {
 	return false;
 };
 
-const hasExtraReferences = (assignment, references, left) => {
+const hasExtraReferences = (isAssignment, references, left) => {
 	// Parameter is referenced prior to default-assignment
-	if (assignment && references[0].identifier !== left) {
+	if (isAssignment && references[0].identifier !== left) {
 		return true;
 	}
 
 	// Old parameter is still referenced somewhere else
-	return !assignment && references.length > 1;
+	return !isAssignment && references.length > 1;
 };
 
 const needsParentheses = (sourceCode, function_) => {
@@ -148,10 +148,11 @@ const create = context => {
 		}
 
 		const {
-			assignedIdentifier: {name: assignedName},
+			assignedIdentifier,
 			parameterIdentifier: {name: parameterName},
 			defaultValue: {raw: defaultValueText},
 		} = defaultAssignment;
+		const {name: assignedName} = assignedIdentifier;
 		const isAssignment = node.type === 'ExpressionStatement';
 
 		// Parameter is reassigned to a different identifier
@@ -159,7 +160,8 @@ const create = context => {
 			return;
 		}
 
-		const variable = findVariable(sourceCode.getScope(node), parameterName);
+		const scope = sourceCode.getScope(node);
+		const variable = findVariable(scope, parameterName);
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1122
 		// But can't reproduce, just ignore this case
@@ -177,23 +179,22 @@ const create = context => {
 			return;
 		}
 
-		const hasPossibleParameterNameCollision = params.some(candidate =>
-			candidate !== parameter
-			&& (
-				candidate.name === assignedName
-				|| (!isAssignment && candidate.type !== 'Identifier')
-			));
+		const assignedVariable = assignedName === parameterName ? variable : findVariable(scope, assignedName);
+		const hasParameterNameCollision = assignedVariable?.defs.some(definition =>
+			definition.type === 'Parameter'
+			&& definition.name !== parameter) ?? false;
 
 		if (
 			hasSideEffects(sourceCode, currentFunction, node)
 			|| hasExtraReferences(isAssignment, references, left)
-			|| hasPossibleParameterNameCollision
+			|| hasParameterNameCollision
 		) {
 			return;
 		}
 
-		const parameterText = parameter.typeAnnotation
-			? `${assignedName}${sourceCode.getText(parameter.typeAnnotation)}`
+		const typeAnnotation = isAssignment ? parameter.typeAnnotation : assignedIdentifier.typeAnnotation;
+		const parameterText = typeAnnotation
+			? `${assignedName}${sourceCode.getText(typeAnnotation)}`
 			: assignedName;
 		const replacement = needsParentheses(sourceCode, currentFunction)
 			? `(${parameterText} = ${defaultValueText})`
