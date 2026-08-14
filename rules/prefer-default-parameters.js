@@ -93,13 +93,6 @@ const hasExtraReferences = (assignment, references, left) => {
 	return !assignment && references.length > 1;
 };
 
-const isLastParameter = (parameters, parameter) => {
-	const lastParameter = parameters.at(-1);
-
-	// See 'default-param-last' rule
-	return parameter && parameter === lastParameter;
-};
-
 const needsParentheses = (sourceCode, function_) => {
 	if (function_.type !== 'ArrowFunctionExpression' || function_.params.length > 1) {
 		return false;
@@ -177,18 +170,24 @@ const create = context => {
 
 		const {references} = variable;
 		const {params} = currentFunction;
-		const parameter = params.find(parameter =>
-			parameter.type === 'Identifier'
-			&& parameter.name === parameterName);
-		const hasParameterNameCollision = !isAssignment && params.some(candidate =>
+		const parameter = params.at(-1);
+
+		// See 'default-param-last' rule
+		if (parameter?.type !== 'Identifier' || parameter.name !== parameterName) {
+			return;
+		}
+
+		const hasPossibleParameterNameCollision = params.some(candidate =>
 			candidate !== parameter
-			&& (candidate.type !== 'Identifier' || candidate.name === assignedName));
+			&& (
+				candidate.name === assignedName
+				|| (!isAssignment && candidate.type !== 'Identifier')
+			));
 
 		if (
 			hasSideEffects(sourceCode, currentFunction, node)
 			|| hasExtraReferences(isAssignment, references, left)
-			|| hasParameterNameCollision
-			|| !isLastParameter(params, parameter)
+			|| hasPossibleParameterNameCollision
 		) {
 			return;
 		}

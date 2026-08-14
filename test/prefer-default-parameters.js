@@ -91,6 +91,14 @@ test({
 				foo ||= 'bar';
 			}
 		`,
+		{
+			code: outdent`
+				function abc(foo, foo) {
+					foo ||= 'bar';
+				}
+			`,
+			languageOptions: {sourceType: 'script'},
+		},
 		outdent`
 			function abc(foo) {
 				const bar = foo;
@@ -107,13 +115,6 @@ test({
 			function abc(foo) {
 				if (condition) {
 					foo ||= 'bar';
-				}
-			}
-		`,
-		outdent`
-			function abc(foo) {
-				while (condition) {
-					foo = foo || 'bar';
 				}
 			}
 		`,
