@@ -4,14 +4,33 @@ import {functionTypes} from './ast/index.js';
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
 
-const isDefaultExpression = (left, right) =>
-	left
-	&& right
-	&& left.type === 'Identifier'
-	&& right.type === 'LogicalExpression'
-	&& (right.operator === '||' || right.operator === '??')
-	&& right.left.type === 'Identifier'
-	&& right.right.type === 'Literal';
+const getDefaultAssignment = (left, right, operator = '=') => {
+	if (!left || !right || left.type !== 'Identifier') {
+		return;
+	}
+
+	if (
+		operator === '='
+		&& right.type === 'LogicalExpression'
+		&& (right.operator === '||' || right.operator === '??')
+		&& right.left.type === 'Identifier'
+		&& right.right.type === 'Literal'
+	) {
+		return {
+			assignedIdentifier: left,
+			parameterIdentifier: right.left,
+			defaultValue: right.right,
+		};
+	}
+
+	if ((operator === '||=' || operator === '??=') && right.type === 'Literal') {
+		return {
+			assignedIdentifier: left,
+			parameterIdentifier: left,
+			defaultValue: right,
+		};
+	}
+};
 
 // Call-like expressions that may run side effects before the default-assignment.
 const callLikeExpressionTypes = new Set([
@@ -122,25 +141,32 @@ const create = context => {
 	const {sourceCode} = context;
 	const functionStack = [];
 
-	const getDefaultParameterProblem = (node, left, right, assignment) => {
+	const getDefaultParameterProblem = (node, left, right, operator) => {
 		const currentFunction = functionStack.at(-1);
+		const defaultAssignment = getDefaultAssignment(left, right, operator);
 
-		if (!currentFunction || !isDefaultExpression(left, right)) {
+		if (
+			!currentFunction
+			|| !defaultAssignment
+			|| node.parent !== currentFunction.body
+			|| currentFunction.body.body.some(statement => statement.directive === 'use strict')
+		) {
 			return;
 		}
 
-		const {name: firstId} = left;
 		const {
-			left: {name: secondId},
-			right: {raw: literal},
-		} = right;
+			assignedIdentifier: {name: assignedName},
+			parameterIdentifier: {name: parameterName},
+			defaultValue: {raw: defaultValueText},
+		} = defaultAssignment;
+		const isAssignment = node.type === 'ExpressionStatement';
 
 		// Parameter is reassigned to a different identifier
-		if (assignment && firstId !== secondId) {
+		if (isAssignment && assignedName !== parameterName) {
 			return;
 		}
 
-		const variable = findVariable(sourceCode.getScope(node), secondId);
+		const variable = findVariable(sourceCode.getScope(node), parameterName);
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1122
 		// But can't reproduce, just ignore this case
@@ -153,29 +179,43 @@ const create = context => {
 		const {params} = currentFunction;
 		const parameter = params.find(parameter =>
 			parameter.type === 'Identifier'
-			&& parameter.name === secondId);
+			&& parameter.name === parameterName);
+		const hasParameterNameCollision = !isAssignment && params.some(candidate =>
+			candidate !== parameter
+			&& (candidate.type !== 'Identifier' || candidate.name === assignedName));
 
 		if (
 			hasSideEffects(sourceCode, currentFunction, node)
-			|| hasExtraReferences(assignment, references, left)
+			|| hasExtraReferences(isAssignment, references, left)
+			|| hasParameterNameCollision
 			|| !isLastParameter(params, parameter)
 		) {
 			return;
 		}
 
+		const parameterText = parameter.typeAnnotation
+			? `${assignedName}${sourceCode.getText(parameter.typeAnnotation)}`
+			: assignedName;
 		const replacement = needsParentheses(sourceCode, currentFunction)
-			? `(${firstId} = ${literal})`
-			: `${firstId} = ${literal}`;
+			? `(${parameterText} = ${defaultValueText})`
+			: `${parameterText} = ${defaultValueText}`;
 
 		return {
 			node,
 			messageId: MESSAGE_ID,
 			suggest: [{
 				messageId: MESSAGE_ID_SUGGEST,
-				fix: fixer => [
-					fixer.replaceText(parameter, replacement),
-					fixDefaultExpression(fixer, sourceCode, node),
-				],
+				* fix(fixer, {abort}) {
+					if (
+						sourceCode.getCommentsInside(node).length > 0
+						|| sourceCode.getCommentsInside(parameter).length > 0
+					) {
+						return abort();
+					}
+
+					yield fixer.replaceText(parameter, replacement);
+					yield fixDefaultExpression(fixer, sourceCode, node);
+				},
 			}],
 		};
 	};
@@ -190,13 +230,13 @@ const create = context => {
 
 	context.on('AssignmentExpression', node => {
 		if (node.parent.type === 'ExpressionStatement' && node.parent.expression === node) {
-			return getDefaultParameterProblem(node.parent, node.left, node.right, true);
+			return getDefaultParameterProblem(node.parent, node.left, node.right, node.operator);
 		}
 	});
 
 	context.on('VariableDeclarator', node => {
-		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations[0] === node) {
-			return getDefaultParameterProblem(node.parent, node.id, node.init, false);
+		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations.length === 1) {
+			return getDefaultParameterProblem(node.parent, node.id, node.init);
 		}
 	});
 };

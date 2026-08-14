@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -69,6 +69,73 @@ test({
 		outdent`
 			function abc(foo) {
 				foo = foo && 'bar';
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				foo &&= 'bar';
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				foo ||= bar();
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				foo.bar ||= 'bar';
+			}
+		`,
+		outdent`
+			function abc(foo, bar) {
+				foo ||= 'bar';
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				const bar = foo;
+				foo ||= 'bar';
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				bar();
+				foo ||= 'bar';
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				if (condition) {
+					foo ||= 'bar';
+				}
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				while (condition) {
+					foo = foo || 'bar';
+				}
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				'use strict';
+				foo ??= 'bar';
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				const bar = foo || 'bar', keep = sideEffect();
+			}
+		`,
+		outdent`
+			function abc(bar, foo) {
+				var bar = foo || 'bar';
+			}
+		`,
+		outdent`
+			function abc({bar}, foo) {
+				var bar = foo || 'bar';
 			}
 		`,
 		outdent`
@@ -388,6 +455,69 @@ test({
 				}
 			`],
 		}),
+		invalidTestCase({
+			code: outdent`
+				function abc(foo) {
+					foo ||= 'bar';
+				}
+			`,
+			suggestions: [outdent`
+				function abc(foo = 'bar') {
+				}
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const abc = foo => {
+					foo ??= 'bar';
+				};
+			`,
+			suggestions: [outdent`
+				const abc = (foo = 'bar') => {
+				};
+			`],
+		}),
+		{
+			code: outdent`
+				function abc(foo?: string) {
+					foo ??= 'bar';
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{
+					messageId: 'preferDefaultParametersSuggest',
+					output: outdent`
+						function abc(foo: string = 'bar') {
+						}
+					`,
+				}],
+			}],
+		},
+		{
+			code: outdent`
+				function abc(foo /* Keep comment. */: string) {
+					foo ??= 'bar';
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [],
+			}],
+		},
+		{
+			code: outdent`
+				function abc(foo) {
+					foo ||= /* Keep comment. */ 'bar';
+				}
+			`,
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [],
+			}],
+		},
 		invalidTestCase({
 			code: outdent`
 				function abc(foo) {
