@@ -31,6 +31,28 @@ const isTripleSlashDirective = node =>
 const hasTripleSlashDirectives = comments =>
 	comments.some(currentNode => isTripleSlashDirective(currentNode));
 
+const hasYamlContent = document => {
+	const {content} = document;
+	return content !== null && (content.type !== 'YAMLWithMeta' || content.value !== null);
+};
+
+const getYamlProblem = (context, node, allowComments) => {
+	if (node.body.some(document => hasYamlContent(document))) {
+		return;
+	}
+
+	const comments = getComments(context);
+
+	if (allowComments && comments.length > 0 && node.tokens.length === 0) {
+		return;
+	}
+
+	return {
+		node,
+		messageId: MESSAGE_ID,
+	};
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {allowComments} = context.options[0];
@@ -40,7 +62,12 @@ const create = context => {
 		return;
 	}
 
+	const isYaml = context.sourceCode.parserServices?.isYAML;
 	context.on('Program', node => {
+		if (isYaml) {
+			return getYamlProblem(context, node, allowComments);
+		}
+
 		// A Vue.js SFC parsed by `vue-eslint-parser` with a `<template>` is not an empty file even when `<script>` is empty.
 		if (node.templateBody) {
 			return;
@@ -184,6 +211,7 @@ const config = {
 			'json/json5',
 			'markdown/commonmark',
 			'markdown/gfm',
+			'yml/yaml',
 		],
 	},
 };
