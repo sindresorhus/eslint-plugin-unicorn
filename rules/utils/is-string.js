@@ -62,6 +62,28 @@ const isUnmodifiedMutableVariable = (node, context) => {
 	);
 };
 
+const isStringBinaryExpression = (node, context) => {
+	const stack = [node];
+
+	while (stack.length > 0) {
+		const currentNode = stack.pop();
+
+		if (
+			currentNode.type === 'BinaryExpression'
+			&& currentNode.operator === '+'
+		) {
+			stack.push(currentNode.right, currentNode.left);
+			continue;
+		}
+
+		if (isString(currentNode, context)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 const isStringNode = (node, context) => {
 	if (
 		isStringLiteral(node)
@@ -82,7 +104,7 @@ const isStringNode = (node, context) => {
 
 		case 'BinaryExpression': {
 			return node.operator === '+'
-				&& (isString(node.left, context) || isString(node.right, context));
+				&& isStringBinaryExpression(node, context);
 		}
 
 		case 'AssignmentExpression': {

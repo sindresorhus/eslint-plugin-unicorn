@@ -693,15 +693,15 @@ function getType(node, context, options, visitedVariables = new Set()) {
 		return typeFromExpression;
 	}
 
+	if (options.isTargetNode?.(node, context)) {
+		return target;
+	}
+
 	if (node.type !== 'Identifier') {
 		const typeFromStaticValue = getTypeFromStaticValue(node, context, options);
 		if (typeFromStaticValue !== unknown) {
 			return typeFromStaticValue;
 		}
-	}
-
-	if (options.isTargetNode?.(node, context)) {
-		return target;
 	}
 
 	if (
