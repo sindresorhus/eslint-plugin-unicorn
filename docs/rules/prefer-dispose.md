@@ -16,7 +16,7 @@ This rule flags a `try`/`finally` whose only purpose is disposing of a resource 
 > [!NOTE]
 > `using foo = …` requires the value to implement [`Symbol.dispose`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/dispose) (or `Symbol.asyncDispose` for `await using`); a value that merely has a `.close()` method does not qualify and throws a `TypeError` at runtime. Because this cannot be verified without type information, the rule only offers a suggestion (never an autofix). When [type-aware linting](https://typescript-eslint.io/getting-started/typed-linting/) is enabled, it additionally confirms the resource is disposable before reporting.
 
-Explicit Resource Management reached [Stage 4](https://github.com/tc39/proposal-explicit-resource-management) and is part of ECMAScript 2026. It ships in recent versions of Node.js and Chromium; for older environments, transpile with TypeScript or Babel.
+Explicit Resource Management reached [Stage 4](https://github.com/tc39/proposal-explicit-resource-management). It ships in recent versions of Node.js and Chromium; for older environments, transpile with TypeScript or Babel.
 
 ## Examples
 

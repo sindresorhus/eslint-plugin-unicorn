@@ -264,6 +264,7 @@ const datePrototype = createPropertyInfo({
 		'toJSON',
 		'toLocaleDateString',
 		'toLocaleTimeString',
+		'toTemporalInstant',
 		'toTimeString',
 		'toUTCString',
 	],
@@ -284,7 +285,7 @@ const errorPrototype = createPropertyInfo({
 	properties: [
 		'message',
 		'name',
-		// Deliberate exception to the published-spec-only boundary below: `stack` is a stage-3 proposal (https://github.com/tc39/proposal-error-stack-accessor) that is universally implemented across engines.
+		// Deliberate exception to the boundary below: `stack` is a Stage 3 proposal (https://github.com/tc39/proposal-error-stack-accessor) that is universally implemented across engines.
 		'stack',
 	],
 	methods: [
@@ -656,7 +657,7 @@ const typedArrayObjects = Object.fromEntries(typedArrayTypeNamesExceptUint8Array
 	},
 ]));
 
-// Boundary: Latest published ECMAScript edition plus selected web-standard built-ins only; no proposal, next-edition, or runtime-specific properties until a deliberate baseline bump.
+// Boundary: Latest published ECMAScript edition, Stage 4 proposals, and selected web-standard built-ins. Earlier-stage and runtime-specific properties require deliberate exceptions.
 const nativeObjects = new Map(Object.entries({
 	AggregateError: {
 		instance: aggregateErrorInstance,
@@ -674,6 +675,7 @@ const nativeObjects = new Map(Object.entries({
 				'load',
 				'notify',
 				'or',
+				'pause',
 				'store',
 				'sub',
 				'wait',
@@ -766,6 +768,8 @@ const nativeObjects = new Map(Object.entries({
 			methods: [
 				'concat',
 				'from',
+				'zip',
+				'zipKeyed',
 			],
 		}),
 	},
@@ -867,7 +871,9 @@ const nativeObjects = new Map(Object.entries({
 		prototype: symbolPrototype,
 		static: createConstructorPropertyInfo({
 			properties: [
+				'asyncDispose',
 				'asyncIterator',
+				'dispose',
 				'hasInstance',
 				'isConcatSpreadable',
 				'iterator',

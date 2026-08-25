@@ -63,6 +63,6 @@ Math.PI;
 
 ## Limitations
 
-The static list tracks the latest published ECMAScript edition and selected web-standard built-ins, not runtime-specific extensions or separate proposal drafts.
+The static list primarily tracks the latest published ECMAScript edition, Stage 4 proposals, and selected web-standard built-ins. Runtime-specific extensions and earlier-stage proposal drafts are generally excluded.
 
 The rule only checks direct references to known built-ins. It does not track aliases, infer return types from function calls, or check dynamic computed properties.
