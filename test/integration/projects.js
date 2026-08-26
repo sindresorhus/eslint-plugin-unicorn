@@ -264,9 +264,7 @@ export default [
 	{
 		repository: 'https://github.com/microsoft/typescript',
 		ignore: [
-			// Cannot parse `'\033'`
-			'build/**',
-			'tests/**',
+			'tsc/testdata/**',
 		],
 	},
 ].flatMap((projectOrProjects, index) =>
