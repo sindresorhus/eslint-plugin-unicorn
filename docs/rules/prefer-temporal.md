@@ -13,7 +13,7 @@
 
 `Date.now()` is autofixed to `Temporal.Now.instant().epochMilliseconds`, since both return the epoch milliseconds as a number. For `new Date()` and `new Date(milliseconds)` there are a few exact `Temporal` equivalents, offered as suggestions. The remaining cases (parsing strings, calendar parts) have no single correct replacement, so they are only reported, because the right `Temporal` type depends on what you need.
 
-`Temporal` reached [Stage 4](https://github.com/tc39/proposal-temporal) and is part of ECMAScript 2026. It ships unflagged in Node.js 26 and recent browsers. For older environments, use the [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill).
+`Temporal` reached [Stage 4](https://github.com/tc39/proposal-temporal). It ships unflagged in Node.js 26 and recent browsers. For older environments, use the [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill).
 
 ## Examples
 
