@@ -24,6 +24,11 @@ const keyedCollectionTypeNames = new Set([
 	'WeakSet',
 ]);
 
+const canvasContextTypeNames = new Set([
+	'CanvasRenderingContext2D',
+	'OffscreenCanvasRenderingContext2D',
+]);
+
 const bigIntTypedArrayTypeNames = new Set([
 	'BigInt64Array',
 	'BigUint64Array',
@@ -39,6 +44,7 @@ const isBigIntTypedArrayNode = node => isMethodCall(node, {
 const knownNonArrayTypeNames = new Set([
 	...typedArray,
 	...keyedCollectionTypeNames,
+	...canvasContextTypeNames,
 ]);
 
 const isArrayTypeAnnotation = node =>
@@ -103,7 +109,7 @@ const {
 		...arrayTypeCheckerOptions.targetTypeNames,
 		...typedArray,
 	]),
-	nonTargetTypeNames: keyedCollectionTypeNames,
+	nonTargetTypeNames: keyedCollectionTypeNames.union(canvasContextTypeNames),
 	targetConstructorNames: ['Array', ...typedArray],
 });
 

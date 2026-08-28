@@ -67,6 +67,8 @@ test.snapshot({
 		'const foo = new Uint8Array(3); foo.fill({});',
 		// Other known non-array receivers have no `Array#fill()` semantics either
 		'function f(foo: Set<object>) { foo.fill({}); }',
+		'function draw(context: CanvasRenderingContext2D) { const path = new Path2D(); context.fill(path); }',
+		'function draw(context: OffscreenCanvasRenderingContext2D) { const path = new Path2D(); context.fill(path); }',
 	],
 	invalid: [
 		'array.fill({} as Foo)',
