@@ -15,13 +15,15 @@ const nonArrayExpressionTypes = new Set([
 	'TemplateLiteral',
 ]);
 
-const keyedCollectionTypeNames = new Set([
+const knownNonIndexedCollectionTypeNames = new Set([
 	'Map',
 	'ReadonlyMap',
 	'WeakMap',
 	'Set',
 	'ReadonlySet',
 	'WeakSet',
+	'CanvasRenderingContext2D',
+	'OffscreenCanvasRenderingContext2D',
 ]);
 
 const bigIntTypedArrayTypeNames = new Set([
@@ -38,7 +40,7 @@ const isBigIntTypedArrayNode = node => isMethodCall(node, {
 
 const knownNonArrayTypeNames = new Set([
 	...typedArray,
-	...keyedCollectionTypeNames,
+	...knownNonIndexedCollectionTypeNames,
 ]);
 
 const isArrayTypeAnnotation = node =>
@@ -103,7 +105,7 @@ const {
 		...arrayTypeCheckerOptions.targetTypeNames,
 		...typedArray,
 	]),
-	nonTargetTypeNames: keyedCollectionTypeNames,
+	nonTargetTypeNames: knownNonIndexedCollectionTypeNames,
 	targetConstructorNames: ['Array', ...typedArray],
 });
 

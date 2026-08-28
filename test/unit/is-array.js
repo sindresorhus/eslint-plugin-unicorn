@@ -87,6 +87,16 @@ test('both checkers agree that a keyed collection is neither', t => {
 	}
 });
 
+test('both checkers agree that a canvas context is neither', t => {
+	for (const typeName of ['CanvasRenderingContext2D', 'OffscreenCanvasRenderingContext2D']) {
+		const [annotation] = spellings(typeName);
+		const verdicts = getReceiverVerdicts(annotation);
+
+		t.true(verdicts.isKnownNonArray, `Unexpected verdict for: ${annotation}`);
+		t.true(verdicts.isKnownNonIndexedCollection, `Unexpected verdict for: ${annotation}`);
+	}
+});
+
 test('both checkers agree that an array is neither a non-array nor a non-indexed-collection', t => {
 	for (const code of [
 		'function foo(receiver: string[]) { receiver.method(); }',
