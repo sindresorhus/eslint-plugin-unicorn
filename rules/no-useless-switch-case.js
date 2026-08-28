@@ -12,7 +12,9 @@ const messages = {
 const isEmptySwitchCase = node => node.consequent.every(node => isEmptyNode(node));
 const isNullishSwitchCase = node => isUndefined(node.test) || isNullLiteral(node.test);
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const isTypeScript = isTypeScriptFile(context.physicalFilename);
 
@@ -41,7 +43,9 @@ const create = context => {
 				suggest: [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
+						/**
+						@param {import('eslint').Rule.RuleFixer} fixer
+						*/
 						fix: fixer => fixer.remove(node),
 					},
 				],
@@ -50,7 +54,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

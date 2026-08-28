@@ -354,7 +354,9 @@ const shouldFixParameter = (definition, context) => {
 const shouldAutofix = (variable, context) =>
 	shouldRenameVariable(variable) && shouldFixParameter(variable.defs[0], context);
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const options = getPreparedOptions(context.options[0]);
 	const filenameWithExtension = context.physicalFilename;
@@ -668,7 +670,9 @@ const schema = {
 	},
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

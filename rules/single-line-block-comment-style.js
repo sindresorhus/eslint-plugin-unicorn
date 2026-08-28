@@ -181,7 +181,9 @@ const getProblem = (context, comment, style, ignorePatterns) => {
 	};
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const style = context.options[0];
 	const ignorePatterns = getIgnorePatterns(context.options[1]?.ignore ?? []);
@@ -219,7 +221,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

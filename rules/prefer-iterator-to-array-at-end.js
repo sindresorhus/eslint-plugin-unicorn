@@ -64,7 +64,9 @@ const getFix = (toArrayCall, methodCall, context) => {
 	return fixer => fixer.replaceText(methodCall, getReplacementText(toArrayCall, methodCall, context, openingParenthesisToken));
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('CallExpression', node => {
 		if (
@@ -106,7 +108,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

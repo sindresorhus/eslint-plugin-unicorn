@@ -499,7 +499,9 @@ function createProblem({node, context, view, replacement, canSuggest = true}) {
 	return problem;
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('NewExpression', node => {
 		if (isNewExpression(node, {minimumArguments: 1, maximumArguments: 3})) {
@@ -512,7 +514,9 @@ const create = context => {
 		?? getArrayBufferSliceProblem(node, context));
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

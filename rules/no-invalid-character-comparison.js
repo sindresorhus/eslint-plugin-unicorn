@@ -71,7 +71,9 @@ const isSingleCharacterAccess = (node, context) => {
 	);
 };
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('BinaryExpression', (/** @type {ESTree.BinaryExpression} */ node) => {
 		if (!equalityOperators.has(node.operator)) {
@@ -101,7 +103,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

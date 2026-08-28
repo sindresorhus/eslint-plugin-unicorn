@@ -1136,7 +1136,9 @@ function getReplacementProblem(comment, sourceCode, replacements, checkUniformCa
 	return bestProblem;
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {checkUniformCase = true} = context.options[0] ?? {};
 	const replacements = prepareReplacements(context.options[0]);
@@ -1261,7 +1263,9 @@ const schema = [
 	},
 ];
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

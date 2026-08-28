@@ -14,7 +14,9 @@ const messages = {
 
 const relationalOperators = new Set(['>', '<', '>=', '<=']);
 
-/** Check whether a node is a numeric literal, optionally with a unary `+`/`-` sign. */
+/**
+Check whether a node is a numeric literal, optionally with a unary `+`/`-` sign.
+*/
 const isSignedNumericLiteral = node =>
 	isNumericLiteral(node)
 	|| (
@@ -97,7 +99,9 @@ const analyzeBody = body =>
 		? analyzeStatements(body.body)
 		: analyzeExpression(body);
 
-/** Collect every relational test in the comparison tree. */
+/**
+Collect every relational test in the comparison tree.
+*/
 function collectTests(branch, tests = []) {
 	if (branch.type === 'branch') {
 		tests.push(branch.test);
@@ -108,7 +112,9 @@ function collectTests(branch, tests = []) {
 	return tests;
 }
 
-/** Collect every returned numeric-literal leaf in the comparison tree. */
+/**
+Collect every returned numeric-literal leaf in the comparison tree.
+*/
 function collectLeaves(branch, leaves = []) {
 	if (branch.type === 'leaf') {
 		leaves.push(branch.node);
@@ -120,7 +126,9 @@ function collectLeaves(branch, leaves = []) {
 	return leaves;
 }
 
-/** The sign of a numeric-literal leaf node, e.g. `1` → `1`, `-2` → `-1`, `0` → `0`. */
+/**
+The sign of a numeric-literal leaf node, e.g. `1` → `1`, `-2` → `-1`, `0` → `0`.
+*/
 function leafSign(node) {
 	const value = node.type === 'UnaryExpression'
 		? (node.operator === '-' ? -node.argument.value : node.argument.value)
@@ -128,7 +136,9 @@ function leafSign(node) {
 	return Math.sign(value);
 }
 
-/** The sign returned when the outermost test is true (descends consequents). */
+/**
+The sign returned when the outermost test is true (descends consequents).
+*/
 function trueBranchSign(branch) {
 	while (branch.type === 'branch') {
 		branch = branch.consequent;
@@ -162,7 +172,9 @@ function branchSignsMatchSubtraction(branch, minuend, subtrahend) {
 	);
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -256,7 +268,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

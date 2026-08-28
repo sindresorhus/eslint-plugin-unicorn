@@ -26,7 +26,9 @@ function getMessageId(indexNode, object) {
 	}
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
@@ -53,7 +55,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

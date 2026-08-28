@@ -100,7 +100,9 @@ function getFixFunction({
 
 	exportDeclaration ||= exportDeclarations.find(({source, exportKind}) => (exportKind !== 'type') && (source.value === sourceValue));
 
-	/** @param {import('eslint').Rule.RuleFixer} fixer */
+	/**
+	@param {import('eslint').Rule.RuleFixer} fixer
+	*/
 	return function * (fixer) {
 		if (imported.name === NAMESPACE_SPECIFIER_NAME) {
 			yield fixer.insertTextAfter(
@@ -296,7 +298,9 @@ const schema = [
 	},
 ];
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 function create(context) {
 	const {sourceCode} = context;
 	const {checkUsedVariables} = context.options[0];
@@ -380,7 +384,9 @@ function create(context) {
 	});
 }
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

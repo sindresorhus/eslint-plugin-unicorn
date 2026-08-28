@@ -27,7 +27,9 @@ Convert Unicorn style fix function to ESLint style fix function
 @returns {ESLint.Rule.RuleFixer}
 */
 export default function toEslintRuleFixer(fix) {
-	/** @param {UnicornReportFixer} fixer */
+	/**
+	@param {UnicornReportFixer} fixer
+	*/
 	return fixer => {
 		const unicornReport = fix(fixer, fixOptions);
 

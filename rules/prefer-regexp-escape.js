@@ -117,7 +117,9 @@ const getRegExpEscapeSuggestion = (node, argument, context, sourceCode) => {
 	];
 };
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const regexpEscapeFunctionVariables = new WeakSet();
@@ -205,7 +207,9 @@ const create = context => {
 			return {
 				node,
 				messageId: MESSAGE_ID,
-				/** @param {ESLint.Rule.RuleFixer} fixer */
+				/**
+				@param {ESLint.Rule.RuleFixer} fixer
+				*/
 				* fix(fixer, {abort}) {
 					if (
 						node.callee.object.type === 'Super'
@@ -248,7 +252,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

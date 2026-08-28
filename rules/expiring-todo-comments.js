@@ -60,7 +60,9 @@ const messages = {
 		'Unexpected \'{{matchedTerm}}\': \'{{comment}}\'.',
 };
 
-/** @param {string} dirname */
+/**
+@param {string} dirname
+*/
 function getPackageHelpers(dirname) {
 	const packageJsonResult = readPackageJson(dirname);
 	const packageJson = packageJsonResult?.packageJson ?? {};
@@ -346,7 +348,9 @@ function getMarkdownHtmlComments(sourceCode) {
 	return comments;
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const today = new Date();
 	const options = {
@@ -637,7 +641,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

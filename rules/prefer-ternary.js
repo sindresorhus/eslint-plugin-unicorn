@@ -55,7 +55,9 @@ const isMergeableAssignmentExpression = (consequent, alternate) =>
 	&& !isTernary(alternate.right)
 	&& isSameReference(consequent.left, alternate.left);
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const isOnlySingleLine = context.options[0] === 'only-single-line';
 	const {sourceCode} = context;
@@ -298,7 +300,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

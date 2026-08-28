@@ -6,7 +6,9 @@ const messages = {
 	[MESSAGE_ID]: 'Missing the digits argument.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('CallExpression', node => {
 		if (
@@ -32,13 +34,17 @@ const create = context => {
 				end: sourceCode.getLoc(closingParenthesis).end,
 			},
 			messageId: MESSAGE_ID,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			fix: fixer => appendArgument(fixer, node, '0', context),
 		};
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -186,7 +186,9 @@ function isKnownSpecificApiExistenceCheck(identifier) {
 	return windowSpecificApis.has(propertyName);
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('Program', function * (program) {
 		const scope = context.sourceCode.getScope(program);
@@ -221,7 +223,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -1,4 +1,6 @@
-/** @import * as ESLint from 'eslint'; */
+/**
+@import * as ESLint from 'eslint';
+*/
 
 import {unwrapTypeScriptExpression} from './utils/index.js';
 
@@ -71,7 +73,9 @@ const isBarrelFile = program => {
 	return hasReExport;
 };
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('Program', node => {
 		if (!isBarrelFile(node)) {
@@ -85,7 +89,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

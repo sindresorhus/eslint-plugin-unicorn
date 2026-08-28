@@ -142,7 +142,9 @@ function getConstructor(node, context) {
 const hasCommentsInside = (node, context) =>
 	context.sourceCode.getCommentsInside(node).length > 0;
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {
 		useErrorIsError = false,
@@ -169,7 +171,9 @@ const create = context => {
 
 		const {name: constructorName, referenceText} = constructor;
 
-		/** @type {import('eslint').Rule.ReportDescriptor} */
+		/**
+		@type {import('eslint').Rule.ReportDescriptor}
+		*/
 		const problem = {
 			node,
 			messageId: MESSAGE_ID,
@@ -245,7 +249,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create: checkVueTemplate(create),
 	meta: {

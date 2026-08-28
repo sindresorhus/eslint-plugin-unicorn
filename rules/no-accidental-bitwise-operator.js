@@ -45,7 +45,9 @@ const isSuspiciousBitwise = node =>
 	isShortCircuitGuard(node)
 	|| ((node.operator === '|' || node.operator === '|=') && isDefinitelyNonNumeric(node.right));
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -69,7 +71,9 @@ const create = context => {
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					data: {bitwiseOperator: operator, logicalOperator},
-					/** @param {ESLint.Rule.RuleFixer} fixer */
+					/**
+					@param {ESLint.Rule.RuleFixer} fixer
+					*/
 					fix: fixer => fixer.replaceText(operatorToken, logicalOperator),
 				},
 			],
@@ -77,7 +81,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

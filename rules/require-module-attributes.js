@@ -10,7 +10,9 @@ const messages = {
 
 const isWithToken = token => token?.type === 'Keyword' && token.value === 'with';
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -42,7 +44,9 @@ const create = context => {
 			data: {
 				type: declaration.type === 'ImportDeclaration' ? 'import statement' : 'export statement',
 			},
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			fix: fixer => [withToken, closingBraceToken, openingBraceToken].map(token => fixer.remove(token)),
 		};
 	});
@@ -88,7 +92,9 @@ const create = context => {
 			data: {
 				type: 'import expression',
 			},
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			fix: fixer => isProperty
 				? removeObjectProperty(fixer, nodeToRemove, context)
 				: [
@@ -101,7 +107,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

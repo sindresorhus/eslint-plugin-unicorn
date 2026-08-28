@@ -6,7 +6,9 @@ const messages = {
 	[MESSAGE_ID]: 'Magic number as depth is not allowed.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
@@ -42,7 +44,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

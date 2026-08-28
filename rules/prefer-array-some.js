@@ -97,7 +97,9 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 	});
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	// `.find(…)`
 	// `.findLast(…)`
@@ -309,7 +311,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create: checkVueTemplate(create),
 	meta: {

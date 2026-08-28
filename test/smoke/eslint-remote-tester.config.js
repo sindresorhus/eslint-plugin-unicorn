@@ -8,15 +8,23 @@ import {
 } from '../../scripts/parsers.js';
 import eslintPluginUnicorn from '../../index.js';
 
-/** @type {import('eslint-remote-tester').Config} */
+/**
+@type {import('eslint-remote-tester').Config}
+*/
 const config = {
-	/** Repositories to scan */
+	/**
+	Repositories to scan
+	*/
 	repositories: getRepositories({randomize: true}),
 
-	/** Optional pattern used to exclude paths */
+	/**
+	Optional pattern used to exclude paths
+	*/
 	pathIgnorePattern: getPathIgnorePattern(),
 
-	/** Extensions of files under scanning */
+	/**
+	Extensions of files under scanning
+	*/
 	extensions: [
 		'js',
 		'cjs',
@@ -29,16 +37,24 @@ const config = {
 		'vue',
 	],
 
-	/** Maximum amount of tasks ran concurrently */
+	/**
+	Maximum amount of tasks ran concurrently
+	*/
 	concurrentTasks: 3,
 
-	/** Optional boolean flag used to enable caching of cloned repositories. For CIs it's ideal to disable caching. Defaults to true. */
+	/**
+	Optional boolean flag used to enable caching of cloned repositories. For CIs it's ideal to disable caching. Defaults to true.
+	*/
 	cache: false,
 
-	/** Optional setting for log level. Valid values are verbose, info, warn, error. Defaults to verbose. */
+	/**
+	Optional setting for log level. Valid values are verbose, info, warn, error. Defaults to verbose.
+	*/
 	logLevel: 'info',
 
-	/** ESLint configuration */
+	/**
+	ESLint configuration
+	*/
 	eslintConfig: [
 		eslintPluginUnicorn.configs.all,
 		{

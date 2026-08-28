@@ -12,7 +12,9 @@ const hasLeadingSpace = value => value.length > 1 && value.charAt(0) === ' ' && 
 // Find exactly one trailing space, allow exactly one space
 const hasTrailingSpace = value => value.length > 1 && value.at(-1) === ' ' && value.at(-2) !== ' ';
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const getProblem = (node, method, position) => {
@@ -70,7 +72,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

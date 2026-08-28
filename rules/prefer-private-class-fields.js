@@ -306,7 +306,9 @@ const getMemberAccessState = ({access, name, member, classBody, candidatesByClas
 	return memberAccessState.convertible;
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	// Underscore-prefixed property name -> `this._foo` style member accesses
 	const memberAccesses = new Map();
@@ -474,7 +476,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

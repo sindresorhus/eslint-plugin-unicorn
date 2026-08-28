@@ -110,7 +110,9 @@ const getProblem = (node, context) => {
 	return problem;
 };
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('AssignmentExpression', assignmentExpression => {
 		if (
@@ -124,7 +126,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

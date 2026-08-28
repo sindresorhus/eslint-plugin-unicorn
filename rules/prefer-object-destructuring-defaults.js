@@ -105,7 +105,9 @@ const getReplacementPatternPropertyText = (patternProperty, defaultProperty, con
 	return `${sourceCode.getText(patternProperty.node.key)}: ${valueText} = ${defaultText}`;
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('VariableDeclarator', node => {
 		const {id, init} = node;
@@ -156,7 +158,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

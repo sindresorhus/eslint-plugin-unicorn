@@ -60,7 +60,9 @@ const isClassConstructor = (node, classNode) =>
 	&& node.parent.value === node
 	&& classNode.body.body.includes(node.parent);
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const classStack = [];
 	const thisScopeStack = [];
@@ -129,7 +131,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

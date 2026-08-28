@@ -166,7 +166,9 @@ function * fixLoop(fixer, {
 	yield removeStatement(firstStatement, context, fixer);
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -213,7 +215,9 @@ const create = context => {
 		return {
 			node: firstStatement,
 			messageId: MESSAGE_ID,
-			/** @param {ESLint.Rule.RuleFixer} fixer */
+			/**
+			@param {ESLint.Rule.RuleFixer} fixer
+			*/
 			* fix(fixer) {
 				const fixes = fixLoop(fixer, {
 					loop: node,
@@ -231,7 +235,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

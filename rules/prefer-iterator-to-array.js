@@ -144,7 +144,9 @@ const getFix = (arrayExpression, spreadElement, context) => {
 	return fixer => fixer.replaceText(arrayExpression, getReplacementText(spreadElement, context));
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('ArrayExpression', node => {
 		const [spreadElement] = node.elements;
@@ -189,7 +191,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

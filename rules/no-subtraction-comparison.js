@@ -31,7 +31,9 @@ const isFiniteStaticNumber = (node, context) => {
 	return typeof value === 'number' && Number.isFinite(value);
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -65,7 +67,9 @@ const create = context => {
 		const {left, right} = subtraction;
 		const replacement = `${getParenthesizedText(left, context)} ${operator} ${getParenthesizedText(right, context)}`;
 
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
 		const fix = fixer => fixer.replaceText(node, replacement);
 
 		const canAutofix = strictOrderingOperators.has(operator)
@@ -88,7 +92,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

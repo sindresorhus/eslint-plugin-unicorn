@@ -26,7 +26,9 @@ function flatLogicalExpression(node) {
 			: [child]);
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const logicalExpressions = [];
 	const zeroLengthChecks = new Set();
@@ -102,7 +104,9 @@ const create = context => {
 					end: sourceCode.getLoc(node).end,
 				},
 				messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				/**
+				@param {import('eslint').Rule.RuleFixer} fixer
+				*/
 				fix(fixer) {
 					const {left, right} = node.parent;
 					const leftRange = getParenthesizedRange(left, context);
@@ -123,7 +127,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

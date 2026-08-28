@@ -14,7 +14,9 @@ const messages = {
 	[MESSAGE_DANGLING_DOT]: 'Don\'t use a dangling dot in the number.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('Literal', node => {
 		if (!isNumericLiteral(node)) {
@@ -66,7 +68,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

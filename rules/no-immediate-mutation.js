@@ -159,7 +159,9 @@ function getObjectExpressionPropertiesText(objectExpression, context) {
 */
 
 // `Array`
-/** @type {ViolationCase} */
+/**
+@type {ViolationCase}
+*/
 const arrayMutationSettings = {
 	testValue: value => value?.type === 'ArrayExpression',
 	getProblematicNode({
@@ -253,7 +255,9 @@ const arrayMutationSettings = {
 };
 
 // `Object` + `AssignmentExpression`
-/** @type {ViolationCase} */
+/**
+@type {ViolationCase}
+*/
 const objectWithAssignmentExpressionSettings = {
 	testValue: value => value?.type === 'ObjectExpression',
 	getProblematicNode({
@@ -374,7 +378,9 @@ const objectWithAssignmentExpressionSettings = {
 };
 
 // `Object` + `Object.assign()`
-/** @type {ViolationCase} */
+/**
+@type {ViolationCase}
+*/
 const objectWithObjectAssignSettings = {
 	testValue: value => value?.type === 'ObjectExpression',
 	getProblematicNode({
@@ -482,7 +488,9 @@ const objectWithObjectAssignSettings = {
 };
 
 // `Set` and `WeakSet`
-/** @type {ViolationCase} */
+/**
+@type {ViolationCase}
+*/
 const setMutationSettings = {
 	testValue: value => isCallExpressionWithOptionalArrayExpression(value, ['Set', 'WeakSet']),
 	getProblematicNode({
@@ -571,7 +579,9 @@ const setMutationSettings = {
 };
 
 // `Map` and `WeakMap`
-/** @type {ViolationCase} */
+/**
+@type {ViolationCase}
+*/
 const mapMutationSettings = {
 	testValue: value => isCallExpressionWithOptionalArrayExpression(value, ['Map', 'WeakMap']),
 	getProblematicNode({
@@ -747,7 +757,9 @@ function getCaseProblem(
 	return getProblem(problematicNode, information);
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	for (const caseSettings of cases) {
 		context.on(
@@ -760,7 +772,9 @@ const create = context => {
 	}
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

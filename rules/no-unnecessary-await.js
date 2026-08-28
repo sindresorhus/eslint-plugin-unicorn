@@ -33,7 +33,9 @@ function notPromise(node) {
 	return false;
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('AwaitExpression', node => {
 		if (
@@ -68,7 +70,9 @@ const create = context => {
 		}
 
 		return Object.assign(problem, {
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			* fix(fixer) {
 				if (
 					!isOnSameLine(awaitToken, valueNode, context)
@@ -90,7 +94,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

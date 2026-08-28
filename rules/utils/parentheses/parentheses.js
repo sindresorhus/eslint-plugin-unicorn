@@ -9,7 +9,9 @@ import iterateSurroundingParentheses from './iterate-surrounding-parentheses.js'
 } from '@eslint-community/eslint-utils';
 */
 
-/** @typedef {WeakMap<ESTree.Node, (OpeningParenthesisToken | ClosingParenthesisToken)[]>} */
+/**
+@typedef {WeakMap<ESTree.Node, (OpeningParenthesisToken | ClosingParenthesisToken)[]>}
+*/
 const parenthesesCache = new WeakMap();
 
 /**

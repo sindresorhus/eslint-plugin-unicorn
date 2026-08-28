@@ -215,7 +215,9 @@ const getIteratorMethodProblem = (node, context) => {
 	};
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	// Case 1: `new Set(iterator.toArray())`, `new Map(iterator.toArray())`, etc.
 	context.on('NewExpression', node => {
@@ -307,7 +309,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -84,7 +84,9 @@ function * addBraces(fixer, node, context) {
 	yield fixer.insertTextAfter(lastToken, `\n${indent}}`);
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const option = context.options[0];
 	const isBracesRequired = option !== OPTION_AVOID && option !== OPTION_SINGLE_STATEMENT;
@@ -180,7 +182,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

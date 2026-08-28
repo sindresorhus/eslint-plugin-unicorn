@@ -320,7 +320,9 @@ const getSuggestion = (ifStatement, deleteExpression, context) => ({
 	fix: getFix(ifStatement, deleteExpression, context),
 });
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('IfStatement', ifStatement => {
 		const problem = getProblem(ifStatement, context);
@@ -338,7 +340,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -44,7 +44,9 @@ const isUselessContinue = node => {
 	}
 };
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('ContinueStatement', node => {
 		// A labeled `continue` may target an outer loop.
@@ -55,13 +57,17 @@ const create = context => {
 		return {
 			node,
 			messageId: MESSAGE_ID,
-			/** @param {ESLint.Rule.RuleFixer} fixer */
+			/**
+			@param {ESLint.Rule.RuleFixer} fixer
+			*/
 			fix: fixer => removeStatement(node, context, fixer),
 		};
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

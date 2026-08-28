@@ -1,4 +1,6 @@
-/** @type {import('eslint-doc-generator').GenerateOptions} */
+/**
+@type {import('eslint-doc-generator').GenerateOptions}
+*/
 const config = {
 	configEmoji: [
 		['recommended', '✅'],

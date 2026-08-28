@@ -117,7 +117,9 @@ const fixCommentGroup = (context, comments) => fixer => {
 	return fixer.replaceTextRange(range, `// ${text}`);
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	onRoot(context, function * () {
 		const comments = getComments(context).map(comment => normalizeComment(comment, context));
@@ -151,7 +153,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

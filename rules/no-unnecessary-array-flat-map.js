@@ -288,13 +288,17 @@ function getProblem(flatMapCallExpression, context, isTypeScript) {
 	return getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context);
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const isTypeScript = isTypeScriptFile(context.physicalFilename) || isTypeScriptVueSfc(context.sourceCode);
 	context.on('CallExpression', callExpression => getProblem(callExpression, context, isTypeScript));
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

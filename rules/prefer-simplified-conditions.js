@@ -499,7 +499,9 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 	return getLogicalReplacementText(node, node.left.operator, replacement, context);
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const getProblem = (node, fix) => {
@@ -563,7 +565,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -19,12 +19,16 @@ const fix = (raw, {hexadecimalValue}) => {
 	return fixed;
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('Literal', node => {
 		const {raw} = node;
 
-		/** @type {Options} */
+		/**
+		@type {Options}
+		*/
 		const options = context.options[0] ?? {};
 		options.hexadecimalValue ??= 'uppercase';
 
@@ -45,7 +49,9 @@ const create = context => {
 	});
 };
 
-/** @typedef {Record<keyof typeof schema[0]["properties"], typeof caseEnum["enum"][number]>} Options */
+/**
+@typedef {Record<keyof typeof schema[0]["properties"], typeof caseEnum["enum"][number]>} Options
+*/
 
 const caseEnum = /** @type {const} */ ({
 	enum: ['uppercase', 'lowercase'],
@@ -61,7 +67,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create: checkVueTemplate(create),
 	meta: {

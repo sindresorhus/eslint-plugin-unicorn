@@ -23,7 +23,9 @@ function isCoveredByWildcard(wildcard, name, typeExport) {
 		&& (wildcard.node.exportKind !== 'type' || typeExport);
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const wildcards = [];
@@ -89,7 +91,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

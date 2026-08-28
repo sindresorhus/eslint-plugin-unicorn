@@ -262,7 +262,9 @@ const isRegExpVariableOnlyUsedInCondition = (variable, whileStatement) =>
 const isRegExpVariableDeclaredInLoopScope = (variable, whileStatement) =>
 	variable.defs[0]?.node.parent.parent === whileStatement.parent;
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -326,7 +328,9 @@ const create = context => {
 		return {
 			node,
 			messageId: MESSAGE_ID,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			* fix(fixer) {
 				yield fixer.removeRange(declarationRange);
 				yield fixer.replaceTextRange(headerRange, `for (const ${matchIdentifier.name} of ${stringText}.matchAll(${regexpText}))`);
@@ -335,7 +339,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

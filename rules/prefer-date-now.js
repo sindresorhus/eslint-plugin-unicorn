@@ -25,7 +25,9 @@ const getProblem = (node, problem, context) => ({
 	...problem,
 });
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('CallExpression', callExpression => {
 		// `new Date().{getTime,valueOf}()`
@@ -119,7 +121,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

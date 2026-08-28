@@ -35,7 +35,9 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 
 	return isBuiltinModuleFunctionExpression(node.callee, 'property');
 
-	/** @param {import('estree').Expression} node */
+	/**
+	@param {import('estree').Expression} node
+	*/
 	function isBuiltinModuleFunctionExpression(node, checkKind) {
 		if (node.type === 'MemberExpression') {
 			if (!(
@@ -84,7 +86,9 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 		return isBuiltinModuleFunctionDefinition(variable.defs[0], checkKind);
 	}
 
-	/** @param {import('eslint').Scope.Definition} define */
+	/**
+	@param {import('eslint').Scope.Definition} define
+	*/
 	function isBuiltinModuleFunctionDefinition(define, checkKind) {
 		if (define.type === 'ImportBinding') {
 			if (!isModuleLiteral(define.parent.source)) {
@@ -100,9 +104,13 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 		return define.type === 'Variable' && isBuiltinModuleFunctionPattern(define.name, checkKind);
 	}
 
-	/** @param {import('estree').Identifier | import('estree').ObjectPattern} node */
+	/**
+	@param {import('estree').Identifier | import('estree').ObjectPattern} node
+	*/
 	function isBuiltinModuleFunctionPattern(node, checkKind) {
-		/** @type {{parent?: import('estree').Node}} */
+		/**
+		@type {{parent?: import('estree').Node}}
+		*/
 		const {parent} = node;
 		if (parent.type === 'VariableDeclarator') {
 			if (
@@ -170,7 +178,9 @@ function create(context) {
 			return;
 		}
 
-		/** @type {import('estree').Node} */
+		/**
+		@type {import('estree').Node}
+		*/
 		const memberExpression = node.parent;
 		if (!isMemberExpression(memberExpression, {
 			properties: ['url', 'filename'],
@@ -240,7 +250,9 @@ function create(context) {
 		@param { import('estree').Expression} node
 		*/
 		function * iterateProblemsFromFilename(node, {reportFilenameNode = false} = {}) {
-			/** @type {{parent: import('estree').Node}} */
+			/**
+			@type {{parent: import('estree').Node}}
+			*/
 			const {parent} = node;
 
 			// `path.dirname(filename)`
@@ -266,7 +278,9 @@ function create(context) {
 				return;
 			}
 
-			/** @type {import('eslint').Scope.Variable|null} */
+			/**
+			@type {import('eslint').Scope.Variable|null}
+			*/
 			const variable = findVariable(sourceCode.getScope(parent.id), parent.id);
 			if (!variable) {
 				return;
@@ -277,7 +291,9 @@ function create(context) {
 					continue;
 				}
 
-				/** @type {{parent: import('estree').Node}} */
+				/**
+				@type {{parent: import('estree').Node}}
+				*/
 				const {parent} = reference.identifier;
 				if (
 					isPathDirnameCall(parent, sourceCode)
@@ -303,7 +319,9 @@ function create(context) {
 	});
 }
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

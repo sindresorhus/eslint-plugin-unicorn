@@ -53,7 +53,9 @@ const includesOverSomeRule = simpleArraySearchRule({
 	checkBooleanPredicate: true,
 });
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	includesOverSomeRule.listen(context);
 
@@ -97,7 +99,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create: checkVueTemplate(create),
 	meta: {

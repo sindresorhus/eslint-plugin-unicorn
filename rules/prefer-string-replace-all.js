@@ -299,7 +299,9 @@ const getSplitJoinReplacement = (node, context) => {
 	return `${getParenthesizedText(splitCall.callee.object, context)}.replaceAll(${searchText}, ${escapeString(replacementValue.replaceAll('$', '$$$$'))})`;
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('CallExpression', node => {
 		const splitJoinReplacement = getSplitJoinReplacement(node, context);
@@ -307,7 +309,9 @@ const create = context => {
 			return {
 				node: node.callee.property,
 				messageId: MESSAGE_ID_USE_REPLACE_ALL_OVER_SPLIT_JOIN,
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				/**
+				@param {import('eslint').Rule.RuleFixer} fixer
+				*/
 				fix: fixer => fixer.replaceText(node, splitJoinReplacement),
 			};
 		}
@@ -354,7 +358,9 @@ const create = context => {
 					// Show `This pattern can be replaced with a string literal.` for long strings
 					replacement: patternReplacement.length < 20 ? patternReplacement : 'a string literal',
 				},
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				/**
+				@param {import('eslint').Rule.RuleFixer} fixer
+				*/
 				fix: fixer => fixer.replaceText(pattern, patternReplacement),
 			};
 		}
@@ -362,7 +368,9 @@ const create = context => {
 		return {
 			node: property,
 			messageId: MESSAGE_ID_USE_REPLACE_ALL,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			* fix(fixer) {
 				yield fixer.insertTextAfter(property, 'All');
 
@@ -376,7 +384,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

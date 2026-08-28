@@ -91,7 +91,9 @@ const getFix = (expressionStatement, body, context) => fixer =>
 		context.sourceCode.getText(body),
 	);
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const {visitorKeys} = sourceCode;
@@ -138,7 +140,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

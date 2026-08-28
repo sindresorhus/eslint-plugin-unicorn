@@ -5,7 +5,9 @@ const messages = {
 	[MESSAGE_ID]: 'Passing `{{description}}` as the `{{argumentName}}` argument is unnecessary.',
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create(context) {
 		listen(context, {methods: ['splice', 'toSpliced'], messageId: MESSAGE_ID, checkArrayReceiver: true});

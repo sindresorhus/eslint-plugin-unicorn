@@ -101,6 +101,8 @@ const config = [
 			'func-names': 'off',
 			'@stylistic/function-paren-newline': 'off',
 			'@stylistic/curly-newline': 'off',
+			// This repository uses AVA, and some non-test rule files have names that match Node.js test file conventions.
+			'node-test/no-import-test-files': 'off',
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2833
 			'unicorn/template-indent': ['error', {indent: '\t'}],
 			// These `regexp/*` rules flag our own rule-implementation regexes, which run on source

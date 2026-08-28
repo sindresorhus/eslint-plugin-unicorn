@@ -576,7 +576,9 @@ function shouldCheckPropertyDefinitionKey(node) {
 	return node.computed || isBigIntLiteral(node.key) || isUnsafeNumberLiteral(node.key);
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('MemberExpression', node => {
 		if (!node.computed) {
@@ -597,7 +599,9 @@ const create = context => {
 	}
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

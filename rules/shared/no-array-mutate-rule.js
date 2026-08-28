@@ -63,7 +63,9 @@ export default function noArrayMutateRule(methodName) {
 		[MESSAGE_ID_SUGGESTION_NOT_SPREADING_ARRAY]: 'The spreading object is NOT an array.',
 	};
 
-	/** @param {import('eslint').Rule.RuleContext} context */
+	/**
+	@param {import('eslint').Rule.RuleContext} context
+	*/
 	const create = context => {
 		const {allowExpressionStatement} = context.options[0];
 
@@ -138,7 +140,9 @@ export default function noArrayMutateRule(methodName) {
 		});
 	};
 
-	/** @type {import('eslint').Rule.RuleModule} */
+	/**
+	@type {import('eslint').Rule.RuleModule}
+	*/
 	const config = {
 		create,
 		meta: {

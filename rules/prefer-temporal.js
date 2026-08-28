@@ -171,7 +171,9 @@ function getDateMethodCallProblem(node, context, services) {
 	return {node: callee, messageId: MESSAGE_ID, data: {description: method}};
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {checkDateNow, checkReferences, checkMethods} = context.options[0];
 
@@ -231,7 +233,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

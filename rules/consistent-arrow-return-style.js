@@ -186,7 +186,9 @@ const getImplicitReturnFix = (node, returnStatement, context) => {
 	return fixer => fixer.replaceText(node.body, returnArgumentText);
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	let indentationUnit;
@@ -224,7 +226,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

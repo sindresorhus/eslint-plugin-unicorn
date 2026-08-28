@@ -133,7 +133,9 @@ function isCustomClassReceiver(memberExpression) {
 	return receiver.type === 'ThisExpression' || receiver.type === 'Super';
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('BinaryExpression', node => {
 		if (!Object.hasOwn(flipOperator, node.operator)) {
@@ -171,7 +173,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

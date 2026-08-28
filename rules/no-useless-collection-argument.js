@@ -39,8 +39,10 @@ const getDescription = node => {
 };
 
 const removeFallback = (node, context) =>
-	// Same code from rules/no-useless-fallback-in-spread.js
-	/** @param {ESLint.Rule.RuleFixer} fixer */
+// Same code from rules/no-useless-fallback-in-spread.js
+	/**
+	@param {ESLint.Rule.RuleFixer} fixer
+	*/
 	function * fix(fixer) {
 		const {sourceCode} = context;
 		const logicalExpression = node.parent;
@@ -61,7 +63,9 @@ const removeFallback = (node, context) =>
 		}
 	};
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('NewExpression', (/** @type {ESTree.NewExpression} */ newExpression) => {
 		if (!isNewExpression(newExpression, {
@@ -113,7 +117,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

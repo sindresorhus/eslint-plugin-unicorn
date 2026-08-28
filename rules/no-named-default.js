@@ -72,7 +72,9 @@ const fixExportSpecifier = (exportSpecifier, context) => function * (fixer) {
 	yield fixer.insertTextBefore(declaration, `${text}\n`);
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -115,7 +117,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

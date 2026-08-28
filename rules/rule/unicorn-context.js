@@ -19,7 +19,9 @@ Create a better `Context` object with `on` and `onExit` method to add listeners
 @returns {UnicornContext}
 */
 export default function createUnicornContext(eslintContext, listeners) {
-	/** @type {UnicornContext} */
+	/**
+	@type {UnicornContext}
+	*/
 	const context = new Proxy(eslintContext, {
 		get(target, property, receiver) {
 			if (property === 'on' || property === 'onExit') {

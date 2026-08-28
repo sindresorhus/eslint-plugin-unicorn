@@ -69,7 +69,9 @@ function * swapConsequentAndAlternate(fixer, node, context) {
 	yield fixer.replaceTextRange(sourceCode.getRange(alternate), consequent.text);
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on(['IfStatement', 'ConditionalExpression'], node => {
 		if (
@@ -94,7 +96,9 @@ const create = context => {
 		return {
 			node: test,
 			messageId: MESSAGE_ID,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			* fix(fixer) {
 				yield convertNegatedCondition(fixer, node, context);
 				yield swapConsequentAndAlternate(fixer, node, context);
@@ -131,7 +135,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -43,7 +43,9 @@ function getTypeAnnotation(node) {
 	}
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('ConditionalExpression', /** @param {import('estree').ConditionalExpression} conditionalExpression */ conditionalExpression => {
 		const {test, consequent, alternate} = conditionalExpression;
@@ -146,7 +148,9 @@ const create = context => {
 						}
 
 						case 'Variable': {
-							/** @type {import('estree').VariableDeclarator}  */
+							/**
+							@type {import('estree').VariableDeclarator}
+							*/
 							const variableDeclarator = definition.node;
 
 							/**
@@ -195,7 +199,9 @@ const create = context => {
 			node: conditionalExpression,
 			messageId: MESSAGE_ID,
 			data: {method},
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			* fix(fixer) {
 				const {sourceCode} = context;
 
@@ -211,7 +217,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

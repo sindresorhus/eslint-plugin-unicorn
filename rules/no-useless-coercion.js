@@ -26,7 +26,9 @@ const coercions = new Map([
 	['Number', {type: 'number', isType: isNumber}],
 ]);
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -35,7 +37,9 @@ const create = context => {
 		node,
 		messageId: MESSAGE_ID,
 		data: {description, type},
-		/** @param {ESLint.Rule.RuleFixer} fixer */
+		/**
+		@param {ESLint.Rule.RuleFixer} fixer
+		*/
 		* fix(fixer, {abort}) {
 			// Removing the coercion would drop comments inside it.
 			if (sourceCode.getCommentsInside(node).length > 0) {
@@ -126,7 +130,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

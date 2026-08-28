@@ -232,7 +232,9 @@ const isTypeOnlyClassField = node =>
 	|| node.declare
 	|| node.parent.parent.declare;
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	if (
 		!isTypeScriptFile(context.physicalFilename)
@@ -329,7 +331,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

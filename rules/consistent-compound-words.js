@@ -173,7 +173,9 @@ const createProblem = (node, replacement) => ({
 	},
 });
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const options = Object.keys(context.options[0]).length === 0
 		? defaultPreparedOptions
@@ -449,7 +451,9 @@ const schema = {
 	},
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {
