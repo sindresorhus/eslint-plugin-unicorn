@@ -5,7 +5,9 @@ const messages = {
 	[MESSAGE_ID]: 'Passing `{{description}}` as the `end` argument is unnecessary.',
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create(context) {
 		listen(context, {methods: ['slice'], messageId: MESSAGE_ID});

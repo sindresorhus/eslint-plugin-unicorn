@@ -184,7 +184,9 @@ const getSuggestion = (classBody, order, sourceCode) => {
 	];
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const order = new Map(context.options[0].order.map((group, index) => [group, index]));
@@ -246,7 +248,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

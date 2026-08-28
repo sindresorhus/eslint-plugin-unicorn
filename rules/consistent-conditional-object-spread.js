@@ -252,7 +252,9 @@ function getConditionalExpressionProblem(conditionalExpression, context) {
 		data: {
 			expectedStyle: 'logical',
 		},
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
 		* fix(fixer, {abort}) {
 			if (hasCommentsInside) {
 				return abort();
@@ -294,7 +296,9 @@ function getLogicalExpressionProblem(logicalExpression, context) {
 		data: {
 			expectedStyle: 'ternary',
 		},
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
 		* fix(fixer, {abort}) {
 			if (context.sourceCode.getCommentsInside(logicalExpression).length > 0) {
 				return abort();
@@ -305,7 +309,9 @@ function getLogicalExpressionProblem(logicalExpression, context) {
 	};
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const style = context.options[0];
 
@@ -330,7 +336,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

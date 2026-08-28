@@ -87,7 +87,9 @@ const create = context => {
 	context.on('TSUnionType', getProblem);
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

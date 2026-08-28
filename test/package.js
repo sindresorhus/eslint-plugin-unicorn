@@ -178,10 +178,10 @@ test('Every rule file has the appropriate contents', t => {
 		const rulePath = path.join('rules', `${ruleName}.js`);
 		const ruleContents = fs.readFileSync(rulePath, 'utf8');
 
-		t.true(
+		t.regex(
+			ruleContents,
 			// TODO: Use `@import` instead of `import('eslint')`
-			ruleContents.includes('/** @type {import(\'eslint\').Rule.RuleModule} */')
-			|| ruleContents.includes('/** @type {ESLint.Rule.RuleModule} */'),
+			/\/\*\*\s*@type \{(?:import\('eslint'\)|ESLint)\.Rule\.RuleModule\}\s*\*\//,
 			`${ruleName} includes jsdoc comment for rule type`,
 		);
 	}

@@ -273,7 +273,9 @@ const getGuardProblem = (node, context) => {
 	return problem;
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	if (context.options[0] === STYLE_FALLBACK) {
 		context.on('IfStatement', node => getGuardProblem(node, context));
@@ -283,7 +285,9 @@ const create = context => {
 	context.on(['ForInStatement', 'ForOfStatement'], node => getFallbackProblem(node, context));
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

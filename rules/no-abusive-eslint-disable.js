@@ -8,7 +8,9 @@ const messages = {
 	[MESSAGE_ID]: 'Specify the rules you want to disable.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	onRoot(context, function * () {
 		for (const directive of getEslintDisableDirectives(context)) {
@@ -34,7 +36,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

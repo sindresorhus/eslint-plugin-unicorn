@@ -112,7 +112,9 @@ function * getStatementListProblems(sourceCode, statements) {
 	}
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -121,7 +123,9 @@ const create = context => {
 	context.on('SwitchCase', node => getStatementListProblems(sourceCode, node.consequent));
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

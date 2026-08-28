@@ -398,12 +398,16 @@ function * getProblems(ifStatement, context) {
 	}
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('IfStatement', ifStatement => getProblems(ifStatement, context));
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

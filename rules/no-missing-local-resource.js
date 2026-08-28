@@ -289,7 +289,9 @@ function hasLengthChangingCaseMapping(rawPath, correctedPath) {
 	return rawPath.split('/').some((part, index) => decodePercentEncoded(part).length !== correctedParts[index].length);
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	if (
 		context.filename !== context.physicalFilename
@@ -519,7 +521,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

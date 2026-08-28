@@ -190,7 +190,9 @@ const fix = (ifStatement, context) => fixer => {
 	return fixer.replaceTextRange(replacementRange, getReplacementText(ifStatement, sourceCode));
 };
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const branchAlwaysExits = trackBranchExits(context, branch => isBranchExit(branch, context, branchAlwaysExits));
@@ -215,7 +217,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

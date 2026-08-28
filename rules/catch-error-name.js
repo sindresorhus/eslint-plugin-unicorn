@@ -30,7 +30,9 @@ const isPromiseCatchParameter = node =>
 	)
 	&& node.parent.parent.arguments.at(-1) === node.parent;
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const options = context.options[0];
 	const {name: expectedName} = options;
@@ -117,7 +119,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

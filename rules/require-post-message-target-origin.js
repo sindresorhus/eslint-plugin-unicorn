@@ -8,7 +8,9 @@ const messages = {
 	[SUGGESTION]: 'Use `{{code}}`.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 function create(context) {
 	const {sourceCode} = context;
 	context.on('CallExpression', node => {
@@ -46,14 +48,18 @@ function create(context) {
 			suggest: replacements.map(code => ({
 				messageId: SUGGESTION,
 				data: {code},
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				/**
+				@param {import('eslint').Rule.RuleFixer} fixer
+				*/
 				fix: fixer => appendArgument(fixer, node, code, context),
 			})),
 		};
 	});
 }
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

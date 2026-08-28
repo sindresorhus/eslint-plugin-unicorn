@@ -87,7 +87,9 @@ const isDuplicateLoopCase = (node, context) =>
 	shouldSkipDuplicateLoopCase(node)
 	&& !isIteratorExpression(node.callee.object, context);
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('ForOfStatement', node => {
 		const right = unwrapExpression(node.right);
@@ -112,7 +114,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

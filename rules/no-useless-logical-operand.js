@@ -177,7 +177,9 @@ function getProblem(node, context) {
 	};
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('LogicalExpression', node => {
 		if (
@@ -227,7 +229,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

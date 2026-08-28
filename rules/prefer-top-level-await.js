@@ -206,7 +206,9 @@ const shouldIgnoreCallExpression = node =>
 	|| isVariableDeclaratorInitializer(node)
 	|| isInPromiseMethods(node);
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 function create(context) {
 	// Use the real file path so processors or code blocks cannot hide file-level opt-outs.
 	const filename = context.physicalFilename.toLowerCase();
@@ -297,7 +299,9 @@ function create(context) {
 	});
 }
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

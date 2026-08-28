@@ -418,7 +418,9 @@ function getThrownErrorExpression(throwStatement, context) {
 const hasCommentsInside = (node, context) =>
 	context.sourceCode.getCommentsInside(node).length > 0;
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('IfStatement', node => {
 		const throwStatement = getLoneThrowStatement(node.consequent);
@@ -457,7 +459,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

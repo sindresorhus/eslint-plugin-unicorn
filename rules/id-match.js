@@ -50,7 +50,9 @@ const create = context => {
 	context.on('PrivateIdentifier', node => onPrivateIdentifier(node));
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

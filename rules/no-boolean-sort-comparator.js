@@ -175,7 +175,9 @@ const isSortMethodCall = (node, context) =>
 	&& node.callee.type === 'MemberExpression'
 	&& sortMethodNames.has(getPropertyName(node.callee, context.sourceCode.getScope(node.callee)));
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('CallExpression', callExpression => {
 		if (!isSortMethodCall(callExpression, context)) {
@@ -198,7 +200,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

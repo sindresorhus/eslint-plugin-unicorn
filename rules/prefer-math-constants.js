@@ -35,7 +35,9 @@ const isNonReplaceable = node => {
 		|| (parent.type === 'TSLiteralType' && parent.literal === node);
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('Literal', node => {
 		if (!isNumericLiteral(node) || isNonReplaceable(node)) {
@@ -83,7 +85,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

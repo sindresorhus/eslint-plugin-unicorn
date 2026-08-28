@@ -1319,7 +1319,9 @@ const getProblem = (node, nativeObjectReference, propertyName, messageId) => ({
 	},
 });
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('MemberExpression', node => {
 		const propertyName = getStaticPropertyName(node);
@@ -1369,7 +1371,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

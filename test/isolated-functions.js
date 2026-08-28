@@ -14,7 +14,9 @@ const fooInChromeScriptingExecuteScriptError = error({name: 'foo', reason: 'prop
 const fooInBrowserScriptingExecuteScriptError = error({name: 'foo', reason: 'property "func" passed to "browser.scripting.executeScript"'});
 
 test({
-	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
+	/**
+	@type {import('eslint').RuleTester.ValidTestCase[]}
+	*/
 	valid: [
 		{
 			name: 'variable defined in scope of isolated function',
@@ -262,7 +264,9 @@ test({
 			`,
 		},
 	],
-	/** @type {import('eslint').RuleTester.InvalidTestCase[]} */
+	/**
+	@type {import('eslint').RuleTester.InvalidTestCase[]}
+	*/
 	invalid: [
 		{
 			name: 'out of scope variable under makeSynchronous (arrow function)',

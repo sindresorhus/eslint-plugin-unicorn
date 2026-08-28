@@ -121,7 +121,9 @@ function isStaticComputedKey(node, context) {
 	return getStaticValue(node, context.sourceCode.getScope(node)) !== null;
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('Property', node => {
 		if (
@@ -181,7 +183,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

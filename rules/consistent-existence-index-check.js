@@ -48,7 +48,9 @@ function getReplacement(binaryExpression) {
 	}
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('VariableDeclarator', /** @param {import('estree').VariableDeclarator} variableDeclarator */ function * (variableDeclarator) {
 		if (!(
@@ -74,7 +76,9 @@ const create = context => {
 		}
 
 		for (const {identifier} of variable.references) {
-			/** @type {{parent: import('estree').BinaryExpression}} */
+			/**
+			@type {{parent: import('estree').BinaryExpression}}
+			*/
 			const binaryExpression = identifier.parent;
 
 			if (binaryExpression.type !== 'BinaryExpression' || binaryExpression.left !== identifier) {
@@ -118,7 +122,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

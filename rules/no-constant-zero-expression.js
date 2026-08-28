@@ -35,7 +35,9 @@ const isErasedToZero = node => {
 	}
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -61,7 +63,9 @@ const create = context => {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
+					/**
+					@param {import('eslint').Rule.RuleFixer} fixer
+					*/
 					fix: fixer => fixer.replaceText(node, '0'),
 				},
 			];
@@ -71,7 +75,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

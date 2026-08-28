@@ -10,7 +10,9 @@ const messages = {
 	[MESSAGE_ID]: 'The empty object is useless.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	// `{...(foo || {})}`, `{...(foo ?? {})}`
 	context.on('ObjectExpression', node => {
@@ -30,7 +32,9 @@ const create = context => {
 		return {
 			node,
 			messageId: MESSAGE_ID,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			* fix(fixer, {abort}) {
 				const {sourceCode} = context;
 				const logicalExpression = node.parent;
@@ -60,7 +64,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -330,13 +330,17 @@ const getRemoveChildLoopProblem = (context, node) => {
 	};
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('AssignmentExpression', node => getInnerHTMLProblem(context, node));
 	context.on('WhileStatement', node => getRemoveChildLoopProblem(context, node));
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -11,7 +11,9 @@ const tracker = new GlobalReferenceTracker({
 	handle: ({node}) => ({node, messageId: MESSAGE_ID}),
 });
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create(context) {
 		tracker.listen({context});

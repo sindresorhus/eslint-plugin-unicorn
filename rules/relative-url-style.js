@@ -78,7 +78,9 @@ function removeDotSlash(node, sourceCode) {
 	return fixer => fixer.removeRange([start, start + 2]);
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const style = context.options[0];
 
@@ -144,7 +146,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

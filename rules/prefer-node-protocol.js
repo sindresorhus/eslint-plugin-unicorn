@@ -62,13 +62,17 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			data: {moduleName: value},
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			fix: fixer => fixer.insertTextAfterRange([insertPosition, insertPosition], NODE_PROTOCOL),
 		};
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

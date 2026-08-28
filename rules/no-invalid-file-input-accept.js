@@ -413,7 +413,9 @@ const getValueProblem = ({valueInfo, fix}) => {
 	});
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('JSXOpeningElement', node => {
 		if (getJsxName(node.name) !== 'input') {
@@ -460,7 +462,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

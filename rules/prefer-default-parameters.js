@@ -105,7 +105,9 @@ const needsParentheses = (sourceCode, function_) => {
 	return !after || !before || before.value !== '(' || after.value !== ')';
 };
 
-/** @param {import('eslint').Rule.RuleFixer} fixer */
+/**
+@param {import('eslint').Rule.RuleFixer} fixer
+*/
 const fixDefaultExpression = (fixer, sourceCode, node) => {
 	const {line} = sourceCode.getLoc(node).start;
 	const {column} = sourceCode.getLoc(node).end;
@@ -129,7 +131,9 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 	return fixer.remove(node);
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const functionStack = [];
@@ -241,7 +245,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

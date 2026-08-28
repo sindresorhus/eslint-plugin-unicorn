@@ -25,7 +25,9 @@ const noOpAssignments = new Map([
 	['**=', 1],
 ]);
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -65,7 +67,9 @@ const create = context => {
 				suggest: [
 					{
 						messageId: MESSAGE_ID_SUGGESTION_REMOVE,
-						/** @param {ESLint.Rule.RuleFixer} fixer */
+						/**
+						@param {ESLint.Rule.RuleFixer} fixer
+						*/
 						fix: fixer => removeStatement(parent, context, fixer),
 					},
 				],
@@ -82,7 +86,9 @@ const create = context => {
 				{
 					messageId: MESSAGE_ID_SUGGESTION_REPLACE,
 					data: {left},
-					/** @param {ESLint.Rule.RuleFixer} fixer */
+					/**
+					@param {ESLint.Rule.RuleFixer} fixer
+					*/
 					fix: fixer => fixer.replaceText(node, left),
 				},
 			],
@@ -90,7 +96,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

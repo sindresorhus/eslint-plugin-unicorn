@@ -497,7 +497,9 @@ function * getMutationProblems(node, loopInformation, nestedLoopInformation, con
 	}
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const reportedCallExpressions = new WeakSet();
 	const branchAlwaysExits = trackBranchExits(context);
@@ -521,7 +523,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

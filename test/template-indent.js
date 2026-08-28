@@ -20,7 +20,9 @@ const errors = [
 ];
 
 test({
-	/** @type {import('eslint').RuleTester.InvalidTestCase[]} */
+	/**
+	@type {import('eslint').RuleTester.InvalidTestCase[]}
+	*/
 	invalid: [
 		{
 			code: fixInput(`
@@ -694,7 +696,9 @@ test({
 			`),
 		},
 	],
-	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
+	/**
+	@type {import('eslint').RuleTester.ValidTestCase[]}
+	*/
 	valid: [
 		'foo = dedent`one two three`',
 		fixInput(`

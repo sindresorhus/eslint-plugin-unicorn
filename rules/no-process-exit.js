@@ -9,7 +9,9 @@ const isWorkerThreads = node =>
 	isLiteral(node, 'node:worker_threads')
 	|| isLiteral(node, 'worker_threads');
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const isStartsWithHashBang = context.sourceCode.lines[0].indexOf('#!') === 0;
 
@@ -94,7 +96,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

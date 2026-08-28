@@ -239,7 +239,9 @@ function * getStatementListProblems(sourceCode, statements, branchAlwaysExits) {
 	}
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const branchAlwaysExits = trackBranchExits(context, branch => isBranchExit(branch, context, branchAlwaysExits));
@@ -250,7 +252,9 @@ const create = context => {
 	context.onExit('BlockStatement', node => getStatementListProblems(sourceCode, node.body, branchAlwaysExits));
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

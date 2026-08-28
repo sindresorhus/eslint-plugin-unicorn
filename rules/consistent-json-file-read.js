@@ -209,7 +209,9 @@ function addUtf8Encoding(fixer, callExpression, context) {
 	return fixer.insertTextAfter(fileNode, ', \'utf8\'');
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const [option] = context.options;
 
@@ -281,7 +283,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

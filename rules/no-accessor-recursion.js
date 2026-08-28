@@ -22,10 +22,14 @@ const getClosestFunctionScope = (sourceCode, node) => {
 	}
 };
 
-/** @param {import('estree').Identifier | import('estree').PrivateIdentifier} node */
+/**
+@param {import('estree').Identifier | import('estree').PrivateIdentifier} node
+*/
 const isIdentifier = node => node.type === 'Identifier' || node.type === 'PrivateIdentifier';
 
-/** @param {import('estree').ThisExpression} node */
+/**
+@param {import('estree').ThisExpression} node
+*/
 const isDotNotationAccess = node =>
 	node.parent.type === 'MemberExpression'
 	&& node.parent.object === node
@@ -118,7 +122,9 @@ const isPropertyWrite = (thisExpression, property) => {
 	);
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -129,7 +135,9 @@ const create = context => {
 			return;
 		}
 
-		/** @type {import('estree').Property | import('estree').MethodDefinition} */
+		/**
+		@type {import('estree').Property | import('estree').MethodDefinition}
+		*/
 		const property = scope.block.parent;
 
 		if (!isValidProperty(property)) {
@@ -146,7 +154,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

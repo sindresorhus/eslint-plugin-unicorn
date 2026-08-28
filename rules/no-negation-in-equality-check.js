@@ -18,7 +18,9 @@ const EQUALITY_OPERATORS = new Set([
 const isEqualityCheck = node => node.type === 'BinaryExpression' && EQUALITY_OPERATORS.has(node.operator);
 const isNegatedExpression = node => node.type === 'UnaryExpression' && node.prefix && node.operator === '!';
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('BinaryExpression', binaryExpression => {
 		const {operator, left} = binaryExpression;
@@ -35,14 +37,18 @@ const create = context => {
 		return {
 			node: bangToken,
 			messageId: MESSAGE_ID_ERROR,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			suggest: [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					data: {
 						operator: negatedOperator,
 					},
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
+					/**
+					@param {import('eslint').Rule.RuleFixer} fixer
+					*/
 					* fix(fixer) {
 						yield fixSpaceAroundKeyword(fixer, binaryExpression, context);
 
@@ -78,7 +84,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

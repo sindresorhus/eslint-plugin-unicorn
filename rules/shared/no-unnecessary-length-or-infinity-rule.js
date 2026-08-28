@@ -80,7 +80,9 @@ function listen(context, {methods, messageId, checkArrayReceiver = false}) {
 			node: secondArgument,
 			messageId,
 			data: messageData,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			fix: fixer => removeArgument(fixer, secondArgument, context),
 		};
 	});

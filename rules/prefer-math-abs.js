@@ -336,7 +336,9 @@ function getLogicalExpressionReplacement(logicalExpression, context) {
 	}
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('ConditionalExpression', conditionalExpression => {
 		const value = getTernaryReplacement(conditionalExpression, context);
@@ -345,7 +347,9 @@ const create = context => {
 			return;
 		}
 
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
 		const fix = isSideEffectFreeReference(value)
 			? function * (fixer) {
 				yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
@@ -365,7 +369,9 @@ const create = context => {
 
 		const {value, threshold, operator} = replacement;
 
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
 		const fix = (
 			isSideEffectFreeReference(value)
 			&& isSideEffectFreeReference(threshold)
@@ -380,7 +386,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -7,7 +7,9 @@ const messages = {
 	[MESSAGE_ID]: 'Passing `1` as the `depth` argument is unnecessary.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('CallExpression', callExpression => {
 		if (!(
@@ -30,13 +32,17 @@ const create = context => {
 		return {
 			node: numberOne,
 			messageId: MESSAGE_ID,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			fix: fixer => removeArgument(fixer, numberOne, context),
 		};
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -665,7 +665,9 @@ function isContinueAcrossFinally(node) {
 	return false;
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const resolverReferenceExecutors = new WeakMap();
@@ -922,7 +924,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

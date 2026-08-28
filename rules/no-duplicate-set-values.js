@@ -11,7 +11,9 @@ const messages = {
 	[MESSAGE_ID]: 'Remove duplicate value `{{value}}` from the Set.',
 };
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -41,7 +43,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -10,7 +10,9 @@ const lastIndexOfOverFindLastIndexRule = simpleArraySearchRule({
 	replacement: 'lastIndexOf',
 });
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create(context) {
 		indexOfOverFindIndexRule.listen(context);

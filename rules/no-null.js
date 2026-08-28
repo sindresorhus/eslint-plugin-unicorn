@@ -18,7 +18,9 @@ const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].in
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
 const isCallOrNewArgument = node => isCallOrNewExpression(node.parent) && node.parent.arguments.includes(node);
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {checkArguments, checkStrictEquality} = context.options[0];
 
@@ -139,7 +141,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

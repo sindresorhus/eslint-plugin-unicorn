@@ -112,7 +112,9 @@ const getClassListContainsCall = (conditionNode, isNegative, addOrRemoveCall) =>
 	}
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -167,7 +169,9 @@ const create = context => {
 			return;
 		}
 
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
 		function * fix(fixer) {
 			const elementText = getParenthesizedText(consequent.callee.object.object, context);
 			const classNameText = getParenthesizedText(consequent.arguments[0], context);
@@ -219,7 +223,9 @@ const create = context => {
 		const classListMethod = conditionalExpression.parent;
 		const callExpression = classListMethod.parent;
 
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
 		function * fix(fixer) {
 			const isNegative = conditionalExpression.consequent.value === 'remove';
 			const conditionNode = conditionalExpression.test;
@@ -237,7 +243,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

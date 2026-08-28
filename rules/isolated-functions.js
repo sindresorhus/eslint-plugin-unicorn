@@ -15,7 +15,9 @@ const messages = {
 	[MESSAGE_ID_THIS_EXPRESSION]: 'Unexpected `this` in isolated function. Function is isolated because: {{reason}}.',
 };
 
-/** @type {{functions: string[], selectors: string[], comments: string[], overrideGlobals?: import('eslint').Linter.Globals}} */
+/**
+@type {{functions: string[], selectors: string[], comments: string[], overrideGlobals?: import('eslint').Linter.Globals}}
+*/
 const defaultOptions = {
 	functions: ['makeSynchronous', 'workerize'],
 	selectors: [],
@@ -90,10 +92,14 @@ const getExecuteScriptPropertyReason = node => {
 	return `property "func" passed to "${scriptingObjectName}.scripting.executeScript"`;
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
-	/** @type {typeof defaultOptions} */
+	/**
+	@type {typeof defaultOptions}
+	*/
 	const options = {...context.options[0]};
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
@@ -193,7 +199,9 @@ const create = context => {
 		}
 	}
 
-	/** @param {import('estree').Node} node */
+	/**
+	@param {import('estree').Node} node
+	*/
 	const reportIsolatedFunctionProblems = (node, reason) => {
 		if (checked.has(node) || !functionTypes.includes(node.type)) {
 			return;
@@ -336,7 +344,9 @@ const create = context => {
 	}
 };
 
-/** @type {import('json-schema').JSONSchema7[]} */
+/**
+@type {import('json-schema').JSONSchema7[]}
+*/
 const schema = [
 	{
 		type: 'object',
@@ -376,7 +386,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 export default {
 	create,
 	meta: {

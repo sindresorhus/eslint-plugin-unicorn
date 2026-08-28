@@ -6,7 +6,9 @@ const messages = {
 	[MESSAGE_ID]: 'Do not access a member directly from an await expression.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('MemberExpression', memberExpression => {
 		if (memberExpression.object.type !== 'AwaitExpression') {
@@ -68,7 +70,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

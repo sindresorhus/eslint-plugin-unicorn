@@ -16,7 +16,9 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer using `Response.json(…)` over `JSON.stringify()`.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('NewExpression', newExpression => {
 		if (!isNewExpression(newExpression, {name: 'Response', minimumArguments: 1})) {
@@ -37,7 +39,9 @@ const create = context => {
 		return {
 			node: jsonStringifyNode.callee,
 			messageId: MESSAGE_ID,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
 			* fix(fixer) {
 				yield fixer.insertTextAfter(newExpression.callee, '.json');
 				yield switchNewExpressionToCallExpression(newExpression, context, fixer);
@@ -66,7 +70,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

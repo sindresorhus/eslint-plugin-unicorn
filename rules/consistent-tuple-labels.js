@@ -8,7 +8,9 @@ const isLabeledElement = element =>
 	element.type === 'TSNamedTupleMember'
 	|| (element.type === 'TSRestType' && element.typeAnnotation.type === 'TSNamedTupleMember');
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('TSTupleType', node => {
 		const elements = node.elementTypes;
@@ -30,7 +32,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -58,7 +58,9 @@ const getDefaultIndent = (sourceCode, ignoredLines, parentMargin, template) => {
 	return parentMargin.startsWith('\t') ? '\t' : '  ';
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 	const options = {...context.options[0]};
@@ -67,7 +69,9 @@ const create = context => {
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 	const checked = new WeakSet();
 
-	/** @param {import('@babel/core').types.TemplateLiteral} node */
+	/**
+	@param {import('@babel/core').types.TemplateLiteral} node
+	*/
 	const getProblem = node => {
 		if (node.type !== 'TemplateLiteral' || checked.has(node)) {
 			return;
@@ -162,7 +166,9 @@ const create = context => {
 	context.on(options.selectors, /** @param {import('@babel/core').types.TemplateLiteral} node */ node => getProblem(node));
 };
 
-/** @type {import('json-schema').JSONSchema7[]} */
+/**
+@type {import('json-schema').JSONSchema7[]}
+*/
 const schema = [
 	{
 		type: 'object',
@@ -219,7 +225,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

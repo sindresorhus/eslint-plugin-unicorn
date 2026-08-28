@@ -46,7 +46,9 @@ const getProblem = (node, sourceCode) => {
 	};
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -66,7 +68,9 @@ const create = context => {
 	context.on('ImportAttribute', node => getProblem(node.key, sourceCode));
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -465,7 +465,9 @@ function getMapAccessProblems(node, mapHasCall, context, reportedAccessKeys) {
 	return problems;
 }
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const reportedAccessKeys = new WeakSet();
 
@@ -492,7 +494,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

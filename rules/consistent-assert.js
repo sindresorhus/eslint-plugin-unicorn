@@ -35,7 +35,9 @@ const isAssertFunction = (specifier, moduleName) =>
 
 const NODE_PROTOCOL = 'node:';
 
-/** @type {import('eslint').Rule.RuleModule['create']} */
+/**
+@type {import('eslint').Rule.RuleModule['create']}
+*/
 const create = context => {
 	context.on('ImportDeclaration', function * (importDeclaration) {
 		if (!isValueImport(importDeclaration)) {
@@ -75,7 +77,9 @@ const create = context => {
 					node: identifier,
 					messageId: MESSAGE_ID_ERROR,
 					data: {name: identifier.name},
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
+					/**
+					@param {import('eslint').Rule.RuleFixer} fixer
+					*/
 					fix: fixer => fixer.insertTextAfter(identifier, '.ok'),
 				};
 			}
@@ -83,7 +87,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

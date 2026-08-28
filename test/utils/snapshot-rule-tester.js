@@ -161,6 +161,19 @@ function verify(code, verifyConfig, {filename}) {
 	return messages;
 }
 
+function getSnapshotFilename(filename) {
+	let relativeFilename = path.relative(process.cwd(), filename);
+	if (
+		relativeFilename === '..'
+		|| relativeFilename.startsWith(`..${path.sep}`)
+		|| path.isAbsolute(relativeFilename)
+	) {
+		relativeFilename = path.relative(path.parse(filename).root, filename);
+	}
+
+	return relativeFilename.replaceAll(path.sep, '/');
+}
+
 export default class SnapshotRuleTester {
 	constructor(test, testerConfig) {
 		this.test = test;
@@ -190,6 +203,7 @@ export default class SnapshotRuleTester {
 			const {code: input, options, filename, only} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
 			const runVerify = code => verify(code, verifyConfig, {filename});
+			const snapshotFilename = filename === undefined ? undefined : getSnapshotFilename(filename);
 
 			(only ? test.only : test)(
 				`invalid(${index + 1}): ${input}`,
@@ -218,7 +232,7 @@ export default class SnapshotRuleTester {
 
 					t.snapshot(
 						`\n${inputSnapshotParts.join('\n\n')}\n`,
-						'Input' + (filename === undefined ? '' : ` ${inspect(filename)}`),
+						'Input' + (snapshotFilename === undefined ? '' : ` ${inspect(snapshotFilename)}`),
 					);
 
 					for (const [index, message] of messages.entries()) {
@@ -264,4 +278,4 @@ export default class SnapshotRuleTester {
 		}
 	}
 }
-export {visualizeEslintMessage};
+export {getSnapshotFilename, visualizeEslintMessage};

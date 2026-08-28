@@ -181,7 +181,9 @@ const isDomCollectionReceiver = node => {
 		|| isMethodCall(node, {methods: domCollectionMethods});
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 function create(context) {
 	const {
 		getLastElementFunctions,
@@ -353,7 +355,9 @@ function create(context) {
 
 		const {safeToFix, firstElementGetMethod} = result;
 
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
 		function * fix(fixer) {
 			// `.slice` to `.at`
 			yield fixer.replaceText(sliceCall.callee.property, 'at');
@@ -449,7 +453,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

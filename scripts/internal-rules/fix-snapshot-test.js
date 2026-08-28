@@ -36,7 +36,7 @@ function * removeObjectProperty(node, fixer, sourceCode) {
 
 // The fix deletes lots of code, disabled auto-fix by default, unless `/* fix */ test.snapshot()` pattern is used.
 function getFixMarkComment(snapshotTestCall, sourceCode) {
-	assert.ok(snapshotTestCall.type === 'CallExpression');
+	assert.strictEqual(snapshotTestCall.type, 'CallExpression');
 	const comment = sourceCode.getTokenBefore(snapshotTestCall, {includeComments: true});
 
 	if (

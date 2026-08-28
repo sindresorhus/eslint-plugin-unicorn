@@ -18,13 +18,17 @@ function getProblem(variableNode, valueNode) {
 	};
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('VariableDeclarator', node => getProblem(node.id, node.init));
 	context.on('AssignmentExpression', node => getProblem(node.left, node.right));
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

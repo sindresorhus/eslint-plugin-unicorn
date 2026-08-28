@@ -327,7 +327,9 @@ const getFix = (ifStatement, context) => {
 	);
 };
 
-/** @param {ESLint.Rule.RuleContext} context */
+/**
+@param {ESLint.Rule.RuleContext} context
+*/
 const create = context => {
 	const {maximumStatements} = context.options[0];
 
@@ -359,7 +361,9 @@ const create = context => {
 	});
 };
 
-/** @type {ESLint.Rule.RuleModule} */
+/**
+@type {ESLint.Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

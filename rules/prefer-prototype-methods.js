@@ -118,7 +118,9 @@ function getProblem(callExpression, {context, globalReferences}) {
 	};
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 function create(context) {
 	const {sourceCode} = context;
 	const callExpressions = [];
@@ -145,7 +147,9 @@ function create(context) {
 	});
 }
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

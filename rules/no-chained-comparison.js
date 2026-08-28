@@ -29,7 +29,9 @@ const isSafeForLogicalReplacement = (node, context) => {
 		&& !(parent.type === 'LogicalExpression' && parent.operator === '??');
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -86,7 +88,9 @@ const create = context => {
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					data: {replacement},
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
+					/**
+					@param {import('eslint').Rule.RuleFixer} fixer
+					*/
 					fix: fixer => fixer.replaceText(node, replacement),
 				},
 			];
@@ -96,7 +100,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

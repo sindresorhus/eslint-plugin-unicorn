@@ -118,7 +118,9 @@ const getPrefixScopeFix = (node, sourceCode) => fixer => {
 	return fixer.insertTextAfterRange([start, start + 1], ':scope ');
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -168,7 +170,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

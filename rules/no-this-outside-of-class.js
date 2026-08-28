@@ -21,7 +21,9 @@ const isClassFieldValue = (node, child) =>
 	)
 	&& node.value === child;
 
-/** @param {import('estree').ThisExpression} node */
+/**
+@param {import('estree').ThisExpression} node
+*/
 const isAllowedThisBinding = node => {
 	let child = node;
 	let {parent} = node;
@@ -47,7 +49,9 @@ const isAllowedThisBinding = node => {
 	return false;
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('ThisExpression', node => {
 		if (isAllowedThisBinding(node)) {
@@ -61,7 +65,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

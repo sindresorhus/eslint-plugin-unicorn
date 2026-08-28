@@ -6,7 +6,9 @@ const messages = {
 	[MESSAGE_ID]: 'Use `\\${` instead of `$\\{` to escape in template literals.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('TemplateElement', node => {
 		if (isTaggedTemplateLiteral(node.parent)) {
@@ -35,7 +37,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

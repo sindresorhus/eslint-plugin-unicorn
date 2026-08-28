@@ -6,7 +6,9 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Unnecessary `.getTime()` call.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('NewExpression', newExpression => {
 		if (!isNewExpression(newExpression, {name: 'Date', argumentsLength: 1})) {
@@ -37,7 +39,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

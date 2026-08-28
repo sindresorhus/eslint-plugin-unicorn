@@ -124,7 +124,9 @@ const newExpressionDisallowTracker = new GlobalReferenceTracker({
 	handle: disallowCallOrNewExpression,
 });
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	newExpressionTracker.listen({context});
 	callExpressionTracker.listen({context});
@@ -132,7 +134,9 @@ const create = context => {
 	newExpressionDisallowTracker.listen({context});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

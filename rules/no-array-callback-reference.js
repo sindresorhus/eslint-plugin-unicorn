@@ -401,7 +401,9 @@ function shouldIgnoreCallback(callback, methodName, options, context) {
 		|| (methodsWithTypePredicateOverloads.has(methodName) && isTypePredicateCallback(callback, context));
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const {ignore} = context.options[0];
 	const ignoredCallees = [...defaultIgnoredCallees, ...ignore];
@@ -463,7 +465,9 @@ const schema = [
 	},
 ];
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

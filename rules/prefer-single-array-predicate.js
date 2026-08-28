@@ -145,7 +145,9 @@ function getMergedCallText(calls, operator, context) {
 	return `${sourceCode.getText(firstCall.node.callee)}(${callback.parameterText} => ${predicateText})`;
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	context.on('LogicalExpression', logicalExpression => {
 		if (!isOutermostLogicalExpression(logicalExpression)) {
@@ -190,7 +192,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {

@@ -21,7 +21,9 @@ const unwrapExpression = node => {
 
 const getNonTypeDefinitions = variable => variable.defs.filter(definition => definition.type !== 'Type');
 
-/** Get the unique value binding and definition for an identifier, skipping type-only bindings. */
+/**
+Get the unique value binding and definition for an identifier, skipping type-only bindings.
+*/
 const getVariableInfo = (node, context) => {
 	if (node.type !== 'Identifier') {
 		return;
@@ -263,7 +265,9 @@ const getProblem = (callExpression, context, isDatabaseInstance, isUnsafeSqlArgu
 	};
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
 const create = context => {
 	const callExpressions = [];
 
@@ -284,7 +288,9 @@ const create = context => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 const config = {
 	create,
 	meta: {
