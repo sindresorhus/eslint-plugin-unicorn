@@ -15,21 +15,16 @@ const nonArrayExpressionTypes = new Set([
 	'TemplateLiteral',
 ]);
 
-const keyedCollectionTypeNames = new Set([
+const knownNonIndexedCollectionTypeNames = new Set([
 	'Map',
 	'ReadonlyMap',
 	'WeakMap',
 	'Set',
 	'ReadonlySet',
 	'WeakSet',
-]);
-
-const canvasContextTypeNames = new Set([
 	'CanvasRenderingContext2D',
 	'OffscreenCanvasRenderingContext2D',
 ]);
-
-const knownNonIndexedCollectionTypeNames = keyedCollectionTypeNames.union(canvasContextTypeNames);
 
 const bigIntTypedArrayTypeNames = new Set([
 	'BigInt64Array',
