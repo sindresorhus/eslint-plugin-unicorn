@@ -71,7 +71,7 @@ const config = {
 						uniqueItems: true,
 						items: {
 							type: 'string',
-							pattern: '^:{1,2}[^:()]+$',
+							pattern: String.raw`^:{1,2}(?:\\.|[^\\:()])+$`,
 						},
 						description: 'Additional pseudo-selectors to allow.',
 					},

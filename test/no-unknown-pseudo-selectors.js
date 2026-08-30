@@ -34,6 +34,11 @@ test.snapshot({
 			options: [{allow: [String.raw`:\3A theme`]}],
 		},
 		{
+			code: String.raw`:\:theme, :foo\( {}`,
+			language: languages.css,
+			options: [{allow: [String.raw`:\:theme`, String.raw`:foo\(`]}],
+		},
+		{
 			code: ':foo {}',
 			language: languages.css,
 			options: [{allow: [String.raw`:\66 oo`]}],

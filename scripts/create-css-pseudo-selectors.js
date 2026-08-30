@@ -15,7 +15,13 @@ const pseudoSelectors = [...new Set([
 	// Missing from Webref: https://drafts.csswg.org/css-pseudo-4/#first-letter-pseudo
 	'::prefix',
 	'::suffix',
-])].toSorted((first, second) => first.localeCompare(second));
+])].toSorted((first, second) => {
+	if (first === second) {
+		return 0;
+	}
+
+	return first < second ? -1 : 1;
+});
 
 const content = [
 	'// Generated file, DO NOT edit',
