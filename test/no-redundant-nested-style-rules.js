@@ -43,6 +43,14 @@ test.snapshot({
 			language: languages.css,
 			languageOptions: {tolerant: true},
 		},
+		{
+			code: 'a { @property --custom { & { syntax: "*"; } } }',
+			language: languages.css,
+		},
+		{
+			code: 'a { @unknown { & { color: red; } } }',
+			language: languages.css,
+		},
 	],
 	invalid: [
 		'a { & { color: red; } }',
@@ -94,6 +102,15 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			a {
+				@layer theme {
+					& {
+						color: red;
+					}
+				}
+			}
+		`,
 		'a { & { color: red; } & { background: blue; } }',
 		'a { & { & { color: red; } } }',
 		'@scope (.component) { a { & { color: red; } } }',
@@ -112,6 +129,11 @@ test({
 		{
 			code: 'a { & { color: red; /* keep */ } background: blue; }',
 			output: 'a { color: red; /* keep */ background: blue; }',
+			errors: 1,
+		},
+		{
+			code: 'a { & { color: red /* keep */ } b {} }',
+			output: 'a { color: red /* keep */; b {} }',
 			errors: 1,
 		},
 		{

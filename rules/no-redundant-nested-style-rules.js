@@ -17,6 +17,13 @@ const legacyPseudoElements = new Set([
 	'first-line',
 ]);
 
+const transparentAtRules = new Set([
+	'container',
+	'layer',
+	'media',
+	'supports',
+]);
+
 const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
 const trimCssWhitespace = string => string.replaceAll(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/gu, '');
 
@@ -35,7 +42,10 @@ const getParentStyleRule = (node, sourceCode) => {
 	let parent = sourceCode.getParent(node);
 
 	while (parent) {
-		if (parent.type === 'Atrule' && normalizeCssIdentifier(parent.name) === 'scope') {
+		if (
+			parent.type === 'Atrule'
+			&& !transparentAtRules.has(normalizeCssIdentifier(parent.name))
+		) {
 			return;
 		}
 
