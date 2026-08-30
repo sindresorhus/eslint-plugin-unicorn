@@ -214,17 +214,17 @@ function isDirectoryRoot(directoryPath, directoryRoots) {
 function getDirectoriesToCheck(pathSegments, directoryRoots) {
 	const directories = pathSegments.slice(0, -1);
 	let directoryPath = '';
-	let rootIndex = -1;
+	let directoryStartIndex = 0;
 
 	for (const [index, directory] of directories.entries()) {
 		directoryPath = directoryPath ? `${directoryPath}/${directory}` : directory;
 
 		if (isDirectoryRoot(directoryPath, directoryRoots)) {
-			rootIndex = index;
+			directoryStartIndex = index + 1;
 		}
 	}
 
-	return directories.slice(rootIndex + 1);
+	return directories.slice(directoryStartIndex);
 }
 
 const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
@@ -416,13 +416,8 @@ const schema = [
 					directoryRoots: {
 						type: 'array',
 						items: {
-							anyOf: [
-								{type: 'string'},
-								{
-									type: 'object',
-									additionalProperties: false,
-								},
-							],
+							type: ['string', 'object'],
+							additionalProperties: true,
 						},
 						uniqueItems: true,
 						description: 'Directory root paths or patterns, relative to the current working directory.',
@@ -478,13 +473,8 @@ const schema = [
 					directoryRoots: {
 						type: 'array',
 						items: {
-							anyOf: [
-								{type: 'string'},
-								{
-									type: 'object',
-									additionalProperties: false,
-								},
-							],
+							type: ['string', 'object'],
+							additionalProperties: true,
 						},
 						uniqueItems: true,
 						description: 'Directory root paths or patterns, relative to the current working directory.',

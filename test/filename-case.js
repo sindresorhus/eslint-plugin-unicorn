@@ -47,12 +47,13 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 const outsideCwd = path.join(path.dirname(process.cwd()), 'Src', 'fooBar.js');
 const cwd = process.cwd();
 
-test('checks relative directory names from ESLint cwd', t => {
+test('resolves directory paths from ESLint cwd', t => {
 	const linter = new Linter({
 		configType: 'flat',
 		cwd: path.join(process.cwd(), 'test'),
 	});
-	const messages = linter.verify('const value = 1;', {
+	const filename = 'src/FooBar/file.js';
+	const verify = ruleConfig => linter.verify('const value = 1;', {
 		languageOptions: {
 			ecmaVersion: 'latest',
 			sourceType: 'module',
@@ -61,11 +62,12 @@ test('checks relative directory names from ESLint cwd', t => {
 			unicorn,
 		},
 		rules: {
-			'unicorn/filename-case': 'error',
+			'unicorn/filename-case': ruleConfig,
 		},
 	}, {
-		filename: 'src/FooBar/file.js',
+		filename,
 	});
+	const messages = verify('error');
 
 	t.deepEqual(
 		messages.map(({message}) => message),
@@ -73,6 +75,8 @@ test('checks relative directory names from ESLint cwd', t => {
 			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
 		],
 	);
+
+	t.deepEqual(verify(['error', {directoryRoots: ['src/FooBar']}]), []);
 });
 
 test('checks filenames of non-JavaScript files', t => {
@@ -134,7 +138,7 @@ test('validates directoryRoots', t => {
 	]) {
 		t.throws(
 			() => verify(options),
-			{message: /Value 42 should match some schema in anyOf/u},
+			{message: /Value 42 should be string,object/u},
 		);
 	}
 
