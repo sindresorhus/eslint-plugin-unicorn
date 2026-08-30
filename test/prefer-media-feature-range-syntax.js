@@ -74,6 +74,7 @@ test.snapshot({
 		'@media (min-width: 500px) and (max-width: 999.0000000000000001px) {}',
 		'@media (min-width: 500px) and (max-width: -1px) {}',
 		'@media (min-width: 500px) and (max-width: -1e-400px) {}',
+		'@media (min-width: 500px) and (max-width: +999px) {}',
 		'@media (min-width: 500px) and (max-width: 9007199254740992px) {}',
 		'@media (min-width: 500px) and (max-width: 999PX) {}',
 		String.raw`@media (min-width: 500px) and (max-width: 999P\58) {}`,

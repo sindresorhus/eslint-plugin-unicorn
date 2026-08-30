@@ -43,7 +43,7 @@ Directly adjacent lower and upper bounds for the same feature are combined into 
 @media (30em <= width <= 50em) {}
 ```
 
-For a nonnegative safe integer written in decimal notation with a pixel unit, the suggestion uses the common half-open breakpoint form:
+When the maximum is a nonnegative safe integer written in decimal notation with a pixel unit, the suggestion uses the common half-open breakpoint form:
 
 ```css
 /* ❌ */
