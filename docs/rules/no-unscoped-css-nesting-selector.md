@@ -38,6 +38,8 @@ Default: `[]`
 
 At-rule names that provide a scoping root. Names are specified without the leading `@` and are matched case-insensitively.
 
+The scoping root remains in effect through nested at-rules such as `@media`.
+
 This is useful for CSS extensions such as Tailwind CSS's `@utility` directive:
 
 ```js

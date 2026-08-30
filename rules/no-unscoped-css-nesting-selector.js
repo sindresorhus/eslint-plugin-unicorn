@@ -1,9 +1,19 @@
+import {ident} from '@eslint/css-tree';
+
 const MESSAGE_ID = 'no-unscoped-css-nesting-selector';
 const messages = {
-	[MESSAGE_ID]: 'Do not use a CSS nesting selector without a scoping root.',
+	[MESSAGE_ID]: 'Do not use a CSS nesting selector without an ancestor scoping root.',
 };
 
-const isScopeAtRule = node => node.type === 'Atrule' && node.name.toLowerCase() === 'scope';
+const normalizeAtRuleName = name => ident.decode(name).toLowerCase();
+
+const isScopeAtRule = node => node.type === 'Atrule' && normalizeAtRuleName(node.name) === 'scope';
+
+const isKeyframeRule = (node, sourceCode) => {
+	const block = sourceCode.getParent(node);
+	const atRule = sourceCode.getParent(block);
+	return atRule?.type === 'Atrule' && /^(?:-(?:moz|ms|o|webkit)-)?keyframes$/.test(normalizeAtRuleName(atRule.name));
+};
 
 const getSelectorOwner = (node, sourceCode) => {
 	let currentNode = node;
@@ -24,7 +34,7 @@ const hasScopingRoot = (selectorOwner, sourceCode, scopingRootAtRules) => {
 		if (
 			currentNode.type === 'Rule'
 			|| isScopeAtRule(currentNode)
-			|| (currentNode.type === 'Atrule' && scopingRootAtRules.has(currentNode.name.toLowerCase()))
+			|| (currentNode.type === 'Atrule' && scopingRootAtRules.has(normalizeAtRuleName(currentNode.name)))
 		) {
 			return true;
 		}
@@ -59,7 +69,7 @@ const schema = [
 */
 const create = context => {
 	const scopingRootAtRules = new Set(
-		context.options[0].scopingRootAtRules.map(name => name.toLowerCase()),
+		context.options[0].scopingRootAtRules.map(name => normalizeAtRuleName(name)),
 	);
 	const {sourceCode} = context;
 
@@ -68,6 +78,7 @@ const create = context => {
 		if (
 			!selectorOwner
 			|| (selectorOwner.type !== 'Rule' && !isScopeAtRule(selectorOwner))
+			|| (selectorOwner.type === 'Rule' && isKeyframeRule(selectorOwner, sourceCode))
 			|| hasScopingRoot(selectorOwner, sourceCode, scopingRootAtRules)
 		) {
 			return;
