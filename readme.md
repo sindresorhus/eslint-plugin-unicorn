@@ -212,6 +212,7 @@ export default defineConfig([
 | [no-optional-chaining-on-undeclared-variable](docs/rules/no-optional-chaining-on-undeclared-variable.md)   | Disallow optional chaining on undeclared variables.                                                                            | ✅    |    |    |    |
 | [no-process-exit](docs/rules/no-process-exit.md)                                                           | Disallow `process.exit()`.                                                                                                     | ✅ ☑️ |    |    |    |
 | [no-redundant-comparison](docs/rules/no-redundant-comparison.md)                                           | Disallow comparisons made redundant by an equality check in the same logical AND.                                              | ✅ ☑️ | 🔧 | 💡 |    |
+| [no-redundant-nested-style-rules](docs/rules/no-redundant-nested-style-rules.md)                           | Disallow nested style rules that do not modify the parent selector.                                                            | ✅ ☑️ | 🔧 |    |    |
 | [no-return-array-push](docs/rules/no-return-array-push.md)                                                 | Disallow using the return value of `Array#push()` and `Array#unshift()`.                                                       | ✅    |    | 💡 |    |
 | [no-selector-as-dom-name](docs/rules/no-selector-as-dom-name.md)                                           | Disallow selector syntax in DOM names.                                                                                         | ✅    | 🔧 |    |    |
 | [no-shorthand-property-overrides](docs/rules/no-shorthand-property-overrides.md)                           | Disallow shorthand properties that override related longhand properties.                                                       | ✅ ☑️ |    |    |    |
@@ -529,6 +530,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |  |
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |  |
+| [`no-redundant-nested-style-rules`](docs/rules/no-redundant-nested-style-rules.md) | ✅ |  |  |  |  |
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |  |
 | [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |  |
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |
