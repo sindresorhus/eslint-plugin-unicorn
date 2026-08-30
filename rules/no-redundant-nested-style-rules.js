@@ -131,13 +131,6 @@ const getMultilineUnsafeRanges = context => {
 const hasAtRuleTerminator = (node, sourceCode) => sourceCode.getText(node).endsWith(';')
 	&& (node.prelude === null || sourceCode.getRange(node.prelude)[1] < sourceCode.getRange(node)[1]);
 
-const hasFollowingContent = (node, sourceCode) => {
-	const parentBlock = sourceCode.getParent(node);
-	const [, nodeEnd] = sourceCode.getRange(node);
-	const [, parentBlockEnd] = sourceCode.getRange(parentBlock);
-	return trimCssWhitespace(sourceCode.text.slice(nodeEnd, parentBlockEnd - 1)) !== '';
-};
-
 const isFixUnsafe = (node, sourceCode, multilineUnsafeRanges) => {
 	const lastChild = node.block.children.at(-1);
 	const hasAmbiguousEnd = lastChild?.type === 'Raw'
@@ -146,10 +139,7 @@ const isFixUnsafe = (node, sourceCode, multilineUnsafeRanges) => {
 			&& lastChild.block === null
 			&& !hasAtRuleTerminator(lastChild, sourceCode)
 		);
-	if (
-		hasAmbiguousEnd
-		&& hasFollowingContent(node, sourceCode)
-	) {
+	if (hasAmbiguousEnd) {
 		return true;
 	}
 

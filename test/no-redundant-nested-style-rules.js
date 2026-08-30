@@ -183,6 +183,11 @@ test({
 			errors: 1,
 		},
 		{
+			code: String.raw`a{&{color red\ }}`,
+			languageOptions: {tolerant: true},
+			errors: 1,
+		},
+		{
 			code: 'a { & { @foo x } b { y: z } }',
 			languageOptions: {tolerant: true},
 			errors: 1,
@@ -204,12 +209,6 @@ test({
 		},
 		{
 			code: 'a { & { @foo x } }',
-			output: 'a { @foo x }',
-			languageOptions: {tolerant: true},
-			errors: 1,
-		},
-		{
-			code: 'a { & { @foo x } /* outer */ }',
 			languageOptions: {tolerant: true},
 			errors: 1,
 		},
