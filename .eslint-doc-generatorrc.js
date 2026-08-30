@@ -4,6 +4,7 @@
 const config = {
 	configEmoji: [
 		['recommended', '✅'],
+		['css/recommended', '✅'],
 		['unopinionated', '☑️'],
 	],
 	ignoreConfig: [

@@ -2,6 +2,7 @@ import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
 /// import process from 'node:process';
 import test from 'ava';
+import css from '@eslint/css';
 import {ESLint} from 'eslint';
 import {defineConfig} from 'eslint/config';
 import {builtinRules} from 'eslint/use-at-your-own-risk';
@@ -26,6 +27,7 @@ const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 	.map(([ruleId]) => ruleId);
 
 const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
+const isCssRule = rule => rule.meta.languages?.includes('css/css') || rule.meta.languages?.includes('*');
 
 const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
@@ -98,12 +100,22 @@ test('core rule replacements are disabled only when the Unicorn replacement is e
 
 test('validate configuration', async t => {
 	const results = await Promise.all(Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
+		const isCssConfig = name.startsWith('css/');
 		const eslint = new ESLint({
-			baseConfig: config,
+			baseConfig: isCssConfig
+				? [
+					{
+						files: ['**/*.css'],
+						plugins: {css},
+						language: 'css/css',
+					},
+					config,
+				]
+				: config,
 			overrideConfigFile: true,
 		});
 
-		const result = await eslint.calculateConfigForFile('dummy.js');
+		const result = await eslint.calculateConfigForFile(isCssConfig ? 'dummy.css' : 'dummy.js');
 
 		return {name, config, result};
 	}));
@@ -145,6 +157,27 @@ test('recommended config works with defineConfig', async t => {
 
 	const [result] = await eslint.lintText('[1, 2, 3].indexOf(2) !== -1;', {filePath: 'file.js'});
 	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
+});
+
+test('CSS recommended config works with defineConfig', async t => {
+	const eslint = new ESLint({
+		baseConfig: defineConfig({
+			files: ['**/*.css'],
+			plugins: {
+				css,
+				unicorn: eslintPluginUnicorn,
+			},
+			language: 'css/css',
+			extends: [
+				'css/recommended',
+				'unicorn/css/recommended',
+			],
+		}),
+		overrideConfigFile: true,
+	});
+
+	const [result] = await eslint.lintText('a { word-wrap: break-word; }', {filePath: 'file.css'});
+	t.true(result.messages.some(message => message.ruleId === 'unicorn/no-deprecated-css-features'));
 });
 
 test('Every rule has valid meta.type', t => {
@@ -277,16 +310,19 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 
 		const {recommended} = rule.meta.docs;
 		t.true(typeof recommended === 'boolean' || recommended === 'unopinionated', `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
+		const shouldEnableJavaScriptPreset = isJavaScriptRule(rule);
+		if (shouldEnableJavaScriptPreset) {
+			const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
+			t.is(recommendedSeverity, recommended ? 'error' : 'off', `'${name}' rule should have the correct severity in the recommended config.`);
+		}
 
-		const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
-		if (recommended && isJavaScriptRule(rule)) {
-			t.is(recommendedSeverity, 'error', `'${name}' rule should set to 'error'.`);
-		} else {
-			t.is(recommendedSeverity, 'off', `'${name}' rule should set to 'off'.`);
+		if (isCssRule(rule)) {
+			const recommendedSeverity = eslintPluginUnicorn.configs['css/recommended'].rules[`unicorn/${name}`];
+			t.is(recommendedSeverity, recommended ? 'error' : 'off', `'${name}' rule should have the correct severity in the CSS recommended config.`);
 		}
 
 		const unopinionatedSeverity = eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${name}`];
-		if (recommended === 'unopinionated' && isJavaScriptRule(rule)) {
+		if (recommended === 'unopinionated' && shouldEnableJavaScriptPreset) {
 			t.is(unopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the unopinionated config.`);
 		} else {
 			t.is(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);
