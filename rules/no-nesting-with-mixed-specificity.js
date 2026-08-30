@@ -1,6 +1,5 @@
 import {
 	ident,
-	parse,
 	tokenize,
 	tokenTypes,
 } from '@eslint/css-tree';
@@ -32,20 +31,7 @@ const LEGACY_PSEUDO_ELEMENTS = new Set([
 	'first-letter',
 	'first-line',
 ]);
-const NAMED_VIEW_TRANSITION_PSEUDO_ELEMENTS = new Set([
-	'view-transition-group',
-	'view-transition-group-children',
-	'view-transition-image-pair',
-	'view-transition-new',
-	'view-transition-old',
-]);
-
 const normalizeIdentifier = identifier => ident.decode(identifier).toLowerCase();
-
-const canBeRepresentedByNestingSelector = selector => selector.children.every(node =>
-	node.type !== 'PseudoElementSelector'
-	&& (node.type !== 'PseudoClassSelector' || !LEGACY_PSEUDO_ELEMENTS.has(normalizeIdentifier(node.name))),
-);
 
 const addSpecificity = (first, second) => first.map((value, index) => value + second[index]);
 
@@ -82,21 +68,10 @@ const getSelectorArgument = node => {
 	}
 };
 
-const isBareUniversalSelectorArgument = argument => {
-	if (argument?.type !== 'Raw') {
-		return false;
-	}
-
-	try {
-		const selector = parse(argument.value, {context: 'selector'});
-		const children = [...selector.children];
-		return children.length === 1
-			&& children[0].type === 'TypeSelector'
-			&& children[0].name === '*';
-	} catch {
-		return false;
-	}
-};
+const canBeRepresentedByNestingSelector = selector => selector.children.every(node =>
+	node.type !== 'PseudoElementSelector'
+	&& (node.type !== 'PseudoClassSelector' || !LEGACY_PSEUDO_ELEMENTS.has(normalizeIdentifier(node.name))),
+);
 
 const hasNestingSelectorInRawArgument = argument => {
 	if (argument?.type !== 'Raw') {
@@ -126,21 +101,11 @@ const getSelectorSpecificity = (selector, nestingSpecificity) => {
 
 const getSelectorArgumentSpecificity = (selectorArgument, nestingSpecificity) => {
 	const selectors = selectorArgument?.type === 'Selector' ? [selectorArgument] : selectorArgument?.children ?? [];
-	const specificities = [];
-	let hasNestingSelector = false;
-
-	for (const selector of selectors) {
-		const result = getSelectorSpecificity(selector, nestingSpecificity);
-		hasNestingSelector ||= result.hasNestingSelector;
-
-		if (canBeRepresentedByNestingSelector(selector)) {
-			specificities.push(result.specificity);
-		}
-	}
+	const results = selectors.map(selector => getSelectorSpecificity(selector, nestingSpecificity));
 
 	return {
-		specificity: getMaximumSpecificity(specificities),
-		hasNestingSelector,
+		specificity: getMaximumSpecificity(results.map(({specificity}) => specificity)),
+		hasNestingSelector: results.some(({hasNestingSelector}) => hasNestingSelector),
 	};
 };
 
@@ -178,25 +143,10 @@ const getPseudoClassSpecificity = (node, nestingSpecificity) => {
 	};
 };
 
-const getPseudoElementSpecificity = (node, nestingSpecificity) => {
-	const name = normalizeIdentifier(node.name);
-	const argument = node.children?.[0];
-	if (
-		NAMED_VIEW_TRANSITION_PSEUDO_ELEMENTS.has(name)
-		&& isBareUniversalSelectorArgument(argument)
-	) {
-		return {specificity: ZERO_SPECIFICITY, hasNestingSelector: false};
-	}
-
-	const selectorArgumentResult = name === 'slotted'
-		? getSelectorArgumentSpecificity(getSelectorArgument(node), nestingSpecificity)
-		: {specificity: ZERO_SPECIFICITY, hasNestingSelector: false};
-
-	return {
-		specificity: addSpecificity([0, 0, 1], selectorArgumentResult.specificity),
-		hasNestingSelector: selectorArgumentResult.hasNestingSelector || hasNestingSelectorInRawArgument(argument),
-	};
-};
+const getPseudoElementSpecificity = node => ({
+	specificity: ZERO_SPECIFICITY,
+	hasNestingSelector: hasNestingSelectorInRawArgument(node.children?.[0]),
+});
 
 const getNodeSpecificity = (node, nestingSpecificity) => {
 	switch (node.type) {
@@ -219,7 +169,7 @@ const getNodeSpecificity = (node, nestingSpecificity) => {
 		}
 
 		case 'PseudoElementSelector': {
-			return getPseudoElementSpecificity(node, nestingSpecificity);
+			return getPseudoElementSpecificity(node);
 		}
 
 		case 'NestingSelector': {
