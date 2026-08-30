@@ -2,7 +2,7 @@ import {ident} from '@eslint/css-tree';
 
 const MESSAGE_ID = 'no-unscoped-css-nesting-selector';
 const messages = {
-	[MESSAGE_ID]: 'Do not use a CSS nesting selector without an ancestor scoping root.',
+	[MESSAGE_ID]: 'Do not use a CSS nesting selector unless an ancestor scoping context applies.',
 };
 
 const normalizeAtRuleName = name => ident.decode(name).replaceAll(/[A-Z]/g, character => character.toLowerCase());
