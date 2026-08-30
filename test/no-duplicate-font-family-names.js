@@ -27,6 +27,8 @@ test.snapshot({
 		'@font-face { font-family: Arial, Arial; }',
 		'@media (width > 1px) { @font-face { font-family: Arial, Arial; } }',
 		'@font-palette-values --palette { font-family: Arial, Arial; }',
+		'.foo { @supports (font-family: Arial, Arial) { color: red; } }',
+		'.foo { @container style(font-family: Arial, Arial) { color: red; } }',
 	].map(code => asCSS(code)),
 	invalid: [
 		'a { font-family: Arial, Arial, sans-serif; }',

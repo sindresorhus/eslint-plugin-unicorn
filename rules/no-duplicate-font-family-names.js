@@ -108,6 +108,10 @@ const hasCommentInRange = (range, sourceCode) => sourceCode.comments.some(commen
 });
 
 const isInStyleRule = (node, sourceCode) => {
+	if (sourceCode.getParent(node)?.type !== 'Block') {
+		return false;
+	}
+
 	for (let ancestor = sourceCode.getParent(node); ancestor; ancestor = sourceCode.getParent(ancestor)) {
 		if (ancestor.type === 'Rule') {
 			return true;
