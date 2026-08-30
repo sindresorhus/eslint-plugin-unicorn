@@ -481,6 +481,9 @@ ruleTest({
 		testCaseWithOptions('Src/Foo/FooBar.Test.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('Src/Foo/FooBar.TestUtils.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('Spec/Iss47.100Spec.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/Ab.js', undefined, [{case: 'pascalCase', checkDirectories: false}]),
+		testCaseWithOptions('src/foo/aBc.js', undefined, [{case: 'camelCase', checkDirectories: false}]),
+		testCaseWithOptions('src/foo/1Ab.js', undefined, [{case: 'camelCaseWithAcronyms', checkDirectories: false}]),
 		{
 			code: '/* eslint-disable rule-to-test/filename-case */\nconst value = 1;',
 			filename: 'src/foo/foo_bar.js',
@@ -885,6 +888,11 @@ ruleTest({
 			undefined,
 			'Filename is not in kebab case. Rename it to `foo$bar.js`.',
 		),
+		...['\n', '\r', '\u2028', '\u2029'].map(lineTerminator => testCase(
+			`src/foo/_foo${lineTerminator}Bar.js`,
+			undefined,
+			`Filename is not in kebab case. Rename it to \`_foo${lineTerminator}bar.js\`.`,
+		)),
 		testCase(
 			'src/foo/$userId.TSX',
 			undefined,
@@ -1093,6 +1101,26 @@ ruleTest({
 			'Test/Foo/foo-bar.test-utils.js',
 			'Filename is not in pascal case. Rename it to `FooBar.TestUtils.js`.',
 			[{case: 'pascalCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'src/foo/a_b.js',
+			'Filename is not in pascal case. Rename it to `Ab.js`.',
+			[{case: 'pascalCase', checkDirectories: false}],
+		),
+		testCaseWithOptions(
+			'src/foo/f_a_q_page.js',
+			'Filename is not in pascal case. Rename it to `FAQPage.js`.',
+			[{case: 'pascalCase', checkDirectories: false}],
+		),
+		testCaseWithOptions(
+			'src/foo/a_b_c.js',
+			'Filename is not in camel case. Rename it to `aBc.js`.',
+			[{case: 'camelCase', checkDirectories: false}],
+		),
+		testCaseWithOptions(
+			'src/foo/1_a_b.js',
+			'Filename is not in camel case with acronyms. Rename it to `1Ab.js`.',
+			[{case: 'camelCaseWithAcronyms', checkDirectories: false}],
 		),
 	],
 });

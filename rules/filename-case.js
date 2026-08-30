@@ -28,12 +28,22 @@ const isAsciiDigit = char => char >= '0' && char <= '9';
 const isAsciiLowercaseLetter = char => char >= 'a' && char <= 'z';
 const isAsciiUppercaseLetter = char => char >= 'A' && char <= 'Z';
 
+function camelCaseWithoutAcronyms(string) {
+	return camelCase(camelCase(string));
+}
+
 function camelCaseWithAcronyms(string) {
 	if (isCamelCaseWithAcronyms(string)) {
 		return string;
 	}
 
-	return camelCase(string);
+	const converted = camelCase(string);
+
+	if (isCamelCaseWithAcronyms(converted)) {
+		return converted;
+	}
+
+	return camelCase(converted);
 }
 
 function isCamelCaseWithAcronyms(string) {
@@ -83,22 +93,34 @@ function isCamelCaseWithAcronyms(string) {
 	return true;
 }
 
-function pascalCaseWithLeadingAcronym(string) {
-	if (alphanumericRegex.test(string)) {
-		const leadingAcronym = leadingAcronymRegex.exec(string)?.[0];
-		const suffix = leadingAcronym && string.slice(leadingAcronym.length);
-
-		if (suffix && pascalCase(suffix) === suffix) {
-			return string;
-		}
+function hasValidLeadingAcronym(string) {
+	if (!alphanumericRegex.test(string)) {
+		return false;
 	}
 
-	return pascalCase(string);
+	const leadingAcronym = leadingAcronymRegex.exec(string)?.[0];
+	const suffix = leadingAcronym && string.slice(leadingAcronym.length);
+
+	return Boolean(suffix && pascalCase(suffix) === suffix);
+}
+
+function pascalCaseWithLeadingAcronym(string) {
+	if (hasValidLeadingAcronym(string)) {
+		return string;
+	}
+
+	const converted = pascalCase(string);
+
+	if (hasValidLeadingAcronym(converted)) {
+		return converted;
+	}
+
+	return pascalCase(converted);
 }
 
 const cases = {
 	camelCase: {
-		fn: camelCase,
+		fn: camelCaseWithoutAcronyms,
 		name: 'camel case',
 	},
 	camelCaseWithAcronyms: {
@@ -146,7 +168,7 @@ function isValidName(words, caseFunctions) {
 		.every(({word}) => caseFunctions.some(caseFunction => caseFunction(word) === word));
 }
 
-function fixName(words, caseFunctions, {leading, trailing}) {
+function getRenamedNames(words, caseFunctions, {leading, trailing}) {
 	const names = caseFunctions.map(caseFunction => {
 		const name = words
 			.map(({word, ignored}) => ignored ? word : caseFunction(word))
@@ -158,15 +180,13 @@ function fixName(words, caseFunctions, {leading, trailing}) {
 	return [...new Set(names)];
 }
 
-function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
-	const extension = path.extname(filenameWithExtension);
-	const filename = path.basename(filenameWithExtension, extension);
-	const basename = filename + extension;
+function getFilenameParts(basename, {multipleFileExtensions}) {
+	const extension = path.extname(basename);
+	const filename = path.basename(basename, extension);
 
 	const parts = {
-		basename,
 		filename,
-		middle: '',
+		additionalExtensions: '',
 		extension,
 	};
 
@@ -174,7 +194,7 @@ function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
 		const [firstPart] = filename.split('.', 1);
 		Object.assign(parts, {
 			filename: firstPart,
-			middle: filename.slice(firstPart.length),
+			additionalExtensions: filename.slice(firstPart.length),
 		});
 	}
 
@@ -188,11 +208,11 @@ function isInsideCwd(relativePath) {
 		&& !path.isAbsolute(relativePath);
 }
 
-function getPathSegments(filenameWithExtension, cwd) {
-	const relativePath = path.relative(cwd, path.resolve(cwd, filenameWithExtension));
+function getPathSegments(filePath, cwd) {
+	const relativePath = path.relative(cwd, path.resolve(cwd, filePath));
 
 	if (!isInsideCwd(relativePath)) {
-		return [path.basename(filenameWithExtension)];
+		return [path.basename(filePath)];
 	}
 
 	return relativePath
@@ -233,10 +253,10 @@ function getDirectoriesToCheck(pathSegments, directoryRoots) {
 	return directories.slice(directoryStartIndex);
 }
 
-const leadingUnderscoresRegex = /^(?<leading>_+)(?<remainder>.*)$/;
+const leadingUnderscoresRegex = /^_+/;
 function splitName(name) {
-	const result = leadingUnderscoresRegex.exec(name) || {groups: {}};
-	const {leading = '', remainder = name} = result.groups;
+	const leading = leadingUnderscoresRegex.exec(name)?.[0] ?? '';
+	const remainder = name.slice(leading.length);
 
 	const words = [];
 
@@ -280,7 +300,7 @@ function getInvalidDirectoryReport(directory, chosenCases, chosenCaseFunctions) 
 		return;
 	}
 
-	const renamedDirectories = fixName(words, chosenCaseFunctions, {
+	const renamedDirectories = getRenamedNames(words, chosenCaseFunctions, {
 		leading,
 		trailing: '',
 	});
@@ -314,9 +334,9 @@ const create = context => {
 		return new RegExp(pattern, 'u');
 	});
 
-	const filenameWithExtension = context.physicalFilename;
+	const {physicalFilename} = context;
 
-	if (context.filename !== filenameWithExtension || isVirtualFilename(filenameWithExtension)) {
+	if (context.filename !== physicalFilename || isVirtualFilename(physicalFilename)) {
 		return;
 	}
 
@@ -326,14 +346,13 @@ const create = context => {
 	const chosenCaseFunctions = chosenCases.map(caseName => cases[caseName].fn);
 
 	onRoot(context, () => {
-		const pathSegments = getPathSegments(filenameWithExtension, context.cwd);
-		const basenameWithExtension = pathSegments.at(-1);
+		const pathSegments = getPathSegments(physicalFilename, context.cwd);
+		const basename = pathSegments.at(-1);
 		const {
-			basename,
 			filename,
-			middle,
+			additionalExtensions,
 			extension,
-		} = getFilenameParts(basenameWithExtension, {multipleFileExtensions: isMultipleFileExtensions});
+		} = getFilenameParts(basename, {multipleFileExtensions: isMultipleFileExtensions});
 
 		if (pathSegments.some(segment => ignoreRegexps.some(regexp => regexp.test(segment)))) {
 			return;
@@ -361,16 +380,16 @@ const create = context => {
 				return {
 					loc: {column: 0, line: 1},
 					messageId: MESSAGE_ID_EXTENSION,
-					data: {filename: filename + middle + extension.toLowerCase(), extension},
+					data: {filename: filename + additionalExtensions + extension.toLowerCase(), extension},
 				};
 			}
 
 			return;
 		}
 
-		const renamedFilenames = fixName(words, chosenCaseFunctions, {
+		const renamedFilenames = getRenamedNames(words, chosenCaseFunctions, {
 			leading,
-			trailing: middle + extension.toLowerCase(),
+			trailing: additionalExtensions + extension.toLowerCase(),
 		});
 
 		return {
