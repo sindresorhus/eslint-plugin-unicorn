@@ -41,7 +41,7 @@ const getBound = node => {
 	}
 
 	return {
-		kind: match[1],
+		prefix: match[1],
 		featureName: match[2],
 	};
 };
@@ -67,9 +67,9 @@ const hasCommentInRange = (comments, sourceCode, [start, end]) => comments.some(
 
 const getValueText = (node, sourceCode) => sourceCode.getText(node.value);
 
-const getSingleReplacement = (node, bound, sourceCode) => `(${bound.featureName} ${bound.kind === 'min' ? '>=' : '<='} ${getValueText(node, sourceCode)})`;
+const getSingleReplacement = (node, bound, sourceCode) => `(${bound.featureName} ${bound.prefix === 'min' ? '>=' : '<='} ${getValueText(node, sourceCode)})`;
 
-const getCleanExclusiveMaximum = node => {
+const getExclusivePixelMaximum = node => {
 	if (
 		node.value.type !== 'Dimension'
 		|| normalizeIdentifier(node.value.unit) !== 'px'
@@ -92,18 +92,18 @@ const getPairReplacement = (firstNode, secondNode, sourceCode) => {
 	if (
 		!firstBound
 		|| !secondBound
-		|| firstBound.kind === secondBound.kind
+		|| firstBound.prefix === secondBound.prefix
 		|| firstBound.featureName !== secondBound.featureName
 	) {
 		return;
 	}
 
-	const minimumNode = firstBound.kind === 'min' ? firstNode : secondNode;
-	const maximumNode = firstBound.kind === 'max' ? firstNode : secondNode;
-	const cleanMaximum = getCleanExclusiveMaximum(maximumNode);
-	const maximum = cleanMaximum ?? getValueText(maximumNode, sourceCode);
+	const minimumNode = firstBound.prefix === 'min' ? firstNode : secondNode;
+	const maximumNode = firstBound.prefix === 'max' ? firstNode : secondNode;
+	const exclusiveMaximum = getExclusivePixelMaximum(maximumNode);
+	const maximum = exclusiveMaximum ?? getValueText(maximumNode, sourceCode);
 
-	return `(${getValueText(minimumNode, sourceCode)} <= ${firstBound.featureName} ${cleanMaximum ? '<' : '<='} ${maximum})`;
+	return `(${getValueText(minimumNode, sourceCode)} <= ${firstBound.featureName} ${exclusiveMaximum ? '<' : '<='} ${maximum})`;
 };
 
 /**

@@ -5,32 +5,11 @@ const {test} = getTester(import.meta);
 
 const css = code => ({code, language: languages.css});
 const MESSAGE_ID_ERROR = 'prefer-media-feature-range-syntax/error';
-const MESSAGE_ID_SUGGESTION = 'prefer-media-feature-range-syntax/suggestion';
 
 test({
 	testerOptions: languages.css,
 	valid: [],
 	invalid: [
-		{
-			code: '@media (min-width: 500px) and (max-width: 999.0000000000000001px) {}',
-			errors: [{
-				messageId: MESSAGE_ID_ERROR,
-				suggestions: [{
-					messageId: MESSAGE_ID_SUGGESTION,
-					output: '@media (500px <= width <= 999.0000000000000001px) {}',
-				}],
-			}],
-		},
-		{
-			code: '@media (min-width: 500px) and (max-width: -1e-400px) {}',
-			errors: [{
-				messageId: MESSAGE_ID_ERROR,
-				suggestions: [{
-					messageId: MESSAGE_ID_SUGGESTION,
-					output: '@media (500px <= width <= -1e-400px) {}',
-				}],
-			}],
-		},
 		{
 			code: '@media (min-width /* inside */: 500px) and /* between */ (max-width: 999px) {}',
 			output: '@media (min-width /* inside */: 500px) and /* between */ (width <= 999px) {}',
@@ -92,7 +71,9 @@ test.snapshot({
 		'@media (min-aspect-ratio: 4/3) and (max-aspect-ratio: 16/9) {}',
 		'@media (min-resolution: 1.5dppx) and (max-resolution: 2dppx) {}',
 		'@media (min-width: 500px) and (max-width: 999.5px) {}',
+		'@media (min-width: 500px) and (max-width: 999.0000000000000001px) {}',
 		'@media (min-width: 500px) and (max-width: -1px) {}',
+		'@media (min-width: 500px) and (max-width: -1e-400px) {}',
 		'@media (min-width: 500px) and (max-width: 9007199254740992px) {}',
 		'@media (min-width: 500px) and (max-width: 999PX) {}',
 		String.raw`@media (min-width: 500px) and (max-width: 999P\58) {}`,
