@@ -117,10 +117,17 @@ const getMultilineRawRanges = sourceCode => {
 	return ranges;
 };
 
+const hasAtRuleTerminator = (node, sourceCode) => sourceCode.getText(node).endsWith(';')
+	&& (node.prelude === null || sourceCode.getRange(node.prelude)[1] < sourceCode.getRange(node)[1]);
+
 const isFixUnsafe = (node, sourceCode, comments, multilineRawRanges) => {
 	const lastChild = node.block.children.at(-1);
 	const hasAmbiguousEnd = lastChild?.type === 'Raw'
-		|| (lastChild?.type === 'Atrule' && lastChild.block === null);
+		|| (
+			lastChild?.type === 'Atrule'
+			&& lastChild.block === null
+			&& !hasAtRuleTerminator(lastChild, sourceCode)
+		);
 	if (
 		hasAmbiguousEnd
 		&& sourceCode.getParent(node).children.at(-1) !== node

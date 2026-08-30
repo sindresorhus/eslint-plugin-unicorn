@@ -133,6 +133,16 @@ test({
 			errors: 1,
 		},
 		{
+			code: String.raw`a { & { @foo x\;} b { y: z } }`,
+			languageOptions: {tolerant: true},
+			errors: 1,
+		},
+		{
+			code: 'a { & { @foo x; } b { y: z } }',
+			output: 'a { @foo x; b { y: z } }',
+			errors: 1,
+		},
+		{
 			code: 'a { & { @foo x } }',
 			output: 'a { @foo x }',
 			languageOptions: {tolerant: true},
