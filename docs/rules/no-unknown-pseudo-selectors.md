@@ -32,7 +32,7 @@ It validates names and pseudo-selector kinds only. It does not validate where a 
 Type: `string[]`\
 Default: `[]`
 
-Add framework-specific, browser-specific, or other intentional extensions. Include one or two leading colons to identify whether each entry is a pseudo-class or pseudo-element. Matching is case-insensitive, and an entry allows both functional and non-functional uses of the same name.
+Add framework-specific, browser-specific, or other intentional extensions. Include one or two leading colons to identify whether each entry is a pseudo-class or pseudo-element. Matching is ASCII case-insensitive, and an entry allows both functional and non-functional uses of the same name.
 
 Vendor-prefixed and framework-specific pseudo-selectors are reported unless explicitly listed in `allow`.
 
