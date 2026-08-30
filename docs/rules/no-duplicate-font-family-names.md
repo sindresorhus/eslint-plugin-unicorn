@@ -11,11 +11,11 @@
 
 Duplicate font family names do not provide another fallback and usually indicate an editing mistake.
 
-This rule checks the `font-family` property and statically valid `font` shorthands in style rules. It compares names case-insensitively, decodes CSS escapes, and joins unquoted identifier sequences with one space. For example, `Times New Roman`, `"times new roman"`, and `Times\20 New\20 Roman` refer to the same family. Whitespace inside quoted names or escaped identifiers remains significant.
+This rule checks the `font-family` property and `font` shorthands that match CSSTree's bundled grammar in style rules. It compares names case-insensitively, decodes CSS escapes, and joins unquoted identifier sequences with one space. For example, `Times New Roman`, `"times new roman"`, and `Times\20 New\20 Roman` refer to the same family. Whitespace inside quoted names or escaped identifiers remains significant.
 
 Quoted names that look like generic families remain distinct from generic family keywords. For example, `"serif"` names an actual font family, while `serif` selects the generic serif family.
 
-Static names in a `font-family` list are checked even when the list also contains a dynamic value such as `var(--fonts)`. A `font` shorthand that cannot be matched against the CSS grammar, usually because it contains a custom property substitution, is ignored.
+Static names in a `font-family` list are checked even when the list also contains a dynamic value such as `var(--fonts)`. A `font` shorthand that does not match this grammar, usually because it contains a custom property substitution, is ignored.
 
 The autofix removes the duplicate name and its preceding comma. A duplicate is still reported without a fix when removing it could remove or relocate a comment.
 

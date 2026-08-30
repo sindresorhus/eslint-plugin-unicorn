@@ -23,6 +23,13 @@ const genericFontFamilyNames = new Set([
 
 const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
 
+const formatFontFamilyName = name => JSON.stringify(name)
+	.slice(1, -1)
+	.replaceAll(
+		/[\p{Control}\p{Format}\p{Line_Separator}\p{Paragraph_Separator}]/gu,
+		character => String.raw`\u{${character.codePointAt(0).toString(16)}}`,
+	);
+
 const getCommaSeparatedGroups = value => {
 	const groups = [];
 	let nodes = [];
@@ -153,7 +160,7 @@ const create = context => {
 				node: firstNode,
 				loc: toLocation(familyRange, context),
 				messageId: MESSAGE_ID,
-				data: {fontFamilyName: fontFamily.name},
+				data: {fontFamilyName: formatFontFamilyName(fontFamily.name)},
 				* fix(fixer, {abort}) {
 					if (hasCommentInRange([previousCommaStart, commentRangeEnd], sourceCode)) {
 						return abort();
