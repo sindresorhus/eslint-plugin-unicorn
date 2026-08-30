@@ -26,6 +26,7 @@ const genericFontFamilyNames = new Set([
 
 // Firefox aliases these unquoted family names to generic families.
 const genericFontFamilyAliases = new Set([
+	'-moz-fixed',
 	'mono',
 	'sans',
 ]);
