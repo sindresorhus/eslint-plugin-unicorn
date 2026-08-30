@@ -31,6 +31,7 @@ test.snapshot({
 		'a { color: red !other; }',
 		'a { color: red !IMPRTANT; }',
 		String.raw`a { color: red !\69mprtant; }`,
+		String.raw`a { color: red !\69 MPRTANT; }`,
 		'a { color: red ! imprtant; }',
 		'a { color: red !/**/imprtant; }',
 		'a { color: red ! /* comment */ imprtant; }',
