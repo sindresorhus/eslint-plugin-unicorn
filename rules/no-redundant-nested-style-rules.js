@@ -1,6 +1,4 @@
 import {ident} from '@eslint/css-tree';
-import indentString from 'indent-string';
-import stripIndent from 'strip-indent';
 import {getComments} from './utils/index.js';
 
 /**
@@ -20,6 +18,7 @@ const legacyPseudoElements = new Set([
 ]);
 
 const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
+const trimCssWhitespace = string => string.replaceAll(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/gu, '');
 
 const getSingleSelector = rule => rule.prelude.type === 'SelectorList' && rule.prelude.children.length === 1
 	? rule.prelude.children.at(0)
@@ -62,19 +61,44 @@ const canFlattenInto = rule => {
 			&& !(node.type === 'PseudoClassSelector' && legacyPseudoElements.has(normalizeCssIdentifier(node.name))));
 };
 
-const getLineBreak = string => string.includes('\r\n') ? '\r\n' : '\n';
+const getLineBreak = string => string.match(/\r\n|[\n\f\r]/u)?.[0] ?? '\n';
+
+const stripCssIndent = string => {
+	const lineParts = string.split(/(\r\n|[\n\f\r])/u);
+	let minimumIndent = Infinity;
+
+	for (let index = 0; index < lineParts.length; index += 2) {
+		const line = lineParts[index];
+		if (/[^\t ]/u.test(line)) {
+			minimumIndent = Math.min(minimumIndent, line.match(/^[\t ]*/u)[0].length);
+		}
+	}
+
+	if (minimumIndent === 0 || minimumIndent === Infinity) {
+		return string;
+	}
+
+	for (let index = 0; index < lineParts.length; index += 2) {
+		const line = lineParts[index];
+		if (line.match(/^[\t ]*/u)[0].length >= minimumIndent) {
+			lineParts[index] = line.slice(minimumIndent);
+		}
+	}
+
+	return lineParts.join('');
+};
 
 const formatPart = (part, indentation) => {
 	const lineBreak = getLineBreak(part);
 	const lines = part.split(lineBreak);
-	const formatted = lines.length > 1 && lines[0].trim() !== ''
+	const formatted = lines.length > 1 && trimCssWhitespace(lines[0]) !== ''
 		? [
-			lines[0].trim(),
-			stripIndent(lines.slice(1).join(lineBreak)).trim(),
+			trimCssWhitespace(lines[0]),
+			trimCssWhitespace(stripCssIndent(lines.slice(1).join(lineBreak))),
 		].filter(Boolean).join(lineBreak)
-		: stripIndent(part).trim();
+		: trimCssWhitespace(stripCssIndent(part));
 
-	return indentString(formatted, 1, {indent: indentation});
+	return formatted.replaceAll(/(^|\r\n|[\n\f\r])(?=[\t ]*[^\t\n\f\r ])/gu, lineBreak => lineBreak + indentation);
 };
 
 const getMultilineRawRanges = sourceCode => {
@@ -124,11 +148,11 @@ const addDeclarationSeparator = (node, content, sourceCode) => {
 
 	const [, declarationEnd] = sourceCode.getRange(lastChild);
 	const [, blockEnd] = sourceCode.getRange(node.block);
-	if (sourceCode.text.slice(declarationEnd, blockEnd - 1).trimStart().startsWith(';')) {
+	if (trimCssWhitespace(sourceCode.text.slice(declarationEnd, blockEnd - 1)).startsWith(';')) {
 		return content;
 	}
 
-	return content.replace(/(?=\s*$)/u, ';');
+	return content.replace(/(?=[\t\n\f\r ]*$)/u, ';');
 };
 
 const getReplacement = (node, sourceCode) => {
@@ -137,19 +161,19 @@ const getReplacement = (node, sourceCode) => {
 	const [blockStart, blockEnd] = sourceCode.getRange(node.block);
 	const betweenSelectorAndBlock = sourceCode.text.slice(selectorEnd, blockStart);
 	const content = addDeclarationSeparator(node, sourceCode.text.slice(blockStart + 1, blockEnd - 1), sourceCode);
-	const parts = [betweenSelectorAndBlock, content].filter(part => part.trim() !== '');
+	const parts = [betweenSelectorAndBlock, content].filter(part => trimCssWhitespace(part) !== '');
 	const {start, end} = sourceCode.getLoc(node);
 	const lineStart = nodeStart - (start.column - 1);
 	const indentation = sourceCode.text.slice(lineStart, nodeStart);
 
-	if (start.line === end.line || /\S/u.test(indentation)) {
+	if (start.line === end.line || /[^\t\n\f\r ]/u.test(indentation)) {
 		const removeLeadingSpace = parts.length === 0
 			&& /[\t ]/u.test(sourceCode.text[nodeStart - 1])
 			&& /[\t ]/u.test(sourceCode.text[nodeEnd]);
 
 		return {
 			fixRange: [removeLeadingSpace ? nodeStart - 1 : nodeStart, nodeEnd],
-			text: parts.map(part => part.trim()).join(' '),
+			text: parts.map(part => trimCssWhitespace(part)).join(' '),
 		};
 	}
 

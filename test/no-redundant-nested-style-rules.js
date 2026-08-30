@@ -113,6 +113,21 @@ test({
 			errors: 1,
 		},
 		{
+			code: 'a { & { \u00A0 { color: red; } } }',
+			output: 'a { \u00A0 { color: red; } }',
+			errors: 1,
+		},
+		{
+			code: 'a { & { --foo: bar\u00A0 } background: blue; }',
+			output: 'a { --foo: bar\u00A0; background: blue; }',
+			errors: 1,
+		},
+		{
+			code: 'a {\n  & {\n    font-family: foo\u2028bar\u2029baz;\n  }\n}',
+			output: 'a {\n  font-family: foo\u2028bar\u2029baz;\n}',
+			errors: 1,
+		},
+		{
 			code: 'a { & { color: red } & { background: blue } }',
 			output: 'a { color: red; background: blue }',
 			errors: 2,
