@@ -1,0 +1,69 @@
+import outdent from 'outdent';
+import {getTester, languages} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+const asCSS = code => ({code, language: languages.css});
+
+test.snapshot({
+	valid: [
+		'a { font-family: Arial, Helvetica, sans-serif; }',
+		'a { FONT-FAMILY: Arial, serif; }',
+		'a { font-family: "sans-serif", sans-serif; }',
+		'a { font-family: "-apple-system", var(--fonts), -apple-system; }',
+		'a { font-family: "BlinkMacSystemFont", var(--fonts), BlinkMacSystemFont; }',
+		'a { font-family: generic(fangsong), generic(kai), serif; }',
+		'a { font-family: var(--fonts), Arial, sans-serif; }',
+		'a { font-family: inherit; }',
+		'a { font: italic 16px Arial, sans-serif; }',
+		'a { font: caption; }',
+		'a { font: revert-layer; }',
+		'a { font: var(--size) Arial, Arial; }',
+		'a { --font-family: Arial, Arial; }',
+		'@font-face { font-family: Arial, Arial; }',
+		'@font-palette-values --palette { font-family: Arial, Arial; }',
+	].map(code => asCSS(code)),
+	invalid: [
+		'a { font-family: Arial, Arial, sans-serif; }',
+		'a { font-family: Arial, Helvetica, Arial, sans-serif; }',
+		'a { font-family: "Arial", arial, sans-serif; }',
+		'a { font-family: Times New Roman, "times new roman", serif; }',
+		'a { font-family: Times New Roman, "  times   new roman  ", serif; }',
+		String.raw`a { font-family: A\72 ial, Arial, sans-serif; }`,
+		String.raw`a { font-family: "\41 rial", Arial, sans-serif; }`,
+		'a { font-family: SERIF, serif; }',
+		'a { font-family: "serif", serif, "SERIF"; }',
+		'a { font-family: "emoji", emoji, sans-serif; }',
+		'a { font-family: "fangsong", fangsong, serif; }',
+		'a { font-family: generic(fangsong), GENERIC(FANGSONG), serif; }',
+		'a { font: 16px generic(fangsong), GENERIC(FANGSONG); }',
+		'a { font: 16px Arial, Arial, sans-serif; }',
+		'a { font: italic small-caps 700 condensed 16px/1.5 Times New Roman, "times new roman", serif; }',
+		'a { font-family: Arial, var(--fonts), arial, sans-serif; }',
+		'a { font-family: Arial, Arial, ARIAL; }',
+		'a { font-family: Arial /* first */, Arial, sans-serif; }',
+		'a { font-family: Arial, /* duplicate */ Arial, sans-serif; }',
+		'a { font-family: Arial, Arial /* duplicate */, sans-serif; }',
+		'a { font-family: Times New Roman, Times /* duplicate */ New Roman, serif; }',
+		outdent`
+			a {
+				font-family:
+					Arial,
+					Arial,
+					sans-serif;
+			}
+		`,
+	].map(code => asCSS(code)),
+});
+
+test({
+	testerOptions: languages.css,
+	valid: [],
+	invalid: [
+		{
+			code: 'a { font-family: Arial, Arial, ARIAL; }',
+			output: 'a { font-family: Arial, ARIAL; }',
+			errors: 2,
+		},
+	],
+});
