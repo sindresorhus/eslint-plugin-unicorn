@@ -21,6 +21,22 @@ const genericFontFamilyNames = new Set([
 	'ui-serif',
 ]);
 
+const reservedFontFamilyNames = new Set([
+	'caption',
+	'default',
+	'icon',
+	'inherit',
+	'initial',
+	'menu',
+	'message-box',
+	'revert',
+	'revert-layer',
+	'revert-rule',
+	'small-caption',
+	'status-bar',
+	'unset',
+]);
+
 const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
 
 const formatFontFamilyName = name => JSON.stringify(name)
@@ -81,8 +97,14 @@ const getFontFamily = nodes => {
 		return;
 	}
 
-	const name = nodes.map(node => ident.decode(node.name)).join(' ');
-	const normalizedName = name.toLowerCase();
+	const identifierNames = nodes.map(node => ident.decode(node.name));
+	const normalizedIdentifierNames = identifierNames.map(name => name.toLowerCase());
+	if (normalizedIdentifierNames.some(name => reservedFontFamilyNames.has(name) || (nodes.length > 1 && genericFontFamilyNames.has(name)))) {
+		return;
+	}
+
+	const name = identifierNames.join(' ');
+	const normalizedName = normalizedIdentifierNames.join(' ');
 	const isGeneric = nodes.length === 1 && genericFontFamilyNames.has(normalizedName);
 
 	return {
