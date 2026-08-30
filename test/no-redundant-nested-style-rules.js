@@ -14,6 +14,7 @@ test.snapshot({
 			'a { && { color: red; } }',
 			'& { color: red; }',
 			'@media (width > 0px) { & { color: red; } }',
+			'a::before { @media (width > 0px) { & { color: red; } } }',
 			'#nonmatch, .target { & { color: red; } }',
 			'a::before { & { color: red; } }',
 			...['after', 'before', 'first-letter', 'first-line'].map(pseudoElement => `a:${pseudoElement} { & { color: red; } }`),
@@ -121,6 +122,11 @@ test({
 	testerOptions: languages.css,
 	valid: [],
 	invalid: [
+		{
+			code: 'a::before { @media (width > 0px) { b { & { color: red; } } } }',
+			output: 'a::before { @media (width > 0px) { b { color: red; } } }',
+			errors: 1,
+		},
 		{
 			code: String.raw`a { & { --foo: bar\; } background: blue; }`,
 			output: String.raw`a { --foo: bar\;; background: blue; }`,
