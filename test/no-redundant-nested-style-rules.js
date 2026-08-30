@@ -123,6 +123,22 @@ test({
 			errors: 1,
 		},
 		{
+			code: 'a { & { color red } b { x: y } }',
+			languageOptions: {tolerant: true},
+			errors: 1,
+		},
+		{
+			code: 'a { & { @foo x } b { y: z } }',
+			languageOptions: {tolerant: true},
+			errors: 1,
+		},
+		{
+			code: 'a { & { @foo x } }',
+			output: 'a { @foo x }',
+			languageOptions: {tolerant: true},
+			errors: 1,
+		},
+		{
 			code: 'a {\n  & {\n    font-family: foo\u2028bar\u2029baz;\n  }\n}',
 			output: 'a {\n  font-family: foo\u2028bar\u2029baz;\n}',
 			errors: 1,

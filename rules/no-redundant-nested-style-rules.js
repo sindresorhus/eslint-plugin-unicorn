@@ -117,7 +117,21 @@ const getMultilineRawRanges = sourceCode => {
 	return ranges;
 };
 
-const hasUnsafeMultilineSyntax = (node, sourceCode, comments, multilineRawRanges) => {
+const isFixUnsafe = (node, sourceCode, comments, multilineRawRanges) => {
+	const lastChild = node.block.children.at(-1);
+	const hasAmbiguousEnd = lastChild?.type === 'Raw'
+		|| (lastChild?.type === 'Atrule' && lastChild.block === null);
+	if (
+		hasAmbiguousEnd
+		&& sourceCode.getParent(node).children.at(-1) !== node
+	) {
+		return true;
+	}
+
+	if (multilineRawRanges === undefined) {
+		return false;
+	}
+
 	if (/\\[\n\f\r]/u.test(sourceCode.getText(node))) {
 		return true;
 	}
@@ -208,12 +222,16 @@ const create = context => {
 			return;
 		}
 
-		multilineRawRanges ??= getMultilineRawRanges(sourceCode);
+		const {start, end} = sourceCode.getLoc(node);
+		const isMultiline = start.line !== end.line;
+		if (isMultiline) {
+			multilineRawRanges ??= getMultilineRawRanges(sourceCode);
+		}
 
 		return {
 			node: node.prelude,
 			messageId: MESSAGE_ID,
-			fix: hasUnsafeMultilineSyntax(node, sourceCode, comments, multilineRawRanges) ? undefined : getFix(node, sourceCode),
+			fix: isFixUnsafe(node, sourceCode, comments, isMultiline ? multilineRawRanges : undefined) ? undefined : getFix(node, sourceCode),
 		};
 	});
 };
