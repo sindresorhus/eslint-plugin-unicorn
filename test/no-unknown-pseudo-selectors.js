@@ -51,7 +51,7 @@ test.snapshot({
 		{code: ':is(.foo:foucs, :not(.bar:hovr)) {}', language: languages.css},
 		{code: ':has(> .foo:foucs), ::slotted(.bar:hovr) {}', language: languages.css},
 		{code: '.foo { &:hovr {} }', language: languages.css},
-		{code: '@supports selector(:foucs) {} @scope (:hovr) {}', language: languages.css},
+		{code: '@supports selector(:foucs) {} @scope (:hovr) to (:foucs) {}', language: languages.css},
 		{code: '::hover {}', language: languages.css},
 		{code: ':backdrop {}', language: languages.css},
 		{code: ':-webkit-autofill {}', language: languages.css},
