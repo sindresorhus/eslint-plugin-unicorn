@@ -8,6 +8,9 @@ const messages = {
 
 const genericFontFamilyNames = new Set([
 	'-apple-system',
+	// WebKit parses these as generic family names.
+	'-webkit-body',
+	'-webkit-pictograph',
 	'cursive',
 	'fantasy',
 	'math',
