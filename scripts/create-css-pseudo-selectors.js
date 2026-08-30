@@ -6,9 +6,8 @@ const {selectors} = await webref.listAll();
 
 const pseudoSelectors = [...new Set([
 	...selectors
-		.map(({name}) => name)
-		.filter(name => name.startsWith(':'))
-		.map(name => name.replace(/\(\)$/u, '')),
+		.filter(({name}) => name.startsWith(':'))
+		.map(({name}) => name.replace(/\(\)$/u, '')),
 	// Missing from Webref: https://drafts.csswg.org/css-logical-1/#page
 	':recto',
 	':verso',
