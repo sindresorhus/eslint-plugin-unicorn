@@ -120,10 +120,10 @@ test('checks filenames of non-JavaScript files', t => {
 	}
 });
 
-test('validates directoryRoots', t => {
+test('validates pattern options', t => {
 	const linter = new Linter({configType: 'flat'});
 
-	const verify = options => linter.verify('const value = 1;', {
+	const getConfig = options => ({
 		plugins: {
 			unicorn,
 		},
@@ -131,6 +131,7 @@ test('validates directoryRoots', t => {
 			'unicorn/filename-case': ['error', options],
 		},
 	});
+	const verify = options => linter.verify('const value = 1;', getConfig(options), {filename: 'foo.js'});
 
 	for (const options of [
 		{case: 'pascalCase', directoryRoots: [42]},
@@ -142,15 +143,23 @@ test('validates directoryRoots', t => {
 		);
 	}
 
-	for (const options of [
-		{case: 'pascalCase', directoryRoots: [{}]},
-		{cases: {pascalCase: true}, directoryRoots: [{}]},
-	]) {
-		t.throws(
-			() => verify(options),
-			{message: /only accepts strings and regular expressions/u},
-		);
+	for (const optionName of ['directoryRoots', 'ignore']) {
+		for (const caseOptions of [
+			{case: 'pascalCase'},
+			{cases: {pascalCase: true}},
+		]) {
+			const options = {...caseOptions, [optionName]: [{}]};
+			t.throws(
+				() => verify(options),
+				{message: new RegExp(`The \`${optionName}\` option only accepts strings and regular expressions\\.`, 'u')},
+			);
+		}
 	}
+
+	t.throws(
+		() => linter.verify('const value = 1;', getConfig({ignore: [{}]})),
+		{message: /The `ignore` option only accepts strings and regular expressions\./u},
+	);
 });
 
 ruleTest({
@@ -445,7 +454,10 @@ ruleTest({
 			{case: 'pascalCase', directoryRoots: ['app/javascript', 'packages/foo/src']},
 		]),
 		testCaseWithOptions('legacy/app/javascript/Pages/Foo.vue', undefined, [
-			{case: 'pascalCase', directoryRoots: ['legacy', 'legacy/app/javascript']},
+			{case: 'pascalCase', directoryRoots: [/^legacy\/app\/javascript$/u, 'legacy']},
+		]),
+		testCaseWithOptions('legacy/app/javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['legacy', /^legacy\/app\/javascript$/u]},
 		]),
 		testCaseWithOptions('app/Javascript/Pages/Foo.vue', undefined, [
 			{case: 'pascalCase', directoryRoots: ['app']},

@@ -132,10 +132,10 @@ function getChosenCases(options) {
 	}
 
 	if (options.cases) {
-		const cases = Object.keys(options.cases)
-			.filter(cases => options.cases[cases]);
+		const chosenCases = Object.keys(options.cases)
+			.filter(case_ => options.cases[case_]);
 
-		return cases.length > 0 ? cases : ['kebabCase'];
+		return chosenCases.length > 0 ? chosenCases : ['kebabCase'];
 	}
 
 	return ['kebabCase'];
@@ -200,6 +200,12 @@ function getPathSegments(filenameWithExtension, cwd) {
 		.filter(segment => segment !== '.');
 }
 
+function validatePatternOption(optionName, patterns) {
+	if (patterns.some(pattern => typeof pattern !== 'string' && !isRegExp(pattern))) {
+		throw new TypeError(`The \`${optionName}\` option only accepts strings and regular expressions.`);
+	}
+}
+
 function isDirectoryRoot(directoryPath, directoryRoots) {
 	return directoryRoots.some(directoryRoot => {
 		if (typeof directoryRoot === 'string') {
@@ -227,15 +233,15 @@ function getDirectoriesToCheck(pathSegments, directoryRoots) {
 	return directories.slice(directoryStartIndex);
 }
 
-const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
+const leadingUnderscoresRegex = /^(?<leading>_+)(?<remainder>.*)$/;
 function splitName(name) {
 	const result = leadingUnderscoresRegex.exec(name) || {groups: {}};
-	const {leading = '', tailing = name} = result.groups;
+	const {leading = '', remainder = name} = result.groups;
 
 	const words = [];
 
 	let lastWord;
-	for (const char of tailing) {
+	for (const char of remainder) {
 		const isIgnored = isIgnoredChar(char);
 
 		if (lastWord?.ignored === isIgnored) {
@@ -295,11 +301,11 @@ function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions)
 */
 const create = context => {
 	const options = context.options[0] || {};
+	const ignorePatterns = options.ignore || [];
 	const directoryRoots = options.directoryRoots || [];
 
-	if (directoryRoots.some(directoryRoot => typeof directoryRoot !== 'string' && !isRegExp(directoryRoot))) {
-		throw new TypeError('The `directoryRoots` option only accepts strings and regular expressions.');
-	}
+	validatePatternOption('ignore', ignorePatterns);
+	validatePatternOption('directoryRoots', directoryRoots);
 
 	const filenameWithExtension = context.physicalFilename;
 
@@ -308,7 +314,7 @@ const create = context => {
 	}
 
 	const chosenCases = getChosenCases(options);
-	const ignore = (options.ignore || []).map(item => {
+	const ignore = ignorePatterns.map(item => {
 		if (isRegExp(item)) {
 			return item;
 		}

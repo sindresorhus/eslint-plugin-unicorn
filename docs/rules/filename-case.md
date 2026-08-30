@@ -77,7 +77,7 @@ You can set the `case` option like this:
 
 ### cases
 
-Type: `{[type: string]: boolean}`
+Type: `{camelCase?: boolean, camelCaseWithAcronyms?: boolean, snakeCase?: boolean, kebabCase?: boolean, pascalCase?: boolean}`
 
 You can set the `cases` option to allow multiple cases:
 
