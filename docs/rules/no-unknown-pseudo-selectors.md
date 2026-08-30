@@ -23,7 +23,7 @@ Typos in pseudo-classes and pseudo-elements silently create selectors that never
 
 The rule distinguishes pseudo-classes from pseudo-elements, so `::hover` and `:backdrop` are unknown even though `:hover` and `::backdrop` are standard.
 
-It validates names and pseudo-selector kinds only. It does not validate where a pseudo-selector may be used or its argument grammar.
+It validates names and pseudo-selector kinds only. It does not validate where a pseudo-selector may be used or its argument grammar. Nested pseudo-selectors inside functional arguments are checked only when `@eslint/css` parses those arguments as selectors.
 
 ## Options
 
@@ -33,6 +33,8 @@ Type: `string[]`\
 Default: `[]`
 
 Add framework-specific, browser-specific, or other intentional extensions. Include one or two leading colons to identify whether each entry is a pseudo-class or pseudo-element. Matching is ASCII case-insensitive, and an entry allows both functional and non-functional uses of the same name.
+
+[CSS custom selectors](https://drafts.csswg.org/css-extensions/#custom-selectors) whose names start with `--`, such as `:--heading`, are accepted automatically.
 
 Vendor-prefixed and framework-specific pseudo-selectors are reported unless explicitly listed in `allow`.
 

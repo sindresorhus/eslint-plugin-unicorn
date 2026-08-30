@@ -20,8 +20,13 @@ const getPseudoSelectorKey = pseudoSelector => {
 const standardPseudoSelectorKeys = new Set(standardPseudoSelectors.map(pseudoSelector => getPseudoSelectorKey(pseudoSelector)));
 
 const getPseudoSelector = node => `${node.type === 'PseudoElementSelector' ? '::' : ':'}${node.name}`;
+const isCustomSelector = node => node.type === 'PseudoClassSelector' && ident.decode(node.name).startsWith('--');
 
 const getProblem = (node, allowedPseudoSelectorKeys) => {
+	if (isCustomSelector(node)) {
+		return;
+	}
+
 	const pseudoSelector = getPseudoSelector(node);
 	const pseudoSelectorKey = getPseudoSelectorKey(pseudoSelector);
 
