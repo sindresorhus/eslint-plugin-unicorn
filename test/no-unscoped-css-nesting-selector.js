@@ -29,6 +29,7 @@ test.snapshot({
 		'@scope (.foo) to (& .limit) {}',
 		'@scope to (&) {}',
 		'@scope to (:is(&, .limit)) {}',
+		'@scope (.outer) { @scope (:is(&)) to (:not(&)) { @layer components { & {} } } }',
 		'@supports selector(&) {}',
 		'@keyframes foo { & {} } @-moz-keyframes bar { & {} } @-o-keyframes baz { & {} } @-webkit-keyframes qux { & {} }',
 	].map(code => asCss(code)),
@@ -47,6 +48,7 @@ test.snapshot({
 		`,
 		'@scope (&) {}',
 		'@scope (&) to (&) {}',
+		'@scope (:is(&, .root)) to (:is(&, .limit)) {}',
 		'@scope (&) { & {} }',
 		'@utility content-body { & p {} }',
 		'@-custom-keyframes foo { & {} }',
@@ -64,6 +66,7 @@ test.snapshot({
 		asCssWithScopingRootAtRules('@utility content-body { @supports (display: grid) { & p {} } }', ['UTILITY']),
 		asCssWithScopingRootAtRules('@utility content-body { & p {} }', ['variant', 'utility']),
 		asCssWithScopingRootAtRules('@K content-body { & p {} }', ['K']),
+		asCssWithScopingRootAtRules('@utility content-body { @scope (:is(&)) {} }'),
 	],
 	invalid: [
 		asCssWithScopingRootAtRules('@variant content-body { & p {} }'),
