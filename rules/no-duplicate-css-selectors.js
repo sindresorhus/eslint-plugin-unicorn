@@ -11,25 +11,20 @@ const messages = {
 	[DUPLICATE_SELECTOR_LIST]: 'This selector list duplicates the selector list on line {{line}}.',
 };
 
-const keyframesNamePattern = /^-(?:o|moz|webkit)-keyframes$|^keyframes$/iu;
-
-const getRange = (node, sourceCode) => {
-	const {start, end} = sourceCode.getLoc(node);
-	return [start.offset, end.offset];
-};
+const keyframesNamePattern = /^(?:-(?:o|moz|webkit)-)?keyframes$/iu;
 
 const hasCommentInRange = (sourceCode, [start, end]) => sourceCode.comments.some(comment => {
-	const [commentStart, commentEnd] = getRange(comment, sourceCode);
+	const [commentStart, commentEnd] = sourceCode.getRange(comment);
 	return commentStart < end && commentEnd > start;
 });
 
-const getDuplicateSelectorFix = (selectors, index, block, sourceCode) => {
+const getDuplicateSelectorRemovalRange = (selectors, index, block, sourceCode) => {
 	const selector = selectors[index];
 	const previousSelector = selectors[index - 1];
 	const nextSelector = selectors[index + 1];
-	const [, previousSelectorEnd] = getRange(previousSelector, sourceCode);
-	const [selectorStart, selectorEnd] = getRange(selector, sourceCode);
-	const [commentCheckEnd] = getRange(nextSelector ?? block, sourceCode);
+	const [, previousSelectorEnd] = sourceCode.getRange(previousSelector);
+	const [selectorStart, selectorEnd] = sourceCode.getRange(selector);
+	const [commentCheckEnd] = sourceCode.getRange(nextSelector ?? block);
 	const separator = sourceCode.text.slice(previousSelectorEnd, selectorStart);
 	const removalRange = [previousSelectorEnd, selectorEnd];
 	const commentCheckRange = [previousSelectorEnd, commentCheckEnd];
@@ -38,23 +33,38 @@ const getDuplicateSelectorFix = (selectors, index, block, sourceCode) => {
 		return;
 	}
 
-	return fixer => fixer.removeRange(removalRange);
+	return removalRange;
 };
 
-const getContextPart = (node, getAnonymousLayerIdentifier) => {
+const getDuplicateSelectorsFix = (rule, duplicates, sourceCode) => {
+	const removalRanges = duplicates.map(({removalRange}) => removalRange).filter(Boolean);
+	if (removalRanges.length === 0) {
+		return;
+	}
+
+	const [selectorListStart, selectorListEnd] = sourceCode.getRange(rule.prelude);
+	let replacement = sourceCode.text.slice(selectorListStart, selectorListEnd);
+	for (const [start, end] of removalRanges.toReversed()) {
+		replacement = replacement.slice(0, start - selectorListStart) + replacement.slice(end - selectorListStart);
+	}
+
+	return fixer => fixer.replaceText(rule.prelude, replacement);
+};
+
+const getContextPart = (node, sourceCode) => {
 	if (node.type === 'Rule') {
 		return ['rule', generate(node.prelude)];
 	}
 
 	const name = node.name.toLowerCase();
 	if (name === 'layer' && !node.prelude) {
-		return ['anonymous-layer', getAnonymousLayerIdentifier(node)];
+		return ['anonymous-layer', sourceCode.getRange(node)[0]];
 	}
 
 	return ['at-rule', name, node.prelude ? generate(node.prelude) : ''];
 };
 
-const getContextKey = (rule, sourceCode, getAnonymousLayerIdentifier) => {
+const getContextKey = (rule, sourceCode) => {
 	const context = [];
 	let node = sourceCode.getParent(rule);
 
@@ -64,9 +74,9 @@ const getContextKey = (rule, sourceCode, getAnonymousLayerIdentifier) => {
 				return;
 			}
 
-			context.push(getContextPart(node, getAnonymousLayerIdentifier));
+			context.push(getContextPart(node, sourceCode));
 		} else if (node.type === 'Rule') {
-			context.push(getContextPart(node, getAnonymousLayerIdentifier));
+			context.push(getContextPart(node, sourceCode));
 		}
 
 		node = sourceCode.getParent(node);
@@ -81,31 +91,20 @@ const getContextKey = (rule, sourceCode, getAnonymousLayerIdentifier) => {
 const create = context => {
 	const {sourceCode} = context;
 	const selectorListsByContext = new Map();
-	const anonymousLayerIds = new WeakMap();
-	let nextAnonymousLayerIdentifier = 0;
-
-	const getAnonymousLayerIdentifier = node => {
-		let identifier = anonymousLayerIds.get(node);
-		if (identifier === undefined) {
-			identifier = nextAnonymousLayerIdentifier++;
-			anonymousLayerIds.set(node, identifier);
-		}
-
-		return identifier;
-	};
 
 	context.on('Rule', function * (rule) {
 		if (rule.prelude.type !== 'SelectorList') {
 			return;
 		}
 
-		const contextKey = getContextKey(rule, sourceCode, getAnonymousLayerIdentifier);
+		const contextKey = getContextKey(rule, sourceCode);
 		if (contextKey === undefined) {
 			return;
 		}
 
 		const selectors = rule.prelude.children;
 		const seenSelectors = new Map();
+		const duplicates = [];
 
 		for (const [index, selector] of selectors.entries()) {
 			const selectorKey = generate(selector);
@@ -116,11 +115,20 @@ const create = context => {
 				continue;
 			}
 
+			duplicates.push({
+				selector,
+				firstSelector,
+				removalRange: getDuplicateSelectorRemovalRange(selectors, index, rule.block, sourceCode),
+			});
+		}
+
+		const duplicateSelectorsFix = getDuplicateSelectorsFix(rule, duplicates, sourceCode);
+		for (const {selector, firstSelector, removalRange} of duplicates) {
 			yield {
 				node: selector,
 				messageId: DUPLICATE_SELECTOR,
 				data: {line: String(sourceCode.getLoc(firstSelector).start.line)},
-				fix: getDuplicateSelectorFix(selectors, index, rule.block, sourceCode),
+				fix: removalRange ? duplicateSelectorsFix : undefined,
 			};
 		}
 

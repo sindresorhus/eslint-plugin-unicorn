@@ -63,6 +63,12 @@ test.snapshot({
 				from { opacity: 1; }
 			}
 		`,
+		outdent`
+			@-webkit-keyframes fade {
+				from { opacity: 0; }
+				from { opacity: 1; }
+			}
+		`,
 	].map(code => asCss(code)),
 	invalid: [
 		'.card { color: red; } .other { color: green; } .card { color: blue; }',
@@ -120,6 +126,12 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			@layer {
+				.card { color: red; }
+				.card { color: blue; }
+			}
+		`,
+		outdent`
 			.component {
 				.title { color: red; }
 			}
@@ -140,4 +152,21 @@ test.snapshot({
 			}
 		`,
 	].map(code => asCss(code)),
+});
+
+test({
+	testerOptions: languages.css,
+	valid: [],
+	invalid: [
+		{
+			code: 'a, b, a, b { color: red; }',
+			output: 'a, b { color: red; }',
+			errors: 2,
+		},
+		{
+			code: 'a /* keep */, b, a { color: red; }',
+			output: 'a /* keep */, b { color: red; }',
+			errors: 1,
+		},
+	],
 });

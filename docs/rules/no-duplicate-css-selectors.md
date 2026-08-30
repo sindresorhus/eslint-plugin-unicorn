@@ -11,7 +11,9 @@
 
 Duplicate selector blocks often come from merges, copying, or incomplete refactors. They split related declarations across a stylesheet, and later declarations can unexpectedly override earlier ones.
 
-This rule reports duplicate selectors within a selector list and duplicate selector lists in the same conditional and nesting context. Selector whitespace and comments are ignored when comparing selectors.
+This rule reports duplicate selectors within a selector list and duplicate selector lists in the same conditional and nesting context. Insignificant selector whitespace and comments are ignored when comparing selectors.
+
+Keyframe selectors are ignored. Use [`css/no-duplicate-keyframe-selectors`](https://github.com/eslint/css/blob/main/docs/rules/no-duplicate-keyframe-selectors.md) to check them.
 
 ## Examples
 

@@ -61,14 +61,7 @@ const getPresetRules = (language, isEnabled) => Object.fromEntries(
 		]),
 );
 
-const getAllRules = language => Object.fromEntries(
-	Object.entries(rules)
-		.filter(([, rule]) => isRuleForLanguage(rule, language))
-		.map(([id]) => [
-			`unicorn/${id}`,
-			'error',
-		]),
-);
+const getAllRules = language => getPresetRules(language, () => true);
 
 const getRecommendedRules = language => getPresetRules(language, rule => rule.meta.docs.recommended);
 const getUnopinionatedRules = language => getPresetRules(language, rule => rule.meta.docs.recommended === 'unopinionated');
