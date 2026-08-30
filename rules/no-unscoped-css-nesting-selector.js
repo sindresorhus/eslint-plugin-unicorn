@@ -20,56 +20,42 @@ const isStyleRule = (node, sourceCode) => {
 	return !isKeyframesAtRule(atRule);
 };
 
-const isInScopeLimit = (node, sourceCode, selectorList) => {
-	switch (node?.type) {
-		case 'SelectorList': {
-			return isInScopeLimit(sourceCode.getParent(node), sourceCode, node);
+const isInScopeLimit = (node, sourceCode) => {
+	let selectorList;
+
+	for (const ancestor of sourceCode.getAncestors(node).toReversed()) {
+		if (ancestor.type === 'SelectorList') {
+			selectorList = ancestor;
+			continue;
 		}
 
-		case 'Scope': {
-			return node.limit === selectorList;
+		if (ancestor.type === 'Scope') {
+			return ancestor.limit === selectorList;
 		}
 
-		case 'Atrule':
-		case undefined: {
+		if (ancestor.type === 'Atrule') {
 			return false;
 		}
-
-		default: {
-			return isInScopeLimit(sourceCode.getParent(node), sourceCode, selectorList);
-		}
 	}
+
+	return false;
 };
 
-const getSelectorOwner = (node, sourceCode) => {
-	let currentNode = node;
-
-	while (currentNode) {
-		if (currentNode.type === 'Rule' || currentNode.type === 'Atrule') {
-			return currentNode;
-		}
-
-		currentNode = sourceCode.getParent(currentNode);
-	}
-};
+const getSelectorOwner = (node, sourceCode) => sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'Rule' || ancestor.type === 'Atrule');
 
 const hasScopingRoot = (selectorOwner, sourceCode, scopingRootAtRules) => {
-	let currentNode = sourceCode.getParent(selectorOwner);
-
-	while (currentNode) {
-		if (isKeyframesAtRule(currentNode)) {
+	for (const ancestor of sourceCode.getAncestors(selectorOwner).toReversed()) {
+		if (isKeyframesAtRule(ancestor)) {
 			return false;
 		}
 
 		if (
-			isStyleRule(currentNode, sourceCode)
-			|| isScopeAtRule(currentNode)
-			|| (currentNode.type === 'Atrule' && scopingRootAtRules.has(normalizeAtRuleName(currentNode.name)))
+			isStyleRule(ancestor, sourceCode)
+			|| isScopeAtRule(ancestor)
+			|| (ancestor.type === 'Atrule' && scopingRootAtRules.has(normalizeAtRuleName(ancestor.name)))
 		) {
 			return true;
 		}
-
-		currentNode = sourceCode.getParent(currentNode);
 	}
 
 	return false;

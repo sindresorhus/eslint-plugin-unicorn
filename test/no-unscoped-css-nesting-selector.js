@@ -46,7 +46,6 @@ test.snapshot({
 			@layer components { & {} }
 			@container (width > 1px) { & {} }
 		`,
-		'@scope (&) {}',
 		'@scope (&) to (&) {}',
 		'@scope (:is(&, .root)) to (:is(&, .limit)) {}',
 		'@scope (&) { & {} }',
