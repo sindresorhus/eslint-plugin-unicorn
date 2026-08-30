@@ -132,6 +132,15 @@ test({
 			errors: [{messageId: 'no-deprecated-css-features/error', column: 21, endColumn: 23}],
 		},
 		{
+			code: String.raw`@import "x.css" print, pro\6a ection;`,
+			errors: [{messageId: 'no-deprecated-css-features/error', column: 24, endColumn: 37}],
+		},
+		{
+			code: '@container style(overflow: overlay) {}',
+			output: '@container style(overflow: auto) {}',
+			errors: [{messageId: 'no-deprecated-css-features/error'}],
+		},
+		{
 			code: ':contains(popup), :drop(acronym) { color: red; }',
 			errors: [
 				{messageId: 'no-deprecated-css-features/error', data: {feature: 'selector', name: ':contains'}},
