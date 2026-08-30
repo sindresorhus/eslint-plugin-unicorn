@@ -42,6 +42,11 @@ const NAMED_VIEW_TRANSITION_PSEUDO_ELEMENTS = new Set([
 
 const normalizeIdentifier = identifier => ident.decode(identifier).toLowerCase();
 
+const canBeRepresentedByNestingSelector = selector => selector.children.every(node =>
+	node.type !== 'PseudoElementSelector'
+	&& (node.type !== 'PseudoClassSelector' || !LEGACY_PSEUDO_ELEMENTS.has(normalizeIdentifier(node.name))),
+);
+
 const addSpecificity = (first, second) => first.map((value, index) => value + second[index]);
 
 const compareSpecificity = (first, second) => {
@@ -121,11 +126,21 @@ const getSelectorSpecificity = (selector, nestingSpecificity) => {
 
 const getSelectorArgumentSpecificity = (selectorArgument, nestingSpecificity) => {
 	const selectors = selectorArgument?.type === 'Selector' ? [selectorArgument] : selectorArgument?.children ?? [];
-	const results = selectors.map(selector => getSelectorSpecificity(selector, nestingSpecificity));
+	const specificities = [];
+	let hasNestingSelector = false;
+
+	for (const selector of selectors) {
+		const result = getSelectorSpecificity(selector, nestingSpecificity);
+		hasNestingSelector ||= result.hasNestingSelector;
+
+		if (canBeRepresentedByNestingSelector(selector)) {
+			specificities.push(result.specificity);
+		}
+	}
 
 	return {
-		specificity: getMaximumSpecificity(results.map(({specificity}) => specificity)),
-		hasNestingSelector: results.some(({hasNestingSelector}) => hasNestingSelector),
+		specificity: getMaximumSpecificity(specificities),
+		hasNestingSelector,
 	};
 };
 
@@ -217,7 +232,7 @@ const getNodeSpecificity = (node, nestingSpecificity) => {
 	}
 };
 
-const getRuleSpecificities = (rule, nestingSpecificity) => rule.prelude.children.map(selector => {
+const getRuleSpecificities = (rule, nestingSpecificity) => rule.prelude.children.filter(selector => canBeRepresentedByNestingSelector(selector)).map(selector => {
 	const result = getSelectorSpecificity(selector, nestingSpecificity);
 	const hasImpliedNestingSelector = !result.hasNestingSelector || selector.children.at(0)?.type === 'Combinator';
 	return hasImpliedNestingSelector
@@ -261,7 +276,7 @@ const create = context => {
 		const parentRule = getParentStyleRule(rule, sourceCode);
 		const parentSpecificities = parentRule && ruleSpecificities.get(parentRule);
 		const nestingSpecificity = getMaximumSpecificity(parentSpecificities ?? []);
-		const specificities = getRuleSpecificities(rule, nestingSpecificity);
+		const specificities = parentSpecificities?.length === 0 ? [] : getRuleSpecificities(rule, nestingSpecificity);
 		ruleSpecificities.set(rule, specificities);
 
 		if (parentSpecificities && hasMixedSpecificity(parentSpecificities)) {
