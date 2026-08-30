@@ -391,6 +391,7 @@ const schema = [
 		description: 'The rule options.',
 		anyOf: [
 			{
+				type: 'object',
 				properties: {
 					case: {
 						enum: [
@@ -432,8 +433,10 @@ const schema = [
 				additionalProperties: false,
 			},
 			{
+				type: 'object',
 				properties: {
 					cases: {
+						type: 'object',
 						properties: {
 							camelCase: {
 								type: 'boolean',

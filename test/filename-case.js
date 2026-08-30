@@ -120,7 +120,7 @@ test('checks filenames of non-JavaScript files', t => {
 	}
 });
 
-test('validates pattern options', t => {
+test('validates options', t => {
 	const linter = new Linter({configType: 'flat'});
 
 	const getConfig = options => ({
@@ -132,6 +132,20 @@ test('validates pattern options', t => {
 		},
 	});
 	const verify = options => linter.verify('const value = 1;', getConfig(options), {filename: 'foo.js'});
+
+	for (const options of [
+		'pascalCase',
+		[],
+		{cases: 'pascalCase'},
+		{cases: 42},
+		{cases: []},
+		JSON.parse('null'),
+	]) {
+		t.throws(
+			() => verify(options),
+			{message: /should be object/u},
+		);
+	}
 
 	for (const options of [
 		{case: 'pascalCase', directoryRoots: [42]},
