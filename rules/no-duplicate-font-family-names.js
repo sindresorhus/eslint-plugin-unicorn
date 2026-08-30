@@ -7,10 +7,10 @@ const messages = {
 };
 
 const genericFontFamilyNames = new Set([
-	'-apple-system',
-	// WebKit parses these as generic family names.
+	// Browser-specific generic family names.
 	'-webkit-body',
 	'-webkit-pictograph',
+	// Standard generic family names.
 	'cursive',
 	'fantasy',
 	'math',
@@ -22,6 +22,12 @@ const genericFontFamilyNames = new Set([
 	'ui-rounded',
 	'ui-sans-serif',
 	'ui-serif',
+]);
+
+// Firefox aliases these unquoted family names to generic families.
+const genericFontFamilyAliases = new Set([
+	'mono',
+	'sans',
 ]);
 
 const reservedFontFamilyNames = new Set([
@@ -108,7 +114,7 @@ const getFontFamily = nodes => {
 
 	const name = identifierNames.join(' ');
 	const normalizedName = normalizedIdentifierNames.join(' ');
-	const isGeneric = nodes.length === 1 && genericFontFamilyNames.has(normalizedName);
+	const isGeneric = nodes.length === 1 && (genericFontFamilyNames.has(normalizedName) || genericFontFamilyAliases.has(normalizedName));
 
 	return {
 		name,
