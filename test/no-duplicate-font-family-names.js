@@ -9,7 +9,22 @@ test.snapshot({
 	valid: [
 		'a { font-family: Arial, Helvetica, sans-serif; }',
 		'a { FONT-FAMILY: Arial, serif; }',
-		'a { font-family: "sans-serif", sans-serif; }',
+		outdent`
+			a {
+				font-family:
+					"cursive", cursive,
+					"fantasy", fantasy,
+					"math", math,
+					"monospace", monospace,
+					"sans-serif", sans-serif,
+					"serif", serif,
+					"system-ui", system-ui,
+					"ui-monospace", ui-monospace,
+					"ui-rounded", ui-rounded,
+					"ui-sans-serif", ui-sans-serif,
+					"ui-serif", ui-serif;
+			}
+		`,
 		String.raw`a { font-family: "serif", s\65 rif; }`,
 		'a { font-family: "-webkit-body", -webkit-body; }',
 		'a { font-family: "-webkit-pictograph", -webkit-pictograph; }',
@@ -65,6 +80,7 @@ rial", sans-serif; }`,
 		'a { font-family: "emoji", emoji, sans-serif; }',
 		'a { font-family: "fangsong", fangsong, serif; }',
 		'a { font-family: "BlinkMacSystemFont", BlinkMacSystemFont; }',
+		'a { font-family: "-webkit-standard", -webkit-standard; }',
 		'a { font-family: "BlinkMacSystemFont", var(--fonts), BlinkMacSystemFont; }',
 		'a { font-family: "-apple-system", var(--fonts), -apple-system; }',
 		'a { font: 16px "Custom -moz-fixed", Custom -moz-fixed; }',
