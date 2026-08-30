@@ -126,9 +126,8 @@ const create = context => {
 			return;
 		}
 
-		const matchResult = sourceCode.lexer.matchProperty(property, declaration.value);
 		const groups = property === 'font'
-			? getFontShorthandGroups(declaration.value, matchResult)
+			? getFontShorthandGroups(declaration.value, sourceCode.lexer.matchProperty(property, declaration.value))
 			: getCommaSeparatedGroups(declaration.value);
 		const seenFontFamilies = new Set();
 
