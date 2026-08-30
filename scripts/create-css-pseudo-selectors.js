@@ -4,12 +4,15 @@ import webref from '@webref/css';
 const targetUrl = new URL('../rules/shared/standard-pseudo-selectors.js', import.meta.url);
 const {selectors} = await webref.listAll();
 
-const pseudoSelectors = [...new Set(
-	selectors
+const pseudoSelectors = [...new Set([
+	...selectors
 		.map(({name}) => name)
 		.filter(name => name.startsWith(':'))
 		.map(name => name.replace(/\(\)$/u, '')),
-)].toSorted((first, second) => first.localeCompare(second));
+	// https://drafts.csswg.org/css-logical-1/#page
+	':recto',
+	':verso',
+])].toSorted((first, second) => first.localeCompare(second));
 
 const content = [
 	'// Generated file, DO NOT edit',
