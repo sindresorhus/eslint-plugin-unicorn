@@ -267,14 +267,14 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 		t.true(typeof recommended === 'boolean' || recommended === 'unopinionated', `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
 
 		const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
-		if (recommended) {
+		if (recommended && isJavaScriptRule(rule)) {
 			t.is(recommendedSeverity, 'error', `'${name}' rule should set to 'error'.`);
 		} else {
 			t.is(recommendedSeverity, 'off', `'${name}' rule should set to 'off'.`);
 		}
 
 		const unopinionatedSeverity = eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${name}`];
-		if (recommended === 'unopinionated') {
+		if (recommended === 'unopinionated' && isJavaScriptRule(rule)) {
 			t.is(unopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the unopinionated config.`);
 		} else {
 			t.is(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);

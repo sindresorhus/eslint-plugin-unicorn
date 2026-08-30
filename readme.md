@@ -344,6 +344,7 @@ export default defineConfig([
 | [prefer-math-constants](docs/rules/prefer-math-constants.md)                                               | Prefer `Math` constants over their approximate numeric values.                                                                 | ✅ ☑️ |    | 💡 |    |
 | [prefer-math-min-max](docs/rules/prefer-math-min-max.md)                                                   | Prefer `Math.min()` and `Math.max()` over ternaries for simple comparisons.                                                    | ✅ ☑️ | 🔧 |    |    |
 | [prefer-math-trunc](docs/rules/prefer-math-trunc.md)                                                       | Prefer `Math.trunc()` for truncating numbers.                                                                                  | ✅ ☑️ | 🔧 | 💡 |    |
+| [prefer-media-feature-range-syntax](docs/rules/prefer-media-feature-range-syntax.md)                       | Prefer modern media feature range syntax.                                                                                      |      | 🔧 | 💡 |    |
 | [prefer-minimal-ternary](docs/rules/prefer-minimal-ternary.md)                                             | Prefer moving ternaries into the minimal varying part of an expression.                                                        | ✅ ☑️ |    |    |    |
 | [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md)                                             | Prefer modern DOM APIs.                                                                                                        | ✅ ☑️ | 🔧 |    |    |
 | [prefer-modern-math-apis](docs/rules/prefer-modern-math-apis.md)                                           | Prefer modern `Math` APIs over legacy patterns.                                                                                | ✅ ☑️ | 🔧 |    |    |
@@ -480,6 +481,7 @@ export default defineConfig([
 		rules: {
 			'unicorn/prefer-explicit-viewport-units': 'error',
 			'unicorn/prefer-https': 'error',
+			'unicorn/prefer-media-feature-range-syntax': 'error',
 			'unicorn/text-encoding-identifier-case': 'error',
 		},
 	},
@@ -532,6 +534,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |  |
 | [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |  |
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |
+| [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |  |
 
