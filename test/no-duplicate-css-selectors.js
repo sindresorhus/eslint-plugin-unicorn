@@ -168,5 +168,10 @@ test({
 			output: 'a /* keep */, b { color: red; }',
 			errors: 1,
 		},
+		{
+			code: 'a, /* keep */ a, b, b { color: red; }',
+			output: 'a, /* keep */ a, b { color: red; }',
+			errors: 2,
+		},
 	],
 });

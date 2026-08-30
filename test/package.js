@@ -164,6 +164,25 @@ test('recommended config works with defineConfig', async t => {
 	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
 });
 
+test('CSS recommended config works with defineConfig', async t => {
+	const eslint = new ESLint({
+		baseConfig: defineConfig({
+			files: ['**/*.css'],
+			plugins: {
+				css,
+			},
+			language: 'css/css',
+			extends: [
+				eslintPluginUnicorn.configs['css/recommended'],
+			],
+		}),
+		overrideConfigFile: true,
+	});
+
+	const [result] = await eslint.lintText('.card {} .card {}', {filePath: 'file.css'});
+	t.true(result.messages.some(message => message.ruleId === 'unicorn/no-duplicate-css-selectors'));
+});
+
 test('Every rule has valid meta.type', t => {
 	const validTypes = ['problem', 'suggestion', 'layout'];
 
