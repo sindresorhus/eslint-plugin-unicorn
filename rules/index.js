@@ -112,6 +112,7 @@ export {default as 'no-negated-comparison'} from './no-negated-comparison.js';
 export {default as 'no-negated-condition'} from './no-negated-condition.js';
 export {default as 'no-negation-in-equality-check'} from './no-negation-in-equality-check.js';
 export {default as 'no-nested-ternary'} from './no-nested-ternary.js';
+export {default as 'no-nesting-with-mixed-specificity'} from './no-nesting-with-mixed-specificity.js';
 export {default as 'no-new-array'} from './no-new-array.js';
 export {default as 'no-new-buffer'} from './no-new-buffer.js';
 export {default as 'no-non-function-verb-prefix'} from './no-non-function-verb-prefix.js';

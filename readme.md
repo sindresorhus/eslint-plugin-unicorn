@@ -203,6 +203,7 @@ export default defineConfig([
 | [no-negated-condition](docs/rules/no-negated-condition.md)                                                 | Disallow negated conditions.                                                                                                   | ✅ ☑️ | 🔧 |    |    |
 | [no-negation-in-equality-check](docs/rules/no-negation-in-equality-check.md)                               | Disallow negated expression in equality check.                                                                                 | ✅ ☑️ |    | 💡 |    |
 | [no-nested-ternary](docs/rules/no-nested-ternary.md)                                                       | Disallow nested ternary expressions.                                                                                           | ✅    | 🔧 |    |    |
+| [no-nesting-with-mixed-specificity](docs/rules/no-nesting-with-mixed-specificity.md)                       | Disallow nesting under selector lists with mixed specificity.                                                                  |      |    |    |    |
 | [no-new-array](docs/rules/no-new-array.md)                                                                 | Disallow `new Array()`.                                                                                                        | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-new-buffer](docs/rules/no-new-buffer.md)                                                               | Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.                              | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-non-function-verb-prefix](docs/rules/no-non-function-verb-prefix.md)                                   | Disallow non-function values with function-style verb prefixes.                                                                | ✅    |    |    | 💭 |
@@ -534,6 +535,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |  |
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |  |
+| [`no-nesting-with-mixed-specificity`](docs/rules/no-nesting-with-mixed-specificity.md) | ✅ |  |  |  |  |
 | [`no-redundant-nested-style-rules`](docs/rules/no-redundant-nested-style-rules.md) | ✅ |  |  |  |  |
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |  |
 | [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |  |
