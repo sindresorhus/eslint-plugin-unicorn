@@ -21,6 +21,7 @@ test.snapshot({
 		String.raw`a { font-family: Times\20 \20 New, "Times New", serif; }`,
 		'a { font-family: Straße, STRASSE; }',
 		'a { font-family: generic(fangsong), generic(kai), serif; }',
+		'a { font-family: "generic(fangsong)", generic(fangsong); }',
 		'a { font-family: var(--fonts), Arial, sans-serif; }',
 		'a { font-family: inherit; }',
 		'a { font: italic 16px Arial, sans-serif; }',
@@ -130,9 +131,9 @@ test({
 			errors: 1,
 		},
 		{
-			code: String.raw`a { font-family: "foo\A \1b [31m\9b 31m\202e bar", "foo\A \1b [31m\9b 31m\202e bar"; }`,
-			output: String.raw`a { font-family: "foo\A \1b [31m\9b 31m\202e bar"; }`,
-			errors: [{message: 'Remove duplicate font family name `foo\\n\\u001b[31m\\u{9b}31m\\u{202e}bar`.'}],
+			code: String.raw`a { font-family: "foo\A \1b [31m\9b 31m\2028 \2029 \202e bar", "foo\A \1b [31m\9b 31m\2028 \2029 \202e bar"; }`,
+			output: String.raw`a { font-family: "foo\A \1b [31m\9b 31m\2028 \2029 \202e bar"; }`,
+			errors: [{message: 'Remove duplicate font family name `foo\\n\\u001b[31m\\u{9b}31m\\u{2028}\\u{2029}\\u{202e}bar`.'}],
 		},
 	],
 });
