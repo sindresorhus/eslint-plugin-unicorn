@@ -54,6 +54,7 @@ test.snapshot({
 		'a { font-family: generic(khmer-mul), GENERIC(KHMER-MUL); }',
 		String.raw`a { font-family: foo\,bar, "foo,bar", serif; }`,
 		'a { font: 16px generic(fangsong), GENERIC(FANGSONG); }',
+		'a { font: italic 16px italic, italic; }',
 		'a { font: 16px Arial, Arial, sans-serif; }',
 		'a { FONT: 16px Arial, serif, ARIAL; }',
 		'a { font: 16px Arial, Arial, ARIAL; }',
