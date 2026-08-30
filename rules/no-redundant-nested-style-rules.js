@@ -180,9 +180,12 @@ const getDeclarationSeparatorIndex = content => {
 const addDeclarationSeparator = (node, content, sourceCode) => {
 	const parentBlock = sourceCode.getParent(node);
 	const lastChild = node.block.children.at(-1);
+	const [, nodeEnd] = sourceCode.getRange(node);
+	const [, parentBlockEnd] = sourceCode.getRange(parentBlock);
+	const followingText = trimCssWhitespace(sourceCode.text.slice(nodeEnd, parentBlockEnd - 1));
 	if (
 		lastChild?.type !== 'Declaration'
-		|| parentBlock.children.at(-1) === node
+		|| followingText === ''
 	) {
 		return content;
 	}

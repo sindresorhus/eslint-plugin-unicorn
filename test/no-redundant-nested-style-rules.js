@@ -44,7 +44,7 @@ test.snapshot({
 			languageOptions: {tolerant: true},
 		},
 		{
-			code: 'a { @property --custom { & { syntax: "*"; } } }',
+			code: 'a { @media (width > 0px) { @property --custom { & { syntax: "*"; } } } }',
 			language: languages.css,
 		},
 		{
@@ -134,6 +134,16 @@ test({
 		{
 			code: 'a { & { color: red /* keep */ } b {} }',
 			output: 'a { color: red /* keep */; b {} }',
+			errors: 1,
+		},
+		{
+			code: 'a { & { --custom: red } /* outer */ }',
+			output: 'a { --custom: red; /* outer */ }',
+			errors: 1,
+		},
+		{
+			code: String.raw`a { & { --custom: red\ }; b {} }`,
+			output: String.raw`a { --custom: red\ ;; b {} }`,
 			errors: 1,
 		},
 		{
