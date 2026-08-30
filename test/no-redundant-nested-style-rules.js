@@ -162,6 +162,17 @@ test({
 			errors: 1,
 		},
 		{
+			code: String.raw`a{&{--custom:red\ }}`,
+			output: String.raw`a{--custom:red\ ;}`,
+			errors: 1,
+		},
+		{
+			code: String.raw`a { @s\75 pports (display: grid) { @c\6f ntainer (width > 0px) { & { color: red; } } } }`,
+			output: String.raw`a { @s\75 pports (display: grid) { @c\6f ntainer (width > 0px) { color: red; } } }`,
+			languageOptions: {tolerant: true},
+			errors: 1,
+		},
+		{
 			code: String.raw`a { & { --foo: bar\\ } b {} }`,
 			output: String.raw`a { --foo: bar\\; b {} }`,
 			errors: 1,
@@ -198,13 +209,18 @@ test({
 			errors: 1,
 		},
 		{
+			code: 'a { & { @foo x } /* outer */ }',
+			languageOptions: {tolerant: true},
+			errors: 1,
+		},
+		{
 			code: 'a {\n  & {\n    font-family: foo\u2028bar\u2029baz;\n  }\n}',
 			output: 'a {\n  font-family: foo\u2028bar\u2029baz;\n}',
 			errors: 1,
 		},
 		{
 			code: 'a { & { color: red } & { background: blue } }',
-			output: 'a { color: red; background: blue }',
+			output: 'a { color: red; background: blue; }',
 			errors: 2,
 		},
 		{

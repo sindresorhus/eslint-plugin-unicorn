@@ -131,6 +131,13 @@ const getMultilineUnsafeRanges = context => {
 const hasAtRuleTerminator = (node, sourceCode) => sourceCode.getText(node).endsWith(';')
 	&& (node.prelude === null || sourceCode.getRange(node.prelude)[1] < sourceCode.getRange(node)[1]);
 
+const hasFollowingContent = (node, sourceCode) => {
+	const parentBlock = sourceCode.getParent(node);
+	const [, nodeEnd] = sourceCode.getRange(node);
+	const [, parentBlockEnd] = sourceCode.getRange(parentBlock);
+	return trimCssWhitespace(sourceCode.text.slice(nodeEnd, parentBlockEnd - 1)) !== '';
+};
+
 const isFixUnsafe = (node, sourceCode, multilineUnsafeRanges) => {
 	const lastChild = node.block.children.at(-1);
 	const hasAmbiguousEnd = lastChild?.type === 'Raw'
@@ -141,7 +148,7 @@ const isFixUnsafe = (node, sourceCode, multilineUnsafeRanges) => {
 		);
 	if (
 		hasAmbiguousEnd
-		&& sourceCode.getParent(node).children.at(-1) !== node
+		&& hasFollowingContent(node, sourceCode)
 	) {
 		return true;
 	}
@@ -178,15 +185,8 @@ const getDeclarationSeparatorIndex = content => {
 };
 
 const addDeclarationSeparator = (node, content, sourceCode) => {
-	const parentBlock = sourceCode.getParent(node);
 	const lastChild = node.block.children.at(-1);
-	const [, nodeEnd] = sourceCode.getRange(node);
-	const [, parentBlockEnd] = sourceCode.getRange(parentBlock);
-	const followingText = trimCssWhitespace(sourceCode.text.slice(nodeEnd, parentBlockEnd - 1));
-	if (
-		lastChild?.type !== 'Declaration'
-		|| followingText === ''
-	) {
+	if (lastChild?.type !== 'Declaration') {
 		return content;
 	}
 
