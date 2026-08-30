@@ -413,7 +413,7 @@ const getDeprecatedRawSelectorProblems = ({node, context, allow}) => {
 	return problems;
 };
 
-function * getValueIdentifiers(node, property) {
+function * getValueIdentifiers(node, shouldInspectColorFunctions) {
 	if (node.type === 'Identifier') {
 		yield node;
 		return;
@@ -426,7 +426,7 @@ function * getValueIdentifiers(node, property) {
 	if (
 		node.type === 'Function'
 		&& (
-			deprecatedValueKeywords[property] !== deprecatedSystemColors
+			!shouldInspectColorFunctions
 			|| !colorFunctions.has(normalizeIdentifier(node.name))
 		)
 	) {
@@ -434,7 +434,7 @@ function * getValueIdentifiers(node, property) {
 	}
 
 	for (const child of node.children) {
-		yield * getValueIdentifiers(child, property);
+		yield * getValueIdentifiers(child, shouldInspectColorFunctions);
 	}
 }
 
@@ -538,7 +538,8 @@ function * getDeprecatedValueProblems({declaration, property, context, allow}) {
 	}
 
 	const deprecatedValues = deprecatedValueKeywords[property];
-	for (const identifier of getValueIdentifiers(declaration.value, property)) {
+	const shouldInspectColorFunctions = deprecatedValues === deprecatedSystemColors;
+	for (const identifier of getValueIdentifiers(declaration.value, shouldInspectColorFunctions)) {
 		const keyword = normalizeIdentifier(identifier.name);
 		if (!Object.hasOwn(deprecatedValues, keyword)) {
 			continue;
@@ -613,6 +614,10 @@ const create = context => {
 	});
 
 	context.on('TypeSelector', node => {
+		if (context.sourceCode.getAncestors(node).some(ancestor => ancestor.type === 'Atrule' && normalizeIdentifier(ancestor.name) === 'page')) {
+			return;
+		}
+
 		const deprecatedSelector = getDeprecatedTypeSelector(node.name);
 		if (!deprecatedSelector) {
 			return;
