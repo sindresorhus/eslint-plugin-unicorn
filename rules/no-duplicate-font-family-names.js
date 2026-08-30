@@ -24,7 +24,7 @@ const genericFontFamilyNames = new Set([
 	'ui-serif',
 ]);
 
-// Firefox aliases these unquoted family names to generic families.
+// Firefox treats these as generic families only when they are the whole family name.
 const genericFontFamilyAliases = new Set([
 	'-moz-fixed',
 	'mono',
@@ -140,11 +140,12 @@ const hasCommentInRange = (range, sourceCode) => sourceCode.comments.some(commen
 });
 
 const isInStyleRule = (node, sourceCode) => {
-	if (sourceCode.getParent(node)?.type !== 'Block') {
+	const parent = sourceCode.getParent(node);
+	if (parent?.type !== 'Block') {
 		return false;
 	}
 
-	for (let ancestor = sourceCode.getParent(node); ancestor; ancestor = sourceCode.getParent(ancestor)) {
+	for (let ancestor = parent; ancestor; ancestor = sourceCode.getParent(ancestor)) {
 		if (ancestor.type === 'Rule') {
 			return true;
 		}
