@@ -8,7 +8,6 @@ const messages = {
 
 const genericFontFamilyNames = new Set([
 	'-apple-system',
-	'blinkmacsystemfont',
 	'cursive',
 	'fantasy',
 	'math',
@@ -58,7 +57,7 @@ const getGenericFunctionName = node => {
 	return `generic(${ident.decode(node.children.at(0).name)})`;
 };
 
-const getFontFamily = (nodes, matchResult) => {
+const getFontFamily = nodes => {
 	if (nodes.length === 1 && nodes[0].type === 'String') {
 		const {value: name} = nodes[0];
 		return {name, key: `family:${name.toLowerCase()}`};
@@ -77,8 +76,7 @@ const getFontFamily = (nodes, matchResult) => {
 
 	const name = nodes.map(node => ident.decode(node.name)).join(' ');
 	const normalizedName = name.toLowerCase();
-	const isGeneric = nodes.length === 1
-		&& (matchResult?.isType(nodes[0], 'generic-family') || genericFontFamilyNames.has(normalizedName));
+	const isGeneric = nodes.length === 1 && genericFontFamilyNames.has(normalizedName);
 
 	return {
 		name,
@@ -135,7 +133,7 @@ const create = context => {
 		const seenFontFamilies = new Set();
 
 		for (const group of groups) {
-			const fontFamily = getFontFamily(group.nodes, matchResult.matched ? matchResult : undefined);
+			const fontFamily = getFontFamily(group.nodes);
 			if (!fontFamily) {
 				continue;
 			}
