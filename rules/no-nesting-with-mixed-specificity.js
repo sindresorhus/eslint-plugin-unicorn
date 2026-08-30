@@ -27,6 +27,12 @@ const LEGACY_PSEUDO_ELEMENTS = new Set([
 	'first-letter',
 	'first-line',
 ]);
+const NAMED_VIEW_TRANSITION_PSEUDO_ELEMENTS = new Set([
+	'view-transition-group',
+	'view-transition-image-pair',
+	'view-transition-new',
+	'view-transition-old',
+]);
 
 const normalizeIdentifier = identifier => ident.decode(identifier).toLowerCase();
 
@@ -121,7 +127,17 @@ const getPseudoClassSpecificity = (node, nestingSpecificity) => {
 };
 
 const getPseudoElementSpecificity = (node, nestingSpecificity) => {
-	const selectorArgumentResult = normalizeIdentifier(node.name) === 'slotted'
+	const name = normalizeIdentifier(node.name);
+	const argument = node.children?.[0];
+	if (
+		NAMED_VIEW_TRANSITION_PSEUDO_ELEMENTS.has(name)
+		&& argument?.type === 'Raw'
+		&& argument.value.trim() === '*'
+	) {
+		return {specificity: ZERO_SPECIFICITY, hasNestingSelector: false};
+	}
+
+	const selectorArgumentResult = name === 'slotted'
 		? getSelectorArgumentSpecificity(getSelectorArgument(node), nestingSpecificity)
 		: {specificity: ZERO_SPECIFICITY, hasNestingSelector: false};
 
