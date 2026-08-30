@@ -11,7 +11,7 @@
 
 Duplicate font family names do not provide another fallback and usually indicate an editing mistake.
 
-This rule checks the `font-family` property and `font` shorthands that match CSSTree's bundled grammar in style rules. It compares names using Unicode lowercase mapping, decodes CSS escapes, and joins unquoted identifier sequences with one space. For example, `Times New Roman`, `"times new roman"`, and `Times\20 New\20 Roman` refer to the same family. Whitespace inside quoted names or escaped identifiers remains significant. Uncommon full Unicode case-folding equivalences, such as `ß` and `ss`, remain distinct.
+This rule checks the `font-family` property and `font` shorthands that match CSSTree's bundled grammar in style and keyframe rules. It compares names using Unicode lowercase mapping, decodes CSS escapes, and joins unquoted identifier sequences with one space. For example, `Times New Roman`, `"times new roman"`, and `Times\20 New\20 Roman` refer to the same family. Whitespace inside quoted names or escaped identifiers remains significant. Uncommon full Unicode case-folding equivalences, such as `ß` and `ss`, remain distinct.
 
 Quoted names that look like generic families remain distinct from generic family keywords. For example, `"serif"` names an actual font family, while `serif` selects the generic serif family.
 

@@ -139,7 +139,7 @@ const hasCommentInRange = (range, sourceCode) => sourceCode.comments.some(commen
 	return commentRange[0] < range[1] && commentRange[1] > range[0];
 });
 
-const isInStyleRule = (node, sourceCode) => {
+const isInRule = (node, sourceCode) => {
 	const parent = sourceCode.getParent(node);
 	if (parent?.type !== 'Block') {
 		return false;
@@ -166,7 +166,7 @@ const create = context => {
 			return;
 		}
 
-		if (!isInStyleRule(declaration, sourceCode)) {
+		if (!isInRule(declaration, sourceCode)) {
 			return;
 		}
 
