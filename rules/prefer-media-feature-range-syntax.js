@@ -73,16 +73,17 @@ const getCleanExclusiveMaximum = node => {
 	if (
 		node.value.type !== 'Dimension'
 		|| normalizeIdentifier(node.value.unit) !== 'px'
+		|| !/^\+?\d+$/v.test(node.value.value)
 	) {
 		return;
 	}
 
 	const value = Number(node.value.value);
-	if (!Number.isSafeInteger(value) || value < 0) {
+	if (!Number.isSafeInteger(value)) {
 		return;
 	}
 
-	return `${value + 1}px`;
+	return `${value + 1}${node.value.unit}`;
 };
 
 const getPairReplacement = (firstNode, secondNode, sourceCode) => {
@@ -137,19 +138,14 @@ const create = context => {
 				continue;
 			}
 
-			const range = [
-				sourceCode.getRange(firstNode)[0],
-				sourceCode.getRange(secondNode)[1],
-			];
 			const firstRange = sourceCode.getRange(firstNode);
 			const secondRange = sourceCode.getRange(secondNode);
-			const hasCommentsInsideFeatures = hasCommentInRange(comments, sourceCode, firstRange) || hasCommentInRange(comments, sourceCode, secondRange);
-			if (
-				!hasCommentsInsideFeatures
-				&& hasCommentInRange(comments, sourceCode, range)
-			) {
+			if (hasCommentInRange(comments, sourceCode, [firstRange[1], secondRange[0]])) {
 				continue;
 			}
+
+			const range = [firstRange[0], secondRange[1]];
+			const hasCommentsInsideFeatures = hasCommentInRange(comments, sourceCode, firstRange) || hasCommentInRange(comments, sourceCode, secondRange);
 
 			pairedFeatures.add(firstNode);
 			pairedFeatures.add(secondNode);
@@ -210,7 +206,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer modern media feature range syntax.',
-			recommended: 'unopinionated',
+			recommended: false,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

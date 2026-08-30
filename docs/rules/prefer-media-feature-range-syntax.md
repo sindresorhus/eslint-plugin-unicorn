@@ -13,9 +13,9 @@ The [Media Queries Level 4 range syntax](https://www.w3.org/TR/mediaqueries-4/#m
 
 This rule checks standardized range media features in `@media` rules. It only supports CSS parsed with `@eslint/css`; preprocessors such as SCSS and other contexts such as `@container`, `@import`, and `@custom-media` are not checked.
 
-Single bounds are automatically fixed without changing their meaning:
-
 ## Examples
+
+Single bounds are automatically fixed without changing their meaning:
 
 ```css
 /* ❌ */
@@ -43,7 +43,7 @@ Directly adjacent lower and upper bounds for the same feature are combined into 
 @media (30em <= width <= 50em) {}
 ```
 
-For a nonnegative integer maximum in pixels, the suggestion uses the common half-open breakpoint form:
+For a nonnegative safe integer written in decimal notation with a pixel unit, the suggestion uses the common half-open breakpoint form:
 
 ```css
 /* ❌ */
@@ -53,4 +53,4 @@ For a nonnegative integer maximum in pixels, the suggestion uses the common half
 @media (500px <= width < 1000px) {}
 ```
 
-The integer-pixel suggestion intentionally expands the range to include fractional viewport widths between `999px` and `1000px`. Because that can change behavior, it is only offered as a suggestion. Other values use an exact inclusive range.
+The integer-pixel suggestion intentionally expands the range to include fractional values between `999px` and `1000px`. Because that can change behavior, it is only offered as a suggestion. Other values use an exact inclusive range.
