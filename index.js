@@ -49,16 +49,29 @@ const getExternalRules = rules => Object.fromEntries(
 );
 
 const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
+const isCssRule = rule => rule.meta.languages?.includes('css/css') || rule.meta.languages?.includes('*');
 
 const recommendedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
 	`unicorn/${id}`,
-	rule.meta.docs.recommended ? 'error' : 'off',
+	rule.meta.docs.recommended && isJavaScriptRule(rule) ? 'error' : 'off',
 ]));
 
 const unopinionatedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
 	`unicorn/${id}`,
-	rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
+	rule.meta.docs.recommended === 'unopinionated' && isJavaScriptRule(rule) ? 'error' : 'off',
 ]));
+
+const getCssRules = isEnabled => Object.fromEntries(
+	Object.entries(rules)
+		.filter(([, rule]) => isCssRule(rule))
+		.map(([id, rule]) => [
+			`unicorn/${id}`,
+			isEnabled(rule) ? 'error' : 'off',
+		]),
+);
+
+const recommendedCssRules = getCssRules(rule => rule.meta.docs.recommended);
+const unopinionatedCssRules = getCssRules(rule => rule.meta.docs.recommended === 'unopinionated');
 
 // TODO: Enable `prefer-iterator-concat` in the recommended and unopinionated configs when targeting Node.js 26.
 
@@ -83,6 +96,14 @@ const createConfig = (rules, flatConfigName) => ({
 	},
 });
 
+const createCssConfig = (rules, flatConfigName) => ({
+	name: flatConfigName,
+	plugins: {
+		unicorn,
+	},
+	rules,
+});
+
 const unicorn = {
 	meta: {
 		name: packageJson.name,
@@ -98,6 +119,8 @@ const configs = {
 	recommended: createConfig(recommendedRules, 'unicorn/recommended'),
 	unopinionated: createConfig(unopinionatedRules, 'unicorn/unopinionated'),
 	all: createConfig(allRules, 'unicorn/all'),
+	'css/recommended': createCssConfig(recommendedCssRules, 'unicorn/css/recommended'),
+	'css/unopinionated': createCssConfig(unopinionatedCssRules, 'unicorn/css/unopinionated'),
 
 	// TODO: Remove this at some point. Kept for now to avoid breaking users.
 	'flat/recommended': createConfig(recommendedRules, 'unicorn/flat/recommended'),
