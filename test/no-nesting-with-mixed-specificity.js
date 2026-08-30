@@ -30,6 +30,9 @@ test.snapshot({
 		'@scope (#dialog) { #dialog { .close {} } }',
 		'.root { :is(&), & { .child {} } }',
 		'.root { :has(> &), & { .child {} } }',
+		'.root { :is(:unknown(&), .bar), & { .child {} } }',
+		'.root { :is(::unknown(&), .bar), & { .child {} } }',
+		String.raw`.root { :is(:unknown("&"), :unknown(\26), :unknown(foo /* & */), .bar), &:hover { .child {} } }`,
 		'.root { .theme &, &.theme { .child {} } }',
 		'.root { :nth-child(2n of &), &:hover { .child {} } }',
 		'.root { ::slotted(&), &::before { .child {} } }',
@@ -59,6 +62,7 @@ test.snapshot({
 		'@scope (.root) { #dialog, .dialog { .close {} } }',
 		'#dialog, .dialog { @MEDIA (width > 40rem) { & .close {} } }',
 		'.root { :where(&), & { .child {} } }',
+		'.root { :is(:unknown(&), .bar), &:hover { .child {} } }',
 		'.root { > &, & { .child {} } }',
 		'#root, .root { .child { .grandchild {} } }',
 		outdent`

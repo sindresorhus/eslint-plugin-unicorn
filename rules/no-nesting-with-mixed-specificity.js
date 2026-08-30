@@ -1,4 +1,9 @@
-import {ident, parse} from '@eslint/css-tree';
+import {
+	ident,
+	parse,
+	tokenize,
+	tokenTypes,
+} from '@eslint/css-tree';
 
 const MESSAGE_ID = 'no-nesting-with-mixed-specificity';
 const messages = {
@@ -87,6 +92,19 @@ const isBareUniversalSelectorArgument = argument => {
 	}
 };
 
+const hasNestingSelectorInRawArgument = argument => {
+	if (argument?.type !== 'Raw') {
+		return false;
+	}
+
+	let hasNestingSelector = false;
+	tokenize(argument.value, (type, start) => {
+		hasNestingSelector ||= type === tokenTypes.Delim && argument.value[start] === '&';
+	});
+
+	return hasNestingSelector;
+};
+
 const getSelectorSpecificity = (selector, nestingSpecificity) => {
 	let specificity = ZERO_SPECIFICITY;
 	let hasNestingSelector = false;
@@ -112,17 +130,19 @@ const getSelectorArgumentSpecificity = (selectorArgument, nestingSpecificity) =>
 
 const getPseudoClassSpecificity = (node, nestingSpecificity) => {
 	const name = normalizeIdentifier(node.name);
+	const argument = node.children?.[0];
 	const selectorArgumentResult = getSelectorArgumentSpecificity(getSelectorArgument(node), nestingSpecificity);
+	const hasNestingSelector = selectorArgumentResult.hasNestingSelector || hasNestingSelectorInRawArgument(argument);
 
 	if (name === 'where') {
 		return {
 			specificity: ZERO_SPECIFICITY,
-			hasNestingSelector: selectorArgumentResult.hasNestingSelector,
+			hasNestingSelector,
 		};
 	}
 
 	if (SELECTOR_LIST_PSEUDO_CLASSES.has(name)) {
-		return selectorArgumentResult;
+		return {...selectorArgumentResult, hasNestingSelector};
 	}
 
 	if (
@@ -132,13 +152,13 @@ const getPseudoClassSpecificity = (node, nestingSpecificity) => {
 	) {
 		return {
 			specificity: addSpecificity([0, 1, 0], selectorArgumentResult.specificity),
-			hasNestingSelector: selectorArgumentResult.hasNestingSelector,
+			hasNestingSelector,
 		};
 	}
 
 	return {
 		specificity: LEGACY_PSEUDO_ELEMENTS.has(name) ? [0, 0, 1] : [0, 1, 0],
-		hasNestingSelector: false,
+		hasNestingSelector,
 	};
 };
 
@@ -158,7 +178,7 @@ const getPseudoElementSpecificity = (node, nestingSpecificity) => {
 
 	return {
 		specificity: addSpecificity([0, 0, 1], selectorArgumentResult.specificity),
-		hasNestingSelector: selectorArgumentResult.hasNestingSelector,
+		hasNestingSelector: selectorArgumentResult.hasNestingSelector || hasNestingSelectorInRawArgument(argument),
 	};
 };
 
