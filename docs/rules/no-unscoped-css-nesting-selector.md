@@ -11,7 +11,7 @@ The [CSS nesting selector](https://drafts.csswg.org/css-nesting/#nest-selector) 
 
 This rule reports nesting selectors that do not have an ancestor style rule, `@scope` block, or configured custom scoping root. It does not provide an autofix because removing `&` can change selector matching or specificity, and the intended missing ancestor cannot be inferred.
 
-In an `@scope` prelude, `&` in the scope start needs an outer scoping root, while `&` in the scope limit refers to the new scoping root.
+For this rule, `&` in an `@scope` start is checked against the outer scoping context, while `&` in the scope limit refers to the new scoping root.
 
 The rule is enabled by the `css/recommended` and `css/unopinionated` configs when either is extended from a CSS language config.
 

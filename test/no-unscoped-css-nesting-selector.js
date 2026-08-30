@@ -66,6 +66,7 @@ test.snapshot({
 		asCssWithScopingRootAtRules('@utility content-body { @supports (display: grid) { & p {} } }', ['UTILITY']),
 		asCssWithScopingRootAtRules('@utility content-body { & p {} }', ['variant', 'utility']),
 		asCssWithScopingRootAtRules('@K content-body { & p {} }', ['K']),
+		asCssWithScopingRootAtRules(String.raw`@foo\@bar { & {} }`, ['foo@bar']),
 		asCssWithScopingRootAtRules('@utility content-body { @scope (:is(&)) {} }'),
 	],
 	invalid: [

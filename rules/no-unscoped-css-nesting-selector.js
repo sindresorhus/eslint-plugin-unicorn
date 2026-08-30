@@ -86,7 +86,7 @@ const schema = [
 				items: {
 					type: 'string',
 					minLength: 1,
-					pattern: '^[^@]+$',
+					pattern: '^[^@]',
 				},
 				description: 'At-rules that provide a scoping root.',
 			},
