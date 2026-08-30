@@ -17,6 +17,7 @@ test.snapshot({
 		{code: String.raw`:h\6f ver, ::b\65 fore {}`, language: languages.css},
 		{code: '@page :first {}', language: languages.css},
 		{code: '@page :recto, :verso {}', language: languages.css},
+		{code: '::first-letter::prefix, ::first-letter::suffix {}', language: languages.css},
 		{
 			code: ':global, :GLOBAL(.foo), :deep(.bar), ::theme-part {}',
 			language: languages.css,

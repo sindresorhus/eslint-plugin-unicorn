@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Typos in pseudo-classes and pseudo-elements silently create selectors that never match. This rule checks pseudo-selector names against a snapshot of current CSS specifications, including Editor's Drafts, generated from [`@webref/css`](https://www.npmjs.com/package/@webref/css).
+Typos in pseudo-classes and pseudo-elements silently create selectors that never match. This rule checks pseudo-selector names against a snapshot of current CSS specifications, including Editor's Drafts, generated from [`@webref/css`](https://www.npmjs.com/package/@webref/css) and supplemented with definitions missing from its data.
 
 ## Examples
 

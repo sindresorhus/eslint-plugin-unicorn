@@ -9,9 +9,12 @@ const pseudoSelectors = [...new Set([
 		.map(({name}) => name)
 		.filter(name => name.startsWith(':'))
 		.map(name => name.replace(/\(\)$/u, '')),
-	// https://drafts.csswg.org/css-logical-1/#page
+	// Missing from Webref: https://drafts.csswg.org/css-logical-1/#page
 	':recto',
 	':verso',
+	// Missing from Webref: https://drafts.csswg.org/css-pseudo-4/#first-letter-pseudo
+	'::prefix',
+	'::suffix',
 ])].toSorted((first, second) => first.localeCompare(second));
 
 const content = [
