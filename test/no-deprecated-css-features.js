@@ -19,7 +19,6 @@ test.snapshot({
 		css(String.raw`acronym|div, acronym|*, svg|altglyph, foo\|bar { color: red; }`),
 		css('@media (tv) { a { color: red; } }'),
 		css('@supports (overflow-wrap: break-word) { a { color: red; } }'),
-		css('@page acronym { size: A4; }'),
 		css('a { __proto__: constructor; constructor: name; appearance: constructor; color: __proto__; }'),
 		cssWithOptions('word-wrap { word-wrap: break-word; }', {allow: ['word-wrap']}),
 		cssWithOptions('@viewport { acronym:matches(::content) { word-break: break-word; } } @media tv {}', {
@@ -46,6 +45,7 @@ test.snapshot({
 		css('a { text-decoration: blink; box-sizing: padding-box; width: intrinsic; word-break: break-word; }'),
 		css('a { -moz-box-align: center; position-try-options: --fallback; scroll-snap-margin: 1rem; clip: rect(0); }'),
 		css('@supports (word-wrap: break-word) { a { overflow: overlay; } }'),
+		css('@page acronym { background-color: activecaption; }'),
 		css('main { & acronym { overflow: overlay; } }'),
 		css(':not(acronym), :nth-child(2n of applet), :host(font) { color: red; }'),
 		css(String.raw`@v\69 ewport { ACRONYM:m\61 tches(a) { w\6f rd-wrap: break-word; } }`),
@@ -78,9 +78,19 @@ test({
 			errors: 2,
 		},
 		{
+			code: '@supports selector(\n\t:contains(\n\t\t:matches(acronym)\n\t)\n) {}',
+			output: '@supports selector(\n\t:contains(\n\t\t:is(acronym)\n\t)\n) {}',
+			errors: 3,
+		},
+		{
 			code: String.raw`a { overflow: o\76 erlay; }`,
 			output: 'a { overflow: auto; }',
 			errors: [{messageId: 'no-deprecated-css-features/error'}],
+		},
+		{
+			code: 'a { overflow: /* a */ overlay /* b */ overlay !important; }',
+			output: 'a { overflow: /* a */ auto /* b */ auto !important; }',
+			errors: 2,
 		},
 		{
 			code: 'a { appearance: button; }',

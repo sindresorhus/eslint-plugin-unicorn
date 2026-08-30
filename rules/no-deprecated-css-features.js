@@ -163,7 +163,7 @@ const deprecatedValueKeywords = {
 const fixableValueAliases = new Set(['overflow: overlay', 'overflow-x: overlay', 'overflow-y: overlay', 'text-orientation: sideways-right']);
 const colorFunctions = new Set(['color', 'color-contrast', 'color-mix', 'contrast-color', 'device-cmyk', 'hsl', 'hsla', 'hwb', 'lab', 'lch', 'light-dark', 'oklab', 'oklch', 'rgb', 'rgba']);
 
-const deprecatedHtmlSelectors = new Set([
+const deprecatedHtmlTypeSelectors = new Set([
 	'acronym',
 	'applet',
 	'basefont',
@@ -198,7 +198,7 @@ const deprecatedHtmlSelectors = new Set([
 	'tt',
 	'xmp',
 ]);
-const deprecatedSvgSelectors = new Set([
+const deprecatedSvgTypeSelectors = new Set([
 	'altGlyph',
 	'altGlyphDef',
 	'altGlyphItem',
@@ -260,14 +260,16 @@ const getDeprecatedTypeSelector = value => {
 
 	const decodedName = ident.decode(identifier.value);
 	const htmlName = decodedName.toLowerCase();
-	if (deprecatedHtmlSelectors.has(htmlName)) {
+	if (deprecatedHtmlTypeSelectors.has(htmlName)) {
 		return {name: htmlName, offsets: identifier.offsets};
 	}
 
-	if (deprecatedSvgSelectors.has(decodedName)) {
+	if (deprecatedSvgTypeSelectors.has(decodedName)) {
 		return {name: decodedName, offsets: identifier.offsets};
 	}
 };
+
+const isPageName = (node, context) => context.sourceCode.getAncestors(node).some(ancestor => ancestor.type === 'Atrule' && normalizeIdentifier(ancestor.name) === 'page');
 
 const getMediaTypeRange = (node, mediaType, context) => {
 	const [start] = getRange(node, context);
@@ -614,12 +616,8 @@ const create = context => {
 	});
 
 	context.on('TypeSelector', node => {
-		if (context.sourceCode.getAncestors(node).some(ancestor => ancestor.type === 'Atrule' && normalizeIdentifier(ancestor.name) === 'page')) {
-			return;
-		}
-
 		const deprecatedSelector = getDeprecatedTypeSelector(node.name);
-		if (!deprecatedSelector) {
+		if (!deprecatedSelector || isPageName(node, context)) {
 			return;
 		}
 
