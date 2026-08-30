@@ -41,6 +41,8 @@ test.snapshot({
 		String.raw`a { font-family: A\72 ial, Arial, sans-serif; }`,
 		String.raw`a { font-family: Times\20 New\20 Roman, "Times New Roman", serif; }`,
 		String.raw`a { font-family: "\41 rial", Arial, sans-serif; }`,
+		String.raw`a { font-family: Arial, "A\
+rial", sans-serif; }`,
 		'a { font-family: SERIF, serif; }',
 		String.raw`a { font-family: s\65 rif, serif; }`,
 		'a { font-family: "serif", serif, "SERIF"; }',
