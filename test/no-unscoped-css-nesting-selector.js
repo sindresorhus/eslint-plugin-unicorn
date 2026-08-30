@@ -4,10 +4,10 @@ import {getTester, languages} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const asCss = code => ({code, language: languages.css});
-const asCssWithScopingRoot = (code, scopingRootAtRule = 'utility') => ({
+const asCssWithScopingRootAtRules = (code, scopingRootAtRules = ['utility']) => ({
 	code,
 	language: languages.css,
-	options: [{scopingRootAtRules: [scopingRootAtRule]}],
+	options: [{scopingRootAtRules}],
 });
 
 test.snapshot({
@@ -48,17 +48,20 @@ test.snapshot({
 		'@scope (&) { & {} }',
 		'@utility content-body { & p {} }',
 		'@-custom-keyframes foo { & {} }',
+		'@-ms-keyframes foo { & {} }',
+		'a { @keyframes foo { from { & {} } } }',
 	].map(code => asCss(code)),
 });
 
 test.snapshot({
 	valid: [
-		asCssWithScopingRoot('@utility content-body { @media all { & p {} } }'),
-		asCssWithScopingRoot('@UTILITY content-body { & p {} }'),
-		asCssWithScopingRoot(String.raw`@\75 tility content-body { & p {} }`),
-		asCssWithScopingRoot('@utility content-body { @supports (display: grid) { & p {} } }', 'UTILITY'),
+		asCssWithScopingRootAtRules('@utility content-body { @media all { & p {} } }'),
+		asCssWithScopingRootAtRules('@UTILITY content-body { & p {} }'),
+		asCssWithScopingRootAtRules(String.raw`@\75 tility content-body { & p {} }`),
+		asCssWithScopingRootAtRules('@utility content-body { @supports (display: grid) { & p {} } }', ['UTILITY']),
+		asCssWithScopingRootAtRules('@utility content-body { & p {} }', ['variant', 'utility']),
 	],
 	invalid: [
-		asCssWithScopingRoot('@variant content-body { & p {} }'),
+		asCssWithScopingRootAtRules('@variant content-body { & p {} }'),
 	],
 });

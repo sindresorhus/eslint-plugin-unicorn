@@ -8,12 +8,15 @@ const messages = {
 const normalizeAtRuleName = name => ident.decode(name).toLowerCase();
 
 const isScopeAtRule = node => node.type === 'Atrule' && normalizeAtRuleName(node.name) === 'scope';
+const isKeyframesAtRule = node => node?.type === 'Atrule' && /^(?:-(?:moz|o|webkit)-)?keyframes$/.test(normalizeAtRuleName(node.name));
 
 const isKeyframeRule = (node, sourceCode) => {
 	const block = sourceCode.getParent(node);
 	const atRule = sourceCode.getParent(block);
-	return atRule?.type === 'Atrule' && /^(?:-(?:moz|ms|o|webkit)-)?keyframes$/.test(normalizeAtRuleName(atRule.name));
+	return isKeyframesAtRule(atRule);
 };
+
+const isStyleRule = (node, sourceCode) => node.type === 'Rule' && !isKeyframeRule(node, sourceCode);
 
 const getSelectorOwner = (node, sourceCode) => {
 	let currentNode = node;
@@ -31,8 +34,12 @@ const hasScopingRoot = (selectorOwner, sourceCode, scopingRootAtRules) => {
 	let currentNode = sourceCode.getParent(selectorOwner);
 
 	while (currentNode) {
+		if (isKeyframesAtRule(currentNode)) {
+			return false;
+		}
+
 		if (
-			currentNode.type === 'Rule'
+			isStyleRule(currentNode, sourceCode)
 			|| isScopeAtRule(currentNode)
 			|| (currentNode.type === 'Atrule' && scopingRootAtRules.has(normalizeAtRuleName(currentNode.name)))
 		) {
@@ -77,8 +84,7 @@ const create = context => {
 		const selectorOwner = getSelectorOwner(node, sourceCode);
 		if (
 			!selectorOwner
-			|| (selectorOwner.type !== 'Rule' && !isScopeAtRule(selectorOwner))
-			|| (selectorOwner.type === 'Rule' && isKeyframeRule(selectorOwner, sourceCode))
+			|| (!isStyleRule(selectorOwner, sourceCode) && !isScopeAtRule(selectorOwner))
 			|| hasScopingRoot(selectorOwner, sourceCode, scopingRootAtRules)
 		) {
 			return;
