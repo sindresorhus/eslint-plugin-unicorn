@@ -9,11 +9,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-An `&` selector by itself selects the same elements as its parent style rule, so the extra nested block is unnecessary. Flattening the declarations makes the stylesheet easier to read.
+A nested `&` block by itself adds visual nesting without making the selector's intent clearer. Removing the extra block makes the stylesheet easier to read.
 
 The rule only reports cases that can be safely flattened. The parent style rule must have one selector and must not select a pseudo-element. These restrictions avoid changing [CSS nesting specificity](https://www.w3.org/TR/css-nesting-1/#nest-selector) or applying declarations to pseudo-elements that `&` cannot represent. An intervening `@scope` rule is also ignored because it gives `&` different semantics.
 
 Nested group rules such as `@media` may appear between the parent style rule and the redundant `&` block.
+
+The autofix is omitted when reindenting could change significant source text, such as escaped line continuations, multiline comments, or multiline custom-property values.
 
 ## Examples
 

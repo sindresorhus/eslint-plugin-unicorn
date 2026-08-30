@@ -5,23 +5,45 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		'a { color: red; }',
-		'a { &:hover { color: red; } }',
-		'a { &.active { color: red; } }',
-		'a { & > b { color: red; } }',
-		'a { b & { color: red; } }',
-		'a { && { color: red; } }',
-		'& { color: red; }',
-		'@media (width > 0px) { & { color: red; } }',
-		'a, b { & { color: red; } }',
-		'a::before { & { color: red; } }',
-		...['after', 'before', 'first-letter', 'first-line'].map(pseudoElement => `a:${pseudoElement} { & { color: red; } }`),
-		String.raw`a:\62 efore { & { color: red; } }`,
-		String.raw`a:\66 irst-line { & { color: red; } }`,
-		'@keyframes pulse { from { & { color: red; } } }',
-		String.raw`@keyfr\61 mes pulse { from { & { color: red; } } }`,
-		String.raw`@-webkit-keyfr\61 mes pulse { from { & { color: red; } } }`,
-	].map(code => ({code, language: languages.css})),
+		...[
+			'a { color: red; }',
+			'a { &:hover { color: red; } }',
+			'a { &.active { color: red; } }',
+			'a { & > b { color: red; } }',
+			'a { b & { color: red; } }',
+			'a { && { color: red; } }',
+			'& { color: red; }',
+			'@media (width > 0px) { & { color: red; } }',
+			'a, b { & { color: red; } }',
+			'a::before { & { color: red; } }',
+			...['after', 'before', 'first-letter', 'first-line'].map(pseudoElement => `a:${pseudoElement} { & { color: red; } }`),
+			String.raw`a:\62 efore { & { color: red; } }`,
+			String.raw`a:\66 irst-line { & { color: red; } }`,
+			'@keyframes pulse { from { & { color: red; } } }',
+			String.raw`@keyfr\61 mes pulse { from { & { color: red; } } }`,
+			String.raw`@-webkit-keyfr\61 mes pulse { from { & { color: red; } } }`,
+		].map(code => ({code, language: languages.css})),
+		{
+			code: 'a { .foo# { color: red; } }',
+			language: languages.css,
+			languageOptions: {tolerant: true},
+		},
+		{
+			code: 'a# { & { color: red; } }',
+			language: languages.css,
+			languageOptions: {tolerant: true},
+		},
+		{
+			code: 'a { @scope (.component) { & { color: red; } } }',
+			language: languages.css,
+			languageOptions: {tolerant: true},
+		},
+		{
+			code: String.raw`a { @sc\6f pe (.component) { & { color: red; } } }`,
+			language: languages.css,
+			languageOptions: {tolerant: true},
+		},
+	],
 	invalid: [
 		'a { & { color: red; } }',
 		'a { & { color: red } }',
@@ -74,4 +96,72 @@ test.snapshot({
 		'a { & { & { color: red; } } }',
 		'@scope (.component) { a { & { color: red; } } }',
 	].map(code => ({code, language: languages.css})),
+});
+
+test({
+	testerOptions: languages.css,
+	valid: [],
+	invalid: [
+		{
+			code: String.raw`a { & { --foo: bar\; } background: blue; }`,
+			output: String.raw`a { --foo: bar\;; background: blue; }`,
+			errors: 1,
+		},
+		{
+			code: 'a { & { color: red; /* keep */ } background: blue; }',
+			output: 'a { color: red; /* keep */ background: blue; }',
+			errors: 1,
+		},
+		{
+			code: 'a { & { color: red } & { background: blue } }',
+			output: 'a { color: red; background: blue }',
+			errors: 2,
+		},
+		{
+			code: 'a {\n  & { /* after opening brace */\n    color: red;\n  }\n}',
+			output: 'a {\n  /* after opening brace */\n  color: red;\n}',
+			errors: 1,
+		},
+		{
+			code: 'a {\r\n  & { color: red;\r\n    background: blue;\r\n  }\r\n}',
+			output: 'a {\r\n  color: red;\r\n  background: blue;\r\n}',
+			errors: 1,
+		},
+		{
+			code: 'a {\r\n  & /* keep */ {\r\n    color: red;\r\n  }\r\n}',
+			output: 'a {\r\n  /* keep */\r\n  color: red;\r\n}',
+			errors: 1,
+		},
+		{
+			code: String.raw`a {
+	& {
+		content: "a\
+			b";
+	}
+}`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				a {
+					& {
+						--foo: a
+							b;
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				a {
+					& /* first
+						second */ {
+						color: red;
+					}
+				}
+			`,
+			errors: 1,
+		},
+	],
 });

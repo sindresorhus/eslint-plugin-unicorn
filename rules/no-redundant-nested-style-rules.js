@@ -1,5 +1,7 @@
 import {ident} from '@eslint/css-tree';
+import indentString from 'indent-string';
 import stripIndent from 'strip-indent';
+import {getComments} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -19,9 +21,13 @@ const legacyPseudoElements = new Set([
 
 const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
 
+const getSingleSelector = rule => rule.prelude.type === 'SelectorList' && rule.prelude.children.length === 1
+	? rule.prelude.children.at(0)
+	: undefined;
+
 const isNestingSelectorOnly = node => {
-	const [selector] = node.prelude.children;
-	return node.prelude.children.length === 1
+	const selector = getSingleSelector(node);
+	return selector !== undefined
 		&& selector.children.length === 1
 		&& selector.children.at(0).type === 'NestingSelector';
 };
@@ -49,25 +55,76 @@ const getParentStyleRule = (node, sourceCode) => {
 };
 
 const canFlattenInto = rule => {
-	const [selector] = rule.prelude.children;
-	return rule.prelude.children.length === 1
+	const selector = getSingleSelector(rule);
+	return selector !== undefined
 		&& selector.children.every(node =>
 			node.type !== 'PseudoElementSelector'
 			&& !(node.type === 'PseudoClassSelector' && legacyPseudoElements.has(normalizeCssIdentifier(node.name))));
 };
 
-const indent = (string, indentation) => string
-	.split('\n')
-	.map(line => indentation + line)
-	.join('\n');
+const getLineBreak = string => string.includes('\r\n') ? '\r\n' : '\n';
+
+const formatPart = (part, indentation) => {
+	const lineBreak = getLineBreak(part);
+	const lines = part.split(lineBreak);
+	const formatted = lines.length > 1 && lines[0].trim() !== ''
+		? [
+			lines[0].trim(),
+			stripIndent(lines.slice(1).join(lineBreak)).trim(),
+		].filter(Boolean).join(lineBreak)
+		: stripIndent(part).trim();
+
+	return indentString(formatted, 1, {indent: indentation});
+};
+
+const getMultilineRawRanges = sourceCode => {
+	const ranges = [];
+	for (const {target, phase} of sourceCode.traverse()) {
+		if (phase !== 1 || target.type !== 'Raw') {
+			continue;
+		}
+
+		const {start, end} = sourceCode.getLoc(target);
+		if (start.line !== end.line) {
+			ranges.push(sourceCode.getRange(target));
+		}
+	}
+
+	return ranges;
+};
+
+const hasUnsafeMultilineSyntax = (node, sourceCode, comments, multilineRawRanges) => {
+	if (/\\(?:\r\n|[\n\f\r])/u.test(sourceCode.getText(node))) {
+		return true;
+	}
+
+	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
+	if (multilineRawRanges.some(([start, end]) => start >= nodeStart && end <= nodeEnd)) {
+		return true;
+	}
+
+	return comments.some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+		const {start, end} = sourceCode.getLoc(comment);
+		return commentStart >= nodeStart
+			&& commentEnd <= nodeEnd
+			&& start.line !== end.line;
+	});
+};
 
 const addDeclarationSeparator = (node, content, sourceCode) => {
 	const parentBlock = sourceCode.getParent(node);
+	const lastChild = node.block.children.at(-1);
 	if (
-		node.block.children.at(-1)?.type !== 'Declaration'
+		lastChild?.type !== 'Declaration'
 		|| parentBlock.children.at(-1) === node
-		|| content.trimEnd().endsWith(';')
 	) {
+		return content;
+	}
+
+	const [, declarationEnd] = sourceCode.getRange(lastChild);
+	const [, blockEnd] = sourceCode.getRange(node.block);
+	if (sourceCode.text.slice(declarationEnd, blockEnd - 1).trimStart().startsWith(';')) {
 		return content;
 	}
 
@@ -99,8 +156,8 @@ const getReplacement = (node, sourceCode) => {
 	return {
 		fixRange: [lineStart, nodeEnd],
 		text: parts
-			.map(part => indent(stripIndent(part).trim(), indentation))
-			.join('\n'),
+			.map(part => formatPart(part, indentation))
+			.join(getLineBreak(sourceCode.text.slice(nodeStart, nodeEnd))),
 	};
 };
 
@@ -114,6 +171,8 @@ const getFix = (node, sourceCode) => fixer => {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const comments = getComments(context);
+	const multilineRawRanges = getMultilineRawRanges(sourceCode);
 
 	context.on('Rule', node => {
 		if (!isNestingSelectorOnly(node)) {
@@ -128,7 +187,7 @@ const create = context => {
 		return {
 			node: node.prelude,
 			messageId: MESSAGE_ID,
-			fix: getFix(node, sourceCode),
+			fix: hasUnsafeMultilineSyntax(node, sourceCode, comments, multilineRawRanges) ? undefined : getFix(node, sourceCode),
 		};
 	});
 };
