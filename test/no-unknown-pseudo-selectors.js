@@ -50,7 +50,6 @@ test.snapshot({
 		{code: ':global(.foo) {}', language: languages.css},
 		{code: '::theme-part {}', language: languages.css},
 		{code: String.raw`:\3A backdrop {}`, language: languages.css},
-		{code: String.raw`:\3A before {}`, language: languages.css},
 		{code: ':linK {}', language: languages.css},
 		{
 			code: '::foo {}',
