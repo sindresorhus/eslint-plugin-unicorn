@@ -6,7 +6,6 @@ import {
 	snakeCase,
 	pascalCase,
 } from 'change-case';
-import cartesianProductSamples from './utils/cartesian-product-samples.js';
 import {onRoot, isVirtualFilename} from './utils/index.js';
 
 const MESSAGE_ID = 'filename-case';
@@ -133,7 +132,7 @@ function getChosenCases(options) {
 
 	if (options.cases) {
 		const chosenCases = Object.keys(options.cases)
-			.filter(case_ => options.cases[case_]);
+			.filter(caseName => options.cases[caseName]);
 
 		return chosenCases.length > 0 ? chosenCases : ['kebabCase'];
 	}
@@ -148,14 +147,15 @@ function isValidName(words, caseFunctions) {
 }
 
 function fixName(words, caseFunctions, {leading, trailing}) {
-	const replacements = words
-		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(caseFunction => caseFunction(word)));
+	const names = caseFunctions.map(caseFunction => {
+		const name = words
+			.map(({word, ignored}) => ignored ? word : caseFunction(word))
+			.join('');
 
-	const {
-		samples: combinations,
-	} = cartesianProductSamples(replacements);
+		return `${leading}${name}${trailing}`;
+	});
 
-	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${trailing}`))];
+	return [...new Set(names)];
 }
 
 function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
@@ -267,20 +267,20 @@ Turns `[a, b, c]` into `a, b, or c`.
 @param {string[]} words
 @returns {string}
 */
-const englishishJoinWords = words => disjunctionListFormat.format(words);
+const formatDisjunction = words => disjunctionListFormat.format(words);
 
-function getCaseNames(chosenCases) {
-	return englishishJoinWords(chosenCases.map(x => cases[x].name));
+function formatCaseNames(chosenCases) {
+	return formatDisjunction(chosenCases.map(caseName => cases[caseName].name));
 }
 
-function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions) {
+function getInvalidDirectoryReport(directory, chosenCases, chosenCaseFunctions) {
 	const {leading, words} = splitName(directory);
 
-	if (directory.startsWith('$') || isValidName(words, chosenCasesFunctions)) {
+	if (directory.startsWith('$') || isValidName(words, chosenCaseFunctions)) {
 		return;
 	}
 
-	const renamedDirectories = fixName(words, chosenCasesFunctions, {
+	const renamedDirectories = fixName(words, chosenCaseFunctions, {
 		leading,
 		trailing: '',
 	});
@@ -290,8 +290,8 @@ function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions)
 		messageId: MESSAGE_ID_DIRECTORY,
 		data: {
 			directory,
-			chosenCases: getCaseNames(chosenCases),
-			renamedDirectories: englishishJoinWords(renamedDirectories.map(x => `\`${x}\``)),
+			chosenCases: formatCaseNames(chosenCases),
+			renamedDirectories: formatDisjunction(renamedDirectories.map(directory => `\`${directory}\``)),
 		},
 	};
 }
@@ -306,6 +306,13 @@ const create = context => {
 
 	validatePatternOption('ignore', ignorePatterns);
 	validatePatternOption('directoryRoots', directoryRoots);
+	const ignoreRegexps = ignorePatterns.map(pattern => {
+		if (isRegExp(pattern)) {
+			return new RegExp(pattern);
+		}
+
+		return new RegExp(pattern, 'u');
+	});
 
 	const filenameWithExtension = context.physicalFilename;
 
@@ -314,16 +321,9 @@ const create = context => {
 	}
 
 	const chosenCases = getChosenCases(options);
-	const ignore = ignorePatterns.map(pattern => {
-		if (isRegExp(pattern)) {
-			return new RegExp(pattern);
-		}
-
-		return new RegExp(pattern, 'u');
-	});
 	const isMultipleFileExtensions = options.multipleFileExtensions !== false;
 	const isCheckDirectories = options.checkDirectories !== false;
-	const chosenCasesFunctions = chosenCases.map(case_ => cases[case_].fn);
+	const chosenCaseFunctions = chosenCases.map(caseName => cases[caseName].fn);
 
 	onRoot(context, () => {
 		const pathSegments = getPathSegments(filenameWithExtension, context.cwd);
@@ -335,13 +335,13 @@ const create = context => {
 			extension,
 		} = getFilenameParts(basenameWithExtension, {multipleFileExtensions: isMultipleFileExtensions});
 
-		if (pathSegments.some(segment => ignore.some(regexp => regexp.test(segment)))) {
+		if (pathSegments.some(segment => ignoreRegexps.some(regexp => regexp.test(segment)))) {
 			return;
 		}
 
 		if (isCheckDirectories) {
 			for (const directory of getDirectoriesToCheck(pathSegments, directoryRoots)) {
-				const report = getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions);
+				const report = getInvalidDirectoryReport(directory, chosenCases, chosenCaseFunctions);
 
 				if (report) {
 					return report;
@@ -354,7 +354,7 @@ const create = context => {
 		}
 
 		const {leading, words} = splitName(filename);
-		const isValid = filename.startsWith('$') || isValidName(words, chosenCasesFunctions);
+		const isValid = filename.startsWith('$') || isValidName(words, chosenCaseFunctions);
 
 		if (isValid) {
 			if (!isLowerCase(extension)) {
@@ -368,7 +368,7 @@ const create = context => {
 			return;
 		}
 
-		const renamedFilenames = fixName(words, chosenCasesFunctions, {
+		const renamedFilenames = fixName(words, chosenCaseFunctions, {
 			leading,
 			trailing: middle + extension.toLowerCase(),
 		});
@@ -379,8 +379,8 @@ const create = context => {
 			loc: {column: 0, line: 1},
 			messageId: MESSAGE_ID,
 			data: {
-				chosenCases: getCaseNames(chosenCases),
-				renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``)),
+				chosenCases: formatCaseNames(chosenCases),
+				renamedFilenames: formatDisjunction(renamedFilenames.map(filename => `\`${filename}\``)),
 			},
 		};
 	});

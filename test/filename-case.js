@@ -168,17 +168,22 @@ test('validates options', t => {
 				{message: new RegExp(`The \`${optionName}\` option only accepts strings and regular expressions\\.`, 'u')},
 			);
 		}
-	}
 
-	for (const optionName of ['directoryRoots', 'ignore']) {
 		t.throws(
 			() => linter.verify('const value = 1;', getConfig({[optionName]: [{}]})),
 			{message: new RegExp(`The \`${optionName}\` option only accepts strings and regular expressions\\.`, 'u')},
 		);
 	}
+
+	for (const filename of [undefined, 'foo.js']) {
+		t.throws(
+			() => linter.verify('const value = 1;', getConfig({ignore: ['[']}), {filename}),
+			{instanceOf: SyntaxError},
+		);
+	}
 });
 
-test('matches stateful ignore patterns consistently across files', async t => {
+test('matches stateful ignore patterns consistently between lint runs', async t => {
 	const eslint = new ESLint({
 		overrideConfigFile: true,
 		overrideConfig: [{
@@ -191,14 +196,17 @@ test('matches stateful ignore patterns consistently across files', async t => {
 		}],
 	});
 
+	const [reportedResult] = await eslint.lintText('const value = 1;', {filePath: 'FooBar.js'});
 	const [firstResult] = await eslint.lintText('const value = 1;', {filePath: 'FOOBAR/fooBar.js'});
 	const [secondResult] = await eslint.lintText('const value = 1;', {filePath: 'FOOBAR/fooBar.js'});
 
+	t.is(reportedResult.messages.length, 1);
+	t.is(reportedResult.messages[0].message, 'Filename is not in kebab case. Rename it to `foo-bar.js`.');
 	t.deepEqual(firstResult.messages, []);
 	t.deepEqual(secondResult.messages, []);
 });
 
-test('ignores virtual files created by processors', async t => {
+test('ignores named virtual files created by processors', async t => {
 	const eslint = new ESLint({
 		overrideConfigFile: true,
 		overrideConfig: [
@@ -209,14 +217,15 @@ test('ignores virtual files created by processors', async t => {
 					unicorn,
 				},
 				rules: {
+					'no-undef': 'error',
 					'unicorn/filename-case': 'error',
 				},
 			},
 		],
 	});
-	const [result] = await eslint.lintText('```js\nconst first = 1;\n```\n\n```js\nconst second = 2;\n```', {filePath: 'FooBar.md'});
+	const [result] = await eslint.lintText('```js\nfirst;\n```\n\n```js\nsecond;\n```', {filePath: 'FooBar.md'});
 
-	t.deepEqual(result.messages, []);
+	t.deepEqual(result.messages.map(({ruleId}) => ruleId), ['no-undef', 'no-undef']);
 });
 
 ruleTest({
@@ -767,6 +776,19 @@ ruleTest({
 				kebabCase: true,
 			},
 			'Filename is not in camel case, pascal case, or kebab case. Rename it to `_fooBar.js`, `_FooBar.js`, or `_foo-bar.js`.',
+		),
+		testCaseWithOptions(
+			'src/foo/[foo_bar].{baz_qux}.js',
+			'Filename is not in camel case or pascal case. Rename it to `[fooBar].{bazQux}.js` or `[FooBar].{BazQux}.js`.',
+			[
+				{
+					cases: {
+						camelCase: true,
+						pascalCase: true,
+					},
+					multipleFileExtensions: false,
+				},
+			],
 		),
 		testManyCases(
 			'src/foo/_FOO-BAR.js',

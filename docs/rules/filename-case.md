@@ -13,11 +13,11 @@ Consistent paths make files predictable to find and import, including on case-se
 
 Because this rule only inspects the path, it applies to files of any language, not just JavaScript, as long as they are linted with the matching ESLint language plugin (for example [`@eslint/css`](https://github.com/eslint/css) or [`@eslint/markdown`](https://github.com/eslint/markdown)).
 
-Virtual files created by processors are ignored to avoid duplicate reports for one physical file.
+Named virtual files created by processors are ignored to avoid duplicate reports for one physical file.
 
 Directory names are checked only when the file is inside the current working directory. Files outside the current working directory only have their filename checked.
 
-Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (only a problem with `pascalCase`). Their parent directories are still checked.
+Conventional lowercase entrypoint filenames `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, and `index.vue` are intentionally ignored, including when `pascalCase` is selected. Their parent directories are still checked.
 
 Characters other than `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored for casing and kept as-is in suggested names.
 
@@ -64,7 +64,7 @@ This case style is still lower camel case. Leading acronyms are lowercased, for 
 
 ### case
 
-Type: `string`
+Type: `'camelCase' | 'camelCaseWithAcronyms' | 'snakeCase' | 'kebabCase' | 'pascalCase'`
 
 You can set the `case` option like this:
 
@@ -208,6 +208,8 @@ Default: `[]`
 Directory roots below which directory names are checked. The matched root and its ancestors are not checked. Strings match exact paths relative to ESLint's current working directory and use `/` as the path separator. Regular expressions are tested against those same paths.
 
 When multiple roots match, the deepest root is used. When none match, directory names are checked from the current working directory as usual.
+
+Anchor regular expressions to the intended root depth. Every ancestor path is tested, so a broad expression can also match deeper paths and make the deepest match the effective root.
 
 This option has no effect when `checkDirectories` is `false`. A matching `ignore` pattern still ignores the entire file.
 
