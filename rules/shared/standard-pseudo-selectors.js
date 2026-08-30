@@ -1,6 +1,6 @@
 // Generated file, DO NOT edit
 
-export default new Set([
+export default [
 	'::after',
 	'::backdrop',
 	'::before',
@@ -149,4 +149,4 @@ export default new Set([
 	':volume-locked',
 	':where',
 	':xr-overlay',
-]);
+];

@@ -7,11 +7,12 @@ test.snapshot({
 	valid: [
 		{
 			code: outdent`
-				:hover, :focus-visible, :is(.foo, :not(.bar)), ::before, :before {}
+				:hover, :focus-visible, :is(.foo, :not(.bar)), ::before, :before, :after, :first-line, :first-letter {}
 				::view-transition-group(example), ::highlight(example), :active-view-transition-type(example), :heading(1) {}
 			`,
 			language: languages.css,
 		},
+		{code: ':hover(), :is, ::before() {}', language: languages.css},
 		{code: ':HOVER, ::BEFORE {}', language: languages.css},
 		{code: String.raw`:h\6f ver, ::b\65 fore {}`, language: languages.css},
 		{code: '@page :first {}', language: languages.css},
@@ -30,11 +31,18 @@ test.snapshot({
 			language: languages.css,
 			options: [{allow: [String.raw`:\3A theme`]}],
 		},
+		{
+			code: ':foo {}',
+			language: languages.css,
+			options: [{allow: [String.raw`:\66 oo`]}],
+		},
 	],
 	invalid: [
 		{code: ':foucs {}', language: languages.css},
 		{code: ':hovr::befor {}', language: languages.css},
 		{code: ':is(.foo:foucs, :not(.bar:hovr)) {}', language: languages.css},
+		{code: ':has(> .foo:foucs), ::slotted(.bar:hovr) {}', language: languages.css},
+		{code: '@supports selector(:foucs) {} @scope (:hovr) {}', language: languages.css},
 		{code: '::hover {}', language: languages.css},
 		{code: ':backdrop {}', language: languages.css},
 		{code: ':-webkit-autofill {}', language: languages.css},

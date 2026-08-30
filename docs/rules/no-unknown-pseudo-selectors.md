@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Typos in pseudo-classes and pseudo-elements silently create selectors that never match. This rule checks pseudo-selector names against the latest CSS specifications, including Editor's Drafts, using data from [`@webref/css`](https://www.npmjs.com/package/@webref/css).
+Typos in pseudo-classes and pseudo-elements silently create selectors that never match. This rule checks pseudo-selector names against a snapshot of current CSS specifications, including Editor's Drafts, generated from [`@webref/css`](https://www.npmjs.com/package/@webref/css).
 
 ## Examples
 
@@ -23,7 +23,7 @@ Typos in pseudo-classes and pseudo-elements silently create selectors that never
 
 The rule distinguishes pseudo-classes from pseudo-elements, so `::hover` and `:backdrop` are unknown even though `:hover` and `::backdrop` are standard.
 
-It validates names only. It does not validate where a pseudo-selector may be used or the contents of a functional pseudo-selector.
+It validates names and pseudo-selector kinds only. It does not validate where a pseudo-selector may be used or its argument grammar.
 
 ## Options
 
@@ -33,6 +33,8 @@ Type: `string[]`\
 Default: `[]`
 
 Add framework-specific, browser-specific, or other intentional extensions. Include one or two leading colons to identify whether each entry is a pseudo-class or pseudo-element. Matching is case-insensitive, and an entry allows both functional and non-functional uses of the same name.
+
+Vendor-prefixed and framework-specific pseudo-selectors are reported unless explicitly listed in `allow`.
 
 ```js
 // eslint.config.js

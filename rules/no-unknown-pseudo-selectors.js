@@ -17,7 +17,7 @@ const normalizePseudoSelector = pseudoSelector => {
 	return `${colonCount}:${toAsciiLowerCase(ident.decode(pseudoSelector.slice(colonCount)))}`;
 };
 
-const normalizedStandardPseudoSelectors = new Set([...standardPseudoSelectors].map(pseudoSelector => normalizePseudoSelector(pseudoSelector)));
+const normalizedStandardPseudoSelectors = new Set(standardPseudoSelectors.map(pseudoSelector => normalizePseudoSelector(pseudoSelector)));
 
 const getPseudoSelector = node => `${node.type === 'PseudoElementSelector' ? '::' : ':'}${node.name}`;
 

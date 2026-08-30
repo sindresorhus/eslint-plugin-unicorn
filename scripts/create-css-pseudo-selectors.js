@@ -14,9 +14,9 @@ const pseudoSelectors = [...new Set(
 const content = [
 	'// Generated file, DO NOT edit',
 	'',
-	'export default new Set([',
+	'export default [',
 	...pseudoSelectors.map(selector => `\t'${selector}',`),
-	']);',
+	'];',
 	'',
 ].join('\n');
 
