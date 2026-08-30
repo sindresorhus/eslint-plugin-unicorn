@@ -43,6 +43,7 @@ import unicorn from 'eslint-plugin-unicorn';
 
 export default [
 	{
+		files: ['**/*.css'],
 		plugins: {css, unicorn},
 		language: 'css/css',
 		rules: {
