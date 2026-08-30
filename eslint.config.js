@@ -65,6 +65,13 @@ const config = [
 		rules: disabledJsdocRules,
 	},
 	{
+		files: ['package.json'],
+		rules: {
+			// This version defines the committed pseudo-selector snapshot and must only change when the snapshot is regenerated.
+			'package-json/dependency-version-range': ['error', {exceptions: ['@webref/css']}],
+		},
+	},
+	{
 		files: ['**/*.js'],
 		rules: {
 			'no-sequences': ['error', {allowInParentheses: false}],
