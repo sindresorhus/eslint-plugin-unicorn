@@ -139,6 +139,7 @@ export {default as 'no-transition-all'} from './no-transition-all.js';
 export {default as 'no-typeof-undefined'} from './no-typeof-undefined.js';
 export {default as 'no-uncalled-method'} from './no-uncalled-method.js';
 export {default as 'no-undeclared-class-members'} from './no-undeclared-class-members.js';
+export {default as 'no-unknown-css-annotations'} from './no-unknown-css-annotations.js';
 export {default as 'no-unnecessary-array-flat-depth'} from './no-unnecessary-array-flat-depth.js';
 export {default as 'no-unnecessary-array-flat-map'} from './no-unnecessary-array-flat-map.js';
 export {default as 'no-unnecessary-array-splice-count'} from './no-unnecessary-array-splice-count.js';
