@@ -327,5 +327,12 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 		} else {
 			t.is(cssUnopinionatedSeverity, undefined, `'${name}' rule should not be in the CSS unopinionated config.`);
 		}
+
+		const cssAllSeverity = eslintPluginUnicorn.configs['css/all'].rules[`unicorn/${name}`];
+		if (isCSSRule(rule)) {
+			t.is(cssAllSeverity, 'error', `'${name}' rule should set to 'error' in the CSS all config.`);
+		} else {
+			t.is(cssAllSeverity, undefined, `'${name}' rule should not be in the CSS all config.`);
+		}
 	}
 });

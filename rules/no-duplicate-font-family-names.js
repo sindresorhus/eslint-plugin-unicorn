@@ -22,7 +22,7 @@ const genericFontFamilyNames = new Set([
 	'ui-serif',
 ]);
 
-const normalizeWhitespace = value => value.trim().replaceAll(/[\t\n\f\r ]+/g, ' ');
+const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
 
 const getValueGroups = value => {
 	const groups = [];
@@ -48,7 +48,7 @@ const getValueGroups = value => {
 const getGenericFunctionName = node => {
 	if (
 		node.type !== 'Function'
-		|| ident.decode(node.name).toLowerCase() !== 'generic'
+		|| normalizeCssIdentifier(node.name) !== 'generic'
 		|| node.children.length !== 1
 		|| node.children.at(0).type !== 'Identifier'
 	) {
@@ -60,7 +60,7 @@ const getGenericFunctionName = node => {
 
 const getFontFamily = (nodes, matchResult) => {
 	if (nodes.length === 1 && nodes[0].type === 'String') {
-		const name = normalizeWhitespace(nodes[0].value);
+		const {value: name} = nodes[0];
 		return {name, key: `family:${name.toLowerCase()}`};
 	}
 
@@ -75,7 +75,7 @@ const getFontFamily = (nodes, matchResult) => {
 		return;
 	}
 
-	const name = normalizeWhitespace(nodes.map(node => ident.decode(node.name)).join(' '));
+	const name = nodes.map(node => ident.decode(node.name)).join(' ');
 	const normalizedName = name.toLowerCase();
 	const isGeneric = nodes.length === 1
 		&& (matchResult?.isType(nodes[0], 'generic-family') || genericFontFamilyNames.has(normalizedName));
@@ -102,6 +102,16 @@ const hasCommentInRange = (range, sourceCode) => sourceCode.comments.some(commen
 	return commentRange[0] < range[1] && commentRange[1] > range[0];
 });
 
+const isInStyleRule = (node, sourceCode) => {
+	for (let ancestor = sourceCode.getParent(node); ancestor; ancestor = sourceCode.getParent(ancestor)) {
+		if (ancestor.type === 'Rule') {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -109,13 +119,12 @@ const create = context => {
 	const {sourceCode} = context;
 
 	context.on('Declaration', function * (declaration) {
-		const property = declaration.property.toLowerCase();
+		const property = normalizeCssIdentifier(declaration.property);
 		if (property !== 'font' && property !== 'font-family') {
 			return;
 		}
 
-		const block = sourceCode.getParent(declaration);
-		if (sourceCode.getParent(block)?.type !== 'Rule') {
+		if (!isInStyleRule(declaration, sourceCode)) {
 			return;
 		}
 
