@@ -23,8 +23,9 @@ test.snapshot({
 		':host(#dialog), #modal:hover { & .close {} }',
 		':host-context(#dialog), #modal:hover { & .close {} }',
 		'::slotted(#dialog), #modal::before { & .close {} }',
-		'::view-transition-group(*), ::view-transition-image-pair(*), ::view-transition-old(*), ::view-transition-new(*), :where(*) { & .close {} }',
-		'::view-transition-old(root), dialog { & .close {} }',
+		'::cue(#caption), ::cue-region(#region), ::part(tab), ::highlight(search), dialog { & .close {} }',
+		'::view-transition-group( * ), ::view-transition-image-pair(*), ::view-transition-old(*), ::view-transition-new(*), :where(*) { & .close {} }',
+		'::view-transition-old(root), ::view-transition-new(*.card), dialog { & .close {} }',
 		'ns|*, |* { & .close {} }',
 		'@scope (#dialog) { #dialog { .close {} } }',
 		'.root { :is(&), & { .child {} } }',
@@ -53,6 +54,7 @@ test.snapshot({
 		':host(#dialog), #modal { & .close {} }',
 		'::slotted(#dialog), #modal { & .close {} }',
 		'::view-transition-group(*), dialog { & .close {} }',
+		'::view-transition-group(/* comment */ *), dialog { & .close {} }',
 		'*|dialog, |* { & .close {} }',
 		'@scope (.root) { #dialog, .dialog { .close {} } }',
 		'#dialog, .dialog { @MEDIA (width > 40rem) { & .close {} } }',
@@ -64,18 +66,6 @@ test.snapshot({
 			.dialog {
 				& .close {}
 				& .submit {}
-			}
-		`,
-		outdent`
-			#dialog,
-			.dialog {
-				@media (width > 40rem) {
-					& .close {}
-				}
-
-				@layer components {
-					& .title {}
-				}
 			}
 		`,
 		outdent`

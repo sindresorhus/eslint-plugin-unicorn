@@ -1,4 +1,4 @@
-import {ident} from '@eslint/css-tree';
+import {ident, parse} from '@eslint/css-tree';
 
 const MESSAGE_ID = 'no-nesting-with-mixed-specificity';
 const messages = {
@@ -71,6 +71,22 @@ const getSelectorArgument = node => {
 	}
 };
 
+const isBareUniversalSelectorArgument = argument => {
+	if (argument?.type !== 'Raw') {
+		return false;
+	}
+
+	try {
+		const selector = parse(argument.value, {context: 'selector'});
+		const children = [...selector.children];
+		return children.length === 1
+			&& children[0].type === 'TypeSelector'
+			&& children[0].name === '*';
+	} catch {
+		return false;
+	}
+};
+
 const getSelectorSpecificity = (selector, nestingSpecificity) => {
 	let specificity = ZERO_SPECIFICITY;
 	let hasNestingSelector = false;
@@ -131,8 +147,7 @@ const getPseudoElementSpecificity = (node, nestingSpecificity) => {
 	const argument = node.children?.[0];
 	if (
 		NAMED_VIEW_TRANSITION_PSEUDO_ELEMENTS.has(name)
-		&& argument?.type === 'Raw'
-		&& argument.value.trim() === '*'
+		&& isBareUniversalSelectorArgument(argument)
 	) {
 		return {specificity: ZERO_SPECIFICITY, hasNestingSelector: false};
 	}
