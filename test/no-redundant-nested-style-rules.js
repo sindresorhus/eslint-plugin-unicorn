@@ -50,6 +50,8 @@ test.snapshot({
 		'a { & {} }',
 		'a { & { color: red } background: blue; }',
 		'a { & { color: red } @media (width > 0px) { background: blue; } }',
+		'article { color: green; & { color: blue; } color: red; }',
+		'a { & { b { color: red; } } }',
 		outdent`
 			a {
 				& {
@@ -140,6 +142,11 @@ test({
 		{
 			code: 'a { & { @foo x; } b { y: z } }',
 			output: 'a { @foo x; b { y: z } }',
+			errors: 1,
+		},
+		{
+			code: 'a { & { @foo; } b { y: z } }',
+			output: 'a { @foo; b { y: z } }',
 			errors: 1,
 		},
 		{

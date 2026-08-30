@@ -101,26 +101,27 @@ const formatPart = (part, indentation) => {
 	return formatted.replaceAll(/(^|\r\n|[\n\f\r])(?=[\t ]*[^\t\n\f\r ])/gu, lineBreak => lineBreak + indentation);
 };
 
-const getMultilineRawRanges = sourceCode => {
-	const ranges = [];
+const getMultilineUnsafeRanges = context => {
+	const {sourceCode} = context;
+	const nodes = [...getComments(context)];
 	for (const {target, phase} of sourceCode.traverse()) {
-		if (phase !== 1 || target.type !== 'Raw') {
-			continue;
-		}
-
-		const {start, end} = sourceCode.getLoc(target);
-		if (start.line !== end.line) {
-			ranges.push(sourceCode.getRange(target));
+		if (phase === 1 && target.type === 'Raw') {
+			nodes.push(target);
 		}
 	}
 
-	return ranges;
+	return nodes
+		.filter(node => {
+			const {start, end} = sourceCode.getLoc(node);
+			return start.line !== end.line;
+		})
+		.map(node => sourceCode.getRange(node));
 };
 
 const hasAtRuleTerminator = (node, sourceCode) => sourceCode.getText(node).endsWith(';')
 	&& (node.prelude === null || sourceCode.getRange(node.prelude)[1] < sourceCode.getRange(node)[1]);
 
-const isFixUnsafe = (node, sourceCode, comments, multilineRawRanges) => {
+const isFixUnsafe = (node, sourceCode, multilineUnsafeRanges) => {
 	const lastChild = node.block.children.at(-1);
 	const hasAmbiguousEnd = lastChild?.type === 'Raw'
 		|| (
@@ -135,7 +136,7 @@ const isFixUnsafe = (node, sourceCode, comments, multilineRawRanges) => {
 		return true;
 	}
 
-	if (multilineRawRanges === undefined) {
+	if (multilineUnsafeRanges === undefined) {
 		return false;
 	}
 
@@ -144,17 +145,7 @@ const isFixUnsafe = (node, sourceCode, comments, multilineRawRanges) => {
 	}
 
 	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
-	if (multilineRawRanges.some(([start, end]) => start >= nodeStart && end <= nodeEnd)) {
-		return true;
-	}
-
-	return comments.some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		const {start, end} = sourceCode.getLoc(comment);
-		return commentStart >= nodeStart
-			&& commentEnd <= nodeEnd
-			&& start.line !== end.line;
-	});
+	return multilineUnsafeRanges.some(([start, end]) => start >= nodeStart && end <= nodeEnd);
 };
 
 const addDeclarationSeparator = (node, content, sourceCode) => {
@@ -216,8 +207,7 @@ const getFix = (node, sourceCode) => fixer => {
 */
 const create = context => {
 	const {sourceCode} = context;
-	const comments = getComments(context);
-	let multilineRawRanges;
+	let multilineUnsafeRanges;
 
 	context.on('Rule', node => {
 		if (!isNestingSelectorOnly(node)) {
@@ -232,13 +222,13 @@ const create = context => {
 		const {start, end} = sourceCode.getLoc(node);
 		const isMultiline = start.line !== end.line;
 		if (isMultiline) {
-			multilineRawRanges ??= getMultilineRawRanges(sourceCode);
+			multilineUnsafeRanges ??= getMultilineUnsafeRanges(context);
 		}
 
 		return {
 			node: node.prelude,
 			messageId: MESSAGE_ID,
-			fix: isFixUnsafe(node, sourceCode, comments, isMultiline ? multilineRawRanges : undefined) ? undefined : getFix(node, sourceCode),
+			fix: isFixUnsafe(node, sourceCode, isMultiline ? multilineUnsafeRanges : undefined) ? undefined : getFix(node, sourceCode),
 		};
 	});
 };
