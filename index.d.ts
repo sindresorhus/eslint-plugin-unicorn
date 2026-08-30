@@ -5,6 +5,9 @@ declare const eslintPluginUnicorn: ESLint.Plugin & {
 		recommended: Linter.Config;
 		unopinionated: Linter.Config;
 		all: Linter.Config;
+		'css/recommended': Linter.Config;
+		'css/unopinionated': Linter.Config;
+		'css/all': Linter.Config;
 
 		/** @deprecated Use `all` instead. The `flat/` prefix is no longer needed. */
 		'flat/all': Linter.Config;

@@ -25,6 +25,7 @@ test.snapshot({
 		'a { font: var(--size) Arial, Arial; }',
 		'a { --font-family: Arial, Arial; }',
 		'@font-face { font-family: Arial, Arial; }',
+		'@media (width > 1px) { @font-face { font-family: Arial, Arial; } }',
 		'@font-palette-values --palette { font-family: Arial, Arial; }',
 	].map(code => asCSS(code)),
 	invalid: [
@@ -51,12 +52,14 @@ test.snapshot({
 		'a { font: 16px Arial, Arial, ARIAL; }',
 		String.raw`a { font: 16px A\72 ial, Arial, sans-serif; }`,
 		'a { font: 16px Arial, /* duplicate */ Arial, sans-serif; }',
+		'a { font: 16px Arial, Arial /* duplicate */ !important; }',
 		'a { font: italic small-caps 700 condensed 16px/1.5 Times New Roman, "times new roman", serif; }',
 		'a { font-family: Arial, var(--fonts), arial, sans-serif; }',
 		'a { font-family: Arial, Arial, ARIAL; }',
 		'a { font-family: Arial /* first */, Arial, sans-serif; }',
 		'a { font-family: Arial, /* duplicate */ Arial, sans-serif; }',
 		'a { font-family: Arial, Arial /* duplicate */, sans-serif; }',
+		'a { font-family: Arial, Arial /* duplicate */ !important; }',
 		'a { font-family: Times New Roman, Times /* duplicate */ New Roman, serif; }',
 		outdent`
 			a {
@@ -82,6 +85,16 @@ test({
 			code: 'a { font: 16px Arial, Arial, ARIAL; }',
 			output: 'a { font: 16px Arial, ARIAL; }',
 			errors: 2,
+		},
+		{
+			code: 'a { font-family: Arial, Arial !important /* keep */; }',
+			output: 'a { font-family: Arial !important /* keep */; }',
+			errors: 1,
+		},
+		{
+			code: 'a { font: 16px Arial, Arial !important /* keep */; }',
+			output: 'a { font: 16px Arial !important /* keep */; }',
+			errors: 1,
 		},
 	],
 });

@@ -24,7 +24,7 @@ const genericFontFamilyNames = new Set([
 
 const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
 
-const getValueGroups = value => {
+const getCommaSeparatedGroups = value => {
 	const groups = [];
 	let nodes = [];
 	let previousComma;
@@ -91,7 +91,7 @@ const getFontShorthandGroups = (value, matchResult) => {
 		return [];
 	}
 
-	return getValueGroups(value).map(group => ({
+	return getCommaSeparatedGroups(value).map(group => ({
 		...group,
 		nodes: group.nodes.filter(node => matchResult.isProperty(node, 'font-family')),
 	}));
@@ -131,7 +131,7 @@ const create = context => {
 		const matchResult = sourceCode.lexer.matchProperty(property, declaration.value);
 		const groups = property === 'font'
 			? getFontShorthandGroups(declaration.value, matchResult)
-			: getValueGroups(declaration.value);
+			: getCommaSeparatedGroups(declaration.value);
 		const seenFontFamilies = new Set();
 
 		for (const group of groups) {
@@ -150,7 +150,7 @@ const create = context => {
 			const familyRange = [sourceCode.getRange(firstNode)[0], sourceCode.getRange(lastNode)[1]];
 			const previousCommaStart = sourceCode.getRange(group.previousComma)[0];
 			const nextCommaStart = group.nextComma ? sourceCode.getRange(group.nextComma)[0] : familyRange[1];
-			const commentRangeEnd = group.nextComma ? nextCommaStart : sourceCode.getRange(declaration)[1];
+			const commentRangeEnd = group.nextComma ? nextCommaStart : sourceCode.getRange(declaration.value)[1];
 
 			yield {
 				node: firstNode,
