@@ -50,6 +50,7 @@ test.snapshot({
 		String.raw`a { f\6f nt-family: Arial, Arial, sans-serif; }`,
 		String.raw`a { f\6f nt: 16px Arial, Arial, sans-serif; }`,
 		'.foo { @media (width > 1px) { font-family: Arial, Arial, sans-serif; } }',
+		'@keyframes switch-font { from { font-family: Arial, Arial; } }',
 		'a { font-family: Times New Roman, "times new roman", serif; }',
 		String.raw`a { font-family: Times New Roman, "Times\20 New Roman", serif; }`,
 		String.raw`a { font-family: A\72 ial, Arial, sans-serif; }`,
