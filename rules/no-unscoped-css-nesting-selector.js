@@ -5,18 +5,41 @@ const messages = {
 	[MESSAGE_ID]: 'Do not use a CSS nesting selector without an ancestor scoping root.',
 };
 
-const normalizeAtRuleName = name => ident.decode(name).toLowerCase();
+const normalizeAtRuleName = name => ident.decode(name).replaceAll(/[A-Z]/g, character => character.toLowerCase());
 
 const isScopeAtRule = node => node.type === 'Atrule' && normalizeAtRuleName(node.name) === 'scope';
 const isKeyframesAtRule = node => node?.type === 'Atrule' && /^(?:-(?:moz|o|webkit)-)?keyframes$/.test(normalizeAtRuleName(node.name));
 
-const isKeyframeRule = (node, sourceCode) => {
+const isStyleRule = (node, sourceCode) => {
+	if (node.type !== 'Rule') {
+		return false;
+	}
+
 	const block = sourceCode.getParent(node);
 	const atRule = sourceCode.getParent(block);
-	return isKeyframesAtRule(atRule);
+	return !isKeyframesAtRule(atRule);
 };
 
-const isStyleRule = (node, sourceCode) => node.type === 'Rule' && !isKeyframeRule(node, sourceCode);
+const isInScopeLimit = (node, sourceCode, selectorList) => {
+	switch (node?.type) {
+		case 'SelectorList': {
+			return isInScopeLimit(sourceCode.getParent(node), sourceCode, node);
+		}
+
+		case 'Scope': {
+			return node.limit === selectorList;
+		}
+
+		case 'Atrule':
+		case undefined: {
+			return false;
+		}
+
+		default: {
+			return isInScopeLimit(sourceCode.getParent(node), sourceCode, selectorList);
+		}
+	}
+};
 
 const getSelectorOwner = (node, sourceCode) => {
 	let currentNode = node;
@@ -85,6 +108,7 @@ const create = context => {
 		if (
 			!selectorOwner
 			|| (!isStyleRule(selectorOwner, sourceCode) && !isScopeAtRule(selectorOwner))
+			|| isInScopeLimit(node, sourceCode)
 			|| hasScopingRoot(selectorOwner, sourceCode, scopingRootAtRules)
 		) {
 			return;

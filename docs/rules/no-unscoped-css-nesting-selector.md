@@ -11,6 +11,8 @@ The [CSS nesting selector](https://drafts.csswg.org/css-nesting/#nest-selector) 
 
 This rule reports nesting selectors that do not have an ancestor style rule, `@scope` block, or configured custom scoping root. It does not provide an autofix because removing `&` can change selector matching or specificity, and the intended missing ancestor cannot be inferred.
 
+In an `@scope` prelude, `&` in the scope start needs an outer scoping root, while `&` in the scope limit refers to the new scoping root.
+
 The rule is enabled by the `css/recommended` and `css/unopinionated` configs when either is extended from a CSS language config.
 
 ## Examples
@@ -36,9 +38,9 @@ The rule is enabled by the `css/recommended` and `css/unopinionated` configs whe
 Type: `string[]`\
 Default: `[]`
 
-At-rule names that provide a scoping root. Names are specified without the leading `@` and are matched case-insensitively.
+At-rule names that provide a scoping root. Names are specified without the leading `@` and are matched ASCII case-insensitively.
 
-The scoping root remains in effect through nested at-rules such as `@media`.
+The scoping root remains in effect through nested grouping at-rules such as `@media`. Recognized `@keyframes` at-rules stop the search and cannot be configured as scoping roots.
 
 This is useful for CSS extensions such as Tailwind CSS's `@utility` directive:
 

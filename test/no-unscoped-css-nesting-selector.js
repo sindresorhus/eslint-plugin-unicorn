@@ -26,8 +26,11 @@ test.snapshot({
 		'@SCOPE (.foo) { & {} }',
 		String.raw`@\73 cope { & {} }`,
 		'a { @scope (&) to (& .limit) {} }',
+		'@scope (.foo) to (& .limit) {}',
+		'@scope to (&) {}',
+		'@scope to (:is(&, .limit)) {}',
 		'@supports selector(&) {}',
-		'@keyframes foo { & {} } @-webkit-keyframes bar { & {} }',
+		'@keyframes foo { & {} } @-moz-keyframes bar { & {} } @-o-keyframes baz { & {} } @-webkit-keyframes qux { & {} }',
 	].map(code => asCss(code)),
 	invalid: [
 		'& {}',
@@ -43,13 +46,13 @@ test.snapshot({
 			@container (width > 1px) { & {} }
 		`,
 		'@scope (&) {}',
-		'@scope (.foo) to (&) {}',
 		'@scope (&) to (&) {}',
 		'@scope (&) { & {} }',
 		'@utility content-body { & p {} }',
 		'@-custom-keyframes foo { & {} }',
 		'@-ms-keyframes foo { & {} }',
-		'a { @keyframes foo { from { & {} } } }',
+		String.raw`a { @\4B EYFRAMES foo { from { & {} } } }`,
+		'@scope { @keyframes foo { from { & {} } } }',
 	].map(code => asCss(code)),
 });
 
@@ -60,8 +63,18 @@ test.snapshot({
 		asCssWithScopingRootAtRules(String.raw`@\75 tility content-body { & p {} }`),
 		asCssWithScopingRootAtRules('@utility content-body { @supports (display: grid) { & p {} } }', ['UTILITY']),
 		asCssWithScopingRootAtRules('@utility content-body { & p {} }', ['variant', 'utility']),
+		asCssWithScopingRootAtRules('@K content-body { & p {} }', ['K']),
 	],
 	invalid: [
 		asCssWithScopingRootAtRules('@variant content-body { & p {} }'),
+		asCssWithScopingRootAtRules('@k content-body { & p {} }', ['K']),
+		asCssWithScopingRootAtRules('@K content-body { & p {} }', ['k']),
+		asCssWithScopingRootAtRules('@keyframes foo { from { & {} } }', ['keyframes']),
+		asCssWithScopingRootAtRules('@utility content-body { @keyframes foo { from { & {} } } }'),
+		{
+			code: '@utility content-body { & p {} }',
+			language: languages.css,
+			options: [{}],
+		},
 	],
 });
