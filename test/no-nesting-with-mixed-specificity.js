@@ -3,10 +3,10 @@ import {getTester, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-const asCss = code => ({code, language: languages.css});
+const withCssLanguage = testCases => testCases.map(code => ({code, language: languages.css}));
 
 test.snapshot({
-	valid: [
+	valid: withCssLanguage([
 		'#dialog, .dialog {}',
 		'#dialog { & .close {} }',
 		'#dialog, #modal { & .close {} }',
@@ -22,7 +22,13 @@ test.snapshot({
 		':host(#dialog), #modal:hover { & .close {} }',
 		':host-context(#dialog), #modal:hover { & .close {} }',
 		'::slotted(#dialog), #modal::before { & .close {} }',
+		'ns|*, |* { & .close {} }',
 		'@scope (#dialog) { #dialog { .close {} } }',
+		'.root { :is(&), & { .child {} } }',
+		'.root { :has(> &), & { .child {} } }',
+		'.root { :nth-child(2n of &), &:hover { .child {} } }',
+		'.root { ::slotted(&), &::before { .child {} } }',
+		'.root { > &, && { .child {} } }',
 		outdent`
 			.dialog, .modal {
 				&, & {
@@ -30,8 +36,8 @@ test.snapshot({
 				}
 			}
 		`,
-	].map(code => asCss(code)),
-	invalid: [
+	]),
+	invalid: withCssLanguage([
 		'#dialog, .dialog { & .close {} }',
 		'#dialog, .dialog { .close {} }',
 		'button, .button { & .icon {} }',
@@ -42,6 +48,11 @@ test.snapshot({
 		':nth-child(2n of #dialog), #modal { & .close {} }',
 		':host(#dialog), #modal { & .close {} }',
 		'::slotted(#dialog), #modal { & .close {} }',
+		'*|dialog, |* { & .close {} }',
+		'@scope (.root) { #dialog, .dialog { .close {} } }',
+		'.root { :where(&), & { .child {} } }',
+		'.root { > &, & { .child {} } }',
+		'#root, .root { .child { .grandchild {} } }',
 		outdent`
 			#dialog,
 			.dialog {
@@ -63,5 +74,5 @@ test.snapshot({
 		`,
 		'.root { #dialog, .dialog { .close {} } }',
 		'.root { &&, & { .close {} } }',
-	].map(code => asCss(code)),
+	]),
 });

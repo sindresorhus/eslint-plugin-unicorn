@@ -165,9 +165,10 @@ const getNodeSpecificity = (node, nestingSpecificity) => {
 	}
 };
 
-const getRuleSpecificities = (rule, nestingSpecificity, isNested) => rule.prelude.children.map(selector => {
+const getRuleSpecificities = (rule, nestingSpecificity) => rule.prelude.children.map(selector => {
 	const result = getSelectorSpecificity(selector, nestingSpecificity);
-	return isNested && !result.hasNestingSelector
+	const hasImpliedNestingSelector = !result.hasNestingSelector || selector.children.at(0)?.type === 'Combinator';
+	return hasImpliedNestingSelector
 		? addSpecificity(nestingSpecificity, result.specificity)
 		: result.specificity;
 });
@@ -208,7 +209,7 @@ const create = context => {
 		const parentRule = getParentStyleRule(rule, sourceCode);
 		const parentSpecificities = parentRule && ruleSpecificities.get(parentRule);
 		const nestingSpecificity = getMaximumSpecificity(parentSpecificities ?? []);
-		const specificities = getRuleSpecificities(rule, nestingSpecificity, Boolean(parentRule));
+		const specificities = getRuleSpecificities(rule, nestingSpecificity);
 		ruleSpecificities.set(rule, specificities);
 
 		if (parentSpecificities && hasMixedSpecificity(parentSpecificities)) {
