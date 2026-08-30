@@ -12,6 +12,7 @@ test.snapshot({
 		css('-webkit-box { -webkit-box-orient: vertical; }'),
 		css('a { --word-wrap: overlay; custom-property: overlay; color: custom(activecaption); }'),
 		css('a { appearance: custom(button); color: rgb(0 0 0); width: 1intrinsic; }'),
+		css('a { color: rgb(from custom(activecaption) r g b); }'),
 		css('ALTGLYPH, glyphref { color: red; }'),
 		css('::part(acronym), :lang(acronym) { color: red; }'),
 		css(':state(acronym), :active-view-transition-type(acronym), :heading(acronym) { color: red; }'),
@@ -30,6 +31,7 @@ test.snapshot({
 		css('@nest & > a { color: red; }'),
 		css('@media tv { a { color: red; } }'),
 		css('@media only PROJECTION { a { color: red; } }'),
+		css('@media tv, projection { a { color: red; } }'),
 		css('acronym, APPLET, altGlyph, glyphRef { color: red; }'),
 		css(String.raw`@namespace svg url("x"); svg|font, *|acronym, |applet, svg|altGlyph, svg|alt\47 lyph { color: red; }`),
 		css(':matches(article), :-webkit-any(article), :focus-ring { color: red; }'),
@@ -67,6 +69,11 @@ test({
 			code: ':matches(/* keep */ a) {}',
 			output: ':is(/* keep */ a) {}',
 			errors: [{messageId: 'no-deprecated-css-features/error'}],
+		},
+		{
+			code: '@supports selector(:matches(acronym)) {}',
+			output: '@supports selector(:is(acronym)) {}',
+			errors: 2,
 		},
 		{
 			code: String.raw`a { overflow: o\76 erlay; }`,

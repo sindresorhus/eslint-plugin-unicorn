@@ -72,7 +72,7 @@ const deprecatedProperties = {
 };
 
 const fixablePropertyAliases = new Set(['grid-column-gap', 'grid-gap', 'grid-row-gap', 'page-break-after', 'page-break-before', 'page-break-inside', 'word-wrap']);
-const appearanceValues = {
+const deprecatedAppearanceValues = {
 	button: 'auto',
 	checkbox: 'auto',
 	listbox: 'auto',
@@ -113,9 +113,9 @@ const deprecatedSystemColors = {
 	inactivecaptiontext: 'GrayText',
 };
 
-const sizeValues = {intrinsic: undefined, 'min-intrinsic': undefined};
+const deprecatedSizeValues = {intrinsic: undefined, 'min-intrinsic': undefined};
 const deprecatedValueKeywords = {
-	appearance: appearanceValues,
+	appearance: deprecatedAppearanceValues,
 	'image-rendering': {optimizequality: 'smooth', optimizespeed: 'pixelated'},
 	overflow: {overlay: 'auto'},
 	'overflow-x': {overlay: 'auto'},
@@ -128,12 +128,12 @@ const deprecatedValueKeywords = {
 	'text-decoration-line': {blink: undefined},
 	'box-sizing': {'padding-box': undefined},
 	'image-orientation': {flip: undefined},
-	'min-height': sizeValues,
-	'min-width': sizeValues,
-	'max-height': sizeValues,
-	'max-width': sizeValues,
-	height: sizeValues,
-	width: sizeValues,
+	'min-height': deprecatedSizeValues,
+	'min-width': deprecatedSizeValues,
+	'max-height': deprecatedSizeValues,
+	'max-width': deprecatedSizeValues,
+	height: deprecatedSizeValues,
+	width: deprecatedSizeValues,
 	'word-break': {'break-word': undefined},
 	'border-color': deprecatedSystemColors,
 	'scrollbar-color': deprecatedSystemColors,
@@ -413,12 +413,9 @@ const getDeprecatedRawSelectorProblems = ({node, context, allow}) => {
 	return problems;
 };
 
-function * getValueIdentifiers(node, property, insideFunction = false) {
+function * getValueIdentifiers(node, property) {
 	if (node.type === 'Identifier') {
-		if (!insideFunction) {
-			yield node;
-		}
-
+		yield node;
 		return;
 	}
 
@@ -426,13 +423,18 @@ function * getValueIdentifiers(node, property, insideFunction = false) {
 		return;
 	}
 
-	const isFunction = node.type === 'Function';
-	const shouldInspectFunction = isFunction
-		&& deprecatedValueKeywords[property] === deprecatedSystemColors
-		&& colorFunctions.has(normalizeIdentifier(node.name));
+	if (
+		node.type === 'Function'
+		&& (
+			deprecatedValueKeywords[property] !== deprecatedSystemColors
+			|| !colorFunctions.has(normalizeIdentifier(node.name))
+		)
+	) {
+		return;
+	}
 
 	for (const child of node.children) {
-		yield * getValueIdentifiers(child, property, insideFunction || (isFunction && !shouldInspectFunction));
+		yield * getValueIdentifiers(child, property);
 	}
 }
 
