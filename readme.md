@@ -568,7 +568,7 @@ See [the list](docs/deleted-and-deprecated-rules.md).
 
 See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration-files) for more information about extending config files.
 
-**Note**: Preset configs will also enable the correct [language options](https://eslint.org/docs/latest/use/configure/language-options).
+**Note**: The JavaScript preset configs also enable the correct [language options](https://eslint.org/docs/latest/use/configure/language-options). The `css/recommended` preset requires [`@eslint/css`](https://github.com/eslint/css) and the `css/css` language, as shown in the [`no-deprecated-css-features` documentation](docs/rules/no-deprecated-css-features.md#css-configuration).
 
 ### Recommended config
 

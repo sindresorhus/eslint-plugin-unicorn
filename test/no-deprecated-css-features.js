@@ -15,8 +15,10 @@ test.snapshot({
 		css('ALTGLYPH, glyphref { color: red; }'),
 		css('::part(acronym), :lang(acronym) { color: red; }'),
 		css(':state(acronym), :active-view-transition-type(acronym), :heading(acronym) { color: red; }'),
+		css(String.raw`acronym|div, acronym|*, svg|altglyph, foo\|bar { color: red; }`),
 		css('@media (tv) { a { color: red; } }'),
 		css('@supports (overflow-wrap: break-word) { a { color: red; } }'),
+		css('a { __proto__: constructor; constructor: name; }'),
 		cssWithOptions('word-wrap { word-wrap: break-word; }', {allow: ['word-wrap']}),
 		cssWithOptions('@viewport { acronym:matches(::content) { word-break: break-word; } } @media tv {}', {
 			allow: ['@viewport', 'acronym', ':matches', '::content', 'word-break: break-word', '@media tv'],
@@ -29,6 +31,7 @@ test.snapshot({
 		css('@media tv { a { color: red; } }'),
 		css('@media only PROJECTION { a { color: red; } }'),
 		css('acronym, APPLET, altGlyph, glyphRef { color: red; }'),
+		css(String.raw`@namespace svg url("x"); svg|font, *|acronym, |applet, svg|altGlyph, svg|alt\47 lyph { color: red; }`),
 		css(':matches(article), :-webkit-any(article), :focus-ring { color: red; }'),
 		css('::content, ::shadow { color: red; }'),
 		css('a { word-wrap: break-word; grid-gap: 1rem; grid-row-gap: 2rem; grid-column-gap: 3rem; }'),
@@ -40,6 +43,7 @@ test.snapshot({
 		css('a { -moz-box-align: center; position-try-options: --fallback; scroll-snap-margin: 1rem; clip: rect(0); }'),
 		css('@supports (word-wrap: break-word) { a { overflow: overlay; } }'),
 		css('main { & acronym { overflow: overlay; } }'),
+		css(':not(acronym), :nth-child(2n of applet), :host(font) { color: red; }'),
 		css(String.raw`@v\69 ewport { ACRONYM:m\61 tches(a) { w\6f rd-wrap: break-word; } }`),
 		css('a { color: rgb(from activecaption r g b); color: activecaption activeborder; }'),
 	],
@@ -62,6 +66,11 @@ test({
 		{
 			code: ':matches(/* keep */ a) {}',
 			output: ':is(/* keep */ a) {}',
+			errors: [{messageId: 'no-deprecated-css-features/error'}],
+		},
+		{
+			code: String.raw`a { overflow: o\76 erlay; }`,
+			output: 'a { overflow: auto; }',
 			errors: [{messageId: 'no-deprecated-css-features/error'}],
 		},
 		{
@@ -121,6 +130,17 @@ test({
 			code: ':foo(:matches(acronym)), :--foo(:drop(popup)) {}',
 			output: ':foo(:is(acronym)), :--foo(:drop(popup)) {}',
 			errors: 4,
+		},
+		{
+			code: ':contains(svg|altGlyph) { color: red; }',
+			errors: [
+				{
+					messageId: 'no-deprecated-css-features/error', data: {feature: 'selector', name: ':contains'}, column: 1, endColumn: 10,
+				},
+				{
+					messageId: 'no-deprecated-css-features/error', data: {feature: 'selector', name: 'altGlyph'}, column: 15, endColumn: 23,
+				},
+			],
 		},
 		{
 			code: '::cue(acronym), ::cue-region(:matches(acronym)) {}',

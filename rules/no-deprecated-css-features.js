@@ -244,15 +244,28 @@ const getNameRange = (node, prefixLength, context) => {
 	return [start, start + prefixLength + node.name.length];
 };
 
-const getDeprecatedTypeSelectorName = value => {
-	const decodedName = ident.decode(value);
+const getDeprecatedTypeSelector = value => {
+	let identifier;
+	let lastTokenType;
+	tokenize(value, (type, start, end) => {
+		lastTokenType = type;
+		if (type === tokenTypes.Ident) {
+			identifier = {value: value.slice(start, end), offsets: [start, end]};
+		}
+	});
+
+	if (lastTokenType !== tokenTypes.Ident) {
+		return;
+	}
+
+	const decodedName = ident.decode(identifier.value);
 	const htmlName = decodedName.toLowerCase();
 	if (deprecatedHtmlSelectors.has(htmlName)) {
-		return htmlName;
+		return {name: htmlName, offsets: identifier.offsets};
 	}
 
 	if (deprecatedSvgSelectors.has(decodedName)) {
-		return decodedName;
+		return {name: decodedName, offsets: identifier.offsets};
 	}
 };
 
@@ -285,23 +298,27 @@ const shouldParseRawSelectorArguments = node => {
 const getParsedSelectorProblems = ({selector, sourceStart, node, context, allow}) => {
 	const problems = [];
 
-	const visit = selector => {
-		const {start, end} = Reflect.get(selector, 'loc');
+	const visit = currentSelector => {
+		const {start} = Reflect.get(currentSelector, 'loc');
 		let name;
 		let range;
 		let fix;
-		switch (selector.type) {
+		switch (currentSelector.type) {
 			case 'TypeSelector': {
-				name = getDeprecatedTypeSelectorName(selector.name);
-				range = [sourceStart + start.offset, sourceStart + end.offset];
+				const deprecatedSelector = getDeprecatedTypeSelector(currentSelector.name);
+				if (deprecatedSelector) {
+					name = deprecatedSelector.name;
+					range = deprecatedSelector.offsets.map(index => sourceStart + start.offset + index);
+				}
+
 				break;
 			}
 
 			case 'PseudoClassSelector': {
-				const pseudoClass = normalizeIdentifier(selector.name);
+				const pseudoClass = normalizeIdentifier(currentSelector.name);
 				if (deprecatedPseudoClasses.has(pseudoClass)) {
 					name = `:${pseudoClass}`;
-					range = [sourceStart + start.offset, sourceStart + start.offset + 1 + selector.name.length];
+					range = [sourceStart + start.offset, sourceStart + start.offset + 1 + currentSelector.name.length];
 					fix = pseudoClass === 'matches' ? fixer => fixer.replaceTextRange(range, ':is') : undefined;
 				}
 
@@ -309,10 +326,10 @@ const getParsedSelectorProblems = ({selector, sourceStart, node, context, allow}
 			}
 
 			case 'PseudoElementSelector': {
-				const pseudoElement = normalizeIdentifier(selector.name);
+				const pseudoElement = normalizeIdentifier(currentSelector.name);
 				if (deprecatedPseudoElements.has(pseudoElement)) {
 					name = `::${pseudoElement}`;
-					range = [sourceStart + start.offset, sourceStart + start.offset + 2 + selector.name.length];
+					range = [sourceStart + start.offset, sourceStart + start.offset + 2 + currentSelector.name.length];
 				}
 
 				break;
@@ -332,17 +349,17 @@ const getParsedSelectorProblems = ({selector, sourceStart, node, context, allow}
 			}
 		}
 
-		if (!selector.children) {
+		if (!currentSelector.children) {
 			return;
 		}
 
-		for (const child of selector.children) {
+		for (const child of currentSelector.children) {
 			if (child.type !== 'Raw') {
 				visit(child);
 				continue;
 			}
 
-			if (!shouldParseRawSelectorArguments(selector)) {
+			if (!shouldParseRawSelectorArguments(currentSelector)) {
 				continue;
 			}
 
@@ -510,11 +527,15 @@ const getDeprecatedPropertyProblem = ({declaration, property, singleValueIdentif
 };
 
 function * getDeprecatedValueProblems({declaration, property, context, allow}) {
-	const deprecatedValues = deprecatedValueKeywords[property];
-	if (!deprecatedValues || declaration.value.type !== 'Value') {
+	if (!Object.hasOwn(deprecatedValueKeywords, property)) {
 		return;
 	}
 
+	if (declaration.value.type !== 'Value') {
+		return;
+	}
+
+	const deprecatedValues = deprecatedValueKeywords[property];
 	for (const identifier of getValueIdentifiers(declaration.value, property)) {
 		const keyword = normalizeIdentifier(identifier.name);
 		if (!Object.hasOwn(deprecatedValues, keyword)) {
@@ -590,12 +611,19 @@ const create = context => {
 	});
 
 	context.on('TypeSelector', node => {
-		const name = getDeprecatedTypeSelectorName(node.name);
-		if (!name) {
+		const deprecatedSelector = getDeprecatedTypeSelector(node.name);
+		if (!deprecatedSelector) {
 			return;
 		}
 
-		return getProblem({node, feature: 'selector', name}, allow);
+		const [start] = getRange(node, context);
+		const range = deprecatedSelector.offsets.map(index => start + index);
+		return getProblem({
+			node,
+			location: toLocation(range, context),
+			feature: 'selector',
+			name: deprecatedSelector.name,
+		}, allow);
 	});
 
 	context.on('PseudoClassSelector', node => {
