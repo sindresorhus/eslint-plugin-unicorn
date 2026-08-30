@@ -148,6 +148,25 @@ const isFixUnsafe = (node, sourceCode, multilineUnsafeRanges) => {
 	return multilineUnsafeRanges.some(([start, end]) => start >= nodeStart && end <= nodeEnd);
 };
 
+const getDeclarationSeparatorIndex = content => {
+	const trailingWhitespace = content.match(/[\t\n\f\r ]*$/u)[0];
+	let separatorIndex = content.length - trailingWhitespace.length;
+	if (trailingWhitespace === '') {
+		return separatorIndex;
+	}
+
+	let backslashCount = 0;
+	for (let index = separatorIndex - 1; content[index] === '\\'; index--) {
+		backslashCount++;
+	}
+
+	if (backslashCount % 2 === 1) {
+		separatorIndex++;
+	}
+
+	return separatorIndex;
+};
+
 const addDeclarationSeparator = (node, content, sourceCode) => {
 	const parentBlock = sourceCode.getParent(node);
 	const lastChild = node.block.children.at(-1);
@@ -164,7 +183,8 @@ const addDeclarationSeparator = (node, content, sourceCode) => {
 		return content;
 	}
 
-	return content.replace(/(?=[\t\n\f\r ]*$)/u, ';');
+	const separatorIndex = getDeclarationSeparatorIndex(content);
+	return `${content.slice(0, separatorIndex)};${content.slice(separatorIndex)}`;
 };
 
 const getReplacement = (node, sourceCode) => {

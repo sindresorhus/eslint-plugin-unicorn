@@ -14,7 +14,7 @@ test.snapshot({
 			'a { && { color: red; } }',
 			'& { color: red; }',
 			'@media (width > 0px) { & { color: red; } }',
-			'a, b { & { color: red; } }',
+			'#nonmatch, .target { & { color: red; } }',
 			'a::before { & { color: red; } }',
 			...['after', 'before', 'first-letter', 'first-line'].map(pseudoElement => `a:${pseudoElement} { & { color: red; } }`),
 			String.raw`a:\62 efore { & { color: red; } }`,
@@ -122,6 +122,16 @@ test({
 		{
 			code: 'a { & { --foo: bar\u00A0 } background: blue; }',
 			output: 'a { --foo: bar\u00A0; background: blue; }',
+			errors: 1,
+		},
+		{
+			code: String.raw`a { & { --foo: bar\ } b {} }`,
+			output: String.raw`a { --foo: bar\ ; b {} }`,
+			errors: 1,
+		},
+		{
+			code: String.raw`a { & { --foo: bar\\ } b {} }`,
+			output: String.raw`a { --foo: bar\\; b {} }`,
 			errors: 1,
 		},
 		{
