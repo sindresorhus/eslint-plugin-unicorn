@@ -13,6 +13,8 @@ Consistent paths make files predictable to find and import, including on case-se
 
 Because this rule only inspects the path, it applies to files of any language, not just JavaScript, as long as they are linted with the matching ESLint language plugin (for example [`@eslint/css`](https://github.com/eslint/css) or [`@eslint/markdown`](https://github.com/eslint/markdown)).
 
+Virtual files created by processors are ignored to avoid duplicate reports for one physical file.
+
 Directory names are checked only when the file is inside the current working directory. Files outside the current working directory only have their filename checked.
 
 Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (only a problem with `pascalCase`). Their parent directories are still checked.
@@ -169,7 +171,7 @@ Sometimes you may have non-standard filenames or directory names in a project. T
 For example:
 
 - Vendor packages that are copied into the project.
-- Ignore some files when you use [eslint-plugin-markdown](https://github.com/eslint/eslint-plugin-markdown), for example `README.md`.
+- Conventionally named files such as `README.md`.
 - Some tools may require special names for some files.
 - Ignore a directory and everything in it.
 

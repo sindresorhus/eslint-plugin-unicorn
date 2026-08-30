@@ -309,17 +309,17 @@ const create = context => {
 
 	const filenameWithExtension = context.physicalFilename;
 
-	if (isVirtualFilename(filenameWithExtension)) {
+	if (context.filename !== filenameWithExtension || isVirtualFilename(filenameWithExtension)) {
 		return;
 	}
 
 	const chosenCases = getChosenCases(options);
-	const ignore = ignorePatterns.map(item => {
-		if (isRegExp(item)) {
-			return item;
+	const ignore = ignorePatterns.map(pattern => {
+		if (isRegExp(pattern)) {
+			return new RegExp(pattern);
 		}
 
-		return new RegExp(item, 'u');
+		return new RegExp(pattern, 'u');
 	});
 	const isMultipleFileExtensions = options.multipleFileExtensions !== false;
 	const isCheckDirectories = options.checkDirectories !== false;
@@ -386,6 +386,35 @@ const create = context => {
 	});
 };
 
+const commonOptionProperties = {
+	ignore: {
+		type: 'array',
+		items: {
+			type: ['string', 'object'],
+			additionalProperties: true,
+		},
+		uniqueItems: true,
+		description: 'Path segment patterns to ignore.',
+	},
+	multipleFileExtensions: {
+		type: 'boolean',
+		description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
+	},
+	checkDirectories: {
+		type: 'boolean',
+		description: 'Whether to check directory names.',
+	},
+	directoryRoots: {
+		type: 'array',
+		items: {
+			type: ['string', 'object'],
+			additionalProperties: true,
+		},
+		uniqueItems: true,
+		description: 'Directory root paths or patterns, relative to the current working directory.',
+	},
+};
+
 const schema = [
 	{
 		description: 'The rule options.',
@@ -403,32 +432,7 @@ const schema = [
 						],
 						description: 'The filename and directory name case style.',
 					},
-					ignore: {
-						type: 'array',
-						items: {
-							type: ['string', 'object'],
-							additionalProperties: true,
-						},
-						uniqueItems: true,
-						description: 'Path segment patterns to ignore.',
-					},
-					multipleFileExtensions: {
-						type: 'boolean',
-						description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
-					},
-					checkDirectories: {
-						type: 'boolean',
-						description: 'Whether to check directory names.',
-					},
-					directoryRoots: {
-						type: 'array',
-						items: {
-							type: ['string', 'object'],
-							additionalProperties: true,
-						},
-						uniqueItems: true,
-						description: 'Directory root paths or patterns, relative to the current working directory.',
-					},
+					...commonOptionProperties,
 				},
 				additionalProperties: false,
 			},
@@ -462,32 +466,7 @@ const schema = [
 						additionalProperties: false,
 						description: 'The allowed filename and directory name case styles.',
 					},
-					ignore: {
-						type: 'array',
-						items: {
-							type: ['string', 'object'],
-							additionalProperties: true,
-						},
-						uniqueItems: true,
-						description: 'Path segment patterns to ignore.',
-					},
-					multipleFileExtensions: {
-						type: 'boolean',
-						description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
-					},
-					checkDirectories: {
-						type: 'boolean',
-						description: 'Whether to check directory names.',
-					},
-					directoryRoots: {
-						type: 'array',
-						items: {
-							type: ['string', 'object'],
-							additionalProperties: true,
-						},
-						uniqueItems: true,
-						description: 'Directory root paths or patterns, relative to the current working directory.',
-					},
+					...commonOptionProperties,
 				},
 				additionalProperties: false,
 			},

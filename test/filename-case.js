@@ -1,6 +1,6 @@
 import path from 'node:path';
 import test from 'ava';
-import {Linter} from 'eslint';
+import {ESLint, Linter} from 'eslint';
 import css from '@eslint/css';
 import json from '@eslint/json';
 import markdown from '@eslint/markdown';
@@ -170,10 +170,53 @@ test('validates options', t => {
 		}
 	}
 
-	t.throws(
-		() => linter.verify('const value = 1;', getConfig({ignore: [{}]})),
-		{message: /The `ignore` option only accepts strings and regular expressions\./u},
-	);
+	for (const optionName of ['directoryRoots', 'ignore']) {
+		t.throws(
+			() => linter.verify('const value = 1;', getConfig({[optionName]: [{}]})),
+			{message: new RegExp(`The \`${optionName}\` option only accepts strings and regular expressions\\.`, 'u')},
+		);
+	}
+});
+
+test('matches stateful ignore patterns consistently across files', async t => {
+	const eslint = new ESLint({
+		overrideConfigFile: true,
+		overrideConfig: [{
+			plugins: {
+				unicorn,
+			},
+			rules: {
+				'unicorn/filename-case': ['error', {ignore: [/^FOOBAR$/gu]}],
+			},
+		}],
+	});
+
+	const [firstResult] = await eslint.lintText('const value = 1;', {filePath: 'FOOBAR/fooBar.js'});
+	const [secondResult] = await eslint.lintText('const value = 1;', {filePath: 'FOOBAR/fooBar.js'});
+
+	t.deepEqual(firstResult.messages, []);
+	t.deepEqual(secondResult.messages, []);
+});
+
+test('ignores virtual files created by processors', async t => {
+	const eslint = new ESLint({
+		overrideConfigFile: true,
+		overrideConfig: [
+			...markdown.configs.processor,
+			{
+				files: ['**/*.md/**'],
+				plugins: {
+					unicorn,
+				},
+				rules: {
+					'unicorn/filename-case': 'error',
+				},
+			},
+		],
+	});
+	const [result] = await eslint.lintText('```js\nconst first = 1;\n```\n\n```js\nconst second = 2;\n```', {filePath: 'FooBar.md'});
+
+	t.deepEqual(result.messages, []);
 });
 
 ruleTest({
