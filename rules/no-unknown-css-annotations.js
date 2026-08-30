@@ -1,7 +1,6 @@
 import {ident, tokenize, tokenTypes} from '@eslint/css-tree';
 
 /**
-@import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
 */
 
@@ -21,9 +20,9 @@ const create = context => {
 	context.on('Declaration', declaration => {
 		const {important, property} = declaration;
 		if (
-			ident.decode(property).startsWith('--')
-			|| typeof important !== 'string'
+			typeof important !== 'string'
 			|| ident.decode(important).toLowerCase() === 'important'
+			|| ident.decode(property).startsWith('--')
 		) {
 			return;
 		}

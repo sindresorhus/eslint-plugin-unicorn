@@ -25,6 +25,6 @@ Standard CSS currently defines only the [`!important`](https://drafts.csswg.org/
 }
 ```
 
-CSS identifiers are ASCII case-insensitive and can contain escapes, so spellings such as `!IMPORTANT` and `!\69mportant` are also allowed.
+The `important` keyword is ASCII case-insensitive, and CSS identifiers can contain escapes, so spellings such as `!IMPORTANT` and `!\69mportant` are also allowed.
 
 Custom properties are intentionally ignored because their values are opaque and can validly end in `!identifier`.

@@ -17,7 +17,7 @@ test.snapshot({
 			'a { color: red !/**/important; }',
 			'a { color: red ! /* comment */ important; }',
 			'a { content: "!imprtant"; }',
-			'a { background-image: url("!imprtant"); }',
+			'a { background-image: url(!imprtant); }',
 			'a { color: fn("!imprtant"); }',
 			'a { /* !imprtant */ color: red; }',
 			'a { --priority: red !imprtant; }',
@@ -35,6 +35,7 @@ test.snapshot({
 		'a { color: red !/**/imprtant; }',
 		'a { color: red ! /* comment */ imprtant; }',
 		'a { color: red ! /* !imprtant */ imprtant /* imprtant ! */; }',
+		'a { imprtant: imprtant !imprtant; }',
 		'a { color: red !imprtant }',
 		outdent`
 			a {
@@ -45,6 +46,7 @@ test.snapshot({
 		`,
 		'@font-face { font-family: Example !imprtant; }',
 		'@media (width > 0px) { a { color: red !imprtant; } }',
+		'a { &:hover { color: red !imprtant; } }',
 		'@keyframes fade { to { opacity: 1 !imprtant; } }',
 	].map(code => ({code, language: languages.css})),
 });
