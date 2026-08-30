@@ -116,6 +116,39 @@ test('checks filenames of non-JavaScript files', t => {
 	}
 });
 
+test('validates directoryRoots', t => {
+	const linter = new Linter({configType: 'flat'});
+
+	const verify = options => linter.verify('const value = 1;', {
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			'unicorn/filename-case': ['error', options],
+		},
+	});
+
+	for (const options of [
+		{case: 'pascalCase', directoryRoots: [42]},
+		{cases: {pascalCase: true}, directoryRoots: [42]},
+	]) {
+		t.throws(
+			() => verify(options),
+			{message: /Value 42 should match some schema in anyOf/u},
+		);
+	}
+
+	for (const options of [
+		{case: 'pascalCase', directoryRoots: [{}]},
+		{cases: {pascalCase: true}, directoryRoots: [{}]},
+	]) {
+		t.throws(
+			() => verify(options),
+			{message: /only accepts strings and regular expressions/u},
+		);
+	}
+});
+
 ruleTest({
 	valid: [
 		testCase('src/foo/bar.js', 'camelCase'),
@@ -394,6 +427,30 @@ ruleTest({
 		]),
 		testCaseWithOptions('src/FooBar/file.js', undefined, [
 			{case: 'kebabCase', checkDirectories: false},
+		]),
+		testCaseWithOptions('app/javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['app/javascript']},
+		]),
+		testCaseWithOptions('app/javascript/Pages/Foo.vue', undefined, [
+			{cases: {pascalCase: true}, directoryRoots: ['app/javascript']},
+		]),
+		testCaseWithOptions('app/javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: [/^app(?:\/javascript)?$/gu]},
+		]),
+		testCaseWithOptions('packages/foo/src/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['app/javascript', 'packages/foo/src']},
+		]),
+		testCaseWithOptions('legacy/app/javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['legacy', 'legacy/app/javascript']},
+		]),
+		testCaseWithOptions('app/Javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['app']},
+		]),
+		testCaseWithOptions('app/javascript/pages/Foo.vue', undefined, [
+			{case: 'pascalCase', checkDirectories: false, directoryRoots: ['app/javascript']},
+		]),
+		testCaseWithOptions('app/javascript/pages/badly-named.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['app/javascript'], ignore: ['^app$']},
 		]),
 		testCaseWithOptions('src/meta/BadName.js', undefined, [
 			{case: 'kebabCase', ignore: [/^meta$/u]},
@@ -677,6 +734,26 @@ ruleTest({
 					checkDirectories: false,
 				},
 			],
+		),
+		testCaseWithOptions(
+			'app/javascript/pages/Foo.vue',
+			'Directory name `pages` is not in pascal case. Rename it to `Pages`.',
+			[{case: 'pascalCase', directoryRoots: ['app/javascript']}],
+		),
+		testCaseWithOptions(
+			'app/javascript/Pages/badly-named.vue',
+			'Filename is not in pascal case. Rename it to `BadlyNamed.vue`.',
+			[{case: 'pascalCase', directoryRoots: ['app/javascript']}],
+		),
+		testCaseWithOptions(
+			'app/javascript/Pages/Foo.vue',
+			'Directory name `app` is not in pascal case. Rename it to `App`.',
+			[{case: 'pascalCase', directoryRoots: ['other/root']}],
+		),
+		testCaseWithOptions(
+			'Nested/app/Pages/Foo.vue',
+			'Directory name `app` is not in pascal case. Rename it to `App`.',
+			[{case: 'pascalCase', directoryRoots: ['app']}],
 		),
 		testCase(
 			'src/FooBar/foo_bar.js',

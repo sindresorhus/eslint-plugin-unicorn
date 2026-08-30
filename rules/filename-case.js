@@ -200,6 +200,33 @@ function getPathSegments(filenameWithExtension, cwd) {
 		.filter(segment => segment !== '.');
 }
 
+function isDirectoryRoot(directoryPath, directoryRoots) {
+	return directoryRoots.some(directoryRoot => {
+		if (typeof directoryRoot === 'string') {
+			return directoryPath === directoryRoot;
+		}
+
+		const regexp = new RegExp(directoryRoot);
+		return regexp.test(directoryPath);
+	});
+}
+
+function getDirectoriesToCheck(pathSegments, directoryRoots) {
+	const directories = pathSegments.slice(0, -1);
+	let directoryPath = '';
+	let rootIndex = -1;
+
+	for (const [index, directory] of directories.entries()) {
+		directoryPath = directoryPath ? `${directoryPath}/${directory}` : directory;
+
+		if (isDirectoryRoot(directoryPath, directoryRoots)) {
+			rootIndex = index;
+		}
+	}
+
+	return directories.slice(rootIndex + 1);
+}
+
 const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
 function splitName(name) {
 	const result = leadingUnderscoresRegex.exec(name) || {groups: {}};
@@ -267,13 +294,19 @@ function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions)
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const options = context.options[0] || {};
+	const directoryRoots = options.directoryRoots || [];
+
+	if (directoryRoots.some(directoryRoot => typeof directoryRoot !== 'string' && !isRegExp(directoryRoot))) {
+		throw new TypeError('The `directoryRoots` option only accepts strings and regular expressions.');
+	}
+
 	const filenameWithExtension = context.physicalFilename;
 
 	if (isVirtualFilename(filenameWithExtension)) {
 		return;
 	}
 
-	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
 	const ignore = (options.ignore || []).map(item => {
 		if (isRegExp(item)) {
@@ -301,7 +334,7 @@ const create = context => {
 		}
 
 		if (isCheckDirectories) {
-			for (const directory of pathSegments.slice(0, -1)) {
+			for (const directory of getDirectoriesToCheck(pathSegments, directoryRoots)) {
 				const report = getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions);
 
 				if (report) {
@@ -380,6 +413,20 @@ const schema = [
 						type: 'boolean',
 						description: 'Whether to check directory names.',
 					},
+					directoryRoots: {
+						type: 'array',
+						items: {
+							anyOf: [
+								{type: 'string'},
+								{
+									type: 'object',
+									additionalProperties: false,
+								},
+							],
+						},
+						uniqueItems: true,
+						description: 'Directory root paths or patterns, relative to the current working directory.',
+					},
 				},
 				additionalProperties: false,
 			},
@@ -427,6 +474,20 @@ const schema = [
 					checkDirectories: {
 						type: 'boolean',
 						description: 'Whether to check directory names.',
+					},
+					directoryRoots: {
+						type: 'array',
+						items: {
+							anyOf: [
+								{type: 'string'},
+								{
+									type: 'object',
+									additionalProperties: false,
+								},
+							],
+						},
+						uniqueItems: true,
+						description: 'Directory root paths or patterns, relative to the current working directory.',
 					},
 				},
 				additionalProperties: false,
