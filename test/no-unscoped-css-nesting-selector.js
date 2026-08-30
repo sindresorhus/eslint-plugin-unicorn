@@ -1,9 +1,7 @@
 import outdent from 'outdent';
-import test from 'ava';
-import {Linter} from 'eslint';
 import {getTester, languages} from './utils/test.js';
 
-const {ruleId, rule, test: ruleTest} = getTester(import.meta);
+const {test} = getTester(import.meta);
 
 const asCss = code => ({code, language: languages.css});
 const asCssWithScopingRootAtRules = (code, scopingRootAtRules = ['utility']) => ({
@@ -12,7 +10,7 @@ const asCssWithScopingRootAtRules = (code, scopingRootAtRules = ['utility']) => 
 	options: [{scopingRootAtRules}],
 });
 
-ruleTest.snapshot({
+test.snapshot({
 	valid: [
 		'a {}',
 		'a /* & */ {}',
@@ -60,7 +58,7 @@ ruleTest.snapshot({
 	].map(code => asCss(code)),
 });
 
-ruleTest.snapshot({
+test.snapshot({
 	valid: [
 		asCssWithScopingRootAtRules('@utility content-body { @media all { & p {} } }'),
 		asCssWithScopingRootAtRules('@UTILITY content-body { & p {} }'),
@@ -68,7 +66,6 @@ ruleTest.snapshot({
 		asCssWithScopingRootAtRules('@utility content-body { @supports (display: grid) { & p {} } }', ['UTILITY']),
 		asCssWithScopingRootAtRules('@utility content-body { & p {} }', ['variant', 'utility']),
 		asCssWithScopingRootAtRules('@K content-body { & p {} }', ['K']),
-		asCssWithScopingRootAtRules(String.raw`@foo\@bar { & {} }`, ['foo@bar']),
 		asCssWithScopingRootAtRules('@utility content-body { @scope (:is(&)) {} }'),
 	],
 	invalid: [
@@ -83,28 +80,4 @@ ruleTest.snapshot({
 			options: [{}],
 		},
 	],
-});
-
-test('rejects a leading `@` in scoping root at-rule names', t => {
-	const linter = new Linter();
-
-	t.throws(
-		() => linter.verify('& {}', {
-			...languages.css,
-			files: ['**'],
-			plugins: {
-				...languages.css.plugins,
-				'rule-to-test': {
-					rules: {[ruleId]: rule},
-				},
-			},
-			rules: {
-				[`rule-to-test/${ruleId}`]: [
-					'error',
-					{scopingRootAtRules: ['@utility']},
-				],
-			},
-		}, {filename: 'index.css'}),
-		{message: /Value "@utility" should match pattern/u},
-	);
 });

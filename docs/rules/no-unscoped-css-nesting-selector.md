@@ -38,7 +38,7 @@ The rule is enabled by the `css/recommended` and `css/unopinionated` configs whe
 Type: `string[]`\
 Default: `[]`
 
-At-rule names that provide a scoping root. Names are specified without the leading `@` and are matched ASCII case-insensitively.
+At-rule names that provide a scoping root. Names must not contain `@` and are matched ASCII case-insensitively.
 
 The scoping root remains in effect through nested grouping at-rules such as `@media`. Recognized `@keyframes` at-rules stop the search and cannot be configured as scoping roots.
 
