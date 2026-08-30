@@ -94,7 +94,7 @@ const getMultilineRawRanges = sourceCode => {
 };
 
 const hasUnsafeMultilineSyntax = (node, sourceCode, comments, multilineRawRanges) => {
-	if (/\\(?:\r\n|[\n\f\r])/u.test(sourceCode.getText(node))) {
+	if (/\\[\n\f\r]/u.test(sourceCode.getText(node))) {
 		return true;
 	}
 
@@ -172,7 +172,7 @@ const getFix = (node, sourceCode) => fixer => {
 const create = context => {
 	const {sourceCode} = context;
 	const comments = getComments(context);
-	const multilineRawRanges = getMultilineRawRanges(sourceCode);
+	let multilineRawRanges;
 
 	context.on('Rule', node => {
 		if (!isNestingSelectorOnly(node)) {
@@ -183,6 +183,8 @@ const create = context => {
 		if (!parentStyleRule || !canFlattenInto(parentStyleRule)) {
 			return;
 		}
+
+		multilineRawRanges ??= getMultilineRawRanges(sourceCode);
 
 		return {
 			node: node.prelude,
