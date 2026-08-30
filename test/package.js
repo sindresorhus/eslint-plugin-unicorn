@@ -5,6 +5,7 @@ import test from 'ava';
 import {ESLint} from 'eslint';
 import {defineConfig} from 'eslint/config';
 import {builtinRules} from 'eslint/use-at-your-own-risk';
+import css from '@eslint/css';
 /// import * as eslintrc from '@eslint/eslintrc';
 /// import globals from 'globals';
 import coreRuleReplacements from '../configs/core-rule-replacements.js';
@@ -25,7 +26,9 @@ const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 	.filter(([, {meta: {deprecated}}]) => deprecated)
 	.map(([ruleId]) => ruleId);
 
-const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
+const isRuleForLanguage = (rule, language) => rule.meta.languages
+	? rule.meta.languages.includes(language) || rule.meta.languages.includes('*')
+	: language === 'js/js';
 
 const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
@@ -36,7 +39,10 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
 		t.truthy(eslintPluginUnicorn.rules[name], `'${name}' is not exported in 'index.js'`);
-		if (!deprecatedRules.includes(name)) {
+		if (
+			!deprecatedRules.includes(name)
+			&& isRuleForLanguage(eslintPluginUnicorn.rules[name], 'js/js')
+		) {
 			t.truthy(
 				eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`],
 				`'${name}' is not set in the recommended config`,
@@ -57,17 +63,17 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	);
 	t.is(
 		Object.keys(eslintPluginUnicorn.configs.recommended.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.recommended),
-		ruleFiles.length - deprecatedRules.length,
+		ruleFiles.filter(file => isRuleForLanguage(eslintPluginUnicorn.rules[path.basename(file, '.js')], 'js/js')).length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.',
 	);
 	t.is(
 		Object.keys(eslintPluginUnicorn.configs.unopinionated.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.unopinionated),
-		ruleFiles.length - deprecatedRules.length,
+		ruleFiles.filter(file => isRuleForLanguage(eslintPluginUnicorn.rules[path.basename(file, '.js')], 'js/js')).length - deprecatedRules.length,
 		'There are more exported rules in the unopinionated config than rule files.',
 	);
 	t.is(
 		Object.keys(eslintPluginUnicorn.configs.all.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.all),
-		ruleFiles.filter(file => isJavaScriptRule(eslintPluginUnicorn.rules[path.basename(file, '.js')])).length - deprecatedRules.length,
+		ruleFiles.filter(file => isRuleForLanguage(eslintPluginUnicorn.rules[path.basename(file, '.js')], 'js/js')).length - deprecatedRules.length,
 		'There are more rules than those exported in the all config.',
 	);
 });
@@ -96,8 +102,8 @@ test('core rule replacements are disabled only when the Unicorn replacement is e
 	}
 });
 
-test('validate configuration', async t => {
-	const results = await Promise.all(Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
+test('validate JavaScript configuration', async t => {
+	const results = await Promise.all(Object.entries(eslintPluginUnicorn.configs).filter(([name]) => !name.startsWith('css/')).map(async ([name, config]) => {
 		const eslint = new ESLint({
 			baseConfig: config,
 			overrideConfigFile: true,
@@ -114,6 +120,29 @@ test('validate configuration', async t => {
 			Object.keys(config.rules),
 			`Configuration for "${name}" is invalid.`,
 		);
+	}
+});
+
+test('validate CSS configuration', async t => {
+	const languageConfig = {
+		files: ['**/*.css'],
+		language: 'css/css',
+		plugins: {css},
+	};
+
+	const cssConfigs = Object.entries(eslintPluginUnicorn.configs).filter(([name]) => name.startsWith('css/'));
+	const results = await Promise.all(cssConfigs.map(async ([name, config]) => {
+		const eslint = new ESLint({
+			baseConfig: [languageConfig, config],
+			overrideConfigFile: true,
+		});
+
+		const result = await eslint.calculateConfigForFile('dummy.css');
+		return {name, config, result};
+	}));
+
+	for (const {name, config, result} of results) {
+		t.deepEqual(Object.keys(result.rules), Object.keys(config.rules), `Configuration for "${name}" is invalid.`);
 	}
 });
 
@@ -265,15 +294,16 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 
 		const {recommended} = rule.meta.docs;
 		t.true(typeof recommended === 'boolean' || recommended === 'unopinionated', `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
+		const configPrefix = isRuleForLanguage(rule, 'js/js') ? '' : 'css/';
 
-		const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
+		const recommendedSeverity = eslintPluginUnicorn.configs[`${configPrefix}recommended`].rules[`unicorn/${name}`];
 		if (recommended) {
 			t.is(recommendedSeverity, 'error', `'${name}' rule should set to 'error'.`);
 		} else {
 			t.is(recommendedSeverity, 'off', `'${name}' rule should set to 'off'.`);
 		}
 
-		const unopinionatedSeverity = eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${name}`];
+		const unopinionatedSeverity = eslintPluginUnicorn.configs[`${configPrefix}unopinionated`].rules[`unicorn/${name}`];
 		if (recommended === 'unopinionated') {
 			t.is(unopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the unopinionated config.`);
 		} else {

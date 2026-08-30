@@ -73,6 +73,7 @@ export {default as 'no-constant-zero-expression'} from './no-constant-zero-expre
 export {default as 'no-declarations-before-early-exit'} from './no-declarations-before-early-exit.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
 export {default as 'no-double-comparison'} from './no-double-comparison.js';
+export {default as 'no-duplicate-css-selectors'} from './no-duplicate-css-selectors.js';
 export {default as 'no-duplicate-font-family-names'} from './no-duplicate-font-family-names.js';
 export {default as 'no-duplicate-if-branches'} from './no-duplicate-if-branches.js';
 export {default as 'no-duplicate-logical-operands'} from './no-duplicate-logical-operands.js';
