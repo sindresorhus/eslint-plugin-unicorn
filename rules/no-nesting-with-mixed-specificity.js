@@ -34,6 +34,7 @@ const LEGACY_PSEUDO_ELEMENTS = new Set([
 ]);
 const NAMED_VIEW_TRANSITION_PSEUDO_ELEMENTS = new Set([
 	'view-transition-group',
+	'view-transition-group-children',
 	'view-transition-image-pair',
 	'view-transition-new',
 	'view-transition-old',
