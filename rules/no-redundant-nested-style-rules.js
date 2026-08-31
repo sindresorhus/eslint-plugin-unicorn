@@ -265,7 +265,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow nested style rules that do not modify the parent selector.',
-			recommended: 'unopinionated',
+			recommended: false,
 		},
 		fixable: 'code',
 		messages,
