@@ -164,6 +164,7 @@ export default defineConfig([
 | [no-declarations-before-early-exit](docs/rules/no-declarations-before-early-exit.md)                       | Disallow declarations before conditional early exits when they are only used after the exit.                                   | ✅ ☑️ | 🔧 |    |    |
 | [no-document-cookie](docs/rules/no-document-cookie.md)                                                     | Do not use `document.cookie` directly.                                                                                         | ✅ ☑️ |    |    |    |
 | [no-double-comparison](docs/rules/no-double-comparison.md)                                                 | Disallow two comparisons of the same operands that can be combined into one.                                                   | ✅ ☑️ |    | 💡 |    |
+| [no-duplicate-font-family-names](docs/rules/no-duplicate-font-family-names.md)                             | Disallow duplicate font family names.                                                                                          |      | 🔧 |    |    |
 | [no-duplicate-if-branches](docs/rules/no-duplicate-if-branches.md)                                         | Disallow duplicate adjacent branches in if chains.                                                                             | ✅    |    |    |    |
 | [no-duplicate-logical-operands](docs/rules/no-duplicate-logical-operands.md)                               | Disallow adjacent duplicate operands in logical expressions.                                                                   | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-duplicate-loops](docs/rules/no-duplicate-loops.md)                                                     | Disallow `.map()` and `.filter()` in `for…of` and `for await…of` loop headers.                                                 | ✅    |    |    |    |
@@ -526,6 +527,7 @@ These rules also work on specific non-JavaScript languages:
 | Name | CSS | HTML | JSON | Markdown | YAML |
 | :-- | :-: | :-: | :-: | :-: | :-: |
 | [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |  |
