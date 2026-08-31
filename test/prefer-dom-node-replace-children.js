@@ -1,8 +1,11 @@
 import outdent from 'outdent';
+import test from 'ava';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: testRule} = getTester(import.meta);
 
 const typeAware = code => ({
 	code,
@@ -21,10 +24,27 @@ const typescript = code => ({
 const error = {
 	messageId: 'prefer-dom-node-replace-children',
 };
+const replaceAndAddError = {
+	messageId: 'prefer-dom-node-replace-children/replace-and-add',
+};
+const replaceAndAddSuggestion = {
+	messageId: 'prefer-dom-node-replace-children/replace-and-add-suggestion',
+};
 
-test({
+testRule({
 	valid: [
 		'element.replaceChildren();',
+		'element.replaceChildren(child); element.append(otherChild);',
+		'element.replaceChildren(); otherElement.append(child);',
+		'element.replaceChildren(); doSomething(); element.append(child);',
+		'element.replaceChildren(); element.append();',
+		'element.replaceChildren?.(); element.append(child);',
+		'element?.replaceChildren(); element.append(child);',
+		'element.replaceChildren(); element.append?.(child);',
+		'element.replaceChildren(); element[method](child);',
+		'const result = element.replaceChildren(); element.append(child);',
+		'element.replaceChildren(); const result = element.append(child);',
+		typeAware('function foo(value: string) { value.replaceChildren(); value.append(child); }'),
 		'element.innerHTML = html;',
 		'element.innerHTML = "<p>content</p>";',
 		'element.innerHTML = null;',
@@ -125,6 +145,140 @@ document.createElement(options.tagName).innerHTML = '';`,
 		typeAware('function foo(node: {innerHTML: string; replaceChildren(value: string): void}) { node.innerHTML = ""; }'),
 	],
 	invalid: [
+		{
+			code: 'element.replaceChildren(); element.append(child);',
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'element.replaceChildren(child);',
+				}],
+			}],
+		},
+		{
+			code: 'element.replaceChildren(); element.prepend("first", "second");',
+			errors: [replaceAndAddError],
+			output: 'element.replaceChildren("first", "second");',
+		},
+		{
+			code: 'this.replaceChildren();\nthis.append("text");',
+			errors: [replaceAndAddError],
+			output: 'this.replaceChildren("text");',
+		},
+		{
+			code: outdent`
+				element.replaceChildren()
+				element.append(
+					"first",
+					/* Keep this comment. */ "second",
+				)
+			`,
+			errors: [replaceAndAddError],
+			output: outdent`
+				element.replaceChildren(
+					"first",
+					/* Keep this comment. */ "second",
+				)
+			`,
+		},
+		{
+			code: outdent`
+				element.replaceChildren();
+				// Keep this comment.
+				element.append("text");
+			`,
+			errors: [replaceAndAddError],
+			output: outdent`
+				// Keep this comment.
+				element.replaceChildren("text");
+			`,
+		},
+		{
+			code: 'element.innerHTML = ""; element.append("text");',
+			errors: [error],
+			output: 'element.replaceChildren(); element.append("text");',
+		},
+		{
+			...typescript('(element as Element).replaceChildren(); (element as Element).append("text" as const);'),
+			errors: [replaceAndAddError],
+			output: '(element as Element).replaceChildren("text" as const);',
+		},
+		{
+			code: 'element.replaceChildren(); element.append(`text`);',
+			errors: [replaceAndAddError],
+			output: 'element.replaceChildren(`text`);',
+		},
+		{
+			code: 'element.replaceChildren(); element.append(`${value}`);', // eslint-disable-line no-template-curly-in-string
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'element.replaceChildren(`${value}`);', // eslint-disable-line no-template-curly-in-string
+				}],
+			}],
+		},
+		{
+			code: 'element.replaceChildren(); element.append(createChild());',
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'element.replaceChildren(createChild());',
+				}],
+			}],
+		},
+		{
+			code: 'parent.element.replaceChildren(); parent.element.append("text");',
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'parent.element.replaceChildren("text");',
+				}],
+			}],
+		},
+		{
+			code: 'element.replaceChildren(); element.append(...children);',
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'element.replaceChildren(...children);',
+				}],
+			}],
+		},
+		{
+			code: 'element.replaceChildren(); element.append(element);',
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'element.replaceChildren(element);',
+				}],
+			}],
+		},
+		{
+			code: outdent`
+				const child = {[Symbol.toPrimitive]() { return "text"; }};
+				element.replaceChildren();
+				element.append(child);
+			`,
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: outdent`
+						const child = {[Symbol.toPrimitive]() { return "text"; }};
+						element.replaceChildren(child);
+					`,
+				}],
+			}],
+		},
+		{
+			code: 'element.replaceChildren(/* Keep this comment. */); element.append(child);',
+			errors: [replaceAndAddError],
+		},
 		{
 			code: 'element.innerHTML = "";',
 			errors: [error],
@@ -362,4 +516,19 @@ document.createElement(options.tagName).innerHTML = '';`,
 			errors: [error],
 		},
 	],
+});
+
+test('combines normalized calls across fixing passes', t => {
+	const code = 'element.innerHTML = ""; element.append("text");';
+	const ruleId = 'unicorn/prefer-dom-node-replace-children';
+	const config = {
+		plugins: {unicorn},
+		rules: {[ruleId]: 'error'},
+	};
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, config);
+
+	t.true(result.fixed);
+	t.is(result.output, 'element.replaceChildren("text");');
+	t.deepEqual(result.messages, []);
 });
