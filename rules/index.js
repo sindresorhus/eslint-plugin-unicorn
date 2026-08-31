@@ -255,6 +255,7 @@ export {default as 'prefer-math-abs'} from './prefer-math-abs.js';
 export {default as 'prefer-math-constants'} from './prefer-math-constants.js';
 export {default as 'prefer-math-min-max'} from './prefer-math-min-max.js';
 export {default as 'prefer-math-trunc'} from './prefer-math-trunc.js';
+export {default as 'prefer-media-feature-range-syntax'} from './prefer-media-feature-range-syntax.js';
 export {default as 'prefer-minimal-ternary'} from './prefer-minimal-ternary.js';
 export {default as 'prefer-modern-dom-apis'} from './prefer-modern-dom-apis.js';
 export {default as 'prefer-modern-math-apis'} from './prefer-modern-math-apis.js';
