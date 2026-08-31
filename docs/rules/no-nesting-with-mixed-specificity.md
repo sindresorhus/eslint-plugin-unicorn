@@ -46,6 +46,6 @@ Selector lists whose entries have equal specificity are allowed:
 
 Equalizing the parent selectors' specificity is therefore another possible remediation.
 
-The rule calculates effective specificity according to the CSS selector rules, including the special behavior of `:is()`, `:not()`, `:has()`, `:where()`, `:nth-child()`, `:nth-last-child()`, `:host()`, and `:host-context()`. Parent selector branches that directly target pseudo-elements do not participate because `&` cannot represent pseudo-elements. Contextual validity inside functional pseudo-class arguments is not analyzed. Nesting through `@media`, `@supports`, `@container`, and `@layer` remains associated with the nearest parent style rule. An `@scope` rule establishes a boundary instead. The current `@eslint/css` parser exposes the contents of `@supports`, `@container`, and `@scope` as raw text when the at-rule is itself nested inside a style rule, so those cases will be checked once the parser exposes their nested AST nodes.
+The rule follows CSS specificity rules, ignores direct pseudo-element branches because `&` cannot represent them, and carries nesting through `@media`, `@supports`, `@container`, and `@layer`. `@scope` and other at-rules are boundaries. Contextual validity inside functional pseudo-classes is not analyzed, and nested `@supports` or `@container` rules cannot be checked while `@eslint/css` exposes their contents as raw text.
 
 This rule has no fixer because splitting or changing selectors requires knowledge of the intended document structure and cascade.
