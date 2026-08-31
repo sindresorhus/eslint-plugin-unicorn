@@ -123,6 +123,11 @@ test({
 	valid: [],
 	invalid: [
 		{
+			code: 'a:is(.foo, #bar) { & { color: red; } }',
+			output: 'a:is(.foo, #bar) { color: red; }',
+			errors: 1,
+		},
+		{
 			code: 'a::before { @media (width > 0px) { b { & { color: red; } } } }',
 			output: 'a::before { @media (width > 0px) { b { color: red; } } }',
 			errors: 1,
