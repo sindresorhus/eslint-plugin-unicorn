@@ -2,7 +2,6 @@ import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
 /// import process from 'node:process';
 import test from 'ava';
-import css from '@eslint/css';
 import {ESLint} from 'eslint';
 import {defineConfig} from 'eslint/config';
 import {builtinRules} from 'eslint/use-at-your-own-risk';
@@ -27,7 +26,6 @@ const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 	.map(([ruleId]) => ruleId);
 
 const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
-const isCSSRule = rule => !rule.meta.languages || rule.meta.languages.includes('css/css') || rule.meta.languages.includes('*');
 
 const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
@@ -100,20 +98,12 @@ test('core rule replacements are disabled only when the Unicorn replacement is e
 
 test('validate configuration', async t => {
 	const results = await Promise.all(Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
-		const isCSSConfig = name.startsWith('css/');
 		const eslint = new ESLint({
-			baseConfig: isCSSConfig
-				? defineConfig({
-					files: ['**/*.css'],
-					plugins: {css},
-					language: 'css/css',
-					extends: [config],
-				})
-				: config,
+			baseConfig: config,
 			overrideConfigFile: true,
 		});
 
-		const result = await eslint.calculateConfigForFile(isCSSConfig ? 'dummy.css' : 'dummy.js');
+		const result = await eslint.calculateConfigForFile('dummy.js');
 
 		return {name, config, result};
 	}));
@@ -143,26 +133,6 @@ test('recommended config works with defineConfig', async t => {
 
 	const [result] = await eslint.lintText('[1, 2, 3].indexOf(2) !== -1;', {filePath: 'file.js'});
 	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
-});
-
-test('CSS unopinionated config works with defineConfig', async t => {
-	const eslint = new ESLint({
-		baseConfig: defineConfig({
-			files: ['**/*.css'],
-			plugins: {
-				css,
-				unicorn: eslintPluginUnicorn,
-			},
-			language: 'css/css',
-			extends: [
-				'unicorn/css/unopinionated',
-			],
-		}),
-		overrideConfigFile: true,
-	});
-
-	const [result] = await eslint.lintText('.foo { font-family: Arial, arial; }', {filePath: 'file.css'});
-	t.true(result.messages.some(message => message.ruleId === 'unicorn/no-duplicate-font-family-names'));
 });
 
 test('Every rule has valid meta.type', t => {
@@ -297,42 +267,17 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 		t.true(typeof recommended === 'boolean' || recommended === 'unopinionated', `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
 
 		const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
-		if (recommended && isJavaScriptRule(rule)) {
+		if (recommended) {
 			t.is(recommendedSeverity, 'error', `'${name}' rule should set to 'error'.`);
 		} else {
 			t.is(recommendedSeverity, 'off', `'${name}' rule should set to 'off'.`);
 		}
 
 		const unopinionatedSeverity = eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${name}`];
-		if (recommended === 'unopinionated' && isJavaScriptRule(rule)) {
+		if (recommended === 'unopinionated') {
 			t.is(unopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the unopinionated config.`);
 		} else {
 			t.is(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);
-		}
-
-		const cssRecommendedSeverity = eslintPluginUnicorn.configs['css/recommended'].rules[`unicorn/${name}`];
-		if (recommended && isCSSRule(rule)) {
-			t.is(cssRecommendedSeverity, 'error', `'${name}' rule should set to 'error' in the CSS recommended config.`);
-		} else if (isCSSRule(rule)) {
-			t.is(cssRecommendedSeverity, 'off', `'${name}' rule should set to 'off' in the CSS recommended config.`);
-		} else {
-			t.is(cssRecommendedSeverity, undefined, `'${name}' rule should not be in the CSS recommended config.`);
-		}
-
-		const cssUnopinionatedSeverity = eslintPluginUnicorn.configs['css/unopinionated'].rules[`unicorn/${name}`];
-		if (recommended === 'unopinionated' && isCSSRule(rule)) {
-			t.is(cssUnopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the CSS unopinionated config.`);
-		} else if (isCSSRule(rule)) {
-			t.is(cssUnopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the CSS unopinionated config.`);
-		} else {
-			t.is(cssUnopinionatedSeverity, undefined, `'${name}' rule should not be in the CSS unopinionated config.`);
-		}
-
-		const cssAllSeverity = eslintPluginUnicorn.configs['css/all'].rules[`unicorn/${name}`];
-		if (isCSSRule(rule)) {
-			t.is(cssAllSeverity, 'error', `'${name}' rule should set to 'error' in the CSS all config.`);
-		} else {
-			t.is(cssAllSeverity, undefined, `'${name}' rule should not be in the CSS all config.`);
 		}
 	}
 });

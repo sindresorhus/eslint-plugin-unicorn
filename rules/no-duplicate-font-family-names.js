@@ -219,7 +219,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow duplicate font family names.',
-			recommended: 'unopinionated',
+			recommended: false,
 		},
 		fixable: 'code',
 		schema: [],
