@@ -230,6 +230,7 @@ export default defineConfig([
 | [no-typeof-undefined](docs/rules/no-typeof-undefined.md)                                                   | Disallow comparing `undefined` using `typeof`.                                                                                 | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-uncalled-method](docs/rules/no-uncalled-method.md)                                                     | Disallow referencing methods without calling them.                                                                             | ✅    |    |    |    |
 | [no-undeclared-class-members](docs/rules/no-undeclared-class-members.md)                                   | Require class members to be declared.                                                                                          | ✅    |    | 💡 |    |
+| [no-unknown-css-annotations](docs/rules/no-unknown-css-annotations.md)                                     | Disallow unknown and noncanonical CSS annotations.                                                                             |      |    | 💡 |    |
 | [no-unnecessary-array-flat-depth](docs/rules/no-unnecessary-array-flat-depth.md)                           | Disallow using `1` as the `depth` argument of `Array#flat()`.                                                                  | ✅ ☑️ | 🔧 |    |    |
 | [no-unnecessary-array-flat-map](docs/rules/no-unnecessary-array-flat-map.md)                               | Disallow `Array#flatMap()` callbacks that only wrap a single item.                                                             | ✅    | 🔧 | 💡 |    |
 | [no-unnecessary-array-splice-count](docs/rules/no-unnecessary-array-splice-count.md)                       | Disallow using `.length` or `Infinity` as the `deleteCount` or `skipCount` argument of `Array#{splice,toSpliced}()`.           | ✅ ☑️ | 🔧 |    |    |
@@ -539,6 +540,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-redundant-nested-style-rules`](docs/rules/no-redundant-nested-style-rules.md) | ✅ |  |  |  |  |
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |  |
 | [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |  |
+| [`no-unknown-css-annotations`](docs/rules/no-unknown-css-annotations.md) | ✅ |  |  |  |  |
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |
 | [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |
