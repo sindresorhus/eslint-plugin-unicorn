@@ -162,7 +162,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow duplicate CSS selectors.',
-			recommended: 'unopinionated',
+			recommended: false,
 		},
 		fixable: 'code',
 		schema: [],

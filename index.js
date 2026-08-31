@@ -48,34 +48,28 @@ const getExternalRules = rules => Object.fromEntries(
 		.map(ruleName => [ruleName, 'off']),
 );
 
-const isRuleForLanguage = (rule, language) => rule.meta.languages
-	? rule.meta.languages.includes(language) || rule.meta.languages.includes('*')
-	: language === 'js/js';
+const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
 
-const getPresetRules = (language, isEnabled) => Object.fromEntries(
-	Object.entries(rules)
-		.filter(([, rule]) => isRuleForLanguage(rule, language))
-		.map(([id, rule]) => [
-			`unicorn/${id}`,
-			isEnabled(rule) ? 'error' : 'off',
-		]),
-);
+const recommendedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
+	`unicorn/${id}`,
+	rule.meta.docs.recommended ? 'error' : 'off',
+]));
 
-const getAllRules = language => getPresetRules(language, () => true);
-
-const getRecommendedRules = language => getPresetRules(language, rule => rule.meta.docs.recommended);
-const getUnopinionatedRules = language => getPresetRules(language, rule => rule.meta.docs.recommended === 'unopinionated');
-
-const recommendedRules = getRecommendedRules('js/js');
-const unopinionatedRules = getUnopinionatedRules('js/js');
+const unopinionatedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
+	`unicorn/${id}`,
+	rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
+]));
 
 // TODO: Enable `prefer-iterator-concat` in the recommended and unopinionated configs when targeting Node.js 26.
 
-const allRules = getAllRules('js/js');
-
-const recommendedCssRules = getRecommendedRules('css/css');
-const unopinionatedCssRules = getUnopinionatedRules('css/css');
-const allCssRules = getAllRules('css/css');
+const allRules = Object.fromEntries(
+	Object.entries(rules)
+		.filter(([, rule]) => isJavaScriptRule(rule))
+		.map(([id]) => [
+			`unicorn/${id}`,
+			'error',
+		]),
+);
 
 const createConfig = (rules, flatConfigName) => ({
 	...flatConfigBase,
@@ -87,15 +81,6 @@ const createConfig = (rules, flatConfigName) => ({
 		...getExternalRules(rules),
 		...rules,
 	},
-});
-
-const createCssConfig = (rules, flatConfigName) => ({
-	files: ['**/*.css'],
-	name: flatConfigName,
-	plugins: {
-		unicorn,
-	},
-	rules,
 });
 
 const unicorn = {
@@ -113,9 +98,6 @@ const configs = {
 	recommended: createConfig(recommendedRules, 'unicorn/recommended'),
 	unopinionated: createConfig(unopinionatedRules, 'unicorn/unopinionated'),
 	all: createConfig(allRules, 'unicorn/all'),
-	'css/recommended': createCssConfig(recommendedCssRules, 'unicorn/css/recommended'),
-	'css/unopinionated': createCssConfig(unopinionatedCssRules, 'unicorn/css/unopinionated'),
-	'css/all': createCssConfig(allCssRules, 'unicorn/css/all'),
 
 	// TODO: Remove this at some point. Kept for now to avoid breaking users.
 	'flat/recommended': createConfig(recommendedRules, 'unicorn/flat/recommended'),

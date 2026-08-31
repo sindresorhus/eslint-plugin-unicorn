@@ -2,7 +2,7 @@
 
 📝 Disallow duplicate CSS selectors.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): 🎨 `css/recommended`, 🖌️ `css/unopinionated`.
+🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -92,27 +92,4 @@ The rule compares complete selector lists in their original order. It does not r
 .parent {
 	& .child {}
 }
-```
-
-## CSS files
-
-Enable it for CSS files with [`@eslint/css`](https://github.com/eslint/css):
-
-```js
-import css from '@eslint/css';
-import {defineConfig} from 'eslint/config';
-import unicorn from 'eslint-plugin-unicorn';
-
-export default defineConfig([
-	{
-		files: ['**/*.css'],
-		plugins: {
-			css,
-		},
-		language: 'css/css',
-		extends: [
-			unicorn.configs['css/recommended'],
-		],
-	},
-]);
 ```
