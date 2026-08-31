@@ -184,6 +184,7 @@ export default defineConfig([
 | [no-invalid-character-comparison](docs/rules/no-invalid-character-comparison.md)                           | Disallow comparing a single character from a string to a multi-character string.                                               | ✅ ☑️ |    |    |    |
 | [no-invalid-fetch-options](docs/rules/no-invalid-fetch-options.md)                                         | Disallow invalid options in `fetch()` and `new Request()`.                                                                     | ✅ ☑️ |    |    |    |
 | [no-invalid-file-input-accept](docs/rules/no-invalid-file-input-accept.md)                                 | Disallow invalid `accept` values on file inputs.                                                                               |      | 🔧 |    |    |
+| [no-invalid-media-features](docs/rules/no-invalid-media-features.md)                                       | Disallow unknown media features and invalid values for known media features.                                                   |      |    |    |    |
 | [no-invalid-remove-event-listener](docs/rules/no-invalid-remove-event-listener.md)                         | Prevent calling `EventTarget#removeEventListener()` with the result of an expression.                                          | ✅ ☑️ |    |    |    |
 | [no-invalid-well-known-symbol-methods](docs/rules/no-invalid-well-known-symbol-methods.md)                 | Disallow invalid implementations of well-known symbol methods.                                                                 | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-keyword-prefix](docs/rules/no-keyword-prefix.md)                                                       | Disallow identifiers starting with `new` or `class`.                                                                           |      |    |    |    |
@@ -534,6 +535,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |
+| [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |  |
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |  |
 | [`no-nesting-with-mixed-specificity`](docs/rules/no-nesting-with-mixed-specificity.md) | ✅ |  |  |  |  |
