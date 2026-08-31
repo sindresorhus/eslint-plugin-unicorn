@@ -15,7 +15,7 @@ Use [`.replaceChildren()`](https://dom.spec.whatwg.org/#dom-parentnode-replacech
 
 This rule reports empty `.innerHTML` assignments, simple `.removeChild()` loops, and an empty `.replaceChildren()` call immediately followed by `.append()` or `.prepend()` on the same node.
 
-Combining the calls performs one DOM replacement instead of separate removal and insertion operations. Arguments whose evaluation or DOM string conversion cannot be proven safe are offered as a suggestion because `.replaceChildren()` evaluates and converts them before removing the existing children.
+Combining the calls performs one DOM replacement instead of separate removal and insertion operations. Cases whose argument evaluation, DOM conversion, or insertion validation cannot be proven safe are offered as a suggestion because `.replaceChildren()` performs those steps before removing the existing children.
 
 It ignores HTML template elements because `template.innerHTML = ''` clears template content, while `template.replaceChildren()` clears direct children.
 

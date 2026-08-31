@@ -22,6 +22,7 @@ import {
 	wouldRemoveComments,
 	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
+import {createTypeCheckers} from './utils/type-helpers.js';
 
 const MESSAGE_ID = 'prefer-dom-node-replace-children';
 const REPLACE_AND_ADD_MESSAGE_ID = 'prefer-dom-node-replace-children/replace-and-add';
@@ -140,6 +141,17 @@ const isGlobalDocument = (node, context, visitedVariables = new Set()) => {
 		&& globalObjectNames.has(node.object.name)
 		&& isGlobalIdentifier(node.object, context);
 };
+
+const {isTarget: isDocumentReceiver} = createTypeCheckers({
+	checkClassSyntax: true,
+	treatMixedUnionAsTarget: true,
+	targetTypeNames: new Set([
+		'Document',
+		'HTMLDocument',
+		'XMLDocument',
+	]),
+	isTargetNode: isGlobalDocument,
+});
 
 const isUnknownOrHtmlNamespace = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
@@ -346,16 +358,29 @@ const getRemoveChildLoopProblem = (context, node) => {
 	};
 };
 
-const removeStatementBefore = (statement, nextStatement, context, fixer) => {
+function * removeStatementBefore(statement, nextStatement, context, fixer) {
 	const {sourceCode} = context;
 	const [statementStart, statementEnd] = sourceCode.getRange(statement);
 	const [nextStatementStart] = sourceCode.getRange(nextStatement);
 	const separator = sourceCode.text.slice(statementEnd, nextStatementStart);
+	const shouldAddSemicolon = needsSemicolon(
+		sourceCode.getTokenBefore(statement),
+		context,
+		sourceCode.getText(nextStatement),
+	);
 
-	return /^\s*$/.test(separator)
-		? fixer.removeRange([statementStart, nextStatementStart])
-		: removeStatement(statement, context, fixer);
-};
+	if (/^\s*$/.test(separator)) {
+		yield shouldAddSemicolon
+			? fixer.replaceTextRange([statementStart, nextStatementStart], ';')
+			: fixer.removeRange([statementStart, nextStatementStart]);
+		return;
+	}
+
+	yield removeStatement(statement, context, fixer);
+	if (shouldAddSemicolon) {
+		yield fixer.insertTextBefore(nextStatement, ';');
+	}
+}
 
 const getReplaceAndAddProblem = (context, node) => {
 	if (
@@ -400,12 +425,15 @@ const getReplaceAndAddProblem = (context, node) => {
 		return problem;
 	}
 
-	const createFix = fixer => [
-		removeStatementBefore(node.parent, nextStatement, context, fixer),
-		fixer.replaceText(addCall.callee.property, 'replaceChildren'),
-	];
+	const createFix = function * (fixer) {
+		yield removeStatementBefore(node.parent, nextStatement, context, fixer);
+
+		yield fixer.replaceText(addCall.callee.property, 'replaceChildren');
+	};
+
 	const hasUnsafeEvaluation = (
 		hasSideEffect(parentNode, context.sourceCode, receiverSideEffectOptions)
+		|| isDocumentReceiver(parentNode, context)
 		|| addCall.arguments.some(argument =>
 			argument.type === 'SpreadElement'
 			|| !isSafeReplaceChildrenArgument(argument))

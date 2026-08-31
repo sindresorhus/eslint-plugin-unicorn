@@ -194,6 +194,30 @@ document.createElement(options.tagName).innerHTML = '';`,
 			`,
 		},
 		{
+			code: outdent`
+				const value = foo
+				element.replaceChildren();
+				(element).append("text");
+			`,
+			errors: [replaceAndAddError],
+			output: outdent`
+				const value = foo
+				;(element).replaceChildren("text");
+			`,
+		},
+		{
+			...typescript(outdent`
+				const value = foo
+				element.replaceChildren();
+				(element as Element).append("text");
+			`),
+			errors: [replaceAndAddError],
+			output: outdent`
+				const value = foo
+				;(element as Element).replaceChildren("text");
+			`,
+		},
+		{
 			code: 'element.innerHTML = ""; element.append("text");',
 			errors: [error],
 			output: 'element.replaceChildren(); element.append("text");',
@@ -237,6 +261,61 @@ document.createElement(options.tagName).innerHTML = '';`,
 					output: 'parent.element.replaceChildren("text");',
 				}],
 			}],
+		},
+		{
+			code: 'document.replaceChildren(); document.append("text");',
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'document.replaceChildren("text");',
+				}],
+			}],
+		},
+		{
+			...typescript('function foo(node: Document) { node.replaceChildren(); node.append("text"); }'),
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'function foo(node: Document) { node.replaceChildren("text"); }',
+				}],
+			}],
+		},
+		{
+			...typeAware('function foo(node: Element | Document) { node.replaceChildren(); node.append("text"); }'),
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'function foo(node: Element | Document) { node.replaceChildren("text"); }',
+				}],
+			}],
+		},
+		{
+			...typescript('function foo(node: XMLDocument) { node.replaceChildren(); node.append("text"); }'),
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'function foo(node: XMLDocument) { node.replaceChildren("text"); }',
+				}],
+			}],
+		},
+		{
+			...typescript('function foo(node: Element | XMLDocument) { node.replaceChildren(); node.append("text"); }'),
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'function foo(node: Element | XMLDocument) { node.replaceChildren("text"); }',
+				}],
+			}],
+		},
+		{
+			...typeAware('function foo(node: DocumentFragment) { node.replaceChildren(); node.append("text"); }'),
+			errors: [replaceAndAddError],
+			output: 'function foo(node: DocumentFragment) { node.replaceChildren("text"); }',
 		},
 		{
 			code: 'element.replaceChildren(); element.append(...children);',
