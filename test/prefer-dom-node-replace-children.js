@@ -218,6 +218,25 @@ document.createElement(options.tagName).innerHTML = '';`,
 			`,
 		},
 		{
+			code: outdent`
+				const value = foo
+				element.replaceChildren();
+				// Keep this comment.
+				(element).append(child);
+			`,
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: outdent`
+						const value = foo
+						// Keep this comment.
+						;(element).replaceChildren(child);
+					`,
+				}],
+			}],
+		},
+		{
 			code: 'element.innerHTML = ""; element.append("text");',
 			errors: [error],
 			output: 'element.replaceChildren(); element.append("text");',
@@ -283,7 +302,7 @@ document.createElement(options.tagName).innerHTML = '';`,
 			}],
 		},
 		{
-			...typeAware('function foo(node: Element | Document) { node.replaceChildren(); node.append("text"); }'),
+			...typescript('function foo(node: Element | Document) { node.replaceChildren(); node.append("text"); }'),
 			errors: [{
 				...replaceAndAddError,
 				suggestions: [{
@@ -313,9 +332,24 @@ document.createElement(options.tagName).innerHTML = '';`,
 			}],
 		},
 		{
-			...typeAware('function foo(node: DocumentFragment) { node.replaceChildren(); node.append("text"); }'),
+			...typescript('function foo(node: DocumentFragment) { node.replaceChildren(); node.append("text"); }'),
 			errors: [replaceAndAddError],
 			output: 'function foo(node: DocumentFragment) { node.replaceChildren("text"); }',
+		},
+		{
+			...typeAware('declare function getNode(): Document; const node = getNode(); node.replaceChildren(); node.append("text");'),
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'declare function getNode(): Document; const node = getNode(); node.replaceChildren("text");',
+				}],
+			}],
+		},
+		{
+			...typeAware('declare function getNode(): DocumentFragment; const node = getNode(); node.replaceChildren(); node.append("text");'),
+			errors: [replaceAndAddError],
+			output: 'declare function getNode(): DocumentFragment; const node = getNode(); node.replaceChildren("text");',
 		},
 		{
 			code: 'element.replaceChildren(); element.append(...children);',

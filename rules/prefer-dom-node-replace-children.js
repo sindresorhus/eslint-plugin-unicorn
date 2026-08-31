@@ -431,15 +431,15 @@ const getReplaceAndAddProblem = (context, node) => {
 		yield fixer.replaceText(addCall.callee.property, 'replaceChildren');
 	};
 
-	const hasUnsafeEvaluation = (
-		hasSideEffect(parentNode, context.sourceCode, receiverSideEffectOptions)
-		|| isDocumentReceiver(parentNode, context)
-		|| addCall.arguments.some(argument =>
+	const shouldSuggest = (
+		addCall.arguments.some(argument =>
 			argument.type === 'SpreadElement'
 			|| !isSafeReplaceChildrenArgument(argument))
+		|| hasSideEffect(parentNode, context.sourceCode, receiverSideEffectOptions)
+		|| isDocumentReceiver(parentNode, context)
 	);
 
-	if (hasUnsafeEvaluation) {
+	if (shouldSuggest) {
 		problem.suggest = [{
 			messageId: REPLACE_AND_ADD_SUGGESTION_MESSAGE_ID,
 			fix: createFix,

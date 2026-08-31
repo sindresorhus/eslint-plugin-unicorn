@@ -21,7 +21,7 @@ It ignores HTML template elements because `template.innerHTML = ''` clears templ
 
 Non-empty `.innerHTML` assignments are handled by [`prefer-dom-node-html-methods`](./prefer-dom-node-html-methods.md) and [`no-unsafe-dom-html`](./no-unsafe-dom-html.md).
 
-Older insertion APIs are normalized by [`prefer-dom-node-append`](./prefer-dom-node-append.md) and [`prefer-modern-dom-apis`](./prefer-modern-dom-apis.md). Later ESLint passes can then report the resulting `.append()` or `.prepend()` combination, automatically fixing it only when its arguments are provably safe.
+Older insertion APIs are normalized by [`prefer-dom-node-append`](./prefer-dom-node-append.md) and [`prefer-modern-dom-apis`](./prefer-modern-dom-apis.md). Later ESLint passes can then report the resulting `.append()` or `.prepend()` combination, automatically fixing it only when the combination is provably safe.
 
 ## Examples
 
