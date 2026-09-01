@@ -1,11 +1,13 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getStaticStringValue,
 	isCallExpression,
 	isMemberExpression,
 	isMethodCall,
 } from './ast/index.js';
+import {removeStatement} from './fix/index.js';
 import {
+	getNextNode,
 	isKnownNonDomNode,
 	isGlobalIdentifier,
 	isNodeValueNotDomNode,
@@ -20,8 +22,11 @@ import {
 	wouldRemoveComments,
 	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
+import {createTypeCheckers} from './utils/type-helpers.js';
 
 const MESSAGE_ID = 'prefer-dom-node-replace-children';
+const REPLACE_AND_ADD_MESSAGE_ID = 'prefer-dom-node-replace-children/replace-and-add';
+const REPLACE_AND_ADD_SUGGESTION_MESSAGE_ID = 'prefer-dom-node-replace-children/replace-and-add-suggestion';
 const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 const globalObjectNames = new Set([
 	'frames',
@@ -33,6 +38,18 @@ const globalObjectNames = new Set([
 ]);
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over manually emptying DOM children.',
+	[REPLACE_AND_ADD_MESSAGE_ID]: 'Prefer one `.replaceChildren(…)` call over emptying and then adding DOM children.',
+	[REPLACE_AND_ADD_SUGGESTION_MESSAGE_ID]: 'Replace the two calls with one `.replaceChildren(…)` call.',
+};
+
+const receiverSideEffectOptions = {
+	considerGetters: true,
+};
+
+const isSafeReplaceChildrenArgument = node => {
+	node = unwrapTypeScriptExpression(node);
+	return (node.type === 'Literal' && !node.regex)
+		|| (node.type === 'TemplateLiteral' && node.expressions.length === 0);
 };
 
 const getStaticString = node => getStaticStringValue(unwrapTypeScriptExpression(node));
@@ -124,6 +141,17 @@ const isGlobalDocument = (node, context, visitedVariables = new Set()) => {
 		&& globalObjectNames.has(node.object.name)
 		&& isGlobalIdentifier(node.object, context);
 };
+
+const {isTarget: isDocumentReceiver} = createTypeCheckers({
+	checkClassSyntax: true,
+	treatMixedUnionAsTarget: true,
+	targetTypeNames: new Set([
+		'Document',
+		'HTMLDocument',
+		'XMLDocument',
+	]),
+	isTargetNode: isGlobalDocument,
+});
 
 const isUnknownOrHtmlNamespace = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
@@ -330,11 +358,105 @@ const getRemoveChildLoopProblem = (context, node) => {
 	};
 };
 
+function * removeStatementBefore(statement, nextStatement, context, fixer) {
+	const {sourceCode} = context;
+	const [statementStart, statementEnd] = sourceCode.getRange(statement);
+	const [nextStatementStart] = sourceCode.getRange(nextStatement);
+	const separator = sourceCode.text.slice(statementEnd, nextStatementStart);
+	const shouldAddSemicolon = needsSemicolon(
+		sourceCode.getTokenBefore(statement),
+		context,
+		sourceCode.getText(nextStatement),
+	);
+
+	if (/^\s*$/.test(separator)) {
+		yield shouldAddSemicolon
+			? fixer.replaceTextRange([statementStart, nextStatementStart], ';')
+			: fixer.removeRange([statementStart, nextStatementStart]);
+		return;
+	}
+
+	yield removeStatement(statement, context, fixer);
+	if (shouldAddSemicolon) {
+		yield fixer.insertTextBefore(nextStatement, ';');
+	}
+}
+
+const getReplaceAndAddProblem = (context, node) => {
+	if (
+		!isMethodCall(node, {
+			method: 'replaceChildren',
+			argumentsLength: 0,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		|| node.parent.type !== 'ExpressionStatement'
+	) {
+		return;
+	}
+
+	const nextStatement = getNextNode(node.parent, context);
+	const addCall = nextStatement?.type === 'ExpressionStatement'
+		? nextStatement.expression
+		: undefined;
+	if (!isMethodCall(addCall, {
+		methods: ['append', 'prepend'],
+		minimumArguments: 1,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return;
+	}
+
+	const parentNode = node.callee.object;
+	if (
+		!isSameReference(parentNode, addCall.callee.object)
+		|| shouldSkipParentNode(parentNode, context)
+	) {
+		return;
+	}
+
+	const problem = {
+		node,
+		messageId: REPLACE_AND_ADD_MESSAGE_ID,
+	};
+
+	if (wouldRemoveComments(context, node.parent)) {
+		return problem;
+	}
+
+	const createFix = function * (fixer) {
+		yield removeStatementBefore(node.parent, nextStatement, context, fixer);
+
+		yield fixer.replaceText(addCall.callee.property, 'replaceChildren');
+	};
+
+	const shouldSuggest = (
+		addCall.arguments.some(argument =>
+			argument.type === 'SpreadElement'
+			|| !isSafeReplaceChildrenArgument(argument))
+		|| hasSideEffect(parentNode, context.sourceCode, receiverSideEffectOptions)
+		|| isDocumentReceiver(parentNode, context)
+	);
+
+	if (shouldSuggest) {
+		problem.suggest = [{
+			messageId: REPLACE_AND_ADD_SUGGESTION_MESSAGE_ID,
+			fix: createFix,
+		}];
+	} else {
+		problem.fix = createFix;
+	}
+
+	return problem;
+};
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
 	context.on('AssignmentExpression', node => getInnerHTMLProblem(context, node));
+	context.on('CallExpression', node => getReplaceAndAddProblem(context, node));
 	context.on('WhileStatement', node => getRemoveChildLoopProblem(context, node));
 };
 
@@ -346,10 +468,11 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.replaceChildren()` when emptying DOM children.',
+			description: 'Prefer `.replaceChildren()` when replacing DOM children.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema: [],
 		messages,
 		languages: [
