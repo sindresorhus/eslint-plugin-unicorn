@@ -205,15 +205,9 @@ Whether to check directory names. Filenames are always checked.
 Type: `Array<string | RegExp>`\
 Default: `[]`
 
-Directory roots below which directory names are checked. The matched root and its ancestors are not checked. Strings match exact paths relative to ESLint's current working directory and use `/` as the path separator. Regular expressions are tested against those same paths.
+Directory roots below which directory names are checked. The matched root and its ancestors are skipped. Strings match exact `/`-separated paths relative to ESLint's current working directory. Regular expressions match the same paths; anchor them to avoid unintended deeper matches. The deepest match is used.
 
-When multiple roots match, the deepest root is used. When none match, directory names are checked from the current working directory as usual.
-
-Anchor regular expressions to the intended root depth. Every ancestor path is tested, so a broad expression can also match deeper paths and make the deepest match the effective root.
-
-This option has no effect when `checkDirectories` is `false`. A matching `ignore` pattern still ignores the entire file.
-
-For example, check PascalCase directory names below multiple source roots without checking the source roots themselves:
+For example, check PascalCase directory names below multiple source roots:
 
 ```js
 'unicorn/filename-case': [
@@ -227,8 +221,6 @@ For example, check PascalCase directory names below multiple source roots withou
 	},
 ]
 ```
-
-For `app/javascript/Pages/Foo.vue`, this checks `Pages` and `Foo.vue`, but not `app` or `javascript`.
 
 ### multipleFileExtensions
 
