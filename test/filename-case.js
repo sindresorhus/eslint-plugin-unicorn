@@ -1,6 +1,6 @@
 import path from 'node:path';
 import test from 'ava';
-import {Linter} from 'eslint';
+import {ESLint, Linter} from 'eslint';
 import css from '@eslint/css';
 import json from '@eslint/json';
 import markdown from '@eslint/markdown';
@@ -47,12 +47,13 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 const outsideCwd = path.join(path.dirname(process.cwd()), 'Src', 'fooBar.js');
 const cwd = process.cwd();
 
-test('checks relative directory names from ESLint cwd', t => {
+test('resolves directory paths from ESLint cwd', t => {
 	const linter = new Linter({
 		configType: 'flat',
 		cwd: path.join(process.cwd(), 'test'),
 	});
-	const messages = linter.verify('const value = 1;', {
+	const filename = 'src/FooBar/file.js';
+	const verify = ruleConfig => linter.verify('const value = 1;', {
 		languageOptions: {
 			ecmaVersion: 'latest',
 			sourceType: 'module',
@@ -61,11 +62,12 @@ test('checks relative directory names from ESLint cwd', t => {
 			unicorn,
 		},
 		rules: {
-			'unicorn/filename-case': 'error',
+			'unicorn/filename-case': ruleConfig,
 		},
 	}, {
-		filename: 'src/FooBar/file.js',
+		filename,
 	});
+	const messages = verify('error');
 
 	t.deepEqual(
 		messages.map(({message}) => message),
@@ -73,6 +75,8 @@ test('checks relative directory names from ESLint cwd', t => {
 			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
 		],
 	);
+
+	t.deepEqual(verify(['error', {directoryRoots: ['src/FooBar']}]), []);
 });
 
 test('checks filenames of non-JavaScript files', t => {
@@ -114,6 +118,114 @@ test('checks filenames of non-JavaScript files', t => {
 			`accepts a well-cased ${language} filename`,
 		);
 	}
+});
+
+test('validates options', t => {
+	const linter = new Linter({configType: 'flat'});
+
+	const getConfig = options => ({
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			'unicorn/filename-case': ['error', options],
+		},
+	});
+	const verify = options => linter.verify('const value = 1;', getConfig(options), {filename: 'foo.js'});
+
+	for (const options of [
+		'pascalCase',
+		[],
+		{cases: 'pascalCase'},
+		{cases: 42},
+		{cases: []},
+		JSON.parse('null'),
+	]) {
+		t.throws(
+			() => verify(options),
+			{message: /should be object/u},
+		);
+	}
+
+	for (const options of [
+		{case: 'pascalCase', directoryRoots: [42]},
+		{cases: {pascalCase: true}, directoryRoots: [42]},
+	]) {
+		t.throws(
+			() => verify(options),
+			{message: /Value 42 should be string,object/u},
+		);
+	}
+
+	for (const optionName of ['directoryRoots', 'ignore']) {
+		for (const caseOptions of [
+			{case: 'pascalCase'},
+			{cases: {pascalCase: true}},
+		]) {
+			const options = {...caseOptions, [optionName]: [{}]};
+			t.throws(
+				() => verify(options),
+				{message: new RegExp(`The \`${optionName}\` option only accepts strings and regular expressions\\.`, 'u')},
+			);
+		}
+
+		t.throws(
+			() => linter.verify('const value = 1;', getConfig({[optionName]: [{}]})),
+			{message: new RegExp(`The \`${optionName}\` option only accepts strings and regular expressions\\.`, 'u')},
+		);
+	}
+
+	for (const filename of [undefined, 'foo.js']) {
+		t.throws(
+			() => linter.verify('const value = 1;', getConfig({ignore: ['[']}), {filename}),
+			{instanceOf: SyntaxError},
+		);
+	}
+});
+
+test('matches stateful ignore patterns consistently between lint runs', async t => {
+	const eslint = new ESLint({
+		overrideConfigFile: true,
+		overrideConfig: [{
+			plugins: {
+				unicorn,
+			},
+			rules: {
+				'unicorn/filename-case': ['error', {ignore: [/^FOOBAR$/gu]}],
+			},
+		}],
+	});
+
+	const [reportedResult] = await eslint.lintText('const value = 1;', {filePath: 'FooBar.js'});
+	const [firstResult] = await eslint.lintText('const value = 1;', {filePath: 'FOOBAR/fooBar.js'});
+	const [secondResult] = await eslint.lintText('const value = 1;', {filePath: 'FOOBAR/fooBar.js'});
+
+	t.is(reportedResult.messages.length, 1);
+	t.is(reportedResult.messages[0].message, 'Filename is not in kebab case. Rename it to `foo-bar.js`.');
+	t.deepEqual(firstResult.messages, []);
+	t.deepEqual(secondResult.messages, []);
+});
+
+test('ignores named virtual files created by processors', async t => {
+	const eslint = new ESLint({
+		overrideConfigFile: true,
+		overrideConfig: [
+			...markdown.configs.processor,
+			{
+				files: ['**/*.md/**'],
+				plugins: {
+					unicorn,
+				},
+				rules: {
+					'no-undef': 'error',
+					'unicorn/filename-case': 'error',
+				},
+			},
+		],
+	});
+	const [result] = await eslint.lintText('```js\nfirst;\n```\n\n```js\nsecond;\n```', {filePath: 'FooBar.md'});
+
+	t.deepEqual(result.messages.map(({ruleId}) => ruleId), ['no-undef', 'no-undef']);
 });
 
 ruleTest({
@@ -369,6 +481,9 @@ ruleTest({
 		testCaseWithOptions('Src/Foo/FooBar.Test.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('Src/Foo/FooBar.TestUtils.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('Spec/Iss47.100Spec.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/Ab.js', undefined, [{case: 'pascalCase', checkDirectories: false}]),
+		testCaseWithOptions('src/foo/aBc.js', undefined, [{case: 'camelCase', checkDirectories: false}]),
+		testCaseWithOptions('src/foo/1Ab.js', undefined, [{case: 'camelCaseWithAcronyms', checkDirectories: false}]),
 		{
 			code: '/* eslint-disable rule-to-test/filename-case */\nconst value = 1;',
 			filename: 'src/foo/foo_bar.js',
@@ -394,6 +509,33 @@ ruleTest({
 		]),
 		testCaseWithOptions('src/FooBar/file.js', undefined, [
 			{case: 'kebabCase', checkDirectories: false},
+		]),
+		testCaseWithOptions('app/javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['app/javascript']},
+		]),
+		testCaseWithOptions('app/javascript/Pages/Foo.vue', undefined, [
+			{cases: {pascalCase: true}, directoryRoots: ['app/javascript']},
+		]),
+		testCaseWithOptions('app/javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: [/^app(?:\/javascript)?$/gu]},
+		]),
+		testCaseWithOptions('packages/foo/src/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['app/javascript', 'packages/foo/src']},
+		]),
+		testCaseWithOptions('legacy/app/javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: [/^legacy\/app\/javascript$/u, 'legacy']},
+		]),
+		testCaseWithOptions('legacy/app/javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['legacy', /^legacy\/app\/javascript$/u]},
+		]),
+		testCaseWithOptions('app/Javascript/Pages/Foo.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['app']},
+		]),
+		testCaseWithOptions('app/javascript/pages/Foo.vue', undefined, [
+			{case: 'pascalCase', checkDirectories: false, directoryRoots: ['app/javascript']},
+		]),
+		testCaseWithOptions('app/javascript/pages/badly-named.vue', undefined, [
+			{case: 'pascalCase', directoryRoots: ['app/javascript'], ignore: ['^app$']},
 		]),
 		testCaseWithOptions('src/meta/BadName.js', undefined, [
 			{case: 'kebabCase', ignore: [/^meta$/u]},
@@ -638,6 +780,19 @@ ruleTest({
 			},
 			'Filename is not in camel case, pascal case, or kebab case. Rename it to `_fooBar.js`, `_FooBar.js`, or `_foo-bar.js`.',
 		),
+		testCaseWithOptions(
+			'src/foo/[foo_bar].{baz_qux}.js',
+			'Filename is not in camel case or pascal case. Rename it to `[fooBar].{bazQux}.js` or `[FooBar].{BazQux}.js`.',
+			[
+				{
+					cases: {
+						camelCase: true,
+						pascalCase: true,
+					},
+					multipleFileExtensions: false,
+				},
+			],
+		),
 		testManyCases(
 			'src/foo/_FOO-BAR.js',
 			{
@@ -678,6 +833,26 @@ ruleTest({
 				},
 			],
 		),
+		testCaseWithOptions(
+			'app/javascript/pages/Foo.vue',
+			'Directory name `pages` is not in pascal case. Rename it to `Pages`.',
+			[{case: 'pascalCase', directoryRoots: ['app/javascript']}],
+		),
+		testCaseWithOptions(
+			'app/javascript/Pages/badly-named.vue',
+			'Filename is not in pascal case. Rename it to `BadlyNamed.vue`.',
+			[{case: 'pascalCase', directoryRoots: ['app/javascript']}],
+		),
+		testCaseWithOptions(
+			'app/javascript/Pages/Foo.vue',
+			'Directory name `app` is not in pascal case. Rename it to `App`.',
+			[{case: 'pascalCase', directoryRoots: ['other/root']}],
+		),
+		testCaseWithOptions(
+			'Nested/app/Pages/Foo.vue',
+			'Directory name `app` is not in pascal case. Rename it to `App`.',
+			[{case: 'pascalCase', directoryRoots: ['app']}],
+		),
 		testCase(
 			'src/FooBar/foo_bar.js',
 			undefined,
@@ -713,6 +888,11 @@ ruleTest({
 			undefined,
 			'Filename is not in kebab case. Rename it to `foo$bar.js`.',
 		),
+		...['\n', '\r', '\u2028', '\u2029'].map(lineTerminator => testCase(
+			`src/foo/_foo${lineTerminator}Bar.js`,
+			undefined,
+			`Filename is not in kebab case. Rename it to \`_foo${lineTerminator}bar.js\`.`,
+		)),
 		testCase(
 			'src/foo/$userId.TSX',
 			undefined,
@@ -921,6 +1101,26 @@ ruleTest({
 			'Test/Foo/foo-bar.test-utils.js',
 			'Filename is not in pascal case. Rename it to `FooBar.TestUtils.js`.',
 			[{case: 'pascalCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'src/foo/a_b.js',
+			'Filename is not in pascal case. Rename it to `Ab.js`.',
+			[{case: 'pascalCase', checkDirectories: false}],
+		),
+		testCaseWithOptions(
+			'src/foo/f_a_q_page.js',
+			'Filename is not in pascal case. Rename it to `FAQPage.js`.',
+			[{case: 'pascalCase', checkDirectories: false}],
+		),
+		testCaseWithOptions(
+			'src/foo/a_b_c.js',
+			'Filename is not in camel case. Rename it to `aBc.js`.',
+			[{case: 'camelCase', checkDirectories: false}],
+		),
+		testCaseWithOptions(
+			'src/foo/1_a_b.js',
+			'Filename is not in camel case with acronyms. Rename it to `1Ab.js`.',
+			[{case: 'camelCaseWithAcronyms', checkDirectories: false}],
 		),
 	],
 });

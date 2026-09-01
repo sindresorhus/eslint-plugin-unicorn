@@ -6,7 +6,6 @@ import {
 	snakeCase,
 	pascalCase,
 } from 'change-case';
-import cartesianProductSamples from './utils/cartesian-product-samples.js';
 import {onRoot, isVirtualFilename} from './utils/index.js';
 
 const MESSAGE_ID = 'filename-case';
@@ -29,12 +28,22 @@ const isAsciiDigit = char => char >= '0' && char <= '9';
 const isAsciiLowercaseLetter = char => char >= 'a' && char <= 'z';
 const isAsciiUppercaseLetter = char => char >= 'A' && char <= 'Z';
 
+function camelCaseWithoutAcronyms(string) {
+	return camelCase(camelCase(string));
+}
+
 function camelCaseWithAcronyms(string) {
 	if (isCamelCaseWithAcronyms(string)) {
 		return string;
 	}
 
-	return camelCase(string);
+	const converted = camelCase(string);
+
+	if (isCamelCaseWithAcronyms(converted)) {
+		return converted;
+	}
+
+	return camelCase(converted);
 }
 
 function isCamelCaseWithAcronyms(string) {
@@ -84,22 +93,34 @@ function isCamelCaseWithAcronyms(string) {
 	return true;
 }
 
-function pascalCaseWithLeadingAcronym(string) {
-	if (alphanumericRegex.test(string)) {
-		const leadingAcronym = leadingAcronymRegex.exec(string)?.[0];
-		const suffix = leadingAcronym && string.slice(leadingAcronym.length);
-
-		if (suffix && pascalCase(suffix) === suffix) {
-			return string;
-		}
+function hasValidLeadingAcronym(string) {
+	if (!alphanumericRegex.test(string)) {
+		return false;
 	}
 
-	return pascalCase(string);
+	const leadingAcronym = leadingAcronymRegex.exec(string)?.[0];
+	const suffix = leadingAcronym && string.slice(leadingAcronym.length);
+
+	return Boolean(suffix && pascalCase(suffix) === suffix);
+}
+
+function pascalCaseWithLeadingAcronym(string) {
+	if (hasValidLeadingAcronym(string)) {
+		return string;
+	}
+
+	const converted = pascalCase(string);
+
+	if (hasValidLeadingAcronym(converted)) {
+		return converted;
+	}
+
+	return pascalCase(converted);
 }
 
 const cases = {
 	camelCase: {
-		fn: camelCase,
+		fn: camelCaseWithoutAcronyms,
 		name: 'camel case',
 	},
 	camelCaseWithAcronyms: {
@@ -132,10 +153,10 @@ function getChosenCases(options) {
 	}
 
 	if (options.cases) {
-		const cases = Object.keys(options.cases)
-			.filter(cases => options.cases[cases]);
+		const chosenCases = Object.keys(options.cases)
+			.filter(caseName => options.cases[caseName]);
 
-		return cases.length > 0 ? cases : ['kebabCase'];
+		return chosenCases.length > 0 ? chosenCases : ['kebabCase'];
 	}
 
 	return ['kebabCase'];
@@ -147,26 +168,25 @@ function isValidName(words, caseFunctions) {
 		.every(({word}) => caseFunctions.some(caseFunction => caseFunction(word) === word));
 }
 
-function fixName(words, caseFunctions, {leading, trailing}) {
-	const replacements = words
-		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(caseFunction => caseFunction(word)));
+function getRenamedNames(words, caseFunctions, {leading, trailing}) {
+	const names = caseFunctions.map(caseFunction => {
+		const name = words
+			.map(({word, ignored}) => ignored ? word : caseFunction(word))
+			.join('');
 
-	const {
-		samples: combinations,
-	} = cartesianProductSamples(replacements);
+		return `${leading}${name}${trailing}`;
+	});
 
-	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${trailing}`))];
+	return [...new Set(names)];
 }
 
-function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
-	const extension = path.extname(filenameWithExtension);
-	const filename = path.basename(filenameWithExtension, extension);
-	const basename = filename + extension;
+function getFilenameParts(basename, {multipleFileExtensions}) {
+	const extension = path.extname(basename);
+	const filename = path.basename(basename, extension);
 
 	const parts = {
-		basename,
 		filename,
-		middle: '',
+		additionalExtensions: '',
 		extension,
 	};
 
@@ -174,7 +194,7 @@ function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
 		const [firstPart] = filename.split('.', 1);
 		Object.assign(parts, {
 			filename: firstPart,
-			middle: filename.slice(firstPart.length),
+			additionalExtensions: filename.slice(firstPart.length),
 		});
 	}
 
@@ -188,11 +208,11 @@ function isInsideCwd(relativePath) {
 		&& !path.isAbsolute(relativePath);
 }
 
-function getPathSegments(filenameWithExtension, cwd) {
-	const relativePath = path.relative(cwd, path.resolve(cwd, filenameWithExtension));
+function getPathSegments(filePath, cwd) {
+	const relativePath = path.relative(cwd, path.resolve(cwd, filePath));
 
 	if (!isInsideCwd(relativePath)) {
-		return [path.basename(filenameWithExtension)];
+		return [path.basename(filePath)];
 	}
 
 	return relativePath
@@ -200,15 +220,48 @@ function getPathSegments(filenameWithExtension, cwd) {
 		.filter(segment => segment !== '.');
 }
 
-const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
+function validatePatternOption(optionName, patterns) {
+	if (patterns.some(pattern => typeof pattern !== 'string' && !isRegExp(pattern))) {
+		throw new TypeError(`The \`${optionName}\` option only accepts strings and regular expressions.`);
+	}
+}
+
+function isDirectoryRoot(directoryPath, directoryRoots) {
+	return directoryRoots.some(directoryRoot => {
+		if (typeof directoryRoot === 'string') {
+			return directoryPath === directoryRoot;
+		}
+
+		const regexp = new RegExp(directoryRoot);
+		return regexp.test(directoryPath);
+	});
+}
+
+function getDirectoriesToCheck(pathSegments, directoryRoots) {
+	const directories = pathSegments.slice(0, -1);
+	let directoryPath = '';
+	let directoryStartIndex = 0;
+
+	for (const [index, directory] of directories.entries()) {
+		directoryPath = directoryPath ? `${directoryPath}/${directory}` : directory;
+
+		if (isDirectoryRoot(directoryPath, directoryRoots)) {
+			directoryStartIndex = index + 1;
+		}
+	}
+
+	return directories.slice(directoryStartIndex);
+}
+
+const leadingUnderscoresRegex = /^_+/;
 function splitName(name) {
-	const result = leadingUnderscoresRegex.exec(name) || {groups: {}};
-	const {leading = '', tailing = name} = result.groups;
+	const leading = leadingUnderscoresRegex.exec(name)?.[0] ?? '';
+	const remainder = name.slice(leading.length);
 
 	const words = [];
 
 	let lastWord;
-	for (const char of tailing) {
+	for (const char of remainder) {
 		const isIgnored = isIgnoredChar(char);
 
 		if (lastWord?.ignored === isIgnored) {
@@ -234,20 +287,20 @@ Turns `[a, b, c]` into `a, b, or c`.
 @param {string[]} words
 @returns {string}
 */
-const englishishJoinWords = words => disjunctionListFormat.format(words);
+const formatDisjunction = words => disjunctionListFormat.format(words);
 
-function getCaseNames(chosenCases) {
-	return englishishJoinWords(chosenCases.map(x => cases[x].name));
+function formatCaseNames(chosenCases) {
+	return formatDisjunction(chosenCases.map(caseName => cases[caseName].name));
 }
 
-function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions) {
+function getInvalidDirectoryReport(directory, chosenCases, chosenCaseFunctions) {
 	const {leading, words} = splitName(directory);
 
-	if (directory.startsWith('$') || isValidName(words, chosenCasesFunctions)) {
+	if (directory.startsWith('$') || isValidName(words, chosenCaseFunctions)) {
 		return;
 	}
 
-	const renamedDirectories = fixName(words, chosenCasesFunctions, {
+	const renamedDirectories = getRenamedNames(words, chosenCaseFunctions, {
 		leading,
 		trailing: '',
 	});
@@ -257,8 +310,8 @@ function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions)
 		messageId: MESSAGE_ID_DIRECTORY,
 		data: {
 			directory,
-			chosenCases: getCaseNames(chosenCases),
-			renamedDirectories: englishishJoinWords(renamedDirectories.map(x => `\`${x}\``)),
+			chosenCases: formatCaseNames(chosenCases),
+			renamedDirectories: formatDisjunction(renamedDirectories.map(directory => `\`${directory}\``)),
 		},
 	};
 }
@@ -267,42 +320,47 @@ function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions)
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const filenameWithExtension = context.physicalFilename;
+	const options = context.options[0] || {};
+	const ignorePatterns = options.ignore || [];
+	const directoryRoots = options.directoryRoots || [];
 
-	if (isVirtualFilename(filenameWithExtension)) {
+	validatePatternOption('ignore', ignorePatterns);
+	validatePatternOption('directoryRoots', directoryRoots);
+	const ignoreRegexps = ignorePatterns.map(pattern => {
+		if (isRegExp(pattern)) {
+			return new RegExp(pattern);
+		}
+
+		return new RegExp(pattern, 'u');
+	});
+
+	const {physicalFilename} = context;
+
+	if (context.filename !== physicalFilename || isVirtualFilename(physicalFilename)) {
 		return;
 	}
 
-	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
-	const ignore = (options.ignore || []).map(item => {
-		if (isRegExp(item)) {
-			return item;
-		}
-
-		return new RegExp(item, 'u');
-	});
 	const isMultipleFileExtensions = options.multipleFileExtensions !== false;
 	const isCheckDirectories = options.checkDirectories !== false;
-	const chosenCasesFunctions = chosenCases.map(case_ => cases[case_].fn);
+	const chosenCaseFunctions = chosenCases.map(caseName => cases[caseName].fn);
 
 	onRoot(context, () => {
-		const pathSegments = getPathSegments(filenameWithExtension, context.cwd);
-		const basenameWithExtension = pathSegments.at(-1);
+		const pathSegments = getPathSegments(physicalFilename, context.cwd);
+		const basename = pathSegments.at(-1);
 		const {
-			basename,
 			filename,
-			middle,
+			additionalExtensions,
 			extension,
-		} = getFilenameParts(basenameWithExtension, {multipleFileExtensions: isMultipleFileExtensions});
+		} = getFilenameParts(basename, {multipleFileExtensions: isMultipleFileExtensions});
 
-		if (pathSegments.some(segment => ignore.some(regexp => regexp.test(segment)))) {
+		if (pathSegments.some(segment => ignoreRegexps.some(regexp => regexp.test(segment)))) {
 			return;
 		}
 
 		if (isCheckDirectories) {
-			for (const directory of pathSegments.slice(0, -1)) {
-				const report = getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions);
+			for (const directory of getDirectoriesToCheck(pathSegments, directoryRoots)) {
+				const report = getInvalidDirectoryReport(directory, chosenCases, chosenCaseFunctions);
 
 				if (report) {
 					return report;
@@ -315,23 +373,23 @@ const create = context => {
 		}
 
 		const {leading, words} = splitName(filename);
-		const isValid = filename.startsWith('$') || isValidName(words, chosenCasesFunctions);
+		const isValid = filename.startsWith('$') || isValidName(words, chosenCaseFunctions);
 
 		if (isValid) {
 			if (!isLowerCase(extension)) {
 				return {
 					loc: {column: 0, line: 1},
 					messageId: MESSAGE_ID_EXTENSION,
-					data: {filename: filename + middle + extension.toLowerCase(), extension},
+					data: {filename: filename + additionalExtensions + extension.toLowerCase(), extension},
 				};
 			}
 
 			return;
 		}
 
-		const renamedFilenames = fixName(words, chosenCasesFunctions, {
+		const renamedFilenames = getRenamedNames(words, chosenCaseFunctions, {
 			leading,
-			trailing: middle + extension.toLowerCase(),
+			trailing: additionalExtensions + extension.toLowerCase(),
 		});
 
 		return {
@@ -340,11 +398,40 @@ const create = context => {
 			loc: {column: 0, line: 1},
 			messageId: MESSAGE_ID,
 			data: {
-				chosenCases: getCaseNames(chosenCases),
-				renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``)),
+				chosenCases: formatCaseNames(chosenCases),
+				renamedFilenames: formatDisjunction(renamedFilenames.map(filename => `\`${filename}\``)),
 			},
 		};
 	});
+};
+
+const commonOptionProperties = {
+	ignore: {
+		type: 'array',
+		items: {
+			type: ['string', 'object'],
+			additionalProperties: true,
+		},
+		uniqueItems: true,
+		description: 'Path segment patterns to ignore.',
+	},
+	multipleFileExtensions: {
+		type: 'boolean',
+		description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
+	},
+	checkDirectories: {
+		type: 'boolean',
+		description: 'Whether to check directory names.',
+	},
+	directoryRoots: {
+		type: 'array',
+		items: {
+			type: ['string', 'object'],
+			additionalProperties: true,
+		},
+		uniqueItems: true,
+		description: 'Directory root paths or patterns, relative to the current working directory.',
+	},
 };
 
 const schema = [
@@ -352,6 +439,7 @@ const schema = [
 		description: 'The rule options.',
 		anyOf: [
 			{
+				type: 'object',
 				properties: {
 					case: {
 						enum: [
@@ -363,29 +451,15 @@ const schema = [
 						],
 						description: 'The filename and directory name case style.',
 					},
-					ignore: {
-						type: 'array',
-						items: {
-							type: ['string', 'object'],
-							additionalProperties: true,
-						},
-						uniqueItems: true,
-						description: 'Path segment patterns to ignore.',
-					},
-					multipleFileExtensions: {
-						type: 'boolean',
-						description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
-					},
-					checkDirectories: {
-						type: 'boolean',
-						description: 'Whether to check directory names.',
-					},
+					...commonOptionProperties,
 				},
 				additionalProperties: false,
 			},
 			{
+				type: 'object',
 				properties: {
 					cases: {
+						type: 'object',
 						properties: {
 							camelCase: {
 								type: 'boolean',
@@ -411,23 +485,7 @@ const schema = [
 						additionalProperties: false,
 						description: 'The allowed filename and directory name case styles.',
 					},
-					ignore: {
-						type: 'array',
-						items: {
-							type: ['string', 'object'],
-							additionalProperties: true,
-						},
-						uniqueItems: true,
-						description: 'Path segment patterns to ignore.',
-					},
-					multipleFileExtensions: {
-						type: 'boolean',
-						description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
-					},
-					checkDirectories: {
-						type: 'boolean',
-						description: 'Whether to check directory names.',
-					},
+					...commonOptionProperties,
 				},
 				additionalProperties: false,
 			},

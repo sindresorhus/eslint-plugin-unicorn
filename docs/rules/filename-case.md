@@ -13,9 +13,11 @@ Consistent paths make files predictable to find and import, including on case-se
 
 Because this rule only inspects the path, it applies to files of any language, not just JavaScript, as long as they are linted with the matching ESLint language plugin (for example [`@eslint/css`](https://github.com/eslint/css) or [`@eslint/markdown`](https://github.com/eslint/markdown)).
 
+Named virtual files created by processors are ignored to avoid duplicate reports for one physical file.
+
 Directory names are checked only when the file is inside the current working directory. Files outside the current working directory only have their filename checked.
 
-Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (only a problem with `pascalCase`). Their parent directories are still checked.
+Conventional lowercase entrypoint filenames `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, and `index.vue` are intentionally ignored, including when `pascalCase` is selected. Their parent directories are still checked.
 
 Characters other than `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored for casing and kept as-is in suggested names.
 
@@ -62,7 +64,7 @@ This case style is still lower camel case. Leading acronyms are lowercased, for 
 
 ### case
 
-Type: `string`
+Type: `'camelCase' | 'camelCaseWithAcronyms' | 'snakeCase' | 'kebabCase' | 'pascalCase'`
 
 You can set the `case` option like this:
 
@@ -77,7 +79,7 @@ You can set the `case` option like this:
 
 ### cases
 
-Type: `{[type: string]: boolean}`
+Type: `{camelCase?: boolean, camelCaseWithAcronyms?: boolean, snakeCase?: boolean, kebabCase?: boolean, pascalCase?: boolean}`
 
 You can set the `cases` option to allow multiple cases:
 
@@ -169,7 +171,7 @@ Sometimes you may have non-standard filenames or directory names in a project. T
 For example:
 
 - Vendor packages that are copied into the project.
-- Ignore some files when you use [eslint-plugin-markdown](https://github.com/eslint/eslint-plugin-markdown), for example `README.md`.
+- Conventionally named files such as `README.md`.
 - Some tools may require special names for some files.
 - Ignore a directory and everything in it.
 
@@ -197,6 +199,28 @@ Type: `boolean`\
 Default: `true`
 
 Whether to check directory names. Filenames are always checked.
+
+### directoryRoots
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Directory roots below which directory names are checked. The matched root and its ancestors are skipped. Strings match exact `/`-separated paths relative to ESLint's current working directory. Regular expressions match the same paths; anchor them to avoid unintended deeper matches. The deepest match is used.
+
+For example, check PascalCase directory names below multiple source roots:
+
+```js
+'unicorn/filename-case': [
+	'error',
+	{
+		case: 'pascalCase',
+		directoryRoots: [
+			'app/javascript',
+			/^packages\/[^/]+\/src$/u,
+		],
+	},
+]
+```
 
 ### multipleFileExtensions
 
