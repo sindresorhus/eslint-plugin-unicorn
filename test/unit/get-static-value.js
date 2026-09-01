@@ -1,3 +1,4 @@
+import {spawnSync} from 'node:child_process';
 import {Linter} from 'eslint';
 import test from 'ava';
 import {
@@ -164,4 +165,39 @@ test('does not recurse forever through cyclic constant aliases', t => {
 		getStaticValueIfNoSideEffects,
 	);
 	t.is(result, undefined);
+});
+
+test('rejects side-effectful calls before static evaluation', t => {
+	const moduleUrl = new URL('../../rules/utils/get-static-value.js', import.meta.url);
+	const script = [
+		'const originalPadEnd = String.prototype.padEnd;',
+		'let wasExpensivePadEndCalled = false;',
+		'String.prototype.padEnd = function (targetLength, fillString) {',
+		'\tif (targetLength === 100_000_000) {',
+		'\t\twasExpensivePadEndCalled = true;',
+		'\t\treturn this;',
+		'\t}',
+		'\treturn Reflect.apply(originalPadEnd, this, [targetLength, fillString]);',
+		'};',
+		'const {Linter} = await import(\'eslint\');',
+		`const {default: getStaticValueIfNoSideEffects} = await import(${JSON.stringify(moduleUrl.href)});`,
+		'const linter = new Linter();',
+		'linter.verify("const directResult = \'\'.padEnd(100_000_000).normalize(); const expensive = \'\'.padEnd(100_000_000).normalize(); const aliasResult = expensive;", {',
+		'\tlanguageOptions: {ecmaVersion: \'latest\'},',
+		'\tplugins: {test: {rules: {capture: {create: context => ({',
+		'\t\tVariableDeclarator(node) {',
+		'\t\t\tif (node.id.name === \'directResult\' || node.id.name === \'aliasResult\') {',
+		'\t\t\t\tgetStaticValueIfNoSideEffects(node.init, context);',
+		'\t\t\t}',
+		'\t\t},',
+		'\t})}}}},',
+		'\trules: {\'test/capture\': \'error\'},',
+		'});',
+		'if (wasExpensivePadEndCalled) {',
+		'\tthrow new Error(\'Static evaluation called String#padEnd.\');',
+		'}',
+	].join('\n');
+	const result = spawnSync(process.execPath, ['--input-type=module', '--eval', script], {encoding: 'utf8'});
+
+	t.is(result.status, 0, `Child process failed: ${result.error?.message ?? result.stderr}`);
 });

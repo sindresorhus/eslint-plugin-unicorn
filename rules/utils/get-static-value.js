@@ -445,16 +445,27 @@ const hasPotentiallyMutableBindingInEvaluatedPath = (node, context, visitedVaria
 const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
 	const {sourceCode} = context;
+
+	// Static evaluation can execute allowlisted built-ins, so reject side-effectful expressions and constant initializers before they can perform expensive work.
 	const hasSideEffects = hasSideEffect(node, sourceCode);
 	if (
-		(!isSafeStaticPassThroughCall(node, context, visitedVariables) && hasSideEffects)
+		(hasSideEffects && !isSafeStaticPassThroughCall(node, context, visitedVariables))
 		|| hasSideEffectfulConstInitializer(node, context, visitedVariables)
-		|| hasPotentiallyMutableMemberAccess(node, context, visitedVariables)
 	) {
 		return;
 	}
 
-	return getStaticValueFromEslintUtilities(node, sourceCode.getScope(node)) ?? undefined;
+	// Most expressions have no static value at all, so evaluate first and only run the expensive mutability walk when there is a value to protect.
+	const staticValue = getStaticValueFromEslintUtilities(node, sourceCode.getScope(node));
+	if (!staticValue) {
+		return;
+	}
+
+	if (hasPotentiallyMutableMemberAccess(node, context, visitedVariables)) {
+		return;
+	}
+
+	return staticValue;
 };
 
 // `getStaticValue` is not flow-sensitive, so reject mutable bindings on any path that can be evaluated.

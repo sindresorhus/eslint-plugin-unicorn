@@ -153,20 +153,38 @@ function getDefaultReplacementPattern(pattern) {
 	return `${unicodeWordBoundaryStartPattern}${pattern}${unicodeWordBoundaryEndPattern}`;
 }
 
-const defaultReplacementTermPatterns = Object.entries(defaultReplacements)
+const acronymTermPatterns = Object.entries(defaultReplacements)
 	.filter(([, options]) => {
 		const replacement = typeof options === 'string' ? options : options.replacement;
 
 		return replacement === replacement.toUpperCase();
 	})
-	.map(([pattern]) => new RegExp(`^(?:${getDefaultReplacementPattern(pattern)})$`, 'iv'));
+	.map(([pattern]) => `(?:${getDefaultReplacementPattern(pattern)})`);
+// A single alternation of every acronym-style term, so a token is tested with one regex instead of one per term.
+const defaultReplacementTermPattern = new RegExp(`^(?:${acronymTermPatterns.join('|')})$`, 'iv');
 
 /*
-Most patterns are a single literal word, which must appear verbatim in the text for the pattern to match. Checking for it with `String#includes` is far cheaper than running the regex, and lets the vast majority of comments skip almost every replacement. Patterns of any other shape get no required text and are always run.
+Most patterns start with a literal word (or at least a literal prefix, as in `\bgrunt(?:\.js)?\b`), which must appear verbatim in the text for the pattern to match. Checking for it with `String#includes` is far cheaper than running the regex, and lets the vast majority of comments skip almost every replacement. Patterns of any other shape get no required text and are always run.
 
 The pre-check intentionally only recognizes ASCII words. The replacement regex remains authoritative and handles the full pattern, including Unicode word boundaries.
 */
-const literalWordPattern = /^\\b(?<word>[\dA-Za-z]+)\\b$/v;
+const literalPrefixPattern = /^\\b(?<word>[\dA-Za-z]+)(?<quantifier>[*?\{])?/v;
+
+function getRequiredText(pattern) {
+	// A top-level alternation could match without the prefix, so only trust patterns without `|`.
+	if (pattern.includes('|')) {
+		return;
+	}
+
+	const match = literalPrefixPattern.exec(pattern);
+	if (!match) {
+		return;
+	}
+
+	const {word, quantifier} = match.groups;
+	// A quantifier after the prefix makes its last character optional, as in `\bgrunts?\b`.
+	return quantifier ? word.slice(0, -1) : word;
+}
 
 /*
 The `i` flag folds case the way Unicode does, which `String#toLowerCase` does not always reproduce. Checking every code point against the regex engine turns up exactly one character that disagrees for an ASCII word: `ſ` matches `/\bsql\b/iu`, but lowercases to itself, so a substring check would wrongly skip the pattern. Comments containing it fall back to running every pattern.
@@ -181,12 +199,12 @@ function normalizeReplacement(pattern, options, isDefaultReplacement) {
 	}
 
 	const caseSensitive = options.caseSensitive !== false;
-	const word = literalWordPattern.exec(pattern)?.groups.word;
+	const requiredText = getRequiredText(pattern);
 	const regexPattern = isDefaultReplacement ? getDefaultReplacementPattern(pattern) : pattern;
 
 	return {
 		caseSensitive,
-		requiredText: caseSensitive ? word : word?.toLowerCase(),
+		requiredText: caseSensitive ? requiredText : requiredText?.toLowerCase(),
 		regex: new RegExp(regexPattern, caseSensitive ? 'gu' : 'giu'),
 		replacement: options.replacement,
 	};
@@ -706,7 +724,7 @@ function isSlashPairProse(text) {
 		return false;
 	}
 
-	return parts.every(part => defaultReplacementTermPatterns.some(pattern => pattern.test(part)));
+	return parts.every(part => defaultReplacementTermPattern.test(part));
 }
 
 function getPackageSpecifierBase(text) {
@@ -721,8 +739,17 @@ function getPackageSpecifierBase(text) {
 	return text;
 }
 
+function hasPackageSpecifierShape(parts) {
+	if (parts[0].startsWith('@')) {
+		return /^@[\w\-.]+$/v.test(parts[0])
+			&& parts.slice(1).every(part => /^[\w\-.]+$/v.test(part));
+	}
+
+	return parts.every(part => /^[\w\-.]+$/v.test(part));
+}
+
 function isPackageSpecifierText(text) {
-	if (!text.includes('/') || text.includes('://') || isSlashPairProse(text)) {
+	if (!text.includes('/') || text.includes('://')) {
 		return false;
 	}
 
@@ -731,12 +758,8 @@ function isPackageSpecifierText(text) {
 		return false;
 	}
 
-	if (parts[0].startsWith('@')) {
-		return /^@[\w\-.]+$/v.test(parts[0])
-			&& parts.slice(1).every(part => /^[\w\-.]+$/v.test(part));
-	}
-
-	return parts.every(part => /^[\w\-.]+$/v.test(part));
+	// The prose check is comparatively expensive, so only run it for tokens that otherwise look like a package specifier.
+	return hasPackageSpecifierShape(parts) && !isSlashPairProse(text);
 }
 
 function maskPackageSpecifiers(characters, text) {

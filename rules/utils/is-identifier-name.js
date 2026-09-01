@@ -1,5 +1,7 @@
-import isIdentifier from 'is-identifier';
+import identifierRegex from 'identifier-regex';
+
+const identifierNameRegex = identifierRegex({checkReserved: false});
 
 export default function isIdentifierName(name) {
-	return isIdentifier(name, {checkReserved: false});
+	return identifierNameRegex.test(name);
 }

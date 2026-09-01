@@ -431,6 +431,47 @@ ruleTest({
 				},
 			],
 		},
+		{
+			// A quantifier after the literal prefix makes its last character optional, so the text pre-check must not require it.
+			code: '// color',
+			output: '// colour',
+			options: [
+				{
+					extendDefaultReplacements: false,
+					replacements: {
+						'\\bcolou?r\\b': 'colour',
+					},
+				},
+			],
+			errors: 1,
+		},
+		{
+			code: '// fo',
+			output: '// bar',
+			options: [
+				{
+					extendDefaultReplacements: false,
+					replacements: {
+						'\\bfoo*\\b': 'bar',
+					},
+				},
+			],
+			errors: 1,
+		},
+		{
+			// A top-level alternation can match without the literal prefix, so the text pre-check must not require it.
+			code: '// hte value',
+			output: '// the value',
+			options: [
+				{
+					extendDefaultReplacements: false,
+					replacements: {
+						'\\bteh\\b|\\bhte\\b': 'the',
+					},
+				},
+			],
+			errors: 1,
+		},
 	],
 });
 

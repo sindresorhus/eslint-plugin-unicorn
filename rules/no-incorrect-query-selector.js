@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 import {
+	controlFlowStatementTypes,
 	getBooleanAncestor,
 	getParenthesizedRange,
 	isControlFlowTest,
@@ -142,12 +143,25 @@ const getQuerySelectorAllCallForLengthCheck = (node, sourceCode) => {
 	return getCallFromIdentifier(node, sourceCode, isQuerySelectorAllCall);
 };
 
+// Parent types from which `getBooleanAncestor` can climb or `isControlFlowTest` can be true. Any other parent means the identifier is not a control-flow test.
+const controlFlowTestParentTypes = new Set([
+	...controlFlowStatementTypes,
+	'LogicalExpression',
+	'UnaryExpression',
+	'CallExpression',
+	'VExpressionContainer',
+]);
+
 const getLengthCheckProblem = (node, context) => {
 	const {sourceCode} = context;
 
 	// Cheap structural checks first, so the expensive scope resolution in
 	// `getQuerySelectorAllCallForLengthCheck` runs only for identifiers that are
 	// actually used as a control-flow test.
+	if (!controlFlowTestParentTypes.has(node.parent.type)) {
+		return;
+	}
+
 	const {node: booleanAncestor, isNegative} = getBooleanAncestor(node, context);
 	if (!isControlFlowTest(booleanAncestor)) {
 		return;

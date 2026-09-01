@@ -1,4 +1,5 @@
 import isMemberExpression from './is-member-expression.js';
+import matchesNameConstraint from './matches-name-constraint.js';
 import {isCallExpression} from './call-or-new-expression.js';
 
 const noOptions = {};
@@ -37,6 +38,11 @@ export default function isMethodCall(node, options) {
 	}
 
 	options ??= noOptions;
+
+	// Most callers filter on the method name and most call expressions have a different name, so reject on the name before building the detailed checks.
+	if (!matchesNameConstraint(node.callee.property, options.method, options.methods)) {
+		return false;
+	}
 
 	return (
 		isCallExpression(node, {

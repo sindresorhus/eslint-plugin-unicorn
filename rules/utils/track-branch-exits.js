@@ -118,10 +118,24 @@ export default function trackBranchExits(context, isExitBranch) {
 				&& [...postIfSegments].every(segment =>
 					segment.prevSegments.every(previous => !terminalSegments.has(previous)),
 				);
-			const exits = exitsByCodePath || isExitBranch?.(branch);
-			branchAlwaysExits.set(branch, reachableIfStatements.has(ifStatement) && Boolean(exits));
+			// `isExitBranch` walks the whole branch, so defer it until a rule actually asks about this branch.
+			branchAlwaysExits.set(branch, reachableIfStatements.has(ifStatement) && (exitsByCodePath || undefined));
 		}
 	});
 
-	return branch => Boolean(branch && branchAlwaysExits.get(branch));
+	return branch => {
+		if (!branch || !branchAlwaysExits.has(branch)) {
+			return false;
+		}
+
+		let exits = branchAlwaysExits.get(branch);
+		if (exits === undefined) {
+			// `isExitBranch` may query this same branch while computing. Treat it as non-exiting meanwhile, which matches the old eager evaluation where the entry did not exist yet.
+			branchAlwaysExits.set(branch, false);
+			exits = Boolean(isExitBranch?.(branch));
+			branchAlwaysExits.set(branch, exits);
+		}
+
+		return exits;
+	};
 }

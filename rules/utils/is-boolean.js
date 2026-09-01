@@ -641,8 +641,10 @@ function isBooleanExpression(node, context, visitedVariables = new Set()) {
 		return false;
 	}
 
-	const scope = context.sourceCode.getScope(node);
-	if (isBooleanTypeAnnotation(node.typeAnnotation, context, scope) || isBooleanStaticValue(node, context)) {
+	if (
+		(node.typeAnnotation && isBooleanTypeAnnotation(node.typeAnnotation, context, context.sourceCode.getScope(node)))
+		|| isBooleanStaticValue(node, context)
+	) {
 		return true;
 	}
 

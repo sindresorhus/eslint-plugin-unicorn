@@ -1,4 +1,4 @@
-import isIdentifier from 'is-identifier';
+import identifierRegex from 'identifier-regex';
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall, isUndefined} from './ast/index.js';
 import {
@@ -233,7 +233,8 @@ function isDefinitelyNotFunctionValue(node, context, visitedVariables = new Set(
 		: false;
 }
 
-const isValidParameterName = isIdentifier;
+const identifierNameRegex = identifierRegex();
+const isValidParameterName = name => identifierNameRegex.test(name);
 
 function getSuggestionParameters(callExpression, callback, parameters) {
 	if (callback.type !== 'Identifier') {

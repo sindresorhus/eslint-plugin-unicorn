@@ -34,14 +34,15 @@ const isVueBooleanAttributeValue = node =>
 		'else-if',
 		'show',
 	].includes(node.parent.key.name.rawName);
+export const controlFlowStatementTypes = new Set([
+	'IfStatement',
+	'ConditionalExpression',
+	'WhileStatement',
+	'DoWhileStatement',
+	'ForStatement',
+]);
 const isDirectControlFlowTest = node =>
-	[
-		'IfStatement',
-		'ConditionalExpression',
-		'WhileStatement',
-		'DoWhileStatement',
-		'ForStatement',
-	].includes(node.parent.type)
+	controlFlowStatementTypes.has(node.parent.type)
 	&& node.parent.test === node;
 const isDirectBooleanExpression = (node, context) =>
 	isLogicNot(node)

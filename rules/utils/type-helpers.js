@@ -682,10 +682,11 @@ function getType(node, context, options, visitedVariables = new Set()) {
 		return getType(node.expression, context, options, visitedVariables);
 	}
 
-	const scope = context.sourceCode.getScope(node);
-	const typeFromOwnAnnotation = getTypeAnnotationType(node.typeAnnotation, scope, options);
-	if (typeFromOwnAnnotation !== unknown) {
-		return typeFromOwnAnnotation;
+	if (node.typeAnnotation) {
+		const typeFromOwnAnnotation = getTypeAnnotationType(node.typeAnnotation, context.sourceCode.getScope(node), options);
+		if (typeFromOwnAnnotation !== unknown) {
+			return typeFromOwnAnnotation;
+		}
 	}
 
 	const typeFromExpression = getTypeFromExpression(node, context, options, visitedVariables);
@@ -726,10 +727,13 @@ const createTypeCheckers = options => {
 		...options,
 	};
 
+	// These run on hot nodes, so only copy the options when there is something to override.
+	const getOptions = overrides => overrides ? {...options, ...overrides} : options;
+
 	return {
-		getType: (node, context, overrides) => normalizeType(getType(node, context, {...options, ...overrides})),
-		isTarget: (node, context, overrides) => getType(node, context, {...options, ...overrides}) === target,
-		isKnownNonTarget: (node, context, overrides) => normalizeType(getType(node, context, {...options, ...overrides})) === nonTarget,
+		getType: (node, context, overrides) => normalizeType(getType(node, context, getOptions(overrides))),
+		isTarget: (node, context, overrides) => getType(node, context, getOptions(overrides)) === target,
+		isKnownNonTarget: (node, context, overrides) => normalizeType(getType(node, context, getOptions(overrides))) === nonTarget,
 	};
 };
 

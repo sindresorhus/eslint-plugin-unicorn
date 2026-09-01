@@ -1,6 +1,5 @@
-import isIdentifier from 'is-identifier';
+import identifierRegex from 'identifier-regex';
 import resolveVariableName from './resolve-variable-name.js';
-import getReferences from './get-references.js';
 
 // https://github.com/microsoft/TypeScript/issues/2536#issuecomment-87194347
 const typescriptReservedWords = new Set([
@@ -66,9 +65,11 @@ const typescriptReservedWords = new Set([
 	'of',
 ]);
 
+const identifierNameRegex = identifierRegex();
+
 const isValidIdentifier = name =>
 	typeof name === 'string'
-	&& isIdentifier(name)
+	&& identifierNameRegex.test(name)
 	&& !typescriptReservedWords.has(name);
 
 /*
@@ -88,8 +89,9 @@ function unicorn() {
 }
 ```
 */
+// `scope.through` already contains every unresolved reference from the scope and its descendants, so there is no need to walk child scopes.
 const isUnresolvedName = (name, scope) =>
-	getReferences(scope).some(({identifier, resolved}) => identifier?.name === name && !resolved);
+	scope.through.some(({identifier, resolved}) => identifier?.name === name && !resolved);
 
 const isSafeName = (name, scopes) =>
 	scopes.every(scope => !(resolveVariableName(name, scope) || isUnresolvedName(name, scope)));

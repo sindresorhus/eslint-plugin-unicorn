@@ -382,9 +382,19 @@ const create = context => {
 		});
 	});
 
+	// Static methods only exist inside class bodies, so skip the ancestor walk for identifiers outside any class.
+	let classBodyDepth = 0;
+	context.on('ClassBody', () => {
+		classBodyDepth++;
+	});
+	context.onExit('ClassBody', () => {
+		classBodyDepth--;
+	});
+
 	context.on('Identifier', node => {
 		if (
-			!isReferenceIdentifier(node)
+			classBodyDepth === 0
+			|| !isReferenceIdentifier(node)
 			|| isTypeScriptTypeIdentifier(node)
 			|| isAssignmentTarget(node)
 			|| isDirectCallee(node)

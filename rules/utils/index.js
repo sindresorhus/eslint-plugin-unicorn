@@ -20,6 +20,7 @@ export {
 	isControlFlowTest,
 	getBooleanAncestor,
 	isGlobalBooleanCall,
+	controlFlowStatementTypes,
 } from './boolean.js';
 
 export {default as assertToken} from './assert-token.js';
