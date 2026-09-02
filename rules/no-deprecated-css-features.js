@@ -676,7 +676,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow deprecated CSS features.',
-			recommended: true,
+			recommended: false,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

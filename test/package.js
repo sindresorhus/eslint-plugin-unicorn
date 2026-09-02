@@ -27,7 +27,6 @@ const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 	.map(([ruleId]) => ruleId);
 
 const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
-const isCssRule = rule => rule.meta.languages?.includes('css/css') || rule.meta.languages?.includes('*');
 
 const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
@@ -100,22 +99,12 @@ test('core rule replacements are disabled only when the Unicorn replacement is e
 
 test('validate configuration', async t => {
 	const results = await Promise.all(Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
-		const isCssConfig = name.startsWith('css/');
 		const eslint = new ESLint({
-			baseConfig: isCssConfig
-				? [
-					{
-						files: ['**/*.css'],
-						plugins: {css},
-						language: 'css/css',
-					},
-					config,
-				]
-				: config,
+			baseConfig: config,
 			overrideConfigFile: true,
 		});
 
-		const result = await eslint.calculateConfigForFile(isCssConfig ? 'dummy.css' : 'dummy.js');
+		const result = await eslint.calculateConfigForFile('dummy.js');
 
 		return {name, config, result};
 	}));
@@ -159,7 +148,7 @@ test('recommended config works with defineConfig', async t => {
 	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
 });
 
-test('CSS recommended config works with defineConfig', async t => {
+test('CSS rule works with defineConfig', async t => {
 	const eslint = new ESLint({
 		baseConfig: defineConfig({
 			files: ['**/*.css'],
@@ -168,10 +157,9 @@ test('CSS recommended config works with defineConfig', async t => {
 				unicorn: eslintPluginUnicorn,
 			},
 			language: 'css/css',
-			extends: [
-				'css/recommended',
-				'unicorn/css/recommended',
-			],
+			rules: {
+				'unicorn/no-deprecated-css-features': 'error',
+			},
 		}),
 		overrideConfigFile: true,
 	});
@@ -314,11 +302,6 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 		if (shouldEnableJavaScriptPreset) {
 			const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
 			t.is(recommendedSeverity, recommended ? 'error' : 'off', `'${name}' rule should have the correct severity in the recommended config.`);
-		}
-
-		if (isCssRule(rule)) {
-			const recommendedSeverity = eslintPluginUnicorn.configs['css/recommended'].rules[`unicorn/${name}`];
-			t.is(recommendedSeverity, recommended ? 'error' : 'off', `'${name}' rule should have the correct severity in the CSS recommended config.`);
 		}
 
 		const unopinionatedSeverity = eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${name}`];

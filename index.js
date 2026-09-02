@@ -49,7 +49,6 @@ const getExternalRules = rules => Object.fromEntries(
 );
 
 const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
-const isCssRule = rule => rule.meta.languages?.includes('css/css') || rule.meta.languages?.includes('*');
 
 const recommendedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
 	`unicorn/${id}`,
@@ -60,12 +59,6 @@ const unopinionatedRules = Object.fromEntries(Object.entries(rules).map(([id, ru
 	`unicorn/${id}`,
 	rule.meta.docs.recommended === 'unopinionated' && isJavaScriptRule(rule) ? 'error' : 'off',
 ]));
-
-const cssRecommendedRules = Object.fromEntries(
-	Object.entries(rules)
-		.filter(([, rule]) => isCssRule(rule))
-		.map(([id, rule]) => [`unicorn/${id}`, rule.meta.docs.recommended ? 'error' : 'off']),
-);
 
 // TODO: Enable `prefer-iterator-concat` in the recommended and unopinionated configs when targeting Node.js 26.
 
@@ -90,15 +83,6 @@ const createConfig = (rules, flatConfigName) => ({
 	},
 });
 
-const createCssConfig = (rules, flatConfigName) => ({
-	name: flatConfigName,
-	files: ['**/*.css'],
-	plugins: {
-		unicorn,
-	},
-	rules,
-});
-
 const unicorn = {
 	meta: {
 		name: packageJson.name,
@@ -114,7 +98,6 @@ const configs = {
 	recommended: createConfig(recommendedRules, 'unicorn/recommended'),
 	unopinionated: createConfig(unopinionatedRules, 'unicorn/unopinionated'),
 	all: createConfig(allRules, 'unicorn/all'),
-	'css/recommended': createCssConfig(cssRecommendedRules, 'unicorn/css/recommended'),
 
 	// TODO: Remove this at some point. Kept for now to avoid breaking users.
 	'flat/recommended': createConfig(recommendedRules, 'unicorn/flat/recommended'),
