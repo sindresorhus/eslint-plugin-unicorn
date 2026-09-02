@@ -59,7 +59,12 @@ test.snapshot({
 
 test.snapshot({
 	valid: [
-		asCssWithScopingRootAtRules('@utility content-body { @media all { & p {} } }'),
+		asCssWithScopingRootAtRules(outdent`
+			@utility content-body {
+				@media all { & p {} }
+				@container (width > 1px) { & p {} }
+			}
+		`),
 		asCssWithScopingRootAtRules('@UTILITY content-body { & p {} }'),
 		asCssWithScopingRootAtRules(String.raw`@\75 tility content-body { & p {} }`),
 		asCssWithScopingRootAtRules('@utility content-body { @supports (display: grid) { & p {} } }', ['UTILITY']),

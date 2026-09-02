@@ -32,10 +32,6 @@ const isInScopeLimit = (node, sourceCode) => {
 		if (ancestor.type === 'Scope') {
 			return ancestor.limit === selectorList;
 		}
-
-		if (ancestor.type === 'Atrule') {
-			return false;
-		}
 	}
 
 	return false;
@@ -93,7 +89,7 @@ const create = context => {
 		if (
 			!selectorOwner
 			|| (!isStyleRule(selectorOwner, sourceCode) && !isScopeAtRule(selectorOwner))
-			|| isInScopeLimit(node, sourceCode)
+			|| (isScopeAtRule(selectorOwner) && isInScopeLimit(node, sourceCode))
 			|| hasScopingRoot(selectorOwner, sourceCode, scopingRootAtRules)
 		) {
 			return;
@@ -115,7 +111,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow unscoped CSS nesting selectors.',
-			recommended: 'unopinionated',
+			recommended: false,
 		},
 		schema,
 		defaultOptions: [{scopingRootAtRules: []}],

@@ -5,7 +5,6 @@ import test from 'ava';
 import {ESLint} from 'eslint';
 import {defineConfig} from 'eslint/config';
 import {builtinRules} from 'eslint/use-at-your-own-risk';
-import css from '@eslint/css';
 /// import * as eslintrc from '@eslint/eslintrc';
 /// import globals from 'globals';
 import coreRuleReplacements from '../configs/core-rule-replacements.js';
@@ -27,7 +26,6 @@ const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 	.map(([ruleId]) => ruleId);
 
 const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
-const isCssRule = rule => rule.meta.languages?.includes('css/css') || rule.meta.languages?.includes('*');
 
 const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
@@ -100,22 +98,12 @@ test('core rule replacements are disabled only when the Unicorn replacement is e
 
 test('validate configuration', async t => {
 	const results = await Promise.all(Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
-		const isCssConfig = name.startsWith('css/');
 		const eslint = new ESLint({
-			baseConfig: isCssConfig
-				? [
-					{
-						files: ['**/*.css'],
-						plugins: {css},
-						language: 'css/css',
-					},
-					config,
-				]
-				: config,
+			baseConfig: config,
 			overrideConfigFile: true,
 		});
 
-		const result = await eslint.calculateConfigForFile(isCssConfig ? 'dummy.css' : 'dummy.js');
+		const result = await eslint.calculateConfigForFile('dummy.js');
 
 		return {name, config, result};
 	}));
@@ -131,13 +119,12 @@ test('validate configuration', async t => {
 
 test('preset configs only enable language-compatible rules', t => {
 	for (const [configName, config] of Object.entries(eslintPluginUnicorn.configs)) {
-		const isCompatibleRule = configName.startsWith('css/') ? isCssRule : isJavaScriptRule;
 		const enabledUnicornRuleIds = Object.entries(config.rules)
 			.filter(([ruleId, severity]) => severity === 'error' && ruleId.startsWith('unicorn/'))
 			.map(([ruleId]) => ruleId);
 		for (const ruleId of enabledUnicornRuleIds) {
 			const ruleName = ruleId.slice('unicorn/'.length);
-			t.true(isCompatibleRule(eslintPluginUnicorn.rules[ruleName]), `'${ruleId}' in '${configName}' does not support the config's language.`);
+			t.true(isJavaScriptRule(eslintPluginUnicorn.rules[ruleName]), `'${ruleId}' in '${configName}' does not support JavaScript.`);
 		}
 	}
 });
@@ -158,26 +145,6 @@ test('recommended config works with defineConfig', async t => {
 
 	const [result] = await eslint.lintText('[1, 2, 3].indexOf(2) !== -1;', {filePath: 'file.js'});
 	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
-});
-
-test('CSS recommended config works with defineConfig', async t => {
-	const eslint = new ESLint({
-		baseConfig: defineConfig({
-			files: ['**/*.css'],
-			plugins: {
-				css,
-				unicorn: eslintPluginUnicorn,
-			},
-			language: 'css/css',
-			extends: [
-				'unicorn/css/recommended',
-			],
-		}),
-		overrideConfigFile: true,
-	});
-
-	const [result] = await eslint.lintText('& {}', {filePath: 'file.css'});
-	t.true(result.messages.some(message => message.ruleId === 'unicorn/no-unscoped-css-nesting-selector'));
 });
 
 test('Every rule has valid meta.type', t => {
@@ -323,14 +290,6 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 			t.is(unopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the unopinionated config.`);
 		} else {
 			t.is(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);
-		}
-
-		if (isCssRule(rule)) {
-			const recommendedCssSeverity = eslintPluginUnicorn.configs['css/recommended'].rules[`unicorn/${name}`];
-			t.is(recommendedCssSeverity, recommended ? 'error' : 'off', `'${name}' rule should be synchronized with the CSS recommended config.`);
-
-			const unopinionatedCssSeverity = eslintPluginUnicorn.configs['css/unopinionated'].rules[`unicorn/${name}`];
-			t.is(unopinionatedCssSeverity, recommended === 'unopinionated' ? 'error' : 'off', `'${name}' rule should be synchronized with the CSS unopinionated config.`);
 		}
 	}
 });
