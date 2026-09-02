@@ -1,12 +1,17 @@
+import stripIndent from 'strip-indent';
 import {isMethodCall, isMemberExpression} from './ast/index.js';
 import {
 	getParenthesizedRange,
+	getIndentString,
+	hasMultilineToken,
 	isSameReference,
 	isLogicalExpression,
 	isKnownNonIndexedCollection,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const messages = {
+	'for-of': 'The non-empty check is useless as `for…of` does not iterate over an empty array.',
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
 	zero: 'The empty check is useless as `Array#every()` returns `true` for an empty array.',
 };
@@ -16,8 +21,38 @@ const isLengthCompareZero = node =>
 	node.type === 'BinaryExpression'
 	&& node.right.type === 'Literal'
 	&& node.right.raw === '0'
-	&& isMemberExpression(node.left, {property: 'length', optional: false})
-	&& isLogicalExpression(node.parent);
+	&& isMemberExpression(node.left, {property: 'length', optional: false});
+
+const getGuardedForOfStatement = node => {
+	if (node.alternate) {
+		return;
+	}
+
+	let {consequent} = node;
+	if (consequent.type === 'BlockStatement') {
+		if (consequent.body.length !== 1) {
+			return;
+		}
+
+		[consequent] = consequent.body;
+	}
+
+	if (consequent.type === 'ForOfStatement' && !consequent.await) {
+		return consequent;
+	}
+};
+
+const getUnindentedText = (node, parent, context) => {
+	const {sourceCode} = context;
+	const sourceIndent = getIndentString(node, context);
+	const targetIndent = getIndentString(parent, context);
+	const [firstLine, ...remainingLines] = stripIndent(`${sourceIndent}${sourceCode.getText(node)}`).split('\n');
+
+	return [
+		firstLine,
+		...remainingLines.map(line => line === '' ? line : `${targetIndent}${line}`),
+	].join('\n');
+};
 
 function flatLogicalExpression(node) {
 	return [node.left, node.right].flatMap(child =>
@@ -33,6 +68,8 @@ const create = context => {
 	const logicalExpressions = [];
 	const zeroLengthChecks = new Set();
 	const nonZeroLengthChecks = new Set();
+	const {sourceCode} = context;
+	const startsAtLineIndent = node => getIndentString(node, context).length === sourceCode.getLoc(node).start.column;
 
 	// Resolving the receiver type is expensive, so it runs last, after the cheap shape and reference checks
 	const isMatchingCall = (condition, method, lengthCheck) =>
@@ -74,7 +111,7 @@ const create = context => {
 	}
 
 	context.on('BinaryExpression', node => {
-		if (!isLengthCompareZero(node)) {
+		if (!isLengthCompareZero(node) || !isLogicalExpression(node.parent)) {
 			return;
 		}
 
@@ -86,6 +123,45 @@ const create = context => {
 		}
 	});
 
+	context.on('IfStatement', node => {
+		const lengthCheck = node.test;
+		const loop = getGuardedForOfStatement(node);
+		if (
+			!loop
+			|| !isLengthCompareZero(lengthCheck)
+			|| !['>', '!=='].includes(lengthCheck.operator)
+			|| !isSameReference(lengthCheck.left.object, loop.right)
+			|| isKnownNonIndexedCollection(loop.right, context)
+		) {
+			return;
+		}
+
+		const problem = {
+			loc: {
+				start: sourceCode.getLoc(lengthCheck.left.property).start,
+				end: sourceCode.getLoc(lengthCheck).end,
+			},
+			messageId: 'for-of',
+		};
+		const hasMultilineComment = sourceCode.getCommentsInside(loop).some(comment => {
+			const {start, end} = sourceCode.getLoc(comment);
+			return start.line !== end.line;
+		});
+		const {start, end} = sourceCode.getLoc(loop);
+		const canUnindent = start.line === end.line || (startsAtLineIndent(node) && startsAtLineIndent(loop));
+
+		if (
+			canUnindent
+			&& !hasMultilineToken(loop, context)
+			&& !hasMultilineComment
+			&& !wouldRemoveComments(context, node, [loop])
+		) {
+			problem.fix = fixer => fixer.replaceText(node, getUnindentedText(loop, node, context));
+		}
+
+		return problem;
+	});
+
 	context.on('LogicalExpression', node => {
 		if (isLogicalExpression(node)) {
 			logicalExpressions.push(node);
@@ -95,7 +171,6 @@ const create = context => {
 	context.on('Program:exit', function * () {
 		const nodes = new Set(logicalExpressions.flatMap(logicalExpression =>
 			getUselessLengthCheckNode(logicalExpression)));
-		const {sourceCode} = context;
 
 		for (const node of nodes) {
 			yield {
