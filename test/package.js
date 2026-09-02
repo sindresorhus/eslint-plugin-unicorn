@@ -2,6 +2,7 @@ import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
 /// import process from 'node:process';
 import test from 'ava';
+import css from '@eslint/css';
 import {ESLint} from 'eslint';
 import {defineConfig} from 'eslint/config';
 import {builtinRules} from 'eslint/use-at-your-own-risk';
@@ -147,6 +148,26 @@ test('recommended config works with defineConfig', async t => {
 	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
 });
 
+test('CSS rule works with defineConfig', async t => {
+	const eslint = new ESLint({
+		baseConfig: defineConfig({
+			files: ['**/*.css'],
+			plugins: {
+				css,
+				unicorn: eslintPluginUnicorn,
+			},
+			language: 'css/css',
+			rules: {
+				'unicorn/no-deprecated-css-features': 'error',
+			},
+		}),
+		overrideConfigFile: true,
+	});
+
+	const [result] = await eslint.lintText('a { word-wrap: break-word; }', {filePath: 'file.css'});
+	t.true(result.messages.some(message => message.ruleId === 'unicorn/no-deprecated-css-features'));
+});
+
 test('Every rule has valid meta.type', t => {
 	const validTypes = ['problem', 'suggestion', 'layout'];
 
@@ -277,16 +298,14 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 
 		const {recommended} = rule.meta.docs;
 		t.true(typeof recommended === 'boolean' || recommended === 'unopinionated', `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
-
-		const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
-		if (recommended && isJavaScriptRule(rule)) {
-			t.is(recommendedSeverity, 'error', `'${name}' rule should set to 'error'.`);
-		} else {
-			t.is(recommendedSeverity, 'off', `'${name}' rule should set to 'off'.`);
+		const shouldEnableJavaScriptPreset = isJavaScriptRule(rule);
+		if (shouldEnableJavaScriptPreset) {
+			const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
+			t.is(recommendedSeverity, recommended ? 'error' : 'off', `'${name}' rule should have the correct severity in the recommended config.`);
 		}
 
 		const unopinionatedSeverity = eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${name}`];
-		if (recommended === 'unopinionated' && isJavaScriptRule(rule)) {
+		if (recommended === 'unopinionated' && shouldEnableJavaScriptPreset) {
 			t.is(unopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the unopinionated config.`);
 		} else {
 			t.is(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);

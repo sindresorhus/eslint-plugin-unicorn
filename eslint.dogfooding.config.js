@@ -88,6 +88,15 @@ const config = [
 	},
 	{
 		files: [
+			'test/no-deprecated-css-features.js',
+		],
+		rules: {
+			// RuleTester uses `null` to assert that a problem is not autofixable.
+			'unicorn/no-null': 'off',
+		},
+	},
+	{
+		files: [
 			'.eslint-doc-generatorrc.js',
 		],
 		rules: {

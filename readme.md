@@ -162,6 +162,7 @@ export default defineConfig([
 | [no-console-spaces](docs/rules/no-console-spaces.md)                                                       | Do not use leading/trailing space between `console.log` parameters.                                                            | ✅ ☑️ | 🔧 |    |    |
 | [no-constant-zero-expression](docs/rules/no-constant-zero-expression.md)                                   | Disallow arithmetic and bitwise operations that always evaluate to `0`.                                                        | ✅ ☑️ |    | 💡 |    |
 | [no-declarations-before-early-exit](docs/rules/no-declarations-before-early-exit.md)                       | Disallow declarations before conditional early exits when they are only used after the exit.                                   | ✅ ☑️ | 🔧 |    |    |
+| [no-deprecated-css-features](docs/rules/no-deprecated-css-features.md)                                     | Disallow deprecated CSS features.                                                                                              |      | 🔧 | 💡 |    |
 | [no-document-cookie](docs/rules/no-document-cookie.md)                                                     | Do not use `document.cookie` directly.                                                                                         | ✅ ☑️ |    |    |    |
 | [no-double-comparison](docs/rules/no-double-comparison.md)                                                 | Disallow two comparisons of the same operands that can be combined into one.                                                   | ✅ ☑️ |    | 💡 |    |
 | [no-duplicate-css-selectors](docs/rules/no-duplicate-css-selectors.md)                                     | Disallow duplicate CSS selectors.                                                                                              |      | 🔧 |    |    |
@@ -536,6 +537,7 @@ These rules also work on specific non-JavaScript languages:
 | Name | CSS | HTML | JSON | Markdown | YAML |
 | :-- | :-: | :-: | :-: | :-: | :-: |
 | [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |
 | [`no-duplicate-css-selectors`](docs/rules/no-duplicate-css-selectors.md) | ✅ |  |  |  |  |
 | [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -565,7 +567,7 @@ See [the list](docs/deleted-and-deprecated-rules.md).
 
 See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration-files) for more information about extending config files.
 
-**Note**: Preset configs will also enable the correct [language options](https://eslint.org/docs/latest/use/configure/language-options).
+**Note**: The JavaScript preset configs also enable the correct [language options](https://eslint.org/docs/latest/use/configure/language-options).
 
 ### Recommended config
 
