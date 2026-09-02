@@ -5,6 +5,7 @@ import {
 	needsSemicolon,
 	trackBranchExits,
 } from './utils/index.js';
+import {extendFixRange} from './fix/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -163,7 +164,7 @@ const isSafeToMoveAlternate = (ifStatement, context) => {
 	);
 };
 
-const fix = (ifStatement, context) => fixer => {
+const fix = (ifStatement, context) => function * (fixer) {
 	const {sourceCode} = context;
 	const {alternate, consequent} = ifStatement;
 
@@ -187,7 +188,8 @@ const fix = (ifStatement, context) => fixer => {
 		return;
 	}
 
-	return fixer.replaceTextRange(replacementRange, getReplacementText(ifStatement, sourceCode));
+	yield fixer.replaceTextRange(replacementRange, getReplacementText(ifStatement, sourceCode));
+	yield extendFixRange(fixer, sourceCode.getRange(consequent));
 };
 
 /**
