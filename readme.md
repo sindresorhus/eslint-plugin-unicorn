@@ -257,6 +257,7 @@ export default defineConfig([
 | [no-unsafe-property-key](docs/rules/no-unsafe-property-key.md)                                             | Disallow unsafe values as property keys.                                                                                       | ✅    |    |    |    |
 | [no-unsafe-sqlite-interpolation](docs/rules/no-unsafe-sqlite-interpolation.md)                             | Disallow interpolation into SQL strings passed to Node’s `node:sqlite` APIs.                                                   | ✅ ☑️ |    |    |    |
 | [no-unsafe-string-replacement](docs/rules/no-unsafe-string-replacement.md)                                 | Disallow non-literal replacement values in `String#replace()` and `String#replaceAll()`.                                       | ✅    |    |    |    |
+| [no-unscoped-css-nesting-selector](docs/rules/no-unscoped-css-nesting-selector.md)                         | Disallow unscoped CSS nesting selectors.                                                                                       |      |    |    |    |
 | [no-unused-array-method-return](docs/rules/no-unused-array-method-return.md)                               | Disallow ignoring the return value of selected array methods.                                                                  | ✅ ☑️ |    |    |    |
 | [no-unused-properties](docs/rules/no-unused-properties.md)                                                 | Disallow unused object properties.                                                                                             |      |    |    |    |
 | [no-useless-boolean-cast](docs/rules/no-useless-boolean-cast.md)                                           | Disallow unnecessary `Boolean()` casts in array predicate callbacks.                                                           | ✅ ☑️ | 🔧 |    |    |
@@ -486,6 +487,7 @@ export default defineConfig([
 		},
 		language: 'css/css',
 		rules: {
+			'unicorn/no-unscoped-css-nesting-selector': 'error',
 			'unicorn/prefer-explicit-viewport-units': 'error',
 			'unicorn/prefer-https': 'error',
 			'unicorn/prefer-media-feature-range-syntax': 'error',
@@ -547,6 +549,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |  |
 | [`no-unknown-css-annotations`](docs/rules/no-unknown-css-annotations.md) | ✅ |  |  |  |  |
 | [`no-unknown-pseudo-selectors`](docs/rules/no-unknown-pseudo-selectors.md) | ✅ |  |  |  |  |
+| [`no-unscoped-css-nesting-selector`](docs/rules/no-unscoped-css-nesting-selector.md) | ✅ |  |  |  |  |
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |
 | [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |

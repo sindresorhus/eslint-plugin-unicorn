@@ -117,6 +117,18 @@ test('validate configuration', async t => {
 	}
 });
 
+test('preset configs only enable language-compatible rules', t => {
+	for (const [configName, config] of Object.entries(eslintPluginUnicorn.configs)) {
+		const enabledUnicornRuleIds = Object.entries(config.rules)
+			.filter(([ruleId, severity]) => severity === 'error' && ruleId.startsWith('unicorn/'))
+			.map(([ruleId]) => ruleId);
+		for (const ruleId of enabledUnicornRuleIds) {
+			const ruleName = ruleId.slice('unicorn/'.length);
+			t.true(isJavaScriptRule(eslintPluginUnicorn.rules[ruleName]), `'${ruleId}' in '${configName}' does not support JavaScript.`);
+		}
+	}
+});
+
 test('recommended config works with defineConfig', async t => {
 	const eslint = new ESLint({
 		baseConfig: defineConfig({
@@ -267,14 +279,14 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 		t.true(typeof recommended === 'boolean' || recommended === 'unopinionated', `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
 
 		const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
-		if (recommended) {
+		if (recommended && isJavaScriptRule(rule)) {
 			t.is(recommendedSeverity, 'error', `'${name}' rule should set to 'error'.`);
 		} else {
 			t.is(recommendedSeverity, 'off', `'${name}' rule should set to 'off'.`);
 		}
 
 		const unopinionatedSeverity = eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${name}`];
-		if (recommended === 'unopinionated') {
+		if (recommended === 'unopinionated' && isJavaScriptRule(rule)) {
 			t.is(unopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the unopinionated config.`);
 		} else {
 			t.is(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);
