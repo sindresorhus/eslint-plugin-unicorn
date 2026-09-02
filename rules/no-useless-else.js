@@ -179,8 +179,9 @@ const fix = (ifStatement, context) => function * (fixer) {
 		return;
 	}
 
+	const consequentRange = sourceCode.getRange(consequent);
 	const replacementRange = [
-		sourceCode.getRange(consequent)[1],
+		consequentRange[1],
 		sourceCode.getRange(alternate)[1],
 	];
 
@@ -189,7 +190,8 @@ const fix = (ifStatement, context) => function * (fixer) {
 	}
 
 	yield fixer.replaceTextRange(replacementRange, getReplacementText(ifStatement, sourceCode));
-	yield extendFixRange(fixer, sourceCode.getRange(consequent));
+	// Prevent other rules from changing the branch whose exit makes the `else` useless.
+	yield extendFixRange(fixer, consequentRange);
 };
 
 /**

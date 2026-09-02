@@ -3,21 +3,21 @@ import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
 
-const fixCode = (code, rules) => {
+const config = {
+	languageOptions: {ecmaVersion: 'latest'},
+	plugins: {unicorn: plugin},
+	rules: {
+		'unicorn/no-useless-continue': 'error',
+		'unicorn/no-useless-else': 'error',
+	},
+};
+
+const fixCode = code => {
 	const linter = new Linter();
-	return linter.verifyAndFix(code, {
-		languageOptions: {ecmaVersion: 'latest'},
-		plugins: {unicorn: plugin},
-		rules,
-	}).output;
+	return linter.verifyAndFix(code, config).output;
 };
 
-const continueRules = {
-	'unicorn/no-useless-continue': 'error',
-	'unicorn/no-useless-else': 'error',
-};
-
-test('does not combine `continue` and `else` fixes', t => {
+test('preserves a `continue` made meaningful by removing `else`', t => {
 	const code = outdent`
 		function deleteThings() {
 			for (const thing of things) {
@@ -31,7 +31,14 @@ test('does not combine `continue` and `else` fixes', t => {
 		}
 	`;
 
-	t.is(fixCode(code, continueRules), outdent`
+	const linter = new Linter();
+	const messages = linter.verify(code, config);
+	t.deepEqual(messages.map(({ruleId}) => ruleId), [
+		'unicorn/no-useless-continue',
+		'unicorn/no-useless-else',
+	]);
+
+	t.is(fixCode(code), outdent`
 		function deleteThings() {
 			for (const thing of things) {
 				if (dryRun) {
@@ -44,7 +51,7 @@ test('does not combine `continue` and `else` fixes', t => {
 	`);
 });
 
-test('does not combine nested control-flow fixes', t => {
+test('preserves a nested `continue` while fixing nested `else` branches', t => {
 	const code = outdent`
 		for (const item of items) {
 			if (skipItem) {
@@ -59,7 +66,7 @@ test('does not combine nested control-flow fixes', t => {
 		}
 	`;
 
-	t.is(fixCode(code, continueRules), outdent`
+	t.is(fixCode(code), outdent`
 		for (const item of items) {
 			if (skipItem) {
 				if (retryItem) {
@@ -72,23 +79,23 @@ test('does not combine nested control-flow fixes', t => {
 	`);
 });
 
-test('does not combine fixes for an `else if` chain', t => {
+test('preserves a `continue` when flattening an `else if` chain', t => {
 	const code = outdent`
 		for (const item of items) {
 			if (skipItem) {
 				continue;
-			} else if (processItem) {
+			} else if (shouldProcessItem) {
 				process(item);
 			}
 		}
 	`;
 
-	t.is(fixCode(code, continueRules), outdent`
+	t.is(fixCode(code), outdent`
 		for (const item of items) {
 			if (skipItem) {
 				continue;
 			}
-			if (processItem) {
+			if (shouldProcessItem) {
 				process(item);
 			}
 		}
