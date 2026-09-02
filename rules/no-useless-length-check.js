@@ -1,4 +1,3 @@
-import stripIndent from 'strip-indent';
 import {isMethodCall, isMemberExpression} from './ast/index.js';
 import {
 	getParenthesizedRange,
@@ -46,11 +45,14 @@ const getUnindentedText = (node, parent, context) => {
 	const {sourceCode} = context;
 	const sourceIndent = getIndentString(node, context);
 	const targetIndent = getIndentString(parent, context);
-	const [firstLine, ...remainingLines] = stripIndent(`${sourceIndent}${sourceCode.getText(node)}`).split('\n');
+	const [firstLine, ...remainingLines] = sourceCode.getText(node).split('\n');
+	if (remainingLines.some(line => line.trim() !== '' && !line.startsWith(sourceIndent))) {
+		return;
+	}
 
 	return [
 		firstLine,
-		...remainingLines.map(line => line === '' ? line : `${targetIndent}${line}`),
+		...remainingLines.map(line => line.trim() === '' ? '' : `${targetIndent}${line.slice(sourceIndent.length)}`),
 	].join('\n');
 };
 
@@ -156,7 +158,10 @@ const create = context => {
 			&& !hasMultilineComment
 			&& !wouldRemoveComments(context, node, [loop])
 		) {
-			problem.fix = fixer => fixer.replaceText(node, getUnindentedText(loop, node, context));
+			const unindentedText = getUnindentedText(loop, node, context);
+			if (unindentedText !== undefined) {
+				problem.fix = fixer => fixer.replaceText(node, unindentedText);
+			}
 		}
 
 		return problem;

@@ -33,6 +33,14 @@ const spaceIndentedLoop = [
 	'}',
 ].join('\n');
 
+const misindentedLoop = [
+	'if (array.length > 0) {',
+	'\tfor (const element of array) {',
+	'use(element);',
+	'\t}',
+	'}',
+].join('\n');
+
 test.snapshot({
 	valid: [
 		// Length check before loop
@@ -143,61 +151,6 @@ test.snapshot({
 		'array.length > 0 && (array.some(Boolean) || foo)',
 	],
 	invalid: [
-		outdent`
-			if (array.length > 0) {
-				for (const element of array) {
-					use(element);
-				}
-			}
-		`,
-		outdent`
-			if (array.length !== 0) {
-				for (const element of array) {
-					// Do work.
-				}
-			}
-		`,
-		outdent`
-			function iterate(array) {
-				if (array.length > 0) {
-					for (const element of array) {
-						use(element);
-					}
-				}
-			}
-		`,
-		'if (array.length > 0) for (const element of array) { use(element); }',
-		'if (array.length > 0) { for (const element of array) use(element); }',
-		'if (((array.length > 0))) { for (const element of array) { use(element); } }',
-		'if (object.array.length > 0) { for (const element of object.array) { use(element); } }',
-		'if (array.length > 0) { for (const [key, value] of array) { use(key, value); } }',
-		'if (array.length > 0) { for (const element of array) { /* Keep this comment. */ use(element); } }',
-		'if (array.length > 0) { /* Keep this comment. */ for (const element of array) { use(element); } }',
-		'if (array.length /* Keep this comment. */ > 0) { for (const element of array) { use(element); } }',
-		multilineTemplate,
-		multilineBlockComment,
-		spaceIndentedLoop,
-		{
-			code: 'if ((array as any[]).length > 0) { for (const element of (array as any[])) { use(element); } }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'if ((<any[]>array).length > 0) { for (const element of (<any[]>array)) { use(element); } }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'if (array!.length !== 0) { for (const element of array!) { use(element); } }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'if ((array satisfies any[]).length > 0) { for (const element of (array satisfies any[])) { use(element); } }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function iterate(array: Int8Array) { if (array.length > 0) { for (const element of array) { use(element); } } }',
-			languageOptions: {parser: parsers.typescript},
-		},
-
 		'array.length === 0 || array.every(Boolean)',
 		'array.length > 0 && array.some(Boolean)',
 		'array.length !== 0 && array.some(Boolean)',
@@ -299,12 +252,94 @@ test.snapshot({
 			code: 'function f(array: Int8Array) { return array.length === 0 || array.every(Boolean); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		outdent`
+			if (array.length > 0) {
+				for (const element of array) {
+					use(element);
+				}
+			}
+		`,
+		outdent`
+			if (array.length !== 0) {
+				for (const element of array) {
+					// Do work.
+				}
+			}
+		`,
+		outdent`
+			function iterate(array) {
+				if (array.length > 0) {
+					for (const element of array) {
+						use(element);
+					}
+				}
+			}
+		`,
+		'if (array.length > 0) for (const element of array) { use(element); }',
+		'if (array.length > 0) { for (const element of array) use(element); }',
+		'if (((array.length > 0))) { for (const element of array) { use(element); } }',
+		'if (object.array.length > 0) { for (const element of object.array) { use(element); } }',
+		'if (array.length > 0) { for (const [key, value] of array) { use(key, value); } }',
+		'if (array.length > 0) { for (const element of array) { /* Keep this comment. */ use(element); } }',
+		spaceIndentedLoop,
+		{
+			code: 'if ((array as any[]).length > 0) { for (const element of (array as any[])) { use(element); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if ((<any[]>array).length > 0) { for (const element of (<any[]>array)) { use(element); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if (array!.length !== 0) { for (const element of array!) { use(element); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if ((array satisfies any[]).length > 0) { for (const element of (array satisfies any[])) { use(element); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function iterate(array: Int8Array) { if (array.length > 0) { for (const element of array) { use(element); } } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			if (arrays.length > 0) {
+				for (const array of arrays) {
+					if (array.length > 0) {
+						for (const element of array) {
+							use(element);
+						}
+					}
+				}
+			}
+		`,
 	],
 });
 
 test({
 	valid: [],
 	invalid: [
+		{
+			code: 'if (array.length > 0) { /* Keep this comment. */ for (const element of array) { use(element); } }',
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: 'if (array.length /* Keep this comment. */ > 0) { for (const element of array) { use(element); } }',
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: multilineTemplate,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: multilineBlockComment,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: misindentedLoop,
+			errors: [{messageId: 'for-of'}],
+		},
 		{
 			code: outdent`
 				if (array.length > 0) { for (const element of array) {
