@@ -3,9 +3,92 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+const multilineTemplate = [
+	'if (array.length > 0) {',
+	'\tfor (const element of array) {',
+	'\t\tconst value = `',
+	'\t\t\tKeep this indentation.',
+	'\t\t`;',
+	'\t}',
+	'}',
+].join('\n');
+
+const misindentedMultilineBlockComment = [
+	'if (array.length > 0) {',
+	'\tfor (const element of array) {',
+	'\t\t/*',
+	'Keep this column.',
+	'\t\t*/',
+	'\t}',
+	'}',
+].join('\n');
+
+const spaceIndentedLoop = [
+	'function iterate(array) {',
+	'  if (array.length > 0) {',
+	'    for (const element of array) {',
+	'      use(element);',
+	'    }',
+	'  }',
+	'}',
+].join('\n');
+
+const misindentedLoop = [
+	'if (array.length > 0) {',
+	'\tfor (const element of array) {',
+	'use(element);',
+	'\t}',
+	'}',
+].join('\n');
+
+const crlfLoop = [
+	'if (array.length > 0) {',
+	'\tfor (const element of array) {',
+	'',
+	'\t\tuse(element);',
+	'\t}',
+	'}',
+].join('\r\n');
+
+const unwrappedCrlfLoop = [
+	'for (const element of array) {',
+	'',
+	'\tuse(element);',
+	'}',
+].join('\r\n');
+
+const mixedLineEndingLoop = 'if (array.length > 0) {\r\n\tfor (const element of array) {\r\n\r\n\t\tuse(element);\n\t\tuseAgain(element);\r\n\t}\r\n}';
+const unwrappedMixedLineEndingLoop = 'for (const element of array) {\r\n\r\n\tuse(element);\n\tuseAgain(element);\r\n}';
+
 test.snapshot({
 	valid: [
-		// Known non-array receiver (type information)
+		// Length check before loop
+		'if (array.length === 0) { for (const element of array) {} }',
+		'if (array.length >= 0) { for (const element of array) {} }',
+		'if (array.length > 1) { for (const element of array) {} }',
+		'if (array.length != 0) { for (const element of array) {} }',
+		'if (array.length > 0 && condition) { for (const element of array) {} }',
+		'if (array.length > 0) { for (const element of otherArray) {} }',
+		'if (array.length > 0) { before(); for (const element of array) {} }',
+		'if (array.length > 0) { for (const element of array) {} after(); }',
+		'if (array.length > 0) { for (const element of array) {} } else { fallback(); }',
+		'if (array.length > 0) { for (const index in array) {} }',
+		'if (array.length > 0) { for (let index = 0; index < array.length; index++) {} }',
+		'if (array.length > 0) { while (condition) {} }',
+		'if (array.length > 0) { for await (const element of array) {} }',
+		'if (array?.length > 0) { for (const element of array) {} }',
+		'if (array[length] > 0) { for (const element of array) {} }',
+		'if (array["length"] > 0) { for (const element of array) {} }',
+		'const array = []; if (array.length > 0) { for (const array of array) {} }',
+		'const array = []; if (array.length > 0) { for (const {value: array} of array) {} }',
+		'const object = {array: []}; if (object.array.length > 0) { for (const object of object.array) {} }',
+		// Known non-array loop receiver
+		{
+			code: 'function iterate(array: Set<number> & {length: number}) { if (array.length > 0) { for (const element of array) {} } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// Known non-array method receiver
 		{
 			code: 'function f(foo: Set<number>) { return foo.length === 0 || foo.every(Boolean); }',
 			languageOptions: {parser: parsers.typescript},
@@ -190,6 +273,139 @@ test.snapshot({
 		{
 			code: 'function f(array: Int8Array) { return array.length === 0 || array.every(Boolean); }',
 			languageOptions: {parser: parsers.typescript},
+		},
+
+		outdent`
+			if (array.length > 0) {
+				for (const element of array) {
+					use(element);
+				}
+			}
+		`,
+		outdent`
+			if (array.length !== 0) {
+				for (const element of array) {
+					// Do work.
+				}
+			}
+		`,
+		outdent`
+			function iterate(array) {
+				if (array.length > 0) {
+					for (const element of array) {
+						use(element);
+					}
+				}
+			}
+		`,
+		'if (array.length > 0) for (const element of array) { use(element); }',
+		'if (array.length > 0) { for (const element of array) use(element); }',
+		'if (((array.length > 0))) { for (const element of array) { use(element); } }',
+		'if (object.array.length > 0) { for (const element of object.array) { use(element); } }',
+		'if (array.length > 0) { for (const [key, value] of array) { use(key, value); } }',
+		'if (array.length > 0) { for (const element of array) { /* Keep this comment. */ use(element); } }',
+		outdent`
+			if (array.length > 0) {
+				for (const element of array) {
+					/*
+					Keep this indentation.
+					*/
+					use(element);
+				}
+			}
+		`,
+		outdent`
+			if (array.length > 0)
+				for (const element of array) {
+					use(element);
+				}
+		`,
+		'function iterate(array) { if (array.length > 0) { for (var array of array) {} } }',
+		spaceIndentedLoop,
+		{
+			code: 'if ((array as any[]).length > 0) { for (const element of (array as any[])) { use(element); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if ((<any[]>array).length > 0) { for (const element of (<any[]>array)) { use(element); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if (array!.length !== 0) { for (const element of array!) { use(element); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if ((array satisfies any[]).length > 0) { for (const element of (array satisfies any[])) { use(element); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function iterate(array: Int8Array) { if (array.length > 0) { for (const element of array) { use(element); } } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			if (arrays.length > 0) {
+				for (const array of arrays) {
+					if (array.length > 0) {
+						for (const element of array) {
+							use(element);
+						}
+					}
+				}
+			}
+		`,
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (array.length > 0) { /* Keep this comment. */ for (const element of array) { use(element); } }',
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: 'if (array.length /* Keep this comment. */ > 0) { for (const element of array) { use(element); } }',
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: multilineTemplate,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: misindentedMultilineBlockComment,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: misindentedLoop,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: outdent`
+				if (array.length > 0) { for (const element of array) {
+					use(element);
+				} }
+			`,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: outdent`
+				before(); if (array.length > 0) {
+					for (const element of array) {
+						use(element);
+					}
+				}
+			`,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: crlfLoop,
+			output: unwrappedCrlfLoop,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: mixedLineEndingLoop,
+			output: unwrappedMixedLineEndingLoop,
+			errors: [{messageId: 'for-of'}],
 		},
 	],
 });
