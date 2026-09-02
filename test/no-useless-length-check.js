@@ -81,6 +81,7 @@ test.snapshot({
 		'if (array["length"] > 0) { for (const element of array) {} }',
 		'const array = []; if (array.length > 0) { for (const array of array) {} }',
 		'const array = []; if (array.length > 0) { for (const {value: array} of array) {} }',
+		'const object = {array: []}; if (object.array.length > 0) { for (const object of object.array) {} }',
 		// Known non-array loop receiver
 		{
 			code: 'function iterate(array: Set<number> & {length: number}) { if (array.length > 0) { for (const element of array) {} } }',
