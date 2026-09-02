@@ -52,8 +52,21 @@ const getUnindentedText = (node, parent, context) => {
 
 	return [
 		firstLine,
-		...remainingLines.map(line => line.trim() === '' ? '' : `${targetIndent}${line.slice(sourceIndent.length)}`),
+		...remainingLines.map(line => line.trim() === '' ? line : `${targetIndent}${line.slice(sourceIndent.length)}`),
 	].join('\n');
+};
+
+const hasLoopBindingReferenceInRight = (loop, sourceCode) => {
+	const loopScope = sourceCode.scopeManager.acquire(loop);
+	if (!loopScope) {
+		return false;
+	}
+
+	const [rightStart, rightEnd] = sourceCode.getRange(loop.right);
+	return loopScope.variables.some(variable => variable.references.some(reference => {
+		const [referenceStart, referenceEnd] = sourceCode.getRange(reference.identifier);
+		return referenceStart >= rightStart && referenceEnd <= rightEnd;
+	}));
 };
 
 function flatLogicalExpression(node) {
@@ -133,6 +146,7 @@ const create = context => {
 			|| !isLengthCompareZero(lengthCheck)
 			|| !['>', '!=='].includes(lengthCheck.operator)
 			|| !isSameReference(lengthCheck.left.object, loop.right)
+			|| hasLoopBindingReferenceInRight(loop, sourceCode)
 			|| isKnownNonIndexedCollection(loop.right, context)
 		) {
 			return;
@@ -145,17 +159,12 @@ const create = context => {
 			},
 			messageId: 'for-of',
 		};
-		const hasMultilineComment = sourceCode.getCommentsInside(loop).some(comment => {
-			const {start, end} = sourceCode.getLoc(comment);
-			return start.line !== end.line;
-		});
 		const {start, end} = sourceCode.getLoc(loop);
 		const canUnindent = start.line === end.line || (startsAtLineIndent(node) && startsAtLineIndent(loop));
 
 		if (
 			canUnindent
 			&& !hasMultilineToken(loop, context)
-			&& !hasMultilineComment
 			&& !wouldRemoveComments(context, node, [loop])
 		) {
 			const unindentedText = getUnindentedText(loop, node, context);

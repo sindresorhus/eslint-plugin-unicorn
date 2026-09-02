@@ -13,7 +13,7 @@ const multilineTemplate = [
 	'}',
 ].join('\n');
 
-const multilineBlockComment = [
+const misindentedMultilineBlockComment = [
 	'if (array.length > 0) {',
 	'\tfor (const element of array) {',
 	'\t\t/*',
@@ -41,6 +41,25 @@ const misindentedLoop = [
 	'}',
 ].join('\n');
 
+const crlfLoop = [
+	'if (array.length > 0) {',
+	'\tfor (const element of array) {',
+	'',
+	'\t\tuse(element);',
+	'\t}',
+	'}',
+].join('\r\n');
+
+const unwrappedCrlfLoop = [
+	'for (const element of array) {',
+	'',
+	'\tuse(element);',
+	'}',
+].join('\r\n');
+
+const mixedLineEndingLoop = 'if (array.length > 0) {\r\n\tfor (const element of array) {\r\n\r\n\t\tuse(element);\n\t\tuseAgain(element);\r\n\t}\r\n}';
+const unwrappedMixedLineEndingLoop = 'for (const element of array) {\r\n\r\n\tuse(element);\n\tuseAgain(element);\r\n}';
+
 test.snapshot({
 	valid: [
 		// Length check before loop
@@ -60,6 +79,8 @@ test.snapshot({
 		'if (array?.length > 0) { for (const element of array) {} }',
 		'if (array[length] > 0) { for (const element of array) {} }',
 		'if (array["length"] > 0) { for (const element of array) {} }',
+		'const array = []; if (array.length > 0) { for (const array of array) {} }',
+		'const array = []; if (array.length > 0) { for (const {value: array} of array) {} }',
 		// Known non-array loop receiver
 		{
 			code: 'function iterate(array: Set<number> & {length: number}) { if (array.length > 0) { for (const element of array) {} } }',
@@ -282,6 +303,23 @@ test.snapshot({
 		'if (object.array.length > 0) { for (const element of object.array) { use(element); } }',
 		'if (array.length > 0) { for (const [key, value] of array) { use(key, value); } }',
 		'if (array.length > 0) { for (const element of array) { /* Keep this comment. */ use(element); } }',
+		outdent`
+			if (array.length > 0) {
+				for (const element of array) {
+					/*
+					Keep this indentation.
+					*/
+					use(element);
+				}
+			}
+		`,
+		outdent`
+			if (array.length > 0)
+				for (const element of array) {
+					use(element);
+				}
+		`,
+		'function iterate(array) { if (array.length > 0) { for (var array of array) {} } }',
 		spaceIndentedLoop,
 		{
 			code: 'if ((array as any[]).length > 0) { for (const element of (array as any[])) { use(element); } }',
@@ -333,7 +371,7 @@ test({
 			errors: [{messageId: 'for-of'}],
 		},
 		{
-			code: multilineBlockComment,
+			code: misindentedMultilineBlockComment,
 			errors: [{messageId: 'for-of'}],
 		},
 		{
@@ -356,6 +394,16 @@ test({
 					}
 				}
 			`,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: crlfLoop,
+			output: unwrappedCrlfLoop,
+			errors: [{messageId: 'for-of'}],
+		},
+		{
+			code: mixedLineEndingLoop,
+			output: unwrappedMixedLineEndingLoop,
 			errors: [{messageId: 'for-of'}],
 		},
 	],
