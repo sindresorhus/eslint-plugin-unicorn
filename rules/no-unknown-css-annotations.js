@@ -26,19 +26,24 @@ const create = context => {
 			return;
 		}
 
-		const annotationIdentifier = important === true ? 'important' : important;
 		const declarationText = sourceCode.getText(declaration);
 		const [declarationStart] = sourceCode.getRange(declaration);
 		let annotationStartInDeclaration;
-		let identifierStartInDeclaration;
+		let identifierEndInDeclaration;
 		const commentRanges = [];
 		tokenize(declarationText, (type, start, end) => {
 			if (type === tokenTypes.Delim && declarationText[start] === '!') {
 				annotationStartInDeclaration = start;
+				identifierEndInDeclaration = undefined;
 			}
 
-			if (type === tokenTypes.Ident && declarationText.slice(start, end) === annotationIdentifier) {
-				identifierStartInDeclaration = start;
+			// The annotation identifier is the first identifier after the `!`.
+			if (
+				type === tokenTypes.Ident
+				&& annotationStartInDeclaration !== undefined
+				&& identifierEndInDeclaration === undefined
+			) {
+				identifierEndInDeclaration = end;
 			}
 
 			if (type === tokenTypes.Comment) {
@@ -46,7 +51,6 @@ const create = context => {
 			}
 		});
 
-		const identifierEndInDeclaration = identifierStartInDeclaration + annotationIdentifier.length;
 		if (declarationText.slice(annotationStartInDeclaration, identifierEndInDeclaration) === '!important') {
 			return;
 		}
