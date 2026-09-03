@@ -5,6 +5,7 @@ import {
 	needsSemicolon,
 	trackBranchExits,
 } from './utils/index.js';
+import {extendFixRange} from './fix/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -163,7 +164,7 @@ const isSafeToMoveAlternate = (ifStatement, context) => {
 	);
 };
 
-const fix = (ifStatement, context) => fixer => {
+const fix = (ifStatement, context) => function * (fixer) {
 	const {sourceCode} = context;
 	const {alternate, consequent} = ifStatement;
 
@@ -178,8 +179,9 @@ const fix = (ifStatement, context) => fixer => {
 		return;
 	}
 
+	const consequentRange = sourceCode.getRange(consequent);
 	const replacementRange = [
-		sourceCode.getRange(consequent)[1],
+		consequentRange[1],
 		sourceCode.getRange(alternate)[1],
 	];
 
@@ -187,7 +189,9 @@ const fix = (ifStatement, context) => fixer => {
 		return;
 	}
 
-	return fixer.replaceTextRange(replacementRange, getReplacementText(ifStatement, sourceCode));
+	yield fixer.replaceTextRange(replacementRange, getReplacementText(ifStatement, sourceCode));
+	// Prevent other rules from changing the branch whose exit makes the `else` useless.
+	yield extendFixRange(fixer, consequentRange);
 };
 
 /**
