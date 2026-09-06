@@ -8,6 +8,9 @@ import {
 	shouldAddParenthesesToConditionalExpressionChild,
 	isParenthesized,
 	getPreviousNode,
+	getNextNode,
+	getLastTrailingCommentOnSameLine,
+	hasCommentInRange,
 } from './utils/index.js';
 
 const messageId = 'prefer-ternary';
@@ -230,11 +233,7 @@ const create = context => {
 		return problem;
 	}
 
-	context.on('IfStatement', node => {
-		if (!node.alternate) {
-			return getLetPlusIfProblem(node);
-		}
-
+	function getIfBranchesProblem(node, alternateNode = node.alternate) {
 		if (
 			(node.parent.type === 'IfStatement' && node.parent.alternate === node)
 			|| node.test.type === 'ConditionalExpression'
@@ -244,7 +243,7 @@ const create = context => {
 		}
 
 		const consequent = getNodeBody(node.consequent);
-		const alternate = getNodeBody(node.alternate);
+		const alternate = getNodeBody(alternateNode);
 
 		if (
 			isOnlySingleLine
@@ -261,10 +260,17 @@ const create = context => {
 			return;
 		}
 
+		const isFlatReturn = alternateNode !== node.alternate;
+		const replacementRange = isFlatReturn
+			? [sourceCode.getRange(node)[0], sourceCode.getRange(alternateNode)[1]]
+			: sourceCode.getRange(node);
 		const problem = {node, messageId};
 
 		// Don't fix if there are comments
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		if (
+			hasCommentInRange(context, replacementRange)
+			|| (isFlatReturn && getLastTrailingCommentOnSameLine(context, alternateNode))
+		) {
 			return problem;
 		}
 
@@ -286,10 +292,23 @@ const create = context => {
 				fixed = `;${fixed}`;
 			}
 
-			yield fixer.replaceText(node, fixed);
+			yield fixer.replaceTextRange(replacementRange, fixed);
 		};
 
 		return problem;
+	}
+
+	context.on('IfStatement', node => {
+		if (!node.alternate) {
+			const nextNode = getNextNode(node, context);
+			if (nextNode?.type === 'ReturnStatement') {
+				return getIfBranchesProblem(node, nextNode) ?? getLetPlusIfProblem(node);
+			}
+
+			return getLetPlusIfProblem(node);
+		}
+
+		return getIfBranchesProblem(node);
 	});
 };
 
