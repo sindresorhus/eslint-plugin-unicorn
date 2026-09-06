@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of ternary expressions over simple `if` statements that return or assign a value. Return branches can use either an explicit `else` or an immediately following `return` statement. Assignment branches must have one mergeable statement on each side with the same basic type and form.
+This rule enforces the use of ternary expressions over simple `if` statements that return or assign a value. It handles `if`/`else` statements with one mergeable statement in each branch. For returns, it also handles the equivalent flat form where another `return` immediately follows an `if` without an `else`.
 
 It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 

@@ -260,7 +260,7 @@ const create = context => {
 			return;
 		}
 
-		const isFlatReturn = alternateNode !== node.alternate;
+		const isFlatReturn = !node.alternate;
 		const replacementRange = isFlatReturn
 			? [sourceCode.getRange(node)[0], sourceCode.getRange(alternateNode)[1]]
 			: sourceCode.getRange(node);
