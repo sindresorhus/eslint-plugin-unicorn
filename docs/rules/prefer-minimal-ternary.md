@@ -37,7 +37,49 @@ const value = test ? cache[a] : cache[b];
 const value = cache[test ? a : b];
 ```
 
-Only shallow cases are reported; nested expressions are not recursively minimized. The rule is not autofixable, since moving the ternary can change evaluation order — review each report.
+Object literals with the same property keys in the same order are reported when only one property value varies. Ordinary properties and shorthand properties are supported; computed properties, methods, accessors, spreads, and `__proto__` prototype setters are ignored.
+
+```js
+// ❌
+const object = test ? {a: 1} : {a: 2};
+
+// ✅
+const object = {a: test ? 1 : 2};
+```
+
+Array literals with the same length are reported when only one element varies. Arrays with spreads or holes are ignored.
+
+```js
+// ❌
+const array = test ? [1, 2] : [1, 3];
+
+// ✅
+const array = [1, test ? 2 : 3];
+```
+
+Constructor calls with the same identifier and argument count are reported when only one argument varies. TypeScript type arguments must match. Member constructors (`new namespace.Foo()`) and spread arguments are ignored.
+
+```js
+// ❌
+const date = test ? new Date(a) : new Date(b);
+
+// ✅
+const date = new Date(test ? a : b);
+```
+
+For these object, array, and constructor cases, shared values before the varying value must be simple expressions, such as identifiers or literals. Shared calls and property accesses in those positions are ignored because moving them before the condition could change their behavior.
+
+Only shallow cases are reported; nested expressions are not recursively minimized. The rule is not autofixable, since moving the ternary can change evaluation order. Review each report.
+
+## Design boundaries
+
+The goal is to make one varying value easier to see, not to remove every repeated expression. Keeping complete alternatives together can be clearer, especially when several values differ. The following transformations are intentionally outside this rule's scope:
+
+- **Conditional spreads** (`test ? [1, 2] : [1]`), including arrays of different lengths and multiple varying JSX attributes: introducing spreads and conditional objects or arrays often makes the result harder to read.
+- **Object key swaps** (`test ? {a: 1} : {b: 1}`): forcing computed property names obscures otherwise explicit object shapes.
+- **String and template splitting** (`test ? 'cat' : 'car'`): a shared prefix or suffix does not necessarily form a meaningful unit of text; splitting it can make the alternatives harder to read.
+- **`if`/`else` conversion** (`if (test) { a(); } else { b(); }`): creating a ternary belongs to [`prefer-ternary`](./prefer-ternary.md), whose scope is returning or assigning values, not standalone calls.
+- **Factoring out TypeScript wrappers** (`test ? a! : b!`), including `as`, `!`, and `satisfies`: moving a type operation from individual branches to their combined expression needs separate consideration of type-checking behavior.
 
 ## Options
 

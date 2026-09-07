@@ -9,7 +9,6 @@ const messages = {
 const ignoredExpressionTypes = new Set([
 	'ChainExpression',
 	'LogicalExpression',
-	'NewExpression',
 	'SequenceExpression',
 	'TaggedTemplateExpression',
 ]);
@@ -128,6 +127,68 @@ function hasSameItems(leftItems, rightItems, sourceCode) {
 		&& leftItems.every((leftItem, index) => isSameSourceText(leftItem, rightItems[index], sourceCode));
 }
 
+function hasOneMinimalValueDifference(leftItems, rightItems, sourceCode) {
+	if (!hasOneMinimalItemDifference(leftItems, rightItems, sourceCode)) {
+		return false;
+	}
+
+	const differentIndex = leftItems.findIndex((leftItem, index) => !isSameSourceText(leftItem, rightItems[index], sourceCode));
+
+	// Only shared values before the varying value move ahead of the condition.
+	return leftItems.slice(0, differentIndex).every(item => isSafeSharedExpression(item));
+}
+
+function isMinimalObjectExpression(left, right, context) {
+	if (left.type !== 'ObjectExpression' || right.type !== 'ObjectExpression') {
+		return false;
+	}
+
+	const isOrdinaryProperty = property => property.type === 'Property'
+		&& !property.computed
+		&& !property.method
+		&& property.kind === 'init'
+		&& (property.shorthand || getStaticPropertyName(property, context) !== '__proto__');
+
+	return left.properties.length === right.properties.length
+		&& left.properties.every(property => isOrdinaryProperty(property))
+		&& right.properties.every(property => isOrdinaryProperty(property))
+		&& left.properties.every((property, index) => getStaticPropertyName(property, context) === getStaticPropertyName(right.properties[index], context))
+		&& hasOneMinimalValueDifference(
+			left.properties.map(property => property.value),
+			right.properties.map(property => property.value),
+			context.sourceCode,
+		);
+}
+
+function isMinimalArrayExpression(left, right, context) {
+	return left.type === 'ArrayExpression'
+		&& right.type === 'ArrayExpression'
+		&& left.elements.every(element => element && element.type !== 'SpreadElement')
+		&& right.elements.every(element => element && element.type !== 'SpreadElement')
+		&& hasOneMinimalValueDifference(left.elements, right.elements, context.sourceCode);
+}
+
+function isMinimalNewExpression(left, right, context) {
+	if (
+		left.type !== 'NewExpression'
+		|| right.type !== 'NewExpression'
+		|| left.callee.type !== 'Identifier'
+		|| right.callee.type !== 'Identifier'
+		|| left.callee.name !== right.callee.name
+		|| left.arguments.some(argument => argument.type === 'SpreadElement')
+		|| right.arguments.some(argument => argument.type === 'SpreadElement')
+	) {
+		return false;
+	}
+
+	const leftTypeArguments = left.typeArguments ?? left.typeParameters;
+	const rightTypeArguments = right.typeArguments ?? right.typeParameters;
+	const {sourceCode} = context;
+
+	return (leftTypeArguments ? sourceCode.getText(leftTypeArguments) : '') === (rightTypeArguments ? sourceCode.getText(rightTypeArguments) : '')
+		&& hasOneMinimalValueDifference(left.arguments, right.arguments, sourceCode);
+}
+
 function isMinimalCallExpression(left, right, context, options) {
 	const {sourceCode} = context;
 
@@ -219,7 +280,10 @@ function isMinimalTernary(consequent, alternate, context, options) {
 
 	return isMinimalCallExpression(consequent, alternate, context, options)
 		|| isMinimalBinaryExpression(consequent, alternate, context)
-		|| isMinimalMemberExpression(consequent, alternate, context, options);
+		|| isMinimalMemberExpression(consequent, alternate, context, options)
+		|| isMinimalObjectExpression(consequent, alternate, context)
+		|| isMinimalArrayExpression(consequent, alternate, context)
+		|| isMinimalNewExpression(consequent, alternate, context);
 }
 
 /**
