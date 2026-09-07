@@ -37,7 +37,37 @@ const value = test ? cache[a] : cache[b];
 const value = cache[test ? a : b];
 ```
 
-Only shallow cases are reported; nested expressions are not recursively minimized. The rule is not autofixable, since moving the ternary can change evaluation order — review each report.
+The rule also reports one varying object value, array element, or constructor argument:
+
+```js
+// ❌
+const object = test ? {a: 1} : {a: 2};
+const array = test ? [1, 2] : [1, 3];
+const date = test ? new Date(a) : new Date(b);
+
+// ✅
+const object = {a: test ? 1 : 2};
+const array = [1, test ? 2 : 3];
+const date = new Date(test ? a : b);
+```
+
+- Objects require matching keys in the same order. Shorthand is supported; computed keys, methods, accessors, spreads, and prototype setters are ignored.
+- Arrays require matching lengths, without spreads or holes.
+- Constructors require the same identifier, argument count, and TypeScript type arguments, without spreads.
+
+For these cases, shared values before the varying value must be simple expressions such as identifiers or literals.
+
+Only shallow cases are reported; nested expressions are not recursively minimized. The rule is not autofixable, since moving the ternary can change evaluation order. Review each report.
+
+## Design boundaries
+
+These transformations are intentionally excluded:
+
+- **Conditional spreads** (`test ? [1, 2] : [1]`): added spread syntax often hurts readability, including for multiple varying JSX attributes.
+- **Object key swaps** (`test ? {a: 1} : {b: 1}`): computed keys obscure the object shapes.
+- **String/template splitting** (`test ? 'cat' : 'car'`): shared text is not necessarily a meaningful unit.
+- **`if`/`else` conversion** (`if (test) { a(); } else { b(); }`): belongs to [`prefer-ternary`](./prefer-ternary.md), which targets returns and assignments.
+- **TypeScript wrappers** (`test ? a! : b!`): factoring out `as`, `!`, or `satisfies` needs separate type-checking analysis.
 
 ## Options
 
