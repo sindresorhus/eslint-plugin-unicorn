@@ -260,6 +260,7 @@ test.snapshot({
 		'test ? {a: call(), b: 1} : {a: call(), b: 2};',
 		'test ? {a: object.value, b: 1} : {a: object.value, b: 2};',
 		'test ? [call(), 1] : [call(), 2];',
+		'test ? [other ? b : c, a] : [other ? b : c, d];',
 		'test ? new Foo(call(), 1) : new Foo(call(), 2);',
 		// Arrays must have the same length, with no spreads or holes.
 		'test ? [] : [];',
@@ -321,5 +322,6 @@ test.snapshot({
 			'test ? new Foo(value satisfies A) : new Foo(other satisfies A);',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 		'test ? {__proto__, a: 1} : {__proto__, a: 2};',
+		'test ? [a, other ? b : c] : [d, other ? b : c];',
 	],
 });
