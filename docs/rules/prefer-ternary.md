@@ -9,15 +9,15 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of ternary expressions over 'simple' `if` statements that return or assign a value. A simple `if` either has one mergeable branch statement on each side with the same basic type and form, or immediately follows a `let` declaration and reassigns that variable.
+This rule enforces the use of ternary expressions over simple `if` statements that return or assign a value. It handles `if`/`else` statements with one mergeable statement in each branch. For returns, it also handles the equivalent flat form where another `return` immediately follows an `if` without an `else`.
 
 It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 
 It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single declaration using a ternary. The declaration is `const` when the variable has no later writes, and remains `let` when later writes require mutability.
 
-Using an `if-else` statement typically results in more lines of code than a single ternary expression, which leads to an unnecessarily larger codebase that is more difficult to maintain.
+Using branching statements typically results in more lines of code than a single ternary expression, which leads to an unnecessarily large codebase that is more difficult to maintain.
 
-Additionally, using an `if-else` statement can result in defining variables using `let` or `var` solely to be reassigned within the blocks. This leads to variables being unnecessarily mutable and prevents `prefer-const` from flagging the variable.
+Additionally, branching statements can require a variable to use `let` or `var` solely so it can be reassigned. This adds unnecessary mutability and prevents `prefer-const` from flagging the variable.
 
 ## Examples
 
@@ -29,6 +29,22 @@ function unicorn() {
 	} else {
 		return b;
 	}
+}
+
+// ✅
+function unicorn() {
+	return test ? a : b;
+}
+```
+
+```js
+// ❌
+function unicorn() {
+	if (test) {
+		return a;
+	}
+
+	return b;
 }
 
 // ✅

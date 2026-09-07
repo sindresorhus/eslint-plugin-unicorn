@@ -282,14 +282,144 @@ test({
 // Flat ReturnStatement
 test({
 	valid: [
-		'function unicorn() { if (test) { return true; } doSomething(); return false; }',
-		'function unicorn() { if (test) { return a; } return b; }',
-		'function unicorn() { if (test) { return true; doSomething(); } return false; }',
-		'function unicorn() { if (test) { return; } return false; }',
-		'function unicorn() { if (a ? b : c) { return true; } return false; }',
+		'function unicorn() { if (test) { return a; } doSomething(); return b; }',
+		'function unicorn() { if (test) { doSomething(); return a; } return b; }',
+		'function unicorn() { if (a ? b : c) { return a; } return b; }',
+		'function unicorn() { if (test) { return a ? b : c; } return b; }',
+		'function unicorn() { if (test) { return a; } return b ? c : d; }',
 		'function unicorn() { if (test) { return true; } return false; }',
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						return {
+							multiline: true,
+						};
+					}
+					return b;
+				}
+			`,
+			options: onlySingleLineOptions,
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						return a;
+					}
+					return {
+						multiline: true,
+					};
+				}
+			`,
+			options: onlySingleLineOptions,
+		},
 	],
-	invalid: [],
+	invalid: [
+		{
+			code: 'function unicorn() { if (test) { return a; } return b; }',
+			output: 'function unicorn() { return test ? a : b; }',
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) return 1; return 2; }',
+			output: 'function unicorn() { return test ? 1 : 2; }',
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) return; return; }',
+			output: 'function unicorn() { return test ? undefined : undefined; }',
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) return; return value; }',
+			output: 'function unicorn() { return test ? undefined : value; }',
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) return true; return value; }',
+			output: 'function unicorn() { return test ? true : value; }',
+			errors,
+		},
+		{
+			code: 'async function unicorn() { if (test) return await a; return b; }',
+			output: 'async function unicorn() { return test ? (await a) : b; }',
+			errors,
+		},
+		{
+			code: 'async function unicorn() { if (test) return a; return await b; }',
+			output: 'async function unicorn() { return test ? a : (await b); }',
+			errors,
+		},
+		{
+			code: 'function* unicorn() { if (test) return yield a; return b; }',
+			output: 'function* unicorn() { return test ? (yield a) : b; }',
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) return (foo as string); return b; }',
+			output: 'function unicorn() { return test ? (foo as string) : b; }',
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function unicorn() { if (a) return 1; if (b) return 2; return 3; }',
+			output: 'function unicorn() { if (a) return 1; return b ? 2 : 3; }',
+			errors,
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						return a;
+					}
+					return b;
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? a : b;
+				}
+			`,
+			options: onlySingleLineOptions,
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) { return /* comment */ a; } return b; }',
+			output: null,
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) { return a; } return /* comment */ b; }',
+			output: null,
+			errors,
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						return a;
+					}
+					// comment
+					return b;
+				}
+			`,
+			output: null,
+			errors,
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						return a;
+					}
+					return b; // comment
+				}
+			`,
+			output: null,
+			errors,
+		},
+	],
 });
 
 // Unsupported top-level statements
@@ -1146,6 +1276,24 @@ test({
 			`,
 			errors: errorsWithSuggestion(outdent`
 				const items = data.length ? data : defaultData;
+			`),
+		},
+		// Keep the `let` plus `if` fallback when the following return is not mergeable
+		{
+			code: outdent`
+				function foo() {
+					let x = a;
+					if (test) {
+						x = b;
+					}
+					return c;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				function foo() {
+					const x = test ? b : a;
+					return c;
+				}
 			`),
 		},
 		// Without braces

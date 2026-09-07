@@ -56,6 +56,7 @@ const config = [
 			'unicorn/prefer-minimal-ternary': 'off',
 			'unicorn/prefer-simple-condition-first': 'off',
 			'unicorn/prefer-simplified-conditions': 'off',
+			'unicorn/prefer-ternary': 'off',
 			// Many existing internal utilities intentionally export declarations separately.
 			'unicorn/default-export-style': 'off',
 			// The plugin intentionally keeps a few internal barrel files for shared utilities and rule exports.
@@ -89,6 +90,7 @@ const config = [
 	{
 		files: [
 			'test/no-deprecated-css-features.js',
+			'test/prefer-ternary.js',
 		],
 		rules: {
 			// RuleTester uses `null` to assert that a problem is not autofixable.
