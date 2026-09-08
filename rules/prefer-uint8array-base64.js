@@ -112,7 +112,11 @@ function isBase64StringExpression(node) {
 		node = unwrapTransparentExpression(node.callee.object);
 	}
 
-	return isMethodCall(node) && getPropertyName(node.callee) === 'toBase64';
+	return isMethodCall(node, {
+		method: 'toBase64',
+		optionalCall: false,
+		optionalMember: false,
+	});
 }
 
 function isKnownStringExpression(node, context) {
@@ -172,16 +176,26 @@ const isKnownNonBufferReceiver = (node, context) => getBufferType(node, context)
 	|| isKnownStringExpression(node, context)
 	|| isDerivedFromBase64String(node);
 
-const isTransparentWrapperOf = (parent, expression) =>
+const isPossibleResultOf = (parent, expression) =>
 	(
 		(parent.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent))
 		&& parent.expression === expression
 	)
-	|| (parent.type === 'AwaitExpression' && parent.argument === expression);
+	|| (parent.type === 'AwaitExpression' && parent.argument === expression)
+	|| (
+		parent.type === 'ConditionalExpression'
+		&& (parent.consequent === expression || parent.alternate === expression)
+	)
+	|| (
+		parent.type === 'LogicalExpression'
+		&& (parent.left === expression || parent.right === expression)
+	)
+	|| (parent.type === 'SequenceExpression' && parent.expressions.at(-1) === expression)
+	|| (parent.type === 'AssignmentExpression' && parent.right === expression);
 
 function isChainedExpression(node) {
 	let expression = node;
-	while (isTransparentWrapperOf(expression.parent, expression)) {
+	while (isPossibleResultOf(expression.parent, expression)) {
 		expression = expression.parent;
 	}
 

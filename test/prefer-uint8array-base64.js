@@ -42,7 +42,7 @@ test.snapshot({
 		'const decode = atob;',
 		'foo(btoa)',
 
-		// `Buffer.from` without a base64 encoding
+		// `Buffer.from` calls that are not base64 string decoding
 		'Buffer.from(string)',
 		'Buffer.from(string, \'utf8\')',
 		'Buffer.from(string, \'hex\')',
@@ -62,6 +62,8 @@ test.snapshot({
 		'const input = []; Buffer.from(input, \'base64\')',
 		'const input = {}; Buffer.from(input, \'base64\')',
 		'const input = Buffer.from(data); Buffer.from(input, \'base64\')',
+		'Buffer.from(bytes?.toBase64(), \'base64\')',
+		'Buffer.from(bytes.toBase64?.(), \'base64\')',
 		'Buffer.from(bytes.toBase64().split(\'\'), \'base64\')',
 		'Buffer.from(condition ? new Uint8Array() : Buffer.from(data), \'base64\')',
 		'Buffer.from(condition ? bytes.toBase64() : new Uint8Array(), \'base64\')',
@@ -209,6 +211,26 @@ test({
 	invalid: [
 		{
 			code: '(await Buffer.from(string, \'base64\')).toString()',
+			errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: 0}],
+		},
+		{
+			code: '(condition ? Buffer.from(string, \'base64\') : fallback).toString()',
+			errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: 0}],
+		},
+		{
+			code: '(fallback ?? Buffer.from(string, \'base64\')).toString()',
+			errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: 0}],
+		},
+		{
+			code: '(fallback, Buffer.from(string, \'base64\')).toString()',
+			errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: 0}],
+		},
+		{
+			code: '(buffer = Buffer.from(string, \'base64\')).toString()',
+			errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: 0}],
+		},
+		{
+			code: '(buffer ??= Buffer.from(string, \'base64\')).toString()',
 			errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: 0}],
 		},
 		{
