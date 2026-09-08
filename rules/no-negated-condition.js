@@ -47,8 +47,8 @@ function * swapConsequentAndAlternate(fixer, node, context, abort) {
 	const [consequent, alternate] = [
 		node.consequent,
 		node.alternate,
-	].map(node => {
-		const range = getParenthesizedRange(node, context);
+	].map(branch => {
+		const range = getParenthesizedRange(branch, context);
 		if (sourceCode.getCommentsAfter({range}).length > 0) {
 			abort();
 		}
@@ -60,7 +60,7 @@ function * swapConsequentAndAlternate(fixer, node, context, abort) {
 
 		let text = sourceCode.text.slice(...range);
 		// `if (!a) b(); else c()` can't fix to `if (!a) c() else b();`
-		if (isIfStatement && node.type !== 'BlockStatement') {
+		if (isIfStatement && branch.type !== 'BlockStatement') {
 			text = `{${text}}`;
 		}
 
