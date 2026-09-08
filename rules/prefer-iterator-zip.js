@@ -102,7 +102,7 @@ function isCapturedReference(identifier, body) {
 }
 
 function isElementRead(node) {
-	while (isTypeScriptExpressionWrapper(node.parent)) {
+	while (isTypeScriptExpressionWrapper(node.parent) || node.parent.type === 'TSInstantiationExpression') {
 		node = node.parent;
 	}
 

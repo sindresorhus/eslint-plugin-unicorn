@@ -58,6 +58,9 @@ test.snapshot({
 		typescript('for (const item of getItems() as string[]) {}'),
 		typescript('for (const item of items.map(callback) as string[]) {}'),
 		typescript('for (const item of items.filter(callback) as string[]) {}'),
+		typescript('for (const pair of Iterator.zip([names, scores] as const)) {}'),
+		typescript('for (const pair of Iterator.zip([names, scores] satisfies Iterable<unknown>[])) {}'),
+		typescript('for (const pair of Iterator.zip(([names, scores])!)) {}'),
 	],
 	invalid: [
 		'for (const pair of Iterator.zip([names, getScores(seed)])) {}',
@@ -111,6 +114,8 @@ test.snapshot({
 		typescript('for (const item of (Iterator.from(items) as Iterator<string>).map(callback)) {}'),
 		typescript('for (const item of Iterator.from(items).take(1) as Iterator<string>) {}'),
 		typescript('for (const item of (items[index] satisfies Iterable<string>)) {}'),
+		typescript('for (const pair of Iterator.zip([names, getScores(seed)] as const)) {}'),
+		typescript('for (const pair of Iterator.zip([[names], [scores]] as const)) {}'),
 		outdent`
 			for (
 				const item of getItems(createArgument(seed))

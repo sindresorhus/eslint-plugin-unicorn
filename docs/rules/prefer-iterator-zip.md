@@ -31,7 +31,7 @@ for (const [name, score] of Iterator.zip([names, scores])) {
 
 This rule checks block-bodied `for` loops with one `let` index initialized to `0`, a direct `Math.min()` bound over distinct identifiers' `.length` properties, and an increment of `index++`, `++index`, or `index += 1`. The reversed comparison, `Math.min(…) > index`, is also supported.
 
-Every input must be indexed in the body, and the index must only be used to read those inputs at that exact position. Direct mutations, other uses of the input arrays, and references captured inside nested functions or classes are ignored. Cached bounds, property-chain inputs, optional indexing, and offset indexing are not supported.
+Every input must be indexed in the body, and the index must only be used to read those inputs at that exact position. Loops with direct mutations of the input arrays, other uses of those arrays, or references captured inside nested functions or classes are ignored. Cached bounds, property-chain inputs, optional indexing, and offset indexing are not supported.
 
 The rule recognizes arrays and typed arrays and also checks unknown inputs, such as untyped function parameters. Known unsuitable inputs, including strings and plain objects, are ignored. Unknown inputs are assumed to be ordinary arrays or typed arrays.
 

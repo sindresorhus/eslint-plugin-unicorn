@@ -58,12 +58,15 @@ const isSimpleCallExpression = node =>
 		node.callee.type === 'Identifier'
 		|| isSimpleMemberExpression(node.callee)
 	)
-	&& node.arguments.every(argument =>
-		isSimpleArgumentExpression(argument)
-		|| (
-			argument.type === 'ArrayExpression'
-			&& argument.elements.every(element => element && isSimpleArgumentExpression(element))
-		));
+	&& node.arguments.every(argument => {
+		argument = unwrapExpression(argument);
+
+		return isSimpleArgumentExpression(argument)
+			|| (
+				argument.type === 'ArrayExpression'
+				&& argument.elements.every(element => element && isSimpleArgumentExpression(element))
+			);
+	});
 
 function isSimpleIterableExpression(node) {
 	node = unwrapExpression(node);
