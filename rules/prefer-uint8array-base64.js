@@ -3,6 +3,7 @@ import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import {
 	isStringLiteral,
 	isRegexLiteral,
+	isFunction,
 	isMethodCall,
 	isMemberExpression,
 } from './ast/index.js';
@@ -11,6 +12,7 @@ import {
 	isGlobalIdentifier,
 	isKnownNonString,
 	isNullishType,
+	isString,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -61,7 +63,7 @@ const isBufferModuleObjectImport = specifier =>
 	specifier?.type === 'ImportNamespaceSpecifier'
 	|| specifier?.type === 'ImportDefaultSpecifier';
 
-// Whether type information supports reporting a `.toString('base64')` call as a `Buffer` conversion. Without type information, callers should report anyway, since requiring it would make the rule too narrow. A receiver whose possible concrete types include a non-`Buffer` is skipped to avoid false positives. `any`/`unknown` types are accepted since we cannot rule them out.
+// Whether type information supports reporting a `.toString('base64')` call as a `Buffer` conversion. Without type information, otherwise eligible callers should report, since requiring it would make the rule too narrow. A receiver whose possible concrete types include a non-`Buffer` is skipped to avoid false positives. `any`/`unknown` types are accepted since we cannot rule them out.
 function shouldReportBufferToString(node, parserServices) {
 	// Resolving and inspecting the receiver's type can crash deep inside TypeScript 6 while it computes module specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`). We cannot then confirm the receiver can be a `Buffer`, so we conservatively skip reporting rather than crash the lint run.
 	try {
@@ -101,9 +103,11 @@ const isKnownNonStringBufferInput = (node, context) =>
 const isKnownNonBufferReceiver = (node, context) => {
 	const receiver = unwrapTypeScriptExpression(node);
 	return receiver.type === 'Literal'
-		|| receiver.type === 'TemplateLiteral'
 		|| receiver.type === 'ArrayExpression'
 		|| receiver.type === 'ObjectExpression'
+		|| receiver.type === 'ClassExpression'
+		|| isFunction(receiver)
+		|| isString(receiver, context)
 		|| (receiver.type === 'NewExpression' && !isBufferReference(receiver.callee, context));
 };
 
@@ -123,7 +127,7 @@ function isChainedExpression(node) {
 	return expression.parent.type === 'MemberExpression' && expression.parent.object === expression;
 }
 
-// Whether `node` (the object of a `.from()` call) refers to the `Buffer` constructor, as a global, `globalThis.Buffer`, or an import.
+// Whether `node` refers to the `Buffer` constructor, as a global, `globalThis.Buffer`, or an import.
 function isBufferReference(node, context) {
 	const reference = unwrapTypeScriptExpression(node);
 	if (isMemberExpression(reference, {property: 'Buffer', computed: false})) {
