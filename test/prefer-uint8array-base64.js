@@ -39,11 +39,11 @@ test.snapshot({
 		'Buffer.from(string, \'hex\')',
 		'Buffer.from(array)',
 		'Buffer.from([1, 2, 3])',
+		'Buffer.from([value], \'base64\')',
+		typeAware('function foo(value: Uint8Array) { return Buffer.from(value, \'base64\'); }'),
 		'Buffer.from(string, encoding)',
 		// Extra argument; `Uint8Array.fromBase64`'s second parameter is an options object, so the rewrite would not be equivalent
 		'Buffer.from(string, \'base64\', extra)',
-		// Wrong case, the encoding match is case-sensitive
-		'Buffer.from(string, \'BASE64\')',
 		// Not the `Buffer` constructor
 		'const Buffer = {from() {}}; Buffer.from(string, \'base64\')',
 		'import {Buffer} from \'not-buffer\'; Buffer.from(string, \'base64\')',
@@ -83,8 +83,11 @@ test.snapshot({
 		// `Buffer.from(…, 'base64' | 'base64url')`
 		'Buffer.from(string, \'base64\')',
 		'Buffer.from(string, \'base64url\')',
+		'Buffer.from(string, \'BASE64\')',
+		'Buffer.from(string, \'BaSe64UrL\')',
 		'globalThis.Buffer.from(string, \'base64\')',
 		'globalThis.Buffer?.from(string, \'base64\')',
+		'Buffer.from?.(string, \'base64\')',
 		'Buffer.from(string, \'base64\').toString()',
 		'(Buffer.from?.(string, \'base64\')).toString()',
 		{code: '(Buffer.from(string, \'base64\') as Buffer).toString()', languageOptions: {parser: parsers.typescript}},
@@ -111,6 +114,8 @@ test.snapshot({
 		// `toString('base64' | 'base64url')`
 		'buffer.toString(\'base64\')',
 		'buffer.toString(\'base64url\')',
+		'buffer.toString(\'BASE64\')',
+		'buffer.toString(\'BaSe64UrL\')',
 		'getBuffer().toString(\'base64\')',
 		'buffer.toString(\'base64\', 0, 10)',
 

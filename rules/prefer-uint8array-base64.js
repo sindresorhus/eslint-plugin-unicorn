@@ -9,6 +9,7 @@ import {
 import {
 	getTypeSymbol,
 	isGlobalIdentifier,
+	isKnownNonString,
 	isNullishType,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
@@ -28,7 +29,14 @@ const base64Encodings = new Set(['base64', 'base64url']);
 const bufferImportSources = new Set(['buffer', 'node:buffer']);
 const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
 
-const isBase64EncodingArgument = node => isStringLiteral(node) && base64Encodings.has(node.value);
+const getBase64Encoding = node => {
+	if (!isStringLiteral(node)) {
+		return;
+	}
+
+	const encoding = node.value.toLowerCase();
+	return base64Encodings.has(encoding) ? encoding : undefined;
+};
 
 // Whether the identifier is bound to `Buffer` imported from `'buffer'` / `'node:buffer'`, as `import {Buffer} from …` or `import {Buffer as foo} from …`. The default import is intentionally not matched, since it is the module namespace, not the `Buffer` constructor.
 function isImportedBuffer(identifier, context) {
@@ -231,9 +239,12 @@ const create = context => {
 
 		// `Buffer.from(string, 'base64' | 'base64url')`
 		// Match exactly two arguments. With a string input, `Buffer.from` ignores any third argument, but `Uint8Array.fromBase64`'s second parameter is an options object, so shifting an extra argument into it would change behavior or throw.
+		const bufferFromEncoding = getBase64Encoding(node.arguments[1]);
 		if (
 			isMethodCall(node, {method: 'from', argumentsLength: 2, computed: false})
-			&& isBase64EncodingArgument(node.arguments[1])
+			&& bufferFromEncoding
+			&& node.arguments[0].type !== 'ArrayExpression'
+			&& !isKnownNonString(node.arguments[0], context)
 			&& isBufferReference(node.callee.object, context)
 		) {
 			const encodingNode = node.arguments[1];
@@ -245,7 +256,7 @@ const create = context => {
 			};
 
 			// When the result is immediately used through a member access, for example `Buffer.from(string, 'base64').toString()`, the suggestion would rewrite only the constructor and leave the chained `Buffer` method on a plain `Uint8Array`, which behaves differently (`Uint8Array#toString()` returns a comma-joined byte list, not the decoded string). Skip the suggestion then, but still report the preference.
-			if (!node.callee.optional && !isChainedExpression(node)) {
+			if (!node.optional && !node.callee.optional && !isChainedExpression(node)) {
 				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
@@ -258,7 +269,7 @@ const create = context => {
 
 							yield fixer.replaceText(node.callee, 'Uint8Array.fromBase64');
 
-							yield encodingNode.value === 'base64url'
+							yield bufferFromEncoding === 'base64url'
 								? fixer.replaceText(encodingNode, '{alphabet: \'base64url\'}')
 								: removeArgument(fixer, encodingNode, context);
 						},
@@ -270,9 +281,10 @@ const create = context => {
 		}
 
 		// `buffer.toString('base64' | 'base64url')`
+		const toStringEncoding = getBase64Encoding(node.arguments[0]);
 		if (
 			isMethodCall(node, {method: 'toString', minimumArguments: 1, computed: false})
-			&& isBase64EncodingArgument(node.arguments[0])
+			&& toStringEncoding
 			&& (!sourceCode.parserServices?.program || isByteLikeReceiver(node.callee.object, sourceCode.parserServices))
 		) {
 			const [encodingNode] = node.arguments;
@@ -282,7 +294,7 @@ const create = context => {
 				messageId: MESSAGE_ID_ERROR,
 				data: {
 					value: `toString('${encodingNode.value}')`,
-					replacement: encodingNode.value === 'base64url' ? 'Uint8Array#toBase64({alphabet: \'base64url\', omitPadding: true})' : 'Uint8Array#toBase64()',
+					replacement: toStringEncoding === 'base64url' ? 'Uint8Array#toBase64({alphabet: \'base64url\', omitPadding: true})' : 'Uint8Array#toBase64()',
 				},
 			};
 		}
