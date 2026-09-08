@@ -7,13 +7,16 @@ import {
 	containsSuspensionPoint,
 	getNextNode,
 	getParenthesizedText,
+	getStaticValueForControlFlow,
 	getVariableIdentifiers,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
+import {isStringMappingType, isTemplateLiteralType, isUniqueSymbolType} from './utils/types.js';
 
 const MESSAGE_ID = 'prefer-array-from-async';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `Array.fromAsync()` over `for await…of` array accumulation.',
+	[MESSAGE_ID]: 'Prefer `Array.fromAsync()` over array accumulation loops.',
 };
 
 const arrowBodyParenthesizedExpressionTypes = new Set([
@@ -161,6 +164,96 @@ const getMapperBody = ({
 	return pushArgument.argument;
 };
 
+const primitiveTypeNames = new Set([
+	'string',
+	'number',
+	'boolean',
+	'bigint',
+	'symbol',
+	'null',
+	'undefined',
+]);
+
+const isPrimitiveType = (type, checker) => {
+	if (type.isUnion()) {
+		return type.types.every(type => isPrimitiveType(type, checker));
+	}
+
+	return primitiveTypeNames.has(checker.getBaseTypeOfLiteralType(type).intrinsicName)
+		|| isTemplateLiteralType(type)
+		|| isStringMappingType(type)
+		|| isUniqueSymbolType(type);
+};
+
+const isPrimitiveIterableType = (type, checker) => {
+	if (type.isUnion()) {
+		return type.types.every(type => isPrimitiveIterableType(type, checker));
+	}
+
+	if (
+		checker.getBaseTypeOfLiteralType(type).intrinsicName === 'string'
+		|| isTemplateLiteralType(type)
+		|| isStringMappingType(type)
+	) {
+		return true;
+	}
+
+	if (!checker.isArrayType(type) && !checker.isTupleType(type)) {
+		return false;
+	}
+
+	// TypeScript's IndexKind.Number is 1.
+	const elementType = checker.getIndexTypeOfType(type, 1);
+	return Boolean(elementType && isPrimitiveType(elementType, checker));
+};
+
+const isKnownPrimitiveIterable = (node, context) => {
+	const {sourceCode} = context;
+	const {parserServices} = sourceCode;
+	if (parserServices?.program) {
+		try {
+			if (isPrimitiveIterableType(parserServices.getTypeAtLocation(node), parserServices.program.getTypeChecker())) {
+				return true;
+			}
+		} catch {}
+	}
+
+	node = unwrapTypeScriptExpression(node);
+	if (typeof getStaticValueForControlFlow(node, context)?.value === 'string') {
+		return true;
+	}
+
+	if (node.type === 'Identifier') {
+		const variable = findVariable(sourceCode.getScope(node), node);
+		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+		if (
+			definition?.type !== 'Variable'
+			|| definition.parent.kind !== 'const'
+			|| definition.node.id.type !== 'Identifier'
+			|| !definition.node.init
+			|| variable.references.some(reference => !reference.init && reference.identifier !== node)
+		) {
+			return false;
+		}
+
+		// Limit static arrays to constants used only by this loop; other references could mutate or expose them.
+		node = unwrapTypeScriptExpression(definition.node.init);
+	}
+
+	return node.type === 'ArrayExpression' && node.elements.every(element => {
+		if (!element) {
+			return true;
+		}
+
+		if (element.type === 'SpreadElement') {
+			return false;
+		}
+
+		const result = getStaticValueForControlFlow(element, context);
+		return Boolean(result && (result.value === null || !['object', 'function'].includes(typeof result.value)));
+	});
+};
+
 const getLoopProblem = (declaration, context) => {
 	const declarator = getEmptyArrayDeclarator(declaration);
 	if (!declarator || !isGlobalArrayAvailable(declaration, context)) {
@@ -168,7 +261,7 @@ const getLoopProblem = (declaration, context) => {
 	}
 
 	const loop = getNextNode(declaration, context);
-	if (loop?.type !== 'ForOfStatement' || !loop.await) {
+	if (loop?.type !== 'ForOfStatement') {
 		return;
 	}
 
@@ -224,6 +317,10 @@ const getLoopProblem = (declaration, context) => {
 		}
 	}
 
+	if (!loop.await && (!body || !isKnownPrimitiveIterable(loop.right, context))) {
+		return;
+	}
+
 	const replaceRange = [
 		sourceCode.getRange(declaration)[0],
 		sourceCode.getRange(loop)[1],
@@ -262,7 +359,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Array.fromAsync()` over `for await…of` array accumulation.',
+			description: 'Prefer `Array.fromAsync()` over array accumulation loops.',
 			recommended: true,
 		},
 		fixable: 'code',

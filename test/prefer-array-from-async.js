@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -256,5 +257,82 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+	],
+});
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
+
+test.snapshot({
+	valid: [
+		'const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'const paths = [Promise.resolve("a")]; const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'const result = []; for (const path of [{then(resolve) { resolve("a"); }}]) { result.push(await readFile(path)); }',
+		'const result = []; for (const path of [unknown]) { result.push(await readFile(path)); }',
+		'const paths = ["a"]; paths.push(Promise.resolve("b")); const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'const paths = ["a"]; paths[0] = Promise.resolve("b"); const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'const paths = ["a"]; mutate(paths); const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'const paths = ["a"]; const alias = paths; alias.push(Promise.resolve("b")); const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'let paths = ["a"]; paths = promises; const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'const result = []; for (const path of ["a"]) { result.push(readFile(path)); }',
+		'const result = []; for (const path of ["a"]) { result.push(path); }',
+		'const result = []; for (const path of ["a"]) { result.push(await readFile(await normalize(path))); }',
+		'const result = []; for (const path of ["a"]) { result.push(await readFile(path, result)); }',
+		'const result = []; for (const path of ["a"]) { result.push(await readFile(path)); log(path); }',
+		'const result = []; for (const path of ["a"]) { result.push(await readFile(/* keep */ path)); }',
+		'const result = []; /* keep */ for (const path of ["a"]) { result.push(await readFile(path)); }',
+		'const result = await Promise.all(paths.map(path => readFile(path)));',
+		'const paths = ["a"]; const result = []; for (const path of [...paths]) { result.push(await readFile(path)); }',
+		'const result = []; for (const value of [{}]) { result.push(await transform(value)); }',
+		{
+			code: 'async function foo(paths: string[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		...[
+			'any',
+			'any[]',
+			'unknown[]',
+			'object[]',
+			'Promise<string>[]',
+			'PromiseLike<string>[]',
+			'[string, Promise<string>]',
+			'(string | Promise<string>)[]',
+			'{then: (resolve: (value: string) => void) => void}[]',
+			'Iterable<string>',
+			'AsyncIterable<string>',
+			'Set<string>',
+		].map(type => typeAware(`async function foo(paths: ${type}) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }`)),
+	],
+	invalid: [
+		'const result = []; for (const path of ["a", "b"]) { result.push(await readFile(path)); }',
+		'const paths = ["a", "b"]; const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'const paths = "ab"; const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'let result = []; for (let value of [1, true, null, undefined, 1n]) { result.push(await transform(value)); }',
+		'const result = []; for (const path of ((["a"]))) result.push(await reader.readFile(path));',
+		'const result = []; for (const value of "abc") { result.push(await ({value})); }',
+		{
+			code: 'async function foo() { const result: string[] = []; for (const path of (["a"] as const)) { result.push(await (readFile(path) as string)); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		...[
+			'string',
+			'string[]',
+			'Array<string>',
+			'readonly string[]',
+			'ReadonlyArray<string>',
+			'[string, number]',
+			'readonly [string, number?]',
+			'(string | number | boolean | bigint | symbol | null | undefined)[]',
+			'string[] | number[]',
+			'("a" | 1 | true)[]',
+		].map(type => typeAware(`async function foo(paths: ${type}) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }`)),
+		typeAware('async function foo(paths: string[] | undefined) { const result = []; for (const path of paths!) { result.push(await readFile(path)); } }'),
+		typeAware('async function foo(paths: string[]) { const result = []; for (const path of (paths satisfies readonly string[])) { result.push(await readFile(path)); } }'),
 	],
 });
