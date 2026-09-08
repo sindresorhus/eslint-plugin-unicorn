@@ -498,6 +498,7 @@ test({
 	valid: [
 		'const set = new Set(); void await set.union(other);',
 		'const set = new Set(); const merge = () => set.union(other);',
+		'const set = new Set(); const merge = async () => await set.union(other);',
 	],
 	invalid: [
 		{code: 'const set = new Set(); const merge = () => { set.union(other); };', errors: 1},
