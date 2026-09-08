@@ -83,10 +83,10 @@ function isTypeOnlyComputedKey(node) {
 	);
 }
 
-function isTypeOnlyReference(node) {
+function isNonRuntimeReference(node) {
 	for (let child = node; child.parent; child = child.parent) {
 		const {parent} = child;
-		if (parent.type === 'TSTypeQuery') {
+		if (parent.type === 'TSTypeQuery' || parent.type === 'JSXNamespacedName') {
 			return true;
 		}
 
@@ -103,8 +103,8 @@ function isTypeOnlyReference(node) {
 }
 
 function isRuntimeReference(reference) {
-	// Some erased TypeScript syntax resolves names in the value namespace without evaluating them.
-	return reference.isValueReference !== false && !isTypeOnlyReference(reference.identifier);
+	// Some syntax is represented as a value reference without reading the binding at runtime.
+	return reference.isValueReference !== false && !isNonRuntimeReference(reference.identifier);
 }
 
 function * getCapturedResources(node, owner, sourceCode) {
@@ -122,13 +122,12 @@ function * getCapturedResources(node, owner, sourceCode) {
 	}
 }
 
-function * getEscapingResources(node, owner, context) {
+function * getEscapingResources(node, owner, sourceCode) {
 	if (!node) {
 		return;
 	}
 
 	node = unwrapTypeScriptExpression(node);
-	const {sourceCode} = context;
 
 	if (node.type === 'Identifier') {
 		const variable = findValueVariable(node, sourceCode);
@@ -153,7 +152,7 @@ function * getEscapingResources(node, owner, context) {
 	switch (node.type) {
 		case 'ArrayExpression': {
 			for (const element of node.elements) {
-				yield * getEscapingResources(element, owner, context);
+				yield * getEscapingResources(element, owner, sourceCode);
 			}
 
 			break;
@@ -162,7 +161,7 @@ function * getEscapingResources(node, owner, context) {
 		case 'ObjectExpression': {
 			for (const property of node.properties) {
 				if (property.type === 'Property') {
-					yield * getEscapingResources(property.value, owner, context);
+					yield * getEscapingResources(property.value, owner, sourceCode);
 				}
 			}
 
@@ -170,23 +169,23 @@ function * getEscapingResources(node, owner, context) {
 		}
 
 		case 'ConditionalExpression': {
-			yield * getEscapingResources(node.consequent, owner, context);
-			yield * getEscapingResources(node.alternate, owner, context);
+			yield * getEscapingResources(node.consequent, owner, sourceCode);
+			yield * getEscapingResources(node.alternate, owner, sourceCode);
 			break;
 		}
 
 		case 'LogicalExpression': {
 			// Disposable values are truthy, so they cannot escape from the left of `&&`.
 			if (node.operator !== '&&') {
-				yield * getEscapingResources(node.left, owner, context);
+				yield * getEscapingResources(node.left, owner, sourceCode);
 			}
 
-			yield * getEscapingResources(node.right, owner, context);
+			yield * getEscapingResources(node.right, owner, sourceCode);
 			break;
 		}
 
 		case 'SequenceExpression': {
-			yield * getEscapingResources(node.expressions.at(-1), owner, context);
+			yield * getEscapingResources(node.expressions.at(-1), owner, sourceCode);
 			break;
 		}
 
@@ -225,9 +224,11 @@ function getExportedValues(node) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const {sourceCode} = context;
+
 	function * getProblems(node, values, action) {
 		const owner = getOwner(node);
-		const resources = new Set(values.flatMap(value => [...getEscapingResources(value, owner, context)]));
+		const resources = new Set(values.flatMap(value => [...getEscapingResources(value, owner, sourceCode)]));
 		for (const resource of resources) {
 			yield {node, messageId: MESSAGE_ID, data: {name: resource.name, action}};
 		}

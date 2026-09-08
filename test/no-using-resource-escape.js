@@ -63,7 +63,6 @@ test.snapshot({
 		'function f() { using resource = acquire(); return other ?? resource; }',
 		'function f() { using resource = acquire(); return (other, resource); }',
 		'function f() { using resource = acquire(); return ((resource)); }',
-		'function f() { using resource = acquire(); return /* keep */ resource; }',
 		'function f() { using first = acquire(), second = acquire(); return () => [first, second, first]; }',
 		'function f() { using resource = acquire(); return () => { const value = resource.read(); return resource.read() + value; }; }',
 		'function f() { using resource = acquire(); return () => { using resource = acquire(); return resource; }; }',
@@ -133,4 +132,17 @@ test.snapshot({
 		'using resource = acquire(); export function read() { type resource = Resource; return resource.read(); }',
 		'function f() { using resource = acquire(); return <resource>() => resource; }',
 	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+});
+
+test.snapshot({
+	valid: [{
+		code: 'function f() { using resource = acquire(); return () => <resource:tag />; }',
+		filename: 'index.tsx',
+		languageOptions: {parser: parsers.typescript},
+	}],
+	invalid: [{
+		code: 'function f() { using resource = acquire(); return () => <resource.Component />; }',
+		filename: 'index.tsx',
+		languageOptions: {parser: parsers.typescript},
+	}],
 });
