@@ -170,7 +170,16 @@ function * getEscapingResources(node, owner, sourceCode) {
 
 		case 'ConditionalExpression': {
 			yield * getEscapingResources(node.consequent, owner, sourceCode);
-			yield * getEscapingResources(node.alternate, owner, sourceCode);
+
+			const test = unwrapTypeScriptExpression(node.test);
+			const testVariable = test.type === 'Identifier' ? findValueVariable(test, sourceCode) : undefined;
+			// A disposable value is truthy, so a resource used as the test cannot escape through the alternate.
+			for (const resource of getEscapingResources(node.alternate, owner, sourceCode)) {
+				if (resource !== testVariable) {
+					yield resource;
+				}
+			}
+
 			break;
 		}
 
@@ -248,7 +257,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow returning or exporting resources declared with `using`, including through capturing functions.',
-			recommended: false,
+			recommended: 'unopinionated',
 		},
 		schema: [],
 		messages,

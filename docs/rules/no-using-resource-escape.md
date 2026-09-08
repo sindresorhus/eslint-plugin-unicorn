@@ -2,86 +2,61 @@
 
 📝 Disallow returning or exporting resources declared with `using`, including through capturing functions.
 
-🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 <!-- end auto-generated rule header -->
 
 Resources declared with [`using` or `await using`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using) are disposed when their owning scope exits. Returning or exporting the resource, or a function that captures it, can expose an already-disposed resource to later code.
 
-This rule checks direct resource values and capturing functions in returns and exports. It also checks array elements, object property values and methods, conditional and logical expressions, and the last operand of a sequence expression. Functions can be inline or referenced through an unreassigned local function declaration or a `const` initialized directly with a function.
+The rule checks direct resource values and capturing functions in returns and exports, including through array elements, object property values and methods, conditional and logical expressions, and the last operand of a sequence expression. Functions can be inline or referenced through an unreassigned local function declaration or a `const` initialized directly with a function.
 
-The rule supports JavaScript and TypeScript without type information. It is off by default and has no options or automatic fixes, since the appropriate repair depends on who should own the resource.
+It supports JavaScript and TypeScript without type information. It has no options or automatic fix because ownership must be decided by the application.
 
 ## Examples
 
 ```js
-// ❌
 function openResource() {
 	using resource = acquire();
-	return resource;
+	return resource; // ❌ Disposed before the caller receives it.
 }
 
-// ✅ Consume the resource before disposal and return the result.
 function readResource() {
 	using resource = acquire();
-	return resource.read();
+	return resource.read(); // ✅ Return the result instead.
 }
 ```
 
 ```js
-// ❌
-function createReader() {
+function createDisposedReader() {
 	using resource = acquire();
-	return () => resource.read();
+	return () => resource.read(); // ❌ Captures a disposed resource.
 }
 
-// ✅ Acquire and dispose a resource for each call.
 function createReader() {
 	return () => {
 		using resource = acquire();
-		return resource.read();
+		return resource.read(); // ✅ Own the resource inside the returned function.
 	};
 }
 ```
 
 ```js
-// ❌
 using resource = acquire();
-export {resource};
+export {resource}; // ❌
 
-// ❌
-await using connection = await connect();
-export const query = () => connection.query();
-
-// ✅ Keep resource ownership inside the exported operation.
 export async function query() {
 	await using connection = await connect();
-	return await connection.query();
+	return await connection.query(); // ✅
 }
 ```
 
-A nested helper can return an outer resource while its owning scope remains active:
-
-```js
-// ✅
-function readResource() {
-	using resource = acquire();
-
-	function getResource() {
-		return resource;
-	}
-
-	return getResource().read();
-}
-```
+A nested helper may return an outer resource when the result remains inside the owning scope.
 
 ## Limitations
 
-This rule checks common, local escape patterns, not all possible uses after disposal. It does not track resource aliases, destructured bindings, mutable bindings, assignments to outer state, classes, indirect helper calls, or resources obtained from properties. Calls and awaited expressions are treated as opaque values. Spread contents, object-literal computed property keys, type-only exports and references, re-exports, and `yield` are ignored.
+The rule does not track aliases, destructured or mutable bindings, assignments to outer state, classes, or property-derived resources. It ignores calls, awaited expressions, spreads, computed object keys, `yield`, re-exports, and type-only exports and references.
 
-Timers, event listeners, promises, and general callback arguments are not checked because the rule does not infer whether callbacks outlive the owning scope. The rule also does not analyze whether capturing functions are actually called after disposal or whether a particular resource remains usable after disposal.
-
-TypeScript function instantiation expressions (such as `return read<Resource>`) and references to overloaded functions are not checked.
+It also ignores callbacks passed to timers, event listeners, promises, and other functions because their lifetime is unknown. TypeScript function instantiation expressions such as `return read<Resource>` and overloaded function references are unsupported.
 
 To require awaiting returned promises before resources are disposed, use [`@typescript-eslint/return-await`](https://typescript-eslint.io/rules/return-await/). Adding `await` does not repair returning an ordinary disposed resource or a closure capturing it.
 
