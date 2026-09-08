@@ -32,12 +32,16 @@ function isAsyncCallback(node, context) {
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (variable?.defs.length !== 1 || variable.references.some(reference => reference.isWrite())) {
+	if (!variable || variable.references.some(reference => reference.isWrite())) {
 		return false;
 	}
 
-	const [definition] = variable.defs;
-	return definition.type === 'FunctionName' && isAsyncNonGeneratorFunction(definition.node);
+	const functionImplementations = variable.defs.filter(definition =>
+		definition.type === 'FunctionName'
+		&& definition.node.body,
+	);
+
+	return functionImplementations.length === 1 && isAsyncNonGeneratorFunction(functionImplementations[0].node);
 }
 
 function hasPromiseReturnType(node, context) {

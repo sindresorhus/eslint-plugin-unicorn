@@ -89,6 +89,7 @@ test.snapshot({
 		'function foo(array: number[]) { array.filter(async value => value); }',
 		'type Iterator<T> = T[]; function foo(iterator: Iterator<number>) { iterator.filter(async value => value); }',
 		'declare const callback: () => Promise<boolean>; Iterator.from(values).filter(callback);',
+		'async function callback(value: number) { return true; } function callback(value: number) { return true; } Iterator.from(values).filter(callback);',
 	],
 	invalid: [
 		'function foo(iterator: Iterator<number>) { iterator.filter(async value => value); }',
@@ -102,6 +103,7 @@ test.snapshot({
 		'const callback = (async value => value) as Predicate; Iterator.from(values).filter(callback);',
 		'const callback = async <T>(value: T) => value; Iterator.from(values).filter(callback<number>);',
 		'async function callback<T>(value: T) { return value; } Iterator.from(values).filter(callback<number>);',
+		'function callback(value: number): Promise<boolean>; async function callback(value: number) { return true; } Iterator.from(values).filter(callback);',
 		'function foo(iterator: IteratorObject<number>) { iterator!.filter<number>(async value => value); }',
 		'(Iterator.from(values) satisfies Iterable<number>).filter(async value => value)',
 	],
