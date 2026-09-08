@@ -1,4 +1,3 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction} from './ast/index.js';
 import {unwrapTypeScriptExpression} from './utils/index.js';
 
@@ -24,6 +23,18 @@ function getUniqueDefinition(variable, definitionTypes) {
 	const definitions = variable?.defs.filter(definition => definitionTypes.includes(definition.type));
 	if (definitions?.length === 1) {
 		return definitions[0];
+	}
+}
+
+function findValueVariable(node, sourceCode) {
+	let scope = sourceCode.getScope(node);
+	while (scope) {
+		const variable = scope.set.get(node.name);
+		if (variable?.defs.some(definition => definition.type !== 'Type')) {
+			return variable;
+		}
+
+		scope = scope.upper;
 	}
 }
 
@@ -61,7 +72,11 @@ function isTypeOnlyComputedKey(node) {
 		return true;
 	}
 
-	return node.decorators?.length === 0 && (
+	if (node.decorators?.length > 0) {
+		return false;
+	}
+
+	return (
 		node.type === 'TSAbstractAccessorProperty'
 		|| node.type === 'TSAbstractPropertyDefinition'
 		|| (node.type === 'PropertyDefinition' && node.declare === true)
@@ -116,7 +131,7 @@ function * getEscapingResources(node, owner, context) {
 	const {sourceCode} = context;
 
 	if (node.type === 'Identifier') {
-		const variable = findVariable(sourceCode.getScope(node), node);
+		const variable = findValueVariable(node, sourceCode);
 		if (isOwnedResource(variable, owner)) {
 			yield variable;
 			return;

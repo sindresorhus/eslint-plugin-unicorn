@@ -99,6 +99,7 @@ test.snapshot({
 		'function f() { using resource: any = acquire(); return () => { abstract class Type { abstract [resource]: string; } return other; }; }',
 		'function f() { using resource: any = acquire(); return () => { abstract class Type { abstract accessor [resource]: string; } return other; }; }',
 		'function f() { using resource: any = acquire(); return () => { class Type { declare [resource]: string; } return other; }; }',
+		'function f() { using resource = acquire(); { interface resource {} const resource = other; return resource; } }',
 		// Deliberately unsupported instantiation expressions and overloaded function references.
 		'function f() { using resource = acquire(); const read = <T>() => resource.read(); return read<Resource>; }',
 		'function f() { using resource = acquire(); function read(): string; function read() { return resource.read(); } return read; }',
@@ -123,5 +124,9 @@ test.snapshot({
 		'function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract [resource]: string; } return other; }; }',
 		'function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract accessor [resource]: string; } return other; }; }',
 		'function f() { using resource: any = acquire(); return () => { class Type { @decorator declare [resource]: string; } return other; }; }',
+		'function f() { using resource = acquire(); { type resource = Resource; return resource; } }',
+		'function f() { using resource = acquire(); const read = () => resource.read(); { interface read {} return read; } }',
+		'using resource = acquire(); export function read() { type resource = Resource; return resource.read(); }',
+		'function f() { using resource = acquire(); return <resource>() => resource; }',
 	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 });
