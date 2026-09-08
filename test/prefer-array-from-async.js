@@ -385,3 +385,12 @@ test({
 		},
 	],
 });
+
+// Destructuring assignments need parentheses when moved into a concise arrow body.
+test.snapshot({
+	valid: [],
+	invalid: [
+		'let length; const result = []; for (const element of ["a"]) { result.push(await ({length} = element)); }',
+		'let length; const result = []; for await (const element of iterable) { result.push(await ({length} = element)); }',
+	],
+});

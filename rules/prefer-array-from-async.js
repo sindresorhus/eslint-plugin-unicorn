@@ -24,6 +24,7 @@ const messages = {
 };
 
 const arrowBodyParenthesizedExpressionTypes = new Set([
+	'AssignmentExpression',
 	'ObjectExpression',
 	'SequenceExpression',
 	'TSAsExpression',
