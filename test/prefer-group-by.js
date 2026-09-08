@@ -15,6 +15,9 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
+		'const Object = items.reduce((groups, item) => {(groups[item.type] ??= []).push(item); return groups;}, {});',
+		'items.reduce((groups, item) => {const key = item++; (groups[key] ??= []).push(item); return groups;}, {});',
+		'items.reduce((groups, item) => {const key = (item = item.type); const group = groups.get(key) ?? []; group.push(item); groups.set(key, group); return groups;}, new Map());',
 		'items.reduce((groups, item) => {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [,]);} return groups;}, new Map());',
 		'items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;});',
 		'items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {existing: []});',
@@ -242,6 +245,11 @@ test({
 			code: 'const groups: Record<number, number[]> = {}; for (const item of [1, 2]) {(groups[item] ??= []).push(item);}',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'prefer-group-by-loop'}],
+		},
+		{
+			code: 'items.reduce((groups, item) => {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group); return groups;}, new Map<string, Item[]>());',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-group-by'}],
 		},
 	],
 });

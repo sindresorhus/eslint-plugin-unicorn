@@ -96,6 +96,9 @@ const hasFunctionSpecificReference = node =>
 		node.type === 'ThisExpression'
 		|| isReferenceIdentifier(node, 'arguments'));
 
+const hasWriteReference = (variable, identifier) =>
+	variable.references.some(reference => reference.identifier !== identifier && reference.isWrite());
+
 const isReturnAccumulatorStatement = (statement, accumulator) =>
 	statement?.type === 'ReturnStatement'
 	&& statement.argument
@@ -468,6 +471,16 @@ function getGroupByMethod(initialValue) {
 	}
 }
 
+const hasObjectGroupByBindingConflict = (method, identifier) =>
+	method === 'Object.groupBy' && identifier?.name === 'Object';
+
+function getGroupByMethodForBinding(initialValue, identifier) {
+	const method = getGroupByMethod(initialValue);
+	return hasObjectGroupByBindingConflict(method, identifier) ? undefined : method;
+}
+
+const hasTypeArguments = node => Boolean(node.typeArguments || node.typeParameters);
+
 function getArrowParameterText(node, context) {
 	const text = context.sourceCode.getText(node);
 	return node.typeAnnotation || node.optional ? `(${text})` : text;
@@ -499,8 +512,16 @@ function getGroupByProblem(callExpression, context) {
 		index: callback.params[2]?.type === 'Identifier' ? callback.params[2] : undefined,
 		array: callback.params[3]?.type === 'Identifier' ? callback.params[3] : undefined,
 	};
+	const elementVariable = context.sourceCode.getDeclaredVariables(callback)
+		.find(variable => variable.identifiers.includes(callbackParts.element));
+	if (hasWriteReference(elementVariable, callbackParts.element)) {
+		return;
+	}
 
-	const method = getGroupByMethod(initialValue);
+	const declarationIdentifier = callExpression.parent.type === 'VariableDeclarator'
+		? callExpression.parent.id
+		: undefined;
+	const method = getGroupByMethodForBinding(initialValue, declarationIdentifier);
 	if (!method) {
 		return;
 	}
@@ -525,8 +546,8 @@ function getGroupByProblem(callExpression, context) {
 	};
 
 	if (
-		callExpression.typeArguments
-		|| callExpression.typeParameters
+		hasTypeArguments(callExpression)
+		|| hasTypeArguments(initialValue)
 		|| callbackParts.accumulator.typeAnnotation
 		|| callback.returnType
 		|| (
@@ -562,11 +583,13 @@ function getForOfElement(loop, context) {
 	const element = loop.left.declarations[0].id;
 	const [variable] = context.sourceCode.getDeclaredVariables(loop.left);
 	const [iterableStart, iterableEnd] = context.sourceCode.getRange(loop.right);
-	if (variable.references.some(reference => {
-		const [referenceStart, referenceEnd] = context.sourceCode.getRange(reference.identifier);
-		return (reference.identifier !== element && reference.isWrite())
-			|| (referenceStart >= iterableStart && referenceEnd <= iterableEnd);
-	})) {
+	if (
+		hasWriteReference(variable, element)
+		|| variable.references.some(reference => {
+			const [referenceStart, referenceEnd] = context.sourceCode.getRange(reference.identifier);
+			return referenceStart >= iterableStart && referenceEnd <= iterableEnd;
+		})
+	) {
 		return;
 	}
 
@@ -586,8 +609,8 @@ function getLoopGroupByProblem(declaration, context) {
 		return;
 	}
 
-	const method = getGroupByMethod(init);
-	if (!method || (method === 'Object.groupBy' && accumulator.name === 'Object')) {
+	const method = getGroupByMethodForBinding(init, accumulator);
+	if (!method) {
 		return;
 	}
 
