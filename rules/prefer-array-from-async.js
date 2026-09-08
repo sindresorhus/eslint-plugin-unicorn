@@ -248,21 +248,22 @@ const isKnownPrimitiveIterable = (node, context) => {
 	const variable = getConstIdentifierVariable(node, context);
 	const initializer = variable ? unwrapTypeScriptExpression(variable.defs[0].node.init) : undefined;
 	const hasOtherReferences = Boolean(variable?.references.some(reference => !reference.init && reference.identifier !== node));
-	if (initializer?.type === 'ArrayExpression' && hasOtherReferences) {
-		return false;
+	if (typeof getStaticValueForControlFlow(node, context)?.value === 'string') {
+		return true;
 	}
 
 	const {parserServices} = sourceCode;
 	if (parserServices?.program) {
 		try {
-			if (isPrimitiveIterableType(parserServices.getTypeAtLocation(typeNode), parserServices.program.getTypeChecker())) {
+			const checker = parserServices.program.getTypeChecker();
+			const type = parserServices.getTypeAtLocation(typeNode);
+			if (
+				isPrimitiveIterableType(type, checker)
+				&& (!variable || isPrimitiveType(type, checker))
+			) {
 				return true;
 			}
 		} catch {}
-	}
-
-	if (typeof getStaticValueForControlFlow(node, context)?.value === 'string') {
-		return true;
 	}
 
 	if (node.type === 'Identifier') {

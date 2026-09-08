@@ -17,7 +17,7 @@ This rule only reports adjacent `const` or `let` empty-array declarations follow
 
 Ordinary `for…of` loops are reported only for explicitly awaited mappings over known primitive inputs. Without type information, this includes statically known strings and array literals containing primitive values, including constant arrays used only as the loop input. Array literals with spreads, and constant array bindings with any other references, are skipped rather than attempting to track mutations and aliases.
 
-With TypeScript type information enabled, this also includes strings, arrays, readonly arrays, and tuples whose element types are exclusively primitive. Syntax-only TypeScript parsing uses the same static checks as JavaScript. Unknown inputs, object or promise elements, and custom iterables are not reported.
+With TypeScript type information enabled, this also includes strings, arrays, readonly arrays, and tuples whose element types are exclusively primitive. Type information is not used to follow local `const` array bindings; these retain the static checks above, so aliases are not traced. Syntax-only TypeScript parsing uses the same static checks as JavaScript. Unknown inputs, object or promise elements, and custom iterables are not reported.
 
 `Array.fromAsync()` awaits synchronous input elements before passing them to the mapper, unlike ordinary `for…of`. Both approaches await each mapper result before processing the next element, but `Array.fromAsync()` also yields before invoking the first mapper. This can change reads of shared state. Ordinary loops therefore receive editor suggestions instead of automatic fixes. Existing `for await…of` conversions are automatically fixable.
 

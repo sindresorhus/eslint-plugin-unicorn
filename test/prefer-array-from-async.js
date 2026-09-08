@@ -313,6 +313,7 @@ test.snapshot({
 		].map(type => typeAware(`async function foo(paths: ${type}) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }`)),
 		typeAware('async function foo<T extends unknown>(paths: T[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo<T extends string | PromiseLike<string>>(paths: T[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware('declare function getPaths(): string[]; async function foo() { const paths = getPaths(); const result = []; for (const path of paths) { result.push(await transform(path)); } }'),
 		typeAware(outdent`
 			function replace(values: unknown[]) {
 				values[0] = Promise.resolve('b');
@@ -326,11 +327,40 @@ test.snapshot({
 				}
 			}
 		`),
+		typeAware(outdent`
+			function replace(values: unknown[]) {
+				values[0] = Promise.resolve('b');
+			}
+			async function foo() {
+				const paths = ['a'];
+				const alias = paths;
+				replace(paths);
+				const result = [];
+				for (const path of alias) {
+					result.push(await transform(path));
+				}
+			}
+		`),
+		typeAware(outdent`
+			function replace(values: unknown[]) {
+				values[0] = Promise.resolve('b');
+			}
+			async function foo() {
+				const paths = ['a'];
+				const alias = true ? paths : paths;
+				replace(paths);
+				const result = [];
+				for (const path of alias) {
+					result.push(await transform(path));
+				}
+			}
+		`),
 	],
 	invalid: [
 		'const result = []; for (const path of ["a", "b"]) { result.push(await readFile(path)); }',
 		'const paths = ["a", "b"]; const result = []; for (const path of paths) { result.push(await readFile(path)); }',
 		'const paths = "ab"; const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'const paths = "ab"; const alias = paths; const result = []; for (const path of alias) { result.push(await readFile(path)); }',
 		'const path = "a"; const result = []; for (const value of [path]) { result.push(await readFile(value)); }',
 		'let result = []; for (let value of [1, true, null, undefined, 1n]) { result.push(await transform(value)); }',
 		'const result = []; for (const path of ((["a"]))) result.push(await reader.readFile(path));',
