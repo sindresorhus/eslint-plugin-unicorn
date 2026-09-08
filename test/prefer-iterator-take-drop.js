@@ -302,6 +302,43 @@ test('materialization rules compose without autofix cycles', t => {
 	}
 });
 
+testRule({
+	valid: [],
+	invalid: [
+		{
+			code: 'value!\nArray.from([1].values()).slice(0, 1)',
+			output: 'value!\n;[1].values().take(1).toArray()',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const element = <div />\nArray.from([1].values()).slice(0, 1)',
+			output: 'const element = <div />\n;[1].values().take(1).toArray()',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: 'const element = <></>\nArray.from([1].values()).slice(0, 1)',
+			output: 'const element = <></>\n;[1].values().take(1).toArray()',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: '!Array.from([1].values()).slice(0, 1)',
+			output: '![1].values().take(1).toArray()',
+		},
+	].map(({code, output, ...options}) => ({
+		code,
+		...options,
+		errors: [{
+			messageId: 'prefer-iterator-take-drop',
+			data: {replacement: 'take(1)'},
+			suggestions: [{
+				messageId: 'prefer-iterator-take-drop/suggestion',
+				data: {replacement: 'take(1)'},
+				output,
+			}],
+		}],
+	})),
+});
+
 test('suggestions preserve statement boundaries after functions and classes', t => {
 	for (const precedingStatement of ['const fn = function() {}', 'const Constructor = class {}', 'const fn = () => {}', 'function fn() {}', 'class Constructor {}']) {
 		for (const iterator of ['[1].values()', '/a/.exec("a").values()', '`a`.matchAll(/a/g).map(match => match[0])']) {

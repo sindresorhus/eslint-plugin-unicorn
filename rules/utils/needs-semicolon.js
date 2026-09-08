@@ -26,6 +26,14 @@ const charactersMightNeedsSemicolon = new Set([
 	'.',
 ]);
 
+const statementTypesNeedsSemicolon = new Set([
+	'ExpressionStatement',
+	'VariableDeclaration',
+	'ReturnStatement',
+	'ThrowStatement',
+	'ExportDefaultDeclaration',
+]);
+
 /**
 Determines if a semicolon needs to be inserted before `code`, in order to avoid a SyntaxError.
 
@@ -48,22 +56,20 @@ export default function needsSemicolon(tokenBefore, context, code) {
 
 	const {sourceCode} = context;
 	const {type, value} = tokenBefore;
+	if (type === 'Punctuator' && value === ';') {
+		return false;
+	}
+
 	const range = sourceCode.getRange(tokenBefore);
 	const lastBlockNode = sourceCode.getNodeByRangeIndex(range[0]);
-	if (type === 'Punctuator') {
-		if (value === ';') {
-			return false;
-		}
-
-		if (value === ']') {
+	for (let node = lastBlockNode; node && sourceCode.getRange(node)[1] === range[1]; node = node.parent) {
+		if (statementTypesNeedsSemicolon.has(node.type)) {
 			return true;
 		}
+	}
 
-		if (value === '++' || value === '--') {
-			return !lastBlockNode.prefix;
-		}
-
-		if (value === '}' && ['FunctionExpression', 'ClassExpression'].includes(lastBlockNode.parent.type)) {
+	if (type === 'Punctuator') {
+		if (value === ']') {
 			return true;
 		}
 
