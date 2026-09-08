@@ -114,3 +114,5 @@ Set and Temporal coverage requires a known receiver: a direct constructor, a Tem
 Bindings annotated with a nullable union, along with optional parameters, are left unresolved, including optional calls.
 
 The rule checks directly discarded calls, including optional calls, `await`, TypeScript assertion wrappers, and `for` initializers and updates. It intentionally does not inspect comparison expressions (including Yoda comparisons), logical expressions, conditional expressions, or comma expressions for discarded results.
+
+[`no-unused-iterator-helper`](./no-unused-iterator-helper.md) handles discarded lazy iterator helpers, which require different behavior because `void` does not consume the iterator or run its callback. This rule skips iterator helper calls recognized by that rule.

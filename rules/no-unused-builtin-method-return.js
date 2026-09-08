@@ -1,5 +1,6 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isCallExpression, isMemberExpression, isMethodCall} from './ast/index.js';
+import {isLazyIteratorHelperCall} from './shared/iterator-helpers.js';
 import {
 	isArray,
 	isSet,
@@ -350,6 +351,7 @@ const create = context => {
 		if (
 			!methods.has(method)
 			|| !isDiscardedExpression(node)
+			|| isLazyIteratorHelperCall(node, context)
 			|| shouldSkipReceiver(node.callee.object, method, context)
 		) {
 			return;

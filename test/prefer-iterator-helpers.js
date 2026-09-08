@@ -119,6 +119,8 @@ test.snapshot({
 		'Array.from(map.values().drop(count)).forEach(fn)',
 		'Array.from(map.values().take(count)).reduce(fn)',
 		'Array.from(map.values().take(count)).reduce(fn, initialValue)',
+		'const iterator = items.values(); [...iterator].find(fn);',
+		'function * generate() { yield 1; } Array.from(generate()).some(fn);',
 
 		// Callback boundary arguments are still safe.
 		'[...map.values()].find((value, index) => value === index)',
