@@ -317,7 +317,7 @@ function isMapSetArrayExpression(expression, callbackParts, key, keyIdentifier) 
 	const setValue = expression.arguments[1];
 	return setValue.type === 'ArrayExpression'
 		&& setValue.elements.length === 1
-		&& setValue.elements[0]?.type !== 'SpreadElement'
+		&& setValue.elements[0]?.type === 'Identifier'
 		&& isSameIdentifier(setValue.elements[0], callbackParts.element);
 }
 
@@ -561,9 +561,16 @@ function getForOfElement(loop, context) {
 
 	const element = loop.left.declarations[0].id;
 	const [variable] = context.sourceCode.getDeclaredVariables(loop.left);
-	return variable.references.some(reference => reference.identifier !== element && reference.isWrite())
-		? undefined
-		: element;
+	const [iterableStart, iterableEnd] = context.sourceCode.getRange(loop.right);
+	if (variable.references.some(reference => {
+		const [referenceStart, referenceEnd] = context.sourceCode.getRange(reference.identifier);
+		return (reference.identifier !== element && reference.isWrite())
+			|| (referenceStart >= iterableStart && referenceEnd <= iterableEnd);
+	})) {
+		return;
+	}
+
+	return element;
 }
 
 function getLoopGroupByProblem(declaration, context) {
@@ -580,10 +587,14 @@ function getLoopGroupByProblem(declaration, context) {
 	}
 
 	const method = getGroupByMethod(init);
+	if (!method) {
+		return;
+	}
+
 	const loop = getNextNode(declaration, context);
 	const element = getForOfElement(loop, context);
 
-	if (!method || !element || loop.body.type !== 'BlockStatement') {
+	if (!element || loop.body.type !== 'BlockStatement') {
 		return;
 	}
 
@@ -595,7 +606,6 @@ function getLoopGroupByProblem(declaration, context) {
 	if (
 		isSameIdentifier(accumulator, element)
 		|| referencesIdentifier(loop.right, accumulator)
-		|| referencesIdentifier(loop.right, element)
 		|| localIdentifiers.some(identifier =>
 			isSameIdentifier(identifier, accumulator) || isSameIdentifier(identifier, element))
 	) {
@@ -624,6 +634,7 @@ function getLoopGroupByProblem(declaration, context) {
 					const [commentStart, commentEnd] = sourceCode.getRange(comment);
 					return commentStart >= start && commentEnd <= end;
 				})
+				|| accumulator.typeAnnotation
 				|| init.typeArguments
 				|| init.typeParameters
 				|| isNodeMatchedInside(key, node => node.type === 'AwaitExpression' || node.type === 'YieldExpression')

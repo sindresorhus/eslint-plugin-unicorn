@@ -15,6 +15,7 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
+		'items.reduce((groups, item) => {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [,]);} return groups;}, new Map());',
 		'items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;});',
 		'items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {existing: []});',
 		'items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item.value); return groups;}, {});',
@@ -145,6 +146,9 @@ test.snapshot({
 // Accumulation loops.
 test.snapshot({
 	valid: [
+		'const groups = {}; for (const item of item) {(groups[item.type] ??= []).push(item);}',
+		'const groups = {}; for (const item of items.filter(() => item.active)) {(groups[item.type] ??= []).push(item);}',
+		'const groups = new Map(); for (const item of items) {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [,]);}}',
 		'const groups = {}; for (let item of [1, 2]) {const key = item++; groups[key] ??= []; groups[key].push(item);}',
 		'const groups = new Map(); for (let item of items) {const key = (item = item.type); const group = groups.get(key) ?? []; group.push(item); groups.set(key, group);}',
 		'const groups = {existing: []}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
@@ -200,7 +204,7 @@ test.snapshot({
 			[1].map(foo)
 		`,
 		{
-			code: 'const groups: Record<string, Item[]> = {}; for (const item of items as Item[]) {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item);}',
+			code: 'const groups = {}; for (const item of items as Item[]) {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item);}',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -210,6 +214,19 @@ test.snapshot({
 		{
 			code: 'const groups = new Map<string, Item[]>(); for (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}',
 			languageOptions: {parser: parsers.typescript},
+		},
+		'const groups = {}; for (const item of items.filter(item => item.active)) {(groups[item.type] ??= []).push(item);}',
+	],
+});
+
+// An explicit accumulator type can be incompatible with the inferred groupBy result.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const groups: Record<number, number[]> = {}; for (const item of [1, 2]) {(groups[item] ??= []).push(item);}',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-group-by-loop'}],
 		},
 	],
 });
