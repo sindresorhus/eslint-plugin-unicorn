@@ -59,6 +59,26 @@ testRule({
 			errors: [error],
 		},
 		{
+			code: 'new Buffer([255]).toString(\'hex\')',
+			output: 'new Buffer([255]).toHex()',
+			errors: [error],
+		},
+		{
+			code: 'const buffer = new Buffer([255]); buffer.toString(\'hex\')',
+			output: 'const buffer = new Buffer([255]); buffer.toHex()',
+			errors: [error],
+		},
+		{
+			code: `Array.from(new Buffer([255]), ${encode}).join('')`,
+			output: 'new Buffer([255]).toHex()',
+			errors: [error],
+		},
+		{
+			code: 'import {Buffer as Bytes} from \'node:buffer\'; new Bytes([255]).toString(\'hex\')',
+			output: 'import {Buffer as Bytes} from \'node:buffer\'; new Bytes([255]).toHex()',
+			errors: [error],
+		},
+		{
 			code: 'Buffer.from(buffer, offset, length).toString(\'hex\')',
 			output: 'Buffer.from(buffer, offset, length).toHex()',
 			errors: [error],
@@ -134,6 +154,10 @@ testRule.snapshot({
 			'new Set([1])',
 			'\'text\'',
 		].map(receiver => `const bytes = ${receiver}; [...bytes].map(${encode}).join('')`),
+		`Array.from(1 + 1, ${encode}).join('')`,
+		'(typeof value).toString(\'hex\')',
+		'(value++).toString(\'hex\')',
+		'(class {}).toString(\'hex\')',
 		...['number[]', 'Uint16Array', 'Uint8ClampedArray'].map(type => ({
 			code: `function hex(bytes: ${type}) { return Array.from(bytes, ${encode}).join(''); }`,
 			languageOptions: {parser: parsers.typescript},
@@ -141,6 +165,9 @@ testRule.snapshot({
 		'new Uint8Array([255]).toString(\'hex\')',
 		'new Date().toString(\'hex\')',
 		'({toString() {}}).toString(\'hex\')',
+		...['Buffer', 'Array', 'Uint8Array', 'Uint16Array'].map(receiver => `${receiver}.toString('hex')`),
+		'import {Buffer as Bytes} from \'node:buffer\'; Bytes.toString(\'hex\')',
+		`Array.from(Uint8Array, ${encode}).join('')`,
 		'buffer.toString(\'base64\')',
 		'buffer.toString(encoding)',
 		'buffer.toString(\'hex\', 0, 5)',

@@ -30,7 +30,20 @@ const messages = {
 const bufferImportSources = new Set(['buffer', 'node:buffer']);
 const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
 const hexPairPatterns = new Set(['..', '.{2}', '.{1,2}', '[0-9a-f]{2}', String.raw`[\da-f]{2}`]);
-const nonByteExpressionTypes = new Set(['ArrayExpression', 'ObjectExpression', 'Literal', 'TemplateLiteral', 'NewExpression', 'FunctionExpression', 'ArrowFunctionExpression']);
+const nonByteExpressionTypes = new Set([
+	'ArrayExpression',
+	'ArrowFunctionExpression',
+	'BinaryExpression',
+	'ClassExpression',
+	'FunctionExpression',
+	'Literal',
+	'NewExpression',
+	'ObjectExpression',
+	'TemplateLiteral',
+	'UnaryExpression',
+	'UpdateExpression',
+]);
+const constructorNames = new Set(['Array', ...typedArrayTypes]);
 
 // All matched operations are ordinary, non-computed calls with exact argument counts.
 const isPlainMethodCall = (node, method, argumentsLength) => isMethodCall(node, {
@@ -65,6 +78,9 @@ function isBufferReference(node, context) {
 		&& definition.node.imported.name === 'Buffer') ?? false;
 }
 
+const isConstructorReference = (node, context) => isBufferReference(node, context)
+	|| (node.type === 'Identifier' && constructorNames.has(node.name));
+
 const isBufferFactory = (node, context) =>
 	isMethodCall(node, {
 		methods: ['from', 'of', 'alloc', 'allocUnsafe', 'allocUnsafeSlow', 'concat', 'copyBytesFrom'],
@@ -74,14 +90,18 @@ const isBufferFactory = (node, context) =>
 	})
 	&& isBufferReference(node.callee.object, context);
 
+const isBufferExpression = (node, context) => isBufferFactory(node, context)
+	|| (isNewExpression(node) && isBufferReference(node.callee, context));
+
 const typeCheckerOptions = {
 	checkClassHeritage: false,
 	preferTypeReferenceDefinitions: true,
 	targetTypeNames: new Set(['Buffer']),
 	targetTypeImports: new Map([...bufferImportSources].map(source => [source, new Set(['Buffer'])])),
 	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', ...typedArrayTypes]),
-	isTargetNode: isBufferFactory,
-	isNonTargetNode: node => nonByteExpressionTypes.has(node.type)
+	isTargetNode: isBufferExpression,
+	isNonTargetNode: (node, context) => nonByteExpressionTypes.has(node.type)
+		|| isConstructorReference(node, context)
 		|| isCallExpression(node, {name: 'Array'})
 		|| isMethodCall(node, {objects: ['Array', ...typedArrayTypes], methods: ['from', 'of']})
 		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
@@ -91,7 +111,7 @@ const {getType: getByteArrayType} = createTypeCheckers({
 	...typeCheckerOptions,
 	targetTypeNames: new Set(['Buffer', 'Uint8Array']),
 	targetConstructorNames: ['Uint8Array'],
-	isTargetNode: (node, context) => isBufferFactory(node, context)
+	isTargetNode: (node, context) => isBufferExpression(node, context)
 		|| isMethodCall(node, {
 			object: 'Uint8Array',
 			methods: ['from', 'of', 'fromHex', 'fromBase64'],
@@ -329,6 +349,8 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Uint8Array#toHex()` and `Uint8Array.fromHex()` over manual and Buffer hex conversions.',
+			// eslint-disable-next-line no-warning-comments
+			// TODO: Enable in the `recommended` and `unopinionated` configs when targeting Node.js 26.
 			recommended: false,
 		},
 		fixable: 'code',
