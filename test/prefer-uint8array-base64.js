@@ -55,6 +55,7 @@ test.snapshot({
 		'Buffer.from(void 0, \'base64\')',
 		'Buffer.from(1 + 2, \'base64\')',
 		'Buffer.from(left - right, \'base64\')',
+		'Buffer.from(input ?? new Uint8Array([1]), \'base64\')',
 		'Buffer.from(new Uint8Array([1]), \'base64\')',
 		'Buffer.from(new ArrayBuffer(8), \'base64\')',
 		'const input = new Uint8Array(); Buffer.from(input, \'base64\')',
