@@ -121,6 +121,8 @@ test.snapshot({
 		'using resource = acquire(); interface read {} function read() { return resource.read(); } export {read};',
 		'using resource = acquire(); function read() { return resource.read(); } namespace read { export const label = "read"; } export {read};',
 		'function f() { using resource: any = acquire(); return () => { class Type { [resource] = other; } return other; }; }',
+		'function f() { using resource: any = acquire(); return () => { class Type { [resource]() {} } return other; }; }',
+		'function f() { using resource: any = acquire(); return () => { class Type { accessor [resource] = other; } return other; }; }',
 		'function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract [resource]: string; } return other; }; }',
 		'function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract accessor [resource]: string; } return other; }; }',
 		'function f() { using resource: any = acquire(); return () => { class Type { @decorator declare [resource]: string; } return other; }; }',
