@@ -77,7 +77,7 @@ function readResource() {
 
 ## Limitations
 
-This rule checks common, local escape patterns, not all possible uses after disposal. It does not track resource aliases, destructured bindings, mutable values, assignments to outer state, classes, indirect helper calls, or resources obtained from properties. Calls and awaited expressions are treated as opaque values. Spread contents, object-literal computed property keys, type-only exports and references, re-exports, and `yield` are ignored.
+This rule checks common, local escape patterns, not all possible uses after disposal. It does not track resource aliases, destructured bindings, mutable bindings, assignments to outer state, classes, indirect helper calls, or resources obtained from properties. Calls and awaited expressions are treated as opaque values. Spread contents, object-literal computed property keys, type-only exports and references, re-exports, and `yield` are ignored.
 
 Timers, event listeners, promises, and general callback arguments are not checked because the rule does not infer whether callbacks outlive the owning scope. The rule also does not analyze whether capturing functions are actually called after disposal or whether a particular resource remains usable after disposal.
 

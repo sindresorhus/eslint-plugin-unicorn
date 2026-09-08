@@ -3,7 +3,7 @@ import {unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-using-resource-escape';
 const messages = {
-	[MESSAGE_ID]: 'Do not {{action}} resource `{{name}}` or a function capturing it. The resource is disposed when its owning scope exits.',
+	[MESSAGE_ID]: 'Do not {{action}} resource `{{name}}` or a value that contains or captures it. The resource is disposed when its owning scope exits.',
 };
 const typeOnlyComputedKeyNodeTypes = new Set([
 	'TSAbstractMethodDefinition',

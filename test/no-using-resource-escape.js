@@ -28,6 +28,7 @@ test.snapshot({
 		'function f() { using resource = acquire(); return function resource() { return resource; }; }',
 		// Deliberately unsupported escape paths.
 		'function f() { using resource = acquire(); const alias = resource; return alias; }',
+		'using resource = acquire(); export let value = resource;',
 		'function f() { using resource = acquire(); let read = () => resource.read(); return read; }',
 		'function f() { using resource = acquire(); function read() { return resource.read(); } read = other; return read; }',
 		'function f() { using resource = acquire(); return wrap(resource); }',
