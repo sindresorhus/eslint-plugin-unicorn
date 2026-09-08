@@ -15,6 +15,14 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
+		{
+			code: 'items.reduce(function (groups, item, groups) {(groups[item.type] ??= []).push(item); return groups;}, {});',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: 'items.reduce(function (groups, item, index, groups) {(groups[item.type] ??= []).push(item); return groups;}, {});',
+			languageOptions: {sourceType: 'script'},
+		},
 		'const Object = items.reduce((groups, item) => {(groups[item.type] ??= []).push(item); return groups;}, {});',
 		'const {groups, Object} = {groups: items.reduce((groups, item) => {(groups[item.type] ??= []).push(item); return groups;}, {}), Object: globalThis.Object};',
 		'const key = "outer"; items.reduce((groups, item) => {const key = key; (groups[key] ??= []).push(item); return groups;}, {});',

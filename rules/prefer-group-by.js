@@ -47,6 +47,11 @@ const isNewMap = node =>
 	&& node.callee.name === 'Map'
 	&& node.arguments.length === 0;
 
+const hasUniqueParameterNames = parameters => {
+	const names = new Set(parameters.map(parameter => parameter.name));
+	return names.size === parameters.length;
+};
+
 const isGroupingCallback = node =>
 	(
 		node.type === 'ArrowFunctionExpression'
@@ -59,7 +64,8 @@ const isGroupingCallback = node =>
 	&& node.params[0]?.type === 'Identifier'
 	&& node.params[1]?.type === 'Identifier'
 	&& isSupportedOptionalParameter(node.params[2])
-	&& isSupportedOptionalParameter(node.params[3]);
+	&& isSupportedOptionalParameter(node.params[3])
+	&& hasUniqueParameterNames(node.params);
 
 function isNodeMatchedInside(node, predicate) {
 	if (predicate(node)) {
