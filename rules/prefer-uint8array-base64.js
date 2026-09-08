@@ -6,7 +6,13 @@ import {
 	isMethodCall,
 	isMemberExpression,
 } from './ast/index.js';
-import {isGlobalIdentifier} from './utils/index.js';
+import {
+	getTypeSymbol,
+	isGlobalIdentifier,
+	isNullishType,
+	isTypeScriptExpressionWrapper,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 import {removeArgument, removeMethodCall} from './fix/index.js';
 
 const MESSAGE_ID_OPTIONS = 'prefer-uint8array-base64/options';
@@ -40,35 +46,52 @@ function isImportedBuffer(identifier, context) {
 
 // Whether the receiver of a `.toString('base64')` call is byte-like (`Buffer`/`Uint8Array`). Only consulted when type information is available; without it, callers should report anyway, since requiring type information would make the rule too narrow. With type information, a receiver whose type is known and not byte-like (for example a userland object with a custom `toString`) is skipped to avoid false positives. `any`/`unknown` types are treated as byte-like, since we cannot rule them out.
 function isByteLikeReceiver(node, parserServices) {
-	// Resolving and inspecting the receiver's type can crash deep inside TypeScript 6 while it computes
-	// module specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`).
-	// We cannot then confirm the receiver is byte-like, so we conservatively skip reporting rather than crash the lint run.
+	// Resolving and inspecting the receiver's type can crash deep inside TypeScript 6 while it computes module specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`). We cannot then confirm the receiver is byte-like, so we conservatively skip reporting rather than crash the lint run.
 	try {
 		const type = parserServices.getTypeAtLocation(node);
-
-		const parts = type.isUnion() || type.isIntersection() ? type.types : [type];
-		return parts.some(part => {
+		const isByteLikeType = type => {
 			// `intrinsicName` exposes `any`/`unknown` without `typeChecker.typeToString()`, which is one of the calls that crashes.
-			const name = (part.getSymbol() ?? part.aliasSymbol)?.getName();
-			return name === 'Buffer' || name === 'Uint8Array' || part.intrinsicName === 'any' || part.intrinsicName === 'unknown';
-		});
+			const name = getTypeSymbol(type)?.getName();
+			return name === 'Buffer' || name === 'Uint8Array' || type.intrinsicName === 'any' || type.intrinsicName === 'unknown';
+		};
+
+		if (type.isUnion()) {
+			const nonNullishTypes = type.types.filter(type => !isNullishType(type));
+			return nonNullishTypes.length > 0 && nonNullishTypes.every(type => isByteLikeType(type));
+		}
+
+		return type.isIntersection() ? type.types.some(type => isByteLikeType(type)) : isByteLikeType(type);
 	} catch {
 		return false;
 	}
 }
 
-// Whether `node` (the object of a `.from()` call) refers to the `Buffer` constructor, as a global, `globalThis.Buffer`, or an import.
-function isBufferReference(node, context) {
-	if (isMemberExpression(node, {property: 'Buffer', computed: false})) {
-		return globalObjectNames.has(node.object.name) && isGlobalIdentifier(node.object, context);
+function isChainedExpression(node) {
+	let expression = node;
+	while (
+		(expression.parent.type === 'ChainExpression' || isTypeScriptExpressionWrapper(expression.parent))
+		&& expression.parent.expression === expression
+	) {
+		expression = expression.parent;
 	}
 
-	if (node.type !== 'Identifier') {
+	return expression.parent.type === 'MemberExpression' && expression.parent.object === expression;
+}
+
+// Whether `node` (the object of a `.from()` call) refers to the `Buffer` constructor, as a global, `globalThis.Buffer`, or an import.
+function isBufferReference(node, context) {
+	const reference = unwrapTypeScriptExpression(node);
+	if (isMemberExpression(reference, {property: 'Buffer', computed: false})) {
+		const object = unwrapTypeScriptExpression(reference.object);
+		return globalObjectNames.has(object.name) && isGlobalIdentifier(object, context);
+	}
+
+	if (reference.type !== 'Identifier') {
 		return false;
 	}
 
-	return (node.name === 'Buffer' && isGlobalIdentifier(node, context))
-		|| isImportedBuffer(node, context);
+	return (reference.name === 'Buffer' && isGlobalIdentifier(reference, context))
+		|| isImportedBuffer(reference, context);
 }
 
 function getBase64Transformation(node) {
@@ -222,8 +245,7 @@ const create = context => {
 			};
 
 			// When the result is immediately used through a member access, for example `Buffer.from(string, 'base64').toString()`, the suggestion would rewrite only the constructor and leave the chained `Buffer` method on a plain `Uint8Array`, which behaves differently (`Uint8Array#toString()` returns a comma-joined byte list, not the decoded string). Skip the suggestion then, but still report the preference.
-			const isChained = node.parent.type === 'MemberExpression' && node.parent.object === node;
-			if (!isChained) {
+			if (!node.callee.optional && !isChainedExpression(node)) {
 				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
@@ -258,7 +280,10 @@ const create = context => {
 			return {
 				node: node.callee.property,
 				messageId: MESSAGE_ID_ERROR,
-				data: {value: `toString('${encodingNode.value}')`, replacement: 'Uint8Array#toBase64()'},
+				data: {
+					value: `toString('${encodingNode.value}')`,
+					replacement: encodingNode.value === 'base64url' ? 'Uint8Array#toBase64({alphabet: \'base64url\', omitPadding: true})' : 'Uint8Array#toBase64()',
+				},
 			};
 		}
 	});

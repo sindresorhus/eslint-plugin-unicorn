@@ -11,10 +11,10 @@
 
 [`atob()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/atob) and [`btoa()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa) operate on “binary strings”, so they cannot round-trip Unicode text without [workarounds](https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem). Node's `Buffer` base64 conversions work, but tie you to `Buffer`.
 
-The [`Uint8Array` base64 methods](https://github.com/tc39/proposal-arraybuffer-base64) operate on real binary data and are available everywhere `Uint8Array` is. Prefer [`Uint8Array.fromBase64()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/fromBase64) and [`Uint8Array#toBase64()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/toBase64) instead.
+The standard [`Uint8Array` base64 methods](https://github.com/tc39/proposal-arraybuffer-base64) operate on real binary data. When targeting a runtime that supports them, prefer [`Uint8Array.fromBase64()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/fromBase64) and [`Uint8Array#toBase64()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/toBase64) instead.
 
 > [!NOTE]
-> `Buffer.from(string, 'base64')` returns a `Buffer`, while `Uint8Array.fromBase64(string)` returns a plain `Uint8Array`. The fix is offered as a suggestion since the result type differs.
+> `Buffer.from(string, 'base64')` returns a `Buffer`, while `Uint8Array.fromBase64(string)` returns a plain `Uint8Array`. Their input validation and alphabet handling also differ. The replacement is offered as a suggestion so you can confirm that the result type and accepted inputs fit your use case.
 
 ## Examples
 
@@ -41,12 +41,12 @@ To convert text instead of binary data, encode it first:
 
 ```js
 // ❌
-const base64 = btoa(text);
-const text = atob(base64);
+const base64 = btoa(input);
+const output = atob(base64);
 
 // ✅
-const base64 = new TextEncoder().encode(text).toBase64();
-const text = new TextDecoder().decode(Uint8Array.fromBase64(base64));
+const base64 = new TextEncoder().encode(input).toBase64();
+const output = new TextDecoder().decode(Uint8Array.fromBase64(base64));
 ```
 
 The base64 methods support the `base64url` alphabet too:

@@ -4,9 +4,7 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-// Restricting `toString('base64')` by receiver type needs type information. Use the raw
-// TypeScript parser with `projectService` (the shared `parsers.typescript` injects `project: []`,
-// which conflicts with `projectService`).
+// Restricting `toString('base64')` by receiver type needs type information. Use the raw TypeScript parser with `projectService` (the shared `parsers.typescript` injects `project: []`, which conflicts with `projectService`).
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -64,6 +62,12 @@ test.snapshot({
 
 		// With type information, a receiver that is known not to be byte-like is skipped
 		typeAware('function foo(value: {toString(encoding: string): string}) { return value.toString(\'base64\'); }'),
+		typeAware(outdent`
+			interface Buffer extends Uint8Array { toString(encoding: string): string }
+			interface Custom { toString(encoding: string): string }
+			declare const value: Buffer | Custom;
+			value.toString('base64');
+		`),
 	],
 	invalid: [
 		// `atob`/`btoa`
@@ -80,11 +84,21 @@ test.snapshot({
 		'Buffer.from(string, \'base64\')',
 		'Buffer.from(string, \'base64url\')',
 		'globalThis.Buffer.from(string, \'base64\')',
+		'globalThis.Buffer?.from(string, \'base64\')',
 		'Buffer.from(string, \'base64\').toString()',
+		'(Buffer.from?.(string, \'base64\')).toString()',
+		{code: '(Buffer.from(string, \'base64\') as Buffer).toString()', languageOptions: {parser: parsers.typescript}},
+		{code: 'Buffer.from(string, \'base64\')!.toString()', languageOptions: {parser: parsers.typescript}},
+		{code: '(Buffer.from(string, \'base64\') satisfies Buffer).toString()', languageOptions: {parser: parsers.typescript}},
+		{code: '(<Buffer>Buffer.from(string, \'base64\')).toString()', languageOptions: {parser: parsers.typescript}},
+		{code: '(globalThis.Buffer?.from(string, \'base64\') as Buffer).toString()', languageOptions: {parser: parsers.typescript}},
+		{code: '(globalThis as any).Buffer.from(string, \'base64\')', languageOptions: {parser: parsers.typescript}},
+		{code: '(globalThis.Buffer as typeof Buffer).from(string, \'base64\')', languageOptions: {parser: parsers.typescript}},
 		// Imported `Buffer`
 		'import {Buffer} from \'node:buffer\'; Buffer.from(string, \'base64\')',
 		'import {Buffer} from \'buffer\'; Buffer.from(string, \'base64\')',
 		'import {Buffer as B} from \'node:buffer\'; B.from(string, \'base64url\')',
+		{code: 'import {Buffer as B} from \'node:buffer\'; (B as typeof Buffer).from(string, \'base64\')', languageOptions: {parser: parsers.typescript}},
 		// Suggestion withheld because of the comment
 		'Buffer.from(string, /* keep me */ \'base64\')',
 		outdent`
@@ -104,6 +118,8 @@ test.snapshot({
 		{code: '(globalThis as any).atob(string)', languageOptions: {parser: parsers.typescript}},
 		// With type information, byte-like receivers are still reported
 		typeAware('function foo(value: Uint8Array) { return value.toString(\'base64\'); }'),
+		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | Uint8Array; value.toString(\'base64\')'),
+		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | null | undefined; value?.toString(\'base64\')'),
 		// `any` cannot be ruled out, so it is still reported
 		typeAware('function foo(value: any) { return value.toString(\'base64\'); }'),
 	],
