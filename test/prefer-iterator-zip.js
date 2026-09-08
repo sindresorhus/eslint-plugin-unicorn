@@ -103,6 +103,8 @@ testRule.snapshot({
 		typescript(loop('save(names[index]!, scores[index] as number);')),
 		typescript(loop('save(<string>names[index], scores[index] satisfies number);')),
 		typescript(loop('save(names[index]<string>, scores[index]);')),
+		loop('save(names[index]in object, scores[index]instanceof Number);'),
+		typescript(loop('save(names[index]as string, scores[index]satisfies number);')),
 		{
 			code: loop('render(<Card name={names[index]} score={scores[index]} />);').replaceAll('names', 'Cards'),
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
@@ -110,6 +112,18 @@ testRule.snapshot({
 		typeAware(`declare const names: string[]; declare const scores: readonly number[]; ${loop()}`),
 		typeAware(`declare const names: Uint8Array; declare const scores: Float64Array; ${loop()}`),
 	],
+});
+
+test('suggestions preserve token boundaries around parenthesized receivers', t => {
+	const code = `function pair(names, scores) { ${loop('save(typeof(names)[index], scores[index]); return(names)[index];')} }`;
+	const linter = new Linter();
+	const [message] = linter.verify(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-iterator-zip': 'error'},
+	});
+	const {fix} = message.suggestions[0];
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.is(output, 'function pair(names, scores) { for (const [name, score] of Iterator.zip([names, scores])) { save(typeof name, score); return name; } }');
 });
 
 test('suggestions work with related rules and ordinary autofixing does not change the loop', t => {

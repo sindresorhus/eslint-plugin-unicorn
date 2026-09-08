@@ -186,7 +186,24 @@ const create = context => {
 				yield fixer.replaceTextRange(headerRange, `for (const [${names.join(', ')}] of Iterator.zip([${inputs.map(input => input.name).join(', ')}]))`);
 				for (const [index, input] of inputs.entries()) {
 					for (const read of reads.get(input.name)) {
-						yield fixer.replaceText(read, names[index]);
+						let replacement = names[index];
+						const tokenBefore = sourceCode.getTokenBefore(read);
+						if (
+							sourceCode.getRange(tokenBefore)[1] === sourceCode.getRange(read)[0]
+							&& (tokenBefore.type === 'Identifier' || tokenBefore.type === 'Keyword')
+						) {
+							replacement = ` ${replacement}`;
+						}
+
+						const tokenAfter = sourceCode.getTokenAfter(read);
+						if (
+							sourceCode.getRange(read)[1] === sourceCode.getRange(tokenAfter)[0]
+							&& (tokenAfter.type === 'Identifier' || tokenAfter.type === 'Keyword')
+						) {
+							replacement += ' ';
+						}
+
+						yield fixer.replaceText(read, replacement);
 					}
 				}
 			},
