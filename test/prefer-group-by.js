@@ -195,6 +195,7 @@ test.snapshot({
 		'let groups = Object.create(null); for (let item of items) {groups[item.type] ||= []; groups[item.type].push(item);}',
 		'const groups = {}; for (const item of []) {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item);}',
 		'const groups = {}; for (const item of new Set(items)) {(groups[item.type] ??= []).push(item);}',
+		'const groups = {}; for (const item of items) {(groups[item[(sideEffect(), "type")]] ??= []).push(item);}',
 		'const groups = {}; for (const item of (items)) {const key = getKey(item); groups[key] ??= []; groups[key].push(item);}',
 		'const groups = {}; for (const item of items) {((groups)[(item.type)] ||= []).push(item);}',
 		'const groups = {}; for (const item of items) {const key = {}; (groups[key] ??= []).push(item);}',
@@ -263,6 +264,15 @@ test({
 			`,
 			errors: [{messageId: 'prefer-group-by-loop'}],
 		},
+		{
+			code: outdent`
+				const groups = {};
+				for (const item of items) {(groups[(item[(sideEffect(), "type")] as string)] ??= []).push(item);}
+			`,
+			output: 'const groups = Object.groupBy(items, item => (item[(sideEffect(), "type")] as string));',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-group-by-loop'}],
+		},
 	],
 });
 
@@ -270,6 +280,37 @@ test({
 test({
 	valid: [],
 	invalid: [
+		{
+			code: 'items.reduce((groups, item) => {groups[item[(sideEffect(), "type")]] ??= []; groups[item[(sideEffect(), "type")]].push(item); return groups;}, {});',
+			errors: [{messageId: 'prefer-group-by'}],
+		},
+		{
+			code: 'const groups = {}; for (const item of items) {groups[item[(sideEffect(), "type")]] ??= []; groups[item[(sideEffect(), "type")]].push(item);}',
+			errors: [{messageId: 'prefer-group-by-loop'}],
+		},
+		{
+			code: outdent`
+				const groups = new Map();
+				for (const item of items) {
+					if (groups.has(item[(sideEffect(), 'type')])) {
+						groups.get(item[(sideEffect(), 'type')]).push(item);
+					} else {
+						groups.set(item[(sideEffect(), 'type')], [item]);
+					}
+				}
+			`,
+			errors: [{messageId: 'prefer-group-by-loop'}],
+		},
+		{
+			code: 'function* group(items) {return items.reduce(function (groups, yield) {(groups[yield.type] ??= []).push(yield); return groups;}, {});}',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'prefer-group-by'}],
+		},
+		{
+			code: 'async function group(items) {return items.reduce(function (groups, await) {(groups[await.type] ??= []).push(await); return groups;}, {});}',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'prefer-group-by'}],
+		},
 		{
 			code: 'items.reduce(function reducer(groups, item) {(groups[reducer.name] ??= []).push(item); return groups;}, {});',
 			errors: [{messageId: 'prefer-group-by'}],

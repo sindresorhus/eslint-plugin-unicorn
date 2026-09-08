@@ -1,3 +1,4 @@
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
@@ -515,8 +516,21 @@ function getArrowBodyText(node, context) {
 	return text;
 }
 
+function hasRepeatedSideEffectfulKey(statements, key, context) {
+	const {sourceCode} = context;
+	if (!hasSideEffect(key, sourceCode)) {
+		return false;
+	}
+
+	const [keyStart, keyEnd] = sourceCode.getRange(key);
+	return statements.some(statement => isNodeMatchedInside(statement, node => {
+		const [nodeStart, nodeEnd] = sourceCode.getRange(node);
+		return (nodeEnd <= keyStart || nodeStart >= keyEnd) && isSameReference(node, key);
+	}));
+}
+
 function shouldSkipReduceFix(options, context) {
-	const {callExpression, initialValue, callback, callbackParts, declarationIdentifier, key} = options;
+	const {callExpression, initialValue, callback, callbackParts, declarationIdentifier, key, statements} = options;
 	return hasTypeArguments(callExpression)
 		|| hasTypeArguments(initialValue)
 		|| callbackParts.accumulator.typeAnnotation
@@ -525,8 +539,13 @@ function shouldSkipReduceFix(options, context) {
 		|| declarationIdentifier?.typeAnnotation
 		|| (
 			callback.type === 'FunctionExpression'
+			&& ['await', 'yield'].includes(callbackParts.element.name)
+		)
+		|| (
+			callback.type === 'FunctionExpression'
 			&& hasFunctionSpecificReference(key, callback.id)
 		)
+		|| hasRepeatedSideEffectfulKey(statements, key, context)
 		|| context.sourceCode.getCommentsInside(callExpression).length > 0;
 }
 
@@ -585,6 +604,7 @@ function getGroupByProblem(callExpression, context) {
 		callbackParts,
 		declarationIdentifier: variableDeclarator?.id,
 		key,
+		statements,
 	}, context)) {
 		return problem;
 	}
@@ -687,6 +707,7 @@ function getLoopGroupByProblem(declaration, context) {
 				|| accumulator.typeAnnotation
 				|| init.typeArguments
 				|| init.typeParameters
+				|| hasRepeatedSideEffectfulKey(statements, key, context)
 				|| isNodeMatchedInside(key, node => node.type === 'AwaitExpression' || node.type === 'YieldExpression')
 			) {
 				return abort();
