@@ -82,6 +82,7 @@ test.snapshot({
 		'using resource = acquire(); export default function () { return resource.read(); }',
 		'export {read}; using resource = acquire(); function read() { return resource.read(); }',
 		'using resource = acquire(); export function read(read) { read = other; return resource.read(); }',
+		'function f() { using resource = acquire(); return function* () { yield resource.read(); }; }',
 	],
 });
 
@@ -105,5 +106,6 @@ test.snapshot({
 		'using resource = acquire(); export {resource};',
 		'function f() { using resource = acquire(); const read = (() => resource.read()) satisfies Reader; return read; }',
 		'function f() { using resource = acquire(); return (): typeof resource => resource; }',
+		'using typeOnly = acquire(), value = acquire(); export {type typeOnly, value};',
 	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 });
