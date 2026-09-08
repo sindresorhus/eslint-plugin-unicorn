@@ -147,13 +147,28 @@ const typeAware = code => ({
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
 });
-const types = 'declare namespace Temporal { class ZonedDateTime { epochNanoseconds: bigint; } }';
+const types = 'declare namespace Temporal { class ZonedDateTime { epochNanoseconds: bigint; year: number; month: number; day: number; calendarId: string; } }';
 test.snapshot({
 	valid: [
 		typeAware('class ZonedDateTime { epochNanoseconds: bigint; } declare function getSource(): ZonedDateTime; new Temporal.Instant(getSource().epochNanoseconds)'),
 		...['undefined', 'string'].map(type => typeAware(`${types} declare function getSource(): Temporal.ZonedDateTime | ${type}; new Temporal.Instant(getSource().epochNanoseconds)`)),
+		typeAware(`${types}
+			declare function getSource(): Temporal.ZonedDateTime;
+			Temporal.PlainDate.from({year: getSource().year, month: getSource().month, day: getSource().day, calendar: getSource().calendarId})
+		`),
+		typeAware(`${types}
+			declare const holder: {source: Temporal.ZonedDateTime; other: Temporal.ZonedDateTime};
+			Temporal.PlainDate.from({year: holder.source.year, month: holder.other.month, day: holder.source.day, calendar: holder.source.calendarId})
+		`),
 	],
-	invalid: [typeAware(`${types} declare function getSource(): Temporal.ZonedDateTime; new Temporal.Instant(getSource().epochNanoseconds)`)],
+	invalid: [
+		typeAware(`${types} declare function getSource(): Temporal.ZonedDateTime; new Temporal.Instant(getSource().epochNanoseconds)`),
+		typeAware(`export ${types} declare function getSource(): Temporal.ZonedDateTime; new Temporal.Instant(getSource().epochNanoseconds)`),
+		typeAware(`${types}
+			declare const holder: {source: Temporal.ZonedDateTime};
+			Temporal.PlainDate.from({year: holder.source.year, month: holder.source.month, day: holder.source.day, calendar: holder.source.calendarId})
+		`),
+	],
 });
 
 const dateBag = '{year: source.year, month: source.month, day: source.day, calendar: source.calendarId}';
@@ -166,6 +181,14 @@ test.snapshot({
 			`(<Temporal.PlainDateLike>${dateBag})`,
 			`(${dateBag})!`,
 			`(${dateBag} as /* keep */ Temporal.PlainDateLike)`,
+		].map(argument => ({
+			code: `${dateTime} Temporal.PlainDate.from(${argument});`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		...[
+			'{year: source.year as number, month: (source.month satisfies number), day: source.day!, calendar: source.calendarId as string}',
+			'source.toString() as string',
+			'source.toJSON() satisfies string',
 		].map(argument => ({
 			code: `${dateTime} Temporal.PlainDate.from(${argument});`,
 			languageOptions: {parser: parsers.typescript},
