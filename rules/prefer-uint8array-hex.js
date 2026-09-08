@@ -30,6 +30,7 @@ const messages = {
 const bufferImportSources = new Set(['buffer', 'node:buffer']);
 const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
 const hexPairPatterns = new Set(['..', '.{2}', '.{1,2}', '[0-9a-f]{2}', String.raw`[\da-f]{2}`]);
+const definitelyNonStringExpressionTypes = new Set(['ArrayExpression', 'NewExpression', 'ObjectExpression']);
 const nonByteExpressionTypes = new Set([
 	'ArrayExpression',
 	'ArrowFunctionExpression',
@@ -43,7 +44,7 @@ const nonByteExpressionTypes = new Set([
 	'UnaryExpression',
 	'UpdateExpression',
 ]);
-const constructorNames = new Set(['Array', ...typedArrayTypes]);
+const constructorNames = ['Array', ...typedArrayTypes];
 
 // All matched operations are ordinary, non-computed calls with exact argument counts.
 const isPlainMethodCall = (node, method, argumentsLength) => isMethodCall(node, {
@@ -79,7 +80,12 @@ function isBufferReference(node, context) {
 }
 
 const isConstructorReference = (node, context) => isBufferReference(node, context)
-	|| (node.type === 'Identifier' && constructorNames.has(node.name));
+	|| (node.type === 'Identifier' && constructorNames.includes(node.name))
+	|| (
+		isMemberExpression(node, {properties: constructorNames, computed: false, optional: false})
+		&& globalObjectNames.has(node.object.name)
+		&& isGlobalIdentifier(node.object, context)
+	);
 
 const isBufferFactory = (node, context) =>
 	isMethodCall(node, {
@@ -91,7 +97,10 @@ const isBufferFactory = (node, context) =>
 	&& isBufferReference(node.callee.object, context);
 
 const isBufferExpression = (node, context) => isBufferFactory(node, context)
-	|| (isNewExpression(node) && isBufferReference(node.callee, context));
+	|| (
+		(isNewExpression(node) || isCallExpression(node, {optional: false}))
+		&& isBufferReference(node.callee, context)
+	);
 
 const typeCheckerOptions = {
 	checkClassHeritage: false,
@@ -120,6 +129,11 @@ const {getType: getByteArrayType} = createTypeCheckers({
 			optionalMember: false,
 		}),
 });
+
+const isKnownNonStringInput = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+	return definitelyNonStringExpressionTypes.has(node.type) || getByteArrayType(node, context) === target;
+};
 
 function getCallback(node) {
 	node = unwrapTypeScriptExpression(node);
@@ -329,7 +343,12 @@ const create = context => {
 			return getProblem(node, input, context, {autofix: type === target});
 		}
 
-		if (isPlainMethodCall(node, 'from', 2) && isHexEncoding(node.arguments[1]) && isBufferReference(node.callee.object, context)) {
+		if (
+			isPlainMethodCall(node, 'from', 2)
+			&& isHexEncoding(node.arguments[1])
+			&& isBufferReference(node.callee.object, context)
+			&& !isKnownNonStringInput(node.arguments[0], context)
+		) {
 			return getProblem(node, node.arguments[0], context, {decoding: true, canSuggest: !isImmediatelyAccessed(node)});
 		}
 

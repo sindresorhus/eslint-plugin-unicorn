@@ -64,6 +64,16 @@ testRule({
 			errors: [error],
 		},
 		{
+			code: 'Buffer([255]).toString(\'hex\')',
+			output: 'Buffer([255]).toHex()',
+			errors: [error],
+		},
+		{
+			code: 'const buffer = Buffer([255]); buffer.toString(\'hex\')',
+			output: 'const buffer = Buffer([255]); buffer.toHex()',
+			errors: [error],
+		},
+		{
 			code: 'const buffer = new Buffer([255]); buffer.toString(\'hex\')',
 			output: 'const buffer = new Buffer([255]); buffer.toHex()',
 			errors: [error],
@@ -76,6 +86,11 @@ testRule({
 		{
 			code: 'import {Buffer as Bytes} from \'node:buffer\'; new Bytes([255]).toString(\'hex\')',
 			output: 'import {Buffer as Bytes} from \'node:buffer\'; new Bytes([255]).toHex()',
+			errors: [error],
+		},
+		{
+			code: 'import {Buffer as Bytes} from \'node:buffer\'; Bytes([255]).toString(\'hex\')',
+			output: 'import {Buffer as Bytes} from \'node:buffer\'; Bytes([255]).toHex()',
 			errors: [error],
 		},
 		{
@@ -165,9 +180,10 @@ testRule.snapshot({
 		'new Uint8Array([255]).toString(\'hex\')',
 		'new Date().toString(\'hex\')',
 		'({toString() {}}).toString(\'hex\')',
-		...['Buffer', 'Array', 'Uint8Array', 'Uint16Array'].map(receiver => `${receiver}.toString('hex')`),
+		...['Buffer', 'Array', 'Uint8Array', 'Uint16Array', 'globalThis.Array', 'globalThis.Uint8Array', 'window.Uint16Array'].map(receiver => `${receiver}.toString('hex')`),
 		'import {Buffer as Bytes} from \'node:buffer\'; Bytes.toString(\'hex\')',
 		`Array.from(Uint8Array, ${encode}).join('')`,
+		`Array.from(globalThis.Uint8Array, ${encode}).join('')`,
 		'buffer.toString(\'base64\')',
 		'buffer.toString(encoding)',
 		'buffer.toString(\'hex\', 0, 5)',
@@ -175,6 +191,11 @@ testRule.snapshot({
 		'buffer.toString?.(\'hex\')',
 		'buffer[\'toString\'](\'hex\')',
 		'Buffer.from(text, \'base64\')',
+		'Buffer.from([255], \'hex\')',
+		'Buffer.from(new Uint8Array([255]), \'hex\')',
+		'const bytes = new Uint8Array([255]); Buffer.from(bytes, \'hex\')',
+		'Buffer.from(new ArrayBuffer(1), \'hex\')',
+		'Buffer.from({0: 255, length: 1}, \'hex\')',
 		'Buffer.from(text, \'hex\', sideEffect())',
 		'Buffer.from(...arguments_)',
 		'Buffer?.from(text, \'hex\')',
