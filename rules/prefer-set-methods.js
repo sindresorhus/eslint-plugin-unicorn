@@ -1,8 +1,11 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
+	isLiteral,
+	isMemberExpression,
 	isMethodCall,
 	isNewExpression,
 } from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedText,
 	isBuiltinSet,
@@ -19,6 +22,8 @@ const MESSAGE_ID_INTERSECTION = 'prefer-set-methods/intersection';
 const MESSAGE_ID_INTERSECTION_SUGGESTION = 'prefer-set-methods/intersection-suggestion';
 const MESSAGE_ID_DIFFERENCE = 'prefer-set-methods/difference';
 const MESSAGE_ID_DIFFERENCE_SUGGESTION = 'prefer-set-methods/difference-suggestion';
+const MESSAGE_ID_SUBSET = 'prefer-set-methods/is-subset-of';
+const MESSAGE_ID_DISJOINT = 'prefer-set-methods/is-disjoint-from';
 
 const messages = {
 	[MESSAGE_ID_UNION]: 'Use `Set#union()` instead of spreading Sets into a new Set.',
@@ -26,6 +31,8 @@ const messages = {
 	[MESSAGE_ID_INTERSECTION_SUGGESTION]: 'Use `Set#intersection()`.',
 	[MESSAGE_ID_DIFFERENCE]: 'Use `Set#difference()` instead of filtering by `Set#has()`.',
 	[MESSAGE_ID_DIFFERENCE_SUGGESTION]: 'Use `Set#difference()`.',
+	[MESSAGE_ID_SUBSET]: 'Use `Set#isSubsetOf()` to check whether a Set is a subset of another Set.',
+	[MESSAGE_ID_DISJOINT]: 'Use `Set#isDisjointFrom()` to check whether Sets have any elements in common.',
 };
 
 const isGlobalSetConstructor = (node, context) =>
@@ -291,6 +298,108 @@ const getSetOperationProblem = (node, replacementNode, context) => {
 	};
 };
 
+const getSetPredicateProblem = (node, {set, otherSet, method, negated}, context) => {
+	if (context.sourceCode.getCommentsInside(node).length > 0) {
+		return;
+	}
+
+	let replacement = `${getMemberObjectText(set, context)}.${method}(${getParenthesizedText(otherSet, context)})`;
+	if (negated) {
+		replacement = `!${replacement}`;
+		const {parent} = node;
+		if (
+			!isParenthesized(node, context)
+			&& (
+				(parent.type === 'MemberExpression' && parent.object === node)
+				|| ((parent.type === 'CallExpression' || parent.type === 'NewExpression') && parent.callee === node)
+				|| (parent.type === 'TaggedTemplateExpression' && parent.tag === node)
+				|| (parent.type === 'BinaryExpression' && parent.operator === '**' && parent.left === node)
+				|| parent.type === 'TSNonNullExpression'
+			)
+		) {
+			replacement = `(${replacement})`;
+		}
+	}
+
+	return {
+		node,
+		messageId: method === 'isSubsetOf' ? MESSAGE_ID_SUBSET : MESSAGE_ID_DISJOINT,
+		* fix(fixer) {
+			yield fixer.replaceText(node, addSemicolonIfNeeded(node, replacement, context));
+			yield fixSpaceAroundKeyword(fixer, node, context);
+		},
+	};
+};
+
+const getArrayPredicateProblem = (node, context) => {
+	if (!isMethodCall(node, {
+		methods: ['every', 'some'],
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return;
+	}
+
+	const set = getSingleSpreadSetArgument(node.callee.object, context);
+	const [callback] = node.arguments;
+	if (
+		!set
+		|| callback.type !== 'ArrowFunctionExpression'
+		|| callback.async
+		|| callback.params.length !== 1
+		|| callback.params[0].type !== 'Identifier'
+	) {
+		return;
+	}
+
+	const otherSet = getSetHasCallObject(callback.body, callback.params[0], context);
+	if (
+		!otherSet
+		|| hasSideEffect(otherSet, context.sourceCode, {considerGetters: true})
+		|| context.sourceCode.getDeclaredVariables(callback)[0].references.length !== 1
+	) {
+		return;
+	}
+
+	const negated = node.callee.property.name === 'some';
+	return getSetPredicateProblem(node, {
+		set, otherSet, method: negated ? 'isDisjointFrom' : 'isSubsetOf', negated,
+	}, context);
+};
+
+const getSetSizeComparisonProblem = (node, context) => {
+	if (node.operator !== '===' && node.operator !== '!==') {
+		return;
+	}
+
+	const size = isLiteral(node.right, 0) ? node.left : node.right;
+	const zero = size === node.left ? node.right : node.left;
+	if (
+		!isLiteral(zero, 0)
+		|| !isMemberExpression(size, {property: 'size', optional: false})
+		|| !isMethodCall(size.object, {
+			methods: ['intersection', 'difference'],
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+	) {
+		return;
+	}
+
+	const {callee} = size.object;
+	const [otherSet] = size.object.arguments;
+	const set = callee.object;
+	if (!isBuiltinSet(set, context) || !isBuiltinSet(otherSet, context)) {
+		return;
+	}
+
+	return getSetPredicateProblem(node, {
+		set, otherSet, method: callee.property.name === 'intersection' ? 'isDisjointFrom' : 'isSubsetOf', negated: node.operator === '!==',
+	}, context);
+};
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -310,12 +419,19 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
+		const predicateProblem = getArrayPredicateProblem(node, context);
+		if (predicateProblem) {
+			return predicateProblem;
+		}
+
 		if (isCallOrNewExpressionPartAfterTransparentWrappers(node)) {
 			return;
 		}
 
 		return getSetOperationProblem(node, node, context);
 	});
+
+	context.on('BinaryExpression', node => getSetSizeComparisonProblem(node, context));
 };
 
 /**

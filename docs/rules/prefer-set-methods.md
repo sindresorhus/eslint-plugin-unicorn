@@ -47,3 +47,25 @@ new Set([...iterable, ...otherIterable]);
 ```
 
 Intersection and difference filter patterns are reported as suggestions instead of autofixes because bare filters produce arrays. Direct `new Set([...set].filter(…))` wrappers are also suggestions: `intersection()` can change Set iteration order, and `difference()` follows the same opt-in model for consistency. The rule only reports bare filter calls and direct `new Set([...set].filter(…))` wrappers.
+
+## Set predicates
+
+The rule autofixes membership checks and empty intersection or difference checks when both operands are known to be Sets or ReadonlySets:
+
+```js
+// ❌
+const subset = [...set].every(value => otherSet.has(value));
+const overlaps = [...set].some(value => otherSet.has(value));
+const disjoint = set.intersection(otherSet).size === 0;
+const contained = set.difference(otherSet).size === 0;
+
+// ✅
+const subset = set.isSubsetOf(otherSet);
+const overlaps = !set.isDisjointFrom(otherSet);
+const disjoint = set.isDisjointFrom(otherSet);
+const contained = set.isSubsetOf(otherSet);
+```
+
+Strict inequality (`!== 0`) and reversed comparisons (`0 === set.intersection(otherSet).size`) are also supported. Inequality negates the corresponding predicate.
+
+Callbacks must be synchronous arrow functions with one identifier parameter and a direct `otherSet.has(value)` expression body. Patterns with comments, optional chaining, or computed method access are ignored. These autofixes assume ordinary built-in Set behavior.
