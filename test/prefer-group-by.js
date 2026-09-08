@@ -192,6 +192,7 @@ test.snapshot({
 	],
 	invalid: [
 		'const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (const item of [, 1]) {(groups[item] ??= []).push(item);}',
 		'let groups = Object.create(null); for (let item of items) {groups[item.type] ||= []; groups[item.type].push(item);}',
 		'const groups = {}; for (const item of []) {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item);}',
 		'const groups = {}; for (const item of new Set(items)) {(groups[item.type] ??= []).push(item);}',

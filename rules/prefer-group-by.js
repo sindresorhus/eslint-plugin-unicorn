@@ -346,9 +346,10 @@ const getOnlyExpression = statement =>
 	statement?.type === 'ExpressionStatement' ? statement.expression : undefined;
 
 function isBlockWithSingleExpression(block, predicate) {
-	return block?.type === 'BlockStatement'
-		&& block.body.length === 1
-		&& predicate(block.body[0]);
+	const expression = block?.type === 'BlockStatement' && block.body.length === 1
+		? getOnlyExpression(block.body[0])
+		: undefined;
+	return Boolean(expression && predicate(expression));
 }
 
 function getMapIfElseGroupByKey(statement, callbackParts, keyExpression, keyIdentifier) {
@@ -365,10 +366,10 @@ function getMapIfElseGroupByKey(statement, callbackParts, keyExpression, keyIden
 	if (
 		!testKey
 		|| !isExpectedKey(testKey, key, keyIdentifier)
-		|| !isBlockWithSingleExpression(statement.consequent, statement =>
-			isMapGetPushExpression(getOnlyExpression(statement), callbackParts, key, keyIdentifier))
-		|| !isBlockWithSingleExpression(statement.alternate, statement =>
-			isMapSetArrayExpression(getOnlyExpression(statement), callbackParts, key, keyIdentifier))
+		|| !isBlockWithSingleExpression(statement.consequent, expression =>
+			isMapGetPushExpression(expression, callbackParts, key, keyIdentifier))
+		|| !isBlockWithSingleExpression(statement.alternate, expression =>
+			isMapSetArrayExpression(expression, callbackParts, key, keyIdentifier))
 	) {
 		return;
 	}
