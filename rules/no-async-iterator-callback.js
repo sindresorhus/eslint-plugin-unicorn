@@ -8,6 +8,7 @@ const messages = {
 	[MESSAGE_ID]: 'Do not pass an asynchronous callback to `Iterator#{{method}}()`; returned promises are not awaited.',
 };
 const methods = new Set(['filter', 'forEach', 'some', 'every', 'find', 'flatMap']);
+const iteratorTypeOptions = {allowNullishInMixedUnion: true};
 
 function getDirectConstInitializer(node, context) {
 	const initializer = getConstVariableInitializer(node, context);
@@ -65,13 +66,13 @@ function hasPromiseReturnType(node, context) {
 }
 
 function isIteratorReceiver(node, context) {
-	node = unwrapExpression(node);
-	if (isIteratorExpression(node, context)) {
+	if (isIteratorExpression(node, context, iteratorTypeOptions)) {
 		return true;
 	}
 
+	node = unwrapExpression(node);
 	const initializer = getDirectConstInitializer(node, context);
-	return initializer ? isIteratorExpression(initializer, context) : false;
+	return initializer ? isIteratorExpression(initializer, context, iteratorTypeOptions) : false;
 }
 
 /**

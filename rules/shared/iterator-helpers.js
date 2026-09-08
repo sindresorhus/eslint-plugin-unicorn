@@ -40,7 +40,6 @@ const iteratorTypeNames = new Set([
 const {
 	isTarget: isIteratorType,
 } = createTypeCheckers({
-	allowNullishInMixedUnion: true,
 	checkClassHeritage: false,
 	preferTypeReferenceDefinitions: true,
 	targetTypeNames: iteratorTypeNames,
@@ -108,7 +107,7 @@ const isIteratorMethodCall = node =>
 		computed: false,
 	});
 
-export const isLazyIteratorHelperCall = (node, context) =>
+export const isLazyIteratorHelperCall = (node, context, typeOptions) =>
 	isMethodCall(node, {
 		methods: iteratorHelperMethods,
 		minimumArguments: 1,
@@ -116,7 +115,7 @@ export const isLazyIteratorHelperCall = (node, context) =>
 		optionalMember: false,
 		computed: false,
 	})
-	&& isIteratorExpression(node.callee.object, context);
+	&& isIteratorExpression(node.callee.object, context, typeOptions);
 
 const hasLocalIteratorTypeName = (node, context) => {
 	for (let scope = context.sourceCode.getScope(node); scope; scope = scope.upper) {
@@ -130,19 +129,19 @@ const hasLocalIteratorTypeName = (node, context) => {
 	return false;
 };
 
-const isKnownIteratorTypeExpression = (node, context) => (
+const isKnownIteratorTypeExpression = (node, context, typeOptions) => (
 	!hasLocalIteratorTypeName(node, context)
 	&& !isArray(node, context)
-	&& isIteratorType(node, context)
+	&& isIteratorType(node, context, typeOptions)
 );
 
-export function isIteratorExpression(node, context) {
-	node = unwrapExpression(node);
+export function isIteratorExpression(node, context, typeOptions) {
+	const expression = unwrapExpression(node);
 
 	return (
-		isGlobalIteratorMethodCall(node, context)
-		|| isIteratorMethodCall(node)
-		|| isLazyIteratorHelperCall(node, context)
-		|| isKnownIteratorTypeExpression(node, context)
+		isGlobalIteratorMethodCall(expression, context)
+		|| isIteratorMethodCall(expression)
+		|| isLazyIteratorHelperCall(expression, context, typeOptions)
+		|| isKnownIteratorTypeExpression(node, context, typeOptions)
 	);
 }

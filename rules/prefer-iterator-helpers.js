@@ -1,6 +1,7 @@
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
+	hasOptionalChainElement,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
@@ -83,6 +84,7 @@ const getIteratorFromSpreadArray = (node, context) => {
 	if (
 		node.elements.length !== 1
 		|| spreadElement?.type !== 'SpreadElement'
+		|| hasOptionalChainElement(spreadElement.argument)
 		|| !isIteratorExpression(spreadElement.argument, context)
 	) {
 		return;
@@ -104,7 +106,7 @@ const getIteratorFromArrayFrom = (node, context) => {
 	}
 
 	const [iterator] = node.arguments;
-	if (!isIteratorExpression(iterator, context)) {
+	if (hasOptionalChainElement(iterator) || !isIteratorExpression(iterator, context)) {
 		return;
 	}
 
