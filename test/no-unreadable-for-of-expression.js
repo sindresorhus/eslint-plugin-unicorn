@@ -12,6 +12,9 @@ const typescript = code => ({
 
 test.snapshot({
 	valid: [
+		'for (const [name, score] of Iterator.zip([names, scores])) {}',
+		'for (const item of combine([first, object.second, getThird(), "fourth"])) {}',
+		'for (const item of combine([])) {}',
 		'for (const item of items) {}',
 		'for await (const item of items) {}',
 		'for (const item of object.items) {}',
@@ -57,6 +60,10 @@ test.snapshot({
 		typescript('for (const item of items.filter(callback) as string[]) {}'),
 	],
 	invalid: [
+		'for (const pair of Iterator.zip([names, getScores(seed)])) {}',
+		'for (const pair of Iterator.zip([...inputs])) {}',
+		'for (const pair of Iterator.zip([[first], [second]])) {}',
+		'for (const pair of Iterator.zip([first, , second])) {}',
 		'for (const item of getItems(createArgument(seed))) {}',
 		'for (const item of getItems(argument || fallback)) {}',
 		// Object-literal arguments and logical/conditional receivers stay flagged.
