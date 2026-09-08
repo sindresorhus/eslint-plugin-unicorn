@@ -7,7 +7,7 @@ import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
-const setMethods = ['union', 'intersection', 'difference', 'symmetricDifference'];
+const setReturningMethods = ['union', 'intersection', 'difference', 'symmetricDifference'];
 const predicateMethods = ['isSubsetOf', 'isSupersetOf', 'isDisjointFrom'];
 const declarations = 'const selected = new Set([1, 2]); const other = new Set([2, 3]); const records = new Map([[2, "value"]]);';
 const withDeclarations = code => `${declarations} ${code}`;
@@ -21,7 +21,7 @@ const typeAware = code => ({
 	},
 });
 
-for (const method of [...setMethods, ...predicateMethods]) {
+for (const method of [...setReturningMethods, ...predicateMethods]) {
 	ruleTest.snapshot({
 		valid: [
 			`unknown.${method}(new Set(unknownOther))`,
@@ -104,7 +104,7 @@ ruleTest.snapshot({
 		typeAware('const [other] = new Set([[2, 3]]); const selected = new Set([1, 2]); selected.union(new Set(other));'),
 	],
 	invalid: [
-		...setMethods.map(method => withDeclarations(`new Set(selected.${method}(other))`)),
+		...setReturningMethods.map(method => withDeclarations(`new Set(selected.${method}(other))`)),
 		...[
 			'const alias = other; selected.union(new Set(alias))',
 			'selected.union(new Set((condition ? other : selected)))',
@@ -166,6 +166,8 @@ ruleTest.snapshot({
 		typeAware('function check(selected: Set<number>, records: {value: Map<number, string>}) { return selected.union(new Set(records.value.keys())); }'),
 		typeAware('function check(selected: {value: Set<number>}, other: Set<number>) { return new Set(selected.value.union(other)); }'),
 		typeAware('function check(source: Set<Set<number>>, selected: Set<number>) { const [other] = source; return selected.union(new Set(other)); }'),
+		withDeclarations('const alias = selected; new Set(alias).union(other)'),
+		withDeclarations('const alias = selected; new Set(alias.union(other))'),
 	],
 });
 
@@ -185,7 +187,7 @@ for (const expression of [
 	});
 }
 
-for (const method of [...setMethods, ...predicateMethods]) {
+for (const method of [...setReturningMethods, ...predicateMethods]) {
 	test(`autofix preserves ${method} results and iteration order`, t => {
 		const linter = new Linter();
 		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
@@ -199,7 +201,7 @@ for (const method of [...setMethods, ...predicateMethods]) {
 			`new Set(selected.keys()).${method}(other)`,
 			`new Set(selected.values()).${method}(records)`,
 		];
-		if (setMethods.includes(method)) {
+		if (setReturningMethods.includes(method)) {
 			expressions.push(`new Set(selected.${method}(other))`);
 		}
 
