@@ -41,14 +41,24 @@ function * convertNegatedCondition(fixer, node, context) {
 	yield fixer.replaceText(token, '=' + token.value.slice(1));
 }
 
-function * swapConsequentAndAlternate(fixer, node, context) {
+function * swapConsequentAndAlternate(fixer, node, context, abort) {
+	const {sourceCode} = context;
 	const isIfStatement = node.type === 'IfStatement';
 	const [consequent, alternate] = [
 		node.consequent,
 		node.alternate,
 	].map(node => {
 		const range = getParenthesizedRange(node, context);
-		let text = context.sourceCode.text.slice(...range);
+		if (sourceCode.getCommentsAfter({range}).length > 0) {
+			abort();
+		}
+
+		const firstComment = sourceCode.getCommentsBefore({range})[0];
+		if (firstComment) {
+			range[0] = sourceCode.getRange(firstComment)[0];
+		}
+
+		let text = sourceCode.text.slice(...range);
 		// `if (!a) b(); else c()` can't fix to `if (!a) c() else b();`
 		if (isIfStatement && node.type !== 'BlockStatement') {
 			text = `{${text}}`;
@@ -64,7 +74,6 @@ function * swapConsequentAndAlternate(fixer, node, context) {
 		return;
 	}
 
-	const {sourceCode} = context;
 	yield fixer.replaceTextRange(sourceCode.getRange(consequent), alternate.text);
 	yield fixer.replaceTextRange(sourceCode.getRange(alternate), consequent.text);
 }
@@ -99,9 +108,9 @@ const create = context => {
 			/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
-			* fix(fixer) {
+			* fix(fixer, {abort}) {
 				yield convertNegatedCondition(fixer, node, context);
-				yield swapConsequentAndAlternate(fixer, node, context);
+				yield swapConsequentAndAlternate(fixer, node, context, abort);
 
 				if (
 					node.type !== 'ConditionalExpression'

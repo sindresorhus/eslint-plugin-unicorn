@@ -1,7 +1,31 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '!x ? /* one */ 1 : /* two */ 2',
+			output: 'x ? /* two */ 2 : /* one */ 1',
+			errors: [{messageId: 'no-negated-condition'}],
+		},
+		...[
+			'!x ? 1 /* one */ : 2',
+			'!x ? 1 : 2 /* two */',
+			'!x ? (1) /* one */ : (2)',
+			'!x ? 1 : (2) /* two */',
+			'!x ? 1 // one\n : 2',
+			'x != y ? 1 /* one */ : 2',
+			'x !== y ? 1 : 2 /* two */',
+			'if (!x) {one();} /* one */ else {two();}',
+			'if (!x) {one();} else {two();} /* two */',
+			'if (!x) one(); /* one */ else two();',
+			'if (!x) one(); else two(); // two',
+		].map(code => ({code, errors: [{messageId: 'no-negated-condition'}]})),
+	],
+});
 
 test.snapshot({
 	valid: [
@@ -105,5 +129,29 @@ test.snapshot({
 				e();
 			}
 		`,
+		'!x ? /* one */ 1 : 2',
+		'!x ? 1 : /* two */ 2',
+		'!x ? /* one */ /* first */ 1 : /* two */ /* second */ 2',
+		'!x ? /* one */ 1 : /* two */ 1',
+		'!x ? /* one */ ((1)) : /* two */ ((2))',
+		'!x ? (/* one */ 1) : (/* two */ 2)',
+		'!x ? /* one */ (1 /* inside */) : /* two */ 2',
+		'!x ? /* one */ first(/* inside */ 1) : /* two */ second(2)',
+		'x != y ? /* one */ 1 : /* two */ 2',
+		'x !== y ? /* one */ 1 : /* two */ 2',
+		'!x ? // one\n 1 : // two\n 2',
+		'!x ? /* one */ 1 : // two\n 2',
+		'!x ? // one\r\n 1 : 2',
+		'!x ? /* outer */ (!y ? /* one */ 1 : /* two */ 2) : /* three */ 3',
+		'if (!x) /* one */ {one();} else /* two */ {two();}',
+		'if (!x) /* one */ one(); else /* two */ two();',
+		'if (!x) // one\n one(); else // two\n two();',
+		'if (!x) { /* one */ one(); } else { /* two */ two(); }',
+		'if (!x) /* one */ one(); else {two();}',
+		'if (!x) {one();} else /* two */ two();',
+		{
+			code: '!x ? /* one */ (one as number) : /* two */ two!',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
