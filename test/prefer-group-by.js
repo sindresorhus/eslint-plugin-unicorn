@@ -146,6 +146,7 @@ test.snapshot({
 // Accumulation loops.
 test.snapshot({
 	valid: [
+		'const Object = {}; for (const item of items) {(Object[item.type] ??= []).push(item);}',
 		'const groups = {}; for (const item of item) {(groups[item.type] ??= []).push(item);}',
 		'const groups = {}; for (const item of items.filter(() => item.active)) {(groups[item.type] ??= []).push(item);}',
 		'const groups = new Map(); for (const item of items) {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [,]);}}',

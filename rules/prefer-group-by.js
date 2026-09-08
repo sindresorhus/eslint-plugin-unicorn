@@ -587,7 +587,7 @@ function getLoopGroupByProblem(declaration, context) {
 	}
 
 	const method = getGroupByMethod(init);
-	if (!method) {
+	if (!method || (method === 'Object.groupBy' && accumulator.name === 'Object')) {
 		return;
 	}
 
