@@ -205,6 +205,7 @@ const isPrimitiveType = (type, checker) => {
 
 const isPrimitiveIterableType = (type, checker) => {
 	const constraint = checker.getBaseConstraintOfType(type);
+	// Require a primitive constraint because an array-constrained subtype may add an async iterator that `Array.fromAsync()` would prefer.
 	if (constraint && constraint !== type) {
 		return isPrimitiveType(constraint, checker) && isPrimitiveIterableType(constraint, checker);
 	}
