@@ -39,6 +39,7 @@ testRule.snapshot({
 		'Array.from(map.values(), mapper).slice(0, 10)',
 		'Uint8Array.from(map.values()).slice(0, 10)',
 		'iterator.toArray(true).slice(0, 10)',
+		'class LimitedIterator extends Iterator { first() { return super.toArray().slice(0, 10); } }',
 		'iterator.toArray(...arguments_).slice(0, 10)',
 		'iterator.toArray().slice()',
 		'iterator.toArray().slice(0)',
@@ -142,6 +143,7 @@ testRule.snapshot({
 		'(iterator.toArray() as number[]).slice(0, 10)',
 		'(iterator.toArray() satisfies number[]).slice(0, 10)',
 		'iterator.toArray()!.slice(0, 10)',
+		'(<number[]>iterator.toArray()).slice(0, 10)',
 		'function foo(array: number[]) { [...array].slice(0, 10); }',
 		'function foo(iterable: Iterable<number>) { [...iterable].slice(0, 10); }',
 		'type Iterator<T> = T[]; function foo(iterator: Iterator<number>) { [...iterator].slice(0, 10); }',
@@ -151,6 +153,7 @@ testRule.snapshot({
 		'iterator!.toArray().slice(0, 10)',
 		'[...map!.values()].slice(0 as number, 10 satisfies number)',
 		'Array.from(map.values() satisfies Iterable<number>).slice(0, 10)',
+		'Array.from(<Iterator<number>>map.values()).slice(0, 10)',
 		'[...(map.values() as Iterator<number>)].slice(0, 10)',
 		'function foo(iterator: Iterator<number>) { [...iterator].slice(0, 10); }',
 		'function foo(iterator: IterableIterator<number>) { Array.from(iterator).slice(20); }',
@@ -212,22 +215,35 @@ test('bounded suggestions stop an infinite source and run cleanup', t => {
 	}
 
 	const output = applySuggestion(t, 'iterator.toArray().slice(20, 30)');
-	t.deepEqual(runInNewContext(output, {iterator: source()}), Array.from({length: 10}, (_, index) => index + 20));
+	t.deepEqual(runInNewContext(output, {iterator: source()}, {timeout: 1000}), Array.from({length: 10}, (_, index) => index + 20));
 	t.is(consumed, 30);
 	t.true(closed);
 });
 
-test('empty-range suggestions still evaluate the iterator expression', t => {
+test('empty-range suggestions evaluate and close the iterator without consuming it', t => {
 	let calls = 0;
+	let consumed = 0;
+	let closed = 0;
 	const output = applySuggestion(t, 'getIterator().toArray().slice(10, 5)');
 	const result = runInNewContext(output, {
 		getIterator() {
 			calls++;
-			return [1, 2, 3].values();
+			return Iterator.from({
+				next() {
+					consumed++;
+					return {value: 1, done: false};
+				},
+				return() {
+					closed++;
+					return {done: true};
+				},
+			});
 		},
-	});
+	}, {timeout: 1000});
 	t.deepEqual(result, []);
 	t.is(calls, 1);
+	t.is(consumed, 0);
+	t.is(closed, 1);
 });
 
 test('suggestions preserve optional iterator expression boundaries', t => {

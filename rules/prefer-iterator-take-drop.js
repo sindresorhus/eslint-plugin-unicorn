@@ -141,7 +141,7 @@ const create = context => {
 		}
 
 		const iterator = getIterator(node.callee.object, context);
-		if (!iterator) {
+		if (!iterator || iterator.type === 'Super') {
 			return;
 		}
 

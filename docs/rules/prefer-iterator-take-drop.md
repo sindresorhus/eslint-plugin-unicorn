@@ -47,7 +47,7 @@ For spreads and `Array.from()`, the source must be recognized as an iterator: an
 
 Bounds must be statically known nonnegative safe integers. Numeric literals, constant bindings, and arithmetic expressions are supported. Suggestions use their numeric values. Negative or fractional bounds, `Infinity`, explicit `undefined`, mutable bindings, and bounds with side effects are ignored.
 
-Empty ranges use `.take(0).toArray()`, preserving evaluation of the iterator expression. Copy-only `.slice()` and `.slice(0)` are ignored. The rule also ignores optional materialization or slice calls, computed method names, extra or spread arguments, type arguments on transformed calls, and type assertions around the materialized array.
+Empty ranges use `.take(0).toArray()`, preserving evaluation of the iterator expression. Copy-only `.slice()` and `.slice(0)` are ignored. The rule also ignores `super.toArray()`, optional materialization or slice calls, computed method names, extra or spread arguments, type arguments on transformed calls, and type assertions around the materialized array.
 
 ## Suggestions
 
