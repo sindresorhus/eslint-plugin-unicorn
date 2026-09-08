@@ -189,6 +189,14 @@ const isPrimitiveType = (type, checker) => {
 		return type.types.every(type => isPrimitiveType(type, checker));
 	}
 
+	if (type.isIntersection()) {
+		return type.types.some(type => isPrimitiveType(type, checker));
+	}
+
+	if (type.isLiteral()) {
+		return true;
+	}
+
 	return primitiveTypeNames.has(checker.getBaseTypeOfLiteralType(type).intrinsicName)
 		|| isTemplateLiteralType(type)
 		|| isStringMappingType(type)
