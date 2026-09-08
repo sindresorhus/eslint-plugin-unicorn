@@ -261,6 +261,24 @@ test('suggestions keep object-leading iterator expressions parseable', t => {
 	t.deepEqual([...runInNewContext(output)], [1]);
 });
 
+test('suggestions preserve regular expressions after postfix updates', t => {
+	for (const operator of ['++', '--']) {
+		for (const materialization of ['Array.from(/abc/.exec("abc").values())', '[.../abc/.exec("abc").values()]']) {
+			const output = applySuggestion(t, `count${operator}\n${materialization}.slice(0, 1)`);
+			const context = {count: 1};
+			t.deepEqual([...runInNewContext(output, context)], ['abc']);
+			t.is(context.count, operator === '++' ? 2 : 0);
+		}
+	}
+});
+
+test('suggestions preserve prefix update operands', t => {
+	for (const operator of ['++', '--']) {
+		const output = applySuggestion(t, `${operator}Array.from([1].values()).slice(0, 1).length`);
+		t.is(runInNewContext(output), operator === '++' ? 2 : 0);
+	}
+});
+
 test('materialization rules compose without autofix cycles', t => {
 	const combinedConfig = {
 		...config,
@@ -281,5 +299,15 @@ test('materialization rules compose without autofix cycles', t => {
 		t.is(repeated.output, fixed.output);
 		const output = applySuggestion(t, fixed.output, fixed.messages);
 		t.deepEqual(linter.verify(output, combinedConfig), []);
+	}
+});
+
+test('suggestions preserve statement boundaries after functions and classes', t => {
+	for (const precedingStatement of ['const fn = function() {}', 'const Constructor = class {}', 'const fn = () => {}', 'function fn() {}', 'class Constructor {}']) {
+		for (const iterator of ['[1].values()', '/a/.exec("a").values()', '`a`.matchAll(/a/g).map(match => match[0])']) {
+			const code = `${precedingStatement}\nArray.from(${iterator}).slice(0, 1)`;
+			const output = applySuggestion(t, code);
+			t.deepEqual([...runInNewContext(output)], [...runInNewContext(code)]);
+		}
 	}
 });

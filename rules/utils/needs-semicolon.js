@@ -59,6 +59,14 @@ export default function needsSemicolon(tokenBefore, context, code) {
 			return true;
 		}
 
+		if (value === '++' || value === '--') {
+			return !lastBlockNode.prefix;
+		}
+
+		if (value === '}' && ['FunctionExpression', 'ClassExpression'].includes(lastBlockNode.parent.type)) {
+			return true;
+		}
+
 		if (value === ')') {
 			switch (lastBlockNode.type) {
 				case 'IfStatement': {
