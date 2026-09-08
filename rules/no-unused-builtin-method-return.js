@@ -8,7 +8,7 @@ const messages = {
 	[MESSAGE_ID]: 'Do not ignore the return value of `.{{method}}(…)`.',
 };
 
-// This list is the implementation contract. We intentionally exclude `toString()` and `toLocaleString()` because they exist on almost every object, and tracking them in this syntax-only rule creates too many non-array false positives.
+// This list is the implementation contract. We intentionally exclude `toString()` and `toLocaleString()` because they exist on almost every object, and tracking them by method name creates too many non-array false positives.
 const arrayMethods = new Set([
 	'at',
 	'concat',
@@ -56,21 +56,27 @@ const temporalTypes = [
 	['PlainYearMonth', ['add', 'subtract', 'with']],
 	['PlainMonthDay', ['with']],
 	['Duration', ['add', 'subtract', 'with']],
-].map(([name, methods]) => ({
-	methods,
-	...createTypeCheckers({
-		targetTypeNames: new Set([`Temporal.${name}`]),
-		isTargetNode(node) {
-			const constructor = node.type === 'NewExpression'
-				? node.callee
-				: isMethodCall(node, {method: 'from', optionalCall: false, optionalMember: false}) && node.callee.object;
+];
 
-			return isMemberExpression(constructor, {object: 'Temporal', property: name, optional: false});
-		},
+const temporalMethodCheckers = new Map(
+	[...new Set(temporalTypes.flatMap(([, methods]) => methods))].map(method => {
+		const typeNames = temporalTypes.filter(([, methods]) => methods.includes(method)).map(([name]) => name);
+		const {isTarget} = createTypeCheckers({
+			targetTypeNames: new Set(typeNames.map(name => `Temporal.${name}`)),
+			isTargetNode(node) {
+				const constructor = node.type === 'NewExpression'
+					? node.callee
+					: isMethodCall(node, {method: 'from', optionalCall: false, optionalMember: false}) && node.callee.object;
+
+				return isMemberExpression(constructor, {object: 'Temporal', properties: typeNames, optional: false});
+			},
+		});
+
+		return [method, isTarget];
 	}),
-}));
+);
 
-const methods = new Set([...arrayMethods, ...setMethods, 'add', 'subtract']);
+const methods = new Set([...arrayMethods, ...setMethods, ...temporalMethodCheckers.keys()]);
 
 // New coverage only trusts direct constructors, factories, and explicit types after resolving simple bindings. Do not infer method-chain return types.
 const isKnownReceiver = (node, method, context) => {
@@ -82,7 +88,7 @@ const isKnownReceiver = (node, method, context) => {
 		return true;
 	}
 
-	return temporalTypes.some(({methods, isTarget}) => methods.includes(method) && isTarget(node, context));
+	return temporalMethodCheckers.get(method)?.(node, context) ?? false;
 };
 
 const pascalCaseNamePattern = /^\p{Uppercase_Letter}/v;
@@ -171,7 +177,7 @@ function getVariableValue(node, context, isSupportedType) {
 		definition.type === 'Parameter'
 		&& definition.node.params?.includes(definition.name)
 	) {
-		return definition.name.typeAnnotation && !isSupportedType(definition.name.typeAnnotation, context)
+		return definition.name.typeAnnotation && !isSupportedType(definition.name.typeAnnotation)
 			? uncertainValue
 			: undefined;
 	}
@@ -185,7 +191,7 @@ function getVariableValue(node, context, isSupportedType) {
 	) {
 		const {typeAnnotation} = definition.node.id;
 		if (typeAnnotation) {
-			return isSupportedType(typeAnnotation, context) ? undefined : uncertainValue;
+			return isSupportedType(typeAnnotation) ? undefined : uncertainValue;
 		}
 
 		return definition.node.init ?? uncertainValue;
@@ -226,7 +232,7 @@ function resolveReceiver(node, context, isSupportedType, visitedNodes = new Set(
 	}
 
 	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-		return isSupportedType(node, context) ? node : uncertainValue;
+		return isSupportedType(node) ? node : uncertainValue;
 	}
 
 	// Supported receiver inference boundary:
@@ -258,17 +264,17 @@ const isExpectCall = node =>
 	});
 
 const shouldSkipReceiver = (node, method, context) => {
-	const requiresKnownReceiver = setMethods.has(method) || ['add', 'subtract', 'with'].includes(method);
+	const requiresKnownReceiver = setMethods.has(method) || temporalMethodCheckers.has(method);
 	const isSupportedType = requiresKnownReceiver
 		? node => isKnownReceiver(node, method, context)
-		: isArray;
+		: node => isArray(node, context);
 	const resolvedReceiver = resolveReceiver(node, context, isSupportedType);
 	if (resolvedReceiver === uncertainValue) {
 		return true;
 	}
 
 	if (requiresKnownReceiver) {
-		return !isSupportedType(resolvedReceiver, context);
+		return !isSupportedType(resolvedReceiver);
 	}
 
 	if (isExpectCall(resolvedReceiver)) {

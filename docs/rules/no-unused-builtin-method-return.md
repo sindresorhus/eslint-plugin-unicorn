@@ -6,9 +6,11 @@
 
 <!-- end auto-generated rule header -->
 
-Ignoring the result of methods like `.map()`, `.find()`, `.includes()`, or `.join()` is usually a bug or dead code.
+Ignoring the result of array methods like `.map()`, Set operations like `.union()`, or Temporal updates like `.add()` is usually a bug or dead code.
 
 If you intentionally want to discard the return value, use `void` to make that explicit.
+
+## Array methods
 
 This rule covers selected array instance methods that return a computed value:
 
@@ -39,11 +41,11 @@ This rule covers selected array instance methods that return a computed value:
 
 For `.values()` and `.with()`, this rule only reports known array receivers because other APIs also use these method names.
 
-It does not report mutating methods like `.copyWithin()`, `.fill()`, `.forEach()`, `.pop()`, `.push()`, `.reverse()`, `.shift()`, `.sort()`, `.splice()`, or `.unshift()`. Those are often called for their side effects, so reporting them would be much noisier.
+It does not report methods commonly called for side effects, such as `.copyWithin()`, `.fill()`, `.forEach()`, `.pop()`, `.push()`, `.reverse()`, `.shift()`, `.sort()`, `.splice()`, or `.unshift()`.
 
-This is a syntax-only rule with a narrow inference boundary. It skips obvious non-arrays such as scalar literals, direct object literals, `String(value)`, and `new Foo()`. It also leaves parameter defaults, destructured bindings, properties, and variables reassigned before the method call unresolved rather than performing broader value-flow analysis. Unknown values with similarly named methods may still be reported.
+Array receiver inference has a narrow boundary. It skips obvious non-arrays such as scalar literals, direct object literals, `String(value)`, and `new Foo()`. It also leaves parameter defaults, destructured bindings, properties, and variables reassigned before the method call unresolved rather than performing broader value-flow analysis. Unknown values with similarly named methods may still be reported.
 
-## Examples
+### Examples
 
 ```js
 // ❌
@@ -82,7 +84,7 @@ const combined = set.union(other);
 
 ## Temporal methods
 
-Temporal values are immutable. This rule checks the following methods on known Temporal receivers:
+Temporal values are immutable. This rule checks the following methods on known Temporal receivers. A union of Temporal types is checked only when every member supports the method:
 
 | Type | Methods |
 | --- | --- |

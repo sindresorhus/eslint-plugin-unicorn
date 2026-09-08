@@ -457,3 +457,38 @@ test.typescript({
 		{code: '(value as number[]).with(0, 1);', errors: 1},
 	],
 });
+
+// Every possible Temporal receiver must support the selected method.
+test.typescript({
+	valid: [
+		'function run(value: Temporal.PlainDate | Temporal.PlainMonthDay) { value.add({days: 1}); }',
+		'function run(value: Temporal.PlainDate | Temporal.Instant) { value.with({day: 1}); }',
+		'function run(value: Temporal.PlainDate | Custom) { value.subtract({days: 1}); }',
+	],
+	invalid: [
+		{code: 'function run(value: Temporal.PlainDate | Temporal.PlainDateTime) { value.add({days: 1}); }', errors: 1},
+		{code: 'function run(value: Temporal.PlainDate | Temporal.Duration) { value.subtract({days: 1}); }', errors: 1},
+		{code: 'function run(value: Temporal.PlainDate | Temporal.PlainMonthDay) { value.with({day: 1}); }', errors: 1},
+		{code: 'type DateValue = Temporal.PlainDate | Temporal.PlainDateTime; (value as DateValue).add({days: 1});', errors: 1},
+		// Assertions preserve a known receiver's runtime value.
+		{code: '(Temporal.PlainDate.from(input) as unknown).add({days: 1});', errors: 1},
+		{code: '(new Set() as Custom).union(other);', errors: 1},
+		{code: '([] as unknown).with(0, 1);', errors: 1},
+	],
+});
+
+test({
+	valid: [
+		'new Set().add(value).union(other);',
+		'const DateConstructor = Temporal.PlainDate; new DateConstructor().add({days: 1});',
+		'const {date = Temporal.PlainDate.from(input)} = wrapper; date.add({days: 1});',
+		'function run(date = Temporal.PlainDate.from(input)) { date.add({days: 1}); }',
+	],
+	invalid: [
+		{code: 'let set = new Set(); set.union(other); set = custom;', errors: 1},
+		{code: 'let date = Temporal.PlainDate.from(input); date.add({days: 1}); date = custom;', errors: 1},
+		{code: 'let set = new Set(); const alias = set; set = custom; alias.union(other);', errors: 1},
+		{code: 'let date = Temporal.PlainDate.from(input); const alias = date; date = custom; alias.add({days: 1});', errors: 1},
+		{code: 'const date = Temporal.PlainDate.from(input); const first = date; const second = first; second.with({day: 1});', errors: 1},
+	],
+});
