@@ -116,6 +116,7 @@ test.snapshot({
 		'using typeOnly = acquire(), value = acquire(); export {type typeOnly, value};',
 		'using resource = acquire(); export = resource;',
 		'using resource = acquire(); export = () => resource.read();',
+		'namespace N { using resource = acquire(); export const value = resource; }',
 		'function f() { interface resource {} using resource = acquire(); return resource; }',
 		'function f() { using resource = acquire(); type read = () => void; const read = () => resource.read(); return read; }',
 		'using resource = acquire(); interface read {} function read() { return resource.read(); } export {read};',
