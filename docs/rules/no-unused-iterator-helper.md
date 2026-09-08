@@ -11,7 +11,7 @@
 
 Iterator helpers `.map()`, `.filter()`, `.flatMap()`, `.take()`, and `.drop()` are lazy. They return a new iterator without consuming its values. Discarding that iterator means the transformation never runs. For example, `items.values().map(transform)` does not call `transform`, and `iterator.drop(1)` does not advance `iterator`.
 
-Neither `void` nor `await` consumes an iterator. This rule reports both, as well as discarded expression statements and direct `for` initializer/update expressions. Argument evaluation and validation can still have effects when the helper is created.
+Applying `void` to a helper result or awaiting that result does not consume it. This rule reports both, as well as discarded expression statements and direct `for` initializer/update expressions. Argument evaluation and validation can still have effects when the helper is created.
 
 ## Examples
 
@@ -52,7 +52,7 @@ The separate [`no-for-each`](./no-for-each.md) rule may prefer a `for…of` loop
 
 The rule uses the same iterator recognition as [`prefer-iterator-helpers`](./prefer-iterator-helpers.md): `.values()`, `.keys()`, `.entries()`, `.matchAll()`, supported `Iterator` static methods, helper chains, and recognized TypeScript iterator types. These method names are syntax heuristics; custom APIs with the same names may also match. Type information is optional.
 
-It also recognizes plain, unannotated `const` aliases and local synchronous generator calls, including generator functions stored in `const` variables and immutable alias chains. It does not infer iterators through mutable bindings, destructuring, imported functions, object methods, async generators, or ordinary function return values. Existing TypeScript type recognition can identify additional receivers.
+It also follows iterator values through plain, unannotated `const` bindings and recognizes calls to local synchronous generator functions, including generator functions stored in `const` variables and immutable function alias chains. It does not infer iterators through mutable bindings, destructuring, imported functions, object methods, async generators, or ordinary function return values. Existing TypeScript type recognition can identify additional receivers.
 
 Computed helper calls, as well as discard expressions nested in logical, conditional, or comma expressions, are intentionally unsupported. The rule does not track whether a stored or returned iterator is eventually consumed, and does not report eager consumers such as `.forEach()`, `.toArray()`, `.some()`, or `.next()`.
 
