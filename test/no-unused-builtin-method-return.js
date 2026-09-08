@@ -227,7 +227,7 @@ test.snapshot({
 		'Array(1).values();',
 		'new Array(1).values();',
 		'Array.from(iterable).values();',
-		'array.with(0, value);',
+		'[].with(0, value);',
 		outdent`
 			const values = [];
 			values.map(value => value * 2);
@@ -356,5 +356,104 @@ test.typescript({
 		// A non-null assertion does not hide the underlying array type assertion.
 		{code: '(bar as Foo[])!.filter();', filename: 'example.ts', errors: 1},
 		{code: '(values satisfies Foo[]).filter();', filename: 'example.ts', errors: 1},
+	],
+});
+
+// Built-in receiver coverage is deliberately limited to direct values and simple bindings.
+test.snapshot({
+	valid: [
+		'array.with(0, value);',
+		'set.union(other);',
+		'date.add({days: 1});',
+		'new Set().add(value);',
+		'new Date().setDate(1);',
+		'const custom = {add() {}, with() {}}; custom.add(value); custom.with(value);',
+		'const set = new Set(); const result = set.union(other);',
+		'const set = new Set(); void set.union(other);',
+		'const set = new Set(); false === set.isSubsetOf(other);',
+		'const set = new Set(); set.isSubsetOf(other) === false;',
+		'let set = new Set(); set = custom; set.union(other);',
+		'const {set} = wrapper; set.union(other);',
+		'const wrapper = {set: new Set()}; wrapper.set.union(other);',
+		'function run(set = new Set()) { set.union(other); }',
+		'const Constructor = Set; new Constructor().union(other);',
+		'new Set().union(other).union(another);',
+		'Temporal.PlainDate.from(value).add({days: 1}).add({days: 1});',
+		'Temporal.Instant.from(value).with({seconds: 1});',
+		'Temporal.PlainMonthDay.from(value).add({days: 1});',
+		'Temporal.PlainMonthDay.from(value).subtract({days: 1});',
+		'const date = Temporal.PlainDate.from(value); void date.add({days: 1});',
+		'const date = Temporal.PlainDate.from(value); const next = date.with({day: 1});',
+		'let date = Temporal.PlainDate.from(value); date = custom; date.add({days: 1});',
+		'const date = Temporal.PlainDate.from(value); date[method]({days: 1});',
+		'const date = Temporal.PlainDate.from(value); condition && date.add({days: 1});',
+	],
+	invalid: [
+		...['union', 'intersection', 'difference', 'symmetricDifference', 'isSubsetOf', 'isSupersetOf', 'isDisjointFrom'].map(method => `new Set().${method}(other);`),
+		'const set = new Set(); set.union(other);',
+		'let set = new Set(); set.union(other);',
+		'const set = new Set(); const alias = set; alias.union(other);',
+		'const set = new Set(); (set)?.union?.(other);',
+		'const set = new Set(); set["union"](other);',
+		'const set = new Set(); const method = "union"; set[method](other);',
+		'const set = new Set(); set.union(/* keep */ other);',
+		'const set = new Set(); for (set.union(other); ; set.intersection(other)) {}',
+		'const set = new Set(); await set.union(other);',
+		'const date = Temporal.PlainDate.from(value); date.add({days: 1});',
+		'let date = Temporal.PlainDate.from(value); const alias = date; alias.subtract({days: 1});',
+		'const date = Temporal.PlainDate.from(value); date?.with?.({day: 1});',
+		'const date = Temporal.PlainDate.from(value); date["add"]({days: 1});',
+		'const date = Temporal.PlainDate.from(value); for (date.add({days: 1}); ; ) {}',
+		'const array = []; array.with(0, value);',
+	],
+});
+
+for (const [type, methods] of [
+	['Instant', ['add', 'subtract']],
+	['ZonedDateTime', ['add', 'subtract', 'with']],
+	['PlainDate', ['add', 'subtract', 'with']],
+	['PlainTime', ['add', 'subtract', 'with']],
+	['PlainDateTime', ['add', 'subtract', 'with']],
+	['PlainYearMonth', ['add', 'subtract', 'with']],
+	['PlainMonthDay', ['with']],
+	['Duration', ['add', 'subtract', 'with']],
+]) {
+	for (const method of methods) {
+		test.snapshot({
+			valid: [],
+			invalid: [
+				`new Temporal.${type}(...args).${method}(value);`,
+				`Temporal.${type}.from(value).${method}(value);`,
+			],
+		});
+		test.typescript({
+			valid: [],
+			invalid: [
+				{code: `declare const value: Temporal.${type}; value.${method}(argument);`, errors: 1},
+			],
+		});
+	}
+}
+
+test.typescript({
+	valid: [
+		'function run(value: Custom) { value.add(argument); value.with(argument); }',
+		'let value: Temporal.PlainDate = date; value = other; value.add({days: 1});',
+		'const value: Custom = Temporal.PlainDate.from(input); value.add(argument);',
+		'(value as Custom).with(argument);',
+		'function run(wrapper: {date: Temporal.PlainDate}) { wrapper.date.add({days: 1}); }',
+	],
+	invalid: [
+		{code: 'function run(set: Set<number>) { set.union(other); }', errors: 1},
+		{code: 'declare const set: ReadonlySet<number>; set.union(other);', errors: 1},
+		{code: 'function run(date: Temporal.PlainDate) { date.add({days: 1}); }', errors: 1},
+		{code: 'const date: Temporal.PlainDate = input; const alias = date; alias.with({day: 1});', errors: 1},
+		{code: '(date as Temporal.PlainDate).add({days: 1});', errors: 1},
+		{code: '(<Temporal.PlainDate>date).subtract({days: 1});', errors: 1},
+		{code: '(date as Temporal.PlainDate)!.with({day: 1});', errors: 1},
+		{code: 'const date = Temporal.PlainDate.from(input); (date satisfies Temporal.PlainDate).add({days: 1});', errors: 1},
+		{code: 'const date = Temporal.PlainDate.from(input); date.add({days: 1}) as Temporal.PlainDate;', errors: 1},
+		{code: 'function run(array: number[]) { array.with(0, 1); }', errors: 1},
+		{code: '(value as number[]).with(0, 1);', errors: 1},
 	],
 });

@@ -169,7 +169,7 @@ export {default as 'no-unsafe-property-key'} from './no-unsafe-property-key.js';
 export {default as 'no-unsafe-sqlite-interpolation'} from './no-unsafe-sqlite-interpolation.js';
 export {default as 'no-unsafe-string-replacement'} from './no-unsafe-string-replacement.js';
 export {default as 'no-unscoped-css-nesting-selector'} from './no-unscoped-css-nesting-selector.js';
-export {default as 'no-unused-array-method-return'} from './no-unused-array-method-return.js';
+export {default as 'no-unused-builtin-method-return'} from './no-unused-builtin-method-return.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
 export {default as 'no-useless-boolean-cast'} from './no-useless-boolean-cast.js';
 export {default as 'no-useless-coercion'} from './no-useless-coercion.js';

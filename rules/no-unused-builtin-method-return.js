@@ -1,14 +1,15 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {isCallExpression, isMethodCall} from './ast/index.js';
-import {isArray, isValueNotUsable} from './utils/index.js';
+import {isCallExpression, isMemberExpression, isMethodCall} from './ast/index.js';
+import {isArray, isSet, isValueNotUsable} from './utils/index.js';
+import {createTypeCheckers} from './utils/type-helpers.js';
 
-const MESSAGE_ID = 'no-unused-array-method-return';
+const MESSAGE_ID = 'no-unused-builtin-method-return';
 const messages = {
 	[MESSAGE_ID]: 'Do not ignore the return value of `.{{method}}(…)`.',
 };
 
 // This list is the implementation contract. We intentionally exclude `toString()` and `toLocaleString()` because they exist on almost every object, and tracking them in this syntax-only rule creates too many non-array false positives.
-const methods = new Set([
+const arrayMethods = new Set([
 	'at',
 	'concat',
 	'entries',
@@ -35,6 +36,54 @@ const methods = new Set([
 	'values',
 	'with',
 ]);
+
+const setMethods = new Set([
+	'union',
+	'intersection',
+	'difference',
+	'symmetricDifference',
+	'isSubsetOf',
+	'isSupersetOf',
+	'isDisjointFrom',
+]);
+
+const temporalTypes = [
+	['Instant', ['add', 'subtract']],
+	['ZonedDateTime', ['add', 'subtract', 'with']],
+	['PlainDate', ['add', 'subtract', 'with']],
+	['PlainTime', ['add', 'subtract', 'with']],
+	['PlainDateTime', ['add', 'subtract', 'with']],
+	['PlainYearMonth', ['add', 'subtract', 'with']],
+	['PlainMonthDay', ['with']],
+	['Duration', ['add', 'subtract', 'with']],
+].map(([name, methods]) => ({
+	methods,
+	...createTypeCheckers({
+		targetTypeNames: new Set([`Temporal.${name}`]),
+		isTargetNode(node) {
+			const constructor = node.type === 'NewExpression'
+				? node.callee
+				: isMethodCall(node, {method: 'from', optionalCall: false, optionalMember: false}) && node.callee.object;
+
+			return isMemberExpression(constructor, {object: 'Temporal', property: name, optional: false});
+		},
+	}),
+}));
+
+const methods = new Set([...arrayMethods, ...setMethods, 'add', 'subtract']);
+
+// New coverage only trusts direct constructors, factories, and explicit types after resolving simple bindings. Do not infer method-chain return types.
+const isKnownReceiver = (node, method, context) => {
+	if (setMethods.has(method)) {
+		return isSet(node, context);
+	}
+
+	if (method === 'with' && isArray(node, context)) {
+		return true;
+	}
+
+	return temporalTypes.some(({methods, isTarget}) => methods.includes(method) && isTarget(node, context));
+};
 
 const pascalCaseNamePattern = /^\p{Uppercase_Letter}/v;
 const uncertainValue = Symbol('uncertainValue');
@@ -86,7 +135,7 @@ function hasEarlierWrite(variable, node, context) {
 	return variable.references.some(reference => !reference.init && reference.isWrite() && context.sourceCode.getRange(reference.identifier)[0] < nodeStart);
 }
 
-function getVariableValue(node, context) {
+function getVariableValue(node, context, isSupportedType) {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 	if (!variable || variable.defs.length === 0) {
 		return;
@@ -98,14 +147,14 @@ function getVariableValue(node, context) {
 
 	// Supported variable inference boundary:
 	// - exactly one binding definition
-	// - unannotated or explicitly array-typed plain parameters
-	// - explicitly array-typed variables
+	// - unannotated or explicitly supported plain parameters
+	// - explicitly supported typed variables
 	// - a `VariableDeclarator` whose id is the same identifier we are resolving
 	// - the original declarator initializer for unannotated variables only
 	//
 	// Unsupported on purpose:
 	// - any destructuring, including destructuring with defaults
-	// - any explicit non-array or unresolved type annotation
+	// - any explicit unsupported or unresolved type annotation
 	// - any write before the call site
 	// - parameter defaults, rest parameters, `for…of`, catch bindings, and other non-declarator bindings
 	// - control-flow-sensitive value tracking
@@ -122,7 +171,7 @@ function getVariableValue(node, context) {
 		definition.type === 'Parameter'
 		&& definition.node.params?.includes(definition.name)
 	) {
-		return definition.name.typeAnnotation && !isArray(definition.name.typeAnnotation, context)
+		return definition.name.typeAnnotation && !isSupportedType(definition.name.typeAnnotation, context)
 			? uncertainValue
 			: undefined;
 	}
@@ -136,7 +185,7 @@ function getVariableValue(node, context) {
 	) {
 		const {typeAnnotation} = definition.node.id;
 		if (typeAnnotation) {
-			return isArray(typeAnnotation, context) ? undefined : uncertainValue;
+			return isSupportedType(typeAnnotation, context) ? undefined : uncertainValue;
 		}
 
 		return definition.node.init ?? uncertainValue;
@@ -145,7 +194,7 @@ function getVariableValue(node, context) {
 	return uncertainValue;
 }
 
-function resolveReceiver(node, context, visitedNodes = new Set()) {
+function resolveReceiver(node, context, isSupportedType, visitedNodes = new Set()) {
 	if (!node || node === uncertainValue) {
 		return node;
 	}
@@ -157,19 +206,19 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 	visitedNodes.add(node);
 
 	if (node.type === 'Identifier') {
-		const value = getVariableValue(node, context);
+		const value = getVariableValue(node, context, isSupportedType);
 		if (value === uncertainValue) {
 			return value;
 		}
 
-		return value === undefined ? node : resolveReceiver(value, context, visitedNodes);
+		return value === undefined ? node : resolveReceiver(value, context, isSupportedType, visitedNodes);
 	}
 
 	// Transparent wrappers that do not change the receiver's runtime value.
 	if (
 		['ChainExpression', 'TSNonNullExpression', 'TSSatisfiesExpression'].includes(node.type)
 	) {
-		return resolveReceiver(node.expression, context, visitedNodes);
+		return resolveReceiver(node.expression, context, isSupportedType, visitedNodes);
 	}
 
 	if (node.type === 'MemberExpression') {
@@ -177,7 +226,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 	}
 
 	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-		return isArray(node, context) ? node : uncertainValue;
+		return isSupportedType(node, context) ? node : uncertainValue;
 	}
 
 	// Supported receiver inference boundary:
@@ -198,8 +247,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 }
 
 const isObviouslyNonArrayReceiver = (resolvedReceiver, context) =>
-	resolvedReceiver === uncertainValue
-	|| isDefinitelyNonArrayExpression(resolvedReceiver, context)
+	isDefinitelyNonArrayExpression(resolvedReceiver, context)
 	|| (isPascalCaseIdentifier(resolvedReceiver) && !isArray(resolvedReceiver, context));
 
 const isExpectCall = node =>
@@ -210,13 +258,25 @@ const isExpectCall = node =>
 	});
 
 const shouldSkipReceiver = (node, method, context) => {
-	const resolvedReceiver = resolveReceiver(node, context);
+	const requiresKnownReceiver = setMethods.has(method) || ['add', 'subtract', 'with'].includes(method);
+	const isSupportedType = requiresKnownReceiver
+		? node => isKnownReceiver(node, method, context)
+		: isArray;
+	const resolvedReceiver = resolveReceiver(node, context, isSupportedType);
+	if (resolvedReceiver === uncertainValue) {
+		return true;
+	}
+
+	if (requiresKnownReceiver) {
+		return !isSupportedType(resolvedReceiver, context);
+	}
+
 	if (isExpectCall(resolvedReceiver)) {
 		return true;
 	}
 
 	if (method === 'values') {
-		return resolvedReceiver === uncertainValue || !isArray(resolvedReceiver, context);
+		return !isArray(resolvedReceiver, context);
 	}
 
 	return isObviouslyNonArrayReceiver(resolvedReceiver, context);
@@ -234,6 +294,7 @@ const getTrackedMethodName = (node, context) =>
 // - direct `for` init/update expressions like `for (foo.map(); ; )` and `for (; ; foo.map())`
 //
 // Unsupported on purpose:
+// - comparison wrappers, including Yoda comparisons, are intentionally left out
 // - comma-expression wrappers
 // - logical wrappers like `condition && foo.map()`
 // - conditional wrappers like `condition ? foo.map() : other()`
@@ -302,7 +363,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow ignoring the return value of selected array methods.',
+			description: 'Disallow ignoring the return value of selected built-in methods.',
 			recommended: 'unopinionated',
 		},
 		messages,

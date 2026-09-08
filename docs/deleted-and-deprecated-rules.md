@@ -2,6 +2,10 @@
 
 ## Deprecated rules
 
+### no-unused-array-method-return
+
+Replaced by [`no-unused-builtin-method-return`](rules/no-unused-builtin-method-return.md) which also covers Set and Temporal methods. Update explicit configurations to use the new name; the old rule is now a no-op.
+
 ### no-instanceof-array
 
 Replaced by [`no-instanceof-builtins`](rules/no-instanceof-builtins.md) which covers more cases.
