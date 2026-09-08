@@ -54,7 +54,8 @@ function hasPromiseReturnType(node, context) {
 		const checker = parserServices.program.getTypeChecker();
 		const type = parserServices.getTypeAtLocation(node);
 		return type.getCallSignatures().some(signature => {
-			const returnType = checker.getReturnTypeOfSignature(signature);
+			const signatureReturnType = checker.getReturnTypeOfSignature(signature);
+			const returnType = checker.getBaseConstraintOfType(signatureReturnType) ?? signatureReturnType;
 			const types = returnType.isUnion() ? returnType.types : [returnType];
 			return types.some(type => isPromiseType(type, checker) === true);
 		});
