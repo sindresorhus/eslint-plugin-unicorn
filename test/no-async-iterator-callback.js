@@ -86,6 +86,7 @@ test.snapshot({
 	testerOptions: {languageOptions: {parser: parsers.typescript}},
 	valid: [
 		'function foo(iterator: AsyncIterator<number>) { iterator.filter(async value => value); }',
+		'function foo(iterator: IteratorObject<number> | AsyncIterator<number> | undefined) { iterator?.filter(async value => value); }',
 		'function foo(array: number[]) { array.filter(async value => value); }',
 		'type Iterator<T> = T[]; function foo(iterator: Iterator<number>) { iterator.filter(async value => value); }',
 		'declare const callback: () => Promise<boolean>; Iterator.from(values).filter(callback);',
@@ -93,6 +94,7 @@ test.snapshot({
 	],
 	invalid: [
 		'function foo(iterator: Iterator<number>) { iterator.filter(async value => value); }',
+		'function foo(iterator: IteratorObject<number> | undefined) { iterator?.filter(async value => value); }',
 		'function foo(iterator: IteratorObject<number>) { iterator.some(async value => value); }',
 		'function foo(iterator: IterableIterator<number>) { iterator.every(async value => value); }',
 		'function foo(iterator: Generator<number>) { iterator.find(async value => value); }',
@@ -136,6 +138,7 @@ test.snapshot({
 		typeAware('import spawn from "nano-spawn"; Iterator.from(["command"]).filter(spawn);'),
 		typeAware('function * values() { yield 1; } values().filter(async value => value);'),
 		typeAware('const iterator = [1].values(); iterator.filter(async value => value);'),
+		typeAware('declare const object: {iterator?: IteratorObject<number>}; object.iterator?.filter(() => Promise.resolve(false));'),
 		typeAware('declare function values(): IteratorObject<number>; values().some(async value => value);'),
 		typeAware('declare function callback(value: string): boolean; declare function callback(value: number): Promise<boolean>; Iterator.from([1]).filter(callback);'),
 	],
