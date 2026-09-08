@@ -216,6 +216,20 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'const groups = {}; for (const item of items.filter(item => item.active)) {(groups[item.type] ??= []).push(item);}',
+		'async function group() {const groups = {}; for (const item of await getItems()) {(groups[item.type] ??= []).push(item);} return groups;}',
+		outdent`
+			function group(items, suffix) {
+				const groups = new Map();
+				for (const item of items) {
+					const key = this.getKey(item, arguments[1]);
+					const group = groups.get(key) ?? [];
+					group.push(item);
+					groups.set(key, group);
+				}
+
+				return groups;
+			}
+		`,
 	],
 });
 
