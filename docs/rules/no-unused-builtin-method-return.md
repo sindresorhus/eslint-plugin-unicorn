@@ -109,6 +109,8 @@ const tomorrow = date.add({days: 1});
 
 Set and Temporal coverage requires a known receiver: a direct constructor, a Temporal `.from()` call, a simple unchanged variable initializer or alias, or an explicit TypeScript annotation such as `Set<number>` or `Temporal.PlainDate`. Unknown receivers, properties, destructuring, reassigned bindings, constructor aliases, and method-chain inference are intentionally unsupported. Other built-ins, including ordinary `Date` objects, are outside this coverage.
 
+Nullable receiver types are also left unresolved, including optional calls.
+
 The rule checks directly discarded calls, including optional calls, `await`, TypeScript assertion wrappers, and `for` initializers and updates. It intentionally does not inspect comparison expressions (including Yoda comparisons), logical expressions, conditional expressions, or comma expressions for discarded results.
 
 ## Migration

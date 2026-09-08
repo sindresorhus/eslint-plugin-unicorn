@@ -492,3 +492,23 @@ test({
 		{code: 'const date = Temporal.PlainDate.from(input); const first = date; const second = first; second.with({day: 1});', errors: 1},
 	],
 });
+
+// Returning a result differs from discarding it inside a function body.
+test({
+	valid: [
+		'const set = new Set(); void await set.union(other);',
+		'const set = new Set(); const merge = () => set.union(other);',
+	],
+	invalid: [
+		{code: 'const set = new Set(); const merge = () => { set.union(other); };', errors: 1},
+	],
+});
+
+test.typescript({
+	valid: [
+		'function run(date: Temporal.PlainDate | undefined) { date?.add({days: 1}); }',
+		'function run(set: Set<number> | null) { set?.union(other); }',
+		'function run(array: number[] | undefined) { array?.with(0, 1); }',
+	],
+	invalid: [],
+});
