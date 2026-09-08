@@ -125,6 +125,14 @@ const getSingleDeclaration = statement => {
 	return declaration.id.type === 'Identifier' && declaration.init ? declaration : undefined;
 };
 
+const getLocalIdentifiers = (statements, context) => statements
+	.filter(statement => statement.type === 'VariableDeclaration')
+	.flatMap(statement => context.sourceCode.getDeclaredVariables(statement))
+	.flatMap(variable => variable.identifiers);
+
+const referencesLocalIdentifier = (node, localIdentifiers) =>
+	localIdentifiers.some(identifier => referencesIdentifier(node, identifier));
+
 function getKeyBinding(statements, callbackParts) {
 	const declaration = getSingleDeclaration(statements[0]);
 	if (!declaration) {
@@ -554,7 +562,7 @@ function getGroupByProblem(callExpression, context) {
 		? getObjectGroupByKey(statements, callbackParts)
 		: getMapGroupByKey(statements, callbackParts);
 
-	if (!key) {
+	if (!key || referencesLocalIdentifier(key, getLocalIdentifiers(statements, context))) {
 		return;
 	}
 
@@ -638,10 +646,7 @@ function getLoopGroupByProblem(declaration, context) {
 	}
 
 	const statements = loop.body.body;
-	const localIdentifiers = statements
-		.filter(statement => statement.type === 'VariableDeclaration')
-		.flatMap(statement => context.sourceCode.getDeclaredVariables(statement))
-		.flatMap(variable => variable.identifiers);
+	const localIdentifiers = getLocalIdentifiers(statements, context);
 	if (
 		isSameIdentifier(accumulator, element)
 		|| referencesIdentifier(loop.right, accumulator)
@@ -655,7 +660,7 @@ function getLoopGroupByProblem(declaration, context) {
 	const key = method === 'Object.groupBy'
 		? getObjectGroupByKey(statements, callbackParts)
 		: getMapGroupByKey(statements, callbackParts);
-	if (!key || localIdentifiers.some(identifier => referencesIdentifier(key, identifier))) {
+	if (!key || referencesLocalIdentifier(key, localIdentifiers)) {
 		return;
 	}
 
