@@ -14,7 +14,9 @@ Prefer [`Uint8Array#toHex()`](https://developer.mozilla.org/en-US/docs/Web/JavaS
 > [!NOTE]
 > Enable this rule only when your target runtimes support these methods, or you provide a polyfill. They are not available in Node.js 22, so this rule is disabled in the recommended configs.
 
-## Encoding
+## Examples
+
+### Encoding
 
 The rule recognizes spread followed by `map()`, `Array.from()` followed by `map()`, and `Array.from()` with a mapping callback, each followed by `join('')`. The callback must return exactly `byte.toString(16).padStart(2, '0')`; arrow functions and functions containing a single `return` are supported.
 
@@ -66,7 +68,7 @@ const hex = Buffer.from(buffer, offset, length).toString('hex');
 const hex = Buffer.from(buffer, offset, length).toHex();
 ```
 
-## Decoding
+### Decoding
 
 The rule suggests `Uint8Array.fromHex()` for `Buffer.from(text, 'hex')` and regex-based byte parsing wrapped in `new Uint8Array()` or `Uint8Array.from()`.
 
