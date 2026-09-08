@@ -228,3 +228,47 @@ for (const method of ['intersection', 'difference']) {
 		],
 	});
 }
+
+for (const negation of ['', '!']) {
+	const method = negation ? 'difference' : 'intersection';
+	test({
+		valid: [
+			`const a = new Set(); const b = new Set(); [...a].filter(value => ${negation}(value ? b : a).has(value));`,
+			`const a = new Set(); const b = new Set(); new Set([...a].filter(value => ${negation}(value ? b : a).has(value)));`,
+		],
+		invalid: ['return', 'throw', 'yield'].map(keyword => ({
+			code: `const a = new Set(); const b = new Set(); function* foo() { ${keyword}[...a].filter(value => ${negation}b.has(value)); }`,
+			errors: [
+				{
+					messageId: `prefer-set-methods/${method}`,
+					suggestions: [
+						{
+							messageId: `prefer-set-methods/${method}-suggestion`,
+							output: `const a = new Set(); const b = new Set(); function* foo() { ${keyword} a.${method}(b); }`,
+						},
+					],
+				},
+			],
+		})),
+	});
+}
+
+for (const method of ['filter', 'every', 'some']) {
+	test.snapshot({
+		valid: [],
+		invalid: [
+			`const a = new Set(); const b = new Set(); const c = new Set(); [...a].${method}(value => (condition ? b : c).has(value));`,
+			typescript(`function foo(a: Set<string>, b: Set<string>) { return [...a].${method}(<T extends string>(value: T) => b.has(value)); }`),
+			{
+				code: `const a = new Set(); const b = new Set(); const element = <div>{[...a].${method}(value => b.has(value))}</div>;`,
+				languageOptions: {
+					parserOptions: {
+						ecmaFeatures: {
+							jsx: true,
+						},
+					},
+				},
+			},
+		],
+	});
+}

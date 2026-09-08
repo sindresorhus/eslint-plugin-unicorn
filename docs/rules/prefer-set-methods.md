@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer modern `Set` methods over manually composing Sets with spread arrays and filters.
+Prefer modern `Set` methods for composing Sets and checking their relationships.
 
 The built-in methods express set operations directly and avoid spelling out temporary arrays and membership-check loops.
 
@@ -46,11 +46,11 @@ The `new Set([...set, ...otherSet])` case is autofixed only when every spread op
 new Set([...iterable, ...otherIterable]);
 ```
 
-Intersection and difference filter patterns are reported as suggestions instead of autofixes because bare filters produce arrays. Direct `new Set([...set].filter(…))` wrappers are also suggestions: `intersection()` can change Set iteration order, and `difference()` follows the same opt-in model for consistency. The rule only reports bare filter calls and direct `new Set([...set].filter(…))` wrappers.
+Intersection and difference filter patterns are reported as suggestions instead of autofixes because bare filters produce arrays. Direct `new Set([...set].filter(…))` wrappers are also suggestions: `intersection()` can change Set iteration order, and `difference()` follows the same opt-in model for consistency. For filter patterns, the rule only reports bare filter calls and direct `new Set([...set].filter(…))` wrappers.
 
 ## Set predicates
 
-The rule autofixes membership checks and empty intersection or difference checks when both operands are known to be Sets or ReadonlySets:
+The rule autofixes membership checks and empty intersection or difference checks when both operands are known to be a `Set` or `ReadonlySet`:
 
 ```js
 // ❌
@@ -69,3 +69,5 @@ const contained = set.isSubsetOf(otherSet);
 Strict inequality (`!== 0`) and reversed comparisons (`0 === set.intersection(otherSet).size`) are also supported. Inequality negates the corresponding predicate.
 
 Callbacks must be synchronous arrow functions with one identifier parameter and a direct `otherSet.has(value)` expression body. Patterns with comments, optional chaining, or computed method access are ignored. These autofixes assume ordinary built-in Set behavior.
+
+For both filter and predicate callbacks, evaluating the Set used for membership checks must not have side effects or depend on the callback parameter.

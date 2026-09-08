@@ -179,6 +179,13 @@ const getSingleSpreadSetArgument = (node, context) => {
 	return node.elements[0].argument;
 };
 
+const isSetCallback = (node, context) =>
+	node.type === 'ArrowFunctionExpression'
+	&& !node.async
+	&& node.params.length === 1
+	&& node.params[0].type === 'Identifier'
+	&& context.sourceCode.getDeclaredVariables(node)[0].references.length === 1;
+
 const getSetHasCallObject = (node, parameter, context) => {
 	if (
 		!isMethodCall(node, {
@@ -190,6 +197,7 @@ const getSetHasCallObject = (node, parameter, context) => {
 		|| !isSameReference(node.arguments[0], parameter)
 		|| isSameReference(node.callee.object, parameter)
 		|| !isBuiltinSet(node.callee.object, context)
+		|| hasSideEffect(node.callee.object, context.sourceCode, {considerGetters: true})
 	) {
 		return;
 	}
@@ -248,20 +256,12 @@ const getSetOperationReplacement = (filterCall, context) => {
 	}
 
 	const [callback] = filterCall.arguments;
-	if (
-		callback.type !== 'ArrowFunctionExpression'
-		|| callback.async
-		|| callback.params.length !== 1
-		|| callback.params[0].type !== 'Identifier'
-	) {
+	if (!isSetCallback(callback, context)) {
 		return;
 	}
 
 	const operation = getSetOperation(callback.body, callback.params[0], context);
-	if (
-		!operation
-		|| hasSideEffect(operation.otherSet, context.sourceCode, {considerGetters: true})
-	) {
+	if (!operation) {
 		return;
 	}
 
@@ -292,7 +292,10 @@ const getSetOperationProblem = (node, replacementNode, context) => {
 		suggest: [
 			{
 				messageId: operation.suggestionMessageId,
-				fix: fixer => fixer.replaceText(replacementNode, addSemicolonIfNeeded(replacementNode, operation.replacement, context)),
+				* fix(fixer) {
+					yield fixer.replaceText(replacementNode, addSemicolonIfNeeded(replacementNode, operation.replacement, context));
+					yield fixSpaceAroundKeyword(fixer, replacementNode, context);
+				},
 			},
 		],
 	};
@@ -345,20 +348,13 @@ const getArrayPredicateProblem = (node, context) => {
 	const [callback] = node.arguments;
 	if (
 		!set
-		|| callback.type !== 'ArrowFunctionExpression'
-		|| callback.async
-		|| callback.params.length !== 1
-		|| callback.params[0].type !== 'Identifier'
+		|| !isSetCallback(callback, context)
 	) {
 		return;
 	}
 
 	const otherSet = getSetHasCallObject(callback.body, callback.params[0], context);
-	if (
-		!otherSet
-		|| hasSideEffect(otherSet, context.sourceCode, {considerGetters: true})
-		|| context.sourceCode.getDeclaredVariables(callback)[0].references.length !== 1
-	) {
+	if (!otherSet) {
 		return;
 	}
 
