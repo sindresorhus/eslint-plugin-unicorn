@@ -1,3 +1,4 @@
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
@@ -5,18 +6,24 @@ import {
 	isNullLiteral,
 	isReferenceIdentifier,
 } from './ast/index.js';
+import {removeStatement} from './fix/index.js';
 import {
+	getAncestor,
+	getNextNode,
 	getParenthesizedText,
 	isKnownNonIndexedCollection,
 	isSameIdentifier,
 	isSameReference,
+	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {containsOptionalChain} from './utils/comparison.js';
 
 const MESSAGE_ID = 'prefer-group-by';
+const MESSAGE_ID_LOOP = 'prefer-group-by-loop';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{method}}()` over `Array#reduce()`.',
+	[MESSAGE_ID_LOOP]: 'Prefer `{{method}}()` over a `for-of` loop.',
 };
 
 const isSupportedOptionalParameter = node =>
@@ -41,6 +48,11 @@ const isNewMap = node =>
 	&& node.callee.name === 'Map'
 	&& node.arguments.length === 0;
 
+const hasUniqueParameterNames = parameters => {
+	const names = new Set(parameters.map(parameter => parameter.name));
+	return names.size === parameters.length;
+};
+
 const isGroupingCallback = node =>
 	(
 		node.type === 'ArrowFunctionExpression'
@@ -53,7 +65,8 @@ const isGroupingCallback = node =>
 	&& node.params[0]?.type === 'Identifier'
 	&& node.params[1]?.type === 'Identifier'
 	&& isSupportedOptionalParameter(node.params[2])
-	&& isSupportedOptionalParameter(node.params[3]);
+	&& isSupportedOptionalParameter(node.params[3])
+	&& hasUniqueParameterNames(node.params);
 
 function isNodeMatchedInside(node, predicate) {
 	if (predicate(node)) {
@@ -86,10 +99,15 @@ const referencesIdentifier = (node, identifier) =>
 	&& isNodeMatchedInside(node, node =>
 		isReferenceIdentifier(node, identifier.name));
 
-const hasFunctionSpecificReference = node =>
+const hasFunctionSpecificReference = (node, functionIdentifier) =>
 	isNodeMatchedInside(node, node =>
 		node.type === 'ThisExpression'
-		|| isReferenceIdentifier(node, 'arguments'));
+		|| (node.type === 'MetaProperty' && node.meta.name === 'new' && node.property.name === 'target')
+		|| isReferenceIdentifier(node, 'arguments')
+		|| (functionIdentifier && isReferenceIdentifier(node, functionIdentifier.name)));
+
+const hasWriteReference = (variable, identifier) =>
+	variable.references.some(reference => reference.identifier !== identifier && reference.isWrite());
 
 const isReturnAccumulatorStatement = (statement, accumulator) =>
 	statement?.type === 'ReturnStatement'
@@ -113,6 +131,14 @@ const getSingleDeclaration = statement => {
 	const [declaration] = statement.declarations;
 	return declaration.id.type === 'Identifier' && declaration.init ? declaration : undefined;
 };
+
+const getLocalIdentifiers = (statements, context) => statements
+	.filter(statement => statement.type === 'VariableDeclaration')
+	.flatMap(statement => context.sourceCode.getDeclaredVariables(statement))
+	.flatMap(variable => variable.identifiers);
+
+const referencesLocalIdentifier = (node, localIdentifiers) =>
+	localIdentifiers.some(identifier => referencesIdentifier(node, identifier));
 
 function getKeyBinding(statements, callbackParts) {
 	const declaration = getSingleDeclaration(statements[0]);
@@ -220,12 +246,6 @@ function getObjectGroupByKey(statements, callbackParts) {
 	const {keyExpression, keyIdentifier} = keyBinding;
 	statements = keyBinding.statements;
 
-	if (!isReturnAccumulatorStatement(statements.at(-1), callbackParts.accumulator)) {
-		return;
-	}
-
-	statements = statements.slice(0, -1);
-
 	if (statements.length === 1) {
 		const pushKey = getExpressionStatementResult(statements[0], expression => getObjectPushKey(expression, callbackParts, {requireInitializer: true}));
 		if (!pushKey) {
@@ -318,7 +338,7 @@ function isMapSetArrayExpression(expression, callbackParts, key, keyIdentifier) 
 	const setValue = expression.arguments[1];
 	return setValue.type === 'ArrayExpression'
 		&& setValue.elements.length === 1
-		&& setValue.elements[0]?.type !== 'SpreadElement'
+		&& setValue.elements[0]?.type === 'Identifier'
 		&& isSameIdentifier(setValue.elements[0], callbackParts.element);
 }
 
@@ -326,9 +346,10 @@ const getOnlyExpression = statement =>
 	statement?.type === 'ExpressionStatement' ? statement.expression : undefined;
 
 function isBlockWithSingleExpression(block, predicate) {
-	return block?.type === 'BlockStatement'
-		&& block.body.length === 1
-		&& predicate(block.body[0]);
+	const expression = block?.type === 'BlockStatement' && block.body.length === 1
+		? getOnlyExpression(block.body[0])
+		: undefined;
+	return Boolean(expression && predicate(expression));
 }
 
 function getMapIfElseGroupByKey(statement, callbackParts, keyExpression, keyIdentifier) {
@@ -345,10 +366,10 @@ function getMapIfElseGroupByKey(statement, callbackParts, keyExpression, keyIden
 	if (
 		!testKey
 		|| !isExpectedKey(testKey, key, keyIdentifier)
-		|| !isBlockWithSingleExpression(statement.consequent, statement =>
-			isMapGetPushExpression(getOnlyExpression(statement), callbackParts, key, keyIdentifier))
-		|| !isBlockWithSingleExpression(statement.alternate, statement =>
-			isMapSetArrayExpression(getOnlyExpression(statement), callbackParts, key, keyIdentifier))
+		|| !isBlockWithSingleExpression(statement.consequent, expression =>
+			isMapGetPushExpression(expression, callbackParts, key, keyIdentifier))
+		|| !isBlockWithSingleExpression(statement.alternate, expression =>
+			isMapSetArrayExpression(expression, callbackParts, key, keyIdentifier))
 	) {
 		return;
 	}
@@ -410,12 +431,6 @@ function getMapGroupByKey(statements, callbackParts) {
 	const {keyExpression, keyIdentifier} = keyBinding ?? {};
 	statements = keyBinding?.statements ?? statements;
 
-	if (!isReturnAccumulatorStatement(statements.at(-1), callbackParts.accumulator)) {
-		return;
-	}
-
-	statements = statements.slice(0, -1);
-
 	const key = statements.length === 1
 		? getMapIfElseGroupByKey(statements[0], callbackParts, keyExpression, keyIdentifier)
 		: getMapGetSetGroupByKey(statements, callbackParts, keyExpression, keyIdentifier);
@@ -475,6 +490,18 @@ function getGroupByMethod(initialValue) {
 	}
 }
 
+const hasObjectGroupByBindingConflict = (method, declaration, context) =>
+	method === 'Object.groupBy'
+	&& declaration
+	&& context.sourceCode.getDeclaredVariables(declaration).some(variable => variable.name === 'Object');
+
+function getGroupByMethodForBinding(initialValue, declaration, context) {
+	const method = getGroupByMethod(initialValue);
+	return hasObjectGroupByBindingConflict(method, declaration, context) ? undefined : method;
+}
+
+const hasTypeArguments = node => Boolean(node.typeArguments || node.typeParameters);
+
 function getArrowParameterText(node, context) {
 	const text = context.sourceCode.getText(node);
 	return node.typeAnnotation || node.optional ? `(${text})` : text;
@@ -488,6 +515,39 @@ function getArrowBodyText(node, context) {
 	}
 
 	return text;
+}
+
+function hasRepeatedSideEffectfulKey(statements, key, context) {
+	const {sourceCode} = context;
+	if (!hasSideEffect(key, sourceCode)) {
+		return false;
+	}
+
+	const [keyStart, keyEnd] = sourceCode.getRange(key);
+	return statements.some(statement => isNodeMatchedInside(statement, node => {
+		const [nodeStart, nodeEnd] = sourceCode.getRange(node);
+		return (nodeEnd <= keyStart || nodeStart >= keyEnd) && isSameReference(node, key);
+	}));
+}
+
+function shouldSkipReduceFix(options, context) {
+	const {callExpression, initialValue, callback, callbackParts, declarationIdentifier, key} = options;
+	return hasTypeArguments(callExpression)
+		|| hasTypeArguments(initialValue)
+		|| callbackParts.accumulator.typeAnnotation
+		|| callback.returnType
+		|| callback.typeParameters
+		|| declarationIdentifier?.typeAnnotation
+		|| (
+			callback.type === 'FunctionExpression'
+			&& ['await', 'yield'].includes(callbackParts.element.name)
+		)
+		|| (
+			callback.type === 'FunctionExpression'
+			&& hasFunctionSpecificReference(key, callback.id)
+		)
+		|| hasSideEffect(key, context.sourceCode)
+		|| context.sourceCode.getCommentsInside(callExpression).length > 0;
 }
 
 function getGroupByProblem(callExpression, context) {
@@ -506,17 +566,29 @@ function getGroupByProblem(callExpression, context) {
 		index: callback.params[2]?.type === 'Identifier' ? callback.params[2] : undefined,
 		array: callback.params[3]?.type === 'Identifier' ? callback.params[3] : undefined,
 	};
+	const elementVariable = context.sourceCode.getDeclaredVariables(callback)
+		.find(variable => variable.identifiers.includes(callbackParts.element));
+	if (hasWriteReference(elementVariable, callbackParts.element)) {
+		return;
+	}
 
-	const method = getGroupByMethod(initialValue);
+	const variableDeclarator = getAncestor(callExpression, 'VariableDeclarator');
+	const declaration = variableDeclarator?.parent;
+	const method = getGroupByMethodForBinding(initialValue, declaration, context);
 	if (!method) {
 		return;
 	}
 
-	const key = method === 'Object.groupBy'
-		? getObjectGroupByKey(callback.body.body, callbackParts)
-		: getMapGroupByKey(callback.body.body, callbackParts);
+	if (!isReturnAccumulatorStatement(callback.body.body.at(-1), callbackParts.accumulator)) {
+		return;
+	}
 
-	if (!key) {
+	const statements = callback.body.body.slice(0, -1);
+	const key = method === 'Object.groupBy'
+		? getObjectGroupByKey(statements, callbackParts)
+		: getMapGroupByKey(statements, callbackParts);
+
+	if (!key || referencesLocalIdentifier(key, getLocalIdentifiers(statements, context))) {
 		return;
 	}
 
@@ -526,17 +598,14 @@ function getGroupByProblem(callExpression, context) {
 		data: {method},
 	};
 
-	if (
-		callExpression.typeArguments
-		|| callExpression.typeParameters
-		|| callbackParts.accumulator.typeAnnotation
-		|| callback.returnType
-		|| (
-			callback.type === 'FunctionExpression'
-			&& hasFunctionSpecificReference(key)
-		)
-		|| context.sourceCode.getCommentsInside(callExpression).length > 0
-	) {
+	if (shouldSkipReduceFix({
+		callExpression,
+		initialValue,
+		callback,
+		callbackParts,
+		declarationIdentifier: variableDeclarator?.id,
+		key,
+	}, context)) {
 		return problem;
 	}
 
@@ -550,11 +619,120 @@ function getGroupByProblem(callExpression, context) {
 	return problem;
 }
 
+function getForOfElement(loop, context) {
+	if (
+		loop?.type !== 'ForOfStatement'
+		|| loop.await
+		|| loop.left.type !== 'VariableDeclaration'
+		|| !['const', 'let'].includes(loop.left.kind)
+		|| loop.left.declarations[0].id.type !== 'Identifier'
+	) {
+		return;
+	}
+
+	const element = loop.left.declarations[0].id;
+	const [variable] = context.sourceCode.getDeclaredVariables(loop.left);
+	const [iterableStart, iterableEnd] = context.sourceCode.getRange(loop.right);
+	if (
+		hasWriteReference(variable, element)
+		|| variable.references.some(reference => {
+			const [referenceStart, referenceEnd] = context.sourceCode.getRange(reference.identifier);
+			return referenceStart >= iterableStart && referenceEnd <= iterableEnd;
+		})
+	) {
+		return;
+	}
+
+	return element;
+}
+
+function getLoopGroupByProblem(declaration, context) {
+	if (
+		!['const', 'let'].includes(declaration.kind)
+		|| declaration.declarations.length !== 1
+	) {
+		return;
+	}
+
+	const [{id: accumulator, init}] = declaration.declarations;
+	if (accumulator.type !== 'Identifier' || !init) {
+		return;
+	}
+
+	const method = getGroupByMethodForBinding(init, declaration, context);
+	if (!method) {
+		return;
+	}
+
+	const loop = getNextNode(declaration, context);
+	const element = getForOfElement(loop, context);
+
+	if (!element || loop.body.type !== 'BlockStatement') {
+		return;
+	}
+
+	const statements = loop.body.body;
+	const localIdentifiers = getLocalIdentifiers(statements, context);
+	if (
+		isSameIdentifier(accumulator, element)
+		|| referencesIdentifier(loop.right, accumulator)
+		|| localIdentifiers.some(identifier =>
+			isSameIdentifier(identifier, accumulator) || isSameIdentifier(identifier, element))
+	) {
+		return;
+	}
+
+	const callbackParts = {accumulator, element};
+	const key = method === 'Object.groupBy'
+		? getObjectGroupByKey(statements, callbackParts)
+		: getMapGroupByKey(statements, callbackParts);
+	if (!key || referencesLocalIdentifier(key, localIdentifiers)) {
+		return;
+	}
+
+	return {
+		node: loop,
+		messageId: MESSAGE_ID_LOOP,
+		data: {method},
+		* fix(fixer, {abort}) {
+			const {sourceCode} = context;
+			const [start] = sourceCode.getRange(init);
+			const nextToken = sourceCode.getTokenAfter(loop);
+			const end = nextToken ? sourceCode.getRange(nextToken)[0] : sourceCode.text.length;
+			if (
+				sourceCode.getAllComments().some(comment => {
+					const [commentStart, commentEnd] = sourceCode.getRange(comment);
+					return commentStart >= start && commentEnd <= end;
+				})
+				|| accumulator.typeAnnotation
+				|| init.typeArguments
+				|| init.typeParameters
+				|| hasRepeatedSideEffectfulKey(statements, key, context)
+				|| isNodeMatchedInside(key, node => node.type === 'AwaitExpression' || node.type === 'YieldExpression')
+			) {
+				return abort();
+			}
+
+			const iterableText = getParenthesizedText(loop.right, context);
+			const elementText = getArrowParameterText(element, context);
+			const keyText = getArrowBodyText(key, context);
+			yield fixer.replaceText(init, `${method}(${iterableText}, ${elementText} => ${keyText})`);
+			// Removing the loop exposes the declaration to the following statement.
+			if (nextToken && needsSemicolon(sourceCode.getLastToken(declaration), context, nextToken.value)) {
+				yield fixer.insertTextAfter(declaration, ';');
+			}
+
+			yield removeStatement(loop, context, fixer);
+		},
+	};
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
 	context.on('CallExpression', callExpression => getGroupByProblem(callExpression, context));
+	context.on('VariableDeclaration', declaration => getLoopGroupByProblem(declaration, context));
 };
 
 /**
@@ -565,7 +743,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Object.groupBy()` or `Map.groupBy()` over reduce-based grouping.',
+			description: 'Prefer `Object.groupBy()` or `Map.groupBy()` over manual grouping.',
 			recommended: true,
 		},
 		fixable: 'code',
