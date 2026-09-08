@@ -48,6 +48,7 @@ test.snapshot({
 		{code: 'Buffer.from(([value] satisfies unknown[]), \'base64\')', languageOptions: {parser: parsers.typescript}},
 		typeAware('function foo(value: Uint8Array) { return Buffer.from(value, \'base64\'); }'),
 		'Buffer.from(string, encoding)',
+		'Buffer.from(...inputs, \'base64\')',
 		// Extra argument; `Uint8Array.fromBase64`'s second parameter is an options object, so the rewrite would not be equivalent
 		'Buffer.from(string, \'base64\', extra)',
 		// Not the `Buffer` constructor
@@ -82,6 +83,8 @@ test.snapshot({
 		{code: '(value as string).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 		{code: '(<string>value).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 		{code: '(value satisfies string).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
+		{code: '(value as number).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
+		{code: '(<number>value).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 
 		// With type information, a receiver that is known not to be a `Buffer` is skipped
 		typeAware('function foo(value: Uint8Array) { return value.toString(\'base64\'); }'),

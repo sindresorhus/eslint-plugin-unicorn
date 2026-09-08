@@ -104,13 +104,15 @@ const isKnownNonStringBufferInput = (node, context) => {
 
 const isKnownNonBufferReceiver = (node, context) => {
 	const receiver = unwrapTypeScriptExpression(node);
+	const hasTypeInformation = Boolean(context.sourceCode.parserServices?.program);
 	return receiver.type === 'Literal'
 		|| receiver.type === 'ArrayExpression'
 		|| receiver.type === 'ObjectExpression'
 		|| receiver.type === 'ClassExpression'
 		|| isFunction(receiver)
 		|| isString(node, context)
-		|| (receiver.type === 'NewExpression' && !isBufferReference(receiver.callee, context));
+		|| (receiver.type === 'NewExpression' && !isBufferReference(receiver.callee, context))
+		|| (!hasTypeInformation && isKnownNonString(node, context));
 };
 
 const isTransparentWrapperOf = (parent, expression) =>
