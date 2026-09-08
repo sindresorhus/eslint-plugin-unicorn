@@ -4,7 +4,7 @@
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -19,7 +19,9 @@ Ordinary `for…of` loops are reported only for explicitly awaited mappings over
 
 With TypeScript type information enabled, this also includes strings, arrays, readonly arrays, and tuples whose element types are exclusively primitive. Syntax-only TypeScript parsing uses the same static checks as JavaScript. Unknown inputs, object or promise elements, and custom iterables are not reported.
 
-`Array.fromAsync()` awaits synchronous input elements before passing them to the mapper, unlike ordinary `for…of`. Both approaches await each mapper result before processing the next element. This rule does not transform `Promise.all()`, which can run mappings concurrently.
+`Array.fromAsync()` awaits synchronous input elements before passing them to the mapper, unlike ordinary `for…of`. Both approaches await each mapper result before processing the next element, but `Array.fromAsync()` also yields before invoking the first mapper. This can change reads of shared state. Ordinary loops therefore receive editor suggestions instead of automatic fixes. Existing `for await…of` conversions are automatically fixable.
+
+This rule does not transform `Promise.all()`, which can run mappings concurrently.
 
 ## Examples
 

@@ -15,8 +15,10 @@ import {
 import {isStringMappingType, isTemplateLiteralType, isUniqueSymbolType} from './utils/types.js';
 
 const MESSAGE_ID = 'prefer-array-from-async';
+const MESSAGE_ID_SUGGESTION = 'prefer-array-from-async/suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Array.fromAsync()` over array accumulation loops.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace the loop with `Array.fromAsync()`.',
 };
 
 const arrowBodyParenthesizedExpressionTypes = new Set([
@@ -329,19 +331,26 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	return {
+	const fix = fixer => fixer.replaceTextRange(
+		replaceRange,
+		`${declaration.kind} ${getVariableTargetText(declarator, context)} = await ${getArrayFromAsyncText({
+			iterable: loop.right,
+			binding,
+			body,
+			context,
+		})};`,
+	);
+	const problem = {
 		node: loop,
 		messageId: MESSAGE_ID,
-		fix: fixer => fixer.replaceTextRange(
-			replaceRange,
-			`${declaration.kind} ${getVariableTargetText(declarator, context)} = await ${getArrayFromAsyncText({
-				iterable: loop.right,
-				binding,
-				body,
-				context,
-			})};`,
-		),
 	};
+	if (loop.await) {
+		problem.fix = fix;
+	} else {
+		problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION, fix}];
+	}
+
+	return problem;
 };
 
 /**
@@ -363,6 +372,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema: [],
 		messages,
 		languages: [

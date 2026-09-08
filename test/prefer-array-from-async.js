@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -290,6 +291,8 @@ test.snapshot({
 		'const result = await Promise.all(paths.map(path => readFile(path)));',
 		'const paths = ["a"]; const result = []; for (const path of [...paths]) { result.push(await readFile(path)); }',
 		'const result = []; for (const value of [{}]) { result.push(await transform(value)); }',
+		'let path = "a"; const result = []; for (const value of [path]) { result.push(await readFile(value)); }',
+		'const object = {path: "a"}; object.path = Promise.resolve("b"); const result = []; for (const path of [object.path]) { result.push(await readFile(path)); }',
 		{
 			code: 'async function foo(paths: string[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }',
 			languageOptions: {parser: parsers.typescript},
@@ -313,6 +316,7 @@ test.snapshot({
 		'const result = []; for (const path of ["a", "b"]) { result.push(await readFile(path)); }',
 		'const paths = ["a", "b"]; const result = []; for (const path of paths) { result.push(await readFile(path)); }',
 		'const paths = "ab"; const result = []; for (const path of paths) { result.push(await readFile(path)); }',
+		'const path = "a"; const result = []; for (const value of [path]) { result.push(await readFile(value)); }',
 		'let result = []; for (let value of [1, true, null, undefined, 1n]) { result.push(await transform(value)); }',
 		'const result = []; for (const path of ((["a"]))) result.push(await reader.readFile(path));',
 		'const result = []; for (const value of "abc") { result.push(await ({value})); }',
@@ -331,8 +335,53 @@ test.snapshot({
 			'(string | number | boolean | bigint | symbol | null | undefined)[]',
 			'string[] | number[]',
 			'("a" | 1 | true)[]',
+			'`file-${string}`',
+			'`file-${string}`[]',
 		].map(type => typeAware(`async function foo(paths: ${type}) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }`)),
+		typeAware('async function foo<T extends string>(paths: Uppercase<T>) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware('async function foo<T extends string>(paths: Uppercase<T>[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware('declare const key: unique symbol; async function foo(keys: (typeof key)[]) { const result = []; for (const key of keys) { result.push(await transform(key)); } }'),
+		{
+			code: 'async function foo() { const result = []; for (const path of [("a" as string)]) { result.push(await readFile(path)); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware('async function foo(paths: string[] | undefined) { const result = []; for (const path of paths!) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo(paths: string[]) { const result = []; for (const path of (paths satisfies readonly string[])) { result.push(await readFile(path)); } }'),
+	],
+});
+
+// Ordinary loops invoke the first mapper before yielding, so converting them can change reads of shared state.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				let prefix = 'old';
+				async function collect() {
+					const result = [];
+					for (const path of ['a']) {
+						result.push(await (prefix + path));
+					}
+					return result;
+				}
+				const pending = collect();
+				prefix = 'new';
+			`,
+			errors: [{
+				messageId: 'prefer-array-from-async',
+				suggestions: [{
+					messageId: 'prefer-array-from-async/suggestion',
+					output: outdent`
+						let prefix = 'old';
+						async function collect() {
+							const result = await Array.fromAsync(['a'], path => prefix + path);
+							return result;
+						}
+						const pending = collect();
+						prefix = 'new';
+					`,
+				}],
+			}],
+		},
 	],
 });
