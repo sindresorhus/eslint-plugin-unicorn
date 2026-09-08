@@ -14,7 +14,7 @@ const conversions = [
 	[dateTime, 'PlainTime', timeFields],
 ];
 
-// Lock down the distinction between exact conversions and restoring lost precision.
+// Lock down the distinction between exact conversions and restoring discarded information.
 test({
 	valid: [],
 	invalid: [
@@ -26,6 +26,11 @@ test({
 		{
 			code: `${zoned} Temporal.Instant.fromEpochMilliseconds(source.epochMilliseconds);`,
 			errors: [{messageId: 'prefer-temporal-conversion', suggestions: [{messageId: 'prefer-temporal-conversion/suggestion', output: `${zoned} source.toInstant();`}]}],
+		},
+		{
+			code: `${dateTime} Temporal.PlainDate.from(({year: source.year, monthCode: source.monthCode, day: source.day} as Temporal.PlainDateLike));`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-temporal-conversion', suggestions: [{messageId: 'prefer-temporal-conversion/suggestion', output: `${dateTime} source.toPlainDate();`}]}],
 		},
 	],
 });
