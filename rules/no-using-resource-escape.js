@@ -6,6 +6,11 @@ const MESSAGE_ID = 'no-using-resource-escape';
 const messages = {
 	[MESSAGE_ID]: 'Do not {{action}} resource `{{name}}` or a function capturing it. The resource is disposed when its owning scope exits.',
 };
+const typeOnlyComputedKeyNodeTypes = new Set([
+	'TSAbstractMethodDefinition',
+	'TSMethodSignature',
+	'TSPropertySignature',
+]);
 
 function getOwner(node) {
 	for (let {parent} = node; parent; parent = parent.parent) {
@@ -15,23 +20,26 @@ function getOwner(node) {
 	}
 }
 
-function isOwnedResource(variable, owner) {
-	if (variable?.defs.length !== 1) {
-		return false;
+function getUniqueDefinition(variable, definitionTypes) {
+	const definitions = variable?.defs.filter(definition => definitionTypes.includes(definition.type));
+	if (definitions?.length === 1) {
+		return definitions[0];
 	}
+}
 
-	const [definition] = variable.defs;
-	return definition.type === 'Variable'
+function isOwnedResource(variable, owner) {
+	const definition = getUniqueDefinition(variable, ['Variable']);
+	return definition?.type === 'Variable'
 		&& (definition.parent.kind === 'using' || definition.parent.kind === 'await using')
 		&& getOwner(definition.node) === owner;
 }
 
 function getReferencedFunction(variable) {
-	if (variable?.defs.length !== 1) {
+	const definition = getUniqueDefinition(variable, ['Variable', 'FunctionName']);
+	if (!definition) {
 		return;
 	}
 
-	const [definition] = variable.defs;
 	if (definition.type === 'FunctionName') {
 		return definition.node;
 	}
@@ -48,14 +56,40 @@ function getReferencedFunction(variable) {
 	}
 }
 
-function isRuntimeReference(reference) {
-	let node = reference.identifier;
-	while (node.parent.type === 'TSQualifiedName') {
-		node = node.parent;
+function isTypeOnlyComputedKey(node) {
+	if (typeOnlyComputedKeyNodeTypes.has(node.type)) {
+		return true;
 	}
 
-	// Type queries resolve in the value namespace but do not evaluate the resource.
-	return reference.isValueReference !== false && node.parent.type !== 'TSTypeQuery';
+	return node.decorators?.length === 0 && (
+		node.type === 'TSAbstractAccessorProperty'
+		|| node.type === 'TSAbstractPropertyDefinition'
+		|| (node.type === 'PropertyDefinition' && node.declare === true)
+	);
+}
+
+function isTypeOnlyReference(node) {
+	for (let child = node; child.parent; child = child.parent) {
+		const {parent} = child;
+		if (parent.type === 'TSTypeQuery') {
+			return true;
+		}
+
+		if (isTypeOnlyComputedKey(parent) && parent.key === child) {
+			return true;
+		}
+
+		if (isFunction(parent) || parent.type === 'Program') {
+			return false;
+		}
+	}
+
+	return false;
+}
+
+function isRuntimeReference(reference) {
+	// Some erased TypeScript syntax resolves names in the value namespace without evaluating them.
+	return reference.isValueReference !== false && !isTypeOnlyReference(reference.identifier);
 }
 
 function * getCapturedResources(node, owner, sourceCode) {
@@ -148,6 +182,10 @@ function * getEscapingResources(node, owner, context) {
 }
 
 function getExportedValues(node) {
+	if (node.type === 'TSExportAssignment') {
+		return [node.expression];
+	}
+
 	if (node.source || node.exportKind === 'type') {
 		return [];
 	}
@@ -182,7 +220,7 @@ const create = context => {
 
 	// Scope analysis already includes forward references and writes later in the file.
 	context.on('ReturnStatement', node => getProblems(node, [node.argument], 'return'));
-	context.on(['ExportNamedDeclaration', 'ExportDefaultDeclaration'], node => getProblems(node, getExportedValues(node), 'export'));
+	context.on(['ExportNamedDeclaration', 'ExportDefaultDeclaration', 'TSExportAssignment'], node => getProblems(node, getExportedValues(node), 'export'));
 };
 
 /**
@@ -193,7 +231,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow returning or exporting resources declared with `using`.',
+			description: 'Disallow returning or exporting resources declared with `using`, including through capturing functions.',
 			recommended: false,
 		},
 		schema: [],
