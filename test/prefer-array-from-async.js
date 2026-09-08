@@ -301,6 +301,7 @@ test.snapshot({
 			'any',
 			'any[]',
 			'unknown[]',
+			'void[]',
 			'object[]',
 			'Promise<string>[]',
 			'PromiseLike<string>[]',
@@ -314,6 +315,7 @@ test.snapshot({
 		].map(type => typeAware(`async function foo(paths: ${type}) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }`)),
 		typeAware('async function foo<T extends unknown>(paths: T[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo<T extends string | PromiseLike<string>>(paths: T[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware('async function foo<T extends readonly string[]>(paths: T) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('declare function getPaths(): string[]; async function foo() { const paths = getPaths(); const result = []; for (const path of paths) { result.push(await transform(path)); } }'),
 		typeAware(outdent`
 			function replace(values: unknown[]) {
@@ -427,7 +429,6 @@ test.snapshot({
 		typeAware('async function foo<T extends string>(paths: Uppercase<T>) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo<T extends string>(paths: Uppercase<T>[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo<T extends string>(paths: T) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
-		typeAware('async function foo<T extends readonly string[]>(paths: T) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo<T extends string>(paths: Array<T>) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('type Path = string & {readonly __path: unique symbol}; async function foo(paths: Path[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('enum Value {text = "text", number = 1} async function foo(values: Value[]) { const result = []; for (const value of values) { result.push(await transform(value)); } }'),

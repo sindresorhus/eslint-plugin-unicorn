@@ -206,7 +206,7 @@ const isPrimitiveType = (type, checker) => {
 const isPrimitiveIterableType = (type, checker) => {
 	const constraint = checker.getBaseConstraintOfType(type);
 	if (constraint && constraint !== type) {
-		return isPrimitiveIterableType(constraint, checker);
+		return isPrimitiveType(constraint, checker) && isPrimitiveIterableType(constraint, checker);
 	}
 
 	if (type.isUnion()) {
