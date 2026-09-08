@@ -185,6 +185,65 @@ for (const expression of [
 	});
 }
 
+for (const method of [...setMethods, ...predicateMethods]) {
+	test(`autofix preserves ${method} results and iteration order`, t => {
+		const linter = new Linter();
+		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
+		const expressions = [
+			`selected.${method}(new Set(other))`,
+			`selected.${method}(new Set(other.keys()))`,
+			`selected.${method}(new Set(other.values()))`,
+			`selected.${method}(new Set(records.keys()))`,
+			`selected.${method}(new Set(selected))`,
+			`new Set(selected).${method}(other)`,
+			`new Set(selected.keys()).${method}(other)`,
+			`new Set(selected.values()).${method}(records)`,
+		];
+		if (setMethods.includes(method)) {
+			expressions.push(`new Set(selected.${method}(other))`);
+		}
+
+		for (const expression of expressions) {
+			const code = `const selected = new Set(selectedValues); const other = new Set(otherValues); const records = new Map(otherValues.map(value => [value, value])); ${expression}`;
+			const result = linter.verifyAndFix(code, config);
+			t.true(result.fixed);
+			t.deepEqual(result.messages, []);
+
+			for (const [selectedValues, otherValues] of [
+				[[3, 1], [1, 2, 3]],
+				[[1, 2, 3], [3, 1]],
+				[[3, 1], [1, 3]],
+				[[1], [2]],
+				[[], [1]],
+				[[1], []],
+			]) {
+				const expected = vm.runInNewContext(code, {selectedValues, otherValues});
+				const actual = vm.runInNewContext(result.output, {selectedValues, otherValues});
+				if (typeof expected === 'boolean') {
+					t.is(actual, expected, expression);
+				} else {
+					t.deepEqual([...actual], [...expected], expression);
+				}
+			}
+		}
+	});
+}
+
+for (const preceding of ['previous!', 'previous<string>']) {
+	test(`autofix preserves statement boundaries after ${preceding}`, t => {
+		const linter = new Linter();
+		const config = {
+			languageOptions: {parser: typescriptEslintParser},
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-useless-set-construction': 'error'},
+		};
+		const prefix = `${declarations}\nconst preceding = ${preceding}\n`;
+		const result = linter.verifyAndFix(`${prefix}new Set(true ? selected : other).union(other);`, config);
+		t.deepEqual(result.messages, []);
+		t.is(result.output, `${prefix};(true ? selected : other).union(other);`);
+	});
+}
+
 test('related rules converge without conflicting fixes', t => {
 	const linter = new Linter();
 	const config = {

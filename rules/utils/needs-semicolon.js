@@ -106,7 +106,11 @@ export default function needsSemicolon(tokenBefore, context, code) {
 		return value.endsWith('`');
 	}
 
-	if (lastBlockNode.type === 'ObjectExpression') {
+	if (
+		lastBlockNode.type === 'ObjectExpression'
+		|| lastBlockNode.type === 'TSNonNullExpression'
+		|| (lastBlockNode.type === 'TSTypeParameterInstantiation' && lastBlockNode.parent.type === 'TSInstantiationExpression')
+	) {
 		return true;
 	}
 
