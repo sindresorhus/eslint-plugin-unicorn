@@ -1,22 +1,22 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import {
+	isCallExpression,
 	isStringLiteral,
 	isRegexLiteral,
-	isFunction,
 	isMethodCall,
 	isMemberExpression,
+	isNewExpression,
 } from './ast/index.js';
 import {
-	getTypeSymbol,
 	isGlobalIdentifier,
-	isKnownNonString,
-	isNullishType,
 	isString,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
+import {createTypeCheckers, nonTarget, target} from './utils/type-helpers.js';
 import {removeArgument, removeMethodCall} from './fix/index.js';
+import typedArrayTypes from './shared/typed-array.js';
 
 const MESSAGE_ID_OPTIONS = 'prefer-uint8array-base64/options';
 const MESSAGE_ID_ERROR = 'prefer-uint8array-base64/error';
@@ -30,6 +30,21 @@ const messages = {
 const base64Encodings = new Set(['base64', 'base64url']);
 const bufferImportSources = new Set(['buffer', 'node:buffer']);
 const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
+const arrayBufferTypes = ['ArrayBuffer', 'SharedArrayBuffer', 'DataView'];
+const nonBufferExpressionTypes = new Set([
+	'ArrayExpression',
+	'ArrowFunctionExpression',
+	'BinaryExpression',
+	'ClassExpression',
+	'FunctionExpression',
+	'Literal',
+	'NewExpression',
+	'ObjectExpression',
+	'TemplateLiteral',
+	'UnaryExpression',
+	'UpdateExpression',
+]);
+const constructorNames = ['Array', ...arrayBufferTypes, ...typedArrayTypes];
 
 const getBase64Encoding = node => {
 	if (!isStringLiteral(node)) {
@@ -63,59 +78,12 @@ const isBufferModuleObjectImport = specifier =>
 	specifier?.type === 'ImportNamespaceSpecifier'
 	|| specifier?.type === 'ImportDefaultSpecifier';
 
-// Whether type information supports reporting a `.toString('base64')` call as a `Buffer` conversion. Without type information, otherwise eligible callers should report, since requiring it would make the rule too narrow. A receiver whose possible concrete types include a non-`Buffer` is skipped to avoid false positives. `any`/`unknown` types are accepted since we cannot rule them out.
-function shouldReportBufferToString(node, parserServices) {
-	// Resolving and inspecting the receiver's type can crash deep inside TypeScript 6 while it computes module specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`). We cannot then confirm the receiver can be a `Buffer`, so we conservatively skip reporting rather than crash the lint run.
-	try {
-		const type = parserServices.getTypeAtLocation(node);
-		const isBufferOrUnknownType = type => {
-			if (type.isTypeParameter?.()) {
-				const constraint = type.getConstraint();
-				return constraint ? isBufferOrUnknownType(constraint) : false;
-			}
-
-			if (type.isUnion()) {
-				const nonNullishTypes = type.types.filter(type => !isNullishType(type));
-				return nonNullishTypes.length > 0 && nonNullishTypes.every(type => isBufferOrUnknownType(type));
-			}
-
-			if (type.isIntersection()) {
-				return type.types.some(type => isBufferOrUnknownType(type));
-			}
-
-			// `intrinsicName` exposes `any`/`unknown` without `typeChecker.typeToString()`, which is one of the calls that crashes.
-			const name = getTypeSymbol(type)?.getName();
-			return name === 'Buffer' || type.intrinsicName === 'any' || type.intrinsicName === 'unknown';
-		};
-
-		return isBufferOrUnknownType(type);
-	} catch {
-		return false;
-	}
-}
-
 const isKnownNonStringBufferInput = (node, context) => {
-	const input = unwrapTypeScriptExpression(node);
-	return (input.type === 'Literal' && !isStringLiteral(input))
-		|| input.type === 'ArrayExpression'
-		|| input.type === 'ObjectExpression'
-		|| input.type === 'NewExpression'
-		|| isKnownNonString(node, context);
+	const type = getBufferType(node, context, bufferInputTypeCheckerOverrides);
+	return type === target || (type === nonTarget && !isString(node, context));
 };
 
-const isKnownNonBufferReceiver = (node, context) => {
-	const receiver = unwrapTypeScriptExpression(node);
-	const hasTypeInformation = Boolean(context.sourceCode.parserServices?.program);
-	return receiver.type === 'Literal'
-		|| receiver.type === 'ArrayExpression'
-		|| receiver.type === 'ObjectExpression'
-		|| receiver.type === 'ClassExpression'
-		|| isFunction(receiver)
-		|| isString(node, context)
-		|| isBufferReference(receiver, context)
-		|| (receiver.type === 'NewExpression' && !isBufferReference(receiver.callee, context))
-		|| (!hasTypeInformation && isKnownNonString(node, context));
-};
+const isKnownNonBufferReceiver = (node, context) => getBufferType(node, context) === nonTarget || isString(node, context);
 
 const isTransparentWrapperOf = (parent, expression) =>
 	(
@@ -151,6 +119,51 @@ function isBufferReference(node, context) {
 	return (reference.name === 'Buffer' && isGlobalIdentifier(reference, context))
 		|| (specifier?.type === 'ImportSpecifier' && specifier.imported.name === 'Buffer');
 }
+
+const isConstructorReference = (node, context) => isBufferReference(node, context)
+	|| (node.type === 'Identifier' && constructorNames.includes(node.name))
+	|| (
+		isMemberExpression(node, {properties: constructorNames, computed: false, optional: false})
+		&& globalObjectNames.has(node.object.name)
+		&& isGlobalIdentifier(node.object, context)
+	);
+
+const isBufferFactory = (node, context) =>
+	isMethodCall(node, {
+		methods: ['from', 'of', 'alloc', 'allocUnsafe', 'allocUnsafeSlow', 'concat', 'copyBytesFrom'],
+		computed: false,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& isBufferReference(node.callee.object, context);
+
+const isBufferExpression = (node, context) => isBufferFactory(node, context)
+	|| (
+		(isNewExpression(node) || isCallExpression(node, {optional: false}))
+		&& isBufferReference(node.callee, context)
+	);
+
+const bufferTypeCheckerOptions = {
+	allowNullishInMixedUnion: true,
+	checkClassHeritage: false,
+	preferTypeReferenceDefinitions: false,
+	treatMixedUnionAsNonTarget: true,
+	targetTypeNames: new Set(['Buffer']),
+	targetTypeImports: new Map([...bufferImportSources].map(source => [source, new Set(['Buffer'])])),
+	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', ...arrayBufferTypes, ...typedArrayTypes]),
+	isTargetNode: isBufferExpression,
+	isNonTargetNode: (node, context) => nonBufferExpressionTypes.has(node.type)
+		|| isConstructorReference(node, context)
+		|| isCallExpression(node, {name: 'Array'})
+		|| isMethodCall(node, {objects: ['Array', ...typedArrayTypes], methods: ['from', 'of']})
+		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
+};
+const bufferInputTypeCheckerOverrides = {
+	getStaticType: () => nonTarget,
+	isNonTargetNode: (node, context) => !(node.type === 'BinaryExpression' && node.operator === '+')
+		&& bufferTypeCheckerOptions.isNonTargetNode(node, context),
+};
+const {getType: getBufferType} = createTypeCheckers(bufferTypeCheckerOptions);
 
 function getBase64Transformation(node) {
 	if (!isMethodCall(node, {
@@ -335,7 +348,6 @@ const create = context => {
 			isMethodCall(node, {method: 'toString', argumentsLength: 1, computed: false})
 			&& toStringEncoding
 			&& !isKnownNonBufferReceiver(node.callee.object, context)
-			&& (!sourceCode.parserServices?.program || shouldReportBufferToString(node.callee.object, sourceCode.parserServices))
 		) {
 			const [encodingNode] = node.arguments;
 

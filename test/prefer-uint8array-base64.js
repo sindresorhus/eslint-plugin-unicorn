@@ -43,8 +43,13 @@ test.snapshot({
 		'Buffer.from([value], \'base64\')',
 		'Buffer.from({length: 1, 0: 65}, \'base64\')',
 		'Buffer.from(123, \'base64\')',
+		'Buffer.from(1 + 2, \'base64\')',
 		'Buffer.from(new Uint8Array([1]), \'base64\')',
 		'Buffer.from(new ArrayBuffer(8), \'base64\')',
+		'const input = new Uint8Array(); Buffer.from(input, \'base64\')',
+		'const input = []; Buffer.from(input, \'base64\')',
+		'const input = {}; Buffer.from(input, \'base64\')',
+		'const input = Buffer.from(data); Buffer.from(input, \'base64\')',
 		{code: 'Buffer.from((new Uint8Array()) as Uint8Array, \'base64\')', languageOptions: {parser: parsers.typescript}},
 		{code: 'Buffer.from(([value] satisfies unknown[]), \'base64\')', languageOptions: {parser: parsers.typescript}},
 		typeAware('function foo(value: Uint8Array) { return Buffer.from(value, \'base64\'); }'),
@@ -83,11 +88,14 @@ test.snapshot({
 		'/x/.toString(\'base64\')',
 		'new Uint8Array().toString(\'base64\')',
 		'new Date().toString(\'base64\')',
+		'const bytes = new Uint8Array(); bytes.toString(\'base64\')',
+		'const values = []; values.toString(\'base64\')',
 		{code: '(value as string).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 		{code: '(<string>value).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 		{code: '(value satisfies string).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 		{code: '(value as number).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 		{code: '(<number>value).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const bytes: Uint8Array; bytes.toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 
 		// With type information, a receiver that is known not to be a `Buffer` is skipped
 		typeAware('function foo(value: Uint8Array) { return value.toString(\'base64\'); }'),
@@ -116,6 +124,8 @@ test.snapshot({
 		// `Buffer.from(…, 'base64' | 'base64url')`
 		'Buffer.from(string, \'base64\')',
 		'Buffer.from(\'Zm9v\', \'base64\')',
+		'const input = \'Zm9v\'; Buffer.from(input, \'base64\')',
+		'Buffer.from(left + right, \'base64\')',
 		'Buffer.from(string, \'base64url\')',
 		'Buffer.from(string, \'BASE64\')',
 		'Buffer.from(string, \'BaSe64UrL\')',
@@ -154,6 +164,7 @@ test.snapshot({
 		'buffer.toString(\'BaSe64UrL\')',
 		'getBuffer().toString(\'base64\')',
 		'new Buffer(0).toString(\'base64\')',
+		'const buffer = Buffer.from(data); buffer.toString(\'base64\')',
 		'import {Buffer as B} from \'node:buffer\'; new B(0).toString(\'base64\')',
 
 		// TypeScript
