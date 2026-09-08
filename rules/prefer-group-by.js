@@ -91,10 +91,11 @@ const referencesIdentifier = (node, identifier) =>
 	&& isNodeMatchedInside(node, node =>
 		isReferenceIdentifier(node, identifier.name));
 
-const hasFunctionSpecificReference = node =>
+const hasFunctionSpecificReference = (node, functionIdentifier) =>
 	isNodeMatchedInside(node, node =>
 		node.type === 'ThisExpression'
-		|| isReferenceIdentifier(node, 'arguments'));
+		|| isReferenceIdentifier(node, 'arguments')
+		|| (functionIdentifier && isReferenceIdentifier(node, functionIdentifier.name)));
 
 const hasWriteReference = (variable, identifier) =>
 	variable.references.some(reference => reference.identifier !== identifier && reference.isWrite());
@@ -496,6 +497,21 @@ function getArrowBodyText(node, context) {
 	return text;
 }
 
+function shouldSkipReduceFix(options, context) {
+	const {callExpression, initialValue, callback, callbackParts, declarationIdentifier, key} = options;
+	return hasTypeArguments(callExpression)
+		|| hasTypeArguments(initialValue)
+		|| callbackParts.accumulator.typeAnnotation
+		|| callback.returnType
+		|| callback.typeParameters
+		|| declarationIdentifier?.typeAnnotation
+		|| (
+			callback.type === 'FunctionExpression'
+			&& hasFunctionSpecificReference(key, callback.id)
+		)
+		|| context.sourceCode.getCommentsInside(callExpression).length > 0;
+}
+
 function getGroupByProblem(callExpression, context) {
 	if (shouldSkipReduceCall(callExpression, context)) {
 		return;
@@ -545,17 +561,14 @@ function getGroupByProblem(callExpression, context) {
 		data: {method},
 	};
 
-	if (
-		hasTypeArguments(callExpression)
-		|| hasTypeArguments(initialValue)
-		|| callbackParts.accumulator.typeAnnotation
-		|| callback.returnType
-		|| (
-			callback.type === 'FunctionExpression'
-			&& hasFunctionSpecificReference(key)
-		)
-		|| context.sourceCode.getCommentsInside(callExpression).length > 0
-	) {
+	if (shouldSkipReduceFix({
+		callExpression,
+		initialValue,
+		callback,
+		callbackParts,
+		declarationIdentifier,
+		key,
+	}, context)) {
 		return problem;
 	}
 

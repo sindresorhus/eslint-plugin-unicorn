@@ -242,9 +242,23 @@ test({
 	valid: [],
 	invalid: [
 		{
+			code: 'items.reduce(function reducer(groups, item) {(groups[reducer.name] ??= []).push(item); return groups;}, {});',
+			errors: [{messageId: 'prefer-group-by'}],
+		},
+		{
 			code: 'const groups: Record<number, number[]> = {}; for (const item of [1, 2]) {(groups[item] ??= []).push(item);}',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'prefer-group-by-loop'}],
+		},
+		{
+			code: 'items.reduce(<T extends Item>(groups, item: T) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-group-by'}],
+		},
+		{
+			code: 'const groups: Record<string, Item[]> = items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-group-by'}],
 		},
 		{
 			code: 'items.reduce((groups, item) => {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group); return groups;}, new Map<string, Item[]>());',
