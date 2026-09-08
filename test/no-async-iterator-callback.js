@@ -43,6 +43,10 @@ test.snapshot({
 		'new Set().forEach(async value => value)',
 		'new Uint8Array().filter(async value => value)',
 		'import callback from "./callback.js"; Iterator.from(values).filter(callback);',
+		{
+			code: 'async function callback(value) { return true; } function callback(value) { return true; } Iterator.from(values).filter(callback);',
+			languageOptions: {sourceType: 'script'},
+		},
 	],
 	invalid: [
 		...methods.flatMap(method => [
@@ -90,7 +94,6 @@ test.snapshot({
 		'function foo(array: number[]) { array.filter(async value => value); }',
 		'type Iterator<T> = T[]; function foo(iterator: Iterator<number>) { iterator.filter(async value => value); }',
 		'declare const callback: () => Promise<boolean>; Iterator.from(values).filter(callback);',
-		'async function callback(value: number) { return true; } function callback(value: number) { return true; } Iterator.from(values).filter(callback);',
 	],
 	invalid: [
 		'function foo(iterator: Iterator<number>) { iterator.filter(async value => value); }',
