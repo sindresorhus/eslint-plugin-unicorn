@@ -222,37 +222,56 @@ const isPrimitiveIterableType = (type, checker) => {
 	return Boolean(elementType && isPrimitiveType(elementType, checker));
 };
 
+const getConstIdentifierVariable = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	if (
+		definition?.type !== 'Variable'
+		|| definition.parent.kind !== 'const'
+		|| definition.node.id.type !== 'Identifier'
+		|| !definition.node.init
+	) {
+		return;
+	}
+
+	return variable;
+};
+
 const isKnownPrimitiveIterable = (node, context) => {
 	const {sourceCode} = context;
+	const typeNode = node;
+	node = unwrapTypeScriptExpression(node);
+	const variable = getConstIdentifierVariable(node, context);
+	const initializer = variable ? unwrapTypeScriptExpression(variable.defs[0].node.init) : undefined;
+	const hasOtherReferences = Boolean(variable?.references.some(reference => !reference.init && reference.identifier !== node));
+	if (initializer?.type === 'ArrayExpression' && hasOtherReferences) {
+		return false;
+	}
+
 	const {parserServices} = sourceCode;
 	if (parserServices?.program) {
 		try {
-			if (isPrimitiveIterableType(parserServices.getTypeAtLocation(node), parserServices.program.getTypeChecker())) {
+			if (isPrimitiveIterableType(parserServices.getTypeAtLocation(typeNode), parserServices.program.getTypeChecker())) {
 				return true;
 			}
 		} catch {}
 	}
 
-	node = unwrapTypeScriptExpression(node);
 	if (typeof getStaticValueForControlFlow(node, context)?.value === 'string') {
 		return true;
 	}
 
 	if (node.type === 'Identifier') {
-		const variable = findVariable(sourceCode.getScope(node), node);
-		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
-		if (
-			definition?.type !== 'Variable'
-			|| definition.parent.kind !== 'const'
-			|| definition.node.id.type !== 'Identifier'
-			|| !definition.node.init
-			|| variable.references.some(reference => !reference.init && reference.identifier !== node)
-		) {
+		if (!initializer || hasOtherReferences) {
 			return false;
 		}
 
 		// Limit static arrays to constants used only by this loop; other references could mutate or expose them.
-		node = unwrapTypeScriptExpression(definition.node.init);
+		node = initializer;
 	}
 
 	return node.type === 'ArrayExpression' && node.elements.every(element => {

@@ -313,6 +313,19 @@ test.snapshot({
 		].map(type => typeAware(`async function foo(paths: ${type}) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }`)),
 		typeAware('async function foo<T extends unknown>(paths: T[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo<T extends string | PromiseLike<string>>(paths: T[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware(outdent`
+			function replace(values: unknown[]) {
+				values[0] = Promise.resolve('b');
+			}
+			async function foo() {
+				const paths = ['a'];
+				replace(paths);
+				const result = [];
+				for (const path of paths) {
+					result.push(await transform(path));
+				}
+			}
+		`),
 	],
 	invalid: [
 		'const result = []; for (const path of ["a", "b"]) { result.push(await readFile(path)); }',
