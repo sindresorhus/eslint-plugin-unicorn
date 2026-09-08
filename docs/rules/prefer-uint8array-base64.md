@@ -75,7 +75,7 @@ const base64 = bytes.toBase64().replace(/=+$/, '');
 const base64 = bytes.toBase64({omitPadding: true});
 ```
 
-This check supports consecutive replacements after an argument-free `.toBase64()`. Alphabet conversion requires both character substitutions, using string-literal `replaceAll()` calls or global-regex replacements. Padding removal also supports `.replace(/=+$/, '')` without the global flag. Calls with existing options are not checked.
+This check supports consecutive replacements after an argument-free `.toBase64()`. Alphabet conversion requires both character substitutions, using string-literal `replaceAll()` calls or global-regex replacements. Padding removal supports `.replaceAll('=', '')` and literal `/=+$/` replacements through `replace()` or global `replaceAll()`. Calls with existing options are not checked.
 
 > [!TIP]
 > The [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras) package offers `stringToBase64` and `base64ToString` helpers for the text case.

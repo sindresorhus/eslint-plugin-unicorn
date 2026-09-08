@@ -38,19 +38,27 @@ const getBase64Encoding = node => {
 	return base64Encodings.has(encoding) ? encoding : undefined;
 };
 
-// Whether the identifier is bound to `Buffer` imported from `'buffer'` / `'node:buffer'`, as `import {Buffer} from …` or `import {Buffer as foo} from …`. The default import is intentionally not matched, since it is the module namespace, not the `Buffer` constructor.
-function isImportedBuffer(identifier, context) {
+function getBufferImportSpecifier(identifier, context) {
+	if (identifier.type !== 'Identifier') {
+		return;
+	}
+
 	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
+	const [definition] = variable?.defs ?? [];
+	if (
+		variable?.defs.length !== 1
+		|| definition.type !== 'ImportBinding'
+		|| !bufferImportSources.has(definition.parent.source.value)
+	) {
+		return;
+	}
 
-	return variable?.defs.some(definition => {
-		if (definition.type !== 'ImportBinding' || !bufferImportSources.has(definition.parent.source.value)) {
-			return false;
-		}
-
-		const specifier = definition.node;
-		return specifier.type === 'ImportSpecifier' && specifier.imported.name === 'Buffer';
-	}) ?? false;
+	return definition.node;
 }
+
+const isBufferModuleObjectImport = specifier =>
+	specifier?.type === 'ImportNamespaceSpecifier'
+	|| specifier?.type === 'ImportDefaultSpecifier';
 
 // Whether type information supports reporting a `.toString('base64')` call as a `Buffer` conversion. Without type information, callers should report anyway, since requiring it would make the rule too narrow. A receiver whose possible concrete types include a non-`Buffer` is skipped to avoid false positives. `any`/`unknown` types are accepted since we cannot rule them out.
 function shouldReportBufferToString(node, parserServices) {
@@ -58,17 +66,26 @@ function shouldReportBufferToString(node, parserServices) {
 	try {
 		const type = parserServices.getTypeAtLocation(node);
 		const isBufferOrUnknownType = type => {
+			if (type.isTypeParameter?.()) {
+				const constraint = type.getConstraint();
+				return constraint ? isBufferOrUnknownType(constraint) : false;
+			}
+
+			if (type.isUnion()) {
+				const nonNullishTypes = type.types.filter(type => !isNullishType(type));
+				return nonNullishTypes.length > 0 && nonNullishTypes.every(type => isBufferOrUnknownType(type));
+			}
+
+			if (type.isIntersection()) {
+				return type.types.some(type => isBufferOrUnknownType(type));
+			}
+
 			// `intrinsicName` exposes `any`/`unknown` without `typeChecker.typeToString()`, which is one of the calls that crashes.
 			const name = getTypeSymbol(type)?.getName();
 			return name === 'Buffer' || type.intrinsicName === 'any' || type.intrinsicName === 'unknown';
 		};
 
-		if (type.isUnion()) {
-			const nonNullishTypes = type.types.filter(type => !isNullishType(type));
-			return nonNullishTypes.length > 0 && nonNullishTypes.every(type => isBufferOrUnknownType(type));
-		}
-
-		return type.isIntersection() ? type.types.some(type => isBufferOrUnknownType(type)) : isBufferOrUnknownType(type);
+		return isBufferOrUnknownType(type);
 	} catch {
 		return false;
 	}
@@ -79,12 +96,16 @@ const isKnownNonStringBufferInput = (node, context) =>
 	|| node.type === 'NewExpression'
 	|| isKnownNonString(node, context);
 
+const isTransparentWrapperOf = (parent, expression) =>
+	(
+		(parent.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent))
+		&& parent.expression === expression
+	)
+	|| (parent.type === 'AwaitExpression' && parent.argument === expression);
+
 function isChainedExpression(node) {
 	let expression = node;
-	while (
-		(expression.parent.type === 'ChainExpression' || isTypeScriptExpressionWrapper(expression.parent))
-		&& expression.parent.expression === expression
-	) {
+	while (isTransparentWrapperOf(expression.parent, expression)) {
 		expression = expression.parent;
 	}
 
@@ -96,15 +117,18 @@ function isBufferReference(node, context) {
 	const reference = unwrapTypeScriptExpression(node);
 	if (isMemberExpression(reference, {property: 'Buffer', computed: false})) {
 		const object = unwrapTypeScriptExpression(reference.object);
-		return globalObjectNames.has(object.name) && isGlobalIdentifier(object, context);
+		const specifier = getBufferImportSpecifier(object, context);
+		return (globalObjectNames.has(object.name) && isGlobalIdentifier(object, context))
+			|| isBufferModuleObjectImport(specifier);
 	}
 
 	if (reference.type !== 'Identifier') {
 		return false;
 	}
 
+	const specifier = getBufferImportSpecifier(reference, context);
 	return (reference.name === 'Buffer' && isGlobalIdentifier(reference, context))
-		|| isImportedBuffer(reference, context);
+		|| (specifier?.type === 'ImportSpecifier' && specifier.imported.name === 'Buffer');
 }
 
 function getBase64Transformation(node) {

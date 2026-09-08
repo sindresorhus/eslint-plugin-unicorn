@@ -28,6 +28,7 @@ test.snapshot({
 		'import {atob} from \'foo\'; atob(\'Zm9v\')',
 		'foo.atob(\'Zm9v\')',
 		'foo.btoa(\'foo\')',
+		'const global = {atob() {}}; global.atob(\'Zm9v\')',
 
 		// Referenced but not called
 		'const decode = atob;',
@@ -65,6 +66,7 @@ test.snapshot({
 		// With type information, a receiver that is known not to be a `Buffer` is skipped
 		typeAware('function foo(value: Uint8Array) { return value.toString(\'base64\'); }'),
 		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | Uint8Array; value.toString(\'base64\')'),
+		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } function foo<T extends Buffer | Uint8Array>(value: T) { return value.toString(\'base64\'); }'),
 		typeAware('function foo(value: {toString(encoding: string): string}) { return value.toString(\'base64\'); }'),
 		typeAware(outdent`
 			interface Buffer extends Uint8Array { toString(encoding: string): string }
@@ -82,6 +84,7 @@ test.snapshot({
 		'globalThis.atob(string)',
 		'globalThis.btoa(string)',
 		'self.atob(string)',
+		'global.atob(string)',
 		'const decoded = atob(encoded)',
 
 		// `Buffer.from(…, 'base64' | 'base64url')`
@@ -105,6 +108,8 @@ test.snapshot({
 		'import {Buffer} from \'node:buffer\'; Buffer.from(string, \'base64\')',
 		'import {Buffer} from \'buffer\'; Buffer.from(string, \'base64\')',
 		'import {Buffer as B} from \'node:buffer\'; B.from(string, \'base64url\')',
+		'import * as buffer from \'node:buffer\'; buffer.Buffer.from(string, \'base64\')',
+		'import buffer from \'node:buffer\'; buffer.Buffer.from(string, \'base64\')',
 		{code: 'import {Buffer as B} from \'node:buffer\'; (B as typeof Buffer).from(string, \'base64\')', languageOptions: {parser: parsers.typescript}},
 		// Suggestion withheld because of the comment
 		'Buffer.from(string, /* keep me */ \'base64\')',
@@ -125,9 +130,21 @@ test.snapshot({
 		// TypeScript
 		{code: '(globalThis as any).atob(string)', languageOptions: {parser: parsers.typescript}},
 		// With type information, `Buffer` receivers are still reported
-		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | null | undefined; value?.toString(\'base64\')'),
+		typeAware('import {Buffer} from \'node:buffer\'; declare const value: Buffer; value.toString(\'base64\')'),
+		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | undefined; value?.toString(\'base64\')'),
+		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } function foo<T extends Buffer>(value: T) { return value.toString(\'base64\'); }'),
 		// `any` cannot be ruled out, so it is still reported
 		typeAware('function foo(value: any) { return value.toString(\'base64\'); }'),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '(await Buffer.from(string, \'base64\')).toString()',
+			errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: 0}],
+		},
 	],
 });
 
