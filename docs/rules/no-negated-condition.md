@@ -13,7 +13,7 @@ Negated conditions are more difficult to understand. Code can be made more reada
 
 This is an improved version of the [`no-negated-condition`](https://eslint.org/docs/latest/rules/no-negated-condition) ESLint rule that makes it automatically fixable. [ESLint did not want to make it fixable.](https://github.com/eslint/eslint/issues/14792)
 
-Autofixes move leading comments with their branches. Trailing comments outside branch expressions or bodies prevent autofixing because their association is ambiguous.
+Comments directly before branches move with them during autofixing. Comments directly after branch expressions or bodies prevent autofixing because their association is ambiguous.
 
 ## Replacement for ESLint `no-negated-condition`
 
