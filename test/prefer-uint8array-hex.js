@@ -45,6 +45,15 @@ testRule({
 			errors: [{...error, suggestions: [{...suggestion, output: 'bytes.toHex()'}]}],
 		},
 		{
+			code: `Array.from(new Uint8Array, ${encode}).join('')`,
+			output: '(new Uint8Array).toHex()',
+			errors: [error],
+		},
+		{
+			code: `Array.from(condition ? new Uint8Array([255]) : [255], ${encode}).join('')`,
+			errors: [{...error, suggestions: [{...suggestion, output: '(condition ? new Uint8Array([255]) : [255]).toHex()'}]}],
+		},
+		{
 			code: 'Buffer.from(new Uint8Array([255])).toString(\'hex\')',
 			output: 'new Uint8Array([255]).toHex()',
 			errors: [error],
