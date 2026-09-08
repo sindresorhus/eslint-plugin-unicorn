@@ -49,6 +49,8 @@ dateTime.toPlainTime();
 
 The rule checks epoch milliseconds and nanoseconds, `.from(source.toString())`, `.from(source.toJSON())`, and constructors or property bags copying all fields of the target type. Time reconstructions must include all six time fields, through `nanosecond`. Date property bags can use `month` or `monthCode`, and can include `calendar: source.calendarId`.
 
+TypeScript assertions, `satisfies`, and non-null assertions around reconstruction inputs are supported.
+
 Sources must be identifiable from canonical `Temporal.*` constructors, `.from()` factories, `Temporal.Now.zonedDateTimeISO()`, `Temporal.Now.plainDateTimeISO()`, constant bindings, or explicit TypeScript types. TypeScript type information is used when available. Normally named `Temporal` imports from polyfills are supported. Unknown receivers and ordinary data objects are ignored.
 
 The rule does not check partial or modified fields, extra properties, mixed receivers, spreads, optional chaining, computed names, parsing or serialization options, explicit alternative calendars, same-type cloning, direct `.from(source)`, string manipulation, `Date` interoperability, or conversions requiring extra arguments or intermediate types. It does not track renamed Temporal imports or infer arbitrary method chains.

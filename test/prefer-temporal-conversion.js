@@ -37,6 +37,9 @@ test.snapshot({
 		'const source = {epochNanoseconds: 1n}; new Temporal.Instant(source.epochNanoseconds)',
 		'const source = new Other(); Temporal.PlainDate.from(source.toString())',
 		'let source = Temporal.Now.zonedDateTimeISO(); Temporal.Instant.fromEpochMilliseconds(source.epochMilliseconds)',
+		'const source = Temporal["ZonedDateTime"].from(value); new Temporal.Instant(source.epochNanoseconds)',
+		'const source = Temporal.ZonedDateTime.from?.(value); new Temporal.Instant(source.epochNanoseconds)',
+		'const source = Temporal.Now.zonedDateTimeISO?.(); new Temporal.Instant(source.epochNanoseconds)',
 		...[
 			'Temporal.ZonedDateTime.from(source.toString())',
 			'Temporal.PlainDate.from(source)',
@@ -64,10 +67,25 @@ test.snapshot({
 			'new Temporal.PlainDate(source.year, source.month, source.day, "iso8601")',
 			'new Temporal.PlainTime(source.hour, source.minute)',
 			'Temporal.Instant.fromEpochNanoseconds(...source.epochNanoseconds)',
+			'Temporal.Instant.from(source.epochNanoseconds)',
+			'new Temporal.Instant(source.epochMilliseconds)',
+			'new Temporal.Instant(source.epochNanoseconds, extra)',
+			'Temporal.PlainDate.fromEpochNanoseconds(source.epochNanoseconds)',
+			'new Temporal.PlainDate(source.year, source.month)',
+			'new Temporal.PlainDate(source.year, source.month, source.day, source.calendarId, extra)',
+			'Temporal.PlainDate.from({year: source.year, month: source.month, monthCode: source.monthCode, day: source.day})',
+			'Temporal.PlainDate.from({year: source.year, month: source.month, day: source.day, calendar: source.calendarId, calendar: source.calendarId})',
+			'Temporal.PlainDate.from({get year() { return source.year; }, month: source.month, day: source.day})',
+			`Temporal.PlainTime.from({${timeFields.map(field => `${field}: source.${field}`).join(', ')}, calendar: source.calendarId})`,
+			`new Temporal.PlainTime(${timeFields.map(field => `source.${field}`).join(', ')}, source.calendarId)`,
 		].map(code => `${zoned} ${code}`),
 		'new Temporal.PlainDate(Temporal.Now.plainDateTimeISO().year, Temporal.Now.plainDateTimeISO().month, Temporal.Now.plainDateTimeISO().day)',
 		...['unknown', 'any', 'Temporal.PlainDate', 'Temporal.PlainDateTime | undefined', 'Temporal.PlainDateTime | string', 'PlainDateTime'].map(type => ({
 			code: `function convert(source: ${type}) { return Temporal.PlainDate.from(source.toString()); }`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		...['Instant', 'PlainDateTime'].map(target => ({
+			code: `function convert(source: Temporal.ZonedDateTime | Temporal.PlainDateTime) { return Temporal.${target}.from(source.toString()); }`,
 			languageOptions: {parser: parsers.typescript},
 		})),
 	],
@@ -96,6 +114,9 @@ test.snapshot({
 		'Temporal.Instant.fromEpochNanoseconds(Temporal.Now.zonedDateTimeISO().epochNanoseconds)',
 		'Temporal.PlainDate.from(Temporal.Now.plainDateTimeISO().toString())',
 		`${zoned} const alias = source; Temporal.Instant.fromEpochNanoseconds(alias.epochNanoseconds)`,
+		`${zoned} const other = Temporal.Now.zonedDateTimeISO(); Temporal.Instant.fromEpochNanoseconds((condition ? source : other).epochNanoseconds)`,
+		`${zoned} Temporal.Instant.fromEpochNanoseconds((log(), source).epochNanoseconds)`,
+		`${zoned} Temporal.PlainDate.from((log(), source).toString())`,
 		`import {Temporal} from "@js-temporal/polyfill"; ${zoned} Temporal.Instant.fromEpochNanoseconds(source.epochNanoseconds)`,
 		`${zoned} Temporal.Instant.fromEpochNanoseconds(/* retain */ source.epochNanoseconds)`,
 		`${zoned} Temporal.Instant.fromEpochMilliseconds(source.epochMilliseconds /* retain */)`,
@@ -128,6 +149,30 @@ const typeAware = code => ({
 });
 const types = 'declare namespace Temporal { class ZonedDateTime { epochNanoseconds: bigint; } }';
 test.snapshot({
-	valid: [typeAware('class ZonedDateTime { epochNanoseconds: bigint; } declare function getSource(): ZonedDateTime; new Temporal.Instant(getSource().epochNanoseconds)')],
+	valid: [
+		typeAware('class ZonedDateTime { epochNanoseconds: bigint; } declare function getSource(): ZonedDateTime; new Temporal.Instant(getSource().epochNanoseconds)'),
+		...['undefined', 'string'].map(type => typeAware(`${types} declare function getSource(): Temporal.ZonedDateTime | ${type}; new Temporal.Instant(getSource().epochNanoseconds)`)),
+	],
 	invalid: [typeAware(`${types} declare function getSource(): Temporal.ZonedDateTime; new Temporal.Instant(getSource().epochNanoseconds)`)],
+});
+
+const dateBag = '{year: source.year, month: source.month, day: source.day, calendar: source.calendarId}';
+test.snapshot({
+	valid: [],
+	invalid: [
+		...[
+			`(${dateBag} as Temporal.PlainDateLike)`,
+			`(${dateBag} satisfies Temporal.PlainDateLike)`,
+			`(<Temporal.PlainDateLike>${dateBag})`,
+			`(${dateBag})!`,
+			`(${dateBag} as /* keep */ Temporal.PlainDateLike)`,
+		].map(argument => ({
+			code: `${dateTime} Temporal.PlainDate.from(${argument});`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		...['PlainDate', 'PlainTime'].map(target => ({
+			code: `function convert(source: Temporal.ZonedDateTime | Temporal.PlainDateTime) { return Temporal.${target}.from(source.toString()); }`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+	],
 });

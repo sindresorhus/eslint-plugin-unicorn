@@ -65,30 +65,22 @@ const conversions = new Map([
 }));
 
 function getFieldEntries(node, fields) {
-	const hasDate = fields.includes('year');
-	const isConstructor = node.type === 'NewExpression';
-	let entries;
+	if (node.type === 'NewExpression') {
+		return node.arguments.map((value, index) => [fields[index] ?? 'calendar', value]);
+	}
 
-	if (isConstructor) {
-		if (node.arguments.length !== fields.length && !(hasDate && node.arguments.length === fields.length + 1)) {
+	const argument = unwrapTypeScriptExpression(node.arguments[0]);
+	if (argument.type !== 'ObjectExpression') {
+		return;
+	}
+
+	const entries = [];
+	for (const property of argument.properties) {
+		if (property.type !== 'Property' || property.computed || property.method || property.kind !== 'init') {
 			return;
 		}
 
-		entries = node.arguments.map((value, index) => [fields[index] ?? 'calendar', value]);
-	} else {
-		const [argument] = node.arguments;
-		if (argument.type !== 'ObjectExpression') {
-			return;
-		}
-
-		entries = [];
-		for (const property of argument.properties) {
-			if (property.type !== 'Property' || property.computed || property.method || property.kind !== 'init') {
-				return;
-			}
-
-			entries.push([property.key.name ?? property.key.value, property.value]);
-		}
+		entries.push([property.key.name ?? property.key.value, property.value]);
 	}
 
 	return entries;
@@ -102,24 +94,18 @@ function getFieldReconstruction(node, fields, context) {
 
 	const hasDate = fields.includes('year');
 	const isConstructor = node.type === 'NewExpression';
-	const names = entries.map(([name]) => name);
-	const uniqueNames = new Set(names);
-	const hasCalendar = names.includes('calendar');
-	const expectedFields = !isConstructor && names.includes('monthCode')
-		? fields.map(field => field === 'month' ? 'monthCode' : field)
-		: fields;
-	if (
-		uniqueNames.size !== names.length
-			|| names.length !== expectedFields.length + Number(hasCalendar)
-			|| expectedFields.some(field => !names.includes(field))
-			|| (hasCalendar && !hasDate)
-	) {
-		return;
+	const hasCalendar = entries.some(([name]) => name === 'calendar');
+	const remainingFields = new Set(fields);
+	if (hasDate && hasCalendar) {
+		remainingFields.add('calendar');
 	}
 
 	let source;
 	for (const [name, value] of entries) {
-		if (!isProperty(value, name === 'calendar' ? 'calendarId' : name)) {
+		if (
+			!remainingFields.delete(name === 'monthCode' ? 'month' : name)
+			|| !isProperty(value, name === 'calendar' ? 'calendarId' : name)
+		) {
 			return;
 		}
 
@@ -129,6 +115,10 @@ function getFieldReconstruction(node, fields, context) {
 		}
 
 		source ??= receiver;
+	}
+
+	if (remainingFields.size > 0) {
+		return;
 	}
 
 	return {source, canAutofix: !hasDate || (!isConstructor && hasCalendar)};
