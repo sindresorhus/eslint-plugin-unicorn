@@ -21,6 +21,7 @@ test.snapshot({
 		'Uint8Array.fromBase64(string, {alphabet: \'base64url\'})',
 		'bytes.toBase64()',
 		'bytes.toBase64({alphabet: \'base64url\'})',
+		'bytes.toBase64().toString(\'base64\')',
 
 		// Not the global `atob`/`btoa`
 		'const atob = string => string; atob(\'Zm9v\')',
@@ -43,7 +44,11 @@ test.snapshot({
 		'Buffer.from([value], \'base64\')',
 		'Buffer.from({length: 1, 0: 65}, \'base64\')',
 		'Buffer.from(123, \'base64\')',
+		'Buffer.from(null, \'base64\')',
+		'Buffer.from(void 0, \'base64\')',
 		'Buffer.from(1 + 2, \'base64\')',
+		'Buffer.from(left - right, \'base64\')',
+		'Buffer.from(input ?? new Uint8Array([1]), \'base64\')',
 		'Buffer.from(new Uint8Array([1]), \'base64\')',
 		'Buffer.from(new ArrayBuffer(8), \'base64\')',
 		'const input = new Uint8Array(); Buffer.from(input, \'base64\')',
@@ -191,6 +196,11 @@ test({
 		{
 			code: '(await Buffer.from(string, \'base64\')).toString()',
 			errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: 0}],
+		},
+		{
+			code: 'bytes.toBase64().replaceAll(\'=\', \'\').toString(\'base64\')',
+			output: 'bytes.toBase64({omitPadding: true}).toString(\'base64\')',
+			errors: [{messageId: 'prefer-uint8array-base64/options'}],
 		},
 	],
 });

@@ -89,7 +89,17 @@ const isKnownNonStringBufferInput = (node, context) => {
 	return type === target || (type === nonTarget && !isString(node, context));
 };
 
-const isKnownNonBufferReceiver = (node, context) => getBufferType(node, context) === nonTarget || isString(node, context);
+function isBase64StringExpression(node) {
+	while (getBase64Transformation(node)) {
+		node = node.callee.object;
+	}
+
+	return isMethodCall(node, {method: 'toBase64', computed: false});
+}
+
+const isKnownNonBufferReceiver = (node, context) => getBufferType(node, context) === nonTarget
+	|| isString(node, context)
+	|| isBase64StringExpression(node);
 
 const isTransparentWrapperOf = (parent, expression) =>
 	(
@@ -167,8 +177,11 @@ const bufferTypeCheckerOptions = {
 		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
 };
 const bufferInputTypeCheckerOverrides = {
-	isNonTargetNode: (node, context) => !(node.type === 'BinaryExpression' && node.operator === '+')
-		&& bufferTypeCheckerOptions.isNonTargetNode(node, context),
+	isNonTargetNode: (node, context) => node.type === 'LogicalExpression'
+		|| (
+			!(node.type === 'BinaryExpression' && node.operator === '+')
+			&& bufferTypeCheckerOptions.isNonTargetNode(node, context)
+		),
 };
 const {getType: getBufferType} = createTypeCheckers(bufferTypeCheckerOptions);
 
@@ -313,8 +326,8 @@ const create = context => {
 		if (
 			isMethodCall(node, {method: 'from', argumentsLength: 2, computed: false})
 			&& bufferFromEncoding
-			&& !isKnownNonStringBufferInput(node.arguments[0], context)
 			&& isBufferReference(node.callee.object, context)
+			&& !isKnownNonStringBufferInput(node.arguments[0], context)
 		) {
 			const encodingNode = node.arguments[1];
 
