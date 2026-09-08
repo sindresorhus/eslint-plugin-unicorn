@@ -14,7 +14,12 @@ import {
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
-import {createTypeCheckers, nonTarget, target} from './utils/type-helpers.js';
+import {
+	createTypeCheckers,
+	nonTarget,
+	nullish,
+	target,
+} from './utils/type-helpers.js';
 import {removeArgument, removeMethodCall} from './fix/index.js';
 import typedArrayTypes from './shared/typed-array.js';
 
@@ -147,7 +152,7 @@ const isBufferExpression = (node, context) => isBufferFactory(node, context)
 const bufferTypeCheckerOptions = {
 	allowNullishInMixedUnion: true,
 	checkClassHeritage: false,
-	getStaticType: () => nonTarget,
+	getStaticType: value => value === null || value === undefined ? nullish : nonTarget,
 	preferTypeReferenceDefinitions: false,
 	treatMixedUnionAsNonTarget: true,
 	targetTypeNames: new Set(['Buffer']),

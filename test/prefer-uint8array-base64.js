@@ -82,6 +82,8 @@ test.snapshot({
 		'(\'prefix\' + value).toString(\'base64\')',
 		'(123).toString(\'base64\')',
 		'Math.PI.toString(\'base64\')',
+		'const value = null; value?.toString(\'base64\')',
+		'const value = void 0; value?.toString(\'base64\')',
 		'[1, 2].toString(\'base64\')',
 		'({toString() { return \'custom\'; }}).toString(\'base64\')',
 		'(() => {}).toString(\'base64\')',
@@ -167,6 +169,8 @@ test.snapshot({
 		'getBuffer().toString(\'base64\')',
 		'new Buffer(0).toString(\'base64\')',
 		'const buffer = Buffer.from(data); buffer.toString(\'base64\')',
+		'const buffer = condition ? Buffer.from(data) : null; buffer?.toString(\'base64\')',
+		'const buffer = condition ? Buffer.from(data) : void 0; buffer?.toString(\'base64\')',
 		'import {Buffer as B} from \'node:buffer\'; new B(0).toString(\'base64\')',
 
 		// TypeScript

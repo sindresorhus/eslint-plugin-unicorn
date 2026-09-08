@@ -753,6 +753,7 @@ export {
 	createBuiltinTypeCheckers,
 	createTypeCheckers,
 	nonTarget,
+	nullish,
 	target,
 	unknown,
 };
