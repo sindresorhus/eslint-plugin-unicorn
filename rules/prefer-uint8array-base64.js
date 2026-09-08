@@ -1,4 +1,4 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import {
 	isCallExpression,
@@ -35,6 +35,7 @@ const messages = {
 const base64Encodings = new Set(['base64', 'base64url']);
 const bufferImportSources = new Set(['buffer', 'node:buffer']);
 const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
+const transparentExpressionTypes = new Set(['AwaitExpression', 'ChainExpression', 'ParenthesizedExpression']);
 const arrayBufferTypes = ['ArrayBuffer', 'SharedArrayBuffer', 'DataView'];
 const nonBufferExpressionTypes = new Set([
 	'ArrayExpression',
@@ -84,22 +85,92 @@ const isBufferModuleObjectImport = specifier =>
 	specifier?.type === 'ImportNamespaceSpecifier'
 	|| specifier?.type === 'ImportDefaultSpecifier';
 
-const isKnownNonStringBufferInput = (node, context) => {
-	const type = getBufferType(node, context, bufferInputTypeCheckerOverrides);
-	return type === target || (type === nonTarget && !isString(node, context));
-};
+function unwrapTransparentExpression(node) {
+	node = unwrapTypeScriptExpression(node);
+	while (transparentExpressionTypes.has(node?.type)) {
+		node = unwrapTypeScriptExpression(node.type === 'AwaitExpression' ? node.argument : node.expression);
+	}
 
-function isBase64StringExpression(node) {
-	while (getBase64Transformation(node)) {
+	return node;
+}
+
+function isDerivedFromBase64String(node) {
+	while (isMethodCall(node = unwrapTransparentExpression(node))) {
+		if (getPropertyName(node.callee) === 'toBase64') {
+			return true;
+		}
+
 		node = node.callee.object;
 	}
 
-	return isMethodCall(node, {method: 'toBase64', computed: false});
+	return false;
+}
+
+function isBase64StringExpression(node) {
+	node = unwrapTransparentExpression(node);
+	while (getBase64Transformation(node)) {
+		node = unwrapTransparentExpression(node.callee.object);
+	}
+
+	return isMethodCall(node) && getPropertyName(node.callee) === 'toBase64';
+}
+
+function isKnownStringExpression(node, context) {
+	if (isString(node, context)) {
+		return true;
+	}
+
+	if (isTypeScriptExpressionWrapper(node)) {
+		const type = getBufferType(node, context);
+		if (type === target || type === nonTarget) {
+			return false;
+		}
+
+		return isKnownStringExpression(node.expression, context);
+	}
+
+	if (transparentExpressionTypes.has(node.type)) {
+		return isKnownStringExpression(node.type === 'AwaitExpression' ? node.argument : node.expression, context);
+	}
+
+	return isBase64StringExpression(node)
+		|| (
+			node.type === 'LogicalExpression'
+			&& isKnownStringExpression(node.left, context)
+			&& isKnownStringExpression(node.right, context)
+		);
+}
+
+function shouldIgnoreBufferFromInput(node, context) {
+	if (isKnownStringExpression(node, context)) {
+		return false;
+	}
+
+	if (isDerivedFromBase64String(node)) {
+		return true;
+	}
+
+	if (isTypeScriptExpressionWrapper(node)) {
+		const type = getBufferType(node, context, bufferInputTypeCheckerOverrides);
+		return type === target || type === nonTarget || shouldIgnoreBufferFromInput(node.expression, context);
+	}
+
+	if (transparentExpressionTypes.has(node.type)) {
+		return shouldIgnoreBufferFromInput(node.type === 'AwaitExpression' ? node.argument : node.expression, context);
+	}
+
+	if (node.type === 'LogicalExpression' || node.type === 'ConditionalExpression') {
+		const expressions = node.type === 'LogicalExpression' ? [node.left, node.right] : [node.consequent, node.alternate];
+		return expressions.some(expression => shouldIgnoreBufferFromInput(expression, context));
+	}
+
+	const type = getBufferType(node, context, bufferInputTypeCheckerOverrides);
+	return type === target || type === nonTarget;
 }
 
 const isKnownNonBufferReceiver = (node, context) => getBufferType(node, context) === nonTarget
-	|| isString(node, context)
-	|| isBase64StringExpression(node);
+	|| isKnownStringExpression(node, context)
+	|| isDerivedFromBase64String(node);
 
 const isTransparentWrapperOf = (parent, expression) =>
 	(
@@ -177,11 +248,8 @@ const bufferTypeCheckerOptions = {
 		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
 };
 const bufferInputTypeCheckerOverrides = {
-	isNonTargetNode: (node, context) => node.type === 'LogicalExpression'
-		|| (
-			!(node.type === 'BinaryExpression' && node.operator === '+')
-			&& bufferTypeCheckerOptions.isNonTargetNode(node, context)
-		),
+	isNonTargetNode: (node, context) => !(node.type === 'BinaryExpression' && node.operator === '+')
+		&& bufferTypeCheckerOptions.isNonTargetNode(node, context),
 };
 const {getType: getBufferType} = createTypeCheckers(bufferTypeCheckerOptions);
 
@@ -327,7 +395,7 @@ const create = context => {
 			isMethodCall(node, {method: 'from', argumentsLength: 2, computed: false})
 			&& bufferFromEncoding
 			&& isBufferReference(node.callee.object, context)
-			&& !isKnownNonStringBufferInput(node.arguments[0], context)
+			&& !shouldIgnoreBufferFromInput(node.arguments[0], context)
 		) {
 			const encodingNode = node.arguments[1];
 
