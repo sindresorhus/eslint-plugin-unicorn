@@ -240,6 +240,24 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				const groups = {}
+				for (const item of items) {(groups[item.type] ??= []).push(item)}
+				consume(groups)
+			`,
+			output: outdent`
+				const groups = Object.groupBy(items, item => item.type)
+				consume(groups)
+			`,
+			errors: [{messageId: 'prefer-group-by-loop'}],
+		},
+	],
+});
+
 // Cases that should report without autofixing.
 test({
 	valid: [],

@@ -1,4 +1,3 @@
-import {isSemicolonToken} from '@eslint-community/eslint-utils';
 import {
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
@@ -14,6 +13,7 @@ import {
 	isKnownNonIndexedCollection,
 	isSameIdentifier,
 	isSameReference,
+	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {containsOptionalChain} from './utils/comparison.js';
@@ -691,7 +691,7 @@ function getLoopGroupByProblem(declaration, context) {
 			const keyText = getArrowBodyText(key, context);
 			yield fixer.replaceText(init, `${method}(${iterableText}, ${elementText} => ${keyText})`);
 			// Removing the loop exposes the declaration to the following statement.
-			if (!isSemicolonToken(sourceCode.getLastToken(declaration))) {
+			if (nextToken && needsSemicolon(sourceCode.getLastToken(declaration), context, nextToken.value)) {
 				yield fixer.insertTextAfter(declaration, ';');
 			}
 
