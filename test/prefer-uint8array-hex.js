@@ -22,6 +22,12 @@ testRule({
 	valid: [
 		'Uint8Array.fromHex(\'ff\').toString(\'hex\')',
 		'Uint8Array.fromBase64(\'AA==\').toString(\'hex\')',
+		`Array.from(Array(0, 255), ${encode}).join('')`,
+		'Array(0, 255).toString(\'hex\')',
+		'class Bytes extends Buffer { hex() { return super.toString(\'hex\'); } }',
+		typeAware('class Buffer { toString(encoding: string) {} } class Bytes extends Buffer { hex() { return super.toString(\'hex\'); } }'),
+		`Array.from(object?.bytes, ${encode}).join('')`,
+		`new Uint8Array((object?.text).match(/.{2}/g).map(${decode}))`,
 	],
 	invalid: [
 		{
@@ -50,6 +56,31 @@ testRule({
 		{
 			code: `new Uint8Array(text.match(/.{2}/g).map(${decode}))`,
 			errors: [{...error, suggestions: [{...suggestion, output: 'Uint8Array.fromHex(text)'}]}],
+		},
+		...[
+			'Buffer.from((sideEffect(), text), \'hex\')',
+			`new Uint8Array((sideEffect(), text).match(/.{2}/g).map(${decode}))`,
+		].map(code => ({
+			code,
+			errors: [{...error, suggestions: [{...suggestion, output: 'Uint8Array.fromHex((sideEffect(), text))'}]}],
+		})),
+		{
+			code: 'Buffer.from(text, \'hex\')?.toString()',
+			errors: [{...error, suggestions: []}],
+		},
+		{
+			code: `function hex(bytes: Uint8Array | number[]) { return Array.from(bytes, ${encode}).join(''); }`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{...error, suggestions: [{...suggestion, output: 'function hex(bytes: Uint8Array | number[]) { return bytes.toHex(); }'}]}],
+		},
+		{
+			...typeAware(`function hex(value: {bytes: Uint8Array | number[]}) { return Array.from(value.bytes, ${encode}).join(''); }`),
+			errors: [{...error, suggestions: [{...suggestion, output: 'function hex(value: {bytes: Uint8Array | number[]}) { return value.bytes.toHex(); }'}]}],
+		},
+		{
+			...typeAware('interface Buffer extends Uint8Array { toString(encoding?: string): string; } function hex(value: {bytes: Buffer}) { return value.bytes.toString(\'hex\'); }'),
+			output: 'interface Buffer extends Uint8Array { toString(encoding?: string): string; } function hex(value: {bytes: Buffer}) { return value.bytes.toHex(); }',
+			errors: [error],
 		},
 	],
 });

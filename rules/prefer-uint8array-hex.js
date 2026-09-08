@@ -82,6 +82,7 @@ const typeCheckerOptions = {
 	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', ...typedArrayTypes]),
 	isTargetNode: isBufferFactory,
 	isNonTargetNode: node => nonByteExpressionTypes.has(node.type)
+		|| isCallExpression(node, {name: 'Array'})
 		|| isMethodCall(node, {objects: ['Array', ...typedArrayTypes], methods: ['from', 'of']})
 		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
 };
@@ -249,13 +250,9 @@ function getProblem(node, input, context, {decoding = false, autofix = false, ca
 			abort();
 		}
 
+		// Preserve existing grouping, including parentheses that keep sequence expressions as a single argument.
 		let inputText = getParenthesizedText(input, context);
-		if (decoding) {
-			// Keep sequence expressions as a single argument.
-			if (input.type === 'SequenceExpression' && !isParenthesized(input, context)) {
-				inputText = `(${inputText})`;
-			}
-		} else if (shouldAddParenthesesToMemberExpressionObject(input, context) && !isParenthesized(input, context)) {
+		if (!decoding && shouldAddParenthesesToMemberExpressionObject(input, context) && !isParenthesized(input, context)) {
 			inputText = `(${inputText})`;
 		}
 
@@ -293,7 +290,7 @@ const create = context => {
 		if (isPlainMethodCall(node, 'toString', 1) && isHexEncoding(node.arguments[0])) {
 			let input = node.callee.object;
 			const type = getBufferType(input, context);
-			if (type === nonTarget || unwrapTypeScriptExpression(input).type === 'ChainExpression') {
+			if (input.type === 'Super' || type === nonTarget || unwrapTypeScriptExpression(input).type === 'ChainExpression') {
 				return;
 			}
 
