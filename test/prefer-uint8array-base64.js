@@ -69,6 +69,8 @@ test.snapshot({
 		'foo.toString(\'hex\')',
 		'foo[\'toString\'](\'base64\')',
 		'buffer.toString(\'base64\', 0, 10)',
+		'Buffer.toString(\'base64\')',
+		'import {Buffer as B} from \'node:buffer\'; B.toString(\'base64\')',
 		'\'foo\'.toString(\'base64\')',
 		'`foo`.toString(\'base64\')',
 		'String(value).toString(\'base64\')',

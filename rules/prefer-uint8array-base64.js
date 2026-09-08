@@ -112,6 +112,7 @@ const isKnownNonBufferReceiver = (node, context) => {
 		|| receiver.type === 'ClassExpression'
 		|| isFunction(receiver)
 		|| isString(node, context)
+		|| isBufferReference(receiver, context)
 		|| (receiver.type === 'NewExpression' && !isBufferReference(receiver.callee, context))
 		|| (!hasTypeInformation && isKnownNonString(node, context));
 };
