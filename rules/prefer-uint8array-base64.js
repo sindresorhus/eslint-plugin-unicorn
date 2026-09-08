@@ -45,6 +45,7 @@ const nonBufferExpressionTypes = new Set([
 	'UpdateExpression',
 ]);
 const constructorNames = ['Array', ...arrayBufferTypes, ...typedArrayTypes];
+const bufferTypeImports = new Map([...bufferImportSources].map(source => [source, new Set(['Buffer'])]));
 
 const getBase64Encoding = node => {
 	if (!isStringLiteral(node)) {
@@ -146,10 +147,12 @@ const isBufferExpression = (node, context) => isBufferFactory(node, context)
 const bufferTypeCheckerOptions = {
 	allowNullishInMixedUnion: true,
 	checkClassHeritage: false,
+	getStaticType: () => nonTarget,
 	preferTypeReferenceDefinitions: false,
 	treatMixedUnionAsNonTarget: true,
 	targetTypeNames: new Set(['Buffer']),
-	targetTypeImports: new Map([...bufferImportSources].map(source => [source, new Set(['Buffer'])])),
+	targetTypeImports: bufferTypeImports,
+	targetTypeNamespaceImports: bufferTypeImports,
 	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', ...arrayBufferTypes, ...typedArrayTypes]),
 	isTargetNode: isBufferExpression,
 	isNonTargetNode: (node, context) => nonBufferExpressionTypes.has(node.type)
@@ -159,7 +162,6 @@ const bufferTypeCheckerOptions = {
 		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
 };
 const bufferInputTypeCheckerOverrides = {
-	getStaticType: () => nonTarget,
 	isNonTargetNode: (node, context) => !(node.type === 'BinaryExpression' && node.operator === '+')
 		&& bufferTypeCheckerOptions.isNonTargetNode(node, context),
 };

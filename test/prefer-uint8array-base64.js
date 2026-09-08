@@ -81,6 +81,7 @@ test.snapshot({
 		'String(value).toString(\'base64\')',
 		'(\'prefix\' + value).toString(\'base64\')',
 		'(123).toString(\'base64\')',
+		'Math.PI.toString(\'base64\')',
 		'[1, 2].toString(\'base64\')',
 		'({toString() { return \'custom\'; }}).toString(\'base64\')',
 		'(() => {}).toString(\'base64\')',
@@ -96,6 +97,7 @@ test.snapshot({
 		{code: '(value as number).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 		{code: '(<number>value).toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const bytes: Uint8Array; bytes.toString(\'base64\')', languageOptions: {parser: parsers.typescript}},
+		{code: 'import * as buffer from \'node:buffer\'; declare const input: buffer.Buffer; Buffer.from(input, \'base64\')', languageOptions: {parser: parsers.typescript}},
 
 		// With type information, a receiver that is known not to be a `Buffer` is skipped
 		typeAware('function foo(value: Uint8Array) { return value.toString(\'base64\'); }'),
