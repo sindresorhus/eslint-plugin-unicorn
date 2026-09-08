@@ -41,7 +41,7 @@ const remaining = map.values().drop(20).toArray();
 
 ## Supported patterns
 
-The rule reports `.slice()` immediately following `.toArray()`, a single-spread array, or `Array.from()` without a mapping function. A zero-argument `.toArray()` call is treated as evidence of an iterator, consistent with the other iterator rules.
+The rule reports `.slice()` immediately following `.toArray()`, a single-spread array, or `Array.from()` with exactly one argument. A zero-argument `.toArray()` call is treated as evidence of an iterator, consistent with the other iterator rules.
 
 For spreads and `Array.from()`, the source must be recognized as an iterator: an `Iterator` static method, `.values()`, `.keys()`, `.entries()`, `.matchAll()`, a lazy helper chain on a recognized iterator, or a supported TypeScript iterator type. Unknown iterable variables, arrays, strings, and sets are not reported merely because they are iterable. Custom methods with these names and custom iterator implementations must support the suggested helpers.
 

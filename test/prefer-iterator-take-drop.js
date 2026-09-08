@@ -37,6 +37,7 @@ testRule.snapshot({
 		'[...map.values(), last].slice(0, 10)',
 		'[...first, ...second].slice(0, 10)',
 		'Array.from(map.values(), mapper).slice(0, 10)',
+		'Array.from(map.values(), undefined).slice(0, 10)',
 		'Uint8Array.from(map.values()).slice(0, 10)',
 		'iterator.toArray(true).slice(0, 10)',
 		'class LimitedIterator extends Iterator { first() { return super.toArray().slice(0, 10); } }',
@@ -326,6 +327,11 @@ testRule({
 		{
 			code: '!Array.from([1].values()).slice(0, 1)',
 			output: '![1].values().take(1).toArray()',
+		},
+		{
+			code: 'previous()\nArray.from(<Foo />.values()).slice(0, 1)',
+			output: 'previous()\n;(<Foo />.values()).take(1).toArray()',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
 	].map(({code, output, ...options}) => ({
 		code,

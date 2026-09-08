@@ -100,7 +100,7 @@ function getSuggestion(node, iterator, replacement, context) {
 		!isParenthesized(iterator, context)
 		&& (
 			iterator.type === 'ChainExpression'
-			|| ['{', 'function', 'class', 'async'].includes(sourceCode.getFirstToken(iterator).value)
+			|| ['{', '<', 'function', 'class', 'async'].includes(sourceCode.getFirstToken(iterator).value)
 			|| shouldAddParenthesesToMemberExpressionObject(iterator, context)
 		)
 	) {
