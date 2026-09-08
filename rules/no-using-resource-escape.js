@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction} from './ast/index.js';
-import {getConstVariableInitializer, unwrapTypeScriptExpression} from './utils/index.js';
+import {unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-using-resource-escape';
 const messages = {
@@ -26,8 +26,7 @@ function isOwnedResource(variable, owner) {
 		&& getOwner(definition.node) === owner;
 }
 
-function getReferencedFunction(node, context) {
-	const variable = findVariable(context.sourceCode.getScope(node), node);
+function getReferencedFunction(variable) {
 	if (variable?.defs.length !== 1) {
 		return;
 	}
@@ -37,8 +36,12 @@ function getReferencedFunction(node, context) {
 		return definition.node;
 	}
 
-	if (definition.type === 'Variable' && definition.node.id.type === 'Identifier') {
-		const initializer = unwrapTypeScriptExpression(getConstVariableInitializer(node, context));
+	if (
+		definition.type === 'Variable'
+		&& definition.parent.kind === 'const'
+		&& definition.node.id.type === 'Identifier'
+	) {
+		const initializer = unwrapTypeScriptExpression(definition.node.init);
 		if (initializer && isFunction(initializer)) {
 			return initializer;
 		}
@@ -85,7 +88,7 @@ function * getEscapingResources(node, owner, context) {
 			return;
 		}
 
-		const functionNode = getReferencedFunction(node, context);
+		const functionNode = getReferencedFunction(variable);
 		if (!functionNode) {
 			return;
 		}

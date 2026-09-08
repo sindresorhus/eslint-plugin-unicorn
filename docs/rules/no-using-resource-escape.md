@@ -81,6 +81,8 @@ This rule checks common, local escape patterns, not all possible uses after disp
 
 Timers, event listeners, and general callbacks are not checked because their execution may finish before disposal. The rule also does not analyze whether capturing functions are actually called after disposal or whether a particular resource remains usable after disposal.
 
-For promises returned before resource disposal finishes, use [`@typescript-eslint/return-await`](https://typescript-eslint.io/rules/return-await/). Adding `await` does not repair returning an ordinary disposed resource or a closure capturing it.
+TypeScript function instantiation expressions (such as `return read<Resource>`) and references to overloaded functions are not checked.
+
+To require awaiting returned promises before resources are disposed, use [`@typescript-eslint/return-await`](https://typescript-eslint.io/rules/return-await/). Adding `await` does not repair returning an ordinary disposed resource or a closure capturing it.
 
 See also [`prefer-dispose`](./prefer-dispose.md), which recommends resource-management declarations, and [`no-invalid-well-known-symbol-methods`](./no-invalid-well-known-symbol-methods.md), which checks disposer implementations.

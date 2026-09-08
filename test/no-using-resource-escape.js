@@ -25,6 +25,7 @@ test.snapshot({
 		'function f() { using resource = acquire(); return {[resource.read()]: other}; }',
 		'function f() { using resource = acquire(); return {resource: other}; }',
 		'using resource = acquire(); export {resource} from "other";',
+		'function f() { using resource = acquire(); return function resource() { return resource; }; }',
 		// Deliberately unsupported escape paths.
 		'function f() { using resource = acquire(); const alias = resource; return alias; }',
 		'function f() { using resource = acquire(); let read = () => resource.read(); return read; }',
@@ -74,6 +75,13 @@ test.snapshot({
 		'using resource = acquire(); const read = () => resource.read(); export {read};',
 		'using resource = acquire(); export default {resource, read() { return resource.read(); }};',
 		'using resource = acquire(); export const value = [resource];',
+		'function f() { using resource = acquire(); return {get value() { return resource.read(); }}; }',
+		'function f() { using resource = acquire(); return {set value(value) { resource.write(value); }}; }',
+		'function f() { using resource = acquire(); return (value = resource) => value; }',
+		'function f() { using resource = acquire(); const read = function reader() { return resource.read(); }; return read; }',
+		'using resource = acquire(); export default function () { return resource.read(); }',
+		'export {read}; using resource = acquire(); function read() { return resource.read(); }',
+		'using resource = acquire(); export function read(read) { read = other; return resource.read(); }',
 	],
 });
 
@@ -83,6 +91,10 @@ test.snapshot({
 		'using resource = acquire(); export {type resource};',
 		'function f() { using resource = acquire(); return (): typeof resource => other; }',
 		'using resource = acquire(); export function read(): typeof resource { return other; }',
+		'function f() { using resource = acquire(); return <T extends typeof resource.read>() => other; }',
+		// Deliberately unsupported instantiation expressions and overloaded function references.
+		'function f() { using resource = acquire(); const read = <T>() => resource.read(); return read<Resource>; }',
+		'function f() { using resource = acquire(); function read(): string; function read() { return resource.read(); } return read; }',
 	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	invalid: [
 		'function f() { using resource = acquire(); return resource as Resource; }',
@@ -91,5 +103,7 @@ test.snapshot({
 		'function f() { using resource = acquire(); return resource satisfies Resource; }',
 		'function f() { using resource = acquire(); return (() => resource?.read()) as Reader; }',
 		'using resource = acquire(); export {resource};',
+		'function f() { using resource = acquire(); const read = (() => resource.read()) satisfies Reader; return read; }',
+		'function f() { using resource = acquire(); return (): typeof resource => resource; }',
 	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 });
