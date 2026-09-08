@@ -131,6 +131,27 @@ testRule({
 			output: 'interface Buffer extends Uint8Array { toString(encoding?: string): string; } function hex(value: {bytes: Buffer}) { return value.bytes.toHex(); }',
 			errors: [error],
 		},
+		{
+			code: 'const text = \'ff\'; Buffer.from(text, \'hex\')',
+			errors: [{...error, suggestions: [{...suggestion, output: 'const text = \'ff\'; Uint8Array.fromHex(text)'}]}],
+		},
+		{
+			code: 'function decode(text: string) { return Buffer.from(text, \'hex\'); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{...error, suggestions: [{...suggestion, output: 'function decode(text: string) { return Uint8Array.fromHex(text); }'}]}],
+		},
+		{
+			code: 'Buffer.from(condition ? \'aa\' : \'bb\', \'hex\')',
+			errors: [{...error, suggestions: [{...suggestion, output: 'Uint8Array.fromHex(condition ? \'aa\' : \'bb\')'}]}],
+		},
+		{
+			code: 'Buffer.from(left + right, \'hex\')',
+			errors: [{...error, suggestions: [{...suggestion, output: 'Uint8Array.fromHex(left + right)'}]}],
+		},
+		{
+			code: 'const text = left + right; Buffer.from(text, \'hex\')',
+			errors: [{...error, suggestions: [{...suggestion, output: 'const text = left + right; Uint8Array.fromHex(text)'}]}],
+		},
 	],
 });
 
@@ -194,8 +215,22 @@ testRule.snapshot({
 		'Buffer.from([255], \'hex\')',
 		'Buffer.from(new Uint8Array([255]), \'hex\')',
 		'const bytes = new Uint8Array([255]); Buffer.from(bytes, \'hex\')',
+		'const values = [255]; Buffer.from(values, \'hex\')',
+		'const values = new Uint16Array([255]); Buffer.from(values, \'hex\')',
+		'const values = {0: 255, length: 1}; Buffer.from(values, \'hex\')',
+		'Buffer.from(1, \'hex\')',
+		'Buffer.from(1 + 2, \'hex\')',
+		'const value = 1 + 2; Buffer.from(value, \'hex\')',
 		'Buffer.from(new ArrayBuffer(1), \'hex\')',
 		'Buffer.from({0: 255, length: 1}, \'hex\')',
+		...['bytes as Uint8Array', '<Uint8Array>bytes'].map(expression => ({
+			code: `Buffer.from(${expression}, 'hex')`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		...['number[]', 'Uint16Array'].map(type => ({
+			code: `function decode(value: ${type}) { return Buffer.from(value, 'hex'); }`,
+			languageOptions: {parser: parsers.typescript},
+		})),
 		'Buffer.from(text, \'hex\', sideEffect())',
 		'Buffer.from(...arguments_)',
 		'Buffer?.from(text, \'hex\')',

@@ -12,6 +12,7 @@ import {
 	getParenthesizedText,
 	isGlobalIdentifier,
 	isParenthesized,
+	isString,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
@@ -30,7 +31,6 @@ const messages = {
 const bufferImportSources = new Set(['buffer', 'node:buffer']);
 const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
 const hexPairPatterns = new Set(['..', '.{2}', '.{1,2}', '[0-9a-f]{2}', String.raw`[\da-f]{2}`]);
-const definitelyNonStringExpressionTypes = new Set(['ArrayExpression', 'NewExpression', 'ObjectExpression']);
 const nonByteExpressionTypes = new Set([
 	'ArrayExpression',
 	'ArrowFunctionExpression',
@@ -115,6 +115,11 @@ const typeCheckerOptions = {
 		|| isMethodCall(node, {objects: ['Array', ...typedArrayTypes], methods: ['from', 'of']})
 		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
 };
+const decodingTypeCheckerOverrides = {
+	getStaticType: () => nonTarget,
+	isNonTargetNode: (node, context) => !(node.type === 'BinaryExpression' && node.operator === '+')
+		&& typeCheckerOptions.isNonTargetNode(node, context),
+};
 const {getType: getBufferType} = createTypeCheckers(typeCheckerOptions);
 const {getType: getByteArrayType} = createTypeCheckers({
 	...typeCheckerOptions,
@@ -131,8 +136,8 @@ const {getType: getByteArrayType} = createTypeCheckers({
 });
 
 const isKnownNonStringInput = (node, context) => {
-	node = unwrapTypeScriptExpression(node);
-	return definitelyNonStringExpressionTypes.has(node.type) || getByteArrayType(node, context) === target;
+	const type = getByteArrayType(node, context, decodingTypeCheckerOverrides);
+	return type === target || (type === nonTarget && !isString(node, context));
 };
 
 function getCallback(node) {

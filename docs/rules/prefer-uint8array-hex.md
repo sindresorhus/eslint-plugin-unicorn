@@ -91,6 +91,8 @@ Supported regex patterns are `/../g`, `/.{2}/g`, `/.{1,2}/g`, `/[0-9a-f]{2}/g`, 
 
 Buffer decoding is reported without a suggestion when the result is immediately accessed through a member, such as `Buffer.from(text, 'hex').toString()`, since the remaining operation may require a Buffer.
 
+Calls with inputs known to be non-string are ignored because Buffer only applies the encoding argument to string inputs.
+
 ## Limitations
 
 The rule does not recognize pipelines split across statements, imperative loops, lookup tables, other padding idioms, arbitrary regex patterns, optional operations, computed method names, `super` method calls, or `toString('hex', start, end)` ranges. Direct typed-array `map()` encoders are ignored because typed-array mapping coerces the callback's strings back into numbers.
