@@ -52,27 +52,32 @@ function isImportedBuffer(identifier, context) {
 	}) ?? false;
 }
 
-// Whether the receiver of a `.toString('base64')` call is byte-like (`Buffer`/`Uint8Array`). Only consulted when type information is available; without it, callers should report anyway, since requiring type information would make the rule too narrow. With type information, a receiver whose type is known and not byte-like (for example a userland object with a custom `toString`) is skipped to avoid false positives. `any`/`unknown` types are treated as byte-like, since we cannot rule them out.
-function isByteLikeReceiver(node, parserServices) {
-	// Resolving and inspecting the receiver's type can crash deep inside TypeScript 6 while it computes module specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`). We cannot then confirm the receiver is byte-like, so we conservatively skip reporting rather than crash the lint run.
+// Whether type information supports reporting a `.toString('base64')` call as a `Buffer` conversion. Without type information, callers should report anyway, since requiring it would make the rule too narrow. A receiver whose possible concrete types include a non-`Buffer` is skipped to avoid false positives. `any`/`unknown` types are accepted since we cannot rule them out.
+function shouldReportBufferToString(node, parserServices) {
+	// Resolving and inspecting the receiver's type can crash deep inside TypeScript 6 while it computes module specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`). We cannot then confirm the receiver can be a `Buffer`, so we conservatively skip reporting rather than crash the lint run.
 	try {
 		const type = parserServices.getTypeAtLocation(node);
-		const isByteLikeType = type => {
+		const isBufferOrUnknownType = type => {
 			// `intrinsicName` exposes `any`/`unknown` without `typeChecker.typeToString()`, which is one of the calls that crashes.
 			const name = getTypeSymbol(type)?.getName();
-			return name === 'Buffer' || name === 'Uint8Array' || type.intrinsicName === 'any' || type.intrinsicName === 'unknown';
+			return name === 'Buffer' || type.intrinsicName === 'any' || type.intrinsicName === 'unknown';
 		};
 
 		if (type.isUnion()) {
 			const nonNullishTypes = type.types.filter(type => !isNullishType(type));
-			return nonNullishTypes.length > 0 && nonNullishTypes.every(type => isByteLikeType(type));
+			return nonNullishTypes.length > 0 && nonNullishTypes.every(type => isBufferOrUnknownType(type));
 		}
 
-		return type.isIntersection() ? type.types.some(type => isByteLikeType(type)) : isByteLikeType(type);
+		return type.isIntersection() ? type.types.some(type => isBufferOrUnknownType(type)) : isBufferOrUnknownType(type);
 	} catch {
 		return false;
 	}
 }
+
+const isKnownNonStringBufferInput = (node, context) =>
+	node.type === 'ArrayExpression'
+	|| node.type === 'NewExpression'
+	|| isKnownNonString(node, context);
 
 function isChainedExpression(node) {
 	let expression = node;
@@ -243,8 +248,7 @@ const create = context => {
 		if (
 			isMethodCall(node, {method: 'from', argumentsLength: 2, computed: false})
 			&& bufferFromEncoding
-			&& node.arguments[0].type !== 'ArrayExpression'
-			&& !isKnownNonString(node.arguments[0], context)
+			&& !isKnownNonStringBufferInput(node.arguments[0], context)
 			&& isBufferReference(node.callee.object, context)
 		) {
 			const encodingNode = node.arguments[1];
@@ -283,9 +287,9 @@ const create = context => {
 		// `buffer.toString('base64' | 'base64url')`
 		const toStringEncoding = getBase64Encoding(node.arguments[0]);
 		if (
-			isMethodCall(node, {method: 'toString', minimumArguments: 1, computed: false})
+			isMethodCall(node, {method: 'toString', argumentsLength: 1, computed: false})
 			&& toStringEncoding
-			&& (!sourceCode.parserServices?.program || isByteLikeReceiver(node.callee.object, sourceCode.parserServices))
+			&& (!sourceCode.parserServices?.program || shouldReportBufferToString(node.callee.object, sourceCode.parserServices))
 		) {
 			const [encodingNode] = node.arguments;
 

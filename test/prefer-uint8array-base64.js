@@ -40,6 +40,7 @@ test.snapshot({
 		'Buffer.from(array)',
 		'Buffer.from([1, 2, 3])',
 		'Buffer.from([value], \'base64\')',
+		'Buffer.from(new Uint8Array([1]), \'base64\')',
 		typeAware('function foo(value: Uint8Array) { return Buffer.from(value, \'base64\'); }'),
 		'Buffer.from(string, encoding)',
 		// Extra argument; `Uint8Array.fromBase64`'s second parameter is an options object, so the rewrite would not be equivalent
@@ -59,8 +60,11 @@ test.snapshot({
 		'foo.toString(\'utf8\')',
 		'foo.toString(\'hex\')',
 		'foo[\'toString\'](\'base64\')',
+		'buffer.toString(\'base64\', 0, 10)',
 
-		// With type information, a receiver that is known not to be byte-like is skipped
+		// With type information, a receiver that is known not to be a `Buffer` is skipped
+		typeAware('function foo(value: Uint8Array) { return value.toString(\'base64\'); }'),
+		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | Uint8Array; value.toString(\'base64\')'),
 		typeAware('function foo(value: {toString(encoding: string): string}) { return value.toString(\'base64\'); }'),
 		typeAware(outdent`
 			interface Buffer extends Uint8Array { toString(encoding: string): string }
@@ -117,13 +121,10 @@ test.snapshot({
 		'buffer.toString(\'BASE64\')',
 		'buffer.toString(\'BaSe64UrL\')',
 		'getBuffer().toString(\'base64\')',
-		'buffer.toString(\'base64\', 0, 10)',
 
 		// TypeScript
 		{code: '(globalThis as any).atob(string)', languageOptions: {parser: parsers.typescript}},
-		// With type information, byte-like receivers are still reported
-		typeAware('function foo(value: Uint8Array) { return value.toString(\'base64\'); }'),
-		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | Uint8Array; value.toString(\'base64\')'),
+		// With type information, `Buffer` receivers are still reported
 		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | null | undefined; value?.toString(\'base64\')'),
 		// `any` cannot be ruled out, so it is still reported
 		typeAware('function foo(value: any) { return value.toString(\'base64\'); }'),
