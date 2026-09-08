@@ -135,6 +135,7 @@ test.snapshot({
 		typeAware('declare const callback: unknown; Iterator.from([1]).filter(<() => PromiseLike<boolean>>callback);'),
 		typeAware('declare const callback: (() => Promise<boolean>) | undefined; Iterator.from([1]).filter(callback!);'),
 		typeAware('declare const callback: () => PromiseLike<boolean>; Iterator.from([1]).filter(callback);'),
+		typeAware('function foo<T extends PromiseLike<boolean>>(callback: () => T) { Iterator.from([1]).filter(callback); }'),
 		typeAware('declare const callback: () => boolean | Promise<boolean>; Iterator.from([1]).filter(callback);'),
 		typeAware('declare const callback: () => Promise<boolean> | undefined; Iterator.from([1]).filter(callback);'),
 		typeAware('const object = {callback() { return Promise.resolve(false); }}; Iterator.from([1]).filter(object.callback);'),
