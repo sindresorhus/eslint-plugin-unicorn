@@ -94,11 +94,13 @@ function shouldReportBufferToString(node, parserServices) {
 	}
 }
 
-const isKnownNonStringBufferInput = (node, context) =>
-	node.type === 'ArrayExpression'
-	|| node.type === 'ObjectExpression'
-	|| node.type === 'NewExpression'
-	|| isKnownNonString(node, context);
+const isKnownNonStringBufferInput = (node, context) => {
+	const input = unwrapTypeScriptExpression(node);
+	return input.type === 'ArrayExpression'
+		|| input.type === 'ObjectExpression'
+		|| input.type === 'NewExpression'
+		|| isKnownNonString(node, context);
+};
 
 const isKnownNonBufferReceiver = (node, context) => {
 	const receiver = unwrapTypeScriptExpression(node);
@@ -107,7 +109,7 @@ const isKnownNonBufferReceiver = (node, context) => {
 		|| receiver.type === 'ObjectExpression'
 		|| receiver.type === 'ClassExpression'
 		|| isFunction(receiver)
-		|| isString(receiver, context)
+		|| isString(node, context)
 		|| (receiver.type === 'NewExpression' && !isBufferReference(receiver.callee, context));
 };
 
