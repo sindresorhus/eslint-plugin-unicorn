@@ -50,6 +50,7 @@ test.snapshot({
 		'items.values().map(transform), other();',
 		'items.values().map();',
 		'items.values(argument).map(transform);',
+		'text.matchAll(pattern, extra).map(transform);',
 		'items.values().map`template`;',
 		// Unknown and mutable bindings are intentionally not inferred.
 		'iterator.map(transform);',
@@ -133,5 +134,6 @@ test.snapshot({
 		'for (; condition; items.values().filter(predicate).map(transform)) {}',
 		typescript('type SetIterator<T> = T[]; function run(iterator: IteratorObject<number>) { iterator.map(transform); }'),
 		typeAware('type SetIterator<T> = T[]; declare function getIterator(): IteratorObject<number>; getIterator().map(transform);'),
+		'text.matchAll().map(transform);',
 	],
 });
