@@ -55,6 +55,7 @@ testRule.snapshot({
 			'callbacks.push(() => save(names[index], scores[index]));',
 			'class Pair { value = save(names[index], scores[index]); }',
 			'save(names[index], scores[index]); { const names = other; save(names[index]); }',
+			'save(names[index], scores[index]); { const index = 0; save(names[index]); }',
 		].map(body => loop(body)),
 		loop().replaceAll('names', 'object.names'),
 		`const names = 'abc'; ${loop()}`,
@@ -111,6 +112,7 @@ testRule.snapshot({
 		},
 		typeAware(`declare const names: string[]; declare const scores: readonly number[]; ${loop()}`),
 		typeAware(`declare const names: Uint8Array; declare const scores: Float64Array; ${loop()}`),
+		loop('save(names[index], scores[index]); { const names = other; const index = 0; save(names[index]); }'),
 	],
 });
 
