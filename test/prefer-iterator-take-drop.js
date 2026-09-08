@@ -67,6 +67,8 @@ testRule.snapshot({
 		'iterator.toArray()["slice"](0, 10)',
 		'Array["from"](map.values()).slice(0, 10)',
 		'[...map["values"]()].slice(0, 10)',
+		'iterator.toArray().slice(0, limit); const limit = 10',
+		'const limit = 5; { iterator.toArray().slice(0, limit); const limit = 10; }',
 	],
 	invalid: [
 		'iterator.toArray().slice(0, 10)',
@@ -131,6 +133,7 @@ testRule.snapshot({
 		'iterator.toArray().slice(/* comment */ 0, 10)',
 		'iterator.toArray().slice(0, /* comment */ 10)',
 		'iterator.toArray().slice(0, 10 /* comment */)',
+		'const limit = 10; function page(iterator) { return iterator.toArray().slice(0, limit); }',
 	],
 });
 
