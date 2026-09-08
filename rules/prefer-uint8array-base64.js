@@ -1,12 +1,19 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
-import {isStringLiteral, isMethodCall, isMemberExpression} from './ast/index.js';
+import {
+	isStringLiteral,
+	isRegexLiteral,
+	isMethodCall,
+	isMemberExpression,
+} from './ast/index.js';
 import {isGlobalIdentifier} from './utils/index.js';
-import {removeArgument} from './fix/index.js';
+import {removeArgument, removeMethodCall} from './fix/index.js';
 
+const MESSAGE_ID_OPTIONS = 'prefer-uint8array-base64/options';
 const MESSAGE_ID_ERROR = 'prefer-uint8array-base64/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-uint8array-base64/suggestion';
 const messages = {
+	[MESSAGE_ID_OPTIONS]: 'Prefer native `toBase64()` options over manual base64 postprocessing.',
 	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
 };
@@ -64,6 +71,109 @@ function isBufferReference(node, context) {
 		|| isImportedBuffer(node, context);
 }
 
+function getBase64Transformation(node) {
+	if (!isMethodCall(node, {
+		methods: ['replace', 'replaceAll'],
+		argumentsLength: 2,
+		computed: false,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return;
+	}
+
+	const [search, replacement] = node.arguments;
+	if (!isStringLiteral(replacement)) {
+		return;
+	}
+
+	const isReplaceAll = node.callee.property.name === 'replaceAll';
+	let character;
+	if (isReplaceAll && isStringLiteral(search)) {
+		character = search.value;
+	} else if (isRegexLiteral(search)) {
+		const {pattern, flags} = search.regex;
+		if (flags === 'g') {
+			if (pattern === String.raw`\+`) {
+				character = '+';
+			} else if (pattern === String.raw`\/`) {
+				character = '/';
+			}
+		}
+
+		if (pattern === '=+$' && (flags === 'g' || (!isReplaceAll && flags === ''))) {
+			character = '=';
+		}
+	}
+
+	if (
+		(character === '+' && replacement.value === '-')
+		|| (character === '/' && replacement.value === '_')
+		|| (character === '=' && replacement.value === '')
+	) {
+		return character;
+	}
+}
+
+function getBase64OptionsProblem(node, context) {
+	if (!isMethodCall(node, {
+		method: 'toBase64',
+		argumentsLength: 0,
+		computed: false,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return;
+	}
+
+	const transformations = new Set();
+	const calls = [];
+	let outermostCall = node;
+	while (outermostCall.parent.type === 'MemberExpression' && outermostCall.parent.object === outermostCall) {
+		const call = outermostCall.parent.parent;
+		const transformation = getBase64Transformation(call);
+		if (!transformation) {
+			break;
+		}
+
+		if (transformations.has(transformation)) {
+			return;
+		}
+
+		transformations.add(transformation);
+		calls.push(call);
+		outermostCall = call;
+	}
+
+	if (calls.length === 0 || transformations.has('+') !== transformations.has('/')) {
+		return;
+	}
+
+	const options = [];
+	if (transformations.has('+')) {
+		options.push('alphabet: \'base64url\'');
+	}
+
+	if (transformations.has('=')) {
+		options.push('omitPadding: true');
+	}
+
+	return {
+		node: outermostCall,
+		messageId: MESSAGE_ID_OPTIONS,
+		* fix(fixer, {abort}) {
+			if (context.sourceCode.getCommentsInside(outermostCall).length > 0) {
+				abort();
+			}
+
+			yield fixer.insertTextBefore(context.sourceCode.getLastToken(node), `{${options.join(', ')}}`);
+			for (const call of calls) {
+				yield removeMethodCall(fixer, call, context);
+			}
+		},
+	};
+}
+
 const tracker = new GlobalReferenceTracker({
 	objects: ['atob', 'btoa'],
 	type: GlobalReferenceTracker.CALL,
@@ -89,6 +199,11 @@ const create = context => {
 	tracker.listen({context});
 
 	context.on('CallExpression', node => {
+		const optionsProblem = getBase64OptionsProblem(node, context);
+		if (optionsProblem) {
+			return optionsProblem;
+		}
+
 		// `Buffer.from(string, 'base64' | 'base64url')`
 		// Match exactly two arguments. With a string input, `Buffer.from` ignores any third argument, but `Uint8Array.fromBase64`'s second parameter is an options object, so shifting an extra argument into it would change behavior or throw.
 		if (
@@ -155,11 +270,12 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Uint8Array#toBase64()` and `Uint8Array.fromBase64()` over `atob()`, `btoa()`, and `Buffer` base64 conversions.',
+			description: 'Prefer `Uint8Array#toBase64()` and `Uint8Array.fromBase64()` over legacy base64 conversions and manual postprocessing.',
 			// eslint-disable-next-line no-warning-comments
 			// TODO: Enable in the `recommended` and `unopinionated` configs when targeting Node.js 26.
 			recommended: false,
 		},
+		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 		languages: [

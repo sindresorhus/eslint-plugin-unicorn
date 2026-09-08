@@ -1,10 +1,10 @@
 # prefer-uint8array-base64
 
-📝 Prefer `Uint8Array#toBase64()` and `Uint8Array.fromBase64()` over `atob()`, `btoa()`, and `Buffer` base64 conversions.
+📝 Prefer `Uint8Array#toBase64()` and `Uint8Array.fromBase64()` over legacy base64 conversions and manual postprocessing.
 
 🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -58,6 +58,24 @@ const bytes = Buffer.from(base64url, 'base64url');
 // ✅
 const bytes = Uint8Array.fromBase64(base64url, {alphabet: 'base64url'});
 ```
+
+Prefer native encoding options over manually replacing alphabet characters or removing padding:
+
+```js
+// ❌
+const base64url = bytes.toBase64().replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
+
+// ✅
+const base64url = bytes.toBase64({alphabet: 'base64url', omitPadding: true});
+
+// ❌
+const base64 = bytes.toBase64().replace(/=+$/, '');
+
+// ✅
+const base64 = bytes.toBase64({omitPadding: true});
+```
+
+This check supports consecutive literal `replaceAll()` calls and equivalent global-regex `replace()` calls after an argument-free `.toBase64()`. Alphabet conversion requires both character substitutions. Calls with existing options are not checked.
 
 > [!TIP]
 > The [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras) package offers `stringToBase64` and `base64ToString` helpers for the text case.
