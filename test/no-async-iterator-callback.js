@@ -78,6 +78,7 @@ test.snapshot({
 			code: 'const element = <div>{Iterator.from(values).some(async value => value)}</div>;',
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
+		'Iterator.from(values).filter(callback); async function callback(value) { return value; }',
 	],
 });
 
@@ -116,6 +117,7 @@ test.snapshot({
 		typeAware('async function * values() { yield 1; } values().filter(async value => value);'),
 		typeAware('const array = [1]; array.filter(async value => value);'),
 		typeAware('const object = {filter(callback: () => Promise<boolean>) {}}; object.filter(async () => false);'),
+		typeAware('declare function callback(value: number): boolean; declare function callback(value: string): boolean; Iterator.from([1]).filter(callback);'),
 	],
 	invalid: [
 		...methods.map(method => typeAware(`Iterator.from([1]).${method}(() => Promise.resolve(false));`)),
@@ -131,5 +133,6 @@ test.snapshot({
 		typeAware('function * values() { yield 1; } values().filter(async value => value);'),
 		typeAware('const iterator = [1].values(); iterator.filter(async value => value);'),
 		typeAware('declare function values(): IteratorObject<number>; values().some(async value => value);'),
+		typeAware('declare function callback(value: string): boolean; declare function callback(value: number): Promise<boolean>; Iterator.from([1]).filter(callback);'),
 	],
 });
