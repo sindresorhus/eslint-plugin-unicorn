@@ -281,6 +281,17 @@ test({
 	valid: [],
 	invalid: [
 		{
+			code: outdent`
+				const items = [1];
+				items.reduce((groups, item) => {
+					const key = item === 1 ? (items.push(2), item) : item;
+					(groups[key] ??= []).push(item);
+					return groups;
+				}, {});
+			`,
+			errors: [{messageId: 'prefer-group-by'}],
+		},
+		{
 			code: 'items.reduce((groups, item) => {groups[item[(sideEffect(), "type")]] ??= []; groups[item[(sideEffect(), "type")]].push(item); return groups;}, {});',
 			errors: [{messageId: 'prefer-group-by'}],
 		},

@@ -530,7 +530,7 @@ function hasRepeatedSideEffectfulKey(statements, key, context) {
 }
 
 function shouldSkipReduceFix(options, context) {
-	const {callExpression, initialValue, callback, callbackParts, declarationIdentifier, key, statements} = options;
+	const {callExpression, initialValue, callback, callbackParts, declarationIdentifier, key} = options;
 	return hasTypeArguments(callExpression)
 		|| hasTypeArguments(initialValue)
 		|| callbackParts.accumulator.typeAnnotation
@@ -545,7 +545,7 @@ function shouldSkipReduceFix(options, context) {
 			callback.type === 'FunctionExpression'
 			&& hasFunctionSpecificReference(key, callback.id)
 		)
-		|| hasRepeatedSideEffectfulKey(statements, key, context)
+		|| hasSideEffect(key, context.sourceCode)
 		|| context.sourceCode.getCommentsInside(callExpression).length > 0;
 }
 
@@ -604,7 +604,6 @@ function getGroupByProblem(callExpression, context) {
 		callbackParts,
 		declarationIdentifier: variableDeclarator?.id,
 		key,
-		statements,
 	}, context)) {
 		return problem;
 	}
