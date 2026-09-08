@@ -1,3 +1,4 @@
+import vm from 'node:vm';
 import test from 'ava';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
@@ -5,7 +6,7 @@ import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test: testRule} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 const setMethods = ['union', 'intersection', 'difference', 'symmetricDifference'];
 const predicateMethods = ['isSubsetOf', 'isSupersetOf', 'isDisjointFrom'];
 const declarations = 'const selected = new Set([1, 2]); const other = new Set([2, 3]); const records = new Map([[2, "value"]]);';
@@ -21,7 +22,7 @@ const typeAware = code => ({
 });
 
 for (const method of [...setMethods, ...predicateMethods]) {
-	testRule.snapshot({
+	ruleTest.snapshot({
 		valid: [
 			`unknown.${method}(new Set(unknownOther))`,
 			...[
@@ -65,7 +66,7 @@ for (const method of [...setMethods, ...predicateMethods]) {
 	});
 }
 
-testRule.snapshot({
+ruleTest.snapshot({
 	valid: [
 		...predicateMethods.map(method => withDeclarations(`new Set(selected.${method}(other))`)),
 		...[
@@ -91,11 +92,16 @@ testRule.snapshot({
 		'const Set = CustomSet; const selected = new Set(); selected.union(new Set(selected));',
 		'class CustomSet extends Set {} const selected = new CustomSet(); new Set(selected.union(other));',
 		'let selected = new Set(); new Set(selected.union(other));',
+		'const [other] = new Set([[2, 3]]); const selected = new Set([1, 2]); selected.union(new Set(other));',
+		'const [...other] = new Set([2, 3]); const selected = new Set([1, 2]); selected.union(new Set(other));',
+		'const [records] = new Map([[2, 3]]); const selected = new Set([1, 2]); selected.intersection(new Set(records.keys()));',
+		'const {missing: other = [2, 3]} = new Set(); const selected = new Set([1, 2]); selected.union(new Set(other));',
 		typescript('function check(selected: Set<number>, other: Set<number>) { selected.union(new Set<number>(other)); }'),
 		typescript('function check(selected: Set<number>, other: Set<number>) { new Set<number>(selected).union(other); }'),
 		typescript('function check(selected: Set<number>, other: Set<number>) { new Set<number>(selected.union(other)); }'),
 		typescript('function check(selected: Set<number> | undefined, other: Set<number>) { selected.union(new Set(other)); }'),
 		typeAware('function check(selected: {union(other: unknown): number[]}, other: Set<number>) { return new Set(selected.union(other)); }'),
+		typeAware('const [other] = new Set([[2, 3]]); const selected = new Set([1, 2]); selected.union(new Set(other));'),
 	],
 	invalid: [
 		...setMethods.map(method => withDeclarations(`new Set(selected.${method}(other))`)),
@@ -111,6 +117,10 @@ testRule.snapshot({
 			'new Set(/* result comment */ selected.union(other))',
 			'new Set(selected.union(/* retained */ other)).has(2)',
 			'new Set(selected.union(other)).intersection(records)',
+			'new new Set(selected.union(other))()',
+			'new new Set(selected.union(other)).constructor()',
+			'new (new Set(selected.union(other))).constructor()',
+			'new new Set(selected.union(other)).constructor.prototype.constructor()',
 			'new Set(new Set(selected).union(new Set(other)))',
 			'new Set(selected.union(getOther()))',
 			'new Set(selected.union((selected.clear(), other)))',
@@ -134,6 +144,12 @@ testRule.snapshot({
 			previous()
 			new Set((condition ? selected : other).union(other))
 		`,
+		...['const preceding = function() {}', 'const preceding = class {}', 'const preceding = () => {}', 'function preceding() {}', 'class Preceding {}'].map(preceding => outdent`
+			const selected = new Set();
+			const other = new Set();
+			${preceding}
+			new Set(condition ? selected : other).union(other)
+		`),
 		...[
 			'function check(selected: Set<number>, other: ReadonlySet<number>) { return selected.union(new Set(other)); }',
 			'function check(selected: Set<number>, records: ReadonlyMap<number, string>) { return selected.union(new Set(records.keys())); }',
@@ -144,11 +160,30 @@ testRule.snapshot({
 			'function check(selected: Set<number>, other: unknown) { return new Set(<Set<number>>other).union(selected); }',
 			'function check(selected: Set<number>, other: Set<number>) { return selected!.union(new Set(other)); }',
 			'function check(selected: Set<number>, other: Set<number>) { return selected.union(new Set(other satisfies Set<number>)); }',
+			'function check(selected: Set<number>, other: Set<number>) { return new new Set(selected.union(other))!(); }',
+			'function check(selected: Set<number>, other: Set<number>) { return new new Set(selected.union(other))!.constructor(); }',
 		].map(code => typescript(code)),
 		typeAware('function check(selected: Set<number>, records: {value: Map<number, string>}) { return selected.union(new Set(records.value.keys())); }'),
 		typeAware('function check(selected: {value: Set<number>}, other: Set<number>) { return new Set(selected.value.union(other)); }'),
+		typeAware('function check(source: Set<Set<number>>, selected: Set<number>) { const [other] = source; return selected.union(new Set(other)); }'),
 	],
 });
+
+for (const expression of [
+	'new new Set(selected.union(other)).constructor()',
+	'const preceding = function() {}\nnew Set(true ? selected : other).union(other)',
+	'const preceding = class {}\nnew Set(true ? selected : other).union(other)',
+]) {
+	test(`autofix preserves runtime results: ${expression}`, t => {
+		const linter = new Linter();
+		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
+		const code = withDeclarations(expression);
+		const result = linter.verifyAndFix(code, config);
+		t.true(result.fixed);
+		t.deepEqual(result.messages, []);
+		t.deepEqual([...vm.runInNewContext(result.output)], [...vm.runInNewContext(code)]);
+	});
+}
 
 test('related rules converge without conflicting fixes', t => {
 	const linter = new Linter();

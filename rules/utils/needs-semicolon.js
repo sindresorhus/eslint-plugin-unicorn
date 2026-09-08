@@ -59,6 +59,16 @@ export default function needsSemicolon(tokenBefore, context, code) {
 			return true;
 		}
 
+		if (
+			value === '}'
+			&& (
+				(lastBlockNode.type === 'BlockStatement' && lastBlockNode.parent.type === 'FunctionExpression')
+				|| (lastBlockNode.type === 'ClassBody' && lastBlockNode.parent.type === 'ClassExpression')
+			)
+		) {
+			return true;
+		}
+
 		if (value === ')') {
 			switch (lastBlockNode.type) {
 				case 'IfStatement': {

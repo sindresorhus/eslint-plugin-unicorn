@@ -7,6 +7,7 @@ import {
 	isBuiltinSet,
 	isGlobalIdentifier,
 	isParenthesized,
+	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
@@ -97,11 +98,19 @@ function createFix(node, replacement, context) {
 	}
 
 	let text = getParenthesizedText(replacement, context);
+	let callee = node;
+	while (
+		(callee.parent.type === 'MemberExpression' && callee.parent.object === callee)
+		|| isTypeScriptExpressionWrapper(callee.parent)
+	) {
+		callee = callee.parent;
+	}
+
 	if (
 		!isParenthesized(replacement, context)
 		&& (
 			shouldAddParenthesesToMemberExpressionObject(replacement, context)
-			|| (node.parent.type === 'NewExpression' && node.parent.callee === node)
+			|| (callee.parent.type === 'NewExpression' && callee.parent.callee === callee)
 		)
 	) {
 		text = `(${text})`;
