@@ -96,7 +96,8 @@ function shouldReportBufferToString(node, parserServices) {
 
 const isKnownNonStringBufferInput = (node, context) => {
 	const input = unwrapTypeScriptExpression(node);
-	return input.type === 'ArrayExpression'
+	return (input.type === 'Literal' && !isStringLiteral(input))
+		|| input.type === 'ArrayExpression'
 		|| input.type === 'ObjectExpression'
 		|| input.type === 'NewExpression'
 		|| isKnownNonString(node, context);

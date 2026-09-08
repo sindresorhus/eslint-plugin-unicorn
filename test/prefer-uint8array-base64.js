@@ -42,6 +42,7 @@ test.snapshot({
 		'Buffer.from([1, 2, 3])',
 		'Buffer.from([value], \'base64\')',
 		'Buffer.from({length: 1, 0: 65}, \'base64\')',
+		'Buffer.from(123, \'base64\')',
 		'Buffer.from(new Uint8Array([1]), \'base64\')',
 		'Buffer.from(new ArrayBuffer(8), \'base64\')',
 		{code: 'Buffer.from((new Uint8Array()) as Uint8Array, \'base64\')', languageOptions: {parser: parsers.typescript}},
@@ -112,6 +113,7 @@ test.snapshot({
 
 		// `Buffer.from(…, 'base64' | 'base64url')`
 		'Buffer.from(string, \'base64\')',
+		'Buffer.from(\'Zm9v\', \'base64\')',
 		'Buffer.from(string, \'base64url\')',
 		'Buffer.from(string, \'BASE64\')',
 		'Buffer.from(string, \'BaSe64UrL\')',
