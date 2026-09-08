@@ -141,3 +141,75 @@ test.snapshot({
 		},
 	],
 });
+
+// Accumulation loops.
+test.snapshot({
+	valid: [
+		'const groups = {}; for (let item of [1, 2]) {const key = item++; groups[key] ??= []; groups[key].push(item);}',
+		'const groups = new Map(); for (let item of items) {const key = (item = item.type); const group = groups.get(key) ?? []; group.push(item); groups.set(key, group);}',
+		'const groups = {existing: []}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; unrelated(); for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'var groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (var item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (const {item} of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for await (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item.value);}',
+		'const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.other].push(item);}',
+		'const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item); log(item);}',
+		'const groups = {}; for (const item of items) {groups[item.type].push(item);}',
+		'const groups = {}; for (const item of items) {groups[getKey(item)] ??= []; groups[getKey(item)].push(item);}',
+		'const groups = {}; for (const item of items) {groups[item?.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (const item of items) {groups[groups.type] ??= []; groups[groups.type].push(item);}',
+		'const groups = {}; for (const item of Object.values(groups)) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (const groups of items) {groups[groups.type] ??= []; groups[groups.type].push(groups);}',
+		'const groups = {}; for (const item of items) {const item = getItem(); groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (const item of items) {const groups = getKey(item); groups[groups] ??= []; groups[groups].push(item);}',
+		'const groups = {}; for (const item of items) {const key = key; groups[key] ??= []; groups[key].push(item);}',
+		'const groups = new Map([[type, []]]); for (const item of items) {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);}}',
+		'const groups = new Map(); for (const item of items) {const key = group; const group = groups.get(key) ?? []; group.push(item); groups.set(key, group);}',
+		'const groups = {}; for (let index = 0; index < items.length; index++) {const item = items[index]; groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; items.forEach(item => {groups[item.type] ??= []; groups[item.type].push(item);});',
+	],
+	invalid: [
+		'const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'let groups = Object.create(null); for (let item of items) {groups[item.type] ||= []; groups[item.type].push(item);}',
+		'const groups = {}; for (const item of []) {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item);}',
+		'const groups = {}; for (const item of new Set(items)) {(groups[item.type] ??= []).push(item);}',
+		'const groups = {}; for (const item of (items)) {const key = getKey(item); groups[key] ??= []; groups[key].push(item);}',
+		'const groups = {}; for (const item of items) {((groups)[(item.type)] ||= []).push(item);}',
+		'const groups = {}; for (const item of items) {const key = {}; (groups[key] ??= []).push(item);}',
+		'const groups = new Map(); for (const item of items) {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);}}',
+		'const groups = new Map(); for (const item of items) {const key = getKey(item); if (groups.has(key)) {groups.get(key).push(item);} else {groups.set(key, [item]);}}',
+		'let groups = new Map(); for (let item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}',
+		'const groups = new Map(); for (const item of items) {const key = getKey(item); const group = groups.get(key) || []; group.push(item); groups.set(key, group);}',
+		'const groups = {}; for (const item of items) {const key = await getKey(item); groups[key] ??= []; groups[key].push(item);}',
+		'function* foo() {const groups = {}; for (const item of items) {const key = yield item; groups[key] ??= []; groups[key].push(item);}}',
+		'const groups = {/* Keep initializer comment. */}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; /* Keep between comment. */ for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (const item of items) {/* Keep loop comment. */ groups[item.type] ??= []; groups[item.type].push(item);}',
+		'const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} // Keep trailing comment.',
+		outdent`
+			const groups = {}
+			for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
+			(() => {})()
+		`,
+		outdent`
+			const groups = new Map()
+			for (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}
+			[1].map(foo)
+		`,
+		{
+			code: 'const groups: Record<string, Item[]> = {}; for (const item of items as Item[]) {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item);}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const groups = {}; for (const item of items!) {groups[item!.type satisfies string] ??= []; groups[item!.type satisfies string].push(item);}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const groups = new Map<string, Item[]>(); for (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});

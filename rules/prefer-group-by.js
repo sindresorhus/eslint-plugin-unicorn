@@ -1,3 +1,4 @@
+import {isSemicolonToken} from '@eslint-community/eslint-utils';
 import {
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
@@ -5,7 +6,9 @@ import {
 	isNullLiteral,
 	isReferenceIdentifier,
 } from './ast/index.js';
+import {removeStatement} from './fix/index.js';
 import {
+	getNextNode,
 	getParenthesizedText,
 	isKnownNonIndexedCollection,
 	isSameIdentifier,
@@ -15,8 +18,10 @@ import {
 import {containsOptionalChain} from './utils/comparison.js';
 
 const MESSAGE_ID = 'prefer-group-by';
+const MESSAGE_ID_LOOP = 'prefer-group-by-loop';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{method}}()` over `Array#reduce()`.',
+	[MESSAGE_ID_LOOP]: 'Prefer `{{method}}()` over a `for-of` loop.',
 };
 
 const isSupportedOptionalParameter = node =>
@@ -220,12 +225,6 @@ function getObjectGroupByKey(statements, callbackParts) {
 	const {keyExpression, keyIdentifier} = keyBinding;
 	statements = keyBinding.statements;
 
-	if (!isReturnAccumulatorStatement(statements.at(-1), callbackParts.accumulator)) {
-		return;
-	}
-
-	statements = statements.slice(0, -1);
-
 	if (statements.length === 1) {
 		const pushKey = getExpressionStatementResult(statements[0], expression => getObjectPushKey(expression, callbackParts, {requireInitializer: true}));
 		if (!pushKey) {
@@ -410,12 +409,6 @@ function getMapGroupByKey(statements, callbackParts) {
 	const {keyExpression, keyIdentifier} = keyBinding ?? {};
 	statements = keyBinding?.statements ?? statements;
 
-	if (!isReturnAccumulatorStatement(statements.at(-1), callbackParts.accumulator)) {
-		return;
-	}
-
-	statements = statements.slice(0, -1);
-
 	const key = statements.length === 1
 		? getMapIfElseGroupByKey(statements[0], callbackParts, keyExpression, keyIdentifier)
 		: getMapGetSetGroupByKey(statements, callbackParts, keyExpression, keyIdentifier);
@@ -512,9 +505,14 @@ function getGroupByProblem(callExpression, context) {
 		return;
 	}
 
+	if (!isReturnAccumulatorStatement(callback.body.body.at(-1), callbackParts.accumulator)) {
+		return;
+	}
+
+	const statements = callback.body.body.slice(0, -1);
 	const key = method === 'Object.groupBy'
-		? getObjectGroupByKey(callback.body.body, callbackParts)
-		: getMapGroupByKey(callback.body.body, callbackParts);
+		? getObjectGroupByKey(statements, callbackParts)
+		: getMapGroupByKey(statements, callbackParts);
 
 	if (!key) {
 		return;
@@ -550,11 +548,109 @@ function getGroupByProblem(callExpression, context) {
 	return problem;
 }
 
+function getForOfElement(loop, context) {
+	if (
+		loop?.type !== 'ForOfStatement'
+		|| loop.await
+		|| loop.left.type !== 'VariableDeclaration'
+		|| !['const', 'let'].includes(loop.left.kind)
+		|| loop.left.declarations[0].id.type !== 'Identifier'
+	) {
+		return;
+	}
+
+	const element = loop.left.declarations[0].id;
+	const [variable] = context.sourceCode.getDeclaredVariables(loop.left);
+	return variable.references.some(reference => reference.identifier !== element && reference.isWrite())
+		? undefined
+		: element;
+}
+
+function getLoopGroupByProblem(declaration, context) {
+	if (
+		!['const', 'let'].includes(declaration.kind)
+		|| declaration.declarations.length !== 1
+	) {
+		return;
+	}
+
+	const [{id: accumulator, init}] = declaration.declarations;
+	if (accumulator.type !== 'Identifier' || !init) {
+		return;
+	}
+
+	const method = getGroupByMethod(init);
+	const loop = getNextNode(declaration, context);
+	const element = getForOfElement(loop, context);
+
+	if (!method || !element || loop.body.type !== 'BlockStatement') {
+		return;
+	}
+
+	const statements = loop.body.body;
+	const localIdentifiers = statements
+		.filter(statement => statement.type === 'VariableDeclaration')
+		.flatMap(statement => context.sourceCode.getDeclaredVariables(statement))
+		.flatMap(variable => variable.identifiers);
+	if (
+		isSameIdentifier(accumulator, element)
+		|| referencesIdentifier(loop.right, accumulator)
+		|| referencesIdentifier(loop.right, element)
+		|| localIdentifiers.some(identifier =>
+			isSameIdentifier(identifier, accumulator) || isSameIdentifier(identifier, element))
+	) {
+		return;
+	}
+
+	const callbackParts = {accumulator, element};
+	const key = method === 'Object.groupBy'
+		? getObjectGroupByKey(statements, callbackParts)
+		: getMapGroupByKey(statements, callbackParts);
+	if (!key || localIdentifiers.some(identifier => referencesIdentifier(key, identifier))) {
+		return;
+	}
+
+	return {
+		node: loop,
+		messageId: MESSAGE_ID_LOOP,
+		data: {method},
+		* fix(fixer, {abort}) {
+			const {sourceCode} = context;
+			const [start] = sourceCode.getRange(init);
+			const nextToken = sourceCode.getTokenAfter(loop);
+			const end = nextToken ? sourceCode.getRange(nextToken)[0] : sourceCode.text.length;
+			if (
+				sourceCode.getAllComments().some(comment => {
+					const [commentStart, commentEnd] = sourceCode.getRange(comment);
+					return commentStart >= start && commentEnd <= end;
+				})
+				|| init.typeArguments
+				|| init.typeParameters
+				|| isNodeMatchedInside(key, node => node.type === 'AwaitExpression' || node.type === 'YieldExpression')
+			) {
+				return abort();
+			}
+
+			const iterableText = getParenthesizedText(loop.right, context);
+			const elementText = getArrowParameterText(element, context);
+			const keyText = getArrowBodyText(key, context);
+			yield fixer.replaceText(init, `${method}(${iterableText}, ${elementText} => ${keyText})`);
+			// Removing the loop exposes the declaration to the following statement.
+			if (!isSemicolonToken(sourceCode.getLastToken(declaration))) {
+				yield fixer.insertTextAfter(declaration, ';');
+			}
+
+			yield removeStatement(loop, context, fixer);
+		},
+	};
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
 	context.on('CallExpression', callExpression => getGroupByProblem(callExpression, context));
+	context.on('VariableDeclaration', declaration => getLoopGroupByProblem(declaration, context));
 };
 
 /**
@@ -565,7 +661,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Object.groupBy()` or `Map.groupBy()` over reduce-based grouping.',
+			description: 'Prefer `Object.groupBy()` or `Map.groupBy()` over manual grouping.',
 			recommended: true,
 		},
 		fixable: 'code',
