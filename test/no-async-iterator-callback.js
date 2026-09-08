@@ -100,6 +100,8 @@ test.snapshot({
 		'Iterator.from(values).filter((async value => value)!)',
 		'Iterator.from(values).filter((async value => value) satisfies Predicate)',
 		'const callback = (async value => value) as Predicate; Iterator.from(values).filter(callback);',
+		'const callback = async <T>(value: T) => value; Iterator.from(values).filter(callback<number>);',
+		'async function callback<T>(value: T) { return value; } Iterator.from(values).filter(callback<number>);',
 		'function foo(iterator: IteratorObject<number>) { iterator!.filter<number>(async value => value); }',
 		'(Iterator.from(values) satisfies Iterable<number>).filter(async value => value)',
 	],

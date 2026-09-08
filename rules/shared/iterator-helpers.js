@@ -48,6 +48,7 @@ const {
 export const unwrapExpression = node => {
 	while (
 		isTypeScriptExpressionWrapper(node)
+		|| node.type === 'TSInstantiationExpression'
 		|| node.type === 'ChainExpression'
 		|| node.type === 'ParenthesizedExpression'
 	) {
