@@ -8,6 +8,7 @@ import {
 } from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
+	getAncestor,
 	getNextNode,
 	getParenthesizedText,
 	isKnownNonIndexedCollection,
@@ -94,6 +95,7 @@ const referencesIdentifier = (node, identifier) =>
 const hasFunctionSpecificReference = (node, functionIdentifier) =>
 	isNodeMatchedInside(node, node =>
 		node.type === 'ThisExpression'
+		|| (node.type === 'MetaProperty' && node.meta.name === 'new' && node.property.name === 'target')
 		|| isReferenceIdentifier(node, 'arguments')
 		|| (functionIdentifier && isReferenceIdentifier(node, functionIdentifier.name)));
 
@@ -472,12 +474,14 @@ function getGroupByMethod(initialValue) {
 	}
 }
 
-const hasObjectGroupByBindingConflict = (method, identifier) =>
-	method === 'Object.groupBy' && identifier?.name === 'Object';
+const hasObjectGroupByBindingConflict = (method, declaration, context) =>
+	method === 'Object.groupBy'
+	&& declaration
+	&& context.sourceCode.getDeclaredVariables(declaration).some(variable => variable.name === 'Object');
 
-function getGroupByMethodForBinding(initialValue, identifier) {
+function getGroupByMethodForBinding(initialValue, declaration, context) {
 	const method = getGroupByMethod(initialValue);
-	return hasObjectGroupByBindingConflict(method, identifier) ? undefined : method;
+	return hasObjectGroupByBindingConflict(method, declaration, context) ? undefined : method;
 }
 
 const hasTypeArguments = node => Boolean(node.typeArguments || node.typeParameters);
@@ -534,10 +538,9 @@ function getGroupByProblem(callExpression, context) {
 		return;
 	}
 
-	const declarationIdentifier = callExpression.parent.type === 'VariableDeclarator'
-		? callExpression.parent.id
-		: undefined;
-	const method = getGroupByMethodForBinding(initialValue, declarationIdentifier);
+	const variableDeclarator = getAncestor(callExpression, 'VariableDeclarator');
+	const declaration = variableDeclarator?.parent;
+	const method = getGroupByMethodForBinding(initialValue, declaration, context);
 	if (!method) {
 		return;
 	}
@@ -566,7 +569,7 @@ function getGroupByProblem(callExpression, context) {
 		initialValue,
 		callback,
 		callbackParts,
-		declarationIdentifier,
+		declarationIdentifier: variableDeclarator?.id,
 		key,
 	}, context)) {
 		return problem;
@@ -622,7 +625,7 @@ function getLoopGroupByProblem(declaration, context) {
 		return;
 	}
 
-	const method = getGroupByMethodForBinding(init, accumulator);
+	const method = getGroupByMethodForBinding(init, declaration, context);
 	if (!method) {
 		return;
 	}

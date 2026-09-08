@@ -16,6 +16,7 @@ const typeAware = code => ({
 test.snapshot({
 	valid: [
 		'const Object = items.reduce((groups, item) => {(groups[item.type] ??= []).push(item); return groups;}, {});',
+		'const {groups, Object} = {groups: items.reduce((groups, item) => {(groups[item.type] ??= []).push(item); return groups;}, {}), Object: globalThis.Object};',
 		'items.reduce((groups, item) => {const key = item++; (groups[key] ??= []).push(item); return groups;}, {});',
 		'items.reduce((groups, item) => {const key = (item = item.type); const group = groups.get(key) ?? []; group.push(item); groups.set(key, group); return groups;}, new Map());',
 		'items.reduce((groups, item) => {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [,]);} return groups;}, new Map());',
@@ -237,12 +238,16 @@ test.snapshot({
 	],
 });
 
-// An explicit accumulator type can be incompatible with the inferred groupBy result.
+// Cases that should report without autofixing.
 test({
 	valid: [],
 	invalid: [
 		{
 			code: 'items.reduce(function reducer(groups, item) {(groups[reducer.name] ??= []).push(item); return groups;}, {});',
+			errors: [{messageId: 'prefer-group-by'}],
+		},
+		{
+			code: 'function Group(items) {return items.reduce(function (groups, item) {const key = new.target; (groups[key] ??= []).push(item); return groups;}, {});}',
 			errors: [{messageId: 'prefer-group-by'}],
 		},
 		{
