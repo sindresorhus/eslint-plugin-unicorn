@@ -48,6 +48,7 @@ function getBufferImportSpecifier(identifier, context) {
 	if (
 		variable?.defs.length !== 1
 		|| definition.type !== 'ImportBinding'
+		|| definition.parent.type !== 'ImportDeclaration'
 		|| !bufferImportSources.has(definition.parent.source.value)
 	) {
 		return;
@@ -93,6 +94,7 @@ function shouldReportBufferToString(node, parserServices) {
 
 const isKnownNonStringBufferInput = (node, context) =>
 	node.type === 'ArrayExpression'
+	|| node.type === 'ObjectExpression'
 	|| node.type === 'NewExpression'
 	|| isKnownNonString(node, context);
 

@@ -41,7 +41,9 @@ test.snapshot({
 		'Buffer.from(array)',
 		'Buffer.from([1, 2, 3])',
 		'Buffer.from([value], \'base64\')',
+		'Buffer.from({length: 1, 0: 65}, \'base64\')',
 		'Buffer.from(new Uint8Array([1]), \'base64\')',
+		'Buffer.from(new ArrayBuffer(8), \'base64\')',
 		typeAware('function foo(value: Uint8Array) { return Buffer.from(value, \'base64\'); }'),
 		'Buffer.from(string, encoding)',
 		// Extra argument; `Uint8Array.fromBase64`'s second parameter is an options object, so the rewrite would not be equivalent
@@ -52,6 +54,7 @@ test.snapshot({
 		'import {Buffer} from \'node:buffer\'; Buffer.from(string)',
 		// Default import is the module namespace, not the `Buffer` constructor
 		'import Buffer from \'node:buffer\'; Buffer.from(string, \'base64\')',
+		{code: 'import Buffer = require(\'node:buffer\'); Buffer.from(string, \'base64\')', languageOptions: {parser: parsers.typescript}},
 
 		// `toString` that isn't a base64 conversion
 		'foo.toString()',
@@ -132,6 +135,7 @@ test.snapshot({
 		// With type information, `Buffer` receivers are still reported
 		typeAware('import {Buffer} from \'node:buffer\'; declare const value: Buffer; value.toString(\'base64\')'),
 		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | undefined; value?.toString(\'base64\')'),
+		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer & {readonly extra: true}; value.toString(\'base64\')'),
 		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } function foo<T extends Buffer>(value: T) { return value.toString(\'base64\'); }'),
 		// `any` cannot be ruled out, so it is still reported
 		typeAware('function foo(value: any) { return value.toString(\'base64\'); }'),
