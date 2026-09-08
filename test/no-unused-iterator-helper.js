@@ -67,7 +67,7 @@ test.snapshot({
 		typescript('type Iterator<T> = T[]; function run(items: Iterator<number>) { items.map(transform); }'),
 		typescript('const iterator: Unknown = items.values(); iterator.map(transform);'),
 		typescript('(source as number[]).map(transform);'),
-		typescript('(source as Iterator<number> | number[]).map(transform);'),
+		typescript('(source as Iterator<number> | number[] | undefined)!.map(transform);'),
 		typescript('type Iterator<T> = T[]; (source as Iterator<number>).map(transform);'),
 		typeAware('declare function getItems(): number[]; getItems().map(value => value);'),
 		typeAware('async function * generate() { yield 1; } generate().map(value => value);'),
@@ -135,5 +135,6 @@ test.snapshot({
 		typescript('type SetIterator<T> = T[]; function run(iterator: IteratorObject<number>) { iterator.map(transform); }'),
 		typeAware('type SetIterator<T> = T[]; declare function getIterator(): IteratorObject<number>; getIterator().map(transform);'),
 		'text.matchAll().map(transform);',
+		typescript('function run(iterator: IteratorObject<number> | undefined) { iterator!.map(transform); }'),
 	],
 });
