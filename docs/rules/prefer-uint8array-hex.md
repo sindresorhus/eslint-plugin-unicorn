@@ -91,7 +91,7 @@ Supported regex patterns are `/../g`, `/.{2}/g`, `/.{1,2}/g`, `/[0-9a-f]{2}/g`, 
 
 Buffer decoding is reported without a suggestion when the result is immediately accessed through a member, such as `Buffer.from(text, 'hex').toString()`, since the remaining operation may require a Buffer.
 
-Calls with inputs known to be non-string are ignored because Buffer only applies the encoding argument to string inputs.
+Calls with inputs known to be non-string are ignored because replacing them with `Uint8Array.fromHex()` may be invalid.
 
 ## Limitations
 

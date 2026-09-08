@@ -31,6 +31,7 @@ const messages = {
 const bufferImportSources = new Set(['buffer', 'node:buffer']);
 const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
 const hexPairPatterns = new Set(['..', '.{2}', '.{1,2}', '[0-9a-f]{2}', String.raw`[\da-f]{2}`]);
+const arrayBufferTypes = ['ArrayBuffer', 'SharedArrayBuffer', 'DataView'];
 const nonByteExpressionTypes = new Set([
 	'ArrayExpression',
 	'ArrowFunctionExpression',
@@ -44,7 +45,7 @@ const nonByteExpressionTypes = new Set([
 	'UnaryExpression',
 	'UpdateExpression',
 ]);
-const constructorNames = ['Array', ...typedArrayTypes];
+const constructorNames = ['Array', ...arrayBufferTypes, ...typedArrayTypes];
 
 // All matched operations are ordinary, non-computed calls with exact argument counts.
 const isPlainMethodCall = (node, method, argumentsLength) => isMethodCall(node, {
@@ -107,7 +108,7 @@ const typeCheckerOptions = {
 	preferTypeReferenceDefinitions: true,
 	targetTypeNames: new Set(['Buffer']),
 	targetTypeImports: new Map([...bufferImportSources].map(source => [source, new Set(['Buffer'])])),
-	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', ...typedArrayTypes]),
+	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', ...arrayBufferTypes, ...typedArrayTypes]),
 	isTargetNode: isBufferExpression,
 	isNonTargetNode: (node, context) => nonByteExpressionTypes.has(node.type)
 		|| isConstructorReference(node, context)
