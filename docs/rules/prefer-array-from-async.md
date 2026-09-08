@@ -15,7 +15,7 @@ Prefer `Array.fromAsync()` over simple loops that only accumulate values into an
 
 This rule only reports adjacent `const` or `let` empty-array declarations followed by a supported `for…of` or `for await…of` loop with a single identifier binding and a body that is only a single `result.push(…)` expression. Mapped values are only reported when the pushed value is explicitly awaited, because `Array.fromAsync()` awaits mapper results.
 
-Ordinary `for…of` loops are reported only for explicitly awaited mappings over known primitive inputs. Without type information, this includes statically known strings and array literals containing primitive values, including constant arrays used only as the loop input. Arrays with spreads or other references are skipped rather than attempting to track mutations and aliases.
+Ordinary `for…of` loops are reported only for explicitly awaited mappings over known primitive inputs. Without type information, this includes statically known strings and array literals containing primitive values, including constant arrays used only as the loop input. Array literals with spreads, and constant array bindings with any other references, are skipped rather than attempting to track mutations and aliases.
 
 With TypeScript type information enabled, this also includes strings, arrays, readonly arrays, and tuples whose element types are exclusively primitive. Syntax-only TypeScript parsing uses the same static checks as JavaScript. Unknown inputs, object or promise elements, and custom iterables are not reported.
 

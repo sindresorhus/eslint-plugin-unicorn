@@ -311,6 +311,8 @@ test.snapshot({
 			'AsyncIterable<string>',
 			'Set<string>',
 		].map(type => typeAware(`async function foo(paths: ${type}) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }`)),
+		typeAware('async function foo<T extends unknown>(paths: T[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware('async function foo<T extends string | PromiseLike<string>>(paths: T[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 	],
 	invalid: [
 		'const result = []; for (const path of ["a", "b"]) { result.push(await readFile(path)); }',
@@ -340,6 +342,9 @@ test.snapshot({
 		].map(type => typeAware(`async function foo(paths: ${type}) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }`)),
 		typeAware('async function foo<T extends string>(paths: Uppercase<T>) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo<T extends string>(paths: Uppercase<T>[]) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware('async function foo<T extends string>(paths: T) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware('async function foo<T extends readonly string[]>(paths: T) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware('async function foo<T extends string>(paths: Array<T>) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('declare const key: unique symbol; async function foo(keys: (typeof key)[]) { const result = []; for (const key of keys) { result.push(await transform(key)); } }'),
 		{
 			code: 'async function foo() { const result = []; for (const path of [("a" as string)]) { result.push(await readFile(path)); } }',

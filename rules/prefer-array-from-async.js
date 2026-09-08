@@ -180,6 +180,11 @@ const primitiveTypeNames = new Set([
 ]);
 
 const isPrimitiveType = (type, checker) => {
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return isPrimitiveType(constraint, checker);
+	}
+
 	if (type.isUnion()) {
 		return type.types.every(type => isPrimitiveType(type, checker));
 	}
@@ -191,6 +196,11 @@ const isPrimitiveType = (type, checker) => {
 };
 
 const isPrimitiveIterableType = (type, checker) => {
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return isPrimitiveIterableType(constraint, checker);
+	}
+
 	if (type.isUnion()) {
 		return type.types.every(type => isPrimitiveIterableType(type, checker));
 	}
