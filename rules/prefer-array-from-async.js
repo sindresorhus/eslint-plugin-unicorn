@@ -9,10 +9,12 @@ import {
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	getVariableIdentifiers,
+	isStringMappingType,
+	isTemplateLiteralType,
+	isUniqueSymbolType,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
-import {isStringMappingType, isTemplateLiteralType, isUniqueSymbolType} from './utils/types.js';
 
 const MESSAGE_ID = 'prefer-array-from-async';
 const MESSAGE_ID_SUGGESTION = 'prefer-array-from-async/suggestion';
