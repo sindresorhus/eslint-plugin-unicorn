@@ -10,7 +10,7 @@
 Synchronous iterator helpers do not await callback results:
 
 - `filter`, `some`, `every`, and `find` treat returned promises as truthy, regardless of their resolved values.
-- `forEach` discards returned promises and finishes before asynchronous callbacks complete.
+- `forEach` discards returned promises and does not wait for asynchronous callbacks to finish.
 - `flatMap` requires a synchronous iterable or iterator. Returning a promise causes a `TypeError` when the helper is consumed.
 
 This rule disallows asynchronous callbacks for these six methods. Awaiting the helper call does not make it await its callbacks.

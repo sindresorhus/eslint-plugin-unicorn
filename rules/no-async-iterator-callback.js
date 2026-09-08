@@ -14,16 +14,16 @@ function getDirectConstInitializer(node, context) {
 	return initializer?.parent.id.type === 'Identifier' ? unwrapExpression(initializer) : undefined;
 }
 
-const isAsyncFunction = node => isFunction(node) && node.async && !node.generator;
+const isAsyncNonGeneratorFunction = node => isFunction(node) && node.async && !node.generator;
 
 function isAsyncCallback(node, context) {
 	node = unwrapExpression(node);
-	if (isAsyncFunction(node)) {
+	if (isAsyncNonGeneratorFunction(node)) {
 		return true;
 	}
 
 	const initializer = getDirectConstInitializer(node, context);
-	if (initializer && isAsyncFunction(initializer)) {
+	if (initializer && isAsyncNonGeneratorFunction(initializer)) {
 		return true;
 	}
 
@@ -37,7 +37,7 @@ function isAsyncCallback(node, context) {
 	}
 
 	const [definition] = variable.defs;
-	return definition.type === 'FunctionName' && isAsyncFunction(definition.node);
+	return definition.type === 'FunctionName' && isAsyncNonGeneratorFunction(definition.node);
 }
 
 function hasPromiseReturnType(node, context) {
@@ -48,7 +48,7 @@ function hasPromiseReturnType(node, context) {
 
 	try {
 		const checker = parserServices.program.getTypeChecker();
-		const type = parserServices.getTypeAtLocation(unwrapExpression(node));
+		const type = parserServices.getTypeAtLocation(node);
 		return type.getCallSignatures().some(signature => {
 			const returnType = checker.getReturnTypeOfSignature(signature);
 			const types = returnType.isUnion() ? returnType.types : [returnType];

@@ -107,6 +107,8 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		typeAware('Iterator.from([1]).filter(value => value > 0);'),
+		typeAware('declare const callback: unknown; Iterator.from([1]).filter(callback as () => boolean);'),
+		typeAware('declare const callback: (() => boolean) | undefined; Iterator.from([1]).filter(callback!);'),
 		typeAware('declare const callback: () => unknown; Iterator.from([1]).filter(callback);'),
 		typeAware('declare const callback: any; Iterator.from([1]).filter(callback);'),
 		typeAware('declare const callback: () => boolean | undefined; Iterator.from([1]).filter(callback);'),
@@ -117,6 +119,10 @@ test.snapshot({
 	],
 	invalid: [
 		...methods.map(method => typeAware(`Iterator.from([1]).${method}(() => Promise.resolve(false));`)),
+		typeAware('declare const callback: unknown; Iterator.from([1]).filter(callback as () => Promise<boolean>);'),
+		typeAware('Iterator.from([1]).forEach((async () => {}) as () => void);'),
+		typeAware('declare const callback: unknown; Iterator.from([1]).filter(<() => PromiseLike<boolean>>callback);'),
+		typeAware('declare const callback: (() => Promise<boolean>) | undefined; Iterator.from([1]).filter(callback!);'),
 		typeAware('declare const callback: () => PromiseLike<boolean>; Iterator.from([1]).filter(callback);'),
 		typeAware('declare const callback: () => boolean | Promise<boolean>; Iterator.from([1]).filter(callback);'),
 		typeAware('declare const callback: () => Promise<boolean> | undefined; Iterator.from([1]).filter(callback);'),
