@@ -86,8 +86,6 @@ const isGlobalIteratorReference = (node, context) => {
 const isGlobalIteratorMethodCall = (node, context) =>
 	isMethodCall(node, {
 		methods: iteratorStaticMethods,
-		optionalCall: false,
-		optionalMember: false,
 		computed: false,
 	})
 	&& isGlobalIteratorReference(node.callee.object, context);
@@ -96,15 +94,11 @@ const isIteratorMethodCall = node =>
 	isMethodCall(node, {
 		methods: iteratorMethods,
 		argumentsLength: 0,
-		optionalCall: false,
-		optionalMember: false,
 		computed: false,
 	})
 	|| isMethodCall(node, {
 		method: 'matchAll',
 		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
 		computed: false,
 	});
 
@@ -112,8 +106,6 @@ export const isLazyIteratorHelperCall = (node, context) =>
 	isMethodCall(node, {
 		methods: iteratorHelperMethods,
 		minimumArguments: 1,
-		optionalCall: false,
-		optionalMember: false,
 		computed: false,
 	})
 	&& isIteratorExpression(node.callee.object, context);
