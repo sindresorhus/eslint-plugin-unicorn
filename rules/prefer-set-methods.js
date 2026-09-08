@@ -83,15 +83,8 @@ const unwrapTransparentExpression = node => {
 };
 
 const getNodeAfterTransparentWrappers = node => {
-	while (node.parent) {
-		const {parent} = node;
-
-		if (isTransparentWrapperOf(parent, node)) {
-			node = parent;
-			continue;
-		}
-
-		break;
+	while (node.parent && isTransparentWrapperOf(node.parent, node)) {
+		node = node.parent;
 	}
 
 	return node;
