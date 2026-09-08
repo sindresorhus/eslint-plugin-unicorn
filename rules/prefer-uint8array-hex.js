@@ -237,6 +237,10 @@ function isImmediatelyAccessed(node) {
 }
 
 function getProblem(node, input, context, {decoding = false, autofix = false, canSuggest = true} = {}) {
+	if (input.type === 'Super') {
+		return;
+	}
+
 	const replacement = decoding ? 'Uint8Array.fromHex()' : 'Uint8Array#toHex()';
 	const problem = {
 		node,
@@ -290,7 +294,7 @@ const create = context => {
 		if (isPlainMethodCall(node, 'toString', 1) && isHexEncoding(node.arguments[0])) {
 			let input = node.callee.object;
 			const type = getBufferType(input, context);
-			if (input.type === 'Super' || type === nonTarget || unwrapTypeScriptExpression(input).type === 'ChainExpression') {
+			if (type === nonTarget || unwrapTypeScriptExpression(input).type === 'ChainExpression') {
 				return;
 			}
 

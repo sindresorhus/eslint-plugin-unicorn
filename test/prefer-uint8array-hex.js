@@ -25,6 +25,11 @@ testRule({
 		`Array.from(Array(0, 255), ${encode}).join('')`,
 		'Array(0, 255).toString(\'hex\')',
 		'class Bytes extends Buffer { hex() { return super.toString(\'hex\'); } }',
+		...[
+			`new Uint8Array(super.match(/.{2}/g).map(${decode}))`,
+			`Uint8Array.from(super.match(/.{2}/g).map(${decode}))`,
+			`Uint8Array.from(super.match(/.{2}/g), ${decode})`,
+		].map(expression => `class Hex extends String { decode() { return ${expression}; } }`),
 		typeAware('class Buffer { toString(encoding: string) {} } class Bytes extends Buffer { hex() { return super.toString(\'hex\'); } }'),
 		`Array.from(object?.bytes, ${encode}).join('')`,
 		`new Uint8Array((object?.text).match(/.{2}/g).map(${decode}))`,

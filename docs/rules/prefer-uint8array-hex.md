@@ -93,7 +93,7 @@ Buffer decoding is reported without a suggestion when the result is immediately 
 
 ## Limitations
 
-The rule does not recognize pipelines split across statements, imperative loops, lookup tables, other padding idioms, arbitrary regex patterns, optional operations, computed method names, `super.toString('hex')`, or `toString('hex', start, end)` ranges. Direct typed-array `map()` encoders are ignored because typed-array mapping coerces the callback's strings back into numbers.
+The rule does not recognize pipelines split across statements, imperative loops, lookup tables, other padding idioms, arbitrary regex patterns, optional operations, computed method names, `super` method calls, or `toString('hex', start, end)` ranges. Direct typed-array `map()` encoders are ignored because typed-array mapping coerces the callback's strings back into numbers.
 
 Replacements containing comments are reported without a fix or suggestion, so comments are not lost or moved. Compatibility fallbacks are not detected automatically; disable this rule where an older-runtime implementation is intentional.
 
