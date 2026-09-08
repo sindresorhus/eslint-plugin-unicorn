@@ -93,7 +93,9 @@ function getBase64Transformation(node) {
 		character = search.value;
 	} else if (isRegexLiteral(search)) {
 		const {pattern, flags} = search.regex;
-		if (flags === 'g') {
+		const isGlobal = flags.includes('g');
+		const isSticky = flags.includes('y');
+		if (isGlobal && !isSticky) {
 			if (pattern === String.raw`\+`) {
 				character = '+';
 			} else if (pattern === String.raw`\/`) {
@@ -101,7 +103,7 @@ function getBase64Transformation(node) {
 			}
 		}
 
-		if (pattern === '=+$' && (flags === 'g' || (!isReplaceAll && flags === ''))) {
+		if (pattern === '=+$' && !isSticky && (isGlobal || !isReplaceAll)) {
 			character = '=';
 		}
 	}
