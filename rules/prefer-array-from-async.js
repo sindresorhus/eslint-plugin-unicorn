@@ -222,19 +222,13 @@ const isPrimitiveIterableType = (type, checker) => {
 	return Boolean(elementType && isPrimitiveType(elementType, checker));
 };
 
-const getConstIdentifierVariable = (node, context) => {
+const getVariableDeclarationVariable = (node, context) => {
 	if (node.type !== 'Identifier') {
 		return;
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
-	if (
-		definition?.type !== 'Variable'
-		|| definition.parent.kind !== 'const'
-		|| definition.node.id.type !== 'Identifier'
-		|| !definition.node.init
-	) {
+	if (!variable?.defs.some(definition => definition.type === 'Variable')) {
 		return;
 	}
 
@@ -245,8 +239,9 @@ const isKnownPrimitiveIterable = (node, context) => {
 	const {sourceCode} = context;
 	const typeNode = node;
 	node = unwrapTypeScriptExpression(node);
-	const variable = getConstIdentifierVariable(node, context);
-	const initializer = variable ? unwrapTypeScriptExpression(variable.defs[0].node.init) : undefined;
+	const variable = getVariableDeclarationVariable(node, context);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	const initializer = definition?.parent.kind === 'const' && definition.node.id.type === 'Identifier' && definition.node.init ? unwrapTypeScriptExpression(definition.node.init) : undefined;
 	const hasOtherReferences = Boolean(variable?.references.some(reference => !reference.init && reference.identifier !== node));
 	if (typeof getStaticValueForControlFlow(node, context)?.value === 'string') {
 		return true;
@@ -257,6 +252,7 @@ const isKnownPrimitiveIterable = (node, context) => {
 		try {
 			const checker = parserServices.program.getTypeChecker();
 			const type = parserServices.getTypeAtLocation(typeNode);
+			// Local array bindings require static const analysis below; primitive-valued bindings are safe.
 			if (
 				isPrimitiveIterableType(type, checker)
 				&& (!variable || isPrimitiveType(type, checker))

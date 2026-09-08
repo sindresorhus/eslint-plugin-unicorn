@@ -319,6 +319,46 @@ test.snapshot({
 				values[0] = Promise.resolve('b');
 			}
 			async function foo() {
+				let paths = ['a'];
+				replace(paths);
+				const result = [];
+				for (const path of paths) {
+					result.push(await transform(path));
+				}
+			}
+		`),
+		typeAware(outdent`
+			function replace(values: unknown[]) {
+				values[0] = Promise.resolve('b');
+			}
+			async function foo() {
+				var paths = ['a'];
+				var paths;
+				replace(paths);
+				const result = [];
+				for (const path of paths) {
+					result.push(await transform(path));
+				}
+			}
+		`),
+		typeAware(outdent`
+			function replace(values: unknown[]) {
+				values[0] = Promise.resolve('b');
+			}
+			async function foo() {
+				const {paths} = {paths: ['a']};
+				replace(paths);
+				const result = [];
+				for (const path of paths) {
+					result.push(await transform(path));
+				}
+			}
+		`),
+		typeAware(outdent`
+			function replace(values: unknown[]) {
+				values[0] = Promise.resolve('b');
+			}
+			async function foo() {
 				const paths = ['a'];
 				replace(paths);
 				const result = [];
@@ -388,6 +428,7 @@ test.snapshot({
 		typeAware('async function foo<T extends string>(paths: T) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo<T extends readonly string[]>(paths: T) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo<T extends string>(paths: Array<T>) { const result = []; for (const path of paths) { result.push(await readFile(path)); } }'),
+		typeAware('async function foo(paths: string) { const alias = paths; const result = []; for (const path of alias) { result.push(await readFile(path)); } }'),
 		typeAware('declare const key: unique symbol; async function foo(keys: (typeof key)[]) { const result = []; for (const key of keys) { result.push(await transform(key)); } }'),
 		{
 			code: 'async function foo() { const result = []; for (const path of [("a" as string)]) { result.push(await readFile(path)); } }',
