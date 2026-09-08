@@ -98,6 +98,15 @@ const isKnownNonStringBufferInput = (node, context) =>
 	|| node.type === 'NewExpression'
 	|| isKnownNonString(node, context);
 
+const isKnownNonBufferReceiver = (node, context) => {
+	const receiver = unwrapTypeScriptExpression(node);
+	return receiver.type === 'Literal'
+		|| receiver.type === 'TemplateLiteral'
+		|| receiver.type === 'ArrayExpression'
+		|| receiver.type === 'ObjectExpression'
+		|| (receiver.type === 'NewExpression' && !isBufferReference(receiver.callee, context));
+};
+
 const isTransparentWrapperOf = (parent, expression) =>
 	(
 		(parent.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent))
@@ -315,6 +324,7 @@ const create = context => {
 		if (
 			isMethodCall(node, {method: 'toString', argumentsLength: 1, computed: false})
 			&& toStringEncoding
+			&& !isKnownNonBufferReceiver(node.callee.object, context)
 			&& (!sourceCode.parserServices?.program || shouldReportBufferToString(node.callee.object, sourceCode.parserServices))
 		) {
 			const [encodingNode] = node.arguments;

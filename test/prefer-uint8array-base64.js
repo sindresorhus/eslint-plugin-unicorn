@@ -65,6 +65,14 @@ test.snapshot({
 		'foo.toString(\'hex\')',
 		'foo[\'toString\'](\'base64\')',
 		'buffer.toString(\'base64\', 0, 10)',
+		'\'foo\'.toString(\'base64\')',
+		'`foo`.toString(\'base64\')',
+		'(123).toString(\'base64\')',
+		'[1, 2].toString(\'base64\')',
+		'({toString() { return \'custom\'; }}).toString(\'base64\')',
+		'/x/.toString(\'base64\')',
+		'new Uint8Array().toString(\'base64\')',
+		'new Date().toString(\'base64\')',
 
 		// With type information, a receiver that is known not to be a `Buffer` is skipped
 		typeAware('function foo(value: Uint8Array) { return value.toString(\'base64\'); }'),
@@ -129,6 +137,8 @@ test.snapshot({
 		'buffer.toString(\'BASE64\')',
 		'buffer.toString(\'BaSe64UrL\')',
 		'getBuffer().toString(\'base64\')',
+		'new Buffer(0).toString(\'base64\')',
+		'import {Buffer as B} from \'node:buffer\'; new B(0).toString(\'base64\')',
 
 		// TypeScript
 		{code: '(globalThis as any).atob(string)', languageOptions: {parser: parsers.typescript}},
