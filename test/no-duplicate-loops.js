@@ -47,6 +47,7 @@ test.snapshot({
 		'for (const item of Iterator.from(items).take(1).map(callback)) {}',
 		'for (const item of Iterator.from(items).flatMap(callback).drop(1).filter(callback)) {}',
 		typescript('function foo(items: string[]) { for (const item of items) {} }'),
+		typescript('function foo(iterator: IteratorObject<string> | undefined) { for (const item of iterator!.map(callback)) {} }'),
 		typescript('for (const item of (Iterator as typeof Iterator).from(items).map(callback)) {}'),
 		typescript('for (const item of (Iterator.from(items) as Iterator<string>).map(callback)) {}'),
 	],
