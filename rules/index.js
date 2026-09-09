@@ -254,6 +254,7 @@ export {default as 'prefer-iterator-concat'} from './prefer-iterator-concat.js';
 export {default as 'prefer-iterator-helpers'} from './prefer-iterator-helpers.js';
 export {default as 'prefer-iterator-to-array-at-end'} from './prefer-iterator-to-array-at-end.js';
 export {default as 'prefer-iterator-to-array'} from './prefer-iterator-to-array.js';
+export {default as 'prefer-json-import'} from './prefer-json-import.js';
 export {default as 'prefer-keyboard-event-key'} from './prefer-keyboard-event-key.js';
 export {default as 'prefer-location-assign'} from './prefer-location-assign.js';
 export {default as 'prefer-logical-operator-over-ternary'} from './prefer-logical-operator-over-ternary.js';
