@@ -13,7 +13,7 @@ import {createTypeCheckers} from './utils/type-helpers.js';
 const MESSAGE_ID = 'prefer-temporal-conversion';
 const MESSAGE_ID_SUGGESTION = 'prefer-temporal-conversion/suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `.{{method}}()` over reconstructing `Temporal.{{target}}`.',
+	[MESSAGE_ID]: 'Prefer `.{{method}}()` when converting to `Temporal.{{target}}`.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `.{{method}}()`.',
 };
 const dateFields = ['year', 'month', 'day'];
@@ -124,12 +124,18 @@ function getFieldReconstruction(node, fields, context) {
 	return {source, canAutofix: !hasDate || (!isConstructor && hasCalendar)};
 }
 
-function getReconstruction(node, target, fields, context) {
+function getConversionMatch(node, target, fields, context) {
 	const [argument] = node.arguments;
-	if (node.type === 'CallExpression' && node.callee.property.name === 'from' && isMethodCall(unwrapTypeScriptExpression(argument), {
+	const unwrappedArgument = unwrapTypeScriptExpression(argument);
+	const isFromCall = node.type === 'CallExpression' && node.callee.property.name === 'from';
+	if (isFromCall && isMethodCall(unwrappedArgument, {
 		methods: ['toString', 'toJSON'], argumentsLength: 0, optionalCall: false, optionalMember: false,
 	})) {
-		return {source: unwrapTypeScriptExpression(argument).callee.object, canAutofix: target !== 'Instant'};
+		return {source: unwrappedArgument.callee.object, canAutofix: target !== 'Instant'};
+	}
+
+	if (isFromCall && unwrappedArgument.type !== 'ObjectExpression') {
+		return {source: argument, canAutofix: true};
 	}
 
 	if (target !== 'Instant') {
@@ -138,11 +144,6 @@ function getReconstruction(node, target, fields, context) {
 
 	const isMilliseconds = node.type === 'CallExpression' && node.callee.property.name === 'fromEpochMilliseconds';
 	if (!isProperty(argument, isMilliseconds ? 'epochMilliseconds' : 'epochNanoseconds')) {
-		return;
-	}
-
-	// `Instant.from()` does not accept epoch counts.
-	if (node.type === 'CallExpression' && node.callee.property.name === 'from') {
 		return;
 	}
 
@@ -182,12 +183,12 @@ const create = context => {
 			return;
 		}
 
-		const reconstruction = getReconstruction(node, target, conversion.fields, context);
-		if (!reconstruction || !conversion.isSource(reconstruction.source, context)) {
+		const conversionMatch = getConversionMatch(node, target, conversion.fields, context);
+		if (!conversionMatch || !conversion.isSource(conversionMatch.source, context)) {
 			return;
 		}
 
-		const {source, canAutofix} = reconstruction;
+		const {source, canAutofix} = conversionMatch;
 		const method = `to${target}`;
 		const problem = {node, messageId: MESSAGE_ID, data: {method, target}};
 		if (sourceCode.getCommentsInside(node).length > 0) {
@@ -229,7 +230,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer direct Temporal conversion methods over reconstruction.',
+			description: 'Prefer direct Temporal conversion methods.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
