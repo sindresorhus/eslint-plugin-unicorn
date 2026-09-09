@@ -11,17 +11,13 @@
 
 Prefer `Array.fromAsync()` over simple loops that only accumulate values into an array.
 
-`Array.fromAsync(iterable)` directly creates an array from an async iterable, sync iterable, or array-like value. It is clearer than manually creating an empty array, iterating with `for await…of`, and pushing one value per iteration.
+`Array.fromAsync(iterable)` directly creates an array from an async iterable, sync iterable, or array-like value. It is clearer than manually creating and filling an array in a loop.
 
-This rule only reports adjacent `const` or `let` empty-array declarations followed by a supported `for…of` or `for await…of` loop with a single identifier binding and a body that is only a single `result.push(…)` expression. Mapped values are only reported when the pushed value is explicitly awaited, because `Array.fromAsync()` awaits mapper results.
+This rule reports a `const` or `let` empty-array declaration immediately followed by a simple `for…of` or `for await…of` loop whose only statement pushes into the array. The loop must use one identifier binding, and mapped expressions must be explicitly awaited.
 
-Ordinary `for…of` loops are reported only for explicitly awaited mappings over known primitive inputs. Without type information, this includes statically known strings and array literals containing primitive values, including constant arrays used only as the loop input. Array literals with spreads and constant array bindings with any other references are skipped rather than attempting to track mutations and aliases.
+Ordinary `for…of` loops are limited to inputs known to yield primitives. Without type information, this covers statically known strings and array literals of primitives; array literals with spreads are skipped. Full TypeScript type information also enables strings, arrays, readonly arrays, and tuples of primitives. Arrays referenced through variable declarations are supported only when initialized by a single-use `const` array literal; aliases are skipped. Unknown values, object or promise elements, and custom iterables are also skipped. Syntax-only TypeScript uses the JavaScript checks.
 
-With TypeScript type information enabled, this also includes strings, arrays, readonly arrays, and tuples whose element types are exclusively primitive. Type information is not used for arrays in variable declarations. Only direct `const` declarations retain the static checks above, and aliases are not traced. Syntax-only TypeScript parsing uses the same static checks as JavaScript. Unknown inputs, object or promise elements, and custom iterables are not reported.
-
-`Array.fromAsync()` awaits synchronous input elements before passing them to the mapper, unlike ordinary `for…of`. Both approaches await each mapper result before processing the next element, but `Array.fromAsync()` also yields before invoking the first mapper. This can change reads of shared state. Ordinary loops therefore receive editor suggestions instead of automatic fixes. Existing `for await…of` conversions are automatically fixable.
-
-This rule does not transform `Promise.all()`, which can run mappings concurrently.
+Unlike an ordinary loop, `Array.fromAsync()` awaits synchronous elements before mapping and therefore yields before the first mapper call. This can change shared-state reads, so ordinary loops receive suggestions, while `for await…of` loops remain automatically fixable. The rule ignores `Promise.all()` because it may map concurrently.
 
 ## Examples
 
@@ -68,4 +64,4 @@ const paths = ['a.txt', 'b.txt'];
 const contents = await Array.fromAsync(paths, path => readFile(path));
 ```
 
-The arrow function preserves the original arguments. Passing `readFile` directly would also pass the element index as its second argument.
+The arrow ensures `readFile` receives only the path; `Array.fromAsync(paths, readFile)` would also pass the index.

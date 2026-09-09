@@ -301,6 +301,7 @@ test.snapshot({
 			'any',
 			'any[]',
 			'unknown[]',
+			// A function typed to return `void` may return a promise at runtime.
 			'void[]',
 			'object[]',
 			'Promise<string>[]',
@@ -436,6 +437,10 @@ test.snapshot({
 		typeAware('declare const key: unique symbol; async function foo(keys: (typeof key)[]) { const result = []; for (const key of keys) { result.push(await transform(key)); } }'),
 		{
 			code: 'async function foo() { const result = []; for (const path of [("a" as string)]) { result.push(await readFile(path)); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'async function foo() { const paths = ["a"] as const; const result = []; for (const path of paths) { result.push(await readFile(path)); } }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('async function foo(paths: string[] | undefined) { const result = []; for (const path of paths!) { result.push(await readFile(path)); } }'),
