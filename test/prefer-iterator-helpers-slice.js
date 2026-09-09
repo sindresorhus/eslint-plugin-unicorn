@@ -274,7 +274,7 @@ test('empty-range suggestions evaluate and close the iterator without consuming 
 });
 
 test('suggestions preserve optional iterator expression boundaries', t => {
-	for (const code of ['[...object?.map.values()].slice(0, 10)', 'Array.from(object?.map.values()).slice(0, 10)']) {
+	for (const code of ['[...object?.map.values()].slice(0, 10)', 'Array.from(object?.map.values()).slice(0, 10)', '(object?.map.values()).toArray().slice(0, 10)']) {
 		const output = applySuggestion(t, code);
 		t.throws(() => runInNewContext(code, {object: undefined}), {name: 'TypeError'});
 		t.throws(() => runInNewContext(output, {object: undefined}), {name: 'TypeError'});
@@ -316,9 +316,10 @@ test('materialization rules compose without autofix cycles', t => {
 			'unicorn/prefer-iterator-to-array-at-end': 'error',
 			'unicorn/no-useless-iterator-to-array': 'error',
 			'unicorn/no-useless-spread': 'error',
+			'unicorn/no-unnecessary-slice-end': 'error',
 		},
 	};
-	for (const code of ['Array.from(Iterator.from(iterable)).slice(0, 10)', '[...Iterator.from(iterable)].slice(20, 30)']) {
+	for (const code of ['Array.from(Iterator.from(iterable)).slice(0, 10)', '[...Iterator.from(iterable)].slice(20, 30)', 'iterator.toArray().slice(20, Infinity)']) {
 		const fixed = linter.verifyAndFix(code, combinedConfig);
 		const repeated = linter.verifyAndFix(fixed.output, combinedConfig);
 		t.false(repeated.fixed);
