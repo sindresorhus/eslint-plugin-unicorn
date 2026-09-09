@@ -246,6 +246,15 @@ for (const preceding of ['previous!', 'previous<string>']) {
 	});
 }
 
+test('autofix does not add unnecessary parentheses to arguments', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
+	const code = withDeclarations('selected.union(new Set(condition ? other : selected))');
+	const result = linter.verifyAndFix(code, config);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, withDeclarations('selected.union(condition ? other : selected)'));
+});
+
 test('related rules converge without conflicting fixes', t => {
 	const linter = new Linter();
 	const config = {

@@ -98,6 +98,7 @@ function createFix(node, replacement, context) {
 	}
 
 	let text = getParenthesizedText(replacement, context);
+	const isMemberExpressionObject = node.parent.type === 'MemberExpression' && node.parent.object === node;
 	let callee = node;
 	while (
 		(callee.parent.type === 'MemberExpression' && callee.parent.object === callee)
@@ -109,7 +110,7 @@ function createFix(node, replacement, context) {
 	if (
 		!isParenthesized(replacement, context)
 		&& (
-			shouldAddParenthesesToMemberExpressionObject(replacement, context)
+			(isMemberExpressionObject && shouldAddParenthesesToMemberExpressionObject(replacement, context))
 			|| (callee.parent.type === 'NewExpression' && callee.parent.callee === callee)
 		)
 	) {
