@@ -1,6 +1,11 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isCallExpression, isMemberExpression, isMethodCall} from './ast/index.js';
-import {isArray, isSet, isValueNotUsable} from './utils/index.js';
+import {
+	isArray,
+	isSet,
+	isTypeScriptExpressionWrapper,
+	isValueNotUsable,
+} from './utils/index.js';
 import {createTypeCheckers} from './utils/type-helpers.js';
 
 const MESSAGE_ID = 'no-unused-builtin-method-return';
@@ -38,6 +43,7 @@ const arrayMethods = new Set([
 ]);
 
 const setMethods = new Set([
+	'has',
 	'union',
 	'intersection',
 	'difference',
@@ -48,14 +54,14 @@ const setMethods = new Set([
 ]);
 
 const temporalTypes = [
-	['Instant', ['add', 'subtract']],
-	['ZonedDateTime', ['add', 'subtract', 'with']],
+	['Instant', ['add', 'subtract', 'round']],
+	['ZonedDateTime', ['add', 'subtract', 'with', 'round']],
 	['PlainDate', ['add', 'subtract', 'with']],
-	['PlainTime', ['add', 'subtract', 'with']],
-	['PlainDateTime', ['add', 'subtract', 'with']],
+	['PlainTime', ['add', 'subtract', 'with', 'round']],
+	['PlainDateTime', ['add', 'subtract', 'with', 'round']],
 	['PlainYearMonth', ['add', 'subtract', 'with']],
 	['PlainMonthDay', ['with']],
-	['Duration', ['add', 'subtract', 'with']],
+	['Duration', ['add', 'subtract', 'with', 'round']],
 ];
 
 const temporalMethodCheckers = new Map(
@@ -325,10 +331,7 @@ const isDiscardedExpression = node => {
 		if (
 			parent.type !== 'ChainExpression'
 			&& parent.type !== 'AwaitExpression'
-			&& parent.type !== 'TSAsExpression'
-			&& parent.type !== 'TSTypeAssertion'
-			&& parent.type !== 'TSNonNullExpression'
-			&& parent.type !== 'TSSatisfiesExpression'
+			&& !isTypeScriptExpressionWrapper(parent)
 		) {
 			return false;
 		}

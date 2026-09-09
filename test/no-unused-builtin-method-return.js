@@ -364,7 +364,10 @@ test.snapshot({
 	valid: [
 		'array.with(0, value);',
 		'set.union(other);',
+		'set.has(value);',
+		'new Map().has(value);',
 		'date.add({days: 1});',
+		'value.round(options);',
 		'new Set().add(value);',
 		'new Date().setDate(1);',
 		'const custom = {add() {}, with() {}}; custom.add(value); custom.with(value);',
@@ -382,6 +385,7 @@ test.snapshot({
 		'Temporal.Instant.from(value).with({seconds: 1});',
 		'Temporal.PlainMonthDay.from(value).add({days: 1});',
 		'Temporal.PlainMonthDay.from(value).subtract({days: 1});',
+		'Temporal.PlainDate.from(value).round({smallestUnit: "day"});',
 		'const date = Temporal.PlainDate.from(value); void date.add({days: 1});',
 		'const date = Temporal.PlainDate.from(value); const next = date.with({day: 1});',
 		'let date = Temporal.PlainDate.from(value); date = custom; date.add({days: 1});',
@@ -389,7 +393,7 @@ test.snapshot({
 		'const date = Temporal.PlainDate.from(value); condition && date.add({days: 1});',
 	],
 	invalid: [
-		...['union', 'intersection', 'difference', 'symmetricDifference', 'isSubsetOf', 'isSupersetOf', 'isDisjointFrom'].map(method => `new Set().${method}(other);`),
+		...['has', 'union', 'intersection', 'difference', 'symmetricDifference', 'isSubsetOf', 'isSupersetOf', 'isDisjointFrom'].map(method => `new Set().${method}(other);`),
 		'const set = new Set(); set.union(other);',
 		'let set = new Set(); set.union(other);',
 		'const set = new Set(); const alias = set; alias.union(other);',
@@ -409,14 +413,14 @@ test.snapshot({
 });
 
 for (const [type, methods] of [
-	['Instant', ['add', 'subtract']],
-	['ZonedDateTime', ['add', 'subtract', 'with']],
+	['Instant', ['add', 'subtract', 'round']],
+	['ZonedDateTime', ['add', 'subtract', 'with', 'round']],
 	['PlainDate', ['add', 'subtract', 'with']],
-	['PlainTime', ['add', 'subtract', 'with']],
-	['PlainDateTime', ['add', 'subtract', 'with']],
+	['PlainTime', ['add', 'subtract', 'with', 'round']],
+	['PlainDateTime', ['add', 'subtract', 'with', 'round']],
 	['PlainYearMonth', ['add', 'subtract', 'with']],
 	['PlainMonthDay', ['with']],
-	['Duration', ['add', 'subtract', 'with']],
+	['Duration', ['add', 'subtract', 'with', 'round']],
 ]) {
 	for (const method of methods) {
 		test.snapshot({
@@ -464,11 +468,13 @@ test.typescript({
 		'function run(value: Temporal.PlainDate | Temporal.PlainMonthDay) { value.add({days: 1}); }',
 		'function run(value: Temporal.PlainDate | Temporal.Instant) { value.with({day: 1}); }',
 		'function run(value: Temporal.PlainDate | Custom) { value.subtract({days: 1}); }',
+		'function run(value: Temporal.PlainDateTime | Temporal.PlainDate) { value.round({smallestUnit: "day"}); }',
 	],
 	invalid: [
 		{code: 'function run(value: Temporal.PlainDate | Temporal.PlainDateTime) { value.add({days: 1}); }', errors: 1},
 		{code: 'function run(value: Temporal.PlainDate | Temporal.Duration) { value.subtract({days: 1}); }', errors: 1},
 		{code: 'function run(value: Temporal.PlainDate | Temporal.PlainMonthDay) { value.with({day: 1}); }', errors: 1},
+		{code: 'function run(value: Temporal.PlainDateTime | Temporal.PlainTime) { value.round({smallestUnit: "minute"}); }', errors: 1},
 		{code: 'type DateValue = Temporal.PlainDate | Temporal.PlainDateTime; (value as DateValue).add({days: 1});', errors: 1},
 		// Assertions preserve a known receiver's runtime value.
 		{code: '(Temporal.PlainDate.from(input) as unknown).add({days: 1});', errors: 1},
@@ -480,6 +486,7 @@ test.typescript({
 test({
 	valid: [
 		'new Set().add(value).union(other);',
+		'let set = new Set(); set = custom; const alias = set; alias.union(other);',
 		'const DateConstructor = Temporal.PlainDate; new DateConstructor().add({days: 1});',
 		'const {date = Temporal.PlainDate.from(input)} = wrapper; date.add({days: 1});',
 		'function run(date = Temporal.PlainDate.from(input)) { date.add({days: 1}); }',
