@@ -366,7 +366,7 @@ export const hasPotentiallyMutableMemberAccess = (node, context, visitedVariable
 	return getChildNodes(node).some(child => hasPotentiallyMutableMemberAccess(child, context, visitedVariables));
 };
 
-const hasPotentiallyMutableBindingInEvaluatedPath = (node, context, visitedVariables = new Set()) => {
+const hasUnsafeBindingInEvaluatedPath = (node, context, visitedVariables = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'Identifier') {
@@ -380,36 +380,40 @@ const hasPotentiallyMutableBindingInEvaluatedPath = (node, context, visitedVaria
 			return true;
 		}
 
+		if (context.sourceCode.getRange(definition.node)[1] > context.sourceCode.getRange(node)[0]) {
+			return true;
+		}
+
 		if (!definition.node.init || visitedVariables.has(variable)) {
 			return false;
 		}
 
 		visitedVariables.add(variable);
-		const result = hasPotentiallyMutableBindingInEvaluatedPath(definition.node.init, context, visitedVariables);
+		const result = hasUnsafeBindingInEvaluatedPath(definition.node.init, context, visitedVariables);
 		visitedVariables.delete(variable);
 		return result;
 	}
 
 	if (node.type === 'ConditionalExpression') {
-		if (hasPotentiallyMutableBindingInEvaluatedPath(node.test, context, visitedVariables)) {
+		if (hasUnsafeBindingInEvaluatedPath(node.test, context, visitedVariables)) {
 			return true;
 		}
 
 		const staticValue = getStaticValueIfNoSideEffectsInternal(node.test, context, visitedVariables);
 		if (staticValue !== undefined) {
-			return hasPotentiallyMutableBindingInEvaluatedPath(
+			return hasUnsafeBindingInEvaluatedPath(
 				staticValue.value ? node.consequent : node.alternate,
 				context,
 				visitedVariables,
 			);
 		}
 
-		return hasPotentiallyMutableBindingInEvaluatedPath(node.consequent, context, visitedVariables)
-			|| hasPotentiallyMutableBindingInEvaluatedPath(node.alternate, context, visitedVariables);
+		return hasUnsafeBindingInEvaluatedPath(node.consequent, context, visitedVariables)
+			|| hasUnsafeBindingInEvaluatedPath(node.alternate, context, visitedVariables);
 	}
 
 	if (node.type === 'LogicalExpression') {
-		if (hasPotentiallyMutableBindingInEvaluatedPath(node.left, context, visitedVariables)) {
+		if (hasUnsafeBindingInEvaluatedPath(node.left, context, visitedVariables)) {
 			return true;
 		}
 
@@ -425,21 +429,21 @@ const hasPotentiallyMutableBindingInEvaluatedPath = (node, context, visitedVaria
 			}
 
 			return evaluatesRight
-				&& hasPotentiallyMutableBindingInEvaluatedPath(node.right, context, visitedVariables);
+				&& hasUnsafeBindingInEvaluatedPath(node.right, context, visitedVariables);
 		}
 
-		return hasPotentiallyMutableBindingInEvaluatedPath(node.right, context, visitedVariables);
+		return hasUnsafeBindingInEvaluatedPath(node.right, context, visitedVariables);
 	}
 
 	if (node.type === 'SequenceExpression') {
-		return node.expressions.some(expression => hasPotentiallyMutableBindingInEvaluatedPath(expression, context, visitedVariables));
+		return node.expressions.some(expression => hasUnsafeBindingInEvaluatedPath(expression, context, visitedVariables));
 	}
 
 	if (unevaluatedExpressionTypes.has(node.type)) {
 		return false;
 	}
 
-	return getChildNodes(node).some(child => hasPotentiallyMutableBindingInEvaluatedPath(child, context, visitedVariables));
+	return getChildNodes(node).some(child => hasUnsafeBindingInEvaluatedPath(child, context, visitedVariables));
 };
 
 const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables = new Set()) => {
@@ -468,10 +472,10 @@ const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables =
 	return staticValue;
 };
 
-// `getStaticValue` is not flow-sensitive, so reject mutable bindings on any path that can be evaluated.
+// `getStaticValue` is not flow-sensitive, so reject mutable bindings and constant references before their declarations complete on any path that can be evaluated.
 export const getStaticValueForControlFlow = (node, context) => {
 	const staticValue = getStaticValueIfNoSideEffectsInternal(node, context);
-	return staticValue !== undefined && !hasPotentiallyMutableBindingInEvaluatedPath(node, context)
+	return staticValue !== undefined && !hasUnsafeBindingInEvaluatedPath(node, context)
 		? staticValue
 		: undefined;
 };

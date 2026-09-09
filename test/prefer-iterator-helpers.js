@@ -45,8 +45,6 @@ test.snapshot({
 		// Optional chaining.
 		'[...map.values()]?.find(fn)',
 		'[...map.values()].find?.(fn)',
-		'[...map?.values()].find(fn)',
-		'[...map.values?.()].find(fn)',
 		'Array.from?.(map.values()).find(fn)',
 		'Array?.from(map.values()).find(fn)',
 
@@ -147,6 +145,46 @@ test.snapshot({
 		'[/* comment */ ...map.values()].find(fn)',
 		'[...map.values() /* comment */].find(fn)',
 		'Array.from(/* comment */ map.values()).find(fn)',
+
+		// Optional iterator chains preserve the materialization's throwing behavior.
+		'[...map?.values()].find(fn)',
+		'[...map.values?.()].find(fn)',
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Array.from({values() { return [1].values(); }}.values()).find(value => true)',
+			errors: [{
+				messageId: 'prefer-iterator-helpers',
+				suggestions: [{
+					messageId: 'prefer-iterator-helpers/suggestion',
+					output: '({values() { return [1].values(); }}.values()).find(value => true)',
+				}],
+			}],
+		},
+		{
+			code: '[...object?.map.values()].find(value => true)',
+			errors: [{
+				messageId: 'prefer-iterator-helpers',
+				suggestions: [{
+					messageId: 'prefer-iterator-helpers/suggestion',
+					output: '(object?.map.values()).find(value => true)',
+				}],
+			}],
+		},
+		{
+			code: 'function foo() { return[...map.values()].find(fn); }',
+			errors: [{
+				messageId: 'prefer-iterator-helpers',
+				suggestions: [{
+					messageId: 'prefer-iterator-helpers/suggestion',
+					output: 'function foo() { return map.values().find(fn); }',
+				}],
+			}],
+		},
 	],
 });
 
@@ -158,6 +196,7 @@ test.snapshot({
 	},
 	valid: [
 		'[...set].find(fn) as Value',
+		'Array.from<number>(map.values()).find(fn)',
 		'[...map.values()].find(((value, index, array) => array.length > 0) as Predicate)',
 		'[...map.values()].reduce((function () { return arguments[3]?.length; }) as Reducer, initialValue)',
 		'function foo(array: string[]) { [...array].find(fn); }',
@@ -185,13 +224,13 @@ test.snapshot({
 		typeAware('declare function getIterable(): Iterable<string>; [...getIterable()].find(fn);'),
 		typeAware('type Iterator<T> = T[]; declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
 		typeAware('interface Iterator<T> extends Array<T> {} declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
-		typeAware('declare const iterator: IteratorObject<number> | undefined; Array.from(iterator?.map(value => value)!).some(value => value > 0);'),
-		typeAware('declare const iterator: IteratorObject<number> | undefined; [...iterator?.map(value => value)!].some(value => value > 0);'),
 	],
 	invalid: [
 		typeAware('declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
 		typeAware('declare function getIterator(): Iterator<string>; Array.from(getIterator()).some(fn);'),
 		typeAware('declare function getIteratorObject(): IteratorObject<string>; [...getIteratorObject()].reduce(fn, initialValue);'),
 		typeAware('function * getIterator() { yield ""; } [...getIterator()].find(fn);'),
+		typeAware('declare const iterator: IteratorObject<number> | undefined; Array.from(iterator?.map(value => value)!).some(value => value > 0);'),
+		typeAware('declare const iterator: IteratorObject<number> | undefined; [...iterator?.map(value => value)!].some(value => value > 0);'),
 	],
 });

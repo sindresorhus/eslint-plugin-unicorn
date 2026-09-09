@@ -8,9 +8,7 @@
 
 <!-- end auto-generated rule header -->
 
-Prefer iterator helpers over temporary arrays created from known iterators.
-
-Iterator helpers avoid materializing a full array before calling terminal methods like `.find()` or `.some()`. They can also preserve short-circuiting for methods that do not need to consume the whole iterator.
+Prefer calling iterator helpers before converting an iterator to an array. Bounded `.take()` calls can avoid unnecessary consumption. Using only `.drop()` still exhausts the iterator, but avoids storing the discarded prefix.
 
 ## Examples
 
@@ -24,27 +22,28 @@ map.values().find(value => value.id === id);
 
 ```js
 // ❌
-Array.from(string.matchAll(pattern)).some(match => match[1]);
+iterator.toArray().slice(20, 30);
 
 // ✅
-string.matchAll(pattern).some(match => match[1]);
+iterator.drop(20).take(10).toArray();
 ```
 
 ```js
 // ❌
-[...map.values()].reduce((total, value) => total + value, 0);
+[...text.matchAll(pattern)].slice(0, 10);
 
 // ✅
-map.values().reduce((total, value) => total + value, 0);
+text.matchAll(pattern).take(10).toArray();
 ```
 
-This rule is intentionally narrow. It only reports known iterator expressions, such as `.values()`, `.keys()`, `.entries()`, `.matchAll()`, static `Iterator` methods, lazy iterator helper chains, and values known to be iterators from TypeScript annotations or type information. It does not report arbitrary iterables because not every iterable has iterator helpers.
+The rule recognizes `.values()`, `.keys()`, `.entries()`, `.matchAll()`, static `Iterator` methods, lazy helper chains, and supported TypeScript iterator types. Slice conversions also treat a zero-argument `.toArray()` as iterator evidence. Custom methods matched by name must support iterator helpers. Arbitrary iterables are ignored because not every iterable has those methods.
 
-```js
-// ✅
-[...set].find(value => value.id === id);
-```
+Terminal conversions support `.every()`, `.find()`, `.forEach()`, `.reduce()`, and `.some()` after a single-spread array or one-argument `Array.from()`. Inline callbacks that can observe the extra `array` argument are ignored.
 
-Cases are reported without autofixes because `Array` callbacks receive an extra trailing `array` argument that `Iterator` callbacks do not. The rule ignores inline callbacks that can observe that argument. It offers suggestions when they can be applied safely. Suggestions also account for custom `.values()`, `.keys()`, and `.entries()` methods that may not return iterators with iterator helpers.
+Slice conversions support `.slice()` directly after `.toArray()`, a single-spread array, or one-argument `Array.from()`. Bounds must be statically known nonnegative safe integers. Copy-only `.slice()` and `.slice(0)` are ignored.
 
-This rule does not report `.filter()`, `.map()`, or `.flatMap()` because their `Iterator` versions return iterators, not arrays.
+Calls are ignored when a suggestion would remove their type arguments.
+
+Changes are offered as suggestions because callbacks and iterator consumption can behave differently. In particular, `.take()` can skip later side effects or errors and close the iterator early. Comments that cannot be preserved prevent a suggestion.
+
+The rule does not report `.filter()`, `.map()`, or `.flatMap()` because their iterator versions return iterators. See [`prefer-iterator-to-array-at-end`](prefer-iterator-to-array-at-end.md) for those methods.

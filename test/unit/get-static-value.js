@@ -110,12 +110,22 @@ test('does not use mutable bindings for control-flow decisions', t => {
 	t.true(evaluate('const value = true; const result = value;', getStaticValueForControlFlow)?.value);
 });
 
-test('ignores mutable bindings in statically unreachable branches', t => {
+test('does not use constants referenced before their declarations complete for control-flow decisions', t => {
+	for (const code of [
+		'const result = value; const value = true;',
+		'const alias = value; const value = true; const result = alias;',
+	]) {
+		t.is(evaluate(code, getStaticValueForControlFlow), undefined);
+	}
+});
+
+test('ignores unsafe bindings in statically unreachable branches', t => {
 	for (const [code, expected] of [
 		['const condition = true; let value; const result = condition ? {} : value;', {}],
 		['const condition = false; let value; const result = condition ? value : {};', {}],
 		['const condition = true; let value; const result = condition || value;', true],
 		['const condition = false; let value; const result = condition && value;', false],
+		['const result = true ? 1 : value; const value = 2;', 1],
 	]) {
 		t.deepEqual(evaluate(code, getStaticValueForControlFlow)?.value, expected);
 	}
