@@ -15,6 +15,11 @@ const typeAwareVaryingBase = code => ({
 	},
 });
 
+const typeAwareComputedMemberAccess = code => ({
+	...typeAwareVaryingBase(code),
+	options: [{checkComputedMemberAccess: true}],
+});
+
 test.snapshot({
 	valid: [
 		'test ? a : b;',
@@ -73,13 +78,13 @@ test.snapshot({
 		// Object swaps are off by default: moving the ternary into the base (`(test ? a : b).value`) wraps the receiver in a conditional and breaks TypeScript `const enum` access. Opt in with `checkVaryingBase`.
 		'test ? a.value : b.value;',
 		'test ? a["x"] : b["x"];',
-		// Static property swaps are never reported: `object['a']` is the same logical access as `object.a`, so minimizing them forces or keeps computed access in place of clearer property access.
+		// Static property swaps are off by default: `object['a']` is the same logical access as `object.a`, so minimizing them forces or keeps computed access in place of clearer property access.
 		'test ? object.a : object.b;',
 		'test ? object["a"] : object["b"];',
 		'isMac ? event.metaKey : event.ctrlKey;',
-		// A statically known computed key is treated as a static property too, so it is not reported.
+		// A statically known computed key is treated as a static property too, so it is not reported by default.
 		'test ? c[0] : c[1];',
-		// Same-object member swaps with a `this` receiver are not reported either.
+		// Same-object member swaps with a `this` receiver are not reported by default either.
 		'test ? this.maxWidth : this.maxHeight;',
 		// Private fields have no static name, but can't be made computed, so they are not reported.
 		outdent`
@@ -92,14 +97,6 @@ test.snapshot({
 				}
 			}
 		`,
-		{
-			code: 'test ? object.a : object.b;',
-			options: [{checkComputedMemberAccess: true}],
-		},
-		{
-			code: 'isMac ? event.metaKey : event.ctrlKey;',
-			options: [{checkComputedMemberAccess: true}],
-		},
 		// `checkComputedMemberAccess` alone does not enable object-varying reads; that needs `checkVaryingBase`.
 		{
 			code: 'test ? a.value : b.value;',
@@ -231,6 +228,80 @@ test.snapshot({
 		// The `const enum` exemption is specific: regular enums and plain objects are still reported.
 		typeAwareVaryingBase('enum Email { MFA_CODE } enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE;'),
 		typeAwareVaryingBase('declare const a: {value: number}, b: {value: number}, test: boolean; test ? a.value : b.value;'),
+		{
+			code: 'test ? object.a : object.b;',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: 'isMac ? event.metaKey : event.ctrlKey;',
+			options: [{checkComputedMemberAccess: true}],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		...[
+			'test ? object.a : object.b;',
+			'test ? object["a"] : object["b"];',
+			'test ? object[0] : object[1];',
+		].map(code => ({code, options: [{checkComputedMemberAccess: false, checkVaryingBase: true}]})),
+		...[
+			'test ? object.a : other.b;',
+			'test ? object.a : object.a;',
+			'test ? object.a : object["a"];',
+			'test ? object[0] : object["0"];',
+			'test ? target?.a : target?.b;',
+			'test ? object.a : object?.b;',
+			'test ? object?.["a"] : object?.["b"];',
+			'test ? getObject().a : getObject().b;',
+			'test ? object.value.a : object.value.b;',
+			'test ? object.a : object[key];',
+			outdent`
+				class Foo {
+					#a;
+					#b;
+
+					method(test) {
+						return test ? this.#a : this.#b;
+					}
+				}
+			`,
+		].map(code => ({code, options: [{checkComputedMemberAccess: true}]})),
+		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;'),
+		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo["A"] : Foo["B"];'),
+		typeAwareComputedMemberAccess('const enum Original { A, B } import Foo = Original; declare const test: boolean; test ? Foo.A : Foo.B;'),
+	],
+	invalid: [
+		...[
+			'test ? object["a"] : object["b"];',
+			'test ? object.a : object["b"];',
+			'test ? object[0] : object[1];',
+			'test ? this.maxWidth : this.maxHeight;',
+			'test ? ((object).a) : (object.b);',
+			'consume(test ? object.a : object.b);',
+			'test ? object./* first */ a : object./* second */ b;',
+			'const first = "a", second = "b"; test ? object[first] : object[second];',
+			outdent`
+				class Foo extends Bar {
+					method(test) {
+						return test ? super.foo : super.bar;
+					}
+				}
+			`,
+		].map(code => ({code, options: [{checkComputedMemberAccess: true}]})),
+		// Dynamic-key swaps remain enabled independently of the option.
+		{
+			code: 'test ? object[first] : object[second];',
+			options: [{checkComputedMemberAccess: false}],
+		},
+		...[
+			'declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b;',
+			// Without type information, const enums retain the existing best-effort behavior.
+			'const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;',
+		].map(code => ({code, options: [{checkComputedMemberAccess: true}], languageOptions: {parser: parsers.typescript}})),
+		typeAwareComputedMemberAccess('enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;'),
+		typeAwareComputedMemberAccess('declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b;'),
 	],
 });
 

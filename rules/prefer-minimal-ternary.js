@@ -54,6 +54,8 @@ function hasSameObjectWithDifferentStaticProperty(left, right, context) {
 		|| hasOptionalChainElement(right)
 		|| !isSafeSharedExpression(left.object)
 		|| !isSameSourceText(left.object, right.object, sourceCode)
+		// A `const enum` requires a statically known property name (TS2476).
+		|| isConstEnumReference(left.object, context)
 	) {
 		return false;
 	}
@@ -263,9 +265,10 @@ function hasSameObjectWithDifferentDynamicKey(left, right, context) {
 		&& !isSameSourceText(left.property, right.property, sourceCode);
 }
 
-function isMinimalMemberExpression(left, right, context, {checkVaryingBase}) {
-	// Dynamic computed-key swaps (`obj[a] : obj[b]`) are always reported: the access is already computed, so `obj[test ? a : b]` removes the duplication with no regression. Object swaps (`a.foo : b.foo`) are opt-in via `checkVaryingBase`: minimizing them moves the ternary into the base (`(test ? a : b).foo`), which wraps the receiver in a conditional and breaks TypeScript `const enum` access. Static property swaps (`obj.a : obj.b`) are never reported, since minimizing them forces computed access in place of clearer property access.
+function isMinimalMemberExpression(left, right, context, {checkVaryingBase, checkComputedMemberAccess}) {
+	// Dynamic computed-key swaps (`obj[a] : obj[b]`) are always reported: the access is already computed, so `obj[test ? a : b]` removes the duplication with no regression. Object swaps (`a.foo : b.foo`) are opt-in via `checkVaryingBase`: minimizing them moves the ternary into the base (`(test ? a : b).foo`), which wraps the receiver in a conditional and breaks TypeScript `const enum` access. Static property swaps (`obj.a : obj.b`) are opt-in via `checkComputedMemberAccess`, since minimizing them forces computed access in place of clearer property access.
 	return hasSameObjectWithDifferentDynamicKey(left, right, context)
+		|| (checkComputedMemberAccess && hasSameObjectWithDifferentStaticProperty(left, right, context))
 		|| (checkVaryingBase && hasSameStaticPropertyWithDifferentObject(left, right, context));
 }
 
@@ -326,7 +329,7 @@ const config = {
 					},
 					checkComputedMemberAccess: {
 						type: 'boolean',
-						description: 'Also report method-call ternaries that differ only by the method name, whose minimization requires computed member access.',
+						description: 'Also report method-call and property-access ternaries that differ only by the static property name, whose minimization requires computed member access.',
 					},
 				},
 			},
