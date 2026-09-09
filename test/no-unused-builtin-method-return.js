@@ -514,6 +514,7 @@ test({
 
 test.typescript({
 	valid: [
+		'const set = new Set(); void (set.has(value) as boolean);',
 		'function run(date: Temporal.PlainDate | undefined) { date?.add({days: 1}); }',
 		'function run(set: Set<number> | null) { set?.union(other); }',
 		'function run(array: number[] | undefined) { array?.with(0, 1); }',
