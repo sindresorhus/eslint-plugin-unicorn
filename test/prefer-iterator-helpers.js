@@ -185,6 +185,8 @@ test.snapshot({
 		typeAware('declare function getIterable(): Iterable<string>; [...getIterable()].find(fn);'),
 		typeAware('type Iterator<T> = T[]; declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
 		typeAware('interface Iterator<T> extends Array<T> {} declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
+		typeAware('declare const iterator: IteratorObject<number> | undefined; Array.from(iterator?.map(value => value)!).some(value => value > 0);'),
+		typeAware('declare const iterator: IteratorObject<number> | undefined; [...iterator?.map(value => value)!].some(value => value > 0);'),
 	],
 	invalid: [
 		typeAware('declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),

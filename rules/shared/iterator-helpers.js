@@ -40,6 +40,7 @@ const iteratorTypeNames = new Set([
 const {
 	isTarget: isIteratorType,
 } = createTypeCheckers({
+	allowNullishInMixedUnion: true,
 	checkClassHeritage: false,
 	preferTypeReferenceDefinitions: true,
 	targetTypeNames: iteratorTypeNames,
@@ -48,6 +49,7 @@ const {
 export const unwrapExpression = node => {
 	while (
 		isTypeScriptExpressionWrapper(node)
+		|| node.type === 'TSInstantiationExpression'
 		|| node.type === 'ChainExpression'
 		|| node.type === 'ParenthesizedExpression'
 	) {
@@ -84,8 +86,6 @@ const isGlobalIteratorReference = (node, context) => {
 const isGlobalIteratorMethodCall = (node, context) =>
 	isMethodCall(node, {
 		methods: iteratorStaticMethods,
-		optionalCall: false,
-		optionalMember: false,
 		computed: false,
 	})
 	&& isGlobalIteratorReference(node.callee.object, context);
@@ -94,15 +94,11 @@ const isIteratorMethodCall = node =>
 	isMethodCall(node, {
 		methods: iteratorMethods,
 		argumentsLength: 0,
-		optionalCall: false,
-		optionalMember: false,
 		computed: false,
 	})
 	|| isMethodCall(node, {
 		method: 'matchAll',
 		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
 		computed: false,
 	});
 
@@ -110,8 +106,6 @@ export const isLazyIteratorHelperCall = (node, context) =>
 	isMethodCall(node, {
 		methods: iteratorHelperMethods,
 		minimumArguments: 1,
-		optionalCall: false,
-		optionalMember: false,
 		computed: false,
 	})
 	&& isIteratorExpression(node.callee.object, context);
@@ -135,12 +129,12 @@ const isKnownIteratorTypeExpression = (node, context) => (
 );
 
 export function isIteratorExpression(node, context) {
-	node = unwrapExpression(node);
+	const expression = unwrapExpression(node);
 
 	return (
-		isGlobalIteratorMethodCall(node, context)
-		|| isIteratorMethodCall(node)
-		|| isLazyIteratorHelperCall(node, context)
+		isGlobalIteratorMethodCall(expression, context)
+		|| isIteratorMethodCall(expression)
+		|| isLazyIteratorHelperCall(expression, context)
 		|| isKnownIteratorTypeExpression(node, context)
 	);
 }
