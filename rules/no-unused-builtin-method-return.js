@@ -183,7 +183,8 @@ function getVariableValue(node, context, isSupportedType) {
 		definition.type === 'Parameter'
 		&& definition.node.params?.includes(definition.name)
 	) {
-		return definition.name.typeAnnotation && !isSupportedType(definition.name.typeAnnotation)
+		return definition.name.optional
+			|| (definition.name.typeAnnotation && !isSupportedType(definition.name.typeAnnotation))
 			? uncertainValue
 			: undefined;
 	}
