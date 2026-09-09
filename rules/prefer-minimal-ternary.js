@@ -329,7 +329,7 @@ const config = {
 					},
 					checkComputedMemberAccess: {
 						type: 'boolean',
-						description: 'Also report method-call and property-access ternaries that differ only by the static property name, whose minimization requires computed member access.',
+						description: 'Also report property-read and method-call ternaries on the same object that differ only by property or method name and require computed member access.',
 					},
 				},
 			},

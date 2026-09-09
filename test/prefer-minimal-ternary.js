@@ -36,7 +36,10 @@ test.snapshot({
 		'test ? getObject()[x] : getObject()[y];',
 		// Different objects with optional chaining are not reported, even though the property is shared.
 		'test ? a?.foo : b?.foo;',
-		'test ? object.a?.() : object.b?.();',
+		{
+			code: 'test ? object.a?.() : object.b?.();',
+			options: [{checkComputedMemberAccess: true}],
+		},
 		'test ? object.call(a) : object.call(b);',
 		'test ? call(...a) : call(...b);',
 		'test ? getFunction()(a) : getFunction()(b);',
@@ -245,6 +248,7 @@ test.snapshot({
 			'test ? object.a : object.b;',
 			'test ? object["a"] : object["b"];',
 			'test ? object[0] : object[1];',
+			'const first = 1, second = 2; test ? object[first] : object[second];',
 		].map(code => ({code, options: [{checkComputedMemberAccess: false, checkVaryingBase: true}]})),
 		...[
 			'test ? object.a : other.b;',
@@ -268,6 +272,10 @@ test.snapshot({
 				}
 			`,
 		].map(code => ({code, options: [{checkComputedMemberAccess: true}]})),
+		{
+			code: 'test ? object.a : other.b;',
+			options: [{checkComputedMemberAccess: true, checkVaryingBase: true}],
+		},
 		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;'),
 		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo["A"] : Foo["B"];'),
 		typeAwareComputedMemberAccess('const enum Original { A, B } import Foo = Original; declare const test: boolean; test ? Foo.A : Foo.B;'),

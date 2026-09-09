@@ -79,7 +79,7 @@ Default: `false`
 Also report ternaries that share everything but the base of a call or member access. Minimizing these moves the ternary into the base (`(test ? a : b)()`, `(test ? a : b).foo`), which hides the call site, breaks plain-text searches, and breaks TypeScript `const enum` access, so it is opt-in.
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingBase": true}]
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
 
 // ❌
 const foo = test ? a() : b();
@@ -89,7 +89,7 @@ const foo = (test ? a : b)();
 ```
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingBase": true}]
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
 
 // ❌
 const foo = test ? a.method(value) : b.method(value);
@@ -99,7 +99,7 @@ const foo = (test ? a : b).method(value);
 ```
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingBase": true}]
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
 
 // ❌
 const foo = test ? a.value : b.value;
@@ -118,7 +118,7 @@ Default: `false`
 Also report property-read and method-call ternaries that share the object and differ only by the static property or method name. Method calls must also share the same arguments. Minimizing these requires computed member access, so it is opt-in. Statically known computed keys, such as `object['a']` and `object[0]`, are included.
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {checkComputedMemberAccess: true}]
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}]
 
 // ❌
 const value = test ? object.a : object.b;
@@ -128,7 +128,7 @@ const value = object[test ? 'a' : 'b'];
 ```
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkComputedMemberAccess": true}]
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}]
 
 // ❌
 await (delayRejection ? Promise.allSettled(promises) : Promise.all(promises));
@@ -137,4 +137,4 @@ await (delayRejection ? Promise.allSettled(promises) : Promise.all(promises));
 await Promise[delayRejection ? 'allSettled' : 'all'](promises);
 ```
 
-When [type information](https://typescript-eslint.io/getting-started/typed-linting/) is available, TypeScript `const enum` receivers are not reported, since a `const enum` member must be accessed using a string literal and a conditional computed key would not compile. Without type information, they are indistinguishable from normal objects and are still reported.
+When [type information](https://typescript-eslint.io/getting-started/typed-linting/) is available, TypeScript `const enum` receivers are not reported, since computed access to a `const enum` member requires a string literal and a conditional key would not compile. Without type information, they are indistinguishable from normal objects and are still reported.
