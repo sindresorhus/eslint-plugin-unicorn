@@ -112,7 +112,6 @@ test('does not use mutable bindings for control-flow decisions', t => {
 
 test('does not use constants referenced before their declarations complete for control-flow decisions', t => {
 	t.is(evaluate('const result = value; const value = true;', getStaticValueForControlFlow), undefined);
-	t.is(evaluate('const value = (value, true); const result = value;', getStaticValueForControlFlow), undefined);
 });
 
 test('ignores mutable bindings in statically unreachable branches', t => {

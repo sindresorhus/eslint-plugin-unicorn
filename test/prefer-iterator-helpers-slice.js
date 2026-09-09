@@ -6,8 +6,8 @@ import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test: testRule} = getTester(import.meta);
-const ruleId = 'unicorn/prefer-iterator-take-drop';
+const {test: testRule} = getTester(import.meta, 'prefer-iterator-helpers');
+const ruleId = 'unicorn/prefer-iterator-helpers';
 const linter = new Linter();
 const config = {
 	plugins: {unicorn: plugin},
@@ -224,6 +224,27 @@ test('bounded suggestions stop an infinite source and run cleanup', t => {
 	t.true(closed);
 });
 
+test('bounded suggestions preserve errors in the consumed range and suppress later errors', t => {
+	const code = 'iterator.toArray().slice(0, 2)';
+	const output = applySuggestion(t, code);
+	function * source(errorIndex) {
+		for (let index = 0; ; index++) {
+			if (index === errorIndex) {
+				throw new Error(`Error at ${index}.`);
+			}
+
+			yield index;
+		}
+	}
+
+	for (const candidate of [code, output]) {
+		t.throws(() => runInNewContext(candidate, {iterator: source(1)}), {message: 'Error at 1.'});
+	}
+
+	t.throws(() => runInNewContext(code, {iterator: source(2)}), {message: 'Error at 2.'});
+	t.deepEqual(runInNewContext(output, {iterator: source(2)}), [0, 1]);
+});
+
 test('empty-range suggestions evaluate and close the iterator without consuming it', t => {
 	let calls = 0;
 	let consumed = 0;
@@ -290,7 +311,6 @@ test('materialization rules compose without autofix cycles', t => {
 			...config.rules,
 			'unicorn/prefer-spread': 'error',
 			'unicorn/prefer-iterator-to-array': 'error',
-			'unicorn/prefer-iterator-helpers': 'error',
 			'unicorn/prefer-iterator-to-array-at-end': 'error',
 			'unicorn/no-useless-iterator-to-array': 'error',
 			'unicorn/no-useless-spread': 'error',
@@ -337,10 +357,10 @@ testRule({
 		code,
 		...options,
 		errors: [{
-			messageId: 'prefer-iterator-take-drop',
+			messageId: 'prefer-iterator-helpers/slice',
 			data: {replacement: 'take(1)'},
 			suggestions: [{
-				messageId: 'prefer-iterator-take-drop/suggestion',
+				messageId: 'prefer-iterator-helpers/slice-suggestion',
 				data: {replacement: 'take(1)'},
 				output,
 			}],
