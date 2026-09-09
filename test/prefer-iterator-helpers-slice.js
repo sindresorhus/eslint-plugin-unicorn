@@ -332,6 +332,21 @@ testRule({
 	valid: [],
 	invalid: [
 		{
+			code: 'function test() { return value!\nArray.from([1].values()).slice(0, 1) }',
+			output: 'function test() { return value!\n;[1].values().take(1).toArray() }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function test() { throw value!\nArray.from([1].values()).slice(0, 1) }',
+			output: 'function test() { throw value!\n;[1].values().take(1).toArray() }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export default value!\nArray.from([1].values()).slice(0, 1)',
+			output: 'export default value!\n;[1].values().take(1).toArray()',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'value!\nArray.from([1].values()).slice(0, 1)',
 			output: 'value!\n;[1].values().take(1).toArray()',
 			languageOptions: {parser: parsers.typescript},
@@ -375,6 +390,8 @@ test('suggestions preserve statement boundaries after functions and classes', t 
 		for (const iterator of ['[1].values()', '/a/.exec("a").values()', '`a`.matchAll(/a/g).map(match => match[0])']) {
 			const code = `${precedingStatement}\nArray.from(${iterator}).slice(0, 1)`;
 			const output = applySuggestion(t, code);
+			const separator = precedingStatement.startsWith('const ') ? '\n;' : '\n';
+			t.is(output, `${precedingStatement}${separator}${iterator}.take(1).toArray()`);
 			t.deepEqual([...runInNewContext(output)], [...runInNewContext(code)]);
 		}
 	}

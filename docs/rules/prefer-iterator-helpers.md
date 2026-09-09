@@ -42,6 +42,8 @@ Terminal conversions support `.every()`, `.find()`, `.forEach()`, `.reduce()`, a
 
 Slice conversions support `.slice()` directly after `.toArray()`, a single-spread array, or one-argument `Array.from()`. Bounds must be statically known nonnegative safe integers. Copy-only `.slice()` and `.slice(0)` are ignored.
 
+Calls are ignored when a suggestion would remove their type arguments.
+
 Changes are offered as suggestions because callbacks and iterator consumption can behave differently. In particular, `.take()` can skip later side effects or errors and close the iterator early. Comments that cannot be preserved prevent a suggestion.
 
 The rule does not report `.filter()`, `.map()`, or `.flatMap()` because their iterator versions return iterators. See [`prefer-iterator-to-array-at-end`](prefer-iterator-to-array-at-end.md) for those methods.
