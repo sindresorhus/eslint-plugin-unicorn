@@ -131,7 +131,7 @@ function getResolverDeclarations(promiseDeclaration, extractions, sourceCode) {
 		const declaredVariables = new Set(declarations.flatMap(({declarations}) => declarations.map(declarator => getDeclarationVariable(declarator, sourceCode))));
 		if (declaredVariables.size === extractionVariables.size) {
 			return declarations.every(({declarations}) => declarations.length === 1 || declarations.length === extractionVariables.size)
-				&& [...extractionVariables].every(variable => declaredVariables.has(variable))
+				&& extractionVariables.isSubsetOf(declaredVariables)
 				? declarations
 				: undefined;
 		}
