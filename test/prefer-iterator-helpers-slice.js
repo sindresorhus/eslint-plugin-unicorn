@@ -63,7 +63,6 @@ testRule.snapshot({
 		'(iterator?.toArray()).slice(0, 10)',
 		'Array?.from(map.values()).slice(0, 10)',
 		'Array.from?.(map.values()).slice(0, 10)',
-		'[...map?.values()].slice(0, 10)',
 		'iterator["toArray"]().slice(0, 10)',
 		'iterator.toArray()["slice"](0, 10)',
 		'Array["from"](map.values()).slice(0, 10)',
@@ -135,6 +134,9 @@ testRule.snapshot({
 		'iterator.toArray().slice(0, /* comment */ 10)',
 		'iterator.toArray().slice(0, 10 /* comment */)',
 		'const limit = 10; function page(iterator) { return iterator.toArray().slice(0, limit); }',
+
+		// Optional iterator chains preserve the materialization's throwing behavior.
+		'[...map?.values()].slice(0, 10)',
 	],
 });
 

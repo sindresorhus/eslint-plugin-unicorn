@@ -99,14 +99,18 @@ const getIteratorFromSpreadArray = (node, context) => {
 };
 
 const getIteratorFromArrayFrom = (node, context) => {
-	if (!isMethodCall(node, {
-		object: 'Array',
-		method: 'from',
-		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
-		computed: false,
-	})) {
+	if (
+		node.typeArguments
+		|| node.typeParameters
+		|| !isMethodCall(node, {
+			object: 'Array',
+			method: 'from',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+			computed: false,
+		})
+	) {
 		return;
 	}
 
@@ -255,10 +259,6 @@ const getSliceProblem = (node, context) => {
 	}
 
 	const temporaryArray = node.callee.object;
-	if (temporaryArray.type === 'CallExpression' && (temporaryArray.typeArguments || temporaryArray.typeParameters)) {
-		return;
-	}
-
 	const iterator = getIteratorFromToArray(temporaryArray, context) ?? getIteratorFromTemporaryArray(temporaryArray, context);
 	if (!iterator || iterator.type === 'Super') {
 		return;

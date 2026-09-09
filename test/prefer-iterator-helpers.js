@@ -45,8 +45,6 @@ test.snapshot({
 		// Optional chaining.
 		'[...map.values()]?.find(fn)',
 		'[...map.values()].find?.(fn)',
-		'[...map?.values()].find(fn)',
-		'[...map.values?.()].find(fn)',
 		'Array.from?.(map.values()).find(fn)',
 		'Array?.from(map.values()).find(fn)',
 
@@ -147,6 +145,10 @@ test.snapshot({
 		'[/* comment */ ...map.values()].find(fn)',
 		'[...map.values() /* comment */].find(fn)',
 		'Array.from(/* comment */ map.values()).find(fn)',
+
+		// Optional iterator chains preserve the materialization's throwing behavior.
+		'[...map?.values()].find(fn)',
+		'[...map.values?.()].find(fn)',
 	],
 });
 
@@ -194,6 +196,7 @@ test.snapshot({
 	},
 	valid: [
 		'[...set].find(fn) as Value',
+		'Array.from<number>(map.values()).find(fn)',
 		'[...map.values()].find(((value, index, array) => array.length > 0) as Predicate)',
 		'[...map.values()].reduce((function () { return arguments[3]?.length; }) as Reducer, initialValue)',
 		'function foo(array: string[]) { [...array].find(fn); }',
