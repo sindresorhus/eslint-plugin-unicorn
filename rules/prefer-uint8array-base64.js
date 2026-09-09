@@ -1,12 +1,33 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
-import {isStringLiteral, isMethodCall, isMemberExpression} from './ast/index.js';
-import {isGlobalIdentifier} from './utils/index.js';
-import {removeArgument} from './fix/index.js';
+import {
+	isCallExpression,
+	isStringLiteral,
+	isRegexLiteral,
+	isMethodCall,
+	isMemberExpression,
+	isNewExpression,
+} from './ast/index.js';
+import {
+	isGlobalIdentifier,
+	isString,
+	isTypeScriptExpressionWrapper,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
+import {
+	createTypeCheckers,
+	nonTarget,
+	nullish,
+	target,
+} from './utils/type-helpers.js';
+import {removeArgument, removeMethodCall} from './fix/index.js';
+import typedArrayTypes from './shared/typed-array.js';
 
+const MESSAGE_ID_OPTIONS = 'prefer-uint8array-base64/options';
 const MESSAGE_ID_ERROR = 'prefer-uint8array-base64/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-uint8array-base64/suggestion';
 const messages = {
+	[MESSAGE_ID_OPTIONS]: 'Prefer native `toBase64()` options over manual base64 postprocessing.',
 	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
 };
@@ -14,54 +35,341 @@ const messages = {
 const base64Encodings = new Set(['base64', 'base64url']);
 const bufferImportSources = new Set(['buffer', 'node:buffer']);
 const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
+const transparentExpressionTypes = new Set(['AwaitExpression', 'ChainExpression', 'ParenthesizedExpression']);
+const arrayBufferTypes = ['ArrayBuffer', 'SharedArrayBuffer', 'DataView'];
+const nonBufferExpressionTypes = new Set([
+	'ArrayExpression',
+	'ArrowFunctionExpression',
+	'BinaryExpression',
+	'ClassExpression',
+	'FunctionExpression',
+	'Literal',
+	'NewExpression',
+	'ObjectExpression',
+	'TemplateLiteral',
+	'UnaryExpression',
+	'UpdateExpression',
+]);
+const constructorNames = ['Array', ...arrayBufferTypes, ...typedArrayTypes];
+const bufferTypeImports = new Map([...bufferImportSources].map(source => [source, new Set(['Buffer'])]));
 
-const isBase64EncodingArgument = node => isStringLiteral(node) && base64Encodings.has(node.value);
+const getBase64Encoding = node => {
+	if (!isStringLiteral(node)) {
+		return;
+	}
 
-// Whether the identifier is bound to `Buffer` imported from `'buffer'` / `'node:buffer'`, as `import {Buffer} from …` or `import {Buffer as foo} from …`. The default import is intentionally not matched, since it is the module namespace, not the `Buffer` constructor.
-function isImportedBuffer(identifier, context) {
+	const encoding = node.value.toLowerCase();
+	return base64Encodings.has(encoding) ? encoding : undefined;
+};
+
+function getBufferImportSpecifier(identifier, context) {
+	if (identifier.type !== 'Identifier') {
+		return;
+	}
+
 	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
+	const [definition] = variable?.defs ?? [];
+	if (
+		variable?.defs.length !== 1
+		|| definition.type !== 'ImportBinding'
+		|| definition.parent.type !== 'ImportDeclaration'
+		|| !bufferImportSources.has(definition.parent.source.value)
+	) {
+		return;
+	}
 
-	return variable?.defs.some(definition => {
-		if (definition.type !== 'ImportBinding' || !bufferImportSources.has(definition.parent.source.value)) {
+	return definition.node;
+}
+
+const isBufferModuleObjectImport = specifier =>
+	specifier?.type === 'ImportNamespaceSpecifier'
+	|| specifier?.type === 'ImportDefaultSpecifier';
+
+function unwrapTransparentExpression(node) {
+	node = unwrapTypeScriptExpression(node);
+	while (transparentExpressionTypes.has(node?.type)) {
+		node = unwrapTypeScriptExpression(node.type === 'AwaitExpression' ? node.argument : node.expression);
+	}
+
+	return node;
+}
+
+function isDerivedFromBase64String(node) {
+	while (isMethodCall(node = unwrapTransparentExpression(node))) {
+		if (getPropertyName(node.callee) === 'toBase64') {
+			return true;
+		}
+
+		node = node.callee.object;
+	}
+
+	return false;
+}
+
+function isBase64StringExpression(node) {
+	node = unwrapTransparentExpression(node);
+	while (getBase64Transformation(node)) {
+		node = unwrapTransparentExpression(node.callee.object);
+	}
+
+	return isMethodCall(node, {
+		method: 'toBase64',
+		optionalCall: false,
+		optionalMember: false,
+	});
+}
+
+function isKnownStringExpression(node, context) {
+	if (isString(node, context)) {
+		return true;
+	}
+
+	if (isTypeScriptExpressionWrapper(node)) {
+		const type = getBufferType(node, context);
+		if (type === target || type === nonTarget) {
 			return false;
 		}
 
-		const specifier = definition.node;
-		return specifier.type === 'ImportSpecifier' && specifier.imported.name === 'Buffer';
-	}) ?? false;
+		return isKnownStringExpression(node.expression, context);
+	}
+
+	if (transparentExpressionTypes.has(node.type)) {
+		return isKnownStringExpression(node.type === 'AwaitExpression' ? node.argument : node.expression, context);
+	}
+
+	return isBase64StringExpression(node)
+		|| (
+			node.type === 'LogicalExpression'
+			&& isKnownStringExpression(node.left, context)
+			&& isKnownStringExpression(node.right, context)
+		);
 }
 
-// Whether the receiver of a `.toString('base64')` call is byte-like (`Buffer`/`Uint8Array`). Only consulted when type information is available; without it, callers should report anyway, since requiring type information would make the rule too narrow. With type information, a receiver whose type is known and not byte-like (for example a userland object with a custom `toString`) is skipped to avoid false positives. `any`/`unknown` types are treated as byte-like, since we cannot rule them out.
-function isByteLikeReceiver(node, parserServices) {
-	// Resolving and inspecting the receiver's type can crash deep inside TypeScript 6 while it computes
-	// module specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`).
-	// We cannot then confirm the receiver is byte-like, so we conservatively skip reporting rather than crash the lint run.
-	try {
-		const type = parserServices.getTypeAtLocation(node);
-
-		const parts = type.isUnion() || type.isIntersection() ? type.types : [type];
-		return parts.some(part => {
-			// `intrinsicName` exposes `any`/`unknown` without `typeChecker.typeToString()`, which is one of the calls that crashes.
-			const name = (part.getSymbol() ?? part.aliasSymbol)?.getName();
-			return name === 'Buffer' || name === 'Uint8Array' || part.intrinsicName === 'any' || part.intrinsicName === 'unknown';
-		});
-	} catch {
+function shouldIgnoreBufferFromInput(node, context) {
+	if (isKnownStringExpression(node, context)) {
 		return false;
 	}
+
+	if (isDerivedFromBase64String(node)) {
+		return true;
+	}
+
+	if (isTypeScriptExpressionWrapper(node)) {
+		const type = getBufferType(node, context, bufferInputTypeCheckerOverrides);
+		return type === target || type === nonTarget || shouldIgnoreBufferFromInput(node.expression, context);
+	}
+
+	if (transparentExpressionTypes.has(node.type)) {
+		return shouldIgnoreBufferFromInput(node.type === 'AwaitExpression' ? node.argument : node.expression, context);
+	}
+
+	if (node.type === 'LogicalExpression' || node.type === 'ConditionalExpression') {
+		const expressions = node.type === 'LogicalExpression' ? [node.left, node.right] : [node.consequent, node.alternate];
+		return expressions.some(expression => shouldIgnoreBufferFromInput(expression, context));
+	}
+
+	const type = getBufferType(node, context, bufferInputTypeCheckerOverrides);
+	return type === target || type === nonTarget;
 }
 
-// Whether `node` (the object of a `.from()` call) refers to the `Buffer` constructor, as a global, `globalThis.Buffer`, or an import.
+const isKnownNonBufferReceiver = (node, context) => getBufferType(node, context) === nonTarget
+	|| isKnownStringExpression(node, context)
+	|| isDerivedFromBase64String(node);
+
+const isPossibleResultOf = (parent, expression) =>
+	(
+		(parent.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent))
+		&& parent.expression === expression
+	)
+	|| (parent.type === 'AwaitExpression' && parent.argument === expression)
+	|| (
+		parent.type === 'ConditionalExpression'
+		&& (parent.consequent === expression || parent.alternate === expression)
+	)
+	|| (
+		parent.type === 'LogicalExpression'
+		&& (parent.left === expression || parent.right === expression)
+	)
+	|| (parent.type === 'SequenceExpression' && parent.expressions.at(-1) === expression)
+	|| (parent.type === 'AssignmentExpression' && parent.right === expression);
+
+function isChainedExpression(node) {
+	let expression = node;
+	while (isPossibleResultOf(expression.parent, expression)) {
+		expression = expression.parent;
+	}
+
+	return expression.parent.type === 'MemberExpression' && expression.parent.object === expression;
+}
+
+// Whether `node` refers to the `Buffer` constructor, as a global, `globalThis.Buffer`, or an import.
 function isBufferReference(node, context) {
-	if (isMemberExpression(node, {property: 'Buffer', computed: false})) {
-		return globalObjectNames.has(node.object.name) && isGlobalIdentifier(node.object, context);
+	const reference = unwrapTypeScriptExpression(node);
+	if (isMemberExpression(reference, {property: 'Buffer', computed: false})) {
+		const object = unwrapTypeScriptExpression(reference.object);
+		const specifier = getBufferImportSpecifier(object, context);
+		return (globalObjectNames.has(object.name) && isGlobalIdentifier(object, context))
+			|| isBufferModuleObjectImport(specifier);
 	}
 
-	if (node.type !== 'Identifier') {
+	if (reference.type !== 'Identifier') {
 		return false;
 	}
 
-	return (node.name === 'Buffer' && isGlobalIdentifier(node, context))
-		|| isImportedBuffer(node, context);
+	const specifier = getBufferImportSpecifier(reference, context);
+	return (reference.name === 'Buffer' && isGlobalIdentifier(reference, context))
+		|| (specifier?.type === 'ImportSpecifier' && specifier.imported.name === 'Buffer');
+}
+
+const isConstructorReference = (node, context) => isBufferReference(node, context)
+	|| (node.type === 'Identifier' && constructorNames.includes(node.name))
+	|| (
+		isMemberExpression(node, {properties: constructorNames, computed: false, optional: false})
+		&& globalObjectNames.has(node.object.name)
+		&& isGlobalIdentifier(node.object, context)
+	);
+
+const isBufferFactory = (node, context) =>
+	isMethodCall(node, {
+		methods: ['from', 'of', 'alloc', 'allocUnsafe', 'allocUnsafeSlow', 'concat', 'copyBytesFrom'],
+		computed: false,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& isBufferReference(node.callee.object, context);
+
+const isBufferExpression = (node, context) => isBufferFactory(node, context)
+	|| (
+		(isNewExpression(node) || isCallExpression(node, {optional: false}))
+		&& isBufferReference(node.callee, context)
+	);
+
+const bufferTypeCheckerOptions = {
+	allowNullishInMixedUnion: true,
+	checkClassHeritage: false,
+	getStaticType: value => value === null || value === undefined ? nullish : nonTarget,
+	preferTypeReferenceDefinitions: false,
+	treatMixedUnionAsNonTarget: true,
+	targetTypeNames: new Set(['Buffer']),
+	targetTypeImports: bufferTypeImports,
+	targetTypeNamespaceImports: bufferTypeImports,
+	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', ...arrayBufferTypes, ...typedArrayTypes]),
+	isTargetNode: isBufferExpression,
+	isNonTargetNode: (node, context) => nonBufferExpressionTypes.has(node.type)
+		|| isConstructorReference(node, context)
+		|| isCallExpression(node, {name: 'Array'})
+		|| isMethodCall(node, {objects: ['Array', ...typedArrayTypes], methods: ['from', 'of']})
+		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
+};
+const bufferInputTypeCheckerOverrides = {
+	isNonTargetNode: (node, context) => !(node.type === 'BinaryExpression' && node.operator === '+')
+		&& bufferTypeCheckerOptions.isNonTargetNode(node, context),
+};
+const {getType: getBufferType} = createTypeCheckers(bufferTypeCheckerOptions);
+
+function getBase64Transformation(node) {
+	if (!isMethodCall(node, {
+		methods: ['replace', 'replaceAll'],
+		argumentsLength: 2,
+		computed: false,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return;
+	}
+
+	const [search, replacement] = node.arguments;
+	if (!isStringLiteral(replacement)) {
+		return;
+	}
+
+	const isReplaceAll = node.callee.property.name === 'replaceAll';
+	let character;
+	if (isReplaceAll && isStringLiteral(search)) {
+		character = search.value;
+	} else if (isRegexLiteral(search)) {
+		const {pattern, flags} = search.regex;
+		const isGlobal = flags.includes('g');
+		const isSticky = flags.includes('y');
+		if (isGlobal && !isSticky) {
+			if (pattern === String.raw`\+`) {
+				character = '+';
+			} else if (pattern === String.raw`\/`) {
+				character = '/';
+			}
+		}
+
+		if (pattern === '=+$' && !isSticky && (isGlobal || !isReplaceAll)) {
+			character = '=';
+		}
+	}
+
+	if (
+		(character === '+' && replacement.value === '-')
+		|| (character === '/' && replacement.value === '_')
+		|| (character === '=' && replacement.value === '')
+	) {
+		return character;
+	}
+}
+
+function getBase64OptionsProblem(node, context) {
+	if (!isMethodCall(node, {
+		method: 'toBase64',
+		argumentsLength: 0,
+		computed: false,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return;
+	}
+
+	const transformations = new Set();
+	const calls = [];
+	let outermostCall = node;
+	while (outermostCall.parent.type === 'MemberExpression' && outermostCall.parent.object === outermostCall) {
+		const call = outermostCall.parent.parent;
+		const transformation = getBase64Transformation(call);
+		if (!transformation) {
+			break;
+		}
+
+		if (transformations.has(transformation)) {
+			return;
+		}
+
+		transformations.add(transformation);
+		calls.push(call);
+		outermostCall = call;
+	}
+
+	if (calls.length === 0 || transformations.has('+') !== transformations.has('/')) {
+		return;
+	}
+
+	const options = [];
+	if (transformations.has('+')) {
+		options.push('alphabet: \'base64url\'');
+	}
+
+	if (transformations.has('=')) {
+		options.push('omitPadding: true');
+	}
+
+	return {
+		node: outermostCall,
+		messageId: MESSAGE_ID_OPTIONS,
+		* fix(fixer, {abort}) {
+			if (context.sourceCode.getCommentsInside(outermostCall).length > 0) {
+				abort();
+			}
+
+			yield fixer.insertTextBefore(context.sourceCode.getLastToken(node), `{${options.join(', ')}}`);
+			for (const call of calls) {
+				yield removeMethodCall(fixer, call, context);
+			}
+		},
+	};
 }
 
 const tracker = new GlobalReferenceTracker({
@@ -89,12 +397,19 @@ const create = context => {
 	tracker.listen({context});
 
 	context.on('CallExpression', node => {
+		const optionsProblem = getBase64OptionsProblem(node, context);
+		if (optionsProblem) {
+			return optionsProblem;
+		}
+
 		// `Buffer.from(string, 'base64' | 'base64url')`
 		// Match exactly two arguments. With a string input, `Buffer.from` ignores any third argument, but `Uint8Array.fromBase64`'s second parameter is an options object, so shifting an extra argument into it would change behavior or throw.
+		const bufferFromEncoding = getBase64Encoding(node.arguments[1]);
 		if (
 			isMethodCall(node, {method: 'from', argumentsLength: 2, computed: false})
-			&& isBase64EncodingArgument(node.arguments[1])
+			&& bufferFromEncoding
 			&& isBufferReference(node.callee.object, context)
+			&& !shouldIgnoreBufferFromInput(node.arguments[0], context)
 		) {
 			const encodingNode = node.arguments[1];
 
@@ -105,8 +420,7 @@ const create = context => {
 			};
 
 			// When the result is immediately used through a member access, for example `Buffer.from(string, 'base64').toString()`, the suggestion would rewrite only the constructor and leave the chained `Buffer` method on a plain `Uint8Array`, which behaves differently (`Uint8Array#toString()` returns a comma-joined byte list, not the decoded string). Skip the suggestion then, but still report the preference.
-			const isChained = node.parent.type === 'MemberExpression' && node.parent.object === node;
-			if (!isChained) {
+			if (!node.optional && !node.callee.optional && !isChainedExpression(node)) {
 				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
@@ -119,7 +433,7 @@ const create = context => {
 
 							yield fixer.replaceText(node.callee, 'Uint8Array.fromBase64');
 
-							yield encodingNode.value === 'base64url'
+							yield bufferFromEncoding === 'base64url'
 								? fixer.replaceText(encodingNode, '{alphabet: \'base64url\'}')
 								: removeArgument(fixer, encodingNode, context);
 						},
@@ -131,17 +445,21 @@ const create = context => {
 		}
 
 		// `buffer.toString('base64' | 'base64url')`
+		const toStringEncoding = getBase64Encoding(node.arguments[0]);
 		if (
-			isMethodCall(node, {method: 'toString', minimumArguments: 1, computed: false})
-			&& isBase64EncodingArgument(node.arguments[0])
-			&& (!sourceCode.parserServices?.program || isByteLikeReceiver(node.callee.object, sourceCode.parserServices))
+			isMethodCall(node, {method: 'toString', argumentsLength: 1, computed: false})
+			&& toStringEncoding
+			&& !isKnownNonBufferReceiver(node.callee.object, context)
 		) {
 			const [encodingNode] = node.arguments;
 
 			return {
 				node: node.callee.property,
 				messageId: MESSAGE_ID_ERROR,
-				data: {value: `toString('${encodingNode.value}')`, replacement: 'Uint8Array#toBase64()'},
+				data: {
+					value: `toString('${encodingNode.value}')`,
+					replacement: toStringEncoding === 'base64url' ? 'Uint8Array#toBase64({alphabet: \'base64url\', omitPadding: true})' : 'Uint8Array#toBase64()',
+				},
 			};
 		}
 	});
@@ -155,11 +473,12 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Uint8Array#toBase64()` and `Uint8Array.fromBase64()` over `atob()`, `btoa()`, and `Buffer` base64 conversions.',
+			description: 'Prefer `Uint8Array#toBase64()` and `Uint8Array.fromBase64()` over legacy base64 conversions and manual postprocessing.',
 			// eslint-disable-next-line no-warning-comments
 			// TODO: Enable in the `recommended` and `unopinionated` configs when targeting Node.js 26.
 			recommended: false,
 		},
+		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 		languages: [
