@@ -175,6 +175,7 @@ const getTypesFromVariable = (node, context, visitedVariables) => {
 	} else if (
 		definition.type === 'Variable'
 		&& definition.parent.kind === 'const'
+		&& definition.node.id === definition.name
 		&& definition.node.init
 	) {
 		types = getBuiltinCollectionTypes(definition.node.init, context, visitedVariables);

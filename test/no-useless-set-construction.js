@@ -1,0 +1,287 @@
+import vm from 'node:vm';
+import test from 'ava';
+import {Linter} from 'eslint';
+import outdent from 'outdent';
+import plugin from '../index.js';
+import {typescriptEslintParser} from '../scripts/parsers.js';
+import {getTester, parsers} from './utils/test.js';
+
+const {test: ruleTest} = getTester(import.meta);
+const setReturningMethods = ['union', 'intersection', 'difference', 'symmetricDifference'];
+const predicateMethods = ['isSubsetOf', 'isSupersetOf', 'isDisjointFrom'];
+const declarations = 'const selected = new Set([1, 2]); const other = new Set([2, 3]); const records = new Map([[2, "value"]]);';
+const withDeclarations = code => `${declarations} ${code}`;
+const typescript = code => ({code, languageOptions: {parser: parsers.typescript}});
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
+
+for (const method of [...setReturningMethods, ...predicateMethods]) {
+	ruleTest.snapshot({
+		valid: [
+			`unknown.${method}(new Set(unknownOther))`,
+			...[
+				`selected.${method}(other)`,
+				`selected.${method}(new Set([1, 2]))`,
+				`selected.${method}(new Set(records))`,
+				`selected.${method}(new Set(records.values()))`,
+				`selected.${method}(new Set(records.entries()))`,
+				`selected.${method}(new Set(other.entries()))`,
+				`selected.${method}(new Set(unknown))`,
+				`selected.${method}(new Set(unknown.keys()))`,
+				`unknown.${method}(new Set(other))`,
+				`records.${method}(new Set(other))`,
+				`new Set(records.keys()).${method}(other)`,
+				`new Set(selected).${method}(unknown)`,
+				`new Set(selected).${method}((selected.clear(), other))`,
+				`new Set(selected).${method}(new Set([selected.clear()]))`,
+				`selected?.${method}(new Set(other))`,
+				`selected.${method}?.(new Set(other))`,
+				`selected["${method}"](new Set(other))`,
+				`selected.${method}(new Set(other), extra)`,
+				`selected.${method}(...[new Set(other)])`,
+				`selected.${method}(new Set(...other))`,
+				`selected.${method}(new Set(other, extra))`,
+				`selected.${method}(new Set(other.keys(extra)))`,
+				`selected.${method}(new Set(other?.keys()))`,
+				`selected.${method}(new Set(other.keys?.()))`,
+			].map(code => withDeclarations(code)),
+		],
+		invalid: [
+			...[
+				`selected.${method}(new Set(other))`,
+				`selected.${method}(new Set(other.keys()))`,
+				`selected.${method}(new Set(other.values()))`,
+				`selected.${method}(new Set(records.keys()))`,
+				`new Set(selected).${method}(other)`,
+				`new Set(selected.keys()).${method}(other)`,
+				`new Set(selected.values()).${method}(records)`,
+			].map(code => withDeclarations(code)),
+		],
+	});
+}
+
+ruleTest.snapshot({
+	valid: [
+		...predicateMethods.map(method => withDeclarations(`new Set(selected.${method}(other))`)),
+		...[
+			'new Set(other)',
+			'new Set(selected).add(3)',
+			'new Set(selected).has(3)',
+			'selected.union(new Set(other).unrelated)',
+			'new Set(selected.union)',
+			'new Set(unknown.union(other))',
+			'new Set(records.union(other))',
+			'new Set(selected.union())',
+			'new Set(selected.union(other, extra))',
+			'new Set(selected?.union(other))',
+			'new Set(selected.union?.(other))',
+			'new Set(selected["union"](other))',
+			'new Set(selected.union(other), extra)',
+			'selected.union(new WeakSet(other))',
+			'selected.union(Set(other))',
+			'selected.union(new Set())',
+			'selected.union(new Set(null))',
+			'selected.union(new Set(customSetLike))',
+		].map(code => withDeclarations(code)),
+		'const Set = CustomSet; const selected = new Set(); selected.union(new Set(selected));',
+		'class CustomSet extends Set {} const selected = new CustomSet(); new Set(selected.union(other));',
+		'let selected = new Set(); new Set(selected.union(other));',
+		'const [other] = new Set([[2, 3]]); const selected = new Set([1, 2]); selected.union(new Set(other));',
+		'const [...other] = new Set([2, 3]); const selected = new Set([1, 2]); selected.union(new Set(other));',
+		'const [records] = new Map([[2, 3]]); const selected = new Set([1, 2]); selected.intersection(new Set(records.keys()));',
+		'const {missing: other = [2, 3]} = new Set(); const selected = new Set([1, 2]); selected.union(new Set(other));',
+		typescript('function check(selected: Set<number>, other: Set<number>) { selected.union(new Set<number>(other)); }'),
+		typescript('function check(selected: Set<number>, other: Set<number>) { new Set<number>(selected).union(other); }'),
+		typescript('function check(selected: Set<number>, other: Set<number>) { new Set<number>(selected.union(other)); }'),
+		typescript('function check(selected: Set<number> | undefined, other: Set<number>) { selected.union(new Set(other)); }'),
+		typescript('function check(selected: Set<number>, other: ReadonlySet<number>) { selected.union(new Set(other) satisfies Set<number>); }'),
+		typescript('function check(selected: ReadonlySet<number>, other: Set<number>) { (new Set(selected) satisfies Set<number>).union(other); }'),
+		typescript('function check(selected: Set<number>, other: Set<number>) { new Set(selected.union(other) as Iterable<number>).has(1); }'),
+		typeAware('function check(selected: {union(other: unknown): number[]}, other: Set<number>) { return new Set(selected.union(other)); }'),
+		typeAware('const [other] = new Set([[2, 3]]); const selected = new Set([1, 2]); selected.union(new Set(other));'),
+	],
+	invalid: [
+		...setReturningMethods.map(method => withDeclarations(`new Set(selected.${method}(other))`)),
+		...[
+			'const alias = other; selected.union(new Set(alias))',
+			'selected.union(new Set((condition ? other : selected)))',
+			'new Set((condition ? other : selected)).union(records)',
+			'selected.union(new Set(((records)).keys()))',
+			'selected.union(new Set(other /* retained */))',
+			'selected.union(new Set(/* wrapper comment */ other))',
+			'selected.union(new Set(records./* method comment */keys()))',
+			'new Set(/* receiver comment */ selected).union(other)',
+			'new Set(/* result comment */ selected.union(other))',
+			'new Set(selected.union(/* retained */ other)).has(2)',
+			'new Set(selected.union(other)).intersection(records)',
+			'new new Set(selected.union(other))()',
+			'new new Set(selected.union(other)).constructor()',
+			'new (new Set(selected.union(other))).constructor()',
+			'new new Set(selected.union(other)).constructor.prototype.constructor()',
+			'new Set(new Set(selected).union(new Set(other)))',
+			'new Set(selected.union(getOther()))',
+			'new Set(selected.union((selected.clear(), other)))',
+			'function result() { return new Set(selected.union(other)) }',
+			'function result() { throw new Set(selected.union(other)) }',
+			'for (const item of new Set(selected.union(other))) {}',
+		].map(code => withDeclarations(code)),
+		{
+			code: withDeclarations('const view = <div>{selected.union(new Set(other))}</div>'),
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		outdent`
+			const selected = new Set();
+			const other = new Set();
+			previous()
+			new Set(condition ? selected : other).union(other)
+		`,
+		outdent`
+			const selected = new Set();
+			const other = new Set();
+			previous()
+			new Set((condition ? selected : other).union(other))
+		`,
+		...['const preceding = function() {}', 'const preceding = class {}', 'const preceding = () => {}', 'function preceding() {}', 'class Preceding {}'].map(preceding => outdent`
+			const selected = new Set();
+			const other = new Set();
+			${preceding}
+			new Set(condition ? selected : other).union(other)
+		`),
+		...[
+			'function check(selected: Set<number>, other: ReadonlySet<number>) { return selected.union(new Set(other)); }',
+			'function check(selected: Set<number>, records: ReadonlyMap<number, string>) { return selected.union(new Set(records.keys())); }',
+			'function check(selected: ReadonlySet<number>, other: Set<number>) { return new Set(selected).union(other); }',
+			'function check(selected: Set<number>, other: Set<number>) { return new Set(selected.union(other)); }',
+			'function check(selected: Set<number>, other: unknown) { return selected.union(new Set(other as Set<number>)); }',
+			'function check(selected: Set<number>, other: unknown) { return new Set(other as Set<number>).union(selected); }',
+			'function check(selected: Set<number>, other: unknown) { return new Set(<Set<number>>other).union(selected); }',
+			'function check(selected: Set<number>, other: Set<number>) { return selected!.union(new Set(other)); }',
+			'function check(selected: Set<number>, other: Set<number>) { return selected.union(new Set(other satisfies Set<number>)); }',
+			'function check(selected: Set<number>, other: Set<number>) { return new new Set(selected.union(other))!(); }',
+			'function check(selected: Set<number>, other: Set<number>) { return new new Set(selected.union(other))!.constructor(); }',
+		].map(code => typescript(code)),
+		typeAware('function check(selected: Set<number>, records: {value: Map<number, string>}) { return selected.union(new Set(records.value.keys())); }'),
+		typeAware('function check(selected: {value: Set<number>}, other: Set<number>) { return new Set(selected.value.union(other)); }'),
+		typeAware('function check(source: Set<Set<number>>, selected: Set<number>) { const [other] = source; return selected.union(new Set(other)); }'),
+		withDeclarations('const alias = selected; new Set(alias).union(other)'),
+		withDeclarations('const alias = selected; new Set(alias.union(other))'),
+	],
+});
+
+for (const expression of [
+	'new new Set(selected.union(other)).constructor()',
+	'const preceding = function() {}\nnew Set(true ? selected : other).union(other)',
+	'const preceding = class {}\nnew Set(true ? selected : other).union(other)',
+]) {
+	test(`autofix preserves runtime results: ${expression}`, t => {
+		const linter = new Linter();
+		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
+		const code = withDeclarations(expression);
+		const result = linter.verifyAndFix(code, config);
+		t.true(result.fixed);
+		t.deepEqual(result.messages, []);
+		t.deepEqual([...vm.runInNewContext(result.output)], [...vm.runInNewContext(code)]);
+	});
+}
+
+for (const method of [...setReturningMethods, ...predicateMethods]) {
+	test(`autofix preserves ${method} results and iteration order`, t => {
+		const linter = new Linter();
+		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
+		const expressions = [
+			`selected.${method}(new Set(other))`,
+			`selected.${method}(new Set(other.keys()))`,
+			`selected.${method}(new Set(other.values()))`,
+			`selected.${method}(new Set(records.keys()))`,
+			`selected.${method}(new Set(selected))`,
+			`new Set(selected).${method}(other)`,
+			`new Set(selected.keys()).${method}(other)`,
+			`new Set(selected.values()).${method}(records)`,
+		];
+		if (setReturningMethods.includes(method)) {
+			expressions.push(`new Set(selected.${method}(other))`);
+		}
+
+		for (const expression of expressions) {
+			const code = `const selected = new Set(selectedValues); const other = new Set(otherValues); const records = new Map(otherValues.map(value => [value, {value}])); ${expression}`;
+			const result = linter.verifyAndFix(code, config);
+			t.true(result.fixed);
+			t.deepEqual(result.messages, []);
+
+			for (const [selectedValues, otherValues] of [
+				[[3, 1], [1, 2, 3]],
+				[[1, 2, 3], [3, 1]],
+				[[3, 1], [1, 3]],
+				[[1], [2]],
+				[[], [1]],
+				[[1], []],
+			]) {
+				const expected = vm.runInNewContext(code, {selectedValues, otherValues});
+				const actual = vm.runInNewContext(result.output, {selectedValues, otherValues});
+				if (typeof expected === 'boolean') {
+					t.is(actual, expected, expression);
+				} else {
+					t.deepEqual([...actual], [...expected], expression);
+				}
+			}
+		}
+	});
+}
+
+for (const preceding of ['previous!', 'previous<string>']) {
+	test(`autofix preserves statement boundaries after ${preceding}`, t => {
+		const linter = new Linter();
+		const config = {
+			languageOptions: {parser: typescriptEslintParser},
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-useless-set-construction': 'error'},
+		};
+		const prefix = `${declarations}\nconst preceding = ${preceding}\n`;
+		const result = linter.verifyAndFix(`${prefix}new Set(true ? selected : other).union(other);`, config);
+		t.deepEqual(result.messages, []);
+		t.is(result.output, `${prefix};(true ? selected : other).union(other);`);
+	});
+}
+
+test('autofix does not add unnecessary parentheses to arguments', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
+	const code = withDeclarations('selected.union(new Set(condition ? other : selected))');
+	const result = linter.verifyAndFix(code, config);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, withDeclarations('selected.union(condition ? other : selected)'));
+});
+
+test('autofix preserves tagged template precedence', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
+	const code = withDeclarations('new new Set(selected.union(other))`x`');
+	const result = linter.verifyAndFix(code, config);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, withDeclarations('new (selected.union(other))`x`'));
+});
+
+test('related rules converge without conflicting fixes', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: Object.fromEntries([
+			'no-useless-set-construction',
+			'prefer-set-methods',
+			'no-useless-spread',
+			'no-useless-iterator-to-array',
+			'no-useless-collection-argument',
+		].map(name => [`unicorn/${name}`, 'error'])),
+	};
+	const code = withDeclarations('selected.union(new Set([...other])); selected.intersection(new Set(records.keys().toArray())); new Set(new Set([...selected, ...other]));');
+	const result = linter.verifyAndFix(code, config);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, withDeclarations('selected.union(other); selected.intersection(records); selected.union(other);'));
+	t.false(linter.verifyAndFix(result.output, config).fixed);
+});

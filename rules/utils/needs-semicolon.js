@@ -73,6 +73,16 @@ export default function needsSemicolon(tokenBefore, context, code) {
 			return true;
 		}
 
+		if (
+			value === '}'
+			&& (
+				(lastBlockNode.type === 'BlockStatement' && lastBlockNode.parent.type === 'FunctionExpression')
+				|| (lastBlockNode.type === 'ClassBody' && lastBlockNode.parent.type === 'ClassExpression')
+			)
+		) {
+			return true;
+		}
+
 		if (value === ')') {
 			switch (lastBlockNode.type) {
 				case 'IfStatement': {
@@ -110,7 +120,11 @@ export default function needsSemicolon(tokenBefore, context, code) {
 		return value.endsWith('`');
 	}
 
-	if (lastBlockNode.type === 'ObjectExpression') {
+	if (
+		lastBlockNode.type === 'ObjectExpression'
+		|| lastBlockNode.type === 'TSNonNullExpression'
+		|| (lastBlockNode.type === 'TSTypeParameterInstantiation' && lastBlockNode.parent.type === 'TSInstantiationExpression')
+	) {
 		return true;
 	}
 
