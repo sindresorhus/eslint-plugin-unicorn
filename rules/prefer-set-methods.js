@@ -35,6 +35,17 @@ const messages = {
 	[MESSAGE_ID_DISJOINT]: 'Use `Set#isDisjointFrom()` to check whether Sets have any elements in common.',
 };
 
+const predicateMethodsByArrayMethod = {
+	every: {
+		intersection: 'isSubsetOf',
+		difference: 'isDisjointFrom',
+	},
+	some: {
+		intersection: 'isDisjointFrom',
+		difference: 'isSubsetOf',
+	},
+};
+
 const isGlobalSetConstructor = (node, context) =>
 	isNewExpression(node, {
 		name: 'Set',
@@ -231,15 +242,12 @@ const getSetOperation = (node, parameter, context) => {
 };
 
 const getSetOperationReplacement = (filterCall, context) => {
-	if (
-		!isMethodCall(filterCall, {
-			method: 'filter',
-			argumentsLength: 1,
-			optionalCall: false,
-			optionalMember: false,
-		})
-		|| context.sourceCode.getCommentsInside(filterCall).length > 0
-	) {
+	if (!isMethodCall(filterCall, {
+		method: 'filter',
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
 		return;
 	}
 
@@ -346,19 +354,27 @@ const getArrayPredicateProblem = (node, context) => {
 		return;
 	}
 
-	const otherSet = getSetHasCallObject(callback.body, callback.params[0], context);
-	if (!otherSet) {
+	const operation = getSetOperation(callback.body, callback.params[0], context);
+	if (!operation) {
 		return;
 	}
 
-	const negated = node.callee.property.name === 'some';
+	const arrayMethod = node.callee.property.name;
 	return getSetPredicateProblem(node, {
-		set, otherSet, method: negated ? 'isDisjointFrom' : 'isSubsetOf', negated,
+		set,
+		otherSet: operation.otherSet,
+		method: predicateMethodsByArrayMethod[arrayMethod][operation.method],
+		negated: arrayMethod === 'some',
 	}, context);
 };
 
 const getSetSizeComparisonProblem = (node, context) => {
-	if (node.operator !== '===' && node.operator !== '!==') {
+	const isStrictEqualityComparison = node.operator === '===' || node.operator === '!==';
+	const isPositiveSizeComparison = (
+		(node.operator === '>' && isLiteral(node.right, 0))
+		|| (node.operator === '<' && isLiteral(node.left, 0))
+	);
+	if (!isStrictEqualityComparison && !isPositiveSizeComparison) {
 		return;
 	}
 
@@ -385,7 +401,7 @@ const getSetSizeComparisonProblem = (node, context) => {
 	}
 
 	return getSetPredicateProblem(node, {
-		set, otherSet, method: callee.property.name === 'intersection' ? 'isDisjointFrom' : 'isSubsetOf', negated: node.operator === '!==',
+		set, otherSet, method: callee.property.name === 'intersection' ? 'isDisjointFrom' : 'isSubsetOf', negated: node.operator !== '===',
 	}, context);
 };
 

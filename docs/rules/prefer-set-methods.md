@@ -66,8 +66,10 @@ const disjoint = set.isDisjointFrom(otherSet);
 const contained = set.isSubsetOf(otherSet);
 ```
 
-Strict inequality (`!== 0`) and reversed comparisons (`0 === set.intersection(otherSet).size`) are also supported. Inequality negates the corresponding predicate.
+Strict inequality (`!== 0`), reversed comparisons (`0 === set.intersection(otherSet).size`), and positive size comparisons (`set.intersection(otherSet).size > 0` or `0 < set.intersection(otherSet).size`) are also supported. Strict inequality and positive size comparisons negate the corresponding predicate.
 
-Callbacks must be synchronous arrow functions with one identifier parameter and a direct `otherSet.has(value)` expression body. Patterns with comments, optional chaining, or computed method access are ignored. These autofixes assume ordinary built-in Set behavior.
+Negated membership checks are also supported: `[...set].every(value => !otherSet.has(value))` becomes `set.isDisjointFrom(otherSet)`, while `[...set].some(value => !otherSet.has(value))` becomes `!set.isSubsetOf(otherSet)`.
+
+Callbacks must be synchronous arrow functions with one identifier parameter and a direct `otherSet.has(value)` or `!otherSet.has(value)` expression body. Patterns with comments, optional chaining, or computed method access are ignored. These autofixes assume ordinary built-in Set behavior.
 
 For both filter and predicate callbacks, evaluating the Set used for membership checks must not have side effects or depend on the callback parameter.
