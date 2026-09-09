@@ -6,6 +6,7 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test: testRule} = getTester(import.meta);
 const loop = (body = 'save(names[index], scores[index]);') => `for (let index = 0; index < Math.min(names.length, scores.length); index++) { ${body} }`;
+const cachedLoop = (declaration = 'const length = Math.min(names.length, scores.length);', body) => `${declaration}\n${loop(body).replace('Math.min(names.length, scores.length)', 'length')}`;
 const typescript = code => ({code, languageOptions: {parser: parsers.typescript}});
 const typeAware = code => ({
 	code,
@@ -29,9 +30,19 @@ testRule.snapshot({
 		].map(bound => loop().replace('Math.min(names.length, scores.length)', () => bound)),
 		...['var', 'const'].map(kind => loop().replace('let index', () => `${kind} index`)),
 		...['index = 1', 'index = 0, length = 5'].map(initializer => loop().replace('index = 0', () => initializer)),
-		...['index += 2', 'index--', 'index = index + 1'].map(update => loop().replace('index++', () => update)),
+		...['index += 2', 'index--', 'index = index + 2', 'index = otherIndex + 1'].map(update => loop().replace('index++', () => update)),
 		loop().replace('index <', 'index <='),
-		loop().replace('index < Math.min(names.length, scores.length)', 'index < names.length && index < scores.length'),
+		loop().replace('index < Math.min(names.length, scores.length)', 'index < names.length || index < scores.length'),
+		loop().replace('index < Math.min(names.length, scores.length)', 'index < names.length && enabled && index < scores.length'),
+		loop().replace('index < Math.min(names.length, scores.length)', 'index < names.length && index < names.length'),
+		loop().replace('index < Math.min(names.length, scores.length)', 'index < object.names.length && index < scores.length'),
+		loop().replace('index < Math.min(names.length, scores.length)', ''),
+		`${cachedLoop()} use(length);`,
+		`const length = Math.min(names.length, scores.length); prepare(); ${loop().replace('Math.min(names.length, scores.length)', 'length')}`,
+		cachedLoop('const length = Math.min(names.length, scores.length), other = 1;'),
+		loop('save(names[index], scores[index]); use(length);')
+			.replace('let index = 0', 'let index = 0, length = Math.min(names.length, scores.length)')
+			.replace('Math.min(names.length, scores.length); index++', 'length; index++'),
 		loop().replace(' { ', ' ').replace(' }', ''),
 		...[
 			'save(names[index]);',
@@ -113,6 +124,25 @@ testRule.snapshot({
 		typeAware(`declare const names: string[]; declare const scores: readonly number[]; ${loop()}`),
 		typeAware(`declare const names: Uint8Array; declare const scores: Float64Array; ${loop()}`),
 		loop('save(names[index], scores[index]); { const names = other; const index = 0; save(names[index]); }'),
+		loop('save(names[index], scores[index]); function getWidget() { return widget; }').replaceAll('names', 'widgets'),
+		loop().replace('index < Math.min(names.length, scores.length)', 'index < names.length && index < scores.length'),
+		loop().replace('index < Math.min(names.length, scores.length)', 'names.length > index && index < scores.length'),
+		loop()
+			.replace(
+				'index < Math.min(names.length, scores.length)',
+				'index < names.length && (scores.length > index && index < ranks.length)',
+			)
+			.replace('scores[index]', 'scores[index], ranks[index]'),
+		loop().replace('index++', 'index = index + 1'),
+		loop().replace('index < Math.min(names.length, scores.length)', 'index < scores.length && index < names.length'),
+		cachedLoop(),
+		cachedLoop().replace('index < length', 'length > index'),
+		loop()
+			.replace('let index = 0', 'let index = 0, length = Math.min(names.length, scores.length)')
+			.replace('Math.min(names.length, scores.length); index++', 'length; index++'),
+		cachedLoop('const length = Math.min(names.length, scores.length); /* keep cached-bound comment */'),
+		cachedLoop('let length = Math.min(names.length, scores.length);'),
+		typescript(cachedLoop('const length: number = Math.min(names.length, scores.length);')),
 	],
 });
 

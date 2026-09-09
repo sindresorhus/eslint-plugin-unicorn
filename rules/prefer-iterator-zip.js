@@ -7,6 +7,7 @@ import {
 } from './ast/index.js';
 import {
 	getAvailableVariableName,
+	getPreviousNode,
 	getReferences,
 	getScopes,
 	isKnownNonIndexedCollection,
@@ -25,25 +26,135 @@ const messages = {
 
 const isIdentifier = (node, name) => node?.type === 'Identifier' && node.name === name;
 
-const isIncrement = (update, name) => (
-	update?.type === 'UpdateExpression'
-	&& update.operator === '++'
-	&& isIdentifier(update.argument, name)
-) || (
-	update?.type === 'AssignmentExpression'
-	&& update.operator === '+='
-	&& isIdentifier(update.left, name)
-	&& isLiteral(update.right, 1)
-);
+function isIncrement(update, name) {
+	if (
+		update?.type === 'UpdateExpression'
+		&& update.operator === '++'
+		&& isIdentifier(update.argument, name)
+	) {
+		return true;
+	}
 
-function getInputs(node) {
-	const {init, test, update} = node;
+	if (
+		update?.type !== 'AssignmentExpression'
+		|| !isIdentifier(update.left, name)
+	) {
+		return false;
+	}
+
+	return (
+		update.operator === '+='
+		&& isLiteral(update.right, 1)
+	) || (
+		update.operator === '='
+		&& update.right.type === 'BinaryExpression'
+		&& update.right.operator === '+'
+		&& isIdentifier(update.right.left, name)
+		&& isLiteral(update.right.right, 1)
+	);
+}
+
+function getUpperBound(node, indexName) {
+	if (node?.type !== 'BinaryExpression') {
+		return;
+	}
+
+	if (node.operator === '<' && isIdentifier(node.left, indexName)) {
+		return node.right;
+	}
+
+	if (node.operator === '>' && isIdentifier(node.right, indexName)) {
+		return node.left;
+	}
+}
+
+function getLengthInput(node) {
+	if (
+		isMemberExpression(node, {property: 'length', computed: false, optional: false})
+		&& node.object.type === 'Identifier'
+	) {
+		return node.object;
+	}
+}
+
+function getConjunctionOperands(node) {
+	return node?.type === 'LogicalExpression' && node.operator === '&&'
+		? [...getConjunctionOperands(node.left), ...getConjunctionOperands(node.right)]
+		: [node];
+}
+
+function getDistinctInputs(inputs) {
+	if (inputs.some(input => !input)) {
+		return;
+	}
+
+	const inputNames = new Set(inputs.map(input => input.name));
+	if (inputNames.size === inputs.length) {
+		return inputs;
+	}
+}
+
+function getMathMinInputs(node) {
+	if (!isMethodCall(node, {
+		object: 'Math',
+		method: 'min',
+		minimumArguments: 2,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return;
+	}
+
+	return getDistinctInputs(node.arguments.map(argument => getLengthInput(argument)));
+}
+
+function getTestInputs(test, indexName) {
+	const inputs = getMathMinInputs(getUpperBound(test, indexName));
+	if (inputs) {
+		return inputs;
+	}
+
+	const operands = getConjunctionOperands(test);
+	if (operands.length < 2) {
+		return;
+	}
+
+	return getDistinctInputs(operands.map(operand => getLengthInput(getUpperBound(operand, indexName))));
+}
+
+function getCachedLoopInformation(node, indexName, cache, sourceCode) {
+	const {declarator, declarationToRemove} = cache;
+	const cachedBound = getUpperBound(node.test, indexName);
+	if (
+		cachedBound?.type !== 'Identifier'
+		|| declarator.id.type !== 'Identifier'
+		|| declarator.id.name !== cachedBound.name
+	) {
+		return;
+	}
+
+	const [variable] = sourceCode.getDeclaredVariables(declarator);
+	const references = variable.references.filter(reference => !reference.init);
+	if (
+		references.length !== 1
+		|| references[0].identifier !== cachedBound
+	) {
+		return;
+	}
+
+	const inputs = getMathMinInputs(declarator.init);
+	if (inputs) {
+		return {inputs, declarationToRemove};
+	}
+}
+
+function getLoopInformation(node, context) {
+	const {init, update} = node;
 	if (
 		node.body.type !== 'BlockStatement'
 		|| init?.type !== 'VariableDeclaration'
 		|| init.kind !== 'let'
-		|| init.declarations.length !== 1
-		|| test?.type !== 'BinaryExpression'
+		|| init.declarations.length > 2
 	) {
 		return;
 	}
@@ -58,37 +169,35 @@ function getInputs(node) {
 		return;
 	}
 
-	let bound;
-	if (test.operator === '<' && isIdentifier(test.left, name)) {
-		bound = test.right;
-	} else if (test.operator === '>' && isIdentifier(test.right, name)) {
-		bound = test.left;
-	}
+	if (init.declarations.length === 1) {
+		const inputs = getTestInputs(node.test, name);
+		if (inputs) {
+			return {inputs};
+		}
 
-	if (!isMethodCall(bound, {
-		object: 'Math',
-		method: 'min',
-		minimumArguments: 2,
-		optionalCall: false,
-		optionalMember: false,
-	})) {
-		return;
-	}
-
-	const inputs = [];
-	for (const argument of bound.arguments) {
+		const declaration = getPreviousNode(node, context);
 		if (
-			!isMemberExpression(argument, {property: 'length', computed: false, optional: false})
-			|| argument.object.type !== 'Identifier'
-			|| inputs.some(input => input.name === argument.object.name)
+			declaration?.type !== 'VariableDeclaration'
+			|| !['const', 'let'].includes(declaration.kind)
+			|| declaration.declarations.length !== 1
 		) {
 			return;
 		}
 
-		inputs.push(argument.object);
+		return getCachedLoopInformation(node, name, {declarator: declaration.declarations[0], declarationToRemove: declaration}, context.sourceCode);
 	}
 
-	return inputs;
+	return getCachedLoopInformation(node, name, {declarator: init.declarations[1]}, context.sourceCode);
+}
+
+function getSupportedLoopInformation(node, context) {
+	const loopInformation = getLoopInformation(node, context);
+	if (
+		loopInformation
+		&& loopInformation.inputs.every(input => !isKnownNonIndexedCollection(input, context))
+	) {
+		return loopInformation;
+	}
 }
 
 function isCapturedReference(identifier, body) {
@@ -113,16 +222,26 @@ function isElementRead(node) {
 		&& !(parent.type === 'TaggedTemplateExpression' && parent.tag === node);
 }
 
+function hasCommentInRanges(context, ranges) {
+	const {sourceCode} = context;
+	return sourceCode.getAllComments().some(comment => {
+		const [start, end] = sourceCode.getRange(comment);
+		return ranges.some(([rangeStart, rangeEnd]) => start >= rangeStart && end <= rangeEnd);
+	});
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
 	const {sourceCode} = context;
 	context.onExit('ForStatement', node => {
-		const inputs = getInputs(node);
-		if (!inputs || inputs.some(input => isKnownNonIndexedCollection(input, context))) {
+		const loopInformation = getSupportedLoopInformation(node, context);
+		if (!loopInformation) {
 			return;
 		}
+
+		const {inputs, declarationToRemove} = loopInformation;
 
 		const [indexVariable] = sourceCode.getDeclaredVariables(node.init);
 		const inputVariables = new Map(inputs.map(input => [input.name, findVariable(sourceCode.getScope(input), input)]));
@@ -163,12 +282,14 @@ const create = context => {
 
 		const closingParenthesis = sourceCode.getTokenBefore(node.body, isClosingParenToken);
 		const headerRange = [sourceCode.getRange(node)[0], sourceCode.getRange(closingParenthesis)[1]];
+		const declarationRemovalRange = declarationToRemove && [sourceCode.getRange(declarationToRemove)[0], sourceCode.getRange(node)[0]];
 		const problem = {loc: toLocation(headerRange, context), messageId: MESSAGE_ID};
-		const replacementRanges = [headerRange, ...reads.values().flatMap(nodes => nodes.values().map(node => sourceCode.getRange(node)))];
-		if (sourceCode.getCommentsInside(node).some(comment => {
-			const [start, end] = sourceCode.getRange(comment);
-			return replacementRanges.some(([rangeStart, rangeEnd]) => start >= rangeStart && end <= rangeEnd);
-		})) {
+		const replacementRanges = [
+			headerRange,
+			...reads.values().flatMap(nodes => nodes.values().map(node => sourceCode.getRange(node))),
+			...(declarationRemovalRange ? [declarationRemovalRange] : []),
+		];
+		if (hasCommentInRanges(context, replacementRanges)) {
 			return problem;
 		}
 
@@ -183,6 +304,10 @@ const create = context => {
 		problem.suggest = [{
 			messageId: MESSAGE_ID_SUGGESTION,
 			* fix(fixer) {
+				if (declarationRemovalRange) {
+					yield fixer.removeRange(declarationRemovalRange);
+				}
+
 				yield fixer.replaceTextRange(headerRange, `for (const [${names.join(', ')}] of Iterator.zip([${inputs.map(input => input.name).join(', ')}]))`);
 				for (const [index, input] of inputs.entries()) {
 					for (const read of reads.get(input.name)) {
