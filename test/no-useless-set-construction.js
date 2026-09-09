@@ -258,6 +258,15 @@ test('autofix does not add unnecessary parentheses to arguments', t => {
 	t.is(result.output, withDeclarations('selected.union(condition ? other : selected)'));
 });
 
+test('autofix preserves tagged template precedence', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
+	const code = withDeclarations('new new Set(selected.union(other))`x`');
+	const result = linter.verifyAndFix(code, config);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, withDeclarations('new (selected.union(other))`x`'));
+});
+
 test('related rules converge without conflicting fixes', t => {
 	const linter = new Linter();
 	const config = {

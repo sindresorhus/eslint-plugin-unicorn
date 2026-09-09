@@ -102,6 +102,7 @@ function createFix(node, replacement, context) {
 	let callee = node;
 	while (
 		(callee.parent.type === 'MemberExpression' && callee.parent.object === callee)
+		|| (callee.parent.type === 'TaggedTemplateExpression' && callee.parent.tag === callee)
 		|| isTypeScriptExpressionWrapper(callee.parent)
 	) {
 		callee = callee.parent;
