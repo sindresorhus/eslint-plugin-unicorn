@@ -72,6 +72,7 @@ test.snapshot({
 		'Iterator?.from(values).filter(async value => value)',
 		'Iterator.from?.(values).filter(async value => value)',
 		'map.values?.().filter(async value => value)',
+		'string.matchAll?.(pattern).filter(async value => value)',
 		'Iterator.from(values).map?.(value => value).filter(async value => value)',
 		'Iterator.from(values)["filter"](async value => value)',
 		'Iterator.from(values)[`filter`](async value => value)',

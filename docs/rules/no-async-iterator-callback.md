@@ -63,10 +63,8 @@ const total = await Iterator.from(values).reduce(
 
 ## Detection
 
-The rule targets recognized synchronous iterators, including `Iterator.from(…)`, collection `values()`, `keys()`, and `entries()` calls, `matchAll(…)`, iterator helper chains, direct `const` bindings to these expressions, and recognized TypeScript iterator types. Unknown receivers, arrays, and async iterators are ignored. Receiver detection is best-effort and follows the same heuristics as the other iterator rules.
+The rule checks recognized synchronous iterators, including `Iterator.from(…)`, collection iterator methods, `matchAll(…)`, helper chains, direct `const` bindings, and known TypeScript iterator types. Receiver detection is best-effort; arrays, async iterators, and unknown receivers are ignored.
 
-Without type information, the rule recognizes inline async functions, direct `const` bindings to async functions, and unreassigned local async function declarations. It does not follow arbitrary aliases or inspect callback bodies for returned promises. Async generator callbacks are outside this rule's scope.
-
-With [TypeScript type information](https://typescript-eslint.io/getting-started/typed-linting/), it also recognizes callbacks whose return types include promises or `PromiseLike`, including imported functions and object methods. A return type such as `boolean | Promise<boolean>` is reported too.
+Without type information, it detects inline async functions, direct `const` bindings to async functions, and unreassigned local async function declarations. This syntax-only analysis does not follow arbitrary aliases or inspect callback bodies. With [TypeScript type information](https://typescript-eslint.io/getting-started/typed-linting/), it also detects callbacks whose return types include `Promise` or `PromiseLike`, including imported functions and object methods. Async generator callbacks are ignored.
 
 The rule does not provide fixes or suggestions because choosing sequential or concurrent execution requires understanding the intended behavior.
