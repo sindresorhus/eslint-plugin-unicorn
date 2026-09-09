@@ -240,6 +240,14 @@ for (const method of ['intersection', 'difference']) {
 	});
 }
 
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))();',
+		'const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))`template`;',
+	],
+});
+
 for (const negation of ['', '!']) {
 	const method = negation ? 'difference' : 'intersection';
 	test({
