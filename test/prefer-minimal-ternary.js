@@ -123,7 +123,6 @@ test.snapshot({
 			code: 'test ? a?.foo : b?.foo;',
 			options: [{checkVaryingBase: true}],
 		},
-		// Optional chaining is never reported, even when the option is on.
 		{
 			code: 'test ? Promise?.allSettled(values) : Promise?.all(values);',
 			options: [{checkComputedMemberAccess: true}],
@@ -254,7 +253,9 @@ test.snapshot({
 			'test ? object.a : other.b;',
 			'test ? object.a : object.a;',
 			'test ? object.a : object["a"];',
+			'test ? object.a : object[`a`];',
 			'test ? object[0] : object["0"];',
+			'const first = "a", second = "a"; test ? object[first] : object[second];',
 			'test ? target?.a : target?.b;',
 			'test ? object.a : object?.b;',
 			'test ? object?.["a"] : object?.["b"];',
@@ -276,6 +277,11 @@ test.snapshot({
 			code: 'test ? object.a : other.b;',
 			options: [{checkComputedMemberAccess: true, checkVaryingBase: true}],
 		},
+		{
+			code: 'test ? object!.a : object!.b;',
+			options: [{checkComputedMemberAccess: true}],
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;'),
 		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo["A"] : Foo["B"];'),
 		typeAwareComputedMemberAccess('const enum Original { A, B } import Foo = Original; declare const test: boolean; test ? Foo.A : Foo.B;'),
@@ -285,9 +291,9 @@ test.snapshot({
 			'test ? object["a"] : object["b"];',
 			'test ? object.a : object["b"];',
 			'test ? object[0] : object[1];',
+			'test ? object[`a`] : object[`b`];',
 			'test ? this.maxWidth : this.maxHeight;',
 			'test ? ((object).a) : (object.b);',
-			'consume(test ? object.a : object.b);',
 			'test ? object./* first */ a : object./* second */ b;',
 			'const first = "a", second = "b"; test ? object[first] : object[second];',
 			outdent`
