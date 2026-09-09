@@ -521,6 +521,7 @@ test.typescript({
 		'function run(date?: Temporal.PlainDate) { date?.add({days: 1}); }',
 		'function run(set?: Set<number>) { set?.union(other); }',
 		'function run(array?: number[]) { array?.with(0, 1); }',
+		'function run(set?: Set<number>) { const alias = set; (alias as unknown)?.union(other); }',
 		'type Receiver = {has(value: number): void}; type Alias = Receiver; function run(value: Alias) { type Receiver = Set<number>; value.has(1); }',
 	],
 	invalid: [

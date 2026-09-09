@@ -460,7 +460,11 @@ const getTypeFromVariable = (node, context, options, visitedVariables) => {
 
 	const [definition] = variable.defs;
 	const definitionScope = context.sourceCode.getScope(definition.name);
-	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, definitionScope, options);
+	let typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, definitionScope, options);
+	if (definition.name?.optional) {
+		typeFromAnnotation = combineUnionTypes([typeFromAnnotation, nullish], options);
+	}
+
 	let type = unknown;
 
 	if (typeFromAnnotation !== unknown) {
