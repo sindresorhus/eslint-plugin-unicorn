@@ -115,7 +115,7 @@ When [type information](https://typescript-eslint.io/getting-started/typed-linti
 Type: `boolean`\
 Default: `false`
 
-Also report property-read and method-call ternaries that share the same simple receiver and differ only by the static property or method name. Method calls must also share the same arguments. Minimizing these requires computed member access, so it is opt-in. Statically known computed keys, such as `object['a']` and `object[0]`, are included. Calls and member accesses are excluded as receivers because factoring them out can change evaluation order.
+Also report property-read and method-call ternaries that share the same simple receiver and differ only by the static property or method name. Method calls must also share the same arguments. Minimizing these requires computed member access, so it is opt-in. Statically known computed keys, such as `object['a']` and `object[0]`, are included. Receivers are limited to identifiers, literals, `this`, and `super`.
 
 ```js
 // eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}]

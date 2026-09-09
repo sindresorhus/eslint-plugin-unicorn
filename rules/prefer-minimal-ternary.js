@@ -54,7 +54,7 @@ function hasSameObjectWithDifferentStaticProperty(left, right, context) {
 		|| hasOptionalChainElement(right)
 		|| !isSafeSharedExpression(left.object)
 		|| !isSameSourceText(left.object, right.object, sourceCode)
-		// A `const enum` requires a statically known property name (TS2476).
+		// Computed access to a `const enum` member requires a string literal (TS2476).
 		|| isConstEnumReference(left.object, context)
 	) {
 		return false;
@@ -94,7 +94,7 @@ function hasSameStaticPropertyWithDifferentObject(left, right, context) {
 }
 
 function hasMinimalCalleeDifference(left, right, context, {checkVaryingBase, checkComputedMemberAccess}) {
-	// All callee-varying call cases push the ternary in front of the call (`(test ? a : b)()`), hiding the call site, so they are opt-in. `checkVaryingBase` covers plain identifier and dot access; `checkComputedMemberAccess` additionally produces computed member access (`obj[test ? 'a' : 'b'](…)`).
+	// All callee-varying call cases push the ternary in front of the call (`(test ? a : b)()`), hiding the call site, so they are opt-in. `checkVaryingBase` covers plain identifiers and member access with a varying receiver and static property; `checkComputedMemberAccess` additionally produces computed member access (`obj[test ? 'a' : 'b'](…)`).
 	return (checkVaryingBase && isDifferentIdentifier(left, right))
 		|| (checkComputedMemberAccess && hasSameObjectWithDifferentStaticProperty(left, right, context))
 		|| (checkVaryingBase && hasSameStaticPropertyWithDifferentObject(left, right, context));

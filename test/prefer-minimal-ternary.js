@@ -245,8 +245,6 @@ test.snapshot({
 	valid: [
 		...[
 			'test ? object.a : object.b;',
-			'test ? object["a"] : object["b"];',
-			'test ? object[0] : object[1];',
 			'const first = 1, second = 2; test ? object[first] : object[second];',
 		].map(code => ({code, options: [{checkComputedMemberAccess: false, checkVaryingBase: true}]})),
 		...[
@@ -292,6 +290,7 @@ test.snapshot({
 			'test ? object.a : object["b"];',
 			'test ? object[0] : object[1];',
 			'test ? object[`a`] : object[`b`];',
+			'test ? "value".length : "value".constructor;',
 			'test ? this.maxWidth : this.maxHeight;',
 			'test ? ((object).a) : (object.b);',
 			'test ? object./* first */ a : object./* second */ b;',
