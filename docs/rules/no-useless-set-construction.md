@@ -39,7 +39,7 @@ Map values and entries are different from keys, so `new Set(map.values())`, `new
 
 ### Receiver copies
 
-All seven methods leave their receiver unchanged, so copying a Set immediately before calling them is unnecessary when evaluating the argument has no side effects.
+All seven methods leave their receiver unchanged, so copying a Set immediately before calling them is unnecessary when evaluating the argument has no detectable side effects.
 
 ```js
 const selected = new Set([1, 2]);
@@ -54,7 +54,7 @@ selected.union(other);
 selected.isSubsetOf(other);
 ```
 
-The rule leaves receiver copies unchanged when the argument is not a known Set or Map, or evaluating it could have side effects. For example, `new Set(selected).union((selected.clear(), other))` preserves the original contents of `selected`, so removing that copy would change the result.
+The rule leaves receiver copies unchanged when the argument is not a known Set or Map, or evaluating it has detectable side effects. For example, `new Set(selected).union((selected.clear(), other))` preserves the original contents of `selected`, so removing that copy would change the result.
 
 ### Result copies
 
@@ -75,7 +75,7 @@ Ordinary Set copies outside these method calls are allowed.
 
 ## Limitations
 
-The rule recognizes built-in Set and Map constructors, `const` aliases, and supported TypeScript annotations and type information. It does not infer arbitrary custom Set-like objects or add flow analysis. Custom collection implementations and overridden built-in behavior are unsupported.
+The rule recognizes built-in Set and Map constructors, `const` aliases, and supported TypeScript annotations and type information. It does not infer arbitrary custom Set-like objects, add flow analysis, or account for overridden built-in behavior, accessor or Proxy side effects, or cross-realm collections.
 
 Optional calls, computed method names, spread or extra arguments, and Set constructions with explicit TypeScript type arguments are skipped. Reports have no autofix when removing the construction would discard comments.
 
