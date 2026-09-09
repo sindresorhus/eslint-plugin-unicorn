@@ -87,4 +87,5 @@ Optional calls, computed method names, spread or extra arguments, and Set constr
 
 ## References
 
-- [Set methods specification](https://tc39.es/proposal-set-methods/)
+- [ECMAScript specification: Set Objects](https://tc39.es/ecma262/multipage/keyed-collections.html#sec-set-objects)
+- [Set methods proposal](https://tc39.es/proposal-set-methods/)

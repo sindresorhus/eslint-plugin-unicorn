@@ -206,7 +206,7 @@ for (const method of [...setReturningMethods, ...predicateMethods]) {
 		}
 
 		for (const expression of expressions) {
-			const code = `const selected = new Set(selectedValues); const other = new Set(otherValues); const records = new Map(otherValues.map(value => [value, value])); ${expression}`;
+			const code = `const selected = new Set(selectedValues); const other = new Set(otherValues); const records = new Map(otherValues.map(value => [value, {value}])); ${expression}`;
 			const result = linter.verifyAndFix(code, config);
 			t.true(result.fixed);
 			t.deepEqual(result.messages, []);
