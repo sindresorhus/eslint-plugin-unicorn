@@ -27,7 +27,7 @@ const foo = test ? a + 1 : b + 1;
 const foo = (test ? a : b) + 1;
 ```
 
-Member access ternaries are not reported when only a static property name varies (`object.a : object.b`), since minimizing them needs computed member access in place of clearer property access. When only the object varies (`a.foo : b.foo`), minimizing moves the ternary into the base (`(test ? a : b).foo`), wrapping the receiver in a conditional and breaking TypeScript `const enum` access, so it is off by default (opt in with [`checkVaryingBase`](#checkvaryingbase)). But a dynamic computed key is already computed, so it is reported:
+Member access ternaries are not reported by default when only a static property name varies (`object.a : object.b`), since minimizing them needs computed member access in place of clearer property access (opt in with [`checkComputedMemberAccess`](#checkcomputedmemberaccess)). When only the object varies (`a.foo : b.foo`), minimizing moves the ternary into the base (`(test ? a : b).foo`), wrapping the receiver in a conditional and breaking TypeScript `const enum` access, so it is off by default (opt in with [`checkVaryingBase`](#checkvaryingbase)). But a dynamic computed key is already computed, so it is reported:
 
 ```js
 // ❌
@@ -79,7 +79,7 @@ Default: `false`
 Also report ternaries that share everything but the base of a call or member access. Minimizing these moves the ternary into the base (`(test ? a : b)()`, `(test ? a : b).foo`), which hides the call site, breaks plain-text searches, and breaks TypeScript `const enum` access, so it is opt-in.
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingBase": true}]
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
 
 // ❌
 const foo = test ? a() : b();
@@ -89,7 +89,7 @@ const foo = (test ? a : b)();
 ```
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingBase": true}]
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
 
 // ❌
 const foo = test ? a.method(value) : b.method(value);
@@ -99,7 +99,7 @@ const foo = (test ? a : b).method(value);
 ```
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingBase": true}]
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
 
 // ❌
 const foo = test ? a.value : b.value;
@@ -115,10 +115,20 @@ When [type information](https://typescript-eslint.io/getting-started/typed-linti
 Type: `boolean`\
 Default: `false`
 
-Also report method-call ternaries that share the object and arguments and differ only by the method name. Minimizing these requires computed member access, so it is opt-in.
+Also report property-read and method-call ternaries that share the same simple receiver and differ only by the static property or method name. Method calls must also share the same arguments. Minimizing these requires computed member access, so it is opt-in. Statically known computed keys, such as `object['a']` and `object[0]`, are included. Receivers are limited to identifiers, literals, `this`, and `super`.
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkComputedMemberAccess": true}]
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}]
+
+// ❌
+const value = test ? object.a : object.b;
+
+// ✅
+const value = object[test ? 'a' : 'b'];
+```
+
+```js
+// eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}]
 
 // ❌
 await (delayRejection ? Promise.allSettled(promises) : Promise.all(promises));
@@ -126,3 +136,5 @@ await (delayRejection ? Promise.allSettled(promises) : Promise.all(promises));
 // ✅
 await Promise[delayRejection ? 'allSettled' : 'all'](promises);
 ```
+
+When [type information](https://typescript-eslint.io/getting-started/typed-linting/) is available, TypeScript `const enum` receivers are not reported, since computed access to a `const enum` member requires a string literal and a conditional key would not compile. Without type information, they are indistinguishable from normal objects and are still reported.
