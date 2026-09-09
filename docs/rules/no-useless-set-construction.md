@@ -79,6 +79,8 @@ The rule recognizes built-in Set and Map constructors, `const` aliases, and supp
 
 Optional calls, computed method names, spread or extra arguments, and Set constructions with explicit TypeScript type arguments are skipped. Reports have no autofix when removing the construction would discard comments.
 
+TypeScript assertions and `satisfies` expressions around a construction are skipped for argument and receiver copies. They are also skipped around the Set method call inside a result copy because removing the construction can cause type errors or change the expression's static type.
+
 ## Related rules
 
 - [prefer-set-methods](./prefer-set-methods.md) replaces manual Set operations with modern methods.
