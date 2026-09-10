@@ -114,7 +114,7 @@ const getTypeReferenceDefinition = (typeReferenceName, scope) => {
 			.find(definition => typeReferenceDefinitionTypes.has(definition.type));
 
 		if (definition) {
-			return definition;
+			return {definition, scope};
 		}
 
 		scope = scope.upper;
@@ -208,7 +208,7 @@ const getNamespaceImportBindingType = (node, scope, options) => {
 	}
 
 	const importedName = node.typeName.right.name;
-	const definition = getTypeReferenceDefinition(node.typeName.left.name, scope);
+	const definition = getTypeReferenceDefinition(node.typeName.left.name, scope)?.definition;
 	if (
 		definition?.type !== 'ImportBinding'
 		|| (
@@ -230,15 +230,15 @@ const getNamespaceImportBindingType = (node, scope, options) => {
 	);
 };
 
-const getInterfaceHeritageType = (node, scope, options, visitedTypeReferenceNames) => {
+const getInterfaceHeritageType = (node, scope, options, visitedTypeReferenceDefinitions) => {
 	if (!getTypeName(node.expression)) {
 		return unknown;
 	}
 
-	return getTypeReferenceType({typeName: node.expression}, scope, options, visitedTypeReferenceNames);
+	return getTypeReferenceType({typeName: node.expression}, scope, options, visitedTypeReferenceDefinitions);
 };
 
-const getClassHeritageType = (node, scope, options, visitedTypeReferenceNames) => {
+const getClassHeritageType = (node, scope, options, visitedTypeReferenceDefinitions) => {
 	if (!node.superClass) {
 		return nonTarget;
 	}
@@ -251,18 +251,18 @@ const getClassHeritageType = (node, scope, options, visitedTypeReferenceNames) =
 		return unknown;
 	}
 
-	return getClassReferenceTypeFromScope(node.superClass, scope, options, visitedTypeReferenceNames);
+	return getClassReferenceTypeFromScope(node.superClass, scope, options, visitedTypeReferenceDefinitions);
 };
 
-const getInterfaceType = (node, scope, options, visitedTypeReferenceNames) => {
+const getInterfaceType = (node, scope, options, visitedTypeReferenceDefinitions) => {
 	if (node.extends.length === 0) {
 		return nonTarget;
 	}
 
-	return combineIntersectionTypes(node.extends.map(node => getInterfaceHeritageType(node, scope, options, visitedTypeReferenceNames)));
+	return combineIntersectionTypes(node.extends.map(node => getInterfaceHeritageType(node, scope, options, visitedTypeReferenceDefinitions)));
 };
 
-function getTypeReferenceType(node, scope, options, visitedTypeReferenceNames) {
+function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefinitions) {
 	const typeReferenceName = getTypeName(node.typeName);
 
 	if (!typeReferenceName) {
@@ -281,18 +281,17 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceNames) {
 		}
 	}
 
-	if (visitedTypeReferenceNames.has(typeReferenceName)) {
+	const {definition, scope: definitionScope} = getTypeReferenceDefinition(typeReferenceName, scope) ?? {};
+
+	if (!definition) {
+		return getKnownTypeReferenceType(typeReferenceName, options);
+	}
+
+	if (visitedTypeReferenceDefinitions.has(definition)) {
 		return unknown;
 	}
 
-	visitedTypeReferenceNames.add(typeReferenceName);
-
-	const definition = getTypeReferenceDefinition(typeReferenceName, scope);
-
-	if (!definition) {
-		visitedTypeReferenceNames.delete(typeReferenceName);
-		return getKnownTypeReferenceType(typeReferenceName, options);
-	}
+	visitedTypeReferenceDefinitions.add(definition);
 
 	let type = unknown;
 
@@ -303,49 +302,49 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceNames) {
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 	) {
-		type = getTypeAnnotationType(definition.node.typeAnnotation, scope, options, visitedTypeReferenceNames);
+		type = getTypeAnnotationType(definition.node.typeAnnotation, definitionScope, options, visitedTypeReferenceDefinitions);
 	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeParameter'
 	) {
-		type = getTypeAnnotationType(definition.node.constraint, scope, options, visitedTypeReferenceNames);
+		type = getTypeAnnotationType(definition.node.constraint, definitionScope, options, visitedTypeReferenceDefinitions);
 	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSInterfaceDeclaration'
 	) {
-		type = getInterfaceType(definition.node, scope, options, visitedTypeReferenceNames);
+		type = getInterfaceType(definition.node, definitionScope, options, visitedTypeReferenceDefinitions);
 	} else if (definition.type === 'ClassName') {
-		type = getClassHeritageType(definition.node, scope, options, visitedTypeReferenceNames);
+		type = getClassHeritageType(definition.node, definitionScope, options, visitedTypeReferenceDefinitions);
 	}
 
-	visitedTypeReferenceNames.delete(typeReferenceName);
+	visitedTypeReferenceDefinitions.delete(definition);
 
 	return type;
 }
 
-function getTypeAnnotationType(node, scope, options, visitedTypeReferenceNames = new Set()) {
+function getTypeAnnotationType(node, scope, options, visitedTypeReferenceDefinitions = new Set()) {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return getTypeAnnotationType(node.typeAnnotation, scope, options, visitedTypeReferenceNames);
+			return getTypeAnnotationType(node.typeAnnotation, scope, options, visitedTypeReferenceDefinitions);
 		}
 
 		case 'TSTypeOperator': {
 			return node.operator === 'readonly'
-				? getTypeAnnotationType(node.typeAnnotation, scope, options, visitedTypeReferenceNames)
+				? getTypeAnnotationType(node.typeAnnotation, scope, options, visitedTypeReferenceDefinitions)
 				: unknown;
 		}
 
 		case 'TSTypeReference': {
-			return getTypeReferenceType(node, scope, options, visitedTypeReferenceNames);
+			return getTypeReferenceType(node, scope, options, visitedTypeReferenceDefinitions);
 		}
 
 		case 'TSUnionType': {
-			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceNames)), options);
+			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceDefinitions)), options);
 		}
 
 		case 'TSIntersectionType': {
-			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceNames)));
+			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceDefinitions)));
 		}
 
 		default: {
@@ -461,7 +460,11 @@ const getTypeFromVariable = (node, context, options, visitedVariables) => {
 
 	const [definition] = variable.defs;
 	const definitionScope = context.sourceCode.getScope(definition.name);
-	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, definitionScope, options);
+	let typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, definitionScope, options);
+	if (definition.name?.optional) {
+		typeFromAnnotation = combineUnionTypes([typeFromAnnotation, nullish], options);
+	}
+
 	let type = unknown;
 
 	if (typeFromAnnotation !== unknown) {

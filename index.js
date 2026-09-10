@@ -8,6 +8,10 @@ import packageJson from './package.json' with {type: 'json'};
 const rules = toEslintRules(rawRules);
 
 const deprecatedRules = createDeprecatedRules({
+	'no-unused-array-method-return': {
+		message: 'Replaced by `unicorn/no-unused-builtin-method-return` which covers more cases.',
+		replacedBy: ['unicorn/no-unused-builtin-method-return'],
+	},
 	'better-regex': {
 		message: 'Removed. Prefer `eslint-plugin-regexp`',
 		replacedBy: [],
