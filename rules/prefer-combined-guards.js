@@ -107,10 +107,10 @@ const create = context => {
 		return {
 			node,
 			messageId: MESSAGE_ID,
-			fix(fixer) {
+			* fix(fixer, {abort}) {
 				const range = [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]];
 				if (hasCommentInRange(context, range)) {
-					return;
+					abort();
 				}
 
 				const left = getConditionText(previousNode.test, 'left', context);
@@ -118,7 +118,7 @@ const create = context => {
 				const closingParenthesis = sourceCode.getTokenBefore(node.consequent);
 				// Retain the second body and its trailing boundary to preserve semicolon insertion.
 				const suffix = sourceCode.text.slice(sourceCode.getRange(closingParenthesis)[1], range[1]);
-				return fixer.replaceTextRange(range, `if (${left} || ${right})${suffix}`);
+				yield fixer.replaceTextRange(range, `if (${left} || ${right})${suffix}`);
 			},
 		};
 	});

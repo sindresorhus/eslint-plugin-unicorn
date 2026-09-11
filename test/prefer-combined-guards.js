@@ -38,6 +38,10 @@ testRule.snapshot({
 		'function foo() { if (a) { return tag`value`; } if (b) { return tag`value`; } }',
 		'function foo() { if (a) { return () => tag`value`; } if (b) { return () => tag`value`; } }',
 		{
+			code: 'function foo() { if (a) { throw error; } if (b) { throw error; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: outdent`
 				type A = {type: 'a'; method(value: string): string};
 				type B = {type: 'b'; method(value: number): string};
@@ -99,6 +103,7 @@ testRule.snapshot({
 			code: 'function foo() { if (a) { return <Component value={value} />; } if (b) { return <Component value={value} />; } }',
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
+		'function foo() { if (a) { return result; } if (b) { return (((result))); } }',
 	],
 });
 

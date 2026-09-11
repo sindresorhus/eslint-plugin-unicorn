@@ -13,7 +13,7 @@ Consecutive guard clauses with the same exit statement can be combined using `||
 
 This rule checks adjacent `if` statements without `else`. Each body must contain exactly one `return`, `throw`, `break`, or `continue` statement, with or without braces. Both exits must have the same kind and matching return/throw expressions or labels.
 
-Expression source text must match exactly. The rule does not normalize formatting inside expressions or try to prove semantic equivalence. Differences in braces, whitespace around the exit expression, and optional trailing semicolons are allowed.
+Except for surrounding parentheses, exit expression source text must match exactly. The rule does not normalize formatting inside expressions or try to prove semantic equivalence. Differences in braces, whitespace around the exit expression, and optional trailing semicolons are allowed.
 
 Value-carrying `return` and `throw` guards parsed as TypeScript are ignored because combining their conditions can lose control-flow narrowing in the exit expression. Exits containing tagged templates are also ignored because each tagged-template source location has its own cached template object.
 
