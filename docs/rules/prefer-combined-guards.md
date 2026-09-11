@@ -23,18 +23,18 @@ Autofixes are withheld when there are comments inside or between the guards.
 
 ```js
 // ❌
-function check(ctx) {
-	if (ctx.finished) {
+function check(context) {
+	if (context.finished) {
 		return;
 	}
-	if (!ctx.hasResult && !ctx.hasError) {
+	if (!context.hasResult && !context.hasError) {
 		return;
 	}
 }
 
 // ✅
-function check(ctx) {
-	if (ctx.finished || (!ctx.hasResult && !ctx.hasError)) {
+function check(context) {
+	if (context.finished || (!context.hasResult && !context.hasError)) {
 		return;
 	}
 }

@@ -60,11 +60,11 @@ testRule.snapshot({
 	],
 	invalid: [
 		outdent`
-			function check(ctx) {
-				if (ctx.finished) {
+			function check(context) {
+				if (context.finished) {
 					return;
 				}
-				if (!ctx.hasResult && !ctx.hasError) {
+				if (!context.hasResult && !context.hasError) {
 					return;
 				}
 			}
