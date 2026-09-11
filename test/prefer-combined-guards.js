@@ -35,6 +35,24 @@ testRule.snapshot({
 		// Do not try to prove semantic equivalence or normalize expression formatting.
 		'function foo() { if (a) { return value + 1; } if (b) { return value+1; } }',
 		'function foo() { if (a) { return () => { return value; }; } if (b) { return () => { return\nvalue; }; } }',
+		'function foo() { if (a) { return tag`value`; } if (b) { return tag`value`; } }',
+		'function foo() { if (a) { return () => tag`value`; } if (b) { return () => tag`value`; } }',
+		{
+			code: outdent`
+				type A = {type: 'a'; method(value: string): string};
+				type B = {type: 'b'; method(value: number): string};
+				function run(subject: A | B, argument: string | number) {
+					if (subject.type === 'a' && typeof argument === 'string') {
+						return subject.method(argument);
+					}
+					if (subject.type === 'b' && typeof argument === 'number') {
+						return subject.method(argument);
+					}
+				}
+			`,
+			filename: 'file.ts',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		outdent`
@@ -74,7 +92,7 @@ testRule.snapshot({
 		'for (;;) { if (a) break\nif (b) break\ndone() }',
 		'function foo() { if (a) { return; } if (b) { return; } } // Keep trailing comment.',
 		...['a as boolean', '<boolean>a', 'a!', 'a satisfies boolean', 'predicate<string>(a)'].map(condition => ({
-			code: `function foo() { if (${condition}) { return value as string; } if (b) { return value as string; } }`,
+			code: `function foo() { if (${condition}) { return; } if (b) { return; } }`,
 			languageOptions: {parser: parsers.typescript},
 		})),
 		{

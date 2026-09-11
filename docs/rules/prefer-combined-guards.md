@@ -15,6 +15,8 @@ This rule checks adjacent `if` statements without `else`. Each body must contain
 
 Expression source text must match exactly. The rule does not normalize formatting inside expressions or try to prove semantic equivalence. Differences in braces, whitespace around the exit expression, and optional trailing semicolons are allowed.
 
+Value-carrying `return` and `throw` guards parsed as TypeScript are ignored because combining their conditions can lose control-flow narrowing in the exit expression. Exits containing tagged templates are also ignored because each tagged-template source location has its own cached template object.
+
 Autofixes are withheld when there are comments inside or between the guards.
 
 ## Examples

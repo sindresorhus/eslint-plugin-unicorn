@@ -43,6 +43,31 @@ const getExitValueText = (node, sourceCode) => {
 	return value ? sourceCode.getText(value) : '';
 };
 
+function containsTaggedTemplate(node, visitorKeys) {
+	if (node.type === 'TaggedTemplateExpression') {
+		return true;
+	}
+
+	for (const key of visitorKeys[node.type] ?? []) {
+		const child = node[key];
+		for (const childNode of Array.isArray(child) ? child : [child]) {
+			if (childNode?.type && containsTaggedTemplate(childNode, visitorKeys)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+const isExitUnsafeToCombine = (node, sourceCode) => Boolean(
+	node.argument
+	&& (
+		sourceCode.parserServices?.esTreeNodeToTSNodeMap
+		|| containsTaggedTemplate(node.argument, sourceCode.visitorKeys)
+	),
+);
+
 function getConditionText(node, property, context) {
 	if (isParenthesized(node, context)) {
 		return getParenthesizedText(node, context);
@@ -74,6 +99,7 @@ const create = context => {
 			|| previousExit.type !== exit.type
 			// Preserve significant whitespace, including ASI inside returned functions.
 			|| getExitValueText(previousExit, sourceCode) !== getExitValueText(exit, sourceCode)
+			|| isExitUnsafeToCombine(exit, sourceCode)
 		) {
 			return;
 		}
