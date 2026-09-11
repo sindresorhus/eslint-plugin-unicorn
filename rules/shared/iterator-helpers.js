@@ -43,7 +43,6 @@ const {
 	isTarget: isIteratorType,
 } = createTypeCheckers({
 	allowNullishInMixedUnion: true,
-	checkClassHeritage: false,
 	preferTypeReferenceDefinitions: true,
 	targetTypeNames: iteratorTypeNames,
 });

@@ -72,6 +72,7 @@ test.snapshot({
 		typeAware('declare function getItems(): number[]; getItems().map(value => value);'),
 		typeAware('async function * generate() { yield 1; } generate().map(value => value);'),
 		typeAware('class IteratorObject { map(callback: unknown) {} } declare const iterator: IteratorObject; iterator.map(transform);'),
+		typeAware('class IteratorObject { map(callback: unknown) {} } class CustomIterator extends IteratorObject {} new CustomIterator().map(transform);'),
 	],
 	invalid: [
 		'items.values().map(transform);',
@@ -126,6 +127,7 @@ test.snapshot({
 		typescript('void (items.values().map(transform) as Iterator<number>);'),
 		typeAware('declare function getIterator(): IteratorObject<number>; getIterator().map(value => value);'),
 		typeAware('const iterator = "value"[Symbol.iterator](); iterator.map(value => value);'),
+		typeAware('const iterator = new URLSearchParams()[Symbol.iterator](); iterator.map(value => value);'),
 		typeAware('function * generate() { yield 1; } generate().map(value => value);'),
 		typescript('(source as Iterator<number>).map(transform);'),
 		typescript('(<IteratorObject<number>>source).drop(1);'),

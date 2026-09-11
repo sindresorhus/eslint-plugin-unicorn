@@ -74,6 +74,7 @@ for (const [expected, cases] of [
 test('builtin and iterator rules report each discarded call once', t => {
 	const code = outdent`
 		items.values().map(transform);
+		items?.values().map(transform);
 		const iterator = items.values();
 		iterator.filter(predicate);
 		items.map(transform);
@@ -91,6 +92,7 @@ test('builtin and iterator rules report each discarded call once', t => {
 		},
 	});
 	t.deepEqual(messages.map(({ruleId}) => ruleId), [
+		'unicorn/no-unused-iterator-helper',
 		'unicorn/no-unused-iterator-helper',
 		'unicorn/no-unused-iterator-helper',
 		'unicorn/no-unused-builtin-method-return',
