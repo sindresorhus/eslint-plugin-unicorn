@@ -11,7 +11,7 @@
 
 Consecutive guard clauses with the same exit statement can be combined using `||`. This removes duplicated exits while preserving the order in which conditions are evaluated.
 
-This rule checks adjacent `if` statements without `else`. Each body must contain exactly one `return`, `throw`, `break`, or `continue` statement, with or without braces. Both exits must have the same kind and matching return/throw expressions or labels.
+This rule checks adjacent `if` statements without `else`. Each body must contain exactly one `return`, `throw`, `break`, or `continue` statement, with or without braces. Both exits must have the same kind. Their `return` or `throw` expressions and `break` or `continue` labels must match.
 
 Except for surrounding parentheses, exit expression source text must match exactly. The rule does not normalize formatting inside expressions or try to prove semantic equivalence. Differences in braces, whitespace around the exit expression, and optional trailing semicolons are allowed.
 

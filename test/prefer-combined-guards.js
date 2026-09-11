@@ -94,7 +94,7 @@ testRule.snapshot({
 		'function foo() { if (a) return value\nif (b) { return value }\n[1].forEach(log) }',
 		'function foo() { if (a) { return value }\nif (b) return value\ndone() }',
 		'for (;;) { if (a) break\nif (b) break\ndone() }',
-		'function foo() { if (a) { return; } if (b) { return; } } // Keep trailing comment.',
+		'function foo() { if (a) { return; } if (b) { return; } /* Keep trailing comment. */ }',
 		...['a as boolean', '<boolean>a', 'a!', 'a satisfies boolean', 'predicate<string>(a)'].map(condition => ({
 			code: `function foo() { if (${condition}) { return; } if (b) { return; } }`,
 			languageOptions: {parser: parsers.typescript},
@@ -104,6 +104,10 @@ testRule.snapshot({
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
 		'function foo() { if (a) { return result; } if (b) { return (((result))); } }',
+		{
+			code: 'function foo() { if (<First />) { return; } if (<Second />) { return; } }',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
 	],
 });
 
