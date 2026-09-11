@@ -348,6 +348,7 @@ const isDiscardedExpression = node => {
 const create = context => {
 	context.on('CallExpression', node => {
 		const method = getTrackedMethodName(node, context);
+		// `no-unused-iterator-helper` owns lazy helpers because `void` does not consume them, while this rule accepts `void` as an explicit discard.
 		if (
 			!methods.has(method)
 			|| !isDiscardedExpression(node)
