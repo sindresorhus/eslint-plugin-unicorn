@@ -1,5 +1,6 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isCallExpression, isMemberExpression, isMethodCall} from './ast/index.js';
+import {isLazyIteratorHelperCall} from './shared/iterator-helpers.js';
 import {
 	isArray,
 	isSet,
@@ -347,9 +348,11 @@ const isDiscardedExpression = node => {
 const create = context => {
 	context.on('CallExpression', node => {
 		const method = getTrackedMethodName(node, context);
+		// `no-unused-iterator-helper` owns lazy helpers because `void` does not consume them, while this rule accepts `void` as an explicit discard.
 		if (
 			!methods.has(method)
 			|| !isDiscardedExpression(node)
+			|| isLazyIteratorHelperCall(node, context)
 			|| shouldSkipReceiver(node.callee.object, method, context)
 		) {
 			return;

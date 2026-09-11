@@ -63,7 +63,7 @@ const total = await Iterator.from(values).reduce(
 
 ## Detection
 
-The rule checks recognized synchronous iterators, including `Iterator.from(…)`, collection iterator methods, `matchAll(…)`, helper chains, direct `const` bindings, and known TypeScript iterator types. Receiver detection is best-effort; arrays, async iterators, and unknown receivers are ignored.
+The rule checks recognized synchronous iterators, including `Iterator.from(…)`, collection iterator methods, `matchAll(…)`, helper chains, iterator values followed through plain, unannotated `const` bindings, local synchronous generator calls, and known TypeScript iterator types. Receiver detection is best-effort; arrays, async iterators, and unknown receivers are ignored.
 
 Without type information, it detects inline async functions, direct `const` bindings to async functions, and unreassigned local async function declarations. This syntax-only analysis does not follow arbitrary aliases or inspect callback bodies. With [TypeScript type information](https://typescript-eslint.io/getting-started/typed-linting/), it also detects callbacks whose return types include `Promise` or `PromiseLike`, including imported functions and object methods. Async generator callbacks are ignored.
 

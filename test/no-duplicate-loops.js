@@ -12,6 +12,8 @@ const typescript = code => ({
 
 test.snapshot({
 	valid: [
+		'const iterator = items.values(); for (const item of iterator.map(callback)) {}',
+		'function * generate() { yield 1; } for (const item of generate().filter(callback)) {}',
 		'for (const item of items) {}',
 		'for await (const item of items) {}',
 		'for (const key in items.map(callback)) {}',
@@ -50,6 +52,7 @@ test.snapshot({
 		typescript('function foo(iterator: IteratorObject<string> | undefined) { for (const item of iterator!.map(callback)) {} }'),
 		typescript('for (const item of (Iterator as typeof Iterator).from(items).map(callback)) {}'),
 		typescript('for (const item of (Iterator.from(items) as Iterator<string>).map(callback)) {}'),
+		typescript('for (const item of (items as Iterator<string>).map(callback)) {}'),
 	],
 	invalid: [
 		'for (const item of items.map(callback)) {}',

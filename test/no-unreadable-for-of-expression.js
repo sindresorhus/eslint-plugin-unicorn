@@ -123,5 +123,7 @@ test.snapshot({
 				const item of getItems(createArgument(seed))
 			) {}
 		`,
+		'const iterator = items.values(); for (const item of iterator.map(callback)) {}',
+		'function * generate() { yield 1; } for (const item of generate().filter(callback)) {}',
 	],
 });

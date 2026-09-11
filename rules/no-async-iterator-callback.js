@@ -65,16 +65,6 @@ function hasPromiseReturnType(node, context) {
 	}
 }
 
-function isIteratorReceiver(node, context) {
-	if (isIteratorExpression(node, context)) {
-		return true;
-	}
-
-	node = unwrapExpression(node);
-	const initializer = getDirectConstInitializer(node, context);
-	return initializer ? isIteratorExpression(initializer, context) : false;
-}
-
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -89,7 +79,7 @@ const create = context => {
 		const method = getPropertyName(callee, context.sourceCode.getScope(node));
 		if (
 			!methods.has(method)
-			|| !isIteratorReceiver(callee.object, context)
+			|| !isIteratorExpression(callee.object, context)
 			|| !(isAsyncCallback(callback, context) || hasPromiseReturnType(callback, context))
 		) {
 			return;

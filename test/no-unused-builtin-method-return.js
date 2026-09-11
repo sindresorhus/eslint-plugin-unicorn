@@ -5,6 +5,9 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'items.values().map(transform);',
+		'const iterator = items.values(); iterator.filter(predicate);',
+		'function * generate() { yield 1; } generate().flatMap(transform);',
 		'map(fn);',
 		'array.notMap(fn);',
 		'array[map](fn);',
