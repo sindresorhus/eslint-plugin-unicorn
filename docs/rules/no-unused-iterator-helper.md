@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Iterator helpers `.map()`, `.filter()`, `.flatMap()`, `.take()`, and `.drop()` are lazy. They return a new iterator without consuming its values. Discarding that iterator means the transformation never runs. For example, `items.values().map(transform)` does not call `transform`, and `iterator.drop(1)` does not advance `iterator`.
+Iterator helpers `.map()`, `.filter()`, `.flatMap()`, `.take()`, and `.drop()` are lazy. They return another iterator without reading the source. If that iterator is discarded, callbacks never run and `.drop()` does not advance the source.
 
-Applying `void` to a helper result or awaiting that result does not consume it. This rule reports both, as well as discarded expression statements and direct `for` initializer/update expressions. Argument evaluation and validation can still have effects when the helper is created.
+Applying `void` to a helper result or awaiting that result does not consume it, so this rule reports both.
 
 ## Examples
 
@@ -30,30 +30,18 @@ for (const item of filtered) {
 }
 ```
 
-```js
-// ❌
-const iterator = items.values();
-iterator.drop(1);
-
-// ✅
-const remaining = items.values().drop(1);
-for (const item of remaining) {
-	consume(item);
-}
-```
-
 ## Suggestions
 
-For a final `.map(callback)`, the rule can suggest `.forEach(callback)` to execute the callback for its side effects. This is a suggestion rather than an autofix because it starts consuming the iterator. The suggestion preserves comments and is omitted for calls with extra/spread arguments, explicit type arguments, or TypeScript wrappers around the result.
+For a discarded `.map(callback)`, the rule can suggest `.forEach(callback)`. This is not an autofix because it starts consuming the iterator. The suggestion requires exactly one non-spread argument and is omitted for explicit type arguments or TypeScript wrappers around the result.
 
-The separate [`no-for-each`](./no-for-each.md) rule may prefer a `for…of` loop instead. To retain mapped values, store or return the helper, or explicitly materialize it with `.toArray()`.
+The [`no-for-each`](./no-for-each.md) rule may prefer a `for…of` loop instead.
 
 ## Detection
 
-The rule uses the same iterator recognition as [`prefer-iterator-helpers`](./prefer-iterator-helpers.md): `.values()`, `.keys()`, `.entries()`, `.matchAll()`, supported `Iterator` static methods, helper chains, and recognized TypeScript iterator types. These method names are syntax heuristics; custom APIs with the same names may also match. Type information is optional.
+The rule reports directly discarded helpers, including through `void`, `await`, TypeScript wrappers, and `for` initializers or updates.
 
-It also follows iterator values through plain, unannotated `const` bindings and recognizes calls to local synchronous generator functions, including generator functions stored in `const` variables and immutable function alias chains. It does not infer iterators through mutable bindings, destructuring, imported functions, object methods, async generators, or ordinary function return values. Existing TypeScript type recognition can identify additional receivers.
+The rule recognizes iterators from `.values()`, `.keys()`, `.entries()`, `.matchAll()`, supported `Iterator` static methods, helper chains, local synchronous generators, and known TypeScript iterator types. It also follows iterator values through plain, unannotated `const` bindings.
 
-Computed helper calls, as well as discard expressions nested in logical, conditional, or comma expressions, are intentionally unsupported. The rule does not track whether a stored or returned iterator is eventually consumed, and does not report eager consumers such as `.forEach()`, `.toArray()`, `.some()`, or `.next()`.
+Without type information, it does not infer mutable or destructured bindings, imported functions, object methods, async generators, or ordinary function return values. Computed helper calls and discards nested in logical, conditional, or comma expressions are also ignored. The rule does not track whether a stored or returned iterator is eventually consumed, and syntax-only method matches may include custom APIs.
 
-[`no-unused-builtin-method-return`](./no-unused-builtin-method-return.md) handles ignored built-in method results and skips the lazy iterator helper calls recognized by this rule. Use an ESLint disable comment for an intentional exception; `void` does not suppress this rule.
+[`no-unused-builtin-method-return`](./no-unused-builtin-method-return.md) skips lazy helpers handled here. To discard one intentionally, use an ESLint disable comment; `void` still reports.
