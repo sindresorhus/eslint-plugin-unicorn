@@ -3,6 +3,7 @@ import {
 	getPreviousNode,
 	hasCommentInRange,
 	isParenthesized,
+	isProcessExitCall,
 	isTypeScriptExpressionWrapper,
 	shouldAddParenthesesToLogicalExpressionChild,
 } from './utils/index.js';
@@ -19,7 +20,7 @@ const exitStatementTypes = new Set([
 	'ContinueStatement',
 ]);
 
-function getExitStatement(node) {
+function getExitStatement(node, context) {
 	if (node?.type !== 'IfStatement' || node.alternate) {
 		return;
 	}
@@ -33,13 +34,19 @@ function getExitStatement(node) {
 		[consequent] = consequent.body;
 	}
 
-	if (exitStatementTypes.has(consequent.type)) {
+	if (
+		exitStatementTypes.has(consequent.type)
+		|| (
+			consequent.type === 'ExpressionStatement'
+			&& isProcessExitCall(consequent.expression, context)
+		)
+	) {
 		return consequent;
 	}
 }
 
-const getExitValueText = (node, sourceCode) => {
-	const value = node.argument ?? node.label;
+const getExitText = (node, sourceCode) => {
+	const value = node.expression ?? node.argument ?? node.label;
 	return value ? sourceCode.getText(value) : '';
 };
 
@@ -60,13 +67,19 @@ function containsTaggedTemplate(node, visitorKeys) {
 	return false;
 }
 
-const isExitUnsafeToCombine = (node, sourceCode) => Boolean(
-	node.argument
-	&& (
-		sourceCode.parserServices?.esTreeNodeToTSNodeMap
-		|| containsTaggedTemplate(node.argument, sourceCode.visitorKeys)
-	),
-);
+const isExitUnsafeToCombine = (node, sourceCode) => {
+	const expression = node.type === 'ExpressionStatement'
+		? node.expression.arguments[0]
+		: node.argument;
+
+	return Boolean(
+		expression
+		&& (
+			sourceCode.parserServices?.esTreeNodeToTSNodeMap
+			|| containsTaggedTemplate(expression, sourceCode.visitorKeys)
+		),
+	);
+};
 
 function getConditionText(node, property, context) {
 	if (isParenthesized(node, context)) {
@@ -87,18 +100,18 @@ const create = context => {
 	const {sourceCode} = context;
 
 	context.on('IfStatement', node => {
-		const exit = getExitStatement(node);
+		const exit = getExitStatement(node, context);
 		if (!exit) {
 			return;
 		}
 
 		const previousNode = getPreviousNode(node, context);
-		const previousExit = getExitStatement(previousNode);
+		const previousExit = getExitStatement(previousNode, context);
 		if (
 			!previousExit
 			|| previousExit.type !== exit.type
 			// Preserve significant whitespace, including ASI inside returned functions.
-			|| getExitValueText(previousExit, sourceCode) !== getExitValueText(exit, sourceCode)
+			|| getExitText(previousExit, sourceCode) !== getExitText(exit, sourceCode)
 			|| isExitUnsafeToCombine(exit, sourceCode)
 		) {
 			return;

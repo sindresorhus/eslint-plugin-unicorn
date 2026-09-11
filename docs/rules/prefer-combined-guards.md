@@ -11,11 +11,11 @@
 
 Consecutive guard clauses with the same exit statement can be combined using `||`. This removes duplicated exits while preserving the order in which conditions are evaluated.
 
-This rule checks adjacent `if` statements without `else`. Each body must contain exactly one `return`, `throw`, `break`, or `continue` statement, with or without braces. Both exits must have the same kind. Their `return` or `throw` expressions and `break` or `continue` labels must match.
+This rule checks adjacent `if` statements without `else`. Each body must contain exactly one `return`, `throw`, `break`, or `continue` statement or a direct call to the global `process.exit()` function, with or without braces. Both exits must have the same kind. Their `return` or `throw` expressions, `break` or `continue` labels, or `process.exit()` calls must match.
 
 Except for surrounding parentheses, exit expression source text must match exactly. The rule does not normalize formatting inside expressions or try to prove semantic equivalence. Differences in braces, whitespace around the exit expression, and optional trailing semicolons are allowed.
 
-Value-carrying `return` and `throw` guards parsed as TypeScript are ignored because combining their conditions can lose control-flow narrowing in the exit expression. Exits containing tagged templates are also ignored because each tagged-template source location has its own cached template object.
+Value-carrying `return` and `throw` guards and `process.exit()` guards with an argument parsed as TypeScript are ignored because combining their conditions can lose control-flow narrowing in the exit expression. Exits containing tagged templates are also ignored because each tagged-template source location has its own cached template object.
 
 Autofixes are withheld when there are comments inside or between the guards.
 

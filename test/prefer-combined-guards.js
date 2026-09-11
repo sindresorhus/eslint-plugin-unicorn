@@ -31,6 +31,10 @@ testRule.snapshot({
 		'outer: for (;;) { inner: for (;;) { if (a) { continue outer; } if (b) { continue inner; } } }',
 		'for (;;) { if (a) { break; } if (b) { continue; } }',
 		'switch (value) { case 1: if (a) { break; } case 2: if (b) { break; } }',
+		'if (a) { process.exit(1); } if (b) { process.exit(2); }',
+		'function foo(process) { if (a) { process.exit(1); } if (b) { process.exit(1); } }',
+		'if (a) { process.exit?.(1); } if (b) { process.exit?.(1); }',
+		'if (a) { process.exit(tag`code`); } if (b) { process.exit(tag`code`); }',
 		'function foo() { if (a) { return getValue(a); } if (b) { return getValue(b); } }',
 		// Do not try to prove semantic equivalence or normalize expression formatting.
 		'function foo() { if (a) { return value + 1; } if (b) { return value+1; } }',
@@ -39,6 +43,21 @@ testRule.snapshot({
 		'function foo() { if (a) { return () => tag`value`; } if (b) { return () => tag`value`; } }',
 		{
 			code: 'function foo() { if (a) { throw error; } if (b) { throw error; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				type A = {type: 'a'; exitCode(value: string): number};
+				type B = {type: 'b'; exitCode(value: number): number};
+				function run(subject: A | B, argument: string | number) {
+					if (subject.type === 'a' && typeof argument === 'string') {
+						process.exit(subject.exitCode(argument));
+					}
+					if (subject.type === 'b' && typeof argument === 'number') {
+						process.exit(subject.exitCode(argument));
+					}
+				}
+			`,
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -84,6 +103,11 @@ testRule.snapshot({
 		'outer: for (;;) { for (;;) { if (a) { continue outer; } if (b) { continue outer; } } }',
 		'outer: { if (a) { break outer; } if (b) { break outer; } }',
 		'switch (value) { case 1: if (a) { break; } if (b) { break; } }',
+		'if (a) { process.exit(1); } if (b) { process.exit(1); }',
+		{
+			code: 'if (a) { process.exit(); } if (b) { process.exit(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'class Foo { static { if (a) { throw error; } if (b) { throw error; } } }',
 		'async function foo() { if (await a) { return await result; } if (await b) { return await result; } }',
 		'function* foo() { if (yield a) { return yield result; } if (yield b) { return yield result; } }',
@@ -121,6 +145,7 @@ testRule({
 		'function foo() { if (a) { return; } if (b /* Condition. */) { return; } }',
 		'function foo() { if (a) { return; } // First guard.\nif (b) { return; } }',
 		'function foo() { if (a) { return; }\n// eslint-disable-next-line no-console\nif (b) { return; } }',
+		'if (a) { process.exit(/* Exit code. */ 1); } if (b) { process.exit(/* Exit code. */ 1); }',
 	].map(code => ({code, errors: [{messageId: 'prefer-combined-guards'}]})),
 });
 
