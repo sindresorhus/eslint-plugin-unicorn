@@ -57,6 +57,8 @@ const config = [
 			'unicorn/prefer-simple-condition-first': 'off',
 			'unicorn/prefer-simplified-conditions': 'off',
 			'unicorn/prefer-ternary': 'off',
+			// Existing rule implementations keep independent guard clauses for readability.
+			'unicorn/prefer-combined-guards': 'off',
 			// Many existing internal utilities intentionally export declarations separately.
 			'unicorn/default-export-style': 'off',
 			// The plugin intentionally keeps a few internal barrel files for shared utilities and rule exports.

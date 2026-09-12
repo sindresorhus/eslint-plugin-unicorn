@@ -225,6 +225,7 @@ export {default as 'prefer-boolean-return'} from './prefer-boolean-return.js';
 export {default as 'prefer-class-fields'} from './prefer-class-fields.js';
 export {default as 'prefer-classlist-toggle'} from './prefer-classlist-toggle.js';
 export {default as 'prefer-code-point'} from './prefer-code-point.js';
+export {default as 'prefer-combined-guards'} from './prefer-combined-guards.js';
 export {default as 'prefer-continue'} from './prefer-continue.js';
 export {default as 'prefer-date-now'} from './prefer-date-now.js';
 export {default as 'prefer-default-parameters'} from './prefer-default-parameters.js';
