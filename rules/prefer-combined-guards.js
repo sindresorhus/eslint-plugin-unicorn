@@ -75,7 +75,10 @@ const isExitUnsafeToCombine = (node, sourceCode) => {
 	return Boolean(
 		expression
 		&& (
-			sourceCode.parserServices?.esTreeNodeToTSNodeMap
+			(
+				sourceCode.parserServices?.esTreeNodeToTSNodeMap
+				&& expression.type !== 'Literal'
+			)
 			|| containsTaggedTemplate(expression, sourceCode.visitorKeys)
 		),
 	);

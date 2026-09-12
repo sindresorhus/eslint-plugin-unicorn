@@ -32,6 +32,7 @@ testRule.snapshot({
 		'for (;;) { if (a) { break; } if (b) { continue; } }',
 		'switch (value) { case 1: if (a) { break; } case 2: if (b) { break; } }',
 		'if (a) { process.exit(1); } if (b) { process.exit(2); }',
+		'if (a) { process.exit(1); } if (b) { process.exit( 1 ); }',
 		'function foo(process) { if (a) { process.exit(1); } if (b) { process.exit(1); } }',
 		'if (a) { process.exit?.(1); } if (b) { process.exit?.(1); }',
 		'if (a) { process.exit(tag`code`); } if (b) { process.exit(tag`code`); }',
@@ -131,6 +132,14 @@ testRule.snapshot({
 		{
 			code: 'function foo() { if (<First />) { return; } if (<Second />) { return; } }',
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: 'if (a) { process.exit(1); } if (b) { process.exit(1); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo() { if (a) { return false; } if (b) { return false; } }',
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 });

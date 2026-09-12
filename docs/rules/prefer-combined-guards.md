@@ -9,15 +9,15 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Consecutive guard clauses with the same exit statement can be combined using `||`. This removes duplicated exits while preserving the order in which conditions are evaluated.
+Consecutive guard clauses with identical exits can be combined using `||`, removing duplication while preserving condition evaluation order.
 
-This rule checks adjacent `if` statements without `else`. Each body must contain exactly one `return`, `throw`, `break`, or `continue` statement or a direct call to the global `process.exit()` function, with or without braces. Both exits must have the same kind. Their `return` or `throw` expressions, `break` or `continue` labels, or `process.exit()` calls must match.
+This rule checks adjacent `if` statements without `else`. Each body, with or without braces, must consist of one `return`, `throw`, `break`, `continue`, or direct call to the global `process.exit()` function. Both exits must have the same kind, and their values, labels, or `process.exit()` calls must match.
 
-Except for surrounding parentheses, exit expression source text must match exactly. The rule does not normalize formatting inside expressions or try to prove semantic equivalence. Differences in braces, whitespace around the exit expression, and optional trailing semicolons are allowed.
+Exit values, labels, and calls are compared by source text, ignoring surrounding parentheses where applicable. The rule does not normalize internal formatting or infer semantic equivalence. Braces, surrounding whitespace, and optional trailing semicolons may differ.
 
-Value-carrying `return` and `throw` guards and `process.exit()` guards with an argument parsed as TypeScript are ignored because combining their conditions can lose control-flow narrowing in the exit expression. Exits containing tagged templates are also ignored because each tagged-template source location has its own cached template object.
+To preserve TypeScript control-flow narrowing, the rule ignores non-literal `return` and `throw` values and non-literal `process.exit()` arguments in TypeScript. It also ignores exits containing tagged templates because each source location has its own cached template object.
 
-Autofixes are withheld when there are comments inside or between the guards.
+Comments inside or between guards prevent autofixing.
 
 ## Examples
 
@@ -27,6 +27,7 @@ function check(context) {
 	if (context.finished) {
 		return;
 	}
+
 	if (!context.hasResult && !context.hasError) {
 		return;
 	}
@@ -45,6 +46,7 @@ function check(context) {
 if (value < 0) {
 	throw invalidValue;
 }
+
 if (!Number.isFinite(value)) {
 	throw invalidValue;
 }
@@ -61,9 +63,11 @@ for (const item of items) {
 	if (item.hidden) {
 		continue;
 	}
+
 	if (item.disabled) {
 		continue;
 	}
+
 	processItem(item);
 }
 
@@ -72,6 +76,7 @@ for (const item of items) {
 	if (item.hidden || item.disabled) {
 		continue;
 	}
+
 	processItem(item);
 }
 ```
@@ -83,6 +88,7 @@ Bodies with additional statements or nested control flow are intentionally ignor
 if (firstCondition) {
 	count++;
 }
+
 if (secondCondition) {
 	count++;
 }
