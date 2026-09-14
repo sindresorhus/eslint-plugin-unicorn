@@ -68,6 +68,8 @@ test.snapshot({
 		'const object = {}; if (enabled) { object[getKey()] = value; }',
 		'const object = {}; enabled ? object.foo = value : object.bar = getValue();',
 		'const object = {}; enabled && (object[key] = (first, second));',
+		'const object = {}; enabled ? object.foo = value : object.__proto__ = prototype;',
+		'const object = {}; if (enabled) { object["__proto__"] = prototype; }',
 		'const object = {}; if (enabled) { Object.assign(object, {foo: 1,}); }',
 		'const object = {}; enabled && Object.assign(object, getSource());',
 		'const object = {}; enabled && Object.assign(object, (first, second));',
@@ -152,32 +154,6 @@ test.snapshot({
 		{
 			code: 'const array = []; if (getEnabled()) { array.push(value); }',
 			languageOptions: {parser: parsers.typescript},
-		},
-	],
-});
-
-test({
-	valid: [],
-	invalid: [
-		{
-			code: 'const object = {}; enabled ? object.foo = value : object.__proto__ = prototype;',
-			output: null,
-			errors: [
-				{
-					messageId: 'error',
-					suggestions: [],
-				},
-			],
-		},
-		{
-			code: 'const object = {}; if (enabled) { object["__proto__"] = prototype; }',
-			output: null,
-			errors: [
-				{
-					messageId: 'error',
-					suggestions: [],
-				},
-			],
 		},
 	],
 });
