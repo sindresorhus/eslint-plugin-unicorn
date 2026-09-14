@@ -156,6 +156,32 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const object = {}; enabled ? object.foo = value : object.__proto__ = prototype;',
+			output: null,
+			errors: [
+				{
+					messageId: 'error',
+					suggestions: [],
+				},
+			],
+		},
+		{
+			code: 'const object = {}; if (enabled) { object["__proto__"] = prototype; }',
+			output: null,
+			errors: [
+				{
+					messageId: 'error',
+					suggestions: [],
+				},
+			],
+		},
+	],
+});
+
 // `Array`
 test.snapshot({
 	valid: [

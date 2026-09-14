@@ -3,6 +3,7 @@ import {
 	isCommaToken,
 	isSemicolonToken,
 	findVariable,
+	getPropertyName,
 } from '@eslint-community/eslint-utils';
 import {
 	isMethodCall,
@@ -727,6 +728,7 @@ function getConditionalBranch(node, information, caseSettings) {
 		return {
 			text: `{${computed ? `[${propertyText}]` : propertyText}: ${getParenthesizedText(value, context)}}`,
 			inputs: computed ? [property, value] : [value],
+			canFix: getPropertyName(memberExpression) !== '__proto__',
 		};
 	}
 
@@ -782,11 +784,13 @@ function getConditionalProblem(conditional, information, caseSettings) {
 		messageId: MESSAGE_ID_ERROR,
 		data: {objectType},
 	};
+	const hasUnfixableBranch = [consequent, alternate].some(branch => branch?.canFix === false);
 	// Conditional spreads lose contextual typing for tuples, literal unions, and callbacks.
 	if (
 		isTypeScriptFile(context.physicalFilename)
 		|| sourceCode.parserServices.esTreeNodeToTSNodeMap
 		|| hasCommentsThatWouldBeRelocated(nextStatement, sourceCode)
+		|| hasUnfixableBranch
 	) {
 		return problem;
 	}

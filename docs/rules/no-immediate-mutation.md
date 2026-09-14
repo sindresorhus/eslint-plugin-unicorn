@@ -11,11 +11,11 @@
 
 When you create a variable and immediately mutate it, you should instead include those changes in the initial value.
 
-- Assign variable to an array literal and immediately mutate with `Array#{push,unshift}(…)`.
-- Assign variable to an object literal and immediately assign another property.
-- Assign variable to an object literal and immediately mutate with `Object.assign(…)`.
-- Assign variable to a `Set` or `WeakSet` from an array literal and immediately add a new element with `{Set,WeakSet}.add(…)`.
-- Assign variable to a `Map` or `WeakMap` from an array literal and immediately set a new key with `{Map,WeakMap}.set(…, …)`.
+- Assign a variable to an array literal and immediately mutate it with `Array#{push,unshift}(…)`.
+- Assign a variable to an object literal and immediately assign another property.
+- Assign a variable to an object literal and immediately mutate it with `Object.assign(…)`.
+- Assign a variable to a `Set` or `WeakSet` created without an iterable or from an array literal, and immediately add a new element with `{Set,WeakSet}.add(…)`.
+- Assign a variable to a `Map` or `WeakMap` created without an iterable or from an array literal, and immediately set a new key with `{Map,WeakMap}.set(…, …)`.
 
 ## Examples
 
@@ -158,6 +158,6 @@ const map = new Map([...(enabled ? [[key, first]] : [[key, second]])]);
 
 Conditions and mutation inputs that reference the initialized variable are ignored. Nested conditionals, `else if` chains, branches with additional statements or mixed mutation categories, and logical OR (`||`) or nullish coalescing (`??`) expressions are not supported.
 
-When the condition or mutation inputs may have side effects, the rule offers a suggestion instead of an automatic fix. Conditional `unshift()` also uses a suggestion when the existing array initializer may have side effects, because the transformation moves the condition and prepended elements before it. Fixes and suggestions are withheld when removing the conditional would remove or relocate comments.
+When the condition or mutation inputs may have side effects, the rule offers a suggestion instead of an automatic fix. Conditional `unshift()` also uses a suggestion when the existing array initializer may have side effects, because the transformation moves the condition and prepended elements before it. Fixes and suggestions are withheld when removing the conditional would remove or relocate comments, or when a branch assigns to a statically named `__proto__` property because an object spread cannot preserve the prototype mutation.
 
 In TypeScript files or when using the TypeScript parser, conditional mutations are reported without fixes or suggestions. Conditional spreads can lose contextual typing for `Map` entries, literal unions, and callback parameters, so these transformations may require manual type adjustments. Unconditional mutations retain their existing fixes and suggestions.
