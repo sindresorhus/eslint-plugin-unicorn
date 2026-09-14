@@ -112,7 +112,7 @@ const weakMap = new WeakMap([
 
 ## Conditional mutations
 
-The rule also checks immediate mutations in `if`/`else` statements, standalone logical AND expressions (`condition && mutation`), and standalone conditional expressions (`condition ? mutation : mutation`). Each branch must contain exactly one supported mutation of the same variable, optionally enclosed in a block. Both branches must use the same mutation category, including the same array method (`push` or `unshift`). Conditional `Object.assign()` calls must have exactly one source.
+The rule also checks the mutations above when they immediately follow initialization in an `if` statement, `condition && mutation`, or `condition ? mutation : mutation`. Each branch must contain one mutation, optionally enclosed in a block. Both branches must use the same mutation type on the same variable, and `Object.assign()` is limited to one source.
 
 ```js
 // ❌
@@ -125,39 +125,8 @@ if (enabled) {
 const array = [1, 2, ...(enabled ? [3, 4] : [])];
 ```
 
-```js
-// ❌
-const object = {foo: 1};
-if (enabled) {
-	object.bar = 2;
-} else {
-	object.baz = 3;
-}
+Conditions and mutation inputs that reference the initialized variable are ignored. Nested conditionals, `else if`, multiple statements per branch, mixed mutations, `||`, and `??` are not supported.
 
-// ✅
-const object = {foo: 1, ...(enabled ? {bar: 2} : {baz: 3})};
-```
+Potential side effects in the condition or mutation inputs and `unshift()` on a nonempty array produce suggestions instead of automatic fixes. No fix or suggestion is offered when comments would move or disappear, or when object spread would change a static `__proto__` mutation.
 
-```js
-// ❌
-const set = new Set();
-enabled && set.add(value);
-
-// ✅
-const set = new Set([...(enabled ? [value] : [])]);
-```
-
-```js
-// ❌
-const map = new Map();
-enabled ? map.set(key, first) : map.set(key, second);
-
-// ✅
-const map = new Map([...(enabled ? [[key, first]] : [[key, second]])]);
-```
-
-Conditions and mutation inputs that reference the initialized variable are ignored. Nested conditionals, `else if` chains, branches with additional statements or mixed mutation categories, and logical OR (`||`) or nullish coalescing (`??`) expressions are not supported.
-
-When the condition or mutation inputs may have side effects, the rule offers a suggestion instead of an automatic fix. Conditional `unshift()` also uses a suggestion when the array initializer contains elements, because the transformation moves the condition and prepended elements before them. Fixes and suggestions are withheld when removing the conditional would remove or relocate comments. They are also withheld for statically named `__proto__` keys in property assignments or object literals passed to `Object.assign()`, because object spread cannot preserve prototype mutations.
-
-In TypeScript files or when using the TypeScript parser, conditional mutations are reported without fixes or suggestions. Conditional spreads can lose contextual typing for `Map` entries, literal unions, and callback parameters, so these transformations may require manual type adjustments. Unconditional mutations retain their existing fixes and suggestions.
+Conditional mutations parsed as TypeScript are reported without fixes or suggestions because the spread can lose contextual typing. Unconditional mutations retain their existing behavior.
