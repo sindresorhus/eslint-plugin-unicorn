@@ -15,6 +15,18 @@ Differentiating the casing of the identifier and value clearly separates them an
 - Uppercase or lowercase hexadecimal value for [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) and [`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#BigInt_type).
 - Lowercase `e` for exponential notation.
 
+This rule also supports TOML hexadecimal values and exponential notation.
+
+```toml
+# ❌
+hexadecimal = 0xdead_beef
+exponent = -1.2E+3
+
+# ✅
+hexadecimal = 0xDEAD_BEEF
+exponent = -1.2e+3
+```
+
 ## Examples
 
 [Hexadecimal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal)

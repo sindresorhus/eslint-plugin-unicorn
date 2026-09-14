@@ -100,6 +100,7 @@
 		"eslint-package-json": "^0.3.0",
 		"eslint-plugin-eslint-plugin": "^7.6.2",
 		"eslint-plugin-jsdoc": "^64.2.1",
+		"eslint-plugin-toml": "^1.5.0",
 		"eslint-plugin-unicorn": "^73.0.0",
 		"eslint-plugin-yml": "^3.8.1",
 		"eslint-remote-tester": "^4.0.4",

@@ -377,3 +377,29 @@ test.snapshot({
 		},
 	],
 });
+
+// TOML support
+test.snapshot({
+	valid: [
+		'# A complete sentence.\n# Another complete sentence.',
+		'# A wrapped sentence\n\n# separated by a blank line',
+		'# A wrapped sentence\n#\n# separated by an empty comment',
+		'# A wrapped sentence\n  # with different indentation',
+		'key = 1 # An inline comment\n# followed by another comment',
+		'# A comment attached\n# to the following key\nkey = 1',
+		'key = 1\n# A comment attached\n# to the previous key',
+		'# TODO: Some work\n# FIXME: Other work',
+		'# - First item\n# - Second item',
+		'# SPDX-License-Identifier: MIT\n# Copyright 2026 Example',
+		'# eslint-disable rule-to-test/no-manually-wrapped-comments\n\n# A wrapped sentence\n# continued here',
+		'text = """\n# A wrapped sentence\n# inside a string\n"""',
+	].map(code => ({code, filename: 'example.toml', language: languages.toml})),
+	invalid: [
+		'# A wrapped sentence\n# continued here',
+		'# First sentence.\n# A wrapped sentence\n# continued here',
+		'# A wrapped sentence\n# ends here.\n# A separate sentence.',
+		'  # A wrapped sentence\n  # continues on another line\n  # and ends here.',
+		'#A wrapped sentence\r\n#   continued here\r\n\r\nkey = 1',
+		'# A wrapped sentence\n# continued here\n\nkey = 1\n\n# Another sentence\n# continues here',
+	].map(code => ({code, filename: 'example.toml', language: languages.toml})),
+});

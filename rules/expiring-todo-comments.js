@@ -663,6 +663,7 @@ const config = {
 			'json/json5',
 			'markdown/commonmark',
 			'markdown/gfm',
+			'toml/toml',
 			'yml/yaml',
 		],
 	},

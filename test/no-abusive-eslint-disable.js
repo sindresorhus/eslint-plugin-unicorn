@@ -2,6 +2,7 @@ import test from 'ava';
 import {Linter} from 'eslint';
 import css from '@eslint/css';
 import markdown from '@eslint/markdown';
+import toml from 'eslint-plugin-toml';
 import outdent from 'outdent';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
@@ -123,6 +124,9 @@ test('reports abusive `eslint-disable` in non-JavaScript files', t => {
 	const linter = new Linter({configType: 'flat'});
 
 	const languageCases = [
+		{
+			language: 'toml/toml', plugin: toml, filename: 'a.toml', abusive: '# eslint-disable\na = 1', scoped: '# eslint-disable unicorn/prefer-https\nurl = "https://example.com"',
+		},
 		{
 			language: 'css/css', plugin: css, filename: 'a.css', abusive: '/* eslint-disable */\n.a { color: red; }', scoped: '/* eslint-disable css/no-empty-blocks */\n.a {}',
 		},

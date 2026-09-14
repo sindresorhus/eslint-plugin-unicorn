@@ -4,6 +4,7 @@ import css from '@eslint/css';
 import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import html from '@html-eslint/eslint-plugin';
+import toml from 'eslint-plugin-toml';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
@@ -16,6 +17,7 @@ const LANGUAGE_PLUGINS = {
 	json,
 	markdown,
 	html,
+	toml,
 };
 
 const XML_SECURITY_URIS = [
@@ -301,6 +303,14 @@ function createLanguageConfig(language, rule = 'error') {
 }
 
 const languageCases = [
+	{
+		name: 'TOML',
+		filename: 'fixture.toml',
+		language: 'toml/toml',
+		code: '# http://sindresorhus.com\nurl = "http://example.com"',
+		output: '# https://sindresorhus.com\nurl = "https://example.com"',
+		errors: 2,
+	},
 	{
 		name: 'CSS',
 		filename: 'fixture.css',

@@ -7,9 +7,10 @@ const languageLabels = {
 	html: 'HTML',
 	json: 'JSON',
 	markdown: 'Markdown',
+	toml: 'TOML',
 	yml: 'YAML',
 };
-const columnOrder = ['css', 'html', 'json', 'markdown', 'yml'];
+const columnOrder = ['css', 'html', 'json', 'markdown', 'toml', 'yml'];
 
 const beginMarker = '<!-- begin auto-generated non-js languages list -->';
 const endMarker = '<!-- end auto-generated non-js languages list -->';

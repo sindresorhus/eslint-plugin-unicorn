@@ -5,6 +5,7 @@ import css from '@eslint/css';
 import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import html from '@html-eslint/eslint-plugin';
+import toml from 'eslint-plugin-toml';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
@@ -83,6 +84,9 @@ test('checks filenames of non-JavaScript files', t => {
 	const linter = new Linter({configType: 'flat'});
 
 	const languageCases = [
+		{
+			language: 'toml/toml', plugin: toml, extension: 'toml', code: 'a = 1',
+		},
 		{
 			language: 'css/css', plugin: css, extension: 'css', code: '.a { color: red; }',
 		},

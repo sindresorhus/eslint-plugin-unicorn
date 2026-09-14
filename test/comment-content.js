@@ -4,6 +4,7 @@ import css from '@eslint/css';
 import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import html from '@html-eslint/eslint-plugin';
+import toml from 'eslint-plugin-toml';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
@@ -16,6 +17,7 @@ const LANGUAGE_PLUGINS = {
 	html,
 	json,
 	markdown,
+	toml,
 };
 const JAVASCRIPT_CONFIG = {
 	files: ['**'],
@@ -492,6 +494,22 @@ function createLanguageConfig(language) {
 }
 
 const languageCases = [
+	{
+		name: 'TOML standalone comments',
+		filename: 'fixture.toml',
+		language: 'toml/toml',
+		code: '# github\ntext = "# nodejs"',
+		output: '# GitHub\ntext = "# nodejs"',
+		message: 'Prefer `GitHub` over `github`.',
+	},
+	{
+		name: 'TOML inline comments',
+		filename: 'fixture.toml',
+		language: 'toml/toml',
+		code: 'text = "# nodejs" # github',
+		output: 'text = "# nodejs" # GitHub',
+		message: 'Prefer `GitHub` over `github`.',
+	},
 	{
 		name: 'CSS',
 		filename: 'fixture.css',

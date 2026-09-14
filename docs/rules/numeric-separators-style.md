@@ -14,6 +14,8 @@ Long numbers can become really hard to read, so cutting it into groups of digits
 
 By default, this doesn't apply to numbers below `10_000`, but that can be customized.
 
+This rule also supports TOML files. All options apply to TOML numeric values, including signed numbers. Dates, times, `inf`, and `nan` are ignored.
+
 ## Examples
 
 ```js

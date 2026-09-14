@@ -23,8 +23,8 @@ const fix = (raw, {hexadecimalValue}) => {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	context.on('Literal', node => {
-		const {raw} = node;
+	context.on(['Literal', 'TOMLValue'], node => {
+		const raw = context.sourceCode.getText(node);
 
 		/**
 		@type {Options}
@@ -33,7 +33,10 @@ const create = context => {
 		options.hexadecimalValue ??= 'uppercase';
 
 		let fixed = raw;
-		if (isNumericLiteral(node)) {
+		if (
+			isNumericLiteral(node)
+			|| (node.type === 'TOMLValue' && (node.kind === 'integer' || node.kind === 'float'))
+		) {
 			fixed = fix(raw, options);
 		} else if (isBigIntLiteral(node)) {
 			fixed = fix(raw.slice(0, -1), options) + 'n';
@@ -86,6 +89,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'toml/toml',
 		],
 	},
 };

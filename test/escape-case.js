@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -517,3 +517,58 @@ test({
 		},
 	].map(item => ({errors: [{messageId: MESSAGE_ID_LOWERCASE}], ...item, options: ['lowercase']})),
 });
+
+for (const option of ['uppercase', 'lowercase']) {
+	const uppercase = option === 'uppercase';
+	const escapes = uppercase ? String.raw`\u00E9\U0001F600\xA9` : String.raw`\u00e9\U0001f600\xa9`;
+
+	test({
+		valid: [
+			`value = "${escapes}"`,
+			`"${escapes}" = 1`,
+			String.raw`value = "\\u00e9\\U0001f600\\xa9\\u00E9\\U0001F600\\xA9"`,
+			String.raw`"\\u00e9\\U0001f600\\xa9\\u00E9\\U0001F600\\xA9" = 1`,
+			String.raw`value = '\u00e9\U0001f600\xa9\u00E9\U0001F600\xA9'`,
+			String.raw`'\u00e9\U0001f600\xa9\u00E9\U0001F600\xA9' = 1`,
+			String.raw`value = '''\u00e9\U0001f600\xa9\u00E9\U0001F600\xA9'''`,
+			'value = 42',
+			'value = true',
+			'value = 1979-05-27',
+		].map(code => ({
+			code, name: `TOML ${option}: ${code}`, language: languages.toml.language, plugins: languages.toml.plugins, options: [option],
+		})),
+		invalid: [
+			{
+				code: String.raw`value = "\u00eA\U0001f60A\xaB" # Preserve this comment`,
+				output: uppercase ? String.raw`value = "\u00EA\U0001F60A\xAB" # Preserve this comment` : String.raw`value = "\u00ea\U0001f60a\xab" # Preserve this comment`,
+			},
+			{
+				code: String.raw`"\u00eA\U0001f60A\xaB" = 1`,
+				output: uppercase ? String.raw`"\u00EA\U0001F60A\xAB" = 1` : String.raw`"\u00ea\U0001f60a\xab" = 1`,
+			},
+			{
+				code: 'value = """\n\\u00eA\\U0001f60A\\xaB\n"""',
+				output: uppercase ? 'value = """\n\\u00EA\\U0001F60A\\xAB\n"""' : 'value = """\n\\u00ea\\U0001f60a\\xab\n"""',
+			},
+			{
+				code: String.raw`value = "\\\u00eA\\\U0001f60A"`,
+				output: uppercase ? String.raw`value = "\\\u00EA\\\U0001F60A"` : String.raw`value = "\\\u00ea\\\U0001f60a"`,
+			},
+			{
+				code: String.raw`["\u00eA"]`,
+				output: uppercase ? String.raw`["\u00EA"]` : String.raw`["\u00ea"]`,
+			},
+			{
+				code: String.raw`value = ["\u00eA", {key = "\U0001f60A"}]`,
+				output: uppercase ? String.raw`value = ["\u00EA", {key = "\U0001F60A"}]` : String.raw`value = ["\u00ea", {key = "\U0001f60a"}]`,
+				errors: Array.from({length: 2}, () => ({messageId: uppercase ? MESSAGE_ID_UPPERCASE : MESSAGE_ID_LOWERCASE})),
+			},
+		].map(item => ({
+			errors: [{messageId: uppercase ? MESSAGE_ID_UPPERCASE : MESSAGE_ID_LOWERCASE}],
+			...item,
+			name: `TOML ${option}: ${item.code}`,
+			language: languages.toml.language, plugins: languages.toml.plugins,
+			options: [option],
+		})),
+	});
+}
