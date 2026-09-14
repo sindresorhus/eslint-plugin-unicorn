@@ -127,6 +127,6 @@ const array = [1, 2, ...(enabled ? [3, 4] : [])];
 
 Conditions and mutation inputs that reference the initialized variable are ignored. Nested conditionals, `else if`, multiple statements per branch, mixed mutations, `||`, and `??` are not supported.
 
-Potential side effects in the condition or mutation inputs and `unshift()` on a nonempty array produce suggestions instead of automatic fixes. No fix or suggestion is offered when comments would move or disappear, or for a static `__proto__` property assignment or object literal passed to `Object.assign()`.
+Potential side effects in the condition or mutation inputs and `unshift()` on a nonempty array produce suggestions instead of automatic fixes. No fix or suggestion is offered when comments would move or disappear, or for statically named `__proto__` keys in property assignments or `Object.assign()` object-literal sources.
 
 In TypeScript files or with the TypeScript parser, conditional mutations are reported without fixes or suggestions because the spread can lose contextual typing. Unconditional mutations retain their existing behavior.
