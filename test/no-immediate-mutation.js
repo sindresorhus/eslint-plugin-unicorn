@@ -33,6 +33,7 @@ test.snapshot({
 		'const array = [], other = 1; if (enabled) { array.push(1); }',
 		'const object = {}; if (enabled) { object[object.key] = 1; }',
 		'const object = {}; if (enabled) { object.foo += 1; }',
+		'class Foo { #field; method() { const object = {}; if (enabled) { object.#field = value; } } }',
 		'const object = {}; enabled && Object.assign(object, object.foo);',
 		'const set = new Set(source); enabled && set.add(value);',
 		'const set = new Set(); enabled && set.add(set);',

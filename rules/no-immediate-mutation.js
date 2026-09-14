@@ -287,6 +287,9 @@ const objectWithAssignmentExpressionSettings = {
 		const value = assignmentExpression.right;
 		const memberExpression = assignmentExpression.left;
 		const {property} = memberExpression;
+		if (property.type === 'PrivateIdentifier') {
+			return;
+		}
 
 		if (
 			hasVariableInNodes(
