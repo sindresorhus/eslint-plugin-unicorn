@@ -731,7 +731,7 @@ function getConditionalBranch(node, information, caseSettings) {
 		return {
 			text: `{${computed ? `[${propertyText}]` : propertyText}: ${getParenthesizedText(value, context)}}`,
 			inputs: computed ? [property, value] : [value],
-			canFix: getPropertyName(memberExpression) !== '__proto__',
+			canFix: getPropertyName(memberExpression, context.sourceCode.getScope(memberExpression)) !== '__proto__',
 		};
 	}
 

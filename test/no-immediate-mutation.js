@@ -129,6 +129,7 @@ test.snapshot({
 			`,
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
+		'const key = "__proto__", object = {}; if (enabled) { object[key] = prototype; }',
 		{
 			code: 'const map = new Map<string, number>(); enabled && map.set(key, value);',
 			languageOptions: {parser: parsers.typescript},
