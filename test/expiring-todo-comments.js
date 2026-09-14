@@ -6,6 +6,7 @@ import css from '@eslint/css';
 import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import htmlEslintPlugin from '@html-eslint/eslint-plugin';
+import toml from 'eslint-plugin-toml';
 import yml from 'eslint-plugin-yml';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
@@ -927,6 +928,84 @@ test('supports ESLint disable directives in YAML', t => {
 		},
 	}, {
 		filename: 'fixture.yaml',
+	});
+
+	t.deepEqual(messages, []);
+});
+
+test('supports TOML comments with eslint-plugin-toml', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify('key = "value" # TODO [2000-01-01]: Drop\n# TODO: Update config\n# TODO [2999-01-01]: Later\ntext = "# TODO [2000-01-01]: String"', {
+		files: ['**/*.toml'],
+		language: 'toml/toml',
+		plugins: {
+			toml,
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': [
+				'error',
+				{
+					date: '2026-05-29',
+					checkDates: true,
+					checkDatesOnPullRequests: true,
+					allowWarningComments: false,
+				},
+			],
+		},
+	}, {
+		filename: 'fixture.toml',
+	});
+
+	t.deepEqual(
+		messages.map(({message, ruleId, line, column, endLine, endColumn}) => ({
+			message,
+			ruleId,
+			line,
+			column,
+			endLine,
+			endColumn,
+		})),
+		[
+			{
+				message: 'Past due date: 2000-01-01. Drop',
+				ruleId: 'unicorn/expiring-todo-comments',
+				line: 1,
+				column: 15,
+				endLine: 1,
+				endColumn: 40,
+			},
+			{
+				message: 'Unexpected \'todo\': \'TODO: Update config\'.',
+				ruleId: 'unicorn/expiring-todo-comments',
+				line: 2,
+				column: 1,
+				endLine: 2,
+				endColumn: 22,
+			},
+		],
+	);
+});
+
+test('supports ESLint disable directives in TOML', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify('# eslint-disable-next-line unicorn/expiring-todo-comments -- TODO reason\n# TODO: Update config\nkey = "value"', {
+		files: ['**/*.toml'],
+		language: 'toml/toml',
+		plugins: {
+			toml,
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': [
+				'error',
+				{
+					allowWarningComments: false,
+				},
+			],
+		},
+	}, {
+		filename: 'fixture.toml',
 	});
 
 	t.deepEqual(messages, []);

@@ -10,6 +10,7 @@ const messages = {
 
 const escapeCase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+})/g;
 const escapePatternCase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+}|c[A-Za-z])/g;
+const tomlEscapeCase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|U[\dA-Fa-f]{8})/g;
 const getProblem = ({node, original, regex = escapeCase, lowercase, fix}) => {
 	const fixed = original.replace(regex, data => data[0] + data.slice(1)[lowercase ? 'toLowerCase' : 'toUpperCase']());
 
@@ -27,6 +28,19 @@ const getProblem = ({node, original, regex = escapeCase, lowercase, fix}) => {
 */
 const create = context => {
 	const isLowercase = context.options[0] === 'lowercase';
+
+	context.on(['TOMLValue', 'TOMLQuoted'], node => {
+		if (node.kind !== 'string' || node.style !== 'basic') {
+			return;
+		}
+
+		return getProblem({
+			node,
+			original: context.sourceCode.getText(node),
+			regex: tomlEscapeCase,
+			lowercase: isLowercase,
+		});
+	});
 
 	context.on('Literal', node => {
 		if (isStringLiteral(node)) {
@@ -87,6 +101,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'toml/toml',
 		],
 	},
 };

@@ -47,7 +47,7 @@ const getLinePrefix = (sourceCode, comment) => {
 };
 
 const isStandaloneLineComment = (sourceCode, comment) => (
-	comment.type === 'Line'
+	(comment.type === 'Line' || sourceCode.parserServices?.isTOML)
 	&& getCommentText(comment).length > 0
 	&& !isIgnoredCommentText(getCommentText(comment))
 	&& getLinePrefix(sourceCode, comment).trim() === ''
@@ -63,9 +63,12 @@ const isConsecutiveComment = (sourceCode, firstComment, secondComment) => {
 
 const isBlankLine = (sourceCode, line) => line < 1 || line > sourceCode.lines.length || sourceCode.lines[line - 1].trim() === '';
 
-const getLineCommentText = lineText => {
+const getLineCommentPrefix = sourceCode => sourceCode.parserServices?.isTOML ? '#' : '//';
+
+const getLineCommentText = (sourceCode, lineText) => {
 	const trimmedLineText = lineText.trim();
-	return trimmedLineText.startsWith('//') ? trimmedLineText.slice(2).trim() : undefined;
+	const prefix = getLineCommentPrefix(sourceCode);
+	return trimmedLineText.startsWith(prefix) ? trimmedLineText.slice(prefix.length).trim() : undefined;
 };
 
 const isSeparatedBeforeCommentGroup = (sourceCode, comment) => {
@@ -75,7 +78,7 @@ const isSeparatedBeforeCommentGroup = (sourceCode, comment) => {
 		return true;
 	}
 
-	const previousLineCommentText = getLineCommentText(sourceCode.lines[line - 2]);
+	const previousLineCommentText = getLineCommentText(sourceCode, sourceCode.lines[line - 2]);
 	return previousLineCommentText !== undefined && sentenceEndPattern.test(previousLineCommentText);
 };
 
@@ -84,7 +87,7 @@ const isSeparatedAfterCommentGroup = (sourceCode, comment) => {
 
 	return isBlankLine(sourceCode, line + 1)
 		|| (
-			getLineCommentText(sourceCode.lines[line]) !== undefined
+			getLineCommentText(sourceCode, sourceCode.lines[line]) !== undefined
 			&& endsWithSentencePunctuation(comment)
 		);
 };
@@ -114,7 +117,7 @@ const fixCommentGroup = (context, comments) => fixer => {
 		sourceCode.getRange(lastComment)[1],
 	];
 
-	return fixer.replaceTextRange(range, `// ${text}`);
+	return fixer.replaceTextRange(range, `${getLineCommentPrefix(sourceCode)} ${text}`);
 };
 
 /**
@@ -171,6 +174,7 @@ const config = {
 			'js/js',
 			'json/jsonc',
 			'json/json5',
+			'toml/toml',
 		],
 	},
 };

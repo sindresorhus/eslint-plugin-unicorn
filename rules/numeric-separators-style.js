@@ -77,14 +77,15 @@ const create = context => {
 		'': {onlyIfContainsSeparator, ...number},
 	};
 
-	context.on('Literal', node => {
-		if (!numeric.isNumeric(node) || numeric.isLegacyOctal(node)) {
-			return;
+	const getProblem = (node, raw) => {
+		let number = raw;
+		let sign = '';
+		let suffix = '';
+		if (number.startsWith('+') || number.startsWith('-')) {
+			sign = number[0];
+			number = number.slice(1);
 		}
 
-		const {raw} = node;
-		let number = raw;
-		let suffix = '';
 		if (isBigIntLiteral(node)) {
 			number = raw.slice(0, -1);
 			suffix = 'n';
@@ -98,7 +99,7 @@ const create = context => {
 			return;
 		}
 
-		const formatted = format(strippedNumber, {prefix, data}, options) + suffix;
+		const formatted = sign + format(strippedNumber, {prefix, data}, options) + suffix;
 
 		if (raw !== formatted) {
 			return {
@@ -106,6 +107,23 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				fix: fixer => fixer.replaceText(node, formatted),
 			};
+		}
+	};
+
+	context.on('Literal', node => {
+		if (numeric.isNumeric(node) && !numeric.isLegacyOctal(node)) {
+			return getProblem(node, node.raw);
+		}
+	});
+
+	context.on('TOMLValue', node => {
+		if (node.kind !== 'integer' && node.kind !== 'float') {
+			return;
+		}
+
+		const raw = context.sourceCode.getText(node);
+		if (!/(?:inf|nan)$/u.test(raw)) {
+			return getProblem(node, raw);
 		}
 	});
 };
@@ -175,6 +193,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'toml/toml',
 		],
 	},
 };

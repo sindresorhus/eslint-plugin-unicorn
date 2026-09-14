@@ -1,5 +1,10 @@
 import outdent from 'outdent';
-import {getTester, avoidTestTitleConflict, parsers} from './utils/test.js';
+import {
+	getTester,
+	avoidTestTitleConflict,
+	parsers,
+	languages,
+} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -198,6 +203,32 @@ const tests = {
 };
 
 test(tests);
+
+test.snapshot({
+	valid: [
+		'value = 0xABCDEF',
+		'value = 0o755',
+		'value = 0b1010',
+		'value = -1.2e+3',
+		'value = +1_000',
+		'value = [inf, +inf, -inf, nan, +nan, -nan]',
+		'value = "0xff 1E3"',
+		'value = \'0xff 1E3\'',
+		'value = 1979-05-27T07:32:00Z',
+		'value = { date = 1979-05-27, time = 07:32:00 }',
+		'# value = 0xff\nvalue = true',
+		{code: 'value = 0xabcdef', options: [{hexadecimalValue: 'lowercase'}]},
+	].map(code => ({...(typeof code === 'string' ? {code} : code), filename: 'example.toml', language: languages.toml})),
+	invalid: [
+		'value = 0xaBcDeF',
+		'value = 0x7fff_ffff_ffff_ffff',
+		'value = 1E6',
+		'value = -1.2E-3',
+		'value = +1.2E+3',
+		'value = [0xff, { number = 1E3 }] # Keep comment',
+		{code: 'value = 0xAB_CD', options: [{hexadecimalValue: 'lowercase'}]},
+	].map(code => ({...(typeof code === 'string' ? {code} : code), filename: 'example.toml', language: languages.toml})),
+});
 
 test.snapshot({
 	testerOptions: {

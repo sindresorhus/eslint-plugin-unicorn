@@ -93,6 +93,16 @@ test.snapshot({
 		{code: '// No need to write tests here.', filename: 'example.test.ts', options: [{allowComments: true}]},
 		// A non-empty file parsed by a plain-text parser (e.g. `.gitignore`, `.editorconfig`) is not empty even though its AST has no tokens or comments.
 		{code: '# Logs\nnode_modules\n', filename: '.gitignore', languageOptions: {parser: parserPlain}},
+		...[
+			'key = "value"',
+			'[table]',
+			'[[table]]',
+			'items = []',
+			'table = {}',
+		].map(code => ({code, filename: 'example.toml', language: languages.toml})),
+		{
+			code: '# comment', filename: 'example.toml', language: languages.toml, options: [{allowComments: true}],
+		},
 	],
 	invalid: [
 		...[
@@ -187,6 +197,10 @@ test.snapshot({
 		{code: '', filename: '.gitignore', languageOptions: {parser: parserPlain}},
 		// A whitespace-only file is still reported even under a plain-text parser.
 		{code: '   \n\t ', filename: '.gitignore', languageOptions: {parser: parserPlain}},
+		...['', '   \n\t ', '# comment'].map(code => ({code, filename: 'example.toml', language: languages.toml})),
+		...['', '   \n\t '].map(code => ({
+			code, filename: 'example.toml', language: languages.toml, options: [{allowComments: true}],
+		})),
 	],
 });
 

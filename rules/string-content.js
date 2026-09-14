@@ -8,7 +8,7 @@ const messages = {
 	[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.',
 };
 
-const targetNodeTypes = ['Literal', 'TemplateElement'];
+const targetNodeTypes = ['Literal', 'TemplateElement', 'TOMLValue'];
 
 const ignoredIdentifier = new Set([
 	'gql',
@@ -88,7 +88,7 @@ const create = context => {
 		checked.add(node);
 
 		let string;
-		if (type === 'Literal') {
+		if (type === 'Literal' || type === 'TOMLValue') {
 			string = value;
 		} else if (!isIgnoredTag(node)) {
 			string = value.raw;
@@ -115,8 +115,17 @@ const create = context => {
 		};
 
 		const fixed = string.replace(regex, () => suggest);
-		const fix = type === 'Literal'
-			? fixer => {
+		if (type === 'TOMLValue' && !fixed.isWellFormed()) {
+			return problem;
+		}
+
+		const fix = fixer => {
+			if (type === 'TOMLValue') {
+				// JSON string escapes are valid in TOML, but TOML also requires escaping DEL.
+				return fixer.replaceText(node, JSON.stringify(fixed).replaceAll('\u007F', String.raw`\u007F`));
+			}
+
+			if (type === 'Literal') {
 				const [quote] = raw;
 				let replacementText;
 				if (node.parent.type === 'JSXAttribute') {
@@ -130,12 +139,9 @@ const create = context => {
 
 				return fixer.replaceText(node, replacementText);
 			}
-			: fixer => replaceTemplateElement(
-				node,
-				escapeTemplateElementRaw(fixed),
-				context,
-				fixer,
-			);
+
+			return replaceTemplateElement(node, escapeTemplateElementRaw(fixed), context, fixer);
+		};
 
 		if (autoFix) {
 			problem.fix = fix;
@@ -227,6 +233,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'toml/toml',
 		],
 	},
 };

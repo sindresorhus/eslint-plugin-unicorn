@@ -35,6 +35,24 @@ const foo = 'Someone\'s coming!';
 const foo = 'Someone’s coming!';
 ```
 
+## TOML
+
+This rule also supports string values in TOML files when linting with [`eslint-plugin-toml`](https://github.com/ota-meshi/eslint-plugin-toml). Patterns match decoded content in basic, literal, and multiline strings. Keys and comments are not checked.
+
+Fixes and suggestions write double-quoted basic strings with TOML-compatible escaping, including when the original is a literal or multiline string. Replacements containing unpaired Unicode surrogates are reported without a fix or suggestion because TOML cannot represent them.
+
+```js
+'unicorn/string-content': ['error', {patterns: {unicorn: '🦄'}}]
+```
+
+```toml
+# ❌
+name = 'unicorn'
+
+# ✅
+name = "🦄"
+```
+
 ## Options
 
 Type: `object`
@@ -103,7 +121,7 @@ Default: `[]`
 
 Only check string nodes matching one of these [ESLint selectors](https://eslint.org/docs/latest/extend/selectors). When empty, all supported string nodes are checked.
 
-The selector must match the string node itself: `Literal` for string literals and `TemplateElement` for template literal content.
+The selector must match the string node itself: `Literal` for JavaScript string literals, `TemplateElement` for template literal content, or `TOMLValue[kind="string"]` for TOML string values.
 
 ```js
 'unicorn/string-content': [

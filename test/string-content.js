@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester, parsers} from './utils/test.js';
+import {getTester, parsers, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -472,4 +472,105 @@ test({
 			errors: createError('no', 'yes'),
 		},
 	],
+});
+
+test({
+	testerOptions: {
+		language: languages.toml.language,
+		plugins: languages.toml.plugins,
+	},
+	valid: [
+		{code: 'value = "no"', filename: 'example.toml'},
+		...[
+			'value = "yes"',
+			'value = "NO"',
+			'# no\n"no" = 1\n[table]\n\'no\'.value = true\n[no-table]\nvalue = 1979-05-27T07:32:00Z',
+			'value = [1, 1.5, true, 1979-05-27, 07:32:00]',
+			'["no"]\nvalue = { "no" = false }',
+		].map(code => ({code, filename: 'example.toml', options: [{patterns: noToYesPattern}]})),
+	],
+	invalid: [
+		...[
+			'value = "no"',
+			'value = \'no\'',
+			'value = """no"""',
+			'value = \'\'\'no\'\'\'',
+			String.raw`value = "\u006E\u006F"`,
+		].map(code => ({
+			code,
+			output: 'value = "yes"',
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes'),
+		})),
+		{
+			code: 'value = """\nno\nnext line""" # no',
+			output: String.raw`value = "yes\nnext line" # no`,
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: 'value = \'\'\'\nno\nnext line\'\'\'',
+			output: String.raw`value = "yes\nnext line"`,
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: String.raw`value = '\no'`,
+			output: String.raw`value = "\\yes"`,
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: 'value = "no"',
+			output: String.raw`value = "'\"\\\n\r\t\b\f\u0000\u001f\u007F"`,
+			options: [{patterns: {no: '\'"\\\n\r\t\b\f\u0000\u001F\u007F'}}],
+			errors: createError('no', '\'"\\\n\r\t\b\f\u0000\u001F\u007F'),
+		},
+		{
+			code: 'value = "unicorn"',
+			output: 'value = "🦄"',
+			options: [{patterns}],
+			errors: createError('unicorn', '🦄'),
+		},
+		{
+			code: 'value = ["no", { "no" = [\'no\'] }]',
+			output: 'value = ["yes", { "no" = ["yes"] }]',
+			options: [{patterns: noToYesPattern}],
+			errors: [...createError('no', 'yes'), ...createError('no', 'yes')],
+		},
+		{
+			code: 'description = "no"\ntitle = "no"',
+			output: 'description = "yes"\ntitle = "no"',
+			options: [{
+				patterns: noToYesPattern,
+				selectors: [
+					'TOMLKeyValue[key.keys.0.name="description"] > TOMLValue',
+					'TOMLKeyValue[key.keys.0.name=/description/] > TOMLValue',
+				],
+			}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: 'value = "no No NO"',
+			output: 'value = "yes yes yes"',
+			options: [{patterns: {no: {suggest: 'yes', caseSensitive: false}}}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: 'value = "no"',
+			output: 'value = "yes"',
+			options: [{patterns: {no: {suggest: 'yes', message: 'Use yes.'}}}],
+			errors: [{message: 'Use yes.'}],
+		},
+		{
+			code: 'value = \'\'\'NO\'\'\'',
+			options: [{patterns: {no: {suggest: 'yes', fix: false, caseSensitive: false}}}],
+			errors: createSuggestionError('no', 'yes', 'value = "yes"'),
+		},
+		...[true, false].map(fix => ({
+			code: 'value = "no"',
+			options: [{patterns: {no: {suggest: '\uD800', fix}}}],
+			errors: createError('no', '\uD800'),
+		})),
+	].map(testCase => ({filename: 'example.toml', ...testCase})),
 });

@@ -19,7 +19,9 @@ const schema = [
 	},
 ];
 
-const isEmpty = node => isEmptyNode(node, isDirective);
+const isEmpty = node =>
+	isEmptyNode(node, isDirective)
+	|| (node.type === 'TOMLTopLevelTable' && node.body.length === 0);
 
 const isRegularComment = node =>
 	node.type === 'Line'
@@ -215,6 +217,7 @@ const config = {
 			'json/json5',
 			'markdown/commonmark',
 			'markdown/gfm',
+			'toml/toml',
 			'yml/yaml',
 		],
 	},

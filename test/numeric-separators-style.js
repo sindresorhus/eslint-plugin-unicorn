@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -568,4 +568,50 @@ test.snapshot({
 		'console.log(0XdeEdBeeFn)',
 		'const foo = 12345678..toString()',
 	],
+});
+
+test.snapshot({
+	valid: [
+		'value = 1_000_000',
+		'value = [-1234, +1234, -12_345, +12_345]',
+		'value = [inf, +inf, -inf, nan, +nan, -nan]',
+		'value = ["1234567", 1979-05-27T07:32:00Z, 1979-05-27, 07:32:00]',
+		'value = [0xAB_CD, 0o1234_5670, 0b1010_1010]',
+		{
+			code: 'value = [1234567, 0xABCDEF]',
+			options: [{onlyIfContainsSeparator: true}],
+		},
+		{
+			code: 'value = [-12345, +12345]',
+			options: [{number: {minimumDigits: 6}}],
+		},
+	].map(testCase => ({
+		...(typeof testCase === 'string' ? {code: testCase} : testCase),
+		filename: 'example.toml',
+		language: languages.toml,
+	})),
+	invalid: [
+		'value = 1000000 # Preserve this comment.',
+		'value = [-123456, +123456]',
+		'value = 9223372036854775807',
+		'value = [0xABCDEF, 0o12345670, 0b10101010]',
+		'value = {nested = [12345, 1_2_345, 0.123_456]}',
+		'value = [-12345.123456E+10000, +12345.123456e-10000]',
+		{
+			code: 'value = -1234567.12345678',
+			options: [{number: {groupLength: 4, fractionGroupLength: 3}}],
+		},
+		{
+			code: 'value = [+123, -123]',
+			options: [{number: {minimumDigits: 0, groupLength: 1}}],
+		},
+		{
+			code: 'value = [1234567, 12_34567, 0xABCDEF]',
+			options: [{onlyIfContainsSeparator: true, hexadecimal: {onlyIfContainsSeparator: false, groupLength: 3}}],
+		},
+	].map(testCase => ({
+		...(typeof testCase === 'string' ? {code: testCase} : testCase),
+		filename: 'example.toml',
+		language: languages.toml,
+	})),
 });

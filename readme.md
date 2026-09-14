@@ -5,7 +5,7 @@
 
 > More than 300 powerful ESLint rules
 
-Most rules target JavaScript and TypeScript, but [some also lint CSS, HTML, JSON, Markdown, and YAML](#non-javascript-files) when used with the matching ESLint language plugin.
+Most rules target JavaScript and TypeScript, but [some also lint CSS, HTML, JSON, Markdown, TOML, and YAML](#non-javascript-files) when used with the matching ESLint language plugin.
 
 [**Propose a new rule ➡**](.github/contributing.md)
 
@@ -453,7 +453,7 @@ export default defineConfig([
 
 ### Non-JavaScript files
 
-While most rules target JavaScript and TypeScript, some also lint other file types when used with the corresponding [ESLint language plugin](https://eslint.org/docs/latest/use/configure/plugins#specifying-a-language) such as [`@eslint/css`](https://github.com/eslint/css), [`@eslint/json`](https://github.com/eslint/json), [`@eslint/markdown`](https://github.com/eslint/markdown), [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), or [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml). Each such rule declares this with the `meta.languages` field.
+While most rules target JavaScript and TypeScript, some also lint other file types when used with the corresponding [ESLint language plugin](https://eslint.org/docs/latest/use/configure/plugins#specifying-a-language) such as [`@eslint/css`](https://github.com/eslint/css), [`@eslint/json`](https://github.com/eslint/json), [`@eslint/markdown`](https://github.com/eslint/markdown), [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml), or [`eslint-plugin-toml`](https://github.com/ota-meshi/eslint-plugin-toml). Each such rule declares this with the `meta.languages` field.
 
 When linting JSON, CSS, Markdown, HTML, or other non-JavaScript languages in the same ESLint config, scope Unicorn's JavaScript rule config objects with `files`. Include TypeScript/JSX extensions there only if your config already provides the matching parser/language setup for those files.
 
@@ -464,6 +464,7 @@ import css from '@eslint/css';
 import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import html from '@html-eslint/eslint-plugin';
+import toml from 'eslint-plugin-toml';
 import unicorn from 'eslint-plugin-unicorn';
 import {defineConfig} from 'eslint/config';
 
@@ -528,6 +529,26 @@ export default defineConfig([
 			'unicorn/prefer-https': 'error',
 		},
 	},
+	{
+		files: ['**/*.toml'],
+		plugins: {
+			toml,
+			unicorn,
+		},
+		language: 'toml/toml',
+		rules: {
+			'unicorn/comment-content': 'error',
+			'unicorn/escape-case': 'error',
+			'unicorn/expiring-todo-comments': 'error',
+			'unicorn/filename-case': 'error',
+			'unicorn/no-abusive-eslint-disable': 'error',
+			'unicorn/no-empty-file': 'error',
+			'unicorn/no-manually-wrapped-comments': 'error',
+			'unicorn/number-literal-case': 'error',
+			'unicorn/numeric-separators-style': 'error',
+			'unicorn/prefer-https': 'error',
+		},
+	},
 ]);
 ```
 
@@ -543,28 +564,32 @@ These rules work on **any** file type:
 
 These rules also work on specific non-JavaScript languages:
 
-| Name | CSS | HTML | JSON | Markdown | YAML |
-| :-- | :-: | :-: | :-: | :-: | :-: |
-| [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |
-| [`no-duplicate-css-selectors`](docs/rules/no-duplicate-css-selectors.md) | ✅ |  |  |  |  |
-| [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |
-| [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |
-| [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |
-| [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |  |
-| [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |  |
-| [`no-nesting-with-mixed-specificity`](docs/rules/no-nesting-with-mixed-specificity.md) | ✅ |  |  |  |  |
-| [`no-redundant-nested-style-rules`](docs/rules/no-redundant-nested-style-rules.md) | ✅ |  |  |  |  |
-| [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |  |
-| [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |  |
-| [`no-unknown-css-annotations`](docs/rules/no-unknown-css-annotations.md) | ✅ |  |  |  |  |
-| [`no-unknown-pseudo-selectors`](docs/rules/no-unknown-pseudo-selectors.md) | ✅ |  |  |  |  |
-| [`no-unscoped-css-nesting-selector`](docs/rules/no-unscoped-css-nesting-selector.md) | ✅ |  |  |  |  |
-| [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |
-| [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |
-| [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |
-| [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |  |
+| Name | CSS | HTML | JSON | Markdown | TOML | YAML |
+| :-- | :-: | :-: | :-: | :-: | :-: | :-: |
+| [`escape-case`](docs/rules/escape-case.md) |  |  |  |  | ✅ |  |
+| [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |  |
+| [`no-duplicate-css-selectors`](docs/rules/no-duplicate-css-selectors.md) | ✅ |  |  |  |  |  |
+| [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |  |
+| [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |  |
+| [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |  |
+| [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  | ✅ |  |
+| [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |  |  |
+| [`no-nesting-with-mixed-specificity`](docs/rules/no-nesting-with-mixed-specificity.md) | ✅ |  |  |  |  |  |
+| [`no-redundant-nested-style-rules`](docs/rules/no-redundant-nested-style-rules.md) | ✅ |  |  |  |  |  |
+| [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |  |  |
+| [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |  |  |
+| [`no-unknown-css-annotations`](docs/rules/no-unknown-css-annotations.md) | ✅ |  |  |  |  |  |
+| [`no-unknown-pseudo-selectors`](docs/rules/no-unknown-pseudo-selectors.md) | ✅ |  |  |  |  |  |
+| [`no-unscoped-css-nesting-selector`](docs/rules/no-unscoped-css-nesting-selector.md) | ✅ |  |  |  |  |  |
+| [`number-literal-case`](docs/rules/number-literal-case.md) |  |  |  |  | ✅ |  |
+| [`numeric-separators-style`](docs/rules/numeric-separators-style.md) |  |  |  |  | ✅ |  |
+| [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |  |
+| [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |  |
+| [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |  |
+| [`string-content`](docs/rules/string-content.md) |  |  |  |  | ✅ |  |
+| [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |  |  |
 
 <!-- end auto-generated non-js languages list -->
 

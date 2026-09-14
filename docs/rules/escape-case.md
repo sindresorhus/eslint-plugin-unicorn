@@ -13,6 +13,8 @@ Enforces a consistent escaped value style by defining escape sequence values wit
 
 Tagged template literals are ignored because tag functions can observe the raw escape sequences.
 
+In TOML, this rule checks basic strings (including multiline strings) and basic quoted keys. It supports `\uXXXX`, `\UXXXXXXXX`, and `\xXX` escapes, preserving the escape prefix. Literal strings and literal quoted keys are ignored because they do not interpret escapes.
+
 ## Examples
 
 ```js
