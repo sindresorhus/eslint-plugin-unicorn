@@ -121,6 +121,14 @@ test.snapshot({
 		'const array = [[...iterable]]; if (enabled) { array.unshift(value); }',
 		'const array = [enabled]; if (true) { array.unshift(...iterable); }',
 		{
+			code: outdent`
+				const array = []
+				if (enabled) { array.push(value); }
+				<Component />
+			`,
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
 			code: 'const map = new Map<string, number>(); enabled && map.set(key, value);',
 			languageOptions: {parser: parsers.typescript},
 		},
