@@ -19,6 +19,9 @@ These methods accept multiple arguments and should be combined into a single cal
 
 Combining calls is more efficient, cleaner, and reduces code duplication.
 
+> [!NOTE]
+> This rule does not replace loops that push elements into an array with `array.push(...iterable)`. Spreading an iterable into function arguments can exceed the JavaScript engine's argument-count limit and throw for large inputs, while the loop continues to work.
+
 ## Examples
 
 ```js
