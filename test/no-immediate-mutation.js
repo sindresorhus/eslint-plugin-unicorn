@@ -72,6 +72,7 @@ test.snapshot({
 		'const object = {}; enabled ? object.foo = value : object.__proto__ = prototype;',
 		'const object = {}; if (enabled) { object["__proto__"] = prototype; }',
 		'const object = {}; if (enabled) { Object.assign(object, {foo: 1,}); }',
+		'const object = {}; if (enabled) { Object.assign(object, {["__proto__"]: prototype}); }',
 		'const object = {}; enabled && Object.assign(object, getSource());',
 		'const object = {}; enabled && Object.assign(object, (first, second));',
 		'const set = new Set([initial]); enabled ? set.add(first) : set.add(second);',
