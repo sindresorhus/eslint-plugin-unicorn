@@ -81,6 +81,8 @@ test.snapshot({
 		'const set = new Set(); enabled && set.add(getValue());',
 		'const map = new Map; enabled && map.set((first, second), value);',
 		'const map = new Map(); if (enabled) { map.set(getKey(), value); }',
+		'async function run() { const array = []; if (await enabled) { array.push(await value); } }',
+		'function * generate() { const array = []; if (enabled) { array.push(yield value); } }',
 		'const array = []; if (enabled) { /* Keep this comment. */ array.push(value); }',
 		'const array = []; if (/* Keep this comment. */ enabled) { array.push(value); }',
 		'const array = []; enabled && array.push(/* Keep this comment. */ value);',
