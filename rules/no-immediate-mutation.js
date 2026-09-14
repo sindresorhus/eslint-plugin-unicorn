@@ -741,9 +741,9 @@ function getConditionalBranch(node, information, caseSettings) {
 		}
 
 		const source = problematicNode.arguments[1];
-		const hasStaticProtoProperty = source.type === 'ObjectExpression'
+		const hasStaticPrototypeProperty = source.type === 'ObjectExpression'
 			&& source.properties.some(property => property.type === 'Property' && getPropertyName(property, context.sourceCode.getScope(property)) === '__proto__');
-		return {text: getParenthesizedText(source, context), inputs: [source], canFix: !hasStaticProtoProperty};
+		return {text: getParenthesizedText(source, context), inputs: [source], canFix: !hasStaticPrototypeProperty};
 	}
 
 	const argumentsText = getCallExpressionArgumentsText(context, problematicNode, /* includeTrailingComma */ false);
