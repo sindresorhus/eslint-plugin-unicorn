@@ -118,6 +118,8 @@ test.snapshot({
 			if (enabled) { map.set(key, value); }
 			[1].map(callback)
 		`,
+		'const array = [[...iterable]]; if (enabled) { array.unshift(value); }',
+		'const array = [enabled]; if (true) { array.unshift(...iterable); }',
 		{
 			code: 'const map = new Map<string, number>(); enabled && map.set(key, value);',
 			languageOptions: {parser: parsers.typescript},

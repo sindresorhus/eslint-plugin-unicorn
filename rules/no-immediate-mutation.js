@@ -819,7 +819,7 @@ function getConditionalProblem(conditional, information, caseSettings) {
 	const inputs = [conditional.test, ...consequent.inputs, ...(alternate?.inputs ?? [])];
 	if (
 		inputs.some(node => hasSideEffect(node, sourceCode))
-		|| (isPrepend && hasSideEffect(valueNode, sourceCode))
+		|| (isPrepend && valueNode.elements.length > 0)
 	) {
 		problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION_CONDITIONAL, data: {assignType}, fix}];
 	} else {
