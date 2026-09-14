@@ -51,7 +51,7 @@ React hook function bindings are checked after the required `use` prefix. For ex
 
 React refs initialized with a boolean-like value may use boolean prefixes when the binding name ends in `Ref` or `Reference`, such as `isMountedRef`, `hasConsentRef`, or `hasConsentReference`. The suffix identifies the binding as a ref object. The binding must not be reassigned after initialization.
 
-Direct Vue `ref()` calls with boolean-like values and `computed()` calls with boolean-returning functions may use boolean prefixes, such as `isBranch` or `hasDepartment`. The binding must not be reassigned after initialization.
+Direct Vue `ref()` calls with boolean-like values and `computed()` calls with boolean-returning functions may use boolean prefixes, such as `isBranch` or `hasDepartment`. The binding must not be reassigned after initialization. For refs returned by other calls, such as composables returning `ShallowRef<boolean>`, use type-aware [`wrappers`](#wrappers) with `{Ref: 'value'}`, which also covers `ComputedRef`.
 
 This rule intentionally does not check destructuring bindings, imports, class names, or catch parameters.
 
