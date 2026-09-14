@@ -71,20 +71,20 @@ function isCallExpressionWithOptionalArrayExpression(newExpression, names) {
 	return (!iterable || iterable.type === 'ArrayExpression');
 }
 
-function * removeStatementAfterAssign(expressionStatement, context, fixer) {
-	const tokenBefore = context.sourceCode.getTokenBefore(expressionStatement);
-	if (expressionStatement.type === 'IfStatement') {
-		const tokenAfter = context.sourceCode.getTokenAfter(expressionStatement);
+function * removeStatementAfterAssign(statement, context, fixer) {
+	const tokenBefore = context.sourceCode.getTokenBefore(statement);
+	if (statement.type === 'IfStatement') {
+		const tokenAfter = context.sourceCode.getTokenAfter(statement);
 		if (tokenAfter && needsSemicolon(tokenBefore, context, tokenAfter.value)) {
 			yield fixer.insertTextAfter(tokenBefore, ';');
 		}
 
-		yield removeStatement(expressionStatement, context, fixer);
+		yield removeStatement(statement, context, fixer);
 		return;
 	}
 
 	const shouldPreserveSemiColon = !isSemicolonToken(tokenBefore);
-	yield removeStatement(expressionStatement, context, fixer, shouldPreserveSemiColon);
+	yield removeStatement(statement, context, fixer, shouldPreserveSemiColon);
 }
 
 function appendListTextToArrayExpressionOrObjectExpression(
@@ -114,7 +114,7 @@ function * appendElementsTextToSetConstructor({
 	fixer,
 	newExpression,
 	elementsText,
-	nextExpressionStatement,
+	nextStatement,
 }) {
 	if (isNewExpressionWithParentheses(newExpression, context)) {
 		const [setInitialValue] = newExpression.arguments;
@@ -137,7 +137,7 @@ function * appendElementsTextToSetConstructor({
 		yield fixer.insertTextAfter(newExpression, `([${elementsText}])`);
 	}
 
-	yield * removeStatementAfterAssign(nextExpressionStatement, context, fixer);
+	yield * removeStatementAfterAssign(nextStatement, context, fixer);
 }
 
 function getObjectExpressionPropertiesText(objectExpression, context) {
@@ -153,14 +153,12 @@ function getObjectExpressionPropertiesText(objectExpression, context) {
 @typedef {ESTree.VariableDeclarator['init'] | ESTree.AssignmentExpression['right']} ValueNode
 @typedef {(information: ViolationCaseInformation, arguments: any)} GetFix
 @typedef {Parameters<ESLint.Rule.RuleContext['report']>[0]} Problem
-@typedef {(information: ViolationCaseInformation) => ESTree.Node} GetProblematicNode
+@typedef {(information: ViolationCaseInformation & {expression: ESTree.Expression}) => ESTree.Node} GetProblematicNode
 @typedef {{
 	context: ESLint.Rule.RuleContext,
 	variable: ESLint.Scope.Variable,
-	variableNode: ESTree.Identifier,
 	valueNode: ValueNode,
-	statement: ESTree.VariableDeclaration | ESTree.ExpressionStatement,
-	nextExpressionStatement: ESTree.ExpressionStatement | ESTree.IfStatement,
+	nextStatement: ESTree.ExpressionStatement | ESTree.IfStatement,
 	assignType: 'assignment' | 'declaration',
 	getFix: GetFix,
 }} ViolationCaseInformation
@@ -181,10 +179,8 @@ const arrayMutationSettings = {
 	getProblematicNode({
 		context,
 		variable,
-		nextExpressionStatement,
+		expression: callExpression,
 	}) {
-		const callExpression = nextExpressionStatement.expression;
-
 		if (!(
 			isMethodCall(callExpression, {
 				object: variable.name,
@@ -242,7 +238,7 @@ const arrayMutationSettings = {
 		{
 			context,
 			valueNode: arrayExpression,
-			nextExpressionStatement,
+			nextStatement,
 		},
 		{
 			callExpression,
@@ -261,7 +257,7 @@ const arrayMutationSettings = {
 		);
 
 		yield removeStatementAfterAssign(
-			nextExpressionStatement,
+			nextStatement,
 			context,
 			fixer,
 		);
@@ -277,9 +273,8 @@ const objectWithAssignmentExpressionSettings = {
 	getProblematicNode({
 		context,
 		variable,
-		nextExpressionStatement,
+		expression: assignmentExpression,
 	}) {
-		const assignmentExpression = nextExpressionStatement.expression;
 		if (!(
 			assignmentExpression.type === 'AssignmentExpression'
 			&& assignmentExpression.operator === '='
@@ -356,7 +351,7 @@ const objectWithAssignmentExpressionSettings = {
 		{
 			context,
 			valueNode: objectExpression,
-			nextExpressionStatement,
+			nextStatement,
 		},
 		{
 			memberExpression,
@@ -384,7 +379,7 @@ const objectWithAssignmentExpressionSettings = {
 		);
 
 		yield removeStatementAfterAssign(
-			nextExpressionStatement,
+			nextStatement,
 			context,
 			fixer,
 		);
@@ -400,10 +395,8 @@ const objectWithObjectAssignSettings = {
 	getProblematicNode({
 		context,
 		variable,
-		nextExpressionStatement,
+		expression: callExpression,
 	}) {
-		const callExpression = nextExpressionStatement.expression;
-
 		if (!isMethodCall(callExpression, {
 			object: 'Object',
 			method: 'assign',
@@ -467,7 +460,7 @@ const objectWithObjectAssignSettings = {
 		{
 			context,
 			valueNode: objectExpression,
-			nextExpressionStatement,
+			nextStatement,
 		},
 		{
 			callExpression,
@@ -494,7 +487,7 @@ const objectWithObjectAssignSettings = {
 		}
 
 		yield removeStatementAfterAssign(
-			nextExpressionStatement,
+			nextStatement,
 			context,
 			fixer,
 		);
@@ -510,9 +503,9 @@ const setMutationSettings = {
 	getProblematicNode({
 		context,
 		variable,
-		nextExpressionStatement,
+		expression,
 	}) {
-		let callExpression = nextExpressionStatement.expression;
+		let callExpression = expression;
 		if (callExpression.type === 'ChainExpression') {
 			callExpression = callExpression.expression;
 		}
@@ -570,7 +563,7 @@ const setMutationSettings = {
 	getFix: (
 		{
 			context,
-			nextExpressionStatement,
+			nextStatement,
 		},
 		{
 			callExpression,
@@ -587,7 +580,7 @@ const setMutationSettings = {
 			fixer,
 			newExpression,
 			elementsText,
-			nextExpressionStatement,
+			nextStatement,
 		});
 	},
 };
@@ -601,10 +594,8 @@ const mapMutationSettings = {
 	getProblematicNode({
 		context,
 		variable,
-		nextExpressionStatement,
+		expression: callExpression,
 	}) {
-		const callExpression = nextExpressionStatement.expression;
-
 		if (!isMethodCall(callExpression, {
 			object: variable.name,
 			method: 'set',
@@ -657,7 +648,7 @@ const mapMutationSettings = {
 	getFix: (
 		{
 			context,
-			nextExpressionStatement,
+			nextStatement,
 		},
 		{
 			callExpression,
@@ -675,7 +666,7 @@ const mapMutationSettings = {
 			fixer,
 			newExpression,
 			elementsText: entryText,
-			nextExpressionStatement,
+			nextStatement,
 		});
 	},
 };
@@ -723,7 +714,7 @@ function getConditionalBranch(node, information, caseSettings) {
 	const {context} = information;
 	const problematicNode = caseSettings.getProblematicNode({
 		...information,
-		nextExpressionStatement: {expression: node},
+		expression: node,
 	});
 	if (!problematicNode) {
 		return;
@@ -756,8 +747,15 @@ function getConditionalBranch(node, information, caseSettings) {
 	};
 }
 
+function hasCommentsThatWouldBeRelocated(statement, sourceCode) {
+	const {end: statementEnd} = sourceCode.getLoc(statement);
+	return sourceCode.getCommentsInside(statement).length > 0
+		|| sourceCode.getCommentsBefore(statement).length > 0
+		|| sourceCode.getCommentsAfter(statement).some(comment => sourceCode.getLoc(comment).start.line === statementEnd.line);
+}
+
 function getConditionalProblem(conditional, information, caseSettings) {
-	const {context, variable, valueNode, nextExpressionStatement, assignType} = information;
+	const {context, variable, valueNode, nextStatement, assignType} = information;
 	const {sourceCode} = context;
 	if (hasVariableInNodes(variable, [conditional.test], context)) {
 		return;
@@ -780,7 +778,7 @@ function getConditionalProblem(conditional, information, caseSettings) {
 	}
 
 	const problem = {
-		node: nextExpressionStatement,
+		node: nextStatement,
 		messageId: MESSAGE_ID_ERROR,
 		data: {objectType},
 	};
@@ -788,7 +786,7 @@ function getConditionalProblem(conditional, information, caseSettings) {
 	if (
 		isTypeScriptFile(context.physicalFilename)
 		|| sourceCode.parserServices.esTreeNodeToTSNodeMap
-		|| sourceCode.getCommentsInside(nextExpressionStatement).length > 0
+		|| hasCommentsThatWouldBeRelocated(nextStatement, sourceCode)
 	) {
 		return problem;
 	}
@@ -803,7 +801,7 @@ function getConditionalProblem(conditional, information, caseSettings) {
 				fixer,
 				newExpression: valueNode,
 				elementsText: text,
-				nextExpressionStatement,
+				nextStatement,
 			});
 			return;
 		}
@@ -811,7 +809,7 @@ function getConditionalProblem(conditional, information, caseSettings) {
 		yield isPrepend
 			? fixer.insertTextAfter(sourceCode.getFirstToken(valueNode), `${text}, `)
 			: appendListTextToArrayExpressionOrObjectExpression(context, fixer, valueNode, text);
-		yield removeStatementAfterAssign(nextExpressionStatement, context, fixer);
+		yield removeStatementAfterAssign(nextStatement, context, fixer);
 	};
 
 	const inputs = [conditional.test, ...consequent.inputs, ...(alternate?.inputs ?? [])];
@@ -875,8 +873,8 @@ function getCaseProblem(
 		return;
 	}
 
-	const nextExpressionStatement = getNextNode(statement, context);
-	if (!['ExpressionStatement', 'IfStatement'].includes(nextExpressionStatement?.type)) {
+	const nextStatement = getNextNode(statement, context);
+	if (!['ExpressionStatement', 'IfStatement'].includes(nextStatement?.type)) {
 		return;
 	}
 
@@ -889,23 +887,24 @@ function getCaseProblem(
 	const information = {
 		context,
 		variable,
-		variableNode,
 		valueNode,
-		statement,
-		nextExpressionStatement,
+		nextStatement,
 		assignType: isAssignment ? 'assignment' : 'declaration',
 		getFix,
 	};
-	const conditional = getConditionalMutation(nextExpressionStatement);
+	const conditional = getConditionalMutation(nextStatement);
 	if (conditional) {
 		return getConditionalProblem(conditional, information, caseSettings);
 	}
 
-	if (nextExpressionStatement.type !== 'ExpressionStatement') {
+	if (nextStatement.type !== 'ExpressionStatement') {
 		return;
 	}
 
-	const problematicNode = getProblematicNode(information);
+	const problematicNode = getProblematicNode({
+		...information,
+		expression: nextStatement.expression,
+	});
 
 	if (!problematicNode) {
 		return;

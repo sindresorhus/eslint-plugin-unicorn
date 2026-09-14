@@ -14,8 +14,8 @@ When you create a variable and immediately mutate it, you should instead include
 - Assign variable to an array literal and immediately mutate with `Array#{push,unshift}(…)`.
 - Assign variable to an object literal and immediately assign another property.
 - Assign variable to an object literal and immediately mutate with `Object.assign(…)`.
-- Assign variable to a `Set` or `WeakSet` from an array literal and immediately adding a new element with `{Set,WeakSet}.add(…)`.
-- Assign variable to a `Map` or `WeakMap` from an array literal and immediately set another key with `{Map,WeakMap}.set(…, …)`.
+- Assign variable to a `Set` or `WeakSet` from an array literal and immediately add a new element with `{Set,WeakSet}.add(…)`.
+- Assign variable to a `Map` or `WeakMap` from an array literal and immediately set a new key with `{Map,WeakMap}.set(…, …)`.
 
 ## Examples
 
@@ -160,4 +160,4 @@ Conditions and mutation inputs that reference the initialized variable are ignor
 
 When the condition or mutation inputs may have side effects, the rule offers a suggestion instead of an automatic fix. Conditional `unshift()` also uses a suggestion when the existing array initializer may have side effects, because the transformation moves the condition and prepended elements before it. Fixes and suggestions are withheld when removing the conditional would remove or relocate comments.
 
-In TypeScript files or when using the TypeScript parser, conditional mutations are reported without fixes or suggestions. Conditional spreads can lose contextual typing for Map entries, literal unions, and callback parameters, so these transformations may require manual type adjustments. Unconditional mutations retain their existing fixes and suggestions.
+In TypeScript files or when using the TypeScript parser, conditional mutations are reported without fixes or suggestions. Conditional spreads can lose contextual typing for `Map` entries, literal unions, and callback parameters, so these transformations may require manual type adjustments. Unconditional mutations retain their existing fixes and suggestions.

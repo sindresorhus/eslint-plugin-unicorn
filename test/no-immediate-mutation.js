@@ -81,6 +81,15 @@ test.snapshot({
 		'const array = []; enabled && array.push(/* Keep this comment. */ value);',
 		'const array = []; if (enabled) { array.push(value); } // Keep this comment.',
 		'const array = []; /* Keep this comment. */ if (enabled) { array.push(value); }',
+		'const array = []; enabled && array.push(value); // Keep this comment.',
+		outdent`
+			const array = [];
+			if (enabled) {
+				array.push(value);
+			}
+			// Keep this comment with the following statement.
+			consume(array);
+		`,
 		outdent`
 			const array = []
 			if (enabled) { array.push(value); }
