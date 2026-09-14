@@ -44,6 +44,8 @@ const config = [
 			'unicorn/single-line-block-comment-style': 'off',
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/no-array-front-mutation': 'off',
+			// Internal result objects and arrays are intentionally assembled conditionally.
+			'unicorn/no-immediate-mutation': 'off',
 			'unicorn/no-invalid-argument-count': 'off',
 			'unicorn/no-unreadable-for-of-expression': 'off',
 			// Internal AST walkers intentionally use empty iterable fallbacks.
