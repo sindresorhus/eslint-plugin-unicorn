@@ -3,6 +3,181 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Conditional mutations
+test.snapshot({
+	valid: [
+		'const array = []; if (enabled) { array.push(1); other(); }',
+		'const array = []; if (enabled) { if (other) { array.push(1); } }',
+		'const array = []; if (enabled) { array.push(1); } else if (other) { array.push(2); }',
+		'const array = []; if (enabled) { array.push(1); } else { array.unshift(2); }',
+		'const array = []; if (enabled) { array.push(1); } else { other.push(2); }',
+		'const array = []; if (array.length) { array.push(1); }',
+		'const array = []; if (enabled) { array.push(array.length); }',
+		'const array = []; enabled || array.push(1);',
+		'const array = []; enabled ?? array.push(1);',
+		'const array = []; consume(enabled && array.push(1));',
+		'const object = {}; if (enabled) { Object.assign(object, first, second); }',
+		'const object = {}; if (enabled) { object.foo = 1; } else { Object.assign(object, source); }',
+		'const array = []; if (enabled) {} else { array.push(1); }',
+		'const array = []; if (enabled) { array.push(1); } else {}',
+		'const array = []; if (enabled) { array.push(1); } else { other(); }',
+		'const array = []; enabled && (other && array.push(1));',
+		'const array = []; enabled ? array.push(1) : other && array.push(2);',
+		'const array = []; array.length ? array.push(1) : array.push(2);',
+		'const array = []; enabled ? array.push(1) : array.push(array.length);',
+		'const array = []; if (enabled) { array.push(); }',
+		'const array = []; enabled && array?.push(1);',
+		'const array = []; enabled && array.push?.(1);',
+		'const array = []; enabled && array[method](1);',
+		'const array = []; other(); if (enabled) { array.push(1); }',
+		'const array = [], other = 1; if (enabled) { array.push(1); }',
+		'const object = {}; if (enabled) { object[object.key] = 1; }',
+		'const object = {}; if (enabled) { object.foo += 1; }',
+		'class Foo { #field; method() { const object = {}; if (enabled) { object.#field = value; } } }',
+		'const object = {}; enabled && Object.assign(object, object.foo);',
+		'const set = new Set(source); enabled && set.add(value);',
+		'const set = new Set(); enabled && set.add(set);',
+		'const map = new Map(); enabled && map.set(key, map);',
+		'const map = new Map(); enabled && map.set(map, value);',
+	],
+	invalid: [
+		'const array = [1, 2]; if (Math.random()) { array.push(3, 4); }',
+		'const object = {foo: 1}; if (Math.random()) { object.bar = 2; } else { object.baz = 3; }',
+		'const array = [1]; enabled && array.push(2);',
+		'const array = [1]; enabled ? array.push(2) : array.push(3);',
+		'const array = [1]; if (enabled) { array.unshift(2); } else { array.unshift(3); }',
+		'const object = {}; if (enabled) { Object.assign(object, source); } else { Object.assign(object, {foo: 1}); }',
+		'const set = new Set(); if (enabled) { set.add(value); }',
+		'const set = new WeakSet; enabled && set.add(value);',
+		'const map = new Map([]); enabled ? map.set(key, first) : map.set(key, second);',
+		'const map = new WeakMap([[first, value]]); if (enabled) { map.set(second, value); }',
+		'const array = []; if (enabled) array.push(1);',
+		'const array = []; if (enabled) array.push(1); else array.push(2);',
+		'let array; array = [1]; if (enabled) { array.push(2); }',
+		'const other = 1, array = []; enabled && array.push(2);',
+		'const array = [1,]; if (enabled) { array.push(...values, last,); }',
+		'const array = []; if (enabled) { array.unshift(...values); }',
+		'const array = [initial()]; if (enabled) { array.unshift(value); }',
+		'const array = [initial()]; if (enabled) { array.push(value); }',
+		'const array = []; if (enabled) { array.push(first()); } else { array.push(second()); }',
+		'const array = []; enabled ? array.push(value) : array.push(getValue());',
+		'const array = []; ((enabled && ((array).push((first, second)))));',
+		'const array = []; if ((first, second)) { array.push(value); }',
+		'const array = []; if (first ? second : third) { array.push(value); }',
+		'const array = []; if (enabled = getEnabled()) { array.push(value); }',
+		'const object = {foo: 1,}; if (enabled) { object[key] = value; }',
+		'const object = {}; if (enabled) { object[getKey()] = value; }',
+		'const object = {}; enabled ? object.foo = value : object.bar = getValue();',
+		'const object = {}; enabled && (object[key] = (first, second));',
+		'const object = {}; enabled ? object.foo = value : object.__proto__ = prototype;',
+		'const object = {}; if (enabled) { object["__proto__"] = prototype; }',
+		'const object = {}; if (enabled) { Object.assign(object, {foo: 1,}); }',
+		'const object = {}; if (enabled) { Object.assign(object, {["__proto__"]: prototype}); }',
+		'const key = "__proto__", object = {}; if (enabled) { Object.assign(object, {[key]: prototype}); }',
+		'const object = {}; enabled && Object.assign(object, getSource());',
+		'const object = {}; enabled && Object.assign(object, (first, second));',
+		'const set = new Set([initial]); enabled ? set.add(first) : set.add(second);',
+		'const set = ((new ((Set)))); enabled && set.add(value);',
+		'const set = new Set(); enabled && set.add(getValue());',
+		'const map = new Map; enabled && map.set((first, second), value);',
+		'const map = new Map(); if (enabled) { map.set(getKey(), value); }',
+		'async function run() { const array = []; if (await enabled) { array.push(await value); } }',
+		'function * generate() { const array = []; if (enabled) { array.push(yield value); } }',
+		'const array = []; if (enabled) { /* Keep this comment. */ array.push(value); }',
+		'const array = []; if (/* Keep this comment. */ enabled) { array.push(value); }',
+		'const array = []; enabled && array.push(/* Keep this comment. */ value);',
+		'const array = []; if (enabled) { array.push(value); } // Keep this comment.',
+		'const array = []; /* Keep this comment. */ if (enabled) { array.push(value); }',
+		'const array = []; enabled && array.push(value); // Keep this comment.',
+		outdent`
+			const array = [];
+			if (enabled) {
+				array.push(value);
+			}
+			// Keep this comment with the following statement.
+			consume(array);
+		`,
+		outdent`
+			const array = []
+			if (enabled) { array.push(value); }
+			[1].map(callback)
+		`,
+		outdent`
+			let array
+			array = []
+			if (enabled) { array.push(value); } else { array.push(other); }
+			(functionCall)()
+		`,
+		outdent`
+			const array = []
+			if (enabled) array.push(value)
+			;[1].map(callback)
+		`,
+		outdent`
+			const array = []
+			enabled && array.push(value);
+			[1].map(callback)
+		`,
+		outdent`
+			const map = new Map
+			if (enabled) { map.set(key, value); }
+			[1].map(callback)
+		`,
+		'const array = [[...iterable]]; if (enabled) { array.unshift(value); }',
+		'const array = [enabled]; if (true) { array.unshift(...iterable); }',
+		{
+			code: outdent`
+				const array = []
+				if (enabled) { array.push(value); }
+				<Component />
+			`,
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: 'const elements = []; if (enabled) { elements.push(<Component value={value} />); }',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		'const key = "__proto__", object = {}; if (enabled) { object[key] = prototype; }',
+		{
+			code: 'const map = new Map<string, number>(); enabled && map.set(key, value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const set = new Set<number>; if (enabled) { set.add(value as number); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const array: number[] = []; if (enabled!) { array.push(value satisfies number); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Conditional spreads lose contextual typing in TypeScript, so only report.
+		{
+			code: 'const array: ("foo" | "bar")[] = []; if (enabled) { array.push("foo"); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const callbacks: ((value: number) => number)[] = []; enabled && callbacks.push(value => value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const set = new Set<"foo" | "bar">(); enabled ? set.add("foo") : set.add("bar");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object: Record<string, (value: number) => number> = {}; if (enabled) { object.foo = value => value; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const map = new Map(); enabled && map.set("key", 1);',
+			filename: 'example.ts',
+		},
+		{
+			code: 'const array = []; if (getEnabled()) { array.push(value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
 // `Array`
 test.snapshot({
 	valid: [

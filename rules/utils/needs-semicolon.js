@@ -24,6 +24,7 @@ const charactersMightNeedsSemicolon = new Set([
 	'*',
 	',',
 	'.',
+	'<',
 ]);
 
 const statementTypesNeedsSemicolon = new Set([

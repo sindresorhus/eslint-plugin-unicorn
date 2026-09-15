@@ -11,11 +11,11 @@
 
 When you create a variable and immediately mutate it, you should instead include those changes in the initial value.
 
-- Assign variable to an array literal and immediately mutate with `Array#{push,unshift}(…)`.
-- Assign variable to an object literal and immediately assign another property.
-- Assign variable to an object literal and immediately mutate with `Object.assign(…)`.
-- Assign variable to a `Set` or `WeakSet` from an array literal and immediately adding a new element with `{Set,WeakSet}.add(…)`.
-- Assign variable to a `Map` or `WeakMap` from an array literal and immediately set another key with `{Map,WeakMap}.set(…, …)`.
+- Assign a variable to an array literal and immediately mutate it with `Array#{push,unshift}(…)`.
+- Assign a variable to an object literal and immediately assign another property.
+- Assign a variable to an object literal and immediately mutate it with `Object.assign(…)`.
+- Assign a variable to a `Set` or `WeakSet` created without an iterable or from an array literal, and immediately add a new element with `{Set,WeakSet}.add(…)`.
+- Assign a variable to a `Map` or `WeakMap` created without an iterable or from an array literal, and immediately set a new key with `{Map,WeakMap}.set(…, …)`.
 
 ## Examples
 
@@ -109,3 +109,24 @@ const weakMap = new WeakMap([
 	[bar, 2],
 ]);
 ```
+
+## Conditional mutations
+
+The rule also checks the mutations above when they immediately follow initialization in an `if` statement, `condition && mutation`, or `condition ? mutation : mutation`. Each branch must contain one mutation, optionally enclosed in a block. Both branches must use the same mutation type on the same variable, and `Object.assign()` is limited to one source.
+
+```js
+// ❌
+const array = [1, 2];
+if (enabled) {
+	array.push(3, 4);
+}
+
+// ✅
+const array = [1, 2, ...(enabled ? [3, 4] : [])];
+```
+
+Conditions and mutation inputs that reference the initialized variable are ignored. Nested conditionals, `else if`, multiple statements per branch, mixed mutations, `||`, and `??` are not supported.
+
+Potential side effects in the condition or mutation inputs and `unshift()` on a nonempty array produce suggestions instead of automatic fixes. No fix or suggestion is offered when comments would move or disappear, or for statically named `__proto__` keys in property assignments or `Object.assign()` object-literal sources.
+
+In TypeScript files or with the TypeScript parser, conditional mutations are reported without fixes or suggestions because the spread can lose contextual typing. Unconditional mutations retain their existing behavior.
