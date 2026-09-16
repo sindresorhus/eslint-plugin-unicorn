@@ -209,6 +209,8 @@ test.snapshot({
 		'function f(condition = false) { return condition ? true : fallback(); }',
 		'function f(condition = false) { const alias = condition; return alias ? fallback() : false; }',
 		'function getCondition(condition = false) { return condition; } getCondition(1) ? true : fallback();',
+		'const condition = async () => true; condition() ? true : fallback();',
+		'function * condition() { return true; } condition() ? true : fallback();',
 		{
 			code: 'with (object) { true ? true : false; }',
 			languageOptions: {sourceType: 'script'},
