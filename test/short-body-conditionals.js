@@ -35,7 +35,7 @@ for (const [rule, exit, opening] of [
 	}
 
 	test(`${rule}: preserves larger-body behavior when checking short bodies`, t => {
-		const code = `${opening}\n\tif (condition) {\n\t\twork();\n\t\tfinish();\n\t}\n}`;
+		const code = `${opening}\n\tprepare();\n\tif (condition) {\n\t\twork();\n\t\tfinish();\n\t}\n}`;
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, config);
 		t.true(result.fixed);
