@@ -137,10 +137,8 @@ const create = context => {
 	function merge(options, {returnFalseIfNotMergeable = false} = {}) {
 		const {
 			before = '',
-			after = ';',
 			consequent,
 			alternate,
-			node,
 		} = options;
 
 		if (!consequent || !alternate || consequent.type !== alternate.type) {
@@ -152,10 +150,8 @@ const create = context => {
 
 			return merge({
 				before: `${before}return `,
-				after,
 				consequent: argument,
 				alternate: alternate.argument,
-				node,
 			});
 		}
 
@@ -164,10 +160,8 @@ const create = context => {
 
 			return merge({
 				before: `${before}${getParenthesizedText(left, context)} ${operator} `,
-				after,
 				consequent: right,
 				alternate: alternate.right,
-				node,
 			});
 		}
 
@@ -308,7 +302,7 @@ const create = context => {
 			return;
 		}
 
-		const result = merge({node, consequent, alternate}, {
+		const result = merge({consequent, alternate}, {
 			returnFalseIfNotMergeable: true,
 		});
 
@@ -337,9 +331,9 @@ const create = context => {
 				const consequentText = getText(result.consequent);
 				const alternateText = getText(result.alternate);
 
-				const {before, after} = result;
+				const {before} = result;
 
-				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
+				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText};`;
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
 				if (shouldAddSemicolonBefore) {
