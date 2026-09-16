@@ -1020,3 +1020,16 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run(log) { if (record(log, g)) { return; } outer: inner: function g() {} }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {sourceType: 'script'},
+			output: null,
+			errors: [{messageId: 'prefer-early-return/short-body'}],
+		},
+	],
+});

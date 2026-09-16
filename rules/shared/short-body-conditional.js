@@ -8,6 +8,13 @@ import {
 
 const getStatements = node => node.type === 'BlockStatement' ? node.body : [node];
 
+const isLabeledFunctionDeclaration = node =>
+	node.type === 'LabeledStatement'
+	&& (
+		node.body.type === 'FunctionDeclaration'
+		|| isLabeledFunctionDeclaration(node.body)
+	);
+
 const getNegatedConditionText = (node, context) => {
 	if (node.type === 'UnaryExpression' && node.operator === '!') {
 		return getParenthesizedText(node.argument, context);
@@ -46,6 +53,7 @@ const getFix = (guard, statements, context) => {
 
 	if (statements.some(statement =>
 		(statement.type !== 'BlockStatement' && hasDirectBlockScopedDeclaration(statement))
+		|| isLabeledFunctionDeclaration(statement)
 		|| hasMultilineToken(statement, context),
 	)) {
 		return;

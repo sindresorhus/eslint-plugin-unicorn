@@ -850,3 +850,16 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run(items, log) { for (const item of items) { if (record(log, g)) { continue; } label: function g() {} } }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {sourceType: 'script'},
+			output: null,
+			errors: [{messageId: 'prefer-continue/short-body'}],
+		},
+	],
+});

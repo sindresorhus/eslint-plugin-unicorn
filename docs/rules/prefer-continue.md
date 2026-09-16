@@ -149,7 +149,7 @@ for (const item of items) {
 
 The guard must be the first statement of the whole loop body and contain only an unlabeled `continue;`. An explicit `else` is supported only when the `if` is the whole body; `else if` chains are ignored. Guards after preceding statements and guards that perform additional work are ignored.
 
-Autofix preserves an existing `else` block's scope. Otherwise, direct block-scoped declarations prevent autofixing. Comments in the rewritten range or after it also prevent autofixing, as do multiline-sensitive tokens in statements that would need reindentation. These cases are still reported.
+Autofix preserves an existing `else` block's scope. Otherwise, direct declarations whose scope would change prevent autofixing. Comments in the rewritten range or after it also prevent autofixing, as do multiline-sensitive tokens in statements that would need reindentation. These cases are still reported.
 
 ## Related Rules
 
