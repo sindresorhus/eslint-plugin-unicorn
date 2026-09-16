@@ -157,7 +157,7 @@ function getUninitializedDeclarationFix({
 	};
 }
 
-function getInitializedDeclarationProblem(declaration, sourceCode) {
+function getInitializedDeclarationProblem(declaration, sourceCode, references) {
 	const [declarator] = declaration.declarations;
 	const {init} = declarator;
 	if (
@@ -173,8 +173,6 @@ function getInitializedDeclarationProblem(declaration, sourceCode) {
 		return;
 	}
 
-	const [variable] = sourceCode.getDeclaredVariables(declarator);
-	const references = variable.references.filter(reference => !reference.init);
 	if (references.length === 0) {
 		return;
 	}
@@ -222,20 +220,23 @@ function getProblem(node, sourceCode) {
 	}
 
 	const [declarator] = node.declarations;
-	if (isExported(node, declarator.id.name)) {
+	const [variable] = sourceCode.getDeclaredVariables(declarator);
+	if (
+		variable.eslintUsed
+		|| isExported(node, declarator.id.name)
+	) {
 		return;
 	}
 
+	const references = variable.references.filter(reference => !reference.init);
 	if (declarator.init) {
-		return getInitializedDeclarationProblem(node, sourceCode);
+		return getInitializedDeclarationProblem(node, sourceCode, references);
 	}
 
 	if (node.kind !== 'let') {
 		return;
 	}
 
-	const [variable] = sourceCode.getDeclaredVariables(declarator);
-	const references = variable.references.filter(reference => !reference.init);
 	const writeReferences = references.filter(reference => reference.isWrite());
 	if (
 		writeReferences.length !== 1

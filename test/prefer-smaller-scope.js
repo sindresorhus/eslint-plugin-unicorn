@@ -109,6 +109,13 @@ testRule.snapshot({
 			code: 'function foo(object) { const value = 1; if (condition) { with (object) { consume(value); } } }',
 			languageOptions: {sourceType: 'script'},
 		},
+		...[
+			'/* exported value */ const value = 1; if (condition) { consume(value); }',
+			'/* exported value */ let value; if (condition) { value = getValue(); consume(value); }',
+		].map(code => ({
+			code,
+			languageOptions: {sourceType: 'script'},
+		})),
 	],
 	invalid: [
 		...['1', '1n', 'true', 'false', 'null', '"value"', '`value`'].map(initializer => `const value = ${initializer}; if (condition) { consume(value); }`),
@@ -149,6 +156,10 @@ testRule.snapshot({
 		{
 			code: 'const value = 1; if (condition) { consume(value); } export type {value} from "./module.js";',
 			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '/* exported exportedValue */ const exportedValue = 1; const value = 1; if (condition) { consume(value); }',
+			languageOptions: {sourceType: 'script'},
 		},
 	],
 });
