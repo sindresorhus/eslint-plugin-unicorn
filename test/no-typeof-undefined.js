@@ -47,7 +47,7 @@ test.snapshot({
 		languageOptions: {parser: parsers.typescript},
 	},
 	valid: [
-		...ambientVariableComparisons.flatMap(code => [[], [{checkGlobalVariables: true}]].map(options => ({code, options}))),
+		...ambientVariableComparisons.flatMap(code => [code, {code, options: [{checkGlobalVariables: true}]}]),
 		'typeof (undefinedVariableIdentifier as unknown) === "undefined";',
 		'typeof undefinedVariableIdentifier<string> === "undefined";',
 		unresolvedValueWithTypeOnlyShadow,

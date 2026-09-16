@@ -46,7 +46,7 @@ Default: `false`
 
 The rule ignores variables not defined in the file by default. If the variable was never defined, checking for its existence without `typeof` will cause a `ReferenceError`.
 
-Set it to `true` to accept this risk and check global variables. TypeScript ambient variables declared with `declare const`, `declare let`, or `declare var` remain ignored because they may not have runtime bindings.
+Set it to `true` to accept this risk and check global variables. Ambient `declare const`, `declare let`, and `declare var` variables remain ignored because they may not exist at runtime.
 
 ```js
 /* eslint unicorn/no-typeof-undefined: ["error", {"checkGlobalVariables": true}] */
