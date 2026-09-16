@@ -27,6 +27,7 @@ testRule.snapshot({
 		'const value = 1; if (condition) { consume(); }',
 		'const value = 1; if (value) { consume(value); }',
 		'const value = 1; if (condition) { consume(value); } consume(value);',
+		'let value = 1; if (condition) { consume(value); } value = 2;',
 		'const value = 1; if (condition) { consume(value); } else { consume(value); }',
 		'const value = 1; consume(); if (condition) { consume(value); }',
 		'const value = 1; if (condition) consume(value);',
