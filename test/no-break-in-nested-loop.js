@@ -5,6 +5,7 @@ import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+const withCheckContinue = code => ({code, options: [{checkContinue: true}]});
 
 ruleTest.snapshot({
 	valid: [
@@ -15,16 +16,13 @@ ruleTest.snapshot({
 				}
 			}
 		`,
-		{
-			code: outdent`
-				for (const item of items) {
-					if (!item.visible) {
-						continue;
-					}
+		withCheckContinue(outdent`
+			for (const item of items) {
+				if (!item.visible) {
+					continue;
 				}
-			`,
-			options: [{checkContinue: true}],
-		},
+			}
+		`),
 		'for (const group of groups) { for (const item of group) { if (!item.isValid) { continue; } validate(item); save(item); } }',
 		{
 			code: 'for (const item of items) { switch (item.type) { case 1: continue; } process(item); }',
@@ -44,16 +42,13 @@ ruleTest.snapshot({
 				}
 			}
 		`,
-		{
-			code: outdent`
-				outer: for (const item of items) {
-					for (const child of item.children) {
-						continue outer;
-					}
+		withCheckContinue(outdent`
+			outer: for (const item of items) {
+				for (const child of item.children) {
+					continue outer;
 				}
-			`,
-			options: [{checkContinue: true}],
-		},
+			}
+		`),
 		outdent`
 			for (const item of items) {
 				inner: for (const child of item.children) {
@@ -71,17 +66,14 @@ ruleTest.snapshot({
 				}
 			}
 		`,
-		{
-			code: outdent`
-				outer: for (const item of items) {
-					switch (item.type) {
-						case 'child':
-							continue outer;
-					}
+		withCheckContinue(outdent`
+			outer: for (const item of items) {
+				switch (item.type) {
+					case 'child':
+						continue outer;
 				}
-			`,
-			options: [{checkContinue: true}],
-		},
+			}
+		`),
 		outdent`
 			switch (value) {
 				case 1:
@@ -116,24 +108,21 @@ ruleTest.snapshot({
 				processItem(item);
 			}
 		`,
-		{
-			code: outdent`
-				for (const item of items) {
-					function processItem() {
-						for (const child of item.children) {
-							if (child.done) {
-								break;
-							}
-
-							continue;
+		withCheckContinue(outdent`
+			for (const item of items) {
+				function processItem() {
+					for (const child of item.children) {
+						if (child.done) {
+							break;
 						}
-					}
 
-					processItem();
+						continue;
+					}
 				}
-			`,
-			options: [{checkContinue: true}],
-		},
+
+				processItem();
+			}
+		`),
 	],
 	invalid: [
 		{
@@ -146,16 +135,13 @@ ruleTest.snapshot({
 			`,
 			options: [{checkContinue: false}],
 		},
-		{
-			code: outdent`
-				for (const item of items) {
-					while (item.children.pop()) {
-						continue;
-					}
+		withCheckContinue(outdent`
+			for (const item of items) {
+				while (item.children.pop()) {
+					continue;
 				}
-			`,
-			options: [{checkContinue: true}],
-		},
+			}
+		`),
 		outdent`
 			for (const item of items) {
 				switch (item.type) {
@@ -164,63 +150,48 @@ ruleTest.snapshot({
 				}
 			}
 		`,
-		{
-			code: outdent`
-				for (const item of items) {
-					switch (item.type) {
+		withCheckContinue(outdent`
+			for (const item of items) {
+				switch (item.type) {
+					case 'child':
+						continue;
+				}
+			}
+		`),
+		withCheckContinue(outdent`
+			for (const item of items) {
+				for (const child of item.children) {
+					switch (child.type) {
 						case 'child':
 							continue;
 					}
 				}
-			`,
-			options: [{checkContinue: true}],
-		},
-		{
-			code: outdent`
-				for (const item of items) {
-					for (const child of item.children) {
-						switch (child.type) {
-							case 'child':
-								continue;
+			}
+		`),
+		withCheckContinue(outdent`
+			for (const item of items) {
+				switch (item.type) {
+					case 'child':
+						while (item.pending) {
+							continue;
 						}
-					}
 				}
-			`,
-			options: [{checkContinue: true}],
-		},
-		{
-			code: outdent`
-				for (const item of items) {
-					switch (item.type) {
-						case 'child':
-							while (item.pending) {
-								continue;
-							}
-					}
+			}
+		`),
+		withCheckContinue(outdent`
+			for (let index = 0; index < items.length; index++) {
+				for (const child of items[index].children) {
+					break;
 				}
-			`,
-			options: [{checkContinue: true}],
-		},
-		{
-			code: outdent`
-				for (let index = 0; index < items.length; index++) {
-					for (const child of items[index].children) {
-						break;
-					}
-				}
-			`,
-			options: [{checkContinue: true}],
-		},
-		{
-			code: outdent`
-				for (const key in items) {
-					do {
-						continue;
-					} while (items[key].pending);
-				}
-			`,
-			options: [{checkContinue: true}],
-		},
+			}
+		`),
+		withCheckContinue(outdent`
+			for (const key in items) {
+				do {
+					continue;
+				} while (items[key].pending);
+			}
+		`),
 	],
 });
 
