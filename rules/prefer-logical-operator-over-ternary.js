@@ -11,6 +11,7 @@ import {
 	hasCommentInRange,
 	isSameReference,
 	isBoolean,
+	getStaticValueForControlFlow,
 	shouldAddParenthesesToLogicalExpressionChild,
 	shouldAddParenthesesToUnaryExpressionArgument,
 	needsSemicolon,
@@ -109,19 +110,35 @@ function fix({
 	return fixer.replaceText(conditionalExpression, text);
 }
 
+function getBooleanValue(node, context) {
+	if (isBooleanLiteral(node)) {
+		return node.value;
+	}
+
+	if (node.type === 'Identifier') {
+		const value = getStaticValueForControlFlow(node, context)?.value;
+
+		if (typeof value === 'boolean') {
+			return value;
+		}
+	}
+}
+
 function getBooleanTernaryProblem(conditionalExpression, context) {
 	const {test, consequent, alternate} = conditionalExpression;
-	const isConsequentBooleanLiteral = isBooleanLiteral(consequent);
-	const isAlternateBooleanLiteral = isBooleanLiteral(alternate);
+	const consequentValue = getBooleanValue(consequent, context);
+	const alternateValue = getBooleanValue(alternate, context);
+	const isConsequentBooleanConstant = consequentValue !== undefined;
 
-	if (isConsequentBooleanLiteral === isAlternateBooleanLiteral) {
+	if (isConsequentBooleanConstant === (alternateValue !== undefined)) {
 		return;
 	}
 
-	const literal = isConsequentBooleanLiteral ? consequent : alternate;
-	const right = isConsequentBooleanLiteral ? alternate : consequent;
+	const booleanValue = consequentValue ?? alternateValue;
+	const right = isConsequentBooleanConstant ? alternate : consequent;
+	const negateLeft = isConsequentBooleanConstant !== booleanValue;
 
-	if (!isBoolean(test, context) || !isBoolean(right, context)) {
+	if (!negateLeft && !isBoolean(test, context)) {
 		return;
 	}
 
@@ -137,8 +154,8 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 			conditionalExpression,
 			left: test,
 			right,
-			operator: literal.value ? '||' : '&&',
-			negateLeft: isConsequentBooleanLiteral !== literal.value,
+			operator: booleanValue ? '||' : '&&',
+			negateLeft,
 		});
 	}
 

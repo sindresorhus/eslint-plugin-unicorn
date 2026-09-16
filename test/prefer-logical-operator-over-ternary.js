@@ -20,6 +20,18 @@ test({
 		['a === b ? false : c === d', '!(a === b) && (c === d)'],
 		['a === b ? c === d : false', '(a === b) && (c === d)'],
 		['a === b ? c === d : true', '!(a === b) || (c === d)'],
+		['a === b ? true : fallback()', '(a === b) || fallback()'],
+		['a === b ? fallback() : false', '(a === b) && fallback()'],
+		['value ? false : fallback()', '!value && fallback()'],
+		['value ? fallback() : true', '!value || fallback()'],
+		['const yes = true; a === b ? yes : fallback()', 'const yes = true; (a === b) || fallback()'],
+		['const no = false; value ? no : fallback()', 'const no = false; !value && fallback()'],
+		['const no = false; a === b ? fallback() : no', 'const no = false; (a === b) && fallback()'],
+		['const yes = true; value ? fallback() : yes', 'const yes = true; !value || fallback()'],
+		[
+			'function isSubPath(pathA, pathB) { return pathA === "/" || pathA === pathB ? true : pathA.startsWith(pathB) && pathA[pathB.length] === "/"; }',
+			'function isSubPath(pathA, pathB) { return pathA === "/" || pathA === pathB || (pathA.startsWith(pathB) && pathA[pathB.length] === "/"); }',
+		],
 		[
 			'function isSubPath(pathA: string, pathB: string) { return pathA === "/" || pathA === pathB ? true : pathA.startsWith(pathB) && pathA[pathB.length] === "/"; }',
 			'function isSubPath(pathA: string, pathB: string) { return pathA === "/" || pathA === pathB || (pathA.startsWith(pathB) && pathA[pathB.length] === "/"); }',
@@ -35,6 +47,29 @@ test({
 
 test.snapshot({
 	valid: [
+		'const yes = true; condition ? yes : fallback()',
+		'const no = false; condition ? fallback() : no',
+		'let no = false; no = true; condition ? no : fallback()',
+		'var no = false; condition ? no : fallback()',
+		'const no = 0; condition ? no : fallback()',
+		'const no = false; function f(no) { return condition ? no : fallback(); }',
+		'condition ? no : fallback(); const no = false;',
+		'const no = alias; condition ? no : fallback(); const alias = false;',
+		'const no = (sideEffect(), false); condition ? no : fallback()',
+		'const yes = true; const no = false; a === b ? yes : no',
+	],
+	invalid: [
+		'const yes = true; const alias = yes; a === b ? alias : fallback()',
+		'const no = false; const alias = no; value ? alias : fallback()',
+		'const no = false; value ? /* keep */ no : fallback()',
+		'const no = false; value ? (no) : fallback()',
+		'const no = false; value ? no : (first(), fallback())',
+		{code: 'const no = false as const; value ? no : fallback()', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
+test.snapshot({
+	valid: [
 		'condition ? true : false',
 		'condition ? false : true',
 		'condition ? true : true',
@@ -45,9 +80,8 @@ test.snapshot({
 		'a === b ? false : false',
 		'condition ? true : a === b',
 		'"text" ? true : a === b',
-		'a === b ? true : unknown',
-		'a === b ? 1 : false',
-		'a === b ? foo?.isValid() : false',
+		'condition ? fallback() : false',
+		'"text" ? fallback() : false',
 		{code: 'function f(condition: string, value: boolean) { return condition ? true : value; }', languageOptions: {parser: parsers.typescript}},
 		typeAware('function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }'),
 	],
@@ -71,6 +105,20 @@ test.snapshot({
 		{code: 'function f(condition: boolean, value: boolean) { return (condition satisfies boolean) ? false : value; }', languageOptions: {parser: parsers.typescript}},
 		{code: 'function f(condition: boolean, value: boolean) { return condition! ? value! : false; }', languageOptions: {parser: parsers.typescript}},
 		typeAware('function f(object: {condition: boolean, value: boolean}) { return object.condition ? true : object.value; }'),
+		'a === b ? true : unknown',
+		'a === b ? 1 : false',
+		'a === b ? foo?.isValid() : false',
+		'"text" ? false : 0',
+		'0 ? "text" : true',
+		'value ? false : /* keep */ fallback()',
+		'value ? /* keep */ fallback() : true',
+		'(first(), value) ? false : fallback()',
+		'value ? false : (first(), fallback())',
+		'value ? fallback ?? other : true',
+		'first || second ? false : fallback()',
+		{code: 'function f(value: string, fallback: number) { return value ? false : fallback; }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function f(value: string, fallback: number) { return value ? fallback : true; }', languageOptions: {parser: parsers.typescript}},
+		{code: '(value as string) ? false : fallback()', languageOptions: {parser: parsers.typescript}},
 	],
 });
 

@@ -15,18 +15,26 @@ Ideally, most reported cases have an equivalent [`Logical OR` (`||`)](https://de
 
 For explicit nullish-check ternaries, this rule only suggests `??` when the source code itself proves nullish intent. It does not report arbitrary `foo || bar` expressions. TypeScript users who want type-aware `||` checks should use [`@typescript-eslint/prefer-nullish-coalescing`](https://typescript-eslint.io/rules/prefer-nullish-coalescing/).
 
-Ternaries with exactly one boolean literal branch are automatically fixed when both the condition and the other branch are known to be boolean. Boolean values can be recognized from expressions, variable declarations, TypeScript annotations, or TypeScript type information when available. Unknown or non-boolean values are not handled by this check. If the ternary contains comments, it is reported without a fix.
+Ternaries with exactly one constant boolean branch are automatically fixed as shown below. This includes boolean literals and identifiers that resolve to constant boolean values, including chains of `const` aliases. Mutable bindings, references before initialization, and aliases with side-effectful initializers are not resolved. The other branch can have any type. Replacements that negate the condition work with any condition; the remaining forms require a known boolean condition. Boolean conditions can be recognized from expressions, variable declarations, TypeScript annotations, or TypeScript type information when available. If the ternary contains comments, it is reported without a fix.
 
-For boolean `condition` and `expression` values:
-
-| Ternary | Replacement |
-| --- | --- |
-| `condition ? true : expression` | `condition \|\| expression` |
-| `condition ? false : expression` | `!condition && expression` |
-| `condition ? expression : false` | `condition && expression` |
-| `condition ? expression : true` | `!condition \|\| expression` |
+| Ternary | Replacement | Condition type |
+| --- | --- | --- |
+| `condition ? true : expression` | `condition \|\| expression` | Boolean |
+| `condition ? false : expression` | `!condition && expression` | Any |
+| `condition ? expression : false` | `condition && expression` | Boolean |
+| `condition ? expression : true` | `!condition \|\| expression` | Any |
 
 Use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for ternaries with two boolean literal branches, such as `condition ? true : false`.
+
+```js
+const yes = true;
+
+// ❌
+value === expected ? yes : fallback();
+
+// ✅
+(value === expected) || fallback();
+```
 
 ## Examples
 
