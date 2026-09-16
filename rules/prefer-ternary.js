@@ -163,7 +163,7 @@ const create = context => {
 		return returnFalseIfNotMergeable ? false : options;
 	}
 
-	// eslint-disable-next-line complexity
+	// Convert an initialized `let` followed by one conditional reassignment.
 	function getLetPlusIfProblem(node) {
 		const consequentBody = getNodeBody(node.consequent);
 		if (
