@@ -85,4 +85,4 @@ This rule does not check `var`, destructuring, multi-variable declarations, or T
 
 Initialized declarations are only checked immediately before an `if`, and only for primitive literals and template literals without substitutions. Other initializers, including regular expressions, function calls, identifier references, and expressions such as `-1`, are ignored. Moving these can change values, side effects, or evaluation timing. The rule does not move initialized declarations into loop or function bodies, and references in the condition, outside the target branch, or in both branches prevent reporting. TypeScript type references also count as uses.
 
-The rule reports without autofixing when comments are inside or next to code affected by moving the declaration, when the declaration has a TypeScript annotation, or when a parenthesized assignment is syntax-sensitive.
+The rule does not autofix when comments are inside or next to code affected by moving the declaration, when the declaration has a TypeScript annotation, or when a parenthesized assignment is syntax-sensitive.
