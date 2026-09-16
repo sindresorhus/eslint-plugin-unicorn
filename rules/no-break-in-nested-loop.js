@@ -87,11 +87,16 @@ function isContinueInSwitchInsideLoop(node, sourceCode) {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const {checkContinue} = context.options[0];
 
 	context.on([
 		'BreakStatement',
 		'ContinueStatement',
 	], node => {
+		if (node.type === 'ContinueStatement' && !checkContinue) {
+			return;
+		}
+
 		if (!isNestedControlFlowStatement(node, sourceCode)) {
 			return;
 		}
@@ -121,9 +126,20 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `break` and `continue` in nested loops and switches inside loops.',
+			description: 'Disallow `break` and optionally `continue` in nested loops and switches inside loops.',
 			recommended: true,
 		},
+		schema: [{
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				checkContinue: {
+					type: 'boolean',
+					description: 'Also disallow `continue` in nested loops and switches inside loops.',
+				},
+			},
+		}],
+		defaultOptions: [{checkContinue: false}],
 		messages,
 		languages: [
 			'js/js',
