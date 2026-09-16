@@ -73,6 +73,18 @@ testRule.snapshot({
 			code: 'const value = 1; if (condition) { consume(value); } type Value = typeof value;',
 			languageOptions: {parser: parsers.typescript},
 		},
+		...[
+			'export type {value};',
+			'export {type value};',
+			'export type {value as Value};',
+		].map(exportStatement => ({
+			code: `const value = 1; if (condition) { consume(value); } ${exportStatement}`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		{
+			code: 'let value; if (condition) { value = getValue(); consume(value); } export type {value};',
+			languageOptions: {parser: parsers.typescript},
+		},
 		{
 			code: 'type Value = typeof value; const value = 1; if (condition) { consume(value); }',
 			languageOptions: {parser: parsers.typescript},
@@ -128,6 +140,14 @@ testRule.snapshot({
 		},
 		{
 			code: 'const value = 1; if (condition) { type Value = typeof value; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Other = string; const value = 1; if (condition) { consume(value); } export type {Other};',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const value = 1; if (condition) { consume(value); } export type {value} from "./module.js";',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

@@ -25,6 +25,14 @@ const isDeclarationCandidate = node =>
 	&& node.declarations.length === 1
 	&& node.declarations[0].id.type === 'Identifier';
 
+const isExported = (declaration, name) =>
+	declaration.parent.type === 'Program'
+	&& declaration.parent.body.some(statement =>
+		statement.type === 'ExportNamedDeclaration'
+		&& !statement.source
+		&& statement.specifiers.some(specifier => specifier.local.name === name),
+	);
+
 function isDescendantWithoutScopeBoundary(node, ancestor) {
 	let current = node.parent;
 	while (current && current !== ancestor) {
@@ -214,6 +222,10 @@ function getProblem(node, sourceCode) {
 	}
 
 	const [declarator] = node.declarations;
+	if (isExported(node, declarator.id.name)) {
+		return;
+	}
+
 	if (declarator.init) {
 		return getInitializedDeclarationProblem(node, sourceCode);
 	}
