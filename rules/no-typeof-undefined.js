@@ -1,4 +1,3 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {isLiteral} from './ast/index.js';
 import {
 	addParenthesesToReturnOrThrowExpression,
@@ -8,8 +7,7 @@ import {
 	needsSemicolon,
 	isParenthesized,
 	isOnSameLine,
-	isGlobalIdentifier,
-	unwrapTypeScriptExpression,
+	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
@@ -22,6 +20,25 @@ const messages = {
 const isAmbientVariableDefinition = definition =>
 	definition.type === 'Variable'
 	&& definition.parent.declare === true;
+
+function unwrapTypeofArgument(node) {
+	while (isTypeScriptExpressionWrapper(node) || node.type === 'TSInstantiationExpression') {
+		node = node.expression;
+	}
+
+	return node;
+}
+
+const getIdentifierReference = (identifier, scope) => {
+	while (scope) {
+		const reference = scope.references.find(reference => reference.identifier === identifier);
+		if (reference) {
+			return reference;
+		}
+
+		scope = scope.upper;
+	}
+};
 
 const isAmbientVariable = variable => {
 	if (!variable) {
@@ -60,16 +77,17 @@ const create = context => {
 
 		const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
 		const {sourceCode} = context;
-		const valueNode = unwrapTypeScriptExpression(typeofNode.argument);
+		const valueNode = unwrapTypeofArgument(typeofNode.argument);
+		let isGlobalVariable = false;
 
 		if (valueNode.type === 'Identifier') {
-			const variable = findVariable(sourceCode.getScope(valueNode), valueNode);
-			if (isAmbientVariable(variable)) {
+			const reference = getIdentifierReference(valueNode, sourceCode.getScope(valueNode));
+			if (isAmbientVariable(reference?.resolved)) {
 				return;
 			}
-		}
 
-		const isGlobalVariable = isGlobalIdentifier(valueNode, context);
+			isGlobalVariable = sourceCode.isGlobalReference(valueNode) || !reference?.resolved;
+		}
 
 		if (!checkGlobalVariables && isGlobalVariable) {
 			return;

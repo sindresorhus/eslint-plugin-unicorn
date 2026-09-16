@@ -19,8 +19,28 @@ const ambientVariableComparisons = [
 	'declare const foo: unknown; typeof foo! === "undefined";',
 	'declare const foo: unknown; typeof (foo satisfies unknown) === "undefined";',
 	'declare const foo: unknown; typeof ((foo as unknown)!) === "undefined";',
+	'declare const foo: <T>() => T; typeof foo<string> === "undefined";',
+	outdent`
+		declare const Foo: unknown;
+		function bar() {
+			interface Foo {}
+			return typeof Foo === "undefined";
+		}
+	`,
+	outdent`
+		declare const foo: unknown;
+		@((typeof foo === "undefined") ? decorator : decorator)
+		class Foo {}
+	`,
 	'interface Foo {} declare const Foo: unknown; typeof Foo === "undefined";',
 ];
+
+const unresolvedValueWithTypeOnlyShadow = outdent`
+	function bar() {
+		interface missing {}
+		return typeof missing === "undefined";
+	}
+`;
 
 test.snapshot({
 	testerOptions: {
@@ -29,6 +49,8 @@ test.snapshot({
 	valid: [
 		...ambientVariableComparisons.flatMap(code => [[], [{checkGlobalVariables: true}]].map(options => ({code, options}))),
 		'typeof (undefinedVariableIdentifier as unknown) === "undefined";',
+		'typeof undefinedVariableIdentifier<string> === "undefined";',
+		unresolvedValueWithTypeOnlyShadow,
 	],
 	invalid: [
 		{
@@ -41,6 +63,14 @@ test.snapshot({
 		'declare const foo: {bar?: string}; typeof foo.bar === "undefined";',
 		{
 			code: 'typeof (undefinedVariableIdentifier as unknown) === "undefined";',
+			options: [{checkGlobalVariables: true}],
+		},
+		{
+			code: 'typeof undefinedVariableIdentifier<string> === "undefined";',
+			options: [{checkGlobalVariables: true}],
+		},
+		{
+			code: unresolvedValueWithTypeOnlyShadow,
 			options: [{checkGlobalVariables: true}],
 		},
 	],
