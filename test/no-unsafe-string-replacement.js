@@ -20,6 +20,7 @@ test.snapshot({
 		'text.replace("pattern", "".repeat(count))',
 		'text.replace("pattern", " ".repeat(count))',
 		'text.replace("pattern", " ".repeat(getCount()))',
+		// Repeat counts must not be evaluated; static evaluation of this expression can exhaust resources.
 		'text.replace("pattern", " ".repeat(2n ** 100000000000n))',
 		'text.replace("pattern", " ".repeat())',
 		'text.replace("pattern", " ".repeat(...counts))',
@@ -130,6 +131,8 @@ test.snapshot({
 			')',
 		].join('\n'),
 		'text.replace("pattern", replacement.repeat(4))',
+		// `String.raw` tagged templates are only supported as direct replacements.
+		'text.replace("pattern", String.raw` `.repeat(4))',
 		'text.replace("pattern", " ".repeat?.(4))',
 		'text.replace("pattern", " "?.repeat(4))',
 		'text.replace("pattern", " "["repeat"](4))',
@@ -137,6 +140,7 @@ test.snapshot({
 		'text.replace("pattern", `\\u0024`.repeat(2))',
 		'text.replace("pattern", `${prefix}`.repeat(2))', // eslint-disable-line no-template-curly-in-string
 		'text.replaceAll("pattern", "$&".repeat(2))',
+		// Repeat counts are deliberately ignored, so an unsafe receiver stays invalid even when the result would be empty.
 		'text.replace("pattern", "$&".repeat(0))',
 		'text.replace("pattern", "&$".repeat(2))',
 		String.raw`text.replace("pattern", "\u0024".repeat(2))`,

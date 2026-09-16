@@ -38,6 +38,7 @@ const isSafeStringRepeat = node => {
 		return false;
 	}
 
+	// Only the repeated string can introduce replacement patterns. Do not inspect or evaluate the repeat arguments.
 	const stringValue = getStaticStringValue(unwrapExpression(node.callee.object));
 	return stringValue !== undefined && !stringValue.includes('$');
 };
