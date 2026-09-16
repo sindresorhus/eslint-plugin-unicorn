@@ -55,6 +55,11 @@ test({
 		typeAware('function f<T extends boolean>(condition: T) { return condition ? true : "x"; } const result: true | "x" = f(false);'),
 		typeAware('function f<T extends boolean>(condition: T) { return condition ? "x" : false; } const result: false | "x" = f(false);'),
 		typeAware('function f(condition: boolean) { if (condition) { return condition ? true : "fallback"; } }'),
+		typeAware('declare const value: unknown; value as boolean ? true : "fallback";'),
+		typeAware('declare const condition: boolean; export const result = condition ? true : "value";'),
+		typeAware('declare const condition: boolean; export const result = condition ? false : "value";'),
+		typeAware('declare const condition: boolean; export const result = condition ? "value" : false;'),
+		typeAware('declare const condition: boolean; export const result = condition ? "value" : true;'),
 		typeAware('declare function condition(): true; const result = condition() ? true : "fallback";'),
 		typeAware('const result = true ? false : "fallback";'),
 	].map(testCase => ({
@@ -132,6 +137,10 @@ test.snapshot({
 		'function f(condition = false) { return condition ? true : fallback(); }',
 		'function f(condition = false) { const alias = condition; return alias ? fallback() : false; }',
 		'function getCondition(condition = false) { return condition; } getCondition(1) ? true : fallback();',
+		{
+			code: 'const condition = true; const no = false; with (object) { condition ? true : fallback(); condition ? no : fallback(); }',
+			languageOptions: {sourceType: 'script'},
+		},
 		{code: 'function f(condition: string, value: boolean) { return condition ? true : value; }', languageOptions: {parser: parsers.typescript}},
 		typeAware('function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }'),
 	],

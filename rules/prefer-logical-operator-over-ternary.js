@@ -175,25 +175,26 @@ function getBooleanConstantValue(node, context) {
 	}
 }
 
-function canFixBooleanTernaryCondition(node, context) {
+function canFixBooleanTernary(context) {
 	const {parserServices} = context.sourceCode;
-	if (!parserServices?.esTreeNodeToTSNodeMap && !isTypeScriptFile(context.physicalFilename)) {
-		return true;
+	return !parserServices?.esTreeNodeToTSNodeMap && !isTypeScriptFile(context.physicalFilename);
+}
+
+function isInsideWithStatement(node) {
+	for (let current = node.parent; current; current = current.parent) {
+		if (current.type === 'WithStatement') {
+			return true;
+		}
 	}
 
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		const checker = parserServices.program.getTypeChecker();
-		return checker.typeToString(parserServices.getTypeAtLocation(node)) === 'boolean';
-	} catch {
-		return false;
-	}
+	return false;
 }
 
 function getBooleanTernaryProblem(conditionalExpression, context) {
+	if (isInsideWithStatement(conditionalExpression)) {
+		return;
+	}
+
 	const {test, consequent, alternate} = conditionalExpression;
 	const consequentValue = getBooleanConstantValue(consequent, context);
 	const alternateValue = getBooleanConstantValue(alternate, context);
@@ -218,7 +219,7 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 
 	if (
 		context.sourceCode.getCommentsInside(conditionalExpression).length === 0
-		&& canFixBooleanTernaryCondition(test, context)
+		&& canFixBooleanTernary(context)
 	) {
 		problem.fix = fixer => fix({
 			fixer,
