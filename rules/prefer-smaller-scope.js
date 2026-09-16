@@ -1,5 +1,6 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
 import {removeStatement} from './fix/index.js';
+import {unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-smaller-scope';
 const messages = {
@@ -16,13 +17,21 @@ const scopeBoundaryTypes = new Set([
 	'WithStatement',
 ]);
 
-const isLetDeclarationCandidate = node =>
+const isDeclarationCandidate = node =>
 	Boolean(node.parent)
 	&& (node.parent.type === 'Program' || node.parent.type === 'BlockStatement')
-	&& node.kind === 'let'
+	&& (node.kind === 'let' || node.kind === 'const')
+	&& !node.declare
 	&& node.declarations.length === 1
-	&& node.declarations[0].id.type === 'Identifier'
-	&& !node.declarations[0].init;
+	&& node.declarations[0].id.type === 'Identifier';
+
+const isExported = (declaration, name) =>
+	declaration.parent.type === 'Program'
+	&& declaration.parent.body.some(statement =>
+		statement.type === 'ExportNamedDeclaration'
+		&& !statement.source
+		&& statement.specifiers.some(specifier => specifier.local.name === name),
+	);
 
 function isDescendantWithoutScopeBoundary(node, ancestor) {
 	let current = node.parent;
@@ -42,10 +51,16 @@ function hasDynamicScope(node, visitorKeys) {
 		return true;
 	}
 
+	let callee = node.type === 'CallExpression'
+		? unwrapTypeScriptExpression(node.callee)
+		: undefined;
+	while (callee?.type === 'TSInstantiationExpression') {
+		callee = unwrapTypeScriptExpression(callee.expression);
+	}
+
 	if (
-		node.type === 'CallExpression'
-		&& node.callee.type === 'Identifier'
-		&& node.callee.name === 'eval'
+		callee?.type === 'Identifier'
+		&& callee.name === 'eval'
 	) {
 		return true;
 	}
@@ -105,7 +120,7 @@ function isParenthesizedAssignmentExpression(sourceCode, assignmentExpression) {
 	return tokenBefore?.value === '(' && tokenAfter?.value === ')';
 }
 
-const hasCommentsThatBlockFix = (sourceCode, declaration, assignmentStatement) =>
+const hasCommentsThatBlockUninitializedDeclarationFix = (sourceCode, declaration, assignmentStatement) =>
 	sourceCode.getCommentsInside(declaration).length > 0
 	|| sourceCode.getCommentsInside(assignmentStatement).length > 0
 	|| hasCommentNextTo(sourceCode, declaration, 'before')
@@ -113,7 +128,13 @@ const hasCommentsThatBlockFix = (sourceCode, declaration, assignmentStatement) =
 	|| hasCommentNextTo(sourceCode, assignmentStatement, 'before')
 	|| hasCommentNextTo(sourceCode, assignmentStatement, 'after');
 
-function getFix({
+const hasCommentsThatBlockInitializedDeclarationFix = (sourceCode, declaration, firstStatement) =>
+	sourceCode.getCommentsInside(declaration).length > 0
+	|| hasCommentNextTo(sourceCode, declaration, 'before')
+	|| hasCommentNextTo(sourceCode, declaration, 'after')
+	|| hasCommentNextTo(sourceCode, firstStatement, 'before');
+
+function getUninitializedDeclarationFix({
 	sourceCode,
 	declaration,
 	assignmentExpression,
@@ -136,14 +157,86 @@ function getFix({
 	};
 }
 
+function getInitializedDeclarationProblem(declaration, sourceCode, references) {
+	const [declarator] = declaration.declarations;
+	const {init} = declarator;
+	if (
+		!(init.type === 'Literal' && !init.regex)
+		&& !(init.type === 'TemplateLiteral' && init.expressions.length === 0)
+	) {
+		return;
+	}
+
+	const statements = declaration.parent.body;
+	const nextStatement = statements[statements.indexOf(declaration) + 1];
+	if (nextStatement?.type !== 'IfStatement') {
+		return;
+	}
+
+	if (references.length === 0) {
+		return;
+	}
+
+	const block = [nextStatement.consequent, nextStatement.alternate].find(branch =>
+		branch?.type === 'BlockStatement'
+		&& references.every(reference => isDescendantWithoutScopeBoundary(reference.identifier, branch)),
+	);
+	if (!block || hasDynamicScope(declaration.parent, sourceCode.visitorKeys)) {
+		return;
+	}
+
+	const problem = {
+		node: declarator.id,
+		messageId: MESSAGE_ID,
+		data: {name: declarator.id.name},
+	};
+
+	const [firstStatement] = block.body;
+	if (
+		!declarator.id.typeAnnotation
+		&& !hasCommentsThatBlockInitializedDeclarationFix(sourceCode, declaration, firstStatement)
+	) {
+		problem.fix = function * (fixer) {
+			const openingBrace = sourceCode.getFirstToken(block);
+			const [, openingBraceEnd] = sourceCode.getRange(openingBrace);
+			const [firstStatementStart] = sourceCode.getRange(firstStatement);
+			const separator = sourceCode.text.slice(openingBraceEnd, firstStatementStart) || ' ';
+			const declarationText = sourceCode.getText(declaration);
+			const semicolon = declarationText.endsWith(';') ? '' : ';';
+			const [declarationStart] = sourceCode.getRange(declaration);
+			const [nextStatementStart] = sourceCode.getRange(nextStatement);
+
+			yield fixer.removeRange([declarationStart, nextStatementStart]);
+			yield fixer.insertTextBefore(firstStatement, `${declarationText}${semicolon}${separator}`);
+		};
+	}
+
+	return problem;
+}
+
 function getProblem(node, sourceCode) {
-	if (!isLetDeclarationCandidate(node)) {
+	if (!isDeclarationCandidate(node)) {
 		return;
 	}
 
 	const [declarator] = node.declarations;
 	const [variable] = sourceCode.getDeclaredVariables(declarator);
+	if (
+		variable.eslintUsed
+		|| isExported(node, declarator.id.name)
+	) {
+		return;
+	}
+
 	const references = variable.references.filter(reference => !reference.init);
+	if (declarator.init) {
+		return getInitializedDeclarationProblem(node, sourceCode, references);
+	}
+
+	if (node.kind !== 'let') {
+		return;
+	}
+
 	const writeReferences = references.filter(reference => reference.isWrite());
 	if (
 		writeReferences.length !== 1
@@ -196,9 +289,9 @@ function getProblem(node, sourceCode) {
 			isParenthesizedAssignmentExpression(sourceCode, assignmentExpression)
 			&& assignmentExpression.right.type === 'SequenceExpression'
 		)
-		&& !hasCommentsThatBlockFix(sourceCode, node, assignmentStatement)
+		&& !hasCommentsThatBlockUninitializedDeclarationFix(sourceCode, node, assignmentStatement)
 	) {
-		problem.fix = getFix({
+		problem.fix = getUninitializedDeclarationFix({
 			sourceCode,
 			declaration: node,
 			assignmentExpression,

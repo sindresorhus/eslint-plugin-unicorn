@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Declare variables as close as possible to where they are used. If an uninitialized `let` variable is only assigned and read inside a nested block, it can be declared in that block instead. This reduces the amount of code that can access the variable and makes the lifetime of the value easier to see.
+Declare variables as close as possible to where they are used. This reduces the amount of code that can access the variable and makes the lifetime of the value easier to see.
 
-This rule intentionally starts with a narrow, safe pattern: a single uninitialized `let` declaration, one direct assignment in a nested block, and reads only after that assignment inside the same block.
+The rule checks two patterns: an uninitialized `let` assigned once in a nested block and read only afterward in that block; and a `let` or `const` initialized with a primitive literal or a template literal without substitutions, immediately before an `if`, with all references in one braced branch.
 
 ## Examples
 
@@ -57,8 +57,30 @@ function foo() {
 }
 ```
 
+```js
+// ❌
+function foo(bar) {
+	const result = 1;
+	if (bar) {
+		console.log(result);
+	}
+}
+```
+
+```js
+// ✅
+function foo(bar) {
+	if (bar) {
+		const result = 1;
+		console.log(result);
+	}
+}
+```
+
 ## Limitations
 
-This rule does not check initialized declarations, `const`, `var`, destructuring, multi-variable declarations, compound assignments, or assignments that are not direct expression statements. It also ignores cases that would move a declaration across a function, class, static block, or dynamic scope boundary.
+The rule ignores `var`, destructuring, multiple declarators, TypeScript ambient declarations, references crossing a function, class, or static block, and cases involving dynamic scope. An uninitialized `let` needs one direct `=` assignment followed only by reads in the same block.
 
-The rule only autofixes cases where comments do not need to be moved or removed. Cases with nearby comments, TypeScript annotations, or syntax-sensitive parenthesized assignments are reported without an autofix.
+An initialized declaration must immediately precede an `if`, use a primitive literal or substitution-free template, and have all value and TypeScript type references within one braced branch. Regular expressions and expressions such as `-1` are ignored.
+
+Autofixes are omitted when comments could be displaced, a declaration has a TypeScript annotation, or a parenthesized assignment is syntax-sensitive.
