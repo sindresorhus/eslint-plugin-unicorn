@@ -72,11 +72,6 @@ function hasComplexStructure(node, sourceCode) {
 }
 
 function getNodeBody(node) {
-	/* c8 ignore next 3 */
-	if (!node) {
-		return;
-	}
-
 	if (node.type === 'ExpressionStatement') {
 		return getNodeBody(node.expression);
 	}
@@ -141,7 +136,7 @@ const create = context => {
 			alternate,
 		} = options;
 
-		if (!consequent || !alternate || consequent.type !== alternate.type) {
+		if (consequent.type !== alternate.type) {
 			return returnFalseIfNotMergeable ? false : options;
 		}
 
@@ -172,8 +167,7 @@ const create = context => {
 	function getLetPlusIfProblem(node) {
 		const consequentBody = getNodeBody(node.consequent);
 		if (
-			!consequentBody
-			|| consequentBody.type !== 'AssignmentExpression'
+			consequentBody.type !== 'AssignmentExpression'
 			|| consequentBody.operator !== '='
 		) {
 			return;
@@ -287,7 +281,6 @@ const create = context => {
 		if (
 			(node.parent.type === 'IfStatement' && node.parent.alternate === node)
 			|| hasTernary(node.test, sourceCode.visitorKeys)
-			|| !node.consequent
 		) {
 			return;
 		}
