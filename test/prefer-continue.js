@@ -567,6 +567,29 @@ test({
 			`,
 			errors: [{messageId: 'prefer-continue'}],
 		},
+		{
+			code: outdent`
+				for (const item of items) {
+					before();
+					if (condition) {
+						var value = getValue();
+						use(value);
+					}
+				}
+			`,
+			output: outdent`
+				for (const item of items) {
+					before();
+					if (!condition) {
+						continue;
+					}
+
+					var value = getValue();
+					use(value);
+				}
+			`,
+			errors: [{messageId: 'prefer-continue'}],
+		},
 	],
 });
 
@@ -588,7 +611,6 @@ test.snapshot({
 		'function foo() { for (const item of items) { before(); if (condition) { first(); return; } } }',
 	],
 	invalid: [
-		'for (const item of items) { before(); if (condition) { first(); second(); } }',
 		'for (const key in items) { before(); if (condition) { first(); second(); } }',
 		'for (let index = 0; index < 10; index++) { before(); if (condition) { first(); second(); } }',
 		'while (condition) { before(); if (condition) { first(); second(); } }',

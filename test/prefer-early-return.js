@@ -736,6 +736,29 @@ test({
 			`,
 			errors: [{messageId: 'prefer-early-return'}],
 		},
+		{
+			code: outdent`
+				function foo() {
+					before();
+					if (condition) {
+						var value = getValue();
+						use(value);
+					}
+				}
+			`,
+			output: outdent`
+				function foo() {
+					before();
+					if (!condition) {
+						return;
+					}
+
+					var value = getValue();
+					use(value);
+				}
+			`,
+			errors: [{messageId: 'prefer-early-return'}],
+		},
 	],
 });
 
@@ -753,7 +776,6 @@ test.snapshot({
 		{code: 'function foo() { before(); if (condition) { first(); second(); } }', options: [{maximumStatements: 2}]},
 	],
 	invalid: [
-		'function foo() { before(); if (condition) { first(); second(); } }',
 		'const foo = function() { before(); if (condition) { first(); second(); } };',
 		'const foo = () => { before(); if (condition) { first(); second(); } };',
 		'const object = {foo() { before(); if (condition) { first(); second(); } }};',
