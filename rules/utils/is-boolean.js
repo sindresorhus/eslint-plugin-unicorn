@@ -355,21 +355,12 @@ function isBooleanVariableValue(variable, context, visitedVariables) {
 		return !definition.name.optional && isBooleanTypeAnnotation(definition.name.typeAnnotation, context, scope);
 	}
 
-	let isBoolean = (
+	const isBoolean = (
 		definition.type === 'Variable'
 		&& definition.parent.kind === 'const'
 	)
 		? isBooleanExpression(definition.node.init, context, visitedVariables)
 		: false;
-
-	if (!isBoolean && definition.type === 'Parameter') {
-		const parameter = definition.name.parent;
-		isBoolean = parameter.type === 'AssignmentPattern'
-			&& parameter.left === definition.name
-			// Only a top-level parameter; a binding inside a destructuring pattern carries its type on the pattern, not the default value.
-			&& definition.node.params.includes(parameter)
-			&& isBooleanExpression(parameter.right, context, visitedVariables);
-	}
 
 	visitedVariables.delete(variable);
 	return isBoolean;

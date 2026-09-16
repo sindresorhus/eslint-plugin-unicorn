@@ -110,7 +110,9 @@ function fix({
 	return fixer.replaceText(conditionalExpression, text);
 }
 
-function getBooleanValue(node, context) {
+function getBooleanConstantValue(node, context) {
+	node = unwrapTypeScriptExpression(node);
+
 	if (isBooleanLiteral(node)) {
 		return node.value;
 	}
@@ -126,8 +128,8 @@ function getBooleanValue(node, context) {
 
 function getBooleanTernaryProblem(conditionalExpression, context) {
 	const {test, consequent, alternate} = conditionalExpression;
-	const consequentValue = getBooleanValue(consequent, context);
-	const alternateValue = getBooleanValue(alternate, context);
+	const consequentValue = getBooleanConstantValue(consequent, context);
+	const alternateValue = getBooleanConstantValue(alternate, context);
 	const isConsequentBooleanConstant = consequentValue !== undefined;
 
 	if (isConsequentBooleanConstant === (alternateValue !== undefined)) {
@@ -136,7 +138,7 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 
 	const booleanValue = consequentValue ?? alternateValue;
 	const right = isConsequentBooleanConstant ? alternate : consequent;
-	const negateLeft = isConsequentBooleanConstant !== booleanValue;
+	const negateLeft = consequentValue === false || alternateValue === true;
 
 	if (!negateLeft && !isBoolean(test, context)) {
 		return;
