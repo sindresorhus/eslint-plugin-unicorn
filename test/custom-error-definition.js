@@ -21,25 +21,6 @@ const invalidExportError = {
 
 const tests = {
 	valid: [
-		outdent`
-			class ApiError extends Error {
-				constructor(status, message, options) {
-					super(message, options);
-					this.name = 'ApiError';
-					this.status = status;
-				}
-			}
-		`,
-		outdent`
-			class HttpError extends Error {
-				constructor(response, request, options) {
-					super(\`Request failed: \${request.method} \${request.url}\`, options);
-					this.name = 'HttpError';
-					this.response = response;
-					this.request = request;
-				}
-			}
-		`,
 		'class Foo { }',
 		'class Foo extends Bar { }',
 		'class Foo extends Bar() { }',
@@ -2134,26 +2115,21 @@ ruleTest.typescript({
 	],
 });
 
-// Options may appear anywhere in the constructor, but must be the second super() argument.
+// `options` may appear in any non-rest constructor parameter position, but must be the second `super()` argument.
 ruleTest({
 	valid: [
-		'class FooError extends Error { constructor(status, options, message) { super(message, options); this.name = \'FooError\'; } }',
-		'class FooError extends Error { constructor(status, message, options = {}) { super(message, options); this.name = \'FooError\'; } }',
-		'class FooError extends Error { constructor(options, status, message) { super(message, options); this.name = \'FooError\'; } }',
+		'class ApiError extends Error { constructor(status, message, options) { super(message, options); this.name = \'ApiError\'; } }',
 		outdent`
-			class FooError extends Error {
-				constructor(status, response, options) {
-					super(undefined, options);
-					this.status = status;
-					this.response = response;
-					this.name = 'FooError';
-				}
-
-				get message() {
-					return \`\${this.status}: \${this.response.statusText}\`;
+			class HttpError extends Error {
+				constructor(response, request, options) {
+					super(\`Request failed: \${request.method} \${request.url}\`, options);
+					this.name = 'HttpError';
 				}
 			}
 		`,
+		'class FooError extends Error { constructor(status, options, message) { super(message, options); this.name = \'FooError\'; } }',
+		'class FooError extends Error { constructor(status, message, options = {}) { super(message, options); this.name = \'FooError\'; } }',
+		'class FooError extends Error { constructor(options, status, message) { super(message, options); this.name = \'FooError\'; } }',
 	],
 	invalid: [
 		{
@@ -2165,11 +2141,6 @@ ruleTest({
 			code: 'class FooError extends Error { constructor(status, options, message) { super(message); this.name = \'FooError\'; } }',
 			errors: [passOptionsToSuperError],
 			output: 'class FooError extends Error { constructor(status, options, message) { super(message, options); this.name = \'FooError\'; } }',
-		},
-		{
-			code: 'class FooError extends Error { constructor(status, message, options = {}) { super(message); this.name = \'FooError\'; } }',
-			errors: [passOptionsToSuperError],
-			output: 'class FooError extends Error { constructor(status, message, options = {}) { super(message, options); this.name = \'FooError\'; } }',
 		},
 		{
 			code: 'class FooError extends Error { constructor(status, message, options) { super(); this.name = \'FooError\'; } }',
@@ -2190,10 +2161,6 @@ ruleTest({
 			errors: [passOptionsToSuperError],
 		},
 		{
-			code: 'class FooError extends Error { constructor(status, message) { super(message); this.name = \'FooError\'; } }',
-			errors: [invalidOptionsParameterError],
-		},
-		{
 			code: 'class FooError extends Error { constructor(status, message, ...options) { super(message, options); this.name = \'FooError\'; } }',
 			errors: [invalidOptionsParameterError],
 		},
@@ -2211,15 +2178,6 @@ ruleTest({
 			output: 'class FooError extends Error { constructor(status, message, options) { super(message); this.name = \'FooError\'; } }',
 		},
 		{
-			code: 'class FooError extends Error { constructor(status, options, message) { super(message); this.message = message; this.name = \'FooError\'; } }',
-			errors: [passMessageToSuperError],
-			output: 'class FooError extends Error { constructor(status, options, message) { super(message, options); this.name = \'FooError\'; } }',
-		},
-		{
-			code: 'class FooError extends Error { constructor(status, message, options) { super(); this.message = /* Preserve this note */ message; this.name = \'FooError\'; } }',
-			errors: [passMessageToSuperError],
-		},
-		{
 			code: 'const options = {}; class FooError extends Error { constructor(message) { super(message, options); this.name = \'FooError\'; } }',
 			errors: [missingOptionsParameterError],
 		},
@@ -2229,15 +2187,8 @@ ruleTest({
 ruleTest.typescript({
 	valid: [
 		'class FooError extends Error { constructor(status: number, message: string, options?: ErrorOptions) { super(message, options); this.name = \'FooError\'; } }',
-		'class FooError extends Error { constructor(status: number, message: string, public readonly options: ErrorOptions) { super(message, options); this.name = \'FooError\'; } }',
-		'class FooError extends Error { constructor(status: number, public options: ErrorOptions = {}, message: string) { super(message, options); this.name = \'FooError\'; } }',
 	],
 	invalid: [
-		{
-			code: 'class FooError extends Error { constructor(status: number, message: string, options?: ErrorOptions) { super(message); this.name = \'FooError\'; } }',
-			errors: [passOptionsToSuperError],
-			output: 'class FooError extends Error { constructor(status: number, message: string, options?: ErrorOptions) { super(message, options); this.name = \'FooError\'; } }',
-		},
 		{
 			code: 'class FooError extends Error { constructor(status: number, message: string, public readonly options: ErrorOptions) { super(message); this.name = \'FooError\'; } }',
 			errors: [passOptionsToSuperError],

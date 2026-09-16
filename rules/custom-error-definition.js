@@ -280,8 +280,9 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 	}
 
 	const superCallExpression = superExpression.expression;
+	const optionsParameter = parameters.find(parameter => isOptionsIdentifier(parameter));
 
-	if (isOptionsIdentifier(firstParameter)) {
+	if (optionsParameter === firstParameter) {
 		if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
 			const problem = {
 				node: superCallExpression,
@@ -299,7 +300,6 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 	}
 
 	const secondParameter = parameters[1];
-	const hasOptionsParameter = parameters.some(parameter => isOptionsIdentifier(parameter));
 	const shouldPassMessageToSuper = !hasMessageAccessor && firstParameterIdentifier.name === 'message';
 	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
 
@@ -316,7 +316,7 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		};
 	}
 
-	if (!hasOptionsParameter) {
+	if (!optionsParameter) {
 		return {
 			node: secondParameter,
 			messageId: MESSAGE_ID_INVALID_OPTIONS_PARAMETER,
