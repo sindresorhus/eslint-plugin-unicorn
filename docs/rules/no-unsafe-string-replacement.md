@@ -11,7 +11,7 @@ The replacement argument of [`String#replace()`](https://developer.mozilla.org/e
 
 Use a literal string when the replacement is static. Use a replacement function when the replacement is dynamic.
 
-Direct, non-optional calls to [`String#repeat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat) on string literals and no-substitution template literals whose values do not contain `$` are also allowed. Repetition cannot introduce a replacement pattern when the original string does not contain `$`.
+Direct calls to [`String#repeat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat) using dot notation and no optional chaining are also allowed when the receiver is a string literal or no-substitution template literal whose value does not contain `$`. The repeat arguments do not need to be static because only the repeated string can introduce replacement patterns.
 
 ## Examples
 
@@ -42,7 +42,11 @@ template.replace('{url}', `https://example.com`);
 ```
 
 ```js
+// ❌
+text.replaceAll('\t', '$&'.repeat(2));
+
 // ✅
 text.replaceAll('\t', ' '.repeat(4));
 text.replaceAll('\t', '\u00A0'.repeat(4));
+text.replaceAll('\t', ' '.repeat(count));
 ```
