@@ -137,6 +137,7 @@ test.snapshot({
 		'text.replace("pattern", `\\u0024`.repeat(2))',
 		'text.replace("pattern", `${prefix}`.repeat(2))', // eslint-disable-line no-template-curly-in-string
 		'text.replaceAll("pattern", "$&".repeat(2))',
+		'text.replace("pattern", "$&".repeat(0))',
 		'text.replace("pattern", "&$".repeat(2))',
 		String.raw`text.replace("pattern", "\u0024".repeat(2))`,
 	],
