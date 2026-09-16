@@ -131,7 +131,7 @@ test.snapshot({
 			')',
 		].join('\n'),
 		'text.replace("pattern", replacement.repeat(4))',
-		// `String.raw` tagged templates are only supported as direct replacements.
+		// Static `String.raw` tagged templates are only supported as direct replacements.
 		'text.replace("pattern", String.raw` `.repeat(4))',
 		'text.replace("pattern", " ".repeat?.(4))',
 		'text.replace("pattern", " "?.repeat(4))',
