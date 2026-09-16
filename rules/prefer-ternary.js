@@ -257,36 +257,36 @@ const create = context => {
 			return;
 		}
 
-		const problem = {node, messageId};
-
 		const hasOtherWrites = variable.references.some(reference => !reference.init && reference.isWrite() && !isReferenceInsideNode(reference, node));
 		const keyword = hasOtherWrites ? 'let' : 'const';
 
-		problem.suggest = [
-			{
-				messageId: suggestionMessageId,
-				* fix(fixer) {
-					const testText = getText(node.test);
-					const consequentText = getText(right);
-					const alternateText = getText(declarator.init);
+		return {
+			node,
+			messageId,
+			suggest: [
+				{
+					messageId: suggestionMessageId,
+					* fix(fixer) {
+						const testText = getText(node.test);
+						const consequentText = getText(right);
+						const alternateText = getText(declarator.init);
 
-					const ternary = `${testText} ? ${consequentText} : ${alternateText}`;
+						const ternary = `${testText} ? ${consequentText} : ${alternateText}`;
 
-					const letToken = sourceCode.getFirstToken(previousNode);
-					yield fixer.replaceText(letToken, keyword);
+						const letToken = sourceCode.getFirstToken(previousNode);
+						yield fixer.replaceText(letToken, keyword);
 
-					yield fixer.replaceTextRange(getParenthesizedRange(declarator.init, context), ternary);
+						yield fixer.replaceTextRange(getParenthesizedRange(declarator.init, context), ternary);
 
-					const [, declarationEnd] = sourceCode.getRange(previousNode);
-					const [, ifEnd] = sourceCode.getRange(node);
-					const nextToken = sourceCode.getTokenAfter(node);
-					const addSemicolon = nextToken && needsSemicolon(sourceCode.getLastToken(previousNode), context, nextToken.value);
-					yield fixer.replaceTextRange([declarationEnd, ifEnd], addSemicolon ? ';' : '');
+						const [, declarationEnd] = sourceCode.getRange(previousNode);
+						const [, ifEnd] = sourceCode.getRange(node);
+						const nextToken = sourceCode.getTokenAfter(node);
+						const addSemicolon = nextToken && needsSemicolon(sourceCode.getLastToken(previousNode), context, nextToken.value);
+						yield fixer.replaceTextRange([declarationEnd, ifEnd], addSemicolon ? ';' : '');
+					},
 				},
-			},
-		];
-
-		return problem;
+			],
+		};
 	}
 
 	function getIfBranchesProblem(node, alternateNode = node.alternate) {
