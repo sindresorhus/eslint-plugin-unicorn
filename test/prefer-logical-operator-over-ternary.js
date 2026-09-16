@@ -139,7 +139,11 @@ test.snapshot({
 		'f(); const yes = true; function f() { return flag === 1 ? yes : fallback(); }',
 		'switch (kind) { case 0: const yes = true; break; case 1: result = flag === 1 ? yes : fallback(); }',
 		'const yes = true; const no = false; a === b ? yes : no',
+		'const yes = true; yes ? yes : false',
+		'const no = false; !no ? true : no',
+		'const yes = true; yes != null ? yes : false',
 		{code: 'value ? (true as const) : (false as const)', languageOptions: {parser: parsers.typescript}},
+		{code: 'true ? true : (false as const)', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const condition: boolean; const result: string = condition ? (false as never) : "value";', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const condition: boolean; const result: string = condition ? (<never>false) : "value";', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const condition: boolean; const result: string = condition ? (false as any) : "value";', languageOptions: {parser: parsers.typescript}},
@@ -428,6 +432,10 @@ test.snapshot({
 		},
 		{
 			code: 'with (object) { foo ? foo : bar; }',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: 'const yes = true; const no = false; with (object) { yes ? yes : no; }',
 			languageOptions: {sourceType: 'script'},
 		},
 	],

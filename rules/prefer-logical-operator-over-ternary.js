@@ -520,7 +520,15 @@ const create = context => {
 
 	context.on('ConditionalExpression', conditionalExpression => {
 		const {test, consequent, alternate} = conditionalExpression;
-		if (isBooleanLiteral(consequent) && isBooleanLiteral(alternate)) {
+		const hasTwoBooleanLiteralBranches = isBooleanLiteral(consequent) && isBooleanLiteral(alternate);
+		if (
+			hasTwoBooleanLiteralBranches
+			|| (
+				sourceCode.getAncestors(conditionalExpression).every(node => node.type !== 'WithStatement')
+				&& getBooleanConstantValue(consequent, context) !== undefined
+				&& getBooleanConstantValue(alternate, context) !== undefined
+			)
+		) {
 			return;
 		}
 

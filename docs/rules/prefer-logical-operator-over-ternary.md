@@ -30,7 +30,7 @@ These ternaries are reported without a fix in TypeScript and in JavaScript parse
 | `condition ? expression : false` | `condition && expression` | Boolean |
 | `condition ? expression : true` | `!condition \|\| expression` | Any |
 
-Use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for ternaries with two boolean literal branches, such as `condition ? true : false`.
+This rule skips ternaries with two constant boolean branches. Use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for the literal subset, such as `condition ? true : false`.
 
 ```js
 const yes = true;
