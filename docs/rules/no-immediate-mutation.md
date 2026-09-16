@@ -124,7 +124,12 @@ By default, conditional mutations are allowed. Set `checkConditionals` to `true`
 ```js
 {
 	rules: {
-		'unicorn/no-immediate-mutation': ['error', {checkConditionals: true}],
+		'unicorn/no-immediate-mutation': [
+			'error',
+			{
+				checkConditionals: true,
+			},
+		],
 	},
 }
 ```
