@@ -1,10 +1,26 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
-import {getTester, parsers} from './utils/test.js';
+import plugin from '../index.js';
+import {getTester, parsers, normalizeTestCase} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
+const checkConditionalsOptions = [{checkConditionals: true}];
+
+const conditionalMutationCode = outdent`
+	const actions = ['view'];
+	if (
+		user.isAuthenticated &&
+		user.role === 'admin' &&
+		!user.isSuspended &&
+		permissions.includes('manage_users')
+	) {
+		actions.push('edit', 'delete');
+	}
+`;
 
 // Conditional mutations
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'const array = []; if (enabled) { array.push(1); other(); }',
 		'const array = []; if (enabled) { if (other) { array.push(1); } }',
@@ -39,7 +55,7 @@ test.snapshot({
 		'const set = new Set(); enabled && set.add(set);',
 		'const map = new Map(); enabled && map.set(key, map);',
 		'const map = new Map(); enabled && map.set(map, value);',
-	],
+	].map(testCase => ({...normalizeTestCase(testCase), options: checkConditionalsOptions})),
 	invalid: [
 		'const array = [1, 2]; if (Math.random()) { array.push(3, 4); }',
 		'const object = {foo: 1}; if (Math.random()) { object.bar = 2; } else { object.baz = 3; }',
@@ -175,11 +191,12 @@ test.snapshot({
 			code: 'const array = []; if (getEnabled()) { array.push(value); }',
 			languageOptions: {parser: parsers.typescript},
 		},
-	],
+		conditionalMutationCode,
+	].map(testCase => ({...normalizeTestCase(testCase), options: checkConditionalsOptions})),
 });
 
 // `Array`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		outdent`
 			const array = [1, 2];
@@ -398,7 +415,7 @@ test.snapshot({
 });
 
 // `Object` + `AssignmentExpression`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		outdent`
 			const object = [];
@@ -549,7 +566,7 @@ test.snapshot({
 });
 
 // `Object` + `Object.assign()`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		outdent`
 			const object = [];
@@ -747,7 +764,7 @@ test.snapshot({
 });
 
 // `Set` and `WeakSet`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		outdent`
 			const set = new Set([1, 2]);
@@ -948,7 +965,7 @@ test.snapshot({
 });
 
 // `Map` and `WeakMap`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		outdent`
 			const map = new Map([["foo", 1]]);
@@ -1166,7 +1183,7 @@ test.snapshot({
 	],
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	testerOptions: {
 		languageOptions: {
 			parser: parsers.typescript,
@@ -1188,4 +1205,57 @@ test.snapshot({
 			cellOutputMappers.set('display_data', translateDisplayDataOutput);
 		`,
 	],
+});
+
+// Conditional mutations are opt-in.
+ruleTest.snapshot({
+	valid: [
+		conditionalMutationCode,
+		{code: conditionalMutationCode, options: [{}]},
+		{code: conditionalMutationCode, options: [{checkConditionals: false}]},
+		'const array = []; enabled && array.unshift(1);',
+		'const array = []; enabled ? array.push(1) : array.push(2);',
+		'const object = {}; if (enabled) { object.foo = 1; } else { object.bar = 2; }',
+		'const object = {}; enabled && Object.assign(object, source);',
+		'const set = new Set(); if (enabled) { set.add(value); }',
+		'const set = new WeakSet(); enabled && set.add(value);',
+		'const map = new Map(); enabled ? map.set(key, first) : map.set(key, second);',
+		'const map = new WeakMap(); if (enabled) { map.set(key, value); }',
+		'let array; array = []; if (enabled) { array.push(1); }',
+		{
+			code: 'const array: number[] = []; if (enabled!) { array.push(value satisfies number); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const array = []; if (enabled) { array.push(value); }',
+			filename: 'example.ts',
+		},
+	],
+	invalid: [
+		{
+			code: 'if (enabled) { const array = []; array.push(1); }',
+			options: [{checkConditionals: false}],
+		},
+	],
+});
+
+test('respects `checkConditionals` across autofix passes', t => {
+	const code = 'const array = []; array.push(1); if (enabled) { array.push(2); }';
+	const linter = new Linter();
+	const getFixResult = options => linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {
+			'unicorn/no-immediate-mutation': ['error', ...options],
+		},
+	});
+
+	const defaultResult = getFixResult([]);
+	t.true(defaultResult.fixed);
+	t.is(defaultResult.output.trimEnd(), 'const array = [ 1];  if (enabled) { array.push(2); }');
+	t.deepEqual(defaultResult.messages, []);
+
+	const checkConditionalsResult = getFixResult(checkConditionalsOptions);
+	t.true(checkConditionalsResult.fixed);
+	t.is(checkConditionalsResult.output.trimEnd(), 'const array = [ 1, ...((enabled) ? [2] : [])];');
+	t.deepEqual(checkConditionalsResult.messages, []);
 });

@@ -903,6 +903,10 @@ function getCaseProblem(
 	};
 	const conditional = getConditionalMutation(nextStatement);
 	if (conditional) {
+		if (!context.options[0].checkConditionals) {
+			return;
+		}
+
 		return getConditionalProblem(conditional, information, caseSettings);
 	}
 
@@ -950,6 +954,23 @@ const config = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema: [
+			{
+				type: 'object',
+				properties: {
+					checkConditionals: {
+						type: 'boolean',
+						description: 'Whether to check conditional mutations.',
+					},
+				},
+				additionalProperties: false,
+			},
+		],
+		defaultOptions: [
+			{
+				checkConditionals: false,
+			},
+		],
 		messages,
 		languages: [
 			'js/js',
