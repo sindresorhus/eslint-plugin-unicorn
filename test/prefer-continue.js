@@ -868,5 +868,11 @@ test({
 			output: null,
 			errors: [{messageId: 'prefer-continue/short-body'}],
 		},
+		{
+			code: 'for (const item of items) { if (condition) { import work = require(\'work\'); performWork(); } }',
+			languageOptions: {parser: parsers.typescript},
+			output: null,
+			errors: [{messageId: 'prefer-continue'}],
+		},
 	],
 });

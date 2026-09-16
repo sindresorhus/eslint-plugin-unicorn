@@ -2,6 +2,7 @@ import getShortBodyProblem from './shared/short-body-conditional.js';
 import {
 	getParenthesizedText,
 	hasMultilineToken,
+	isBlockScopedDeclaration,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 import {isCallExpression} from './ast/index.js';
@@ -20,15 +21,6 @@ const typeScriptConditionExpressionTypesRequiringParentheses = new Set([
 	'TSNonNullExpression',
 	'TSSatisfiesExpression',
 	'TSTypeAssertion',
-]);
-
-const blockScopedDeclarationTypes = new Set([
-	'ClassDeclaration',
-	'FunctionDeclaration',
-	'TSEnumDeclaration',
-	'TSInterfaceDeclaration',
-	'TSModuleDeclaration',
-	'TSTypeAliasDeclaration',
 ]);
 
 const lexicalDeclarationKinds = new Set(['const', 'let']);
@@ -72,12 +64,11 @@ const isNodeInsideRange = (node, [start, end], sourceCode) => {
 };
 
 const isUnsupportedBlockScopedDeclaration = node =>
-	(
+	isBlockScopedDeclaration(node)
+	&& !(
 		node.type === 'VariableDeclaration'
-		&& node.kind !== 'var'
-		&& !lexicalDeclarationKinds.has(node.kind)
-	)
-	|| blockScopedDeclarationTypes.has(node.type);
+		&& lexicalDeclarationKinds.has(node.kind)
+	);
 
 const hasDirectUnsupportedBlockScopedDeclaration = node =>
 	isUnsupportedBlockScopedDeclaration(node)

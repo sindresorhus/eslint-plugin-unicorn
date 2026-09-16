@@ -3,6 +3,7 @@ import {isCallExpression, loopTypes} from './ast/index.js';
 import {
 	getParenthesizedText,
 	hasMultilineToken,
+	isBlockScopedDeclaration,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 
@@ -16,15 +17,6 @@ const messages = {
 	[SHORT_BODY_MESSAGE_ID]: 'Prefer conditional wrapping over an early continue for a short body.',
 	[MESSAGE_ID]: 'Prefer an early continue over wrapping the remainder of the loop body in an `if` statement.',
 };
-
-const blockScopedDeclarationTypes = new Set([
-	'ClassDeclaration',
-	'FunctionDeclaration',
-	'TSEnumDeclaration',
-	'TSInterfaceDeclaration',
-	'TSModuleDeclaration',
-	'TSTypeAliasDeclaration',
-]);
 
 const lexicalDeclarationKinds = new Set(['const', 'let']);
 
@@ -84,12 +76,11 @@ const isNodeInsideRange = (node, [start, end], sourceCode) => {
 };
 
 const isUnsupportedBlockScopedDeclaration = node =>
-	(
+	isBlockScopedDeclaration(node)
+	&& !(
 		node.type === 'VariableDeclaration'
-		&& node.kind !== 'var'
-		&& !lexicalDeclarationKinds.has(node.kind)
-	)
-	|| blockScopedDeclarationTypes.has(node.type);
+		&& lexicalDeclarationKinds.has(node.kind)
+	);
 
 const hasDirectUnsupportedBlockScopedDeclaration = node =>
 	isUnsupportedBlockScopedDeclaration(node)

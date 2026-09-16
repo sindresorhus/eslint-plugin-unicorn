@@ -9,7 +9,7 @@ const blockScopedDeclarationTypes = new Set([
 	'TSTypeAliasDeclaration',
 ]);
 
-const isBlockScopedDeclaration = node =>
+export const isBlockScopedDeclaration = node =>
 	(
 		node.type === 'VariableDeclaration'
 		&& node.kind !== 'var'
