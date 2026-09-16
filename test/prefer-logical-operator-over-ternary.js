@@ -44,6 +44,10 @@ test({
 	valid: [],
 	invalid: [
 		{
+			code: 'a === b ? true : fallback()',
+			filename: 'file.ts',
+		},
+		{
 			code: 'const condition = true; condition ? true : "fallback";',
 			filename: 'file.js',
 			languageOptions: {parser: parsers.typescript},
@@ -100,6 +104,8 @@ test.snapshot({
 		{code: 'const no: any = false; condition ? no : fallback()', languageOptions: {parser: parsers.typescript}},
 		{code: 'const yes = true; value ? fallback() : (yes as boolean)', languageOptions: {parser: parsers.typescript}},
 		{code: 'value ? <boolean>false : fallback()', languageOptions: {parser: parsers.typescript}},
+		{code: 'value ? (false as true) : fallback()', languageOptions: {parser: parsers.typescript}},
+		{code: 'value ? (false as SomeType) : fallback()', languageOptions: {parser: parsers.typescript}},
 		{
 			code: outdent`
 				declare const condition: boolean;
@@ -143,6 +149,9 @@ test.snapshot({
 		'"text" ? true : a === b',
 		'condition ? fallback() : false',
 		'"text" ? fallback() : false',
+		'const {valueOf: condition} = true; condition ? true : fallback()',
+		'const {constructor: condition} = () => true; condition("return 1") ? true : fallback()',
+		'const [array] = [{some: () => 1}]; array.some() ? true : fallback()',
 		'function f(condition = false) { return condition ? true : fallback(); }',
 		'function f(condition = false) { const alias = condition; return alias ? fallback() : false; }',
 		'function getCondition(condition = false) { return condition; } getCondition(1) ? true : fallback();',

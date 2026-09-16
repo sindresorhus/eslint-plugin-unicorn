@@ -291,6 +291,10 @@ function isBooleanFunction(node, context, visitedVariables = new Set()) {
 		&& isBooleanExpression(node.body, context, visitedVariables);
 }
 
+const isSimpleConstVariableDefinition = definition => definition.type === 'Variable'
+	&& definition.parent.kind === 'const'
+	&& definition.node.id === definition.name;
+
 function isBooleanFunctionReference(node, context, visitedVariables = new Set()) {
 	if (node?.type !== 'Identifier') {
 		return false;
@@ -324,8 +328,7 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 					functionNode = definition.node;
 				}
 			} else if (
-				definition.type === 'Variable'
-				&& definition.parent.kind === 'const'
+				isSimpleConstVariableDefinition(definition)
 				&& ['ArrowFunctionExpression', 'FunctionExpression'].includes(definition.node.init?.type)
 			) {
 				functionNode = definition.node.init;
@@ -355,10 +358,7 @@ function isBooleanVariableValue(variable, context, visitedVariables) {
 		return !definition.name.optional && isBooleanTypeAnnotation(definition.name.typeAnnotation, context, scope);
 	}
 
-	const isBoolean = (
-		definition.type === 'Variable'
-		&& definition.parent.kind === 'const'
-	)
+	const isBoolean = isSimpleConstVariableDefinition(definition)
 		? isBooleanExpression(definition.node.init, context, visitedVariables)
 		: false;
 
@@ -422,8 +422,7 @@ function getKnownIdentifierExpressionKind(node, context, visitedVariables) {
 		!variable
 		|| visitedVariables.has(variable)
 		|| variable.defs.length !== 1
-		|| definition.type !== 'Variable'
-		|| definition.parent.kind !== 'const'
+		|| !isSimpleConstVariableDefinition(definition)
 	) {
 		return;
 	}
