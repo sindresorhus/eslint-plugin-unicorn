@@ -24,8 +24,8 @@ const messages = {
 	[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class',
 	[MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER]: 'Do not pass the error message to `super()` when the class defines a `message` accessor.',
 	[MESSAGE_ID_DO_NOT_ASSIGN_MESSAGE_WITHOUT_SETTER]: 'Do not assign to `this.message` when the class defines a `message` getter without a setter.',
-	[MESSAGE_ID_MISSING_OPTIONS_PARAMETER]: 'Error constructors should accept `options` as the second parameter.',
-	[MESSAGE_ID_INVALID_OPTIONS_PARAMETER]: 'Error constructors should use `options` as the second parameter.',
+	[MESSAGE_ID_MISSING_OPTIONS_PARAMETER]: 'Error constructors should accept an `options` parameter.',
+	[MESSAGE_ID_INVALID_OPTIONS_PARAMETER]: 'Error constructors should use a parameter named `options`.',
 	[MESSAGE_ID_PASS_MESSAGE_TO_SUPER]: 'Pass the error message to `super()` as the first argument.',
 	[MESSAGE_ID_PASS_OPTIONS_TO_SUPER]: 'Pass `options` to `super()` as the second argument.',
 };
@@ -298,11 +298,12 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		return;
 	}
 
-	const optionsParameter = parameters[1];
+	const secondParameter = parameters[1];
+	const hasOptionsParameter = parameters.some(parameter => isOptionsIdentifier(parameter));
 	const shouldPassMessageToSuper = !hasMessageAccessor && firstParameterIdentifier.name === 'message';
 	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
 
-	if (!optionsParameter) {
+	if (!secondParameter) {
 		// When `options` is already forwarded to `super()` (e.g. `super('Fixed message', {cause})`), a dedicated `options` parameter isn't needed.
 		if (hasInlineErrorOptions(superCallExpression, shouldPassMessageToSuper)) {
 			return;
@@ -315,9 +316,9 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		};
 	}
 
-	if (!isOptionsIdentifier(optionsParameter)) {
+	if (!hasOptionsParameter) {
 		return {
-			node: optionsParameter,
+			node: secondParameter,
 			messageId: MESSAGE_ID_INVALID_OPTIONS_PARAMETER,
 		};
 	}

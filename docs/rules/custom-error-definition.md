@@ -13,6 +13,29 @@ Enforces a consistent way of defining `Error` subclasses. It works with supercla
 
 When a named error constructor accepts a message, it should also accept `options` and pass it to `super()` so native `Error#cause` is preserved. This convention is only enforced for native error bases that accept `ErrorOptions` as their second parameter. `AggregateError` accepts `ErrorOptions` as its third parameter, while `SuppressedError` does not accept `ErrorOptions`, so neither uses this convention.
 
+The constructor parameter named `options` can appear in any position, but must be passed as the second argument to `super()`. Other parameters can provide the message directly or be used to compute it.
+
+```js
+// ✅
+class ApiError extends Error {
+	constructor(status, message, options) {
+		super(message, options);
+		this.name = 'ApiError';
+		this.status = status;
+	}
+}
+
+// ✅
+class HttpError extends Error {
+	constructor(response, request, options) {
+		super(`Request failed: ${request.method} ${request.url}`, options);
+		this.name = 'HttpError';
+		this.response = response;
+		this.request = request;
+	}
+}
+```
+
 Custom error base classes may use different constructor parameters, so the rule does not enforce the native `ErrorOptions` convention for them.
 
 ```js
