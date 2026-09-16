@@ -1,8 +1,8 @@
 import {
+	getStaticStringValue,
 	isFunction,
 	isMemberExpression,
 	isMethodCall,
-	isStringLiteral,
 } from './ast/index.js';
 import {unwrapExpression} from './utils/comparison.js';
 import {
@@ -29,12 +29,26 @@ const isStaticStringRawTaggedTemplate = (node, sourceCode) =>
 	})
 	&& sourceCode.isGlobalReference(node.tag.object);
 
+const isSafeStringRepeat = node => {
+	if (!isMethodCall(node, {
+		method: 'repeat',
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return false;
+	}
+
+	// Only the repeated string can introduce replacement patterns. Do not inspect or evaluate the repeat arguments.
+	const stringValue = getStaticStringValue(unwrapExpression(node.callee.object));
+	return stringValue !== undefined && !stringValue.includes('$');
+};
+
 const isAllowedReplacement = (node, sourceCode) => {
 	node = unwrapExpression(node);
 
-	return isStringLiteral(node)
-		|| isStaticTemplateLiteral(node)
+	return getStaticStringValue(node) !== undefined
 		|| isStaticStringRawTaggedTemplate(node, sourceCode)
+		|| isSafeStringRepeat(node)
 		|| isFunction(node);
 };
 
