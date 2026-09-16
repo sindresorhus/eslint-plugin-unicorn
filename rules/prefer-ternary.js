@@ -179,19 +179,6 @@ const create = context => {
 			return;
 		}
 
-		if (
-			[node.test, right].some(expression => hasTernary(expression, sourceCode.visitorKeys) || hasComplexStructure(expression, sourceCode))
-		) {
-			return;
-		}
-
-		if (
-			isOnlySingleLine
-			&& [node.test, right].some(n => !isSingleLineNode(n, context))
-		) {
-			return;
-		}
-
 		const previousNode = getPreviousNode(node, context);
 		if (
 			!previousNode
@@ -207,15 +194,15 @@ const create = context => {
 			declarator.id.type !== 'Identifier'
 			|| declarator.id.name !== left.name
 			|| !declarator.init
-			|| hasTernary(declarator.init, sourceCode.visitorKeys)
-			|| hasComplexStructure(declarator.init, sourceCode)
 		) {
 			return;
 		}
 
+		const expressions = [node.test, right, declarator.init];
+
 		if (
-			isOnlySingleLine
-			&& !isSingleLineNode(declarator.init, context)
+			expressions.some(expression => hasTernary(expression, sourceCode.visitorKeys) || hasComplexStructure(expression, sourceCode))
+			|| (isOnlySingleLine && expressions.some(expression => !isSingleLineNode(expression, context)))
 		) {
 			return;
 		}
