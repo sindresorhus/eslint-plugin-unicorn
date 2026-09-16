@@ -19,6 +19,8 @@ Ternaries with exactly one constant boolean branch are automatically fixed in Ja
 
 The other branch can have any type. Replacements that negate the condition work with any condition; the remaining forms require a known boolean condition. Boolean conditions can be recognized from expressions, variable declarations, TypeScript annotations, or TypeScript type information when available. If the ternary contains comments, it is reported without a fix.
 
+Boolean inference assumes bindings are not modified by direct `eval`. Such dynamic changes are not analyzed. Boolean ternaries inside `with` statements are skipped because runtime lookup can shadow statically resolved bindings.
+
 In TypeScript, these ternaries are reported without a fix because logical operators can change inferred types and overload resolution even when the condition's type is exactly `boolean`.
 
 | Ternary | Replacement | Condition type |

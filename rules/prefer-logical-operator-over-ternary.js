@@ -180,18 +180,9 @@ function canFixBooleanTernary(context) {
 	return !parserServices?.esTreeNodeToTSNodeMap && !isTypeScriptFile(context.physicalFilename);
 }
 
-function isInsideWithStatement(node) {
-	for (let current = node.parent; current; current = current.parent) {
-		if (current.type === 'WithStatement') {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 function getBooleanTernaryProblem(conditionalExpression, context) {
-	if (isInsideWithStatement(conditionalExpression)) {
+	const {sourceCode} = context;
+	if (sourceCode.getAncestors(conditionalExpression).some(node => node.type === 'WithStatement')) {
 		return;
 	}
 
@@ -218,7 +209,7 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 	};
 
 	if (
-		context.sourceCode.getCommentsInside(conditionalExpression).length === 0
+		sourceCode.getCommentsInside(conditionalExpression).length === 0
 		&& canFixBooleanTernary(context)
 	) {
 		problem.fix = fixer => fix({
