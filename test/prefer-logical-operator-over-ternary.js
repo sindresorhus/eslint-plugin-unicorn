@@ -82,6 +82,8 @@ test.snapshot({
 		'let no = false; condition ? no : fallback()',
 		'var no = false; condition ? no : fallback()',
 		'const no = 0; condition ? no : fallback()',
+		'const {no = false} = true; a === b ? no : fallback()',
+		'for (const no of [false]) { condition ? no : fallback(); }',
 		'const no = false; function f(no) { return condition ? no : fallback(); }',
 		'condition ? no : fallback(); const no = false;',
 		'const no = alias; condition ? no : fallback(); const alias = false;',
