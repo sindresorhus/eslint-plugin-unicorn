@@ -130,8 +130,7 @@ function getBooleanConstantVariableValue(node, context) {
 	const variable = findVariable(scope, node);
 	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
 	if (
-		!variable
-		|| definition?.type !== 'Variable'
+		definition?.type !== 'Variable'
 		|| definition.parent.kind !== 'const'
 		|| definition.node.id !== definition.name
 		|| !definition.node.init

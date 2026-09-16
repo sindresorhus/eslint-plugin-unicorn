@@ -44,6 +44,11 @@ test({
 	valid: [],
 	invalid: [
 		{
+			code: 'const condition = true; condition ? true : "fallback";',
+			filename: 'file.js',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'function f(condition: boolean) { return condition ? true : "fallback"; }',
 			languageOptions: {parser: parsers.typescript},
 		},

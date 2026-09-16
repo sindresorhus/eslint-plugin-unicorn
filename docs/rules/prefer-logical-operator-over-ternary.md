@@ -15,13 +15,13 @@ Ideally, most reported cases have an equivalent [`Logical OR` (`||`)](https://de
 
 For explicit nullish-check ternaries, this rule only suggests `??` when the source code itself proves nullish intent. It does not report arbitrary `foo || bar` expressions. TypeScript users who want type-aware `||` checks should use [`@typescript-eslint/prefer-nullish-coalescing`](https://typescript-eslint.io/rules/prefer-nullish-coalescing/).
 
-Ternaries with exactly one constant boolean branch are automatically fixed in JavaScript as shown below. This includes boolean literals and chains of simple `const` aliases within the same execution scope. Aliases in shared `switch` scopes are not resolved. TypeScript `satisfies` and non-null wrappers are recognized, as are `as const`, `<const>`, and matching literal assertions such as `as true`. Other type assertions and explicitly widened alias types are skipped. Mutable bindings, references before initialization, and computed initializer expressions are not resolved.
+Ternaries with exactly one constant boolean branch are automatically fixed in JavaScript when the parser does not expose TypeScript services, as shown below. This includes boolean literals and chains of simple `const` aliases within the same execution scope. Aliases in shared `switch` scopes are not resolved. TypeScript `satisfies` and non-null wrappers are recognized, as are `as const`, `<const>`, and matching literal assertions such as `as true`. Other type assertions and explicitly widened alias types are skipped. Mutable bindings, references before initialization, and computed initializer expressions are not resolved.
 
 The other branch can have any type. Replacements that negate the condition work with any condition; the remaining forms require a known boolean condition. Boolean conditions can be recognized from expressions, variable declarations, TypeScript annotations, or TypeScript type information when available. If the ternary contains comments, it is reported without a fix.
 
 Boolean inference assumes bindings are not modified by direct `eval`. Such dynamic changes are not analyzed. Boolean ternaries inside `with` statements are skipped because runtime lookup can shadow statically resolved bindings.
 
-In TypeScript, these ternaries are reported without a fix because logical operators can change inferred types and overload resolution even when the condition's type is exactly `boolean`.
+These ternaries are reported without a fix in TypeScript and in JavaScript parsed with TypeScript services because logical operators can change inferred types and overload resolution even when the condition's type is exactly `boolean`.
 
 | Ternary | Replacement | Condition type |
 | --- | --- | --- |
