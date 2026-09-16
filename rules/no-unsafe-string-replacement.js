@@ -3,7 +3,6 @@ import {
 	isFunction,
 	isMemberExpression,
 	isMethodCall,
-	isStringLiteral,
 } from './ast/index.js';
 import {unwrapExpression} from './utils/comparison.js';
 import {
@@ -46,8 +45,7 @@ const isSafeStringRepeat = node => {
 const isAllowedReplacement = (node, sourceCode) => {
 	node = unwrapExpression(node);
 
-	return isStringLiteral(node)
-		|| isStaticTemplateLiteral(node)
+	return getStaticStringValue(node) !== undefined
 		|| isStaticStringRawTaggedTemplate(node, sourceCode)
 		|| isSafeStringRepeat(node)
 		|| isFunction(node);
