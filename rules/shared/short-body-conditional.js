@@ -8,7 +8,7 @@ import {
 
 const linebreakPattern = /\r\n|[\n\r\u2028\u2029]/;
 const linebreaksPattern = /\r\n|[\n\r\u2028\u2029]/g;
-const sourceLinebreakCache = new WeakMap();
+const sourceLinebreaksCache = new WeakMap();
 
 const getStatements = node => node.type === 'BlockStatement' ? node.body : [node];
 
@@ -34,45 +34,65 @@ const getLineIndent = (node, context) => {
 	return /^[\t ]*/.exec(sourceCode.getLines()[line - 1])[0];
 };
 
-const getLinebreakBetweenTokens = (tokens, context) => {
+const appendLinebreaks = (linebreaks, start, end, context) => {
 	const {sourceCode} = context;
-	for (let index = 1; index < tokens.length; index++) {
-		const previousEnd = sourceCode.getRange(tokens[index - 1])[1];
-		const currentStart = sourceCode.getRange(tokens[index])[0];
-		const linebreak = sourceCode.text.slice(previousEnd, currentStart).match(linebreakPattern)?.[0];
-		if (linebreak) {
-			return linebreak;
-		}
+	for (const match of sourceCode.text.slice(start, end).matchAll(linebreaksPattern)) {
+		linebreaks.push({index: start + match.index, value: match[0]});
 	}
 };
 
-const getSourceLinebreak = context => {
+const getSourceLinebreaks = context => {
 	const {sourceCode} = context;
-	const cachedLinebreak = sourceLinebreakCache.get(sourceCode);
-	if (cachedLinebreak) {
-		return cachedLinebreak;
+	const cachedLinebreaks = sourceLinebreaksCache.get(sourceCode);
+	if (cachedLinebreaks) {
+		return cachedLinebreaks;
 	}
 
+	const linebreaks = [];
 	let previousEnd = 0;
 	for (const token of sourceCode.getTokens(sourceCode.ast, {includeComments: true})) {
 		const [start, end] = sourceCode.getRange(token);
-		const linebreak = sourceCode.text.slice(previousEnd, start).match(linebreakPattern)?.[0];
-		if (linebreak) {
-			sourceLinebreakCache.set(sourceCode, linebreak);
-			return linebreak;
-		}
-
+		appendLinebreaks(linebreaks, previousEnd, start, context);
 		previousEnd = end;
 	}
 
-	const linebreak = sourceCode.text.slice(previousEnd).match(linebreakPattern)?.[0] ?? '\n';
-	sourceLinebreakCache.set(sourceCode, linebreak);
-	return linebreak;
+	appendLinebreaks(linebreaks, previousEnd, sourceCode.text.length, context);
+	sourceLinebreaksCache.set(sourceCode, linebreaks);
+	return linebreaks;
 };
 
 const getLinebreak = (guard, context) => {
 	const {sourceCode} = context;
-	return getLinebreakBetweenTokens(sourceCode.getTokens(guard.parent, {includeComments: true}), context) ?? getSourceLinebreak(context);
+	const [start, end] = sourceCode.getRange(guard.parent);
+	const linebreaks = getSourceLinebreaks(context);
+	let lowerIndex = 0;
+	let upperIndex = linebreaks.length;
+	while (lowerIndex < upperIndex) {
+		const middleIndex = Math.floor((lowerIndex + upperIndex) / 2);
+		if (linebreaks[middleIndex].index < start) {
+			lowerIndex = middleIndex + 1;
+		} else {
+			upperIndex = middleIndex;
+		}
+	}
+
+	const following = linebreaks[lowerIndex];
+	if (following?.index < end) {
+		return following.value;
+	}
+
+	const previous = linebreaks[lowerIndex - 1];
+	if (!previous) {
+		return following?.value ?? '\n';
+	}
+
+	if (!following) {
+		return previous.value;
+	}
+
+	const previousDistance = start - previous.index - previous.value.length;
+	const followingDistance = following.index - end;
+	return followingDistance <= previousDistance ? following.value : previous.value;
 };
 
 const getFix = (guard, statements, context) => {

@@ -119,6 +119,14 @@ test('short-body wrapping preserves a trailing file line ending', t => {
 	t.is(result.output, expected);
 });
 
+test('short-body wrapping prefers the nearest structural line ending', t => {
+	const code = 'const prefix = true;\nconst nearby = true;\r\nfunction foo() { if (!condition) return; work(); }\r\n';
+	const expected = 'const prefix = true;\nconst nearby = true;\r\nfunction foo() { if (condition) {\r\n\twork();\r\n} }\r\n';
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, config);
+	t.is(result.output, expected);
+});
+
 test('short-body wrapping preserves mixed line endings inside the moved body', t => {
 	const code = 'function foo() {\r\n\tif (!condition) {\r\n\t\treturn;\r\n\t}\r\n\twork(\n\t\tvalue,\r\n\t);\r\n}';
 	const expected = 'function foo() {\r\n\tif (condition) {\r\n\t\twork(\n\t\t\tvalue,\r\n\t\t);\r\n\t}\r\n}';
