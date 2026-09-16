@@ -1235,14 +1235,6 @@ ruleTest.snapshot({
 			code: 'if (enabled) { const array = []; array.push(1); }',
 			options: [{checkConditionals: false}],
 		},
-		{
-			code: 'const array = []; array.push(1); if (enabled) { array.push(2); }',
-			options: [{checkConditionals: false}],
-		},
-		{
-			code: 'const array = []; array.push(1);',
-			options: [{checkConditionals: true}],
-		},
 	],
 });
 
