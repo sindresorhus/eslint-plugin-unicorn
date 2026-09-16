@@ -25,6 +25,8 @@ test({
 		['value ? false : fallback()', '!value && fallback()'],
 		['value ? fallback() : true', '!value || fallback()'],
 		['const condition = () => true; condition() ? true : fallback()', 'const condition = () => true; condition() || fallback()'],
+		['function condition() { return true; } condition() ? true : fallback()', 'function condition() { return true; } condition() || fallback()'],
+		['const outer = function condition(value = condition() ? true : fallback()) { return true; };', 'const outer = function condition(value = condition() || fallback()) { return true; };'],
 		['const array = []; array.some(predicate) ? true : fallback()', 'const array = []; array.some(predicate) || fallback()'],
 		['const yes = true; a === b ? yes : fallback()', 'const yes = true; (a === b) || fallback()'],
 		['const yes = true, alias = yes; a === b ? alias : fallback()', 'const yes = true, alias = yes; (a === b) || fallback()'],
@@ -161,6 +163,18 @@ test.snapshot({
 			code: 'const condition = true; const no = false; with (object) { condition ? true : fallback(); condition ? no : fallback(); }',
 			languageOptions: {sourceType: 'script'},
 		},
+		{
+			code: 'function condition() { return true; } globalThis.condition = () => 1; condition() ? true : 0;',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: 'function outer() { function condition() { return true; } if (true) { function condition() { return 1; } } return condition() ? true : 0; }',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: '\'use strict\'; function outer() { function condition() { return true; } condition = () => 1; return condition() ? true : 0; }',
+			languageOptions: {sourceType: 'script'},
+		},
 		{code: 'function f(condition: string, value: boolean) { return condition ? true : value; }', languageOptions: {parser: parsers.typescript}},
 		typeAware('function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }'),
 	],
@@ -204,6 +218,14 @@ test.snapshot({
 		{code: 'function f(value: string, fallback: number) { return value ? false : fallback; }', languageOptions: {parser: parsers.typescript}},
 		{code: 'function f(value: string, fallback: number) { return value ? fallback : true; }', languageOptions: {parser: parsers.typescript}},
 		{code: '(value as string) ? false : fallback()', languageOptions: {parser: parsers.typescript}},
+		{
+			code: '\'use strict\'; function outer() { function condition() { return true; } return condition() ? true : fallback(); }',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: 'function condition(): boolean; function condition() { return true; } condition() ? true : fallback();',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
@@ -350,6 +372,10 @@ test.snapshot({
 		{
 			code: '(foo satisfies Foo) == null ? undefined : foo.bar;',
 			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'with (object) { foo ? foo : bar; }',
+			languageOptions: {sourceType: 'script'},
 		},
 	],
 });
