@@ -295,11 +295,10 @@ const isSimpleConstVariableDefinition = definition => definition.type === 'Varia
 	&& definition.parent.kind === 'const'
 	&& definition.node.id === definition.name;
 
-const isStableFunctionNameVariable = variable => variable.scope.type === 'function-expression-name'
-	|| (variable.scope.type !== 'global' && variable.scope.isStrict);
-
-const areStableFunctionNameDefinitions = variable => isStableFunctionNameVariable(variable)
-	&& variable.defs.every(definition => definition.type === 'FunctionName');
+const hasStableFunctionNameDefinitions = variable => (
+	variable.scope.type === 'function-expression-name'
+	|| (variable.scope.type !== 'global' && variable.scope.isStrict)
+) && variable.defs.every(definition => definition.type === 'FunctionName');
 
 function isBooleanFunctionReference(node, context, visitedVariables = new Set()) {
 	if (node?.type !== 'Identifier') {
@@ -316,7 +315,7 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 	let isBoolean = false;
 	if (
 		variable.defs.length > 1
-		&& areStableFunctionNameDefinitions(variable)
+		&& hasStableFunctionNameDefinitions(variable)
 	) {
 		const overloadDefinitions = variable.defs.filter(definition => definition.node.type === 'TSDeclareFunction');
 		const functionDefinitions = overloadDefinitions.length > 0 ? overloadDefinitions : variable.defs;
@@ -329,7 +328,7 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 			isBoolean = true;
 		} else {
 			let functionNode;
-			if (areStableFunctionNameDefinitions(variable)) {
+			if (hasStableFunctionNameDefinitions(variable)) {
 				if (variable.references.every(reference => !reference.isWrite())) {
 					functionNode = definition.node;
 				}
