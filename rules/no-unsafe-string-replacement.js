@@ -1,4 +1,5 @@
 import {
+	getStaticStringValue,
 	isFunction,
 	isMemberExpression,
 	isMethodCall,
@@ -32,15 +33,14 @@ const isStaticStringRawTaggedTemplate = (node, sourceCode) =>
 const isSafeStringRepeat = node => {
 	if (!isMethodCall(node, {
 		method: 'repeat',
-		argumentsLength: 1,
 		optionalCall: false,
 		optionalMember: false,
 	})) {
 		return false;
 	}
 
-	const stringLiteral = unwrapExpression(node.callee.object);
-	return isStringLiteral(stringLiteral) && !stringLiteral.value.includes('$');
+	const stringValue = getStaticStringValue(unwrapExpression(node.callee.object));
+	return stringValue !== undefined && !stringValue.includes('$');
 };
 
 const isAllowedReplacement = (node, sourceCode) => {
