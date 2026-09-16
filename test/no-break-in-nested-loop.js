@@ -224,8 +224,12 @@ ruleTest.snapshot({
 	],
 });
 
-test('prefer-continue autofix is accepted by the recommended config', t => {
+test('rules coexist in the recommended config', t => {
 	const linter = new Linter();
+	const {recommended} = unicorn.configs;
+	t.is(recommended.rules['unicorn/no-break-in-nested-loop'], 'error');
+	t.is(recommended.rules['unicorn/prefer-continue'], 'error');
+
 	const code = outdent`
 		for (const group of groups) {
 			for (const item of group) {
@@ -236,7 +240,7 @@ test('prefer-continue autofix is accepted by the recommended config', t => {
 			}
 		}
 	`;
-	const result = linter.verifyAndFix(code, unicorn.configs.recommended);
+	const result = linter.verifyAndFix(code, recommended);
 	const expectedOutput = outdent`
 		for (const group of groups) {
 			for (const item of group) {
