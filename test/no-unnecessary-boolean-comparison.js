@@ -70,6 +70,10 @@ test.snapshot({
 		},
 		// The default value does not constrain a destructured binding's type.
 		'function foo({bar = false}) {\n\treturn bar === false;\n}',
+		// The default value does not constrain a parameter's type.
+		'function foo(bar = false) {\n\treturn bar === false;\n}',
+		// A destructured binding does not have the declarator initializer's type.
+		'const {valueOf: condition} = true; condition === true;',
 		// With type information, the wider type is respected and the comparison is not reported (#3385).
 		typeAware('const foo = ({bar = false}: {bar?: boolean | \'baz\' | \'\'}) => bar === false;'),
 	],
@@ -100,7 +104,6 @@ test.snapshot({
 		'const result = (a > b) /* comment */ === true;',
 		'const flag = a > b;\nconst result = flag === true;',
 		'function isEnabled() {\n\treturn a > b;\n}\n\nconst result = isEnabled() === true;',
-		'function foo(bar = false) {\n\treturn bar === false;\n}',
 		// With type information, a genuinely boolean destructured binding is detected via the type checker.
 		typeAware('const foo = ({bar = false}: {bar?: boolean}) => bar === false;'),
 		{

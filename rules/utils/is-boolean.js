@@ -291,6 +291,15 @@ function isBooleanFunction(node, context, visitedVariables = new Set()) {
 		&& isBooleanExpression(node.body, context, visitedVariables);
 }
 
+const isSimpleConstVariableDefinition = definition => definition.type === 'Variable'
+	&& definition.parent.kind === 'const'
+	&& definition.node.id === definition.name;
+
+const hasStableFunctionNameDefinitions = variable => (
+	variable.scope.type === 'function-expression-name'
+	|| (variable.scope.type !== 'global' && variable.scope.isStrict)
+) && variable.defs.every(definition => definition.type === 'FunctionName');
+
 function isBooleanFunctionReference(node, context, visitedVariables = new Set()) {
 	if (node?.type !== 'Identifier') {
 		return false;
@@ -306,11 +315,11 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 	let isBoolean = false;
 	if (
 		variable.defs.length > 1
-		&& variable.defs.every(definition => definition.type === 'FunctionName')
+		&& hasStableFunctionNameDefinitions(variable)
 	) {
 		const overloadDefinitions = variable.defs.filter(definition => definition.node.type === 'TSDeclareFunction');
 		const functionDefinitions = overloadDefinitions.length > 0 ? overloadDefinitions : variable.defs;
-		isBoolean = variable.references.every(reference => !reference.writeExpr)
+		isBoolean = variable.references.every(reference => !reference.isWrite())
 			&& functionDefinitions.every(definition => isBooleanFunction(definition.node, context, visitedVariables));
 	} else if (variable.defs.length === 1) {
 		const [definition] = variable.defs;
@@ -319,13 +328,12 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 			isBoolean = true;
 		} else {
 			let functionNode;
-			if (definition.type === 'FunctionName') {
-				if (variable.references.every(reference => !reference.writeExpr)) {
+			if (hasStableFunctionNameDefinitions(variable)) {
+				if (variable.references.every(reference => !reference.isWrite())) {
 					functionNode = definition.node;
 				}
 			} else if (
-				definition.type === 'Variable'
-				&& definition.parent.kind === 'const'
+				isSimpleConstVariableDefinition(definition)
 				&& ['ArrowFunctionExpression', 'FunctionExpression'].includes(definition.node.init?.type)
 			) {
 				functionNode = definition.node.init;
@@ -355,21 +363,9 @@ function isBooleanVariableValue(variable, context, visitedVariables) {
 		return !definition.name.optional && isBooleanTypeAnnotation(definition.name.typeAnnotation, context, scope);
 	}
 
-	let isBoolean = (
-		definition.type === 'Variable'
-		&& definition.parent.kind === 'const'
-	)
+	const isBoolean = isSimpleConstVariableDefinition(definition)
 		? isBooleanExpression(definition.node.init, context, visitedVariables)
 		: false;
-
-	if (!isBoolean && definition.type === 'Parameter') {
-		const parameter = definition.name.parent;
-		isBoolean = parameter.type === 'AssignmentPattern'
-			&& parameter.left === definition.name
-			// Only a top-level parameter; a binding inside a destructuring pattern carries its type on the pattern, not the default value.
-			&& definition.node.params.includes(parameter)
-			&& isBooleanExpression(parameter.right, context, visitedVariables);
-	}
 
 	visitedVariables.delete(variable);
 	return isBoolean;
@@ -431,8 +427,7 @@ function getKnownIdentifierExpressionKind(node, context, visitedVariables) {
 		!variable
 		|| visitedVariables.has(variable)
 		|| variable.defs.length !== 1
-		|| definition.type !== 'Variable'
-		|| definition.parent.kind !== 'const'
+		|| !isSimpleConstVariableDefinition(definition)
 	) {
 		return;
 	}

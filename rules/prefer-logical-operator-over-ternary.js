@@ -1,4 +1,6 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
+	isBooleanLiteral,
 	isMemberExpression,
 	isNullLiteral,
 	isUndefined,
@@ -9,8 +11,11 @@ import {
 	getMemberAccessOperatorRange,
 	hasCommentInRange,
 	isSameReference,
+	isBoolean,
 	shouldAddParenthesesToLogicalExpressionChild,
+	shouldAddParenthesesToUnaryExpressionArgument,
 	needsSemicolon,
+	isTypeScriptFile,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -75,20 +80,24 @@ function fix({
 	left,
 	right,
 	operator,
+	negateLeft = false,
 }) {
 	const {sourceCode} = context;
 	let text = [left, right].map((node, index) => {
 		const isNodeParenthesized = isParenthesized(node, context);
 		let text = isNodeParenthesized ? getParenthesizedText(node, context) : sourceCode.getText(node);
+		const negate = index === 0 && negateLeft;
 
 		if (
 			!isNodeParenthesized
-			&& shouldAddParenthesesToLogicalExpressionChild(node, {operator, property: index === 0 ? 'left' : 'right'})
+			&& (negate
+				? shouldAddParenthesesToUnaryExpressionArgument(node, '!')
+				: shouldAddParenthesesToLogicalExpressionChild(node, {operator, property: index === 0 ? 'left' : 'right'}))
 		) {
 			text = `(${text})`;
 		}
 
-		return text;
+		return negate ? `!${text}` : text;
 	}).join(` ${operator} `);
 
 	// According to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table
@@ -100,6 +109,164 @@ function fix({
 	}
 
 	return fixer.replaceText(conditionalExpression, text);
+}
+
+function getBooleanLiteralTypeValue(node) {
+	if (node?.type === 'TSTypeAnnotation') {
+		node = node.typeAnnotation;
+	}
+
+	return node?.type === 'TSLiteralType' && isBooleanLiteral(node.literal)
+		? node.literal.value
+		: undefined;
+}
+
+const isConstAssertion = node => node.type === 'TSTypeReference'
+	&& node.typeName.type === 'Identifier'
+	&& node.typeName.name === 'const';
+
+function getConstantVariableDefinition(node, context) {
+	const scope = context.sourceCode.getScope(node);
+	const variable = findVariable(scope, node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	if (
+		definition?.type !== 'Variable'
+		|| definition.parent.kind !== 'const'
+		|| definition.node.id !== definition.name
+		|| !definition.node.init
+		|| scope.variableScope !== variable.scope.variableScope
+		|| variable.scope.type === 'switch'
+		|| context.sourceCode.getRange(definition.node)[1] > context.sourceCode.getRange(node)[0]
+	) {
+		return;
+	}
+
+	return definition;
+}
+
+function unwrapConstantAliases(node, context) {
+	while (node.type === 'Identifier') {
+		const definition = getConstantVariableDefinition(node, context);
+		if (!definition) {
+			break;
+		}
+
+		node = definition.node.init;
+	}
+
+	return node;
+}
+
+function getBooleanConstantValue(node, context) {
+	const literalTypeAnnotations = [];
+
+	while (node) {
+		if (isBooleanLiteral(node)) {
+			const {value} = node;
+			if (literalTypeAnnotations.some(typeAnnotation => getBooleanLiteralTypeValue(typeAnnotation) !== value)) {
+				return;
+			}
+
+			return value;
+		}
+
+		if (node.type === 'TSNonNullExpression' || node.type === 'TSSatisfiesExpression') {
+			node = node.expression;
+			continue;
+		}
+
+		if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+			if (!isConstAssertion(node.typeAnnotation)) {
+				literalTypeAnnotations.push(node.typeAnnotation);
+			}
+
+			node = node.expression;
+			continue;
+		}
+
+		if (node.type !== 'Identifier') {
+			return;
+		}
+
+		const definition = getConstantVariableDefinition(node, context);
+		if (!definition) {
+			return;
+		}
+
+		if (definition.name.typeAnnotation) {
+			literalTypeAnnotations.push(definition.name.typeAnnotation);
+		}
+
+		node = definition.node.init;
+	}
+}
+
+function canFixBooleanTernary(context) {
+	const {parserServices} = context.sourceCode;
+	return !parserServices?.esTreeNodeToTSNodeMap && !isTypeScriptFile(context.physicalFilename);
+}
+
+function isBooleanTernaryTest(node, context) {
+	try {
+		return isBoolean(node, context);
+	} catch (error) {
+		// Treat pathological recursive inference as unknown instead of crashing linting.
+		if (error instanceof RangeError) {
+			return false;
+		}
+
+		throw error;
+	}
+}
+
+function getBooleanTernaryProblem(conditionalExpression, context) {
+	const {sourceCode} = context;
+	if (sourceCode.getAncestors(conditionalExpression).some(node => node.type === 'WithStatement')) {
+		return;
+	}
+
+	const {test, consequent, alternate} = conditionalExpression;
+	const consequentValue = getBooleanConstantValue(consequent, context);
+	const alternateValue = getBooleanConstantValue(alternate, context);
+	const isConsequentBooleanConstant = consequentValue !== undefined;
+
+	if (isConsequentBooleanConstant === (alternateValue !== undefined)) {
+		return;
+	}
+
+	const booleanValue = consequentValue ?? alternateValue;
+	const right = isConsequentBooleanConstant ? alternate : consequent;
+	const negateLeft = consequentValue === false || alternateValue === true;
+	const canFix = canFixBooleanTernary(context);
+
+	if (!negateLeft) {
+		const booleanTest = canFix ? unwrapConstantAliases(test, context) : test;
+		if (!isBooleanTernaryTest(booleanTest, context)) {
+			return;
+		}
+	}
+
+	const problem = {
+		node: conditionalExpression,
+		messageId: MESSAGE_ID_ERROR,
+	};
+
+	if (
+		sourceCode.getCommentsInside(conditionalExpression).length === 0
+		&& canFix
+	) {
+		problem.fix = fixer => fix({
+			fixer,
+			context,
+			conditionalExpression,
+			left: test,
+			right,
+			operator: booleanValue ? '||' : '&&',
+			negateLeft,
+		});
+	}
+
+	return problem;
 }
 
 function getOptionalChainText(memberExpression, context) {
@@ -125,8 +292,7 @@ function getProblem({
 	right,
 	operators = ['??', '||'],
 }) {
-	// The suggestion rebuilds the expression from `left`/`right` only, so it would drop
-	// any comment elsewhere in the ternary. Report without a suggestion in that case.
+	// The suggestion rebuilds the expression from `left`/`right` only, so it would drop any comment elsewhere in the ternary. Report without a suggestion in that case.
 	if (context.sourceCode.getCommentsInside(conditionalExpression).length > 0) {
 		return {
 			node: conditionalExpression,
@@ -354,6 +520,24 @@ const create = context => {
 
 	context.on('ConditionalExpression', conditionalExpression => {
 		const {test, consequent, alternate} = conditionalExpression;
+		const hasTwoBooleanLiteralBranches = isBooleanLiteral(consequent) && isBooleanLiteral(alternate);
+		if (
+			hasTwoBooleanLiteralBranches
+			|| (
+				sourceCode.getAncestors(conditionalExpression).every(node => node.type !== 'WithStatement')
+				&& getBooleanConstantValue(consequent, context) !== undefined
+				&& getBooleanConstantValue(alternate, context) !== undefined
+			)
+		) {
+			return;
+		}
+
+		const booleanTernaryProblem = getBooleanTernaryProblem(conditionalExpression, context);
+
+		if (booleanTernaryProblem) {
+			return booleanTernaryProblem;
+		}
+
 		const nullishTernaryProblem = getNullishTernaryProblem(conditionalExpression, context);
 
 		if (nullishTernaryProblem) {
@@ -399,6 +583,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 
+		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 		languages: [

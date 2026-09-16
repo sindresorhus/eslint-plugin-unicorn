@@ -58,6 +58,8 @@ const config = [
 			'unicorn/prefer-minimal-ternary': 'off',
 			'unicorn/prefer-simple-condition-first': 'off',
 			'unicorn/prefer-simplified-conditions': 'off',
+			// Internal code intentionally retains boolean ternaries where they make conditional return values clearer.
+			'unicorn/prefer-logical-operator-over-ternary': 'off',
 			'unicorn/prefer-ternary': 'off',
 			// Existing rule implementations keep independent guard clauses for readability.
 			'unicorn/prefer-combined-guards': 'off',
