@@ -8,6 +8,7 @@ import {
 
 const linebreakPattern = /\r\n|[\n\r\u2028\u2029]/;
 const linebreaksPattern = /\r\n|[\n\r\u2028\u2029]/g;
+const sourceLinebreakCache = new WeakMap();
 
 const getStatements = node => node.type === 'BlockStatement' ? node.body : [node];
 
@@ -33,28 +34,8 @@ const getLineIndent = (node, context) => {
 	return /^[\t ]*/.exec(sourceCode.getLines()[line - 1])[0];
 };
 
-const getSurroundingLinebreak = (node, context) => {
+const getLinebreakBetweenTokens = (tokens, context) => {
 	const {sourceCode} = context;
-	for (let currentNode = node; currentNode.parent; currentNode = currentNode.parent) {
-		const [start, end] = sourceCode.getRange(currentNode);
-		const previousToken = sourceCode.getTokenBefore(currentNode, {includeComments: true});
-		const nextToken = sourceCode.getTokenAfter(currentNode, {includeComments: true});
-		const beforeStart = previousToken ? sourceCode.getRange(previousToken)[1] : 0;
-		const afterEnd = nextToken ? sourceCode.getRange(nextToken)[0] : sourceCode.text.length;
-		const before = sourceCode.text.slice(beforeStart, start).match(linebreaksPattern)?.at(-1);
-		const after = sourceCode.text.slice(end, afterEnd).match(linebreakPattern)?.[0];
-
-		if (after || before) {
-			return after ?? before;
-		}
-	}
-
-	return '\n';
-};
-
-const getLinebreak = (guard, context) => {
-	const {sourceCode} = context;
-	const tokens = sourceCode.getTokens(guard.parent, {includeComments: true});
 	for (let index = 1; index < tokens.length; index++) {
 		const previousEnd = sourceCode.getRange(tokens[index - 1])[1];
 		const currentStart = sourceCode.getRange(tokens[index])[0];
@@ -63,8 +44,35 @@ const getLinebreak = (guard, context) => {
 			return linebreak;
 		}
 	}
+};
 
-	return getSurroundingLinebreak(guard.parent, context);
+const getSourceLinebreak = context => {
+	const {sourceCode} = context;
+	const cachedLinebreak = sourceLinebreakCache.get(sourceCode);
+	if (cachedLinebreak) {
+		return cachedLinebreak;
+	}
+
+	let previousEnd = 0;
+	for (const token of sourceCode.getTokens(sourceCode.ast, {includeComments: true})) {
+		const [start, end] = sourceCode.getRange(token);
+		const linebreak = sourceCode.text.slice(previousEnd, start).match(linebreakPattern)?.[0];
+		if (linebreak) {
+			sourceLinebreakCache.set(sourceCode, linebreak);
+			return linebreak;
+		}
+
+		previousEnd = end;
+	}
+
+	const linebreak = sourceCode.text.slice(previousEnd).match(linebreakPattern)?.[0] ?? '\n';
+	sourceLinebreakCache.set(sourceCode, linebreak);
+	return linebreak;
+};
+
+const getLinebreak = (guard, context) => {
+	const {sourceCode} = context;
+	return getLinebreakBetweenTokens(sourceCode.getTokens(guard.parent, {includeComments: true}), context) ?? getSourceLinebreak(context);
 };
 
 const getFix = (guard, statements, context) => {
