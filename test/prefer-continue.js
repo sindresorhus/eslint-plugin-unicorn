@@ -663,6 +663,10 @@ test.snapshot({
 			options: [{checkShortBodies: true}],
 		},
 		{
+			code: 'for (const item of items) { if (!condition) { continue; } else { work(); finish(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
 			code: 'for (const item of items) { prepare(); if (!condition) { continue; } work(); }',
 			options: [{checkShortBodies: true}],
 		},

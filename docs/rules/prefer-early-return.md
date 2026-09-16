@@ -95,7 +95,7 @@ Autofix is conservative. When statements precede the final `if`, direct `let` or
 Type: `boolean`\
 Default: `false`
 
-Require conditional wrapping instead of an early `return` for short bodies. This applies when the body after the guard, or the explicit `else` body, contains between one and `maximumStatements` direct statements, excluding empty statements. With `maximumStatements: 0`, this option has no effect. The rule's existing handling of wrappers above `maximumStatements` remains unchanged.
+When enabled, the rule prefers conditional wrapping for one to `maximumStatements` direct, non-empty statements after the guard or in its `else` branch. `maximumStatements: 0` disables this check; existing larger-body behavior is unchanged.
 
 ```js
 'unicorn/prefer-early-return': [
@@ -133,6 +133,6 @@ function foo() {
 }
 ```
 
-The guard must be the first statement of the whole function body and contain only a bare `return;`. An explicit `else` is supported only when the `if` is the whole body; `else if` chains are ignored. Guards after preceding statements and guards that perform additional work are ignored.
+The guard must come first and contain only a bare `return;`. An `if` with `else` must be the entire function body. Guards after other statements, `else if` chains, and guards with extra work are ignored.
 
-Autofix preserves an existing `else` block's scope. Otherwise, direct declarations whose scope would change prevent autofixing. Comments in the rewritten range or after it also prevent autofixing, as do multiline-sensitive tokens in statements that would need reindentation. These cases are still reported.
+Autofix preserves an existing `else` block's scope. Direct declarations that would change scope, comments in or after the rewritten range, and multiline-sensitive tokens requiring reindentation make the violation report-only.

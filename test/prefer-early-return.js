@@ -829,6 +829,10 @@ test.snapshot({
 			options: [{checkShortBodies: true}],
 		},
 		{
+			code: 'function foo() { if (!condition) { return; } else { work(); finish(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
 			code: 'function foo() { prepare(); if (!condition) { return; } work(); }',
 			options: [{checkShortBodies: true}],
 		},
