@@ -8,7 +8,7 @@ import {isCallExpression} from './ast/index.js';
 const MESSAGE_ID = 'prefer-early-return';
 const SUGGESTION_MESSAGE_ID = 'prefer-early-return/suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Prefer an early return over wrapping the whole function body in an `if` statement.',
+	[MESSAGE_ID]: 'Prefer an early return over wrapping the remainder of the function body in an `if` statement.',
 	[SUGGESTION_MESSAGE_ID]: 'Rewrite to an early return.',
 };
 
@@ -38,7 +38,7 @@ const schema = [
 			maximumStatements: {
 				type: 'integer',
 				minimum: 0,
-				description: 'Maximum number of statements allowed in a whole-function conditional wrapper.',
+				description: 'Maximum number of statements allowed in a conditional wrapping the remainder of the function body.',
 			},
 		},
 	},
@@ -275,6 +275,10 @@ const canSafelyMoveLexicalDeclarations = (ifStatement, functionNode, sourceCode)
 		return true;
 	}
 
+	if (ifStatement.parent.body.length > 1) {
+		return false;
+	}
+
 	const names = new Set(variables.map(variable => variable.name));
 
 	return !hasDirectEvalCall(ifStatement.test, sourceCode)
@@ -353,13 +357,9 @@ const create = context => {
 		}
 
 		const {body} = node.body;
-		if (body.length !== 1) {
-			return;
-		}
-
-		const [statement] = body;
+		const statement = body.at(-1);
 		if (
-			statement.type !== 'IfStatement'
+			statement?.type !== 'IfStatement'
 			|| statement.alternate
 			|| getConsequentStatementCount(statement) <= maximumStatements
 		) {
@@ -386,7 +386,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer early returns over full-function conditional wrapping.',
+			description: 'Prefer early returns over conditionals wrapping the remainder of the function body.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',

@@ -540,3 +540,86 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				for (const item of items) {
+					doSomethingBefore();
+					if (item.isActive) {
+						process(item);
+						save(item);
+					}
+				}
+			`,
+			output: outdent`
+				for (const item of items) {
+					doSomethingBefore();
+					if (!item.isActive) {
+						continue;
+					}
+
+					process(item);
+					save(item);
+				}
+			`,
+			errors: [{messageId: 'prefer-continue'}],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		'for (const item of items) {}',
+		'for (const item of items) { before(); }',
+		'for (const item of items) { before(); if (condition) { first(); } }',
+		'for (const item of items) { before(); if (condition) { first(); second(); } after(); }',
+		'for (const item of items) { before(); if (condition) { first(); second(); }; }',
+		'for (const item of items) { before(); if (condition) { first(); second(); } else { other(); } }',
+		'for (const item of items) { before(); { if (condition) { first(); second(); } } }',
+		'for (const item of items) { before(); if (condition) { first(); break; } }',
+		'for (const item of items) { before(); if (condition) { first(); continue; } }',
+		'for (const item of items) { before(); if (condition) { first(); throw error; } }',
+		{code: 'for (const item of items) { before(); if (condition) {} }', options: [{maximumStatements: 0}]},
+		{code: 'for (const item of items) { before(); if (condition); }', options: [{maximumStatements: 0}]},
+		{code: 'for (const item of items) { before(); if (condition) { first(); second(); } }', options: [{maximumStatements: 2}]},
+		'function foo() { for (const item of items) { before(); if (condition) { first(); return; } } }',
+	],
+	invalid: [
+		'for (const item of items) { before(); if (condition) { first(); second(); } }',
+		'for (const key in items) { before(); if (condition) { first(); second(); } }',
+		'for (let index = 0; index < 10; index++) { before(); if (condition) { first(); second(); } }',
+		'while (condition) { before(); if (condition) { first(); second(); } }',
+		'do { before(); if (condition) { first(); second(); } } while (condition);',
+		'async function foo() { for await (const item of items) { before(); if (condition) { first(); second(); } } }',
+		{code: 'for (const item of items) { before(); if (condition) { first(); } }', options: [{maximumStatements: 0}]},
+		{code: 'for (const item of items) { before(); if (condition) first(); }', options: [{maximumStatements: 0}]},
+		{code: 'for (const item of items) { before(); if (condition) { first(); second(); third(); } }', options: [{maximumStatements: 2}]},
+		{code: 'for (const item of items) { before(); if (condition as boolean) { first(); second(); } }', languageOptions: {parser: parsers.typescript}},
+		outdent`
+			for (const item of items) {
+				const ready = prepare();
+				// Keep this comment before the guard.
+				if (ready) {
+					// Keep this comment with the moved body.
+					first();
+					second();
+				}
+			}
+		`,
+	],
+});
+
+for (const kind of ['let', 'const']) {
+	test({
+		valid: [],
+		invalid: [
+			{
+				code: `for (const item of items) { before(); if (condition) { ${kind} value = getValue(); use(value); } }`,
+				errors: [{messageId: 'prefer-continue'}],
+			},
+		],
+	});
+}
