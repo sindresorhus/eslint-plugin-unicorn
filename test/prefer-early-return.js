@@ -811,3 +811,242 @@ for (const kind of ['let', 'const']) {
 		],
 	});
 }
+
+// Short bodies can opt in to conditional wrapping.
+test.snapshot({
+	valid: [
+		'function foo() { if (!condition) { return; } work(); }',
+		{
+			code: 'function foo() { if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: false}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: true, maximumStatements: 0}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } work(); finish(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } else { work(); finish(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { prepare(); return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } else if (other) { work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } else { work(); } finish(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } else {} }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } ; }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return undefined; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+	],
+	invalid: [
+		{
+			code: 'function foo() { if (!condition) { return; } return 5; }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) return; work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } else { work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) return; else work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } work(); finish(); }',
+			options: [{checkShortBodies: true, maximumStatements: 2}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } else { work(); finish(); } }',
+			options: [{checkShortBodies: true, maximumStatements: 2}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } ;work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } if (other) { work(); finish(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!(condition && other)) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if ((condition)) { return; } (work)(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (value?.active) { return; } work?.(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } const value = work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } function work() {} }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } else { const value = work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { /* keep */ return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } /* keep */ work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } work(/* keep */); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (condition as boolean) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo() { if (condition!) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo() { if (condition satisfies boolean) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo() { if (<boolean>condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		{
+			code: 'function foo() {\n	if (!condition) {\n		return;\n	}\n\n	performWork();\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() {\n	if (condition) { return; }\n	performWork(\n		value,\n	);\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() {\n	if (condition) { return; }\n	performWork(); // keep here\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (/* condition */ condition) { return; } performWork(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } else { /* keep */ performWork(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } const {value} = source; }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } class Example {} }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } var value = performWork(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } { const value = performWork(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } performWork(`first\nsecond`); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } else { performWork(`first\nsecond`); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } performWork(<Component value={value} />); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } performWork(<div>first\nsecond</div>); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run(log) { if (record(log, g)) { return; } outer: inner: function g() {} }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {sourceType: 'script'},
+			output: null,
+			errors: [{messageId: 'prefer-early-return/short-body'}],
+		},
+		{
+			code: 'function foo() { if (!condition) { return; } declare function work(): void; }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parser: parsers.typescript},
+			output: null,
+			errors: [{messageId: 'prefer-early-return/short-body'}],
+		},
+		{
+			code: 'function foo() { if (condition) { declare function work(): void; performWork(); } }',
+			languageOptions: {parser: parsers.typescript},
+			output: null,
+			errors: [{messageId: 'prefer-early-return'}],
+		},
+	],
+});

@@ -96,6 +96,8 @@ const config = [
 	{
 		files: [
 			'test/no-deprecated-css-features.js',
+			'test/prefer-continue.js',
+			'test/prefer-early-return.js',
 			'test/prefer-ternary.js',
 		],
 		rules: {

@@ -1,13 +1,17 @@
+import getShortBodyProblem from './shared/short-body-conditional.js';
 import {
 	getParenthesizedText,
 	hasMultilineToken,
+	isBlockScopedDeclaration,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 import {isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-early-return';
 const SUGGESTION_MESSAGE_ID = 'prefer-early-return/suggestion';
+const SHORT_BODY_MESSAGE_ID = 'prefer-early-return/short-body';
 const messages = {
+	[SHORT_BODY_MESSAGE_ID]: 'Prefer conditional wrapping over an early return for a short body.',
 	[MESSAGE_ID]: 'Prefer an early return over wrapping the remainder of the function body in an `if` statement.',
 	[SUGGESTION_MESSAGE_ID]: 'Rewrite to an early return.',
 };
@@ -17,15 +21,6 @@ const typeScriptConditionExpressionTypesRequiringParentheses = new Set([
 	'TSNonNullExpression',
 	'TSSatisfiesExpression',
 	'TSTypeAssertion',
-]);
-
-const blockScopedDeclarationTypes = new Set([
-	'ClassDeclaration',
-	'FunctionDeclaration',
-	'TSEnumDeclaration',
-	'TSInterfaceDeclaration',
-	'TSModuleDeclaration',
-	'TSTypeAliasDeclaration',
 ]);
 
 const lexicalDeclarationKinds = new Set(['const', 'let']);
@@ -39,6 +34,10 @@ const schema = [
 				type: 'integer',
 				minimum: 0,
 				description: 'Maximum number of statements allowed in a conditional wrapping the remainder of the function body.',
+			},
+			checkShortBodies: {
+				type: 'boolean',
+				description: 'Enforce conditional wrapping when the body after a guard, or its else body, has between one and maximumStatements statements.',
 			},
 		},
 	},
@@ -65,12 +64,11 @@ const isNodeInsideRange = (node, [start, end], sourceCode) => {
 };
 
 const isUnsupportedBlockScopedDeclaration = node =>
-	(
+	isBlockScopedDeclaration(node)
+	&& !(
 		node.type === 'VariableDeclaration'
-		&& node.kind !== 'var'
-		&& !lexicalDeclarationKinds.has(node.kind)
-	)
-	|| blockScopedDeclarationTypes.has(node.type);
+		&& lexicalDeclarationKinds.has(node.kind)
+	);
 
 const hasDirectUnsupportedBlockScopedDeclaration = node =>
 	isUnsupportedBlockScopedDeclaration(node)
@@ -356,6 +354,11 @@ const create = context => {
 			return;
 		}
 
+		const shortBodyProblem = getShortBodyProblem(node.body, context, 'ReturnStatement');
+		if (shortBodyProblem) {
+			return {...shortBodyProblem, messageId: SHORT_BODY_MESSAGE_ID};
+		}
+
 		const {body} = node.body;
 		const statement = body.at(-1);
 		if (
@@ -392,7 +395,7 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
-		defaultOptions: [{maximumStatements: 1}],
+		defaultOptions: [{maximumStatements: 1, checkShortBodies: false}],
 		messages,
 		languages: [
 			'js/js',

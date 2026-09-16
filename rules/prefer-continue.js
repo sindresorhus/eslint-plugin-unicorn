@@ -1,7 +1,9 @@
+import getShortBodyProblem from './shared/short-body-conditional.js';
 import {isCallExpression, loopTypes} from './ast/index.js';
 import {
 	getParenthesizedText,
 	hasMultilineToken,
+	isBlockScopedDeclaration,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 
@@ -10,18 +12,11 @@ import {
 */
 
 const MESSAGE_ID = 'prefer-continue';
+const SHORT_BODY_MESSAGE_ID = 'prefer-continue/short-body';
 const messages = {
+	[SHORT_BODY_MESSAGE_ID]: 'Prefer conditional wrapping over an early continue for a short body.',
 	[MESSAGE_ID]: 'Prefer an early continue over wrapping the remainder of the loop body in an `if` statement.',
 };
-
-const blockScopedDeclarationTypes = new Set([
-	'ClassDeclaration',
-	'FunctionDeclaration',
-	'TSEnumDeclaration',
-	'TSInterfaceDeclaration',
-	'TSModuleDeclaration',
-	'TSTypeAliasDeclaration',
-]);
 
 const lexicalDeclarationKinds = new Set(['const', 'let']);
 
@@ -34,6 +29,10 @@ const schema = [
 				type: 'integer',
 				minimum: 0,
 				description: 'Maximum number of statements allowed in a conditional wrapping the remainder of the loop body.',
+			},
+			checkShortBodies: {
+				type: 'boolean',
+				description: 'Enforce conditional wrapping when the body after a guard, or its else body, has between one and maximumStatements statements.',
 			},
 		},
 	},
@@ -77,12 +76,11 @@ const isNodeInsideRange = (node, [start, end], sourceCode) => {
 };
 
 const isUnsupportedBlockScopedDeclaration = node =>
-	(
+	isBlockScopedDeclaration(node)
+	&& !(
 		node.type === 'VariableDeclaration'
-		&& node.kind !== 'var'
-		&& !lexicalDeclarationKinds.has(node.kind)
-	)
-	|| blockScopedDeclarationTypes.has(node.type);
+		&& lexicalDeclarationKinds.has(node.kind)
+	);
 
 const hasDirectUnsupportedBlockScopedDeclaration = node =>
 	isUnsupportedBlockScopedDeclaration(node)
@@ -342,6 +340,11 @@ const create = context => {
 			return;
 		}
 
+		const shortBodyProblem = getShortBodyProblem(loop.body, context, 'ContinueStatement');
+		if (shortBodyProblem) {
+			return {...shortBodyProblem, messageId: SHORT_BODY_MESSAGE_ID};
+		}
+
 		const statement = loop.body.body.at(-1);
 		if (
 			statement?.type !== 'IfStatement'
@@ -375,7 +378,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{maximumStatements: 1}],
+		defaultOptions: [{maximumStatements: 1, checkShortBodies: false}],
 		messages,
 		languages: [
 			'js/js',

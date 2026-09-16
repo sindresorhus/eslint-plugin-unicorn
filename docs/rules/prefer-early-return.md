@@ -11,7 +11,7 @@
 
 Avoid wrapping the rest of a function body in a conditional. A guard clause often makes the main path clearer by handling exceptional cases first.
 
-This rule reports when the last statement of a block-bodied function is an `if` statement without `else`, even when other statements precede it. It does not report nested `if` statements, loops, or functions that continue after the `if`.
+By default, this rule reports when the last statement of a block-bodied function is an `if` statement without `else`, even when other statements precede it. It does not report nested `if` statements, loops, or functions that continue after the `if`.
 
 ## Examples
 
@@ -89,3 +89,50 @@ Set `maximumStatements` to `0` to report any non-empty conditional wrapper at th
 ```
 
 Autofix is conservative. When statements precede the final `if`, direct `let` or `const` declarations in its body prevent automatic fixes and editor suggestions. It skips wrappers with comments outside the condition or moved body, lexical names that collide with the containing function scope or are used in the condition, direct `eval(...)` with moved lexical declarations, direct function, class, TypeScript, `using`, or `await using` declarations, and multiline-sensitive strings, templates, or JSX. Trailing wrapper comments may still get editor suggestions; multiline unbraced consequents are report-only.
+
+### checkShortBodies
+
+Type: `boolean`\
+Default: `false`
+
+When enabled, the rule prefers conditional wrapping for one to `maximumStatements` direct, non-empty statements after the guard or in its `else` branch. `maximumStatements: 0` disables this check; existing larger-body behavior is unchanged.
+
+```js
+'unicorn/prefer-early-return': [
+	'error',
+	{
+		checkShortBodies: true,
+	},
+]
+```
+
+```js
+// ❌
+function foo() {
+	if (!condition) {
+		return;
+	}
+
+	doSomething();
+}
+
+// ❌
+function foo() {
+	if (!condition) {
+		return;
+	} else {
+		doSomething();
+	}
+}
+
+// ✅
+function foo() {
+	if (condition) {
+		doSomething();
+	}
+}
+```
+
+The guard must come first and contain only a bare `return;`. An `if` with `else` must be the entire function body. Guards after other statements, `else if` chains, and guards with extra work are ignored.
+
+Autofix preserves an existing `else` block's scope. Direct declarations that would change scope, comments in or after the rewritten range, and multiline-sensitive tokens requiring reindentation make the violation report-only.

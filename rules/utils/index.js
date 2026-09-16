@@ -45,6 +45,7 @@ export {
 export {
 	hasDirectBlockScopedDeclaration,
 	hasMultilineToken,
+	isBlockScopedDeclaration,
 } from './block-scope.js';
 export {default as getConstVariableInitializer} from './get-const-variable-initializer.js';
 export {
