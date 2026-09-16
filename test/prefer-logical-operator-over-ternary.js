@@ -194,6 +194,7 @@ test.snapshot({
 		'false ? false : false',
 		'!false ? true : false',
 		'!true ? false : true',
+		'a === b ? c === d : e === f',
 		'a === b ? true : false',
 		'a === b ? false : true',
 		'a === b ? true : true',
