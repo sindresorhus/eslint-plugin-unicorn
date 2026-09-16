@@ -5,6 +5,7 @@ import plugin from '../index.js';
 import {getTester, parsers, normalizeTestCase} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+const checkConditionalsOptions = [{checkConditionals: true}];
 
 const conditionalMutationCode = outdent`
 	const actions = ['view'];
@@ -54,7 +55,7 @@ ruleTest.snapshot({
 		'const set = new Set(); enabled && set.add(set);',
 		'const map = new Map(); enabled && map.set(key, map);',
 		'const map = new Map(); enabled && map.set(map, value);',
-	].map(testCase => ({...normalizeTestCase(testCase), options: [{checkConditionals: true}]})),
+	].map(testCase => ({...normalizeTestCase(testCase), options: checkConditionalsOptions})),
 	invalid: [
 		'const array = [1, 2]; if (Math.random()) { array.push(3, 4); }',
 		'const object = {foo: 1}; if (Math.random()) { object.bar = 2; } else { object.baz = 3; }',
@@ -191,7 +192,7 @@ ruleTest.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		conditionalMutationCode,
-	].map(testCase => ({...normalizeTestCase(testCase), options: [{checkConditionals: true}]})),
+	].map(testCase => ({...normalizeTestCase(testCase), options: checkConditionalsOptions})),
 });
 
 // `Array`
@@ -1253,7 +1254,7 @@ test('respects `checkConditionals` across autofix passes', t => {
 	t.is(defaultResult.output.trimEnd(), 'const array = [ 1];  if (enabled) { array.push(2); }');
 	t.deepEqual(defaultResult.messages, []);
 
-	const checkConditionalsResult = getFixResult([{checkConditionals: true}]);
+	const checkConditionalsResult = getFixResult(checkConditionalsOptions);
 	t.true(checkConditionalsResult.fixed);
 	t.is(checkConditionalsResult.output.trimEnd(), 'const array = [ 1, ...((enabled) ? [2] : [])];');
 	t.deepEqual(checkConditionalsResult.messages, []);

@@ -129,7 +129,7 @@ By default, conditional mutations are allowed. Set `checkConditionals` to `true`
 }
 ```
 
-With this option enabled, the rule also checks the mutations above when a variable declaration or standalone assignment is immediately followed by an `if` statement containing the mutation, `condition && mutation`, or `condition ? mutation : mutation`. Each branch must contain one mutation, optionally enclosed in a block. When both branches are present, they must use the same mutation type on the same variable. `Object.assign()` is limited to one source.
+With this option enabled, the rule also checks the mutations above when either a variable declaration whose final declarator binds an identifier or a standalone `=` assignment to an identifier is immediately followed by a mutation in an `if` statement, `condition && mutation`, or `condition ? mutation : mutation`. Each conditional arm must consist of one mutation, optionally enclosed in a block for `if` statements. When two arms are present, they must use the same mutation type on the same variable. Conditional `Object.assign()` mutations are limited to one source.
 
 ```js
 // ❌
