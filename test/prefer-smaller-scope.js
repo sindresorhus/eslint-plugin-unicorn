@@ -38,9 +38,9 @@ testRule.snapshot({
 		'const value = 1; if (condition) { eval("value"); consume(value); }',
 		'const value = 1; if (condition) { consume(value); } eval("value");',
 		'const value = 1, other = 2; if (condition) { consume(value, other); }',
-		'const {value} = object; if (condition) { consume(value); }',
+		'const [value] = "a"; if (condition) { consume(value); }',
 		'var value = 1; if (condition) { consume(value); }',
-		'using value = resource; if (condition) { consume(value); }',
+		'using value = null; if (condition) { consume(value); }',
 		...[
 			'getValue()',
 			'other',
@@ -78,6 +78,7 @@ testRule.snapshot({
 		...[
 			'eval!("consume(value)");',
 			'(eval as any)("consume(value)");',
+			'((eval as <Type>(source: string) => Type)<number>)("consume(value)");',
 		].map(evalCall => ({
 			code: `const value = 1; if (condition) { consume(value); } ${evalCall}`,
 			languageOptions: {parser: parsers.typescript},

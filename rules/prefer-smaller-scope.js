@@ -43,9 +43,13 @@ function hasDynamicScope(node, visitorKeys) {
 		return true;
 	}
 
-	const callee = node.type === 'CallExpression'
+	let callee = node.type === 'CallExpression'
 		? unwrapTypeScriptExpression(node.callee)
 		: undefined;
+	while (callee?.type === 'TSInstantiationExpression') {
+		callee = unwrapTypeScriptExpression(callee.expression);
+	}
+
 	if (
 		callee?.type === 'Identifier'
 		&& callee.name === 'eval'
