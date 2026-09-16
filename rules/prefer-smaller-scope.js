@@ -21,6 +21,7 @@ const isDeclarationCandidate = node =>
 	Boolean(node.parent)
 	&& (node.parent.type === 'Program' || node.parent.type === 'BlockStatement')
 	&& (node.kind === 'let' || node.kind === 'const')
+	&& !node.declare
 	&& node.declarations.length === 1
 	&& node.declarations[0].id.type === 'Identifier';
 

@@ -81,7 +81,7 @@ function foo(bar) {
 
 ## Limitations
 
-This rule does not check `var`, destructuring, or multi-variable declarations. For uninitialized `let` declarations, compound assignments and assignments that are not direct expression statements are also ignored. The rule also ignores cases with references crossing a function, class, static block, or dynamic scope boundary.
+This rule does not check `var`, destructuring, multi-variable declarations, or TypeScript ambient declarations. For uninitialized `let` declarations, compound assignments and assignments that are not direct expression statements are also ignored. The rule also ignores cases with references crossing a function, class, static block, or dynamic scope boundary.
 
 Initialized declarations are only checked immediately before an `if`, and only for primitive literals and template literals without substitutions. Other initializers, including regular expressions, function calls, identifier references, and expressions such as `-1`, are ignored. Moving these can change values, side effects, or evaluation timing. Initialized declarations are not moved into loops or functions, and references in the condition, outside the target branch, or in both branches prevent reporting. TypeScript type references also count as uses.
 

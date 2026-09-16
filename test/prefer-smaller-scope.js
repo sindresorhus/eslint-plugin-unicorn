@@ -67,6 +67,14 @@ testRule.snapshot({
 			code: 'type Value = typeof value; const value = 1; if (condition) { consume(value); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'declare const value = 1; if (condition) { consume(value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'declare let value; if (condition) { value = getValue(); consume(value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		...[
 			'eval!("consume(value)");',
 			'(eval as any)("consume(value)");',
