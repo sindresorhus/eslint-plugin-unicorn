@@ -2165,6 +2165,10 @@ ruleTest({
 			errors: [invalidOptionsParameterError],
 		},
 		{
+			code: 'class FooError extends Error { constructor(status, message, opts) { super(message, opts); this.name = \'FooError\'; } }',
+			errors: [invalidOptionsParameterError],
+		},
+		{
 			code: 'class FooError extends Error { constructor(status, message, options) { super(message /* Preserve this note */); this.name = \'FooError\'; } }',
 			errors: [passOptionsToSuperError],
 		},
@@ -2195,9 +2199,9 @@ ruleTest.typescript({
 			output: 'class FooError extends Error { constructor(status: number, message: string, public readonly options: ErrorOptions) { super(message, options); this.name = \'FooError\'; } }',
 		},
 		{
-			code: 'class FooError extends Error { constructor(status: number, public options: ErrorOptions = {}, message: string) { super(message); this.name = \'FooError\'; } }',
+			code: 'class FooError extends Error { constructor(status: number, public options: ErrorOptions, message: string) { super(message); this.name = \'FooError\'; } }',
 			errors: [passOptionsToSuperError],
-			output: 'class FooError extends Error { constructor(status: number, public options: ErrorOptions = {}, message: string) { super(message, options); this.name = \'FooError\'; } }',
+			output: 'class FooError extends Error { constructor(status: number, public options: ErrorOptions, message: string) { super(message, options); this.name = \'FooError\'; } }',
 		},
 	],
 });

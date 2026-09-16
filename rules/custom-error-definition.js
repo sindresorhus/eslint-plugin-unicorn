@@ -25,7 +25,7 @@ const messages = {
 	[MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER]: 'Do not pass the error message to `super()` when the class defines a `message` accessor.',
 	[MESSAGE_ID_DO_NOT_ASSIGN_MESSAGE_WITHOUT_SETTER]: 'Do not assign to `this.message` when the class defines a `message` getter without a setter.',
 	[MESSAGE_ID_MISSING_OPTIONS_PARAMETER]: 'Error constructors should accept an `options` parameter.',
-	[MESSAGE_ID_INVALID_OPTIONS_PARAMETER]: 'Error constructors should use a parameter named `options`.',
+	[MESSAGE_ID_INVALID_OPTIONS_PARAMETER]: 'Error constructors should use a non-rest parameter named `options`.',
 	[MESSAGE_ID_PASS_MESSAGE_TO_SUPER]: 'Pass the error message to `super()` as the first argument.',
 	[MESSAGE_ID_PASS_OPTIONS_TO_SUPER]: 'Pass `options` to `super()` as the second argument.',
 };

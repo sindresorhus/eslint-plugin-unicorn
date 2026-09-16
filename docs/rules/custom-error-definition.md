@@ -11,7 +11,7 @@
 
 Enforces a consistent way of defining `Error` subclasses. It works with superclasses whose names match the rule's `*Error` naming pattern.
 
-For native error bases that accept `ErrorOptions` as their second parameter, constructors with regular parameters should preserve `Error#cause` by accepting an `options` parameter and passing it to `super()`. Rest-only constructors are left unchanged. A fixed message can instead pass an inline `{cause}` object. `AggregateError` accepts `ErrorOptions` as its third parameter, while `SuppressedError` does not accept `ErrorOptions`, so neither uses this convention.
+For native error bases that accept `ErrorOptions` as their second parameter, constructors with regular parameters should preserve `Error#cause` by accepting an `options` parameter and passing it to `super()`. Rest-only constructors are left unchanged. A single-parameter constructor with a fixed message can instead pass an inline `{cause}` object. `AggregateError` accepts `ErrorOptions` as its third parameter, while `SuppressedError` does not accept `ErrorOptions`, so neither uses this convention.
 
 A non-rest constructor parameter named `options` can appear in any position, but must be passed as the second argument to `super()`. Other parameters can provide the message directly or be used to compute it.
 
