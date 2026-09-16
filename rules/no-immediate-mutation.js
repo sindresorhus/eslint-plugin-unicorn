@@ -966,7 +966,11 @@ const config = {
 				additionalProperties: false,
 			},
 		],
-		defaultOptions: [{checkConditionals: false}],
+		defaultOptions: [
+			{
+				checkConditionals: false,
+			},
+		],
 		messages,
 		languages: [
 			'js/js',
