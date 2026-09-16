@@ -18,7 +18,17 @@ const booleanAliasChain = createBooleanAliasChain('true');
 const booleanConditionAliasChain = createBooleanAliasChain('a === b');
 
 test({
-	valid: [],
+	valid: [
+		{
+			name: 'deep TypeScript condition alias chains do not overflow the call stack',
+			code: `${booleanAliasChain}\nfunction f() { return value20000 ? true : fallback(); }`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			name: 'deep aliases nested in boolean conditions do not overflow the call stack',
+			code: `${booleanAliasChain}\n(value20000 && true) ? true : fallback();`,
+		},
+	],
 	invalid: [
 		['a === b ? true : c === d', '(a === b) || (c === d)'],
 		['a === b ? false : c === d', '!(a === b) && (c === d)'],

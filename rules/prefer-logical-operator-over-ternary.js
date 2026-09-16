@@ -206,6 +206,19 @@ function canFixBooleanTernary(context) {
 	return !parserServices?.esTreeNodeToTSNodeMap && !isTypeScriptFile(context.physicalFilename);
 }
 
+function isBooleanTernaryTest(node, context) {
+	try {
+		return isBoolean(node, context);
+	} catch (error) {
+		// Treat pathological recursive inference as unknown instead of crashing linting.
+		if (error instanceof RangeError) {
+			return false;
+		}
+
+		throw error;
+	}
+}
+
 function getBooleanTernaryProblem(conditionalExpression, context) {
 	const {sourceCode} = context;
 	if (sourceCode.getAncestors(conditionalExpression).some(node => node.type === 'WithStatement')) {
@@ -224,10 +237,11 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 	const booleanValue = consequentValue ?? alternateValue;
 	const right = isConsequentBooleanConstant ? alternate : consequent;
 	const negateLeft = consequentValue === false || alternateValue === true;
+	const canFix = canFixBooleanTernary(context);
 
 	if (!negateLeft) {
-		const booleanTest = canFixBooleanTernary(context) ? unwrapConstantAliases(test, context) : test;
-		if (!isBoolean(booleanTest, context)) {
+		const booleanTest = canFix ? unwrapConstantAliases(test, context) : test;
+		if (!isBooleanTernaryTest(booleanTest, context)) {
 			return;
 		}
 	}
@@ -239,7 +253,7 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 
 	if (
 		sourceCode.getCommentsInside(conditionalExpression).length === 0
-		&& canFixBooleanTernary(context)
+		&& canFix
 	) {
 		problem.fix = fixer => fix({
 			fixer,
