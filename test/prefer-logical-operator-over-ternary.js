@@ -13,6 +13,8 @@ const typeAware = code => ({
 	},
 });
 
+const booleanAliasChain = Array.from({length: 20_001}, (_, index) => `const value${index} = ${index === 0 ? 'true' : `value${index - 1}`};`).join('\n');
+
 test({
 	valid: [],
 	invalid: [
@@ -44,6 +46,18 @@ test({
 		output,
 		errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
 	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			name: 'deep constant alias chains do not overflow the call stack',
+			code: `${booleanAliasChain}\na === b ? value20000 : fallback();`,
+			output: `${booleanAliasChain}\n(a === b) || fallback();`,
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+	],
 });
 
 test({

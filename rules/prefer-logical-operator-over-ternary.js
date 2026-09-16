@@ -125,7 +125,7 @@ const isConstAssertion = node => node.type === 'TSTypeReference'
 	&& node.typeName.type === 'Identifier'
 	&& node.typeName.name === 'const';
 
-function getBooleanConstantVariableValue(node, context) {
+function getBooleanConstantVariableDefinition(node, context, visitedVariables) {
 	const scope = context.sourceCode.getScope(node);
 	const variable = findVariable(scope, node);
 	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
@@ -137,40 +137,57 @@ function getBooleanConstantVariableValue(node, context) {
 		|| scope.variableScope !== variable.scope.variableScope
 		|| variable.scope.type === 'switch'
 		|| context.sourceCode.getRange(definition.node)[1] > context.sourceCode.getRange(node)[0]
+		|| visitedVariables.has(variable)
 	) {
 		return;
 	}
 
-	const value = getBooleanConstantValue(definition.node.init, context);
-
-	const annotatedValue = getBooleanLiteralTypeValue(definition.name.typeAnnotation);
-	if (definition.name.typeAnnotation && annotatedValue !== value) {
-		return;
-	}
-
-	return value;
+	visitedVariables.add(variable);
+	return definition;
 }
 
 function getBooleanConstantValue(node, context) {
-	if (isBooleanLiteral(node)) {
-		return node.value;
-	}
+	const literalTypeAnnotations = [];
+	const visitedVariables = new Set();
 
-	if (node.type === 'TSNonNullExpression' || node.type === 'TSSatisfiesExpression') {
-		return getBooleanConstantValue(node.expression, context);
-	}
+	while (node) {
+		if (isBooleanLiteral(node)) {
+			const {value} = node;
+			if (literalTypeAnnotations.some(typeAnnotation => getBooleanLiteralTypeValue(typeAnnotation) !== value)) {
+				return;
+			}
 
-	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-		const value = getBooleanConstantValue(node.expression, context);
-		const assertedValue = getBooleanLiteralTypeValue(node.typeAnnotation);
+			return value;
+		}
 
-		return isConstAssertion(node.typeAnnotation) || assertedValue === value
-			? value
-			: undefined;
-	}
+		if (node.type === 'TSNonNullExpression' || node.type === 'TSSatisfiesExpression') {
+			node = node.expression;
+			continue;
+		}
 
-	if (node.type === 'Identifier') {
-		return getBooleanConstantVariableValue(node, context);
+		if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+			if (!isConstAssertion(node.typeAnnotation)) {
+				literalTypeAnnotations.push(node.typeAnnotation);
+			}
+
+			node = node.expression;
+			continue;
+		}
+
+		if (node.type !== 'Identifier') {
+			return;
+		}
+
+		const definition = getBooleanConstantVariableDefinition(node, context, visitedVariables);
+		if (!definition) {
+			return;
+		}
+
+		if (definition.name.typeAnnotation) {
+			literalTypeAnnotations.push(definition.name.typeAnnotation);
+		}
+
+		node = definition.node.init;
 	}
 }
 
