@@ -7,6 +7,7 @@ import {
 } from '../utils/index.js';
 
 const linebreakPattern = /\r\n|[\n\r\u2028\u2029]/;
+const linebreaksPattern = /\r\n|[\n\r\u2028\u2029]/g;
 
 const getStatements = node => node.type === 'BlockStatement' ? node.body : [node];
 
@@ -30,6 +31,40 @@ const getLineIndent = (node, context) => {
 	const {sourceCode} = context;
 	const {line} = sourceCode.getLoc(node).start;
 	return /^[\t ]*/.exec(sourceCode.getLines()[line - 1])[0];
+};
+
+const getSurroundingLinebreak = (node, context) => {
+	const {sourceCode} = context;
+	for (let currentNode = node; currentNode.parent; currentNode = currentNode.parent) {
+		const [start, end] = sourceCode.getRange(currentNode);
+		const previousToken = sourceCode.getTokenBefore(currentNode, {includeComments: true});
+		const nextToken = sourceCode.getTokenAfter(currentNode, {includeComments: true});
+		const beforeStart = previousToken ? sourceCode.getRange(previousToken)[1] : 0;
+		const afterEnd = nextToken ? sourceCode.getRange(nextToken)[0] : sourceCode.text.length;
+		const before = sourceCode.text.slice(beforeStart, start).match(linebreaksPattern)?.at(-1);
+		const after = sourceCode.text.slice(end, afterEnd).match(linebreakPattern)?.[0];
+
+		if (after || before) {
+			return after ?? before;
+		}
+	}
+
+	return '\n';
+};
+
+const getLinebreak = (guard, context) => {
+	const {sourceCode} = context;
+	const tokens = sourceCode.getTokens(guard.parent, {includeComments: true});
+	for (let index = 1; index < tokens.length; index++) {
+		const previousEnd = sourceCode.getRange(tokens[index - 1])[1];
+		const currentStart = sourceCode.getRange(tokens[index])[0];
+		const linebreak = sourceCode.text.slice(previousEnd, currentStart).match(linebreakPattern)?.[0];
+		if (linebreak) {
+			return linebreak;
+		}
+	}
+
+	return getSurroundingLinebreak(guard.parent, context);
 };
 
 const getFix = (guard, statements, context) => {
@@ -64,8 +99,8 @@ const getFix = (guard, statements, context) => {
 	const indent = getLineIndent(guard, context);
 	const bodyIndent = getLineIndent(statements[0], context);
 	const bodyText = sourceCode.text.slice(sourceCode.getRange(statements[0])[0], sourceCode.getRange(statements.at(-1))[1]);
-	const linebreak = sourceCode.text.slice(...range).match(linebreakPattern)?.[0] ?? '\n';
-	const linebreaks = bodyText.match(/\r\n|[\n\r\u2028\u2029]/g) ?? [];
+	const linebreak = getLinebreak(guard, context);
+	const linebreaks = bodyText.match(linebreaksPattern) ?? [];
 	const lines = bodyText.split(linebreakPattern).map((line, index) => {
 		if (!line.trim()) {
 			return '';

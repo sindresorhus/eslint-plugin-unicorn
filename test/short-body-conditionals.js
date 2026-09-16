@@ -51,7 +51,57 @@ for (const [rule, exit, opening] of [
 		const result = linter.verifyAndFix(code, config);
 		t.is(result.output, expected);
 	});
+
+	test(`${rule}: uses the enclosing body line ending when the guard and tail share a line`, t => {
+		const code = `${opening}\r\n\tif (!condition) ${exit} work();\r\n}`;
+		const expected = `${opening}\r\n\tif (condition) {\r\n\t\twork();\r\n\t}\r\n}`;
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, config);
+		t.is(result.output, expected);
+	});
+
+	for (const linebreak of ['\r\n', '\r']) {
+		test(`${rule}: preserves surrounding ${JSON.stringify(linebreak)} line endings for a one-line match`, t => {
+			const code = `const prefix = true;${linebreak}${opening} if (!condition) ${exit} work(); }${linebreak}`;
+			const expected = `const prefix = true;${linebreak}${opening} if (condition) {${linebreak}\twork();${linebreak}} }${linebreak}`;
+			const linter = new Linter();
+			const result = linter.verifyAndFix(code, config);
+			t.is(result.output, expected);
+		});
+	}
 }
+
+test('short-body wrapping ignores line breaks inside condition tokens when choosing the structural line ending', t => {
+	const code = 'function foo() {\r\n\tif (!tag`first\nsecond`) {\r\n\t\treturn;\r\n\t}\r\n\twork();\r\n}\r\n';
+	const expected = 'function foo() {\r\n\tif (tag`first\nsecond`) {\r\n\t\twork();\r\n\t}\r\n}\r\n';
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, config);
+	t.is(result.output, expected);
+});
+
+test('short-body wrapping uses the line ending between an unbraced guard and else', t => {
+	const code = 'function foo() { if (!condition) return;\r\nelse work(); }';
+	const expected = 'function foo() { if (condition) {\r\n\twork();\r\n} }';
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, config);
+	t.is(result.output, expected);
+});
+
+test('short-body wrapping ignores line breaks inside unrelated tokens', t => {
+	const code = 'prefix;\r\nfunction foo() { if (!condition) return; work(); } const later = `first\nsecond`;';
+	const expected = 'prefix;\r\nfunction foo() { if (condition) {\r\n\twork();\r\n} } const later = `first\nsecond`;';
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, config);
+	t.is(result.output, expected);
+});
+
+test('short-body wrapping uses the line ending before an Allman-style body', t => {
+	const code = 'function foo()\r\n{ if (!condition) return; work(); }';
+	const expected = 'function foo()\r\n{ if (condition) {\r\n\twork();\r\n} }';
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, config);
+	t.is(result.output, expected);
+});
 
 test('short-body wrapping preserves mixed line endings inside the moved body', t => {
 	const code = 'function foo() {\r\n\tif (!condition) {\r\n\t\treturn;\r\n\t}\r\n\twork(\n\t\tvalue,\r\n\t);\r\n}';
