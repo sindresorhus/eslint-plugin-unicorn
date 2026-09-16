@@ -1,4 +1,5 @@
 import {
+	isBooleanLiteral,
 	isMemberExpression,
 	isNullLiteral,
 	isUndefined,
@@ -9,7 +10,9 @@ import {
 	getMemberAccessOperatorRange,
 	hasCommentInRange,
 	isSameReference,
+	isBoolean,
 	shouldAddParenthesesToLogicalExpressionChild,
+	shouldAddParenthesesToUnaryExpressionArgument,
 	needsSemicolon,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
@@ -75,20 +78,24 @@ function fix({
 	left,
 	right,
 	operator,
+	negateLeft = false,
 }) {
 	const {sourceCode} = context;
 	let text = [left, right].map((node, index) => {
 		const isNodeParenthesized = isParenthesized(node, context);
 		let text = isNodeParenthesized ? getParenthesizedText(node, context) : sourceCode.getText(node);
+		const negate = index === 0 && negateLeft;
 
 		if (
 			!isNodeParenthesized
-			&& shouldAddParenthesesToLogicalExpressionChild(node, {operator, property: index === 0 ? 'left' : 'right'})
+			&& (negate
+				? shouldAddParenthesesToUnaryExpressionArgument(node, '!')
+				: shouldAddParenthesesToLogicalExpressionChild(node, {operator, property: index === 0 ? 'left' : 'right'}))
 		) {
 			text = `(${text})`;
 		}
 
-		return text;
+		return negate ? `!${text}` : text;
 	}).join(` ${operator} `);
 
 	// According to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table
@@ -100,6 +107,42 @@ function fix({
 	}
 
 	return fixer.replaceText(conditionalExpression, text);
+}
+
+function getBooleanTernaryProblem(conditionalExpression, context) {
+	const {test, consequent, alternate} = conditionalExpression;
+	const isConsequentBooleanLiteral = isBooleanLiteral(consequent);
+	const isAlternateBooleanLiteral = isBooleanLiteral(alternate);
+
+	if (isConsequentBooleanLiteral === isAlternateBooleanLiteral) {
+		return;
+	}
+
+	const literal = isConsequentBooleanLiteral ? consequent : alternate;
+	const right = isConsequentBooleanLiteral ? alternate : consequent;
+
+	if (!isBoolean(test, context) || !isBoolean(right, context)) {
+		return;
+	}
+
+	const problem = {
+		node: conditionalExpression,
+		messageId: MESSAGE_ID_ERROR,
+	};
+
+	if (context.sourceCode.getCommentsInside(conditionalExpression).length === 0) {
+		problem.fix = fixer => fix({
+			fixer,
+			context,
+			conditionalExpression,
+			left: test,
+			right,
+			operator: literal.value ? '||' : '&&',
+			negateLeft: isConsequentBooleanLiteral !== literal.value,
+		});
+	}
+
+	return problem;
 }
 
 function getOptionalChainText(memberExpression, context) {
@@ -354,6 +397,12 @@ const create = context => {
 
 	context.on('ConditionalExpression', conditionalExpression => {
 		const {test, consequent, alternate} = conditionalExpression;
+		const booleanTernaryProblem = getBooleanTernaryProblem(conditionalExpression, context);
+
+		if (booleanTernaryProblem) {
+			return booleanTernaryProblem;
+		}
+
 		const nullishTernaryProblem = getNullishTernaryProblem(conditionalExpression, context);
 
 		if (nullishTernaryProblem) {
@@ -399,6 +448,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 
+		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 		languages: [
