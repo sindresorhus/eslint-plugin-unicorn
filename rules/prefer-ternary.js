@@ -1,5 +1,5 @@
 import {hasSideEffect, findVariable} from '@eslint-community/eslint-utils';
-import {isBooleanLiteral} from './ast/index.js';
+import {isBooleanLiteral, isFunction} from './ast/index.js';
 import {
 	needsSemicolon,
 	isSameReference,
@@ -16,7 +16,60 @@ import {
 const messageId = 'prefer-ternary';
 const suggestionMessageId = 'prefer-ternary/suggestion';
 
-const isTernary = node => node?.type === 'ConditionalExpression';
+function hasTernary(node, visitorKeys) {
+	if (!node) {
+		return false;
+	}
+
+	if (node.type === 'ConditionalExpression') {
+		return true;
+	}
+
+	// Functions and classes have their own ternary nesting context.
+	if (isFunction(node) || node.type === 'ClassExpression' || node.type === 'ClassDeclaration') {
+		return false;
+	}
+
+	for (const key of visitorKeys[node.type] ?? []) {
+		const child = node[key];
+		for (const childNode of Array.isArray(child) ? child : [child]) {
+			if (hasTernary(childNode, visitorKeys)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+// Preserve statement/class bodies and multiline containers, while allowing ordinary wrapped expressions.
+function hasComplexStructure(node, sourceCode) {
+	if (!node) {
+		return false;
+	}
+
+	if (node.type === 'BlockStatement' || node.type === 'ClassBody') {
+		return true;
+	}
+
+	if (
+		['ObjectExpression', 'ArrayExpression', 'JSXElement', 'JSXFragment', 'TemplateLiteral'].includes(node.type)
+		&& sourceCode.getLoc(node).start.line !== sourceCode.getLoc(node).end.line
+	) {
+		return true;
+	}
+
+	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
+		const child = node[key];
+		for (const childNode of Array.isArray(child) ? child : [child]) {
+			if (hasComplexStructure(childNode, sourceCode)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 
 function getNodeBody(node) {
 	/* c8 ignore next 3 */
@@ -41,21 +94,22 @@ function getNodeBody(node) {
 const isSingleLineNode = (node, context) =>
 	context.sourceCode.getLoc(node).start.line === context.sourceCode.getLoc(node).end.line;
 
-const isMergeableReturnStatement = (consequent, alternate) =>
+// Keep bare returns as explicit exits rather than introducing an undefined value branch.
+const isMergeableReturnStatement = (consequent, alternate, visitorKeys) =>
 	consequent.type === 'ReturnStatement'
 	&& alternate.type === 'ReturnStatement'
-	&& !isTernary(consequent.argument)
-	&& !isTernary(alternate.argument)
+	&& consequent.argument !== null
+	&& alternate.argument !== null
+	&& !hasTernary(consequent.argument, visitorKeys)
+	&& !hasTernary(alternate.argument, visitorKeys)
 	&& !(isBooleanLiteral(consequent.argument) && isBooleanLiteral(alternate.argument));
 
-const isMergeableAssignmentExpression = (consequent, alternate) =>
+const isMergeableAssignmentExpression = (consequent, alternate, visitorKeys) =>
 	consequent.type === 'AssignmentExpression'
 	&& alternate.type === 'AssignmentExpression'
 	&& consequent.operator === alternate.operator
-	&& !isTernary(consequent.left)
-	&& !isTernary(alternate.left)
-	&& !isTernary(consequent.right)
-	&& !isTernary(alternate.right)
+	&& !hasTernary(consequent.right, visitorKeys)
+	&& !hasTernary(alternate.right, visitorKeys)
 	&& isSameReference(consequent.left, alternate.left);
 
 /**
@@ -69,7 +123,10 @@ const create = context => {
 		let text = getParenthesizedText(node, context);
 		if (
 			!isParenthesized(node, sourceCode)
-			&& shouldAddParenthesesToConditionalExpressionChild(node)
+			&& (
+				shouldAddParenthesesToConditionalExpressionChild(node)
+				|| (node.type === 'ArrowFunctionExpression' && node.parent.type === 'IfStatement')
+			)
 		) {
 			text = `(${text})`;
 		}
@@ -90,19 +147,19 @@ const create = context => {
 			return returnFalseIfNotMergeable ? false : options;
 		}
 
-		if (isMergeableReturnStatement(consequent, alternate)) {
+		if (isMergeableReturnStatement(consequent, alternate, sourceCode.visitorKeys)) {
 			const {argument} = consequent;
 
 			return merge({
 				before: `${before}return `,
 				after,
-				consequent: argument === null ? 'undefined' : argument,
-				alternate: alternate.argument === null ? 'undefined' : alternate.argument,
+				consequent: argument,
+				alternate: alternate.argument,
 				node,
 			});
 		}
 
-		if (isMergeableAssignmentExpression(consequent, alternate)) {
+		if (isMergeableAssignmentExpression(consequent, alternate, sourceCode.visitorKeys)) {
 			const {left, right, operator} = consequent;
 
 			return merge({
@@ -134,7 +191,9 @@ const create = context => {
 			return;
 		}
 
-		if (isTernary(node.test) || isTernary(right)) {
+		if (
+			[node.test, right].some(expression => hasTernary(expression, sourceCode.visitorKeys) || hasComplexStructure(expression, sourceCode))
+		) {
 			return;
 		}
 
@@ -160,7 +219,8 @@ const create = context => {
 			declarator.id.type !== 'Identifier'
 			|| declarator.id.name !== left.name
 			|| !declarator.init
-			|| isTernary(declarator.init)
+			|| hasTernary(declarator.init, sourceCode.visitorKeys)
+			|| hasComplexStructure(declarator.init, sourceCode)
 		) {
 			return;
 		}
@@ -192,16 +252,12 @@ const create = context => {
 			return;
 		}
 
-		const problem = {node, messageId};
-
-		const hasComments = sourceCode.getCommentsInside(node).length > 0
-			|| sourceCode.getCommentsInside(previousNode).length > 0
-			|| sourceCode.getTokensBetween(previousNode, node, {includeComments: true})
-				.some(token => token.type === 'Block' || token.type === 'Line');
-
-		if (hasComments) {
-			return problem;
+		// Preserve commented decisions as statements, without reporting.
+		if (hasCommentInRange(context, [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]])) {
+			return;
 		}
+
+		const problem = {node, messageId};
 
 		const hasOtherWrites = variable.references.some(reference => !reference.init && reference.isWrite() && !isReferenceInsideNode(reference, node));
 		const keyword = hasOtherWrites ? 'let' : 'const';
@@ -236,7 +292,7 @@ const create = context => {
 	function getIfBranchesProblem(node, alternateNode = node.alternate) {
 		if (
 			(node.parent.type === 'IfStatement' && node.parent.alternate === node)
-			|| node.test.type === 'ConditionalExpression'
+			|| hasTernary(node.test, sourceCode.visitorKeys)
 			|| !node.consequent
 		) {
 			return;
@@ -256,7 +312,7 @@ const create = context => {
 			returnFalseIfNotMergeable: true,
 		});
 
-		if (!result) {
+		if (!result || [node.test, result.consequent, result.alternate].some(expression => hasComplexStructure(expression, sourceCode))) {
 			return;
 		}
 
@@ -264,38 +320,35 @@ const create = context => {
 		const replacementRange = isFlatReturn
 			? [sourceCode.getRange(node)[0], sourceCode.getRange(alternateNode)[1]]
 			: sourceCode.getRange(node);
-		const problem = {node, messageId};
 
-		// Don't fix if there are comments
+		// Preserve commented decisions as statements, without reporting.
 		if (
 			hasCommentInRange(context, replacementRange)
 			|| (isFlatReturn && getLastTrailingCommentOnSameLine(context, alternateNode))
 		) {
-			return problem;
+			return;
 		}
 
-		problem.fix = function * (fixer) {
-			const testText = getText(node.test);
-			const consequentText = typeof result.consequent === 'string'
-				? result.consequent
-				: getText(result.consequent);
-			const alternateText = typeof result.alternate === 'string'
-				? result.alternate
-				: getText(result.alternate);
+		return {
+			node,
+			messageId,
+			* fix(fixer) {
+				const testText = getText(node.test);
+				const consequentText = getText(result.consequent);
+				const alternateText = getText(result.alternate);
 
-			const {before, after} = result;
+				const {before, after} = result;
 
-			let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
-			const tokenBefore = sourceCode.getTokenBefore(node);
-			const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
-			if (shouldAddSemicolonBefore) {
-				fixed = `;${fixed}`;
-			}
+				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
+				const tokenBefore = sourceCode.getTokenBefore(node);
+				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
+				if (shouldAddSemicolonBefore) {
+					fixed = `;${fixed}`;
+				}
 
-			yield fixer.replaceTextRange(replacementRange, fixed);
+				yield fixer.replaceTextRange(replacementRange, fixed);
+			},
 		};
-
-		return problem;
 	}
 
 	context.on('IfStatement', node => {

@@ -23,6 +23,9 @@ const onlySingleLineOptions = ['only-single-line'];
 // ReturnStatement
 test({
 	valid: [
+		'function unicorn() { if (test) { return value; } else { return; } }',
+		'function unicorn() { if (/* explanation */ test) { return a; } else { return b; } }',
+		'function unicorn() { if (test) { return a; } else { /* explanation */ return b; } }',
 		// Test is Ternary
 		outdent`
 			function unicorn() {
@@ -63,8 +66,50 @@ test({
 			}
 		`,
 		'function unicorn() { if (test) return true; else return false; }',
+		outdent`
+			function unicorn() {
+				if(test){
+					return;
+				} else{
+					return b;
+				}
+			}
+		`,
+		outdent`
+			function unicorn() {
+				if(test){
+					return;
+				} else{
+					return;
+				}
+			}
+		`,
+		outdent`
+			async function unicorn() {
+				if(test){
+					return;
+				} else{
+					return await b;
+				}
+			}
+		`,
 	],
 	invalid: [
+		{
+			code: 'function unicorn() { if (item => normalize(item)) { return a; } else { return b; } }',
+			output: 'function unicorn() { return (item => normalize(item)) ? a : b; }',
+			errors,
+		},
+		{
+			code: 'function unicorn() { if ((item => normalize(item))) { return a; } else { return b; } }',
+			output: 'function unicorn() { return (item => normalize(item)) ? a : b; }',
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) { return undefined; } else { return b; } }',
+			output: 'function unicorn() { return test ? undefined : b; }',
+			errors,
+		},
 		{
 			code: outdent`
 				function unicorn() {
@@ -112,57 +157,6 @@ test({
 			output: outdent`
 				async function unicorn() {
 					return test ? (await a) : (await b);
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				function unicorn() {
-					if(test){
-						return;
-					} else{
-						return b;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					return test ? undefined : b;
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				function unicorn() {
-					if(test){
-						return;
-					} else{
-						return;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					return test ? undefined : undefined;
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				async function unicorn() {
-					if(test){
-						return;
-					} else{
-						return await b;
-					}
-				}
-			`,
-			output: outdent`
-				async function unicorn() {
-					return test ? undefined : (await b);
 				}
 			`,
 			errors,
@@ -282,6 +276,7 @@ test({
 // Flat ReturnStatement
 test({
 	valid: [
+		'function unicorn() { if (test) { return value; } return; }',
 		'function unicorn() { if (test) { return a; } doSomething(); return b; }',
 		'function unicorn() { if (test) { doSomething(); return a; } return b; }',
 		'function unicorn() { if (a ? b : c) { return a; } return b; }',
@@ -292,9 +287,9 @@ test({
 			code: outdent`
 				function unicorn() {
 					if (test) {
-						return {
-							multiline: true,
-						};
+						return format(
+							value,
+						);
 					}
 					return b;
 				}
@@ -307,13 +302,34 @@ test({
 					if (test) {
 						return a;
 					}
-					return {
-						multiline: true,
-					};
+					return format(
+						value,
+					);
 				}
 			`,
 			options: onlySingleLineOptions,
 		},
+		'function unicorn() { if (test) return; return; }',
+		'function unicorn() { if (test) return; return value; }',
+		'function unicorn() { if (test) { return /* comment */ a; } return b; }',
+		'function unicorn() { if (test) { return a; } return /* comment */ b; }',
+		outdent`
+			function unicorn() {
+				if (test) {
+					return a;
+				}
+				// comment
+				return b;
+			}
+		`,
+		outdent`
+			function unicorn() {
+				if (test) {
+					return a;
+				}
+				return b; // comment
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -324,16 +340,6 @@ test({
 		{
 			code: 'function unicorn() { if (test) return 1; return 2; }',
 			output: 'function unicorn() { return test ? 1 : 2; }',
-			errors,
-		},
-		{
-			code: 'function unicorn() { if (test) return; return; }',
-			output: 'function unicorn() { return test ? undefined : undefined; }',
-			errors,
-		},
-		{
-			code: 'function unicorn() { if (test) return; return value; }',
-			output: 'function unicorn() { return test ? undefined : value; }',
 			errors,
 		},
 		{
@@ -382,41 +388,6 @@ test({
 				}
 			`,
 			options: onlySingleLineOptions,
-			errors,
-		},
-		{
-			code: 'function unicorn() { if (test) { return /* comment */ a; } return b; }',
-			output: null,
-			errors,
-		},
-		{
-			code: 'function unicorn() { if (test) { return a; } return /* comment */ b; }',
-			output: null,
-			errors,
-		},
-		{
-			code: outdent`
-				function unicorn() {
-					if (test) {
-						return a;
-					}
-					// comment
-					return b;
-				}
-			`,
-			output: null,
-			errors,
-		},
-		{
-			code: outdent`
-				function unicorn() {
-					if (test) {
-						return a;
-					}
-					return b; // comment
-				}
-			`,
-			output: null,
 			errors,
 		},
 	],
@@ -746,9 +717,9 @@ test({
 		{
 			code: outdent`
 				if (test) {
-					a = {
-						multiline: 'in consequent'
-					};
+					a = format(
+						value,
+					);
 				} else{
 					a = foo;
 				}
@@ -760,9 +731,9 @@ test({
 				if (test) {
 					a = foo;
 				} else{
-					a = {
-						multiline: 'in alternate'
-					};
+					a = format(
+						value,
+					);
 				}
 			`,
 			options: onlySingleLineOptions,
@@ -770,9 +741,9 @@ test({
 		{
 			code: outdent`
 				if (
-					test({
-						multiline: 'in test'
-					})
+					test(
+						value,
+					)
 				) {
 					a = foo;
 				} else{
@@ -918,6 +889,7 @@ test({
 				}
 			}
 		`,
+		'if (test) {foo = /* comment */1;} else {foo = 2;}',
 	],
 	invalid: [
 		// Empty block should not matter
@@ -1065,16 +1037,13 @@ test({
 			`,
 			errors,
 		},
-		{
-			code: 'if (test) {foo = /* comment */1;} else {foo = 2;}',
-			errors,
-		},
 	],
 });
 
 // Variable declaration with no else clause
 test({
 	valid: [
+		'let x = a; if (/* explanation */ test) { x = b; }',
 		// `var` instead of `let`
 		outdent`
 			var x = a;
@@ -1231,9 +1200,8 @@ test({
 		// `only-single-line` with multi-line init
 		{
 			code: outdent`
-				let x = {
-					multiline: true,
-				};
+				let x = first
+					?? second;
 				if (test) {
 					x = b;
 				}
@@ -1244,9 +1212,9 @@ test({
 		{
 			code: outdent`
 				let x = a;
-				if (test({
-					multiline: true,
-				})) {
+				if (test(
+					value,
+				)) {
 					x = b;
 				}
 			`,
@@ -1257,15 +1225,56 @@ test({
 			code: outdent`
 				let x = a;
 				if (test) {
-					x = {
-						multiline: true,
-					};
+					x = format(
+						value,
+					);
 				}
 			`,
 			options: onlySingleLineOptions,
 		},
+		// Comments in if body (preserved without reporting)
+		outdent`
+			let x = a;
+			if (test) {
+				x = /* comment */ b;
+			}
+		`,
+		// Comments between declaration and if (preserved without reporting)
+		outdent`
+			let x = a;
+			// comment
+			if (test) {
+				x = b;
+			}
+		`,
+		// Comments inside declaration (preserved without reporting)
+		outdent`
+			let x = /* comment */ a;
+			if (test) {
+				x = b;
+			}
+		`,
+		// Trailing comment on declaration (preserved without reporting)
+		outdent`
+			let x = a; // default value
+			if (test) {
+				x = b;
+			}
+		`,
+		// Block comment between declaration and if (preserved without reporting)
+		outdent`
+			let x = a;
+			/* block comment */
+			if (test) {
+				x = b;
+			}
+		`,
 	],
 	invalid: [
+		{
+			code: 'let result = other; if (item => normalize(item)) { result = value; }',
+			errors: errorsWithSuggestion('const result = (item => normalize(item)) ? value : other;'),
+		},
 		// Basic case
 		{
 			code: outdent`
@@ -1346,47 +1355,6 @@ test({
 				const x = test ? b : a;
 			`),
 			options: onlySingleLineOptions,
-		},
-		// Comments in if body (no suggestion)
-		{
-			code: outdent`
-				let x = a;
-				if (test) {
-					x = /* comment */ b;
-				}
-			`,
-			errors,
-		},
-		// Comments between declaration and if (no suggestion)
-		{
-			code: outdent`
-				let x = a;
-				// comment
-				if (test) {
-					x = b;
-				}
-			`,
-			errors,
-		},
-		// Comments inside declaration (no suggestion)
-		{
-			code: outdent`
-				let x = /* comment */ a;
-				if (test) {
-					x = b;
-				}
-			`,
-			errors,
-		},
-		// Trailing comment on declaration (no suggestion)
-		{
-			code: outdent`
-				let x = a; // default value
-				if (test) {
-					x = b;
-				}
-			`,
-			errors,
 		},
 		// Test has side effects
 		{
@@ -1493,17 +1461,6 @@ test({
 					const x = test ? b : a;
 				}
 			`),
-		},
-		// Block comment between declaration and if (no suggestion)
-		{
-			code: outdent`
-				let x = a;
-				/* block comment */
-				if (test) {
-					x = b;
-				}
-			`,
-			errors,
 		},
 		// Semicolonless suggestion adds `;` when next token is `(`
 		{

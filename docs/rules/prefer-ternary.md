@@ -19,6 +19,19 @@ Using branching statements typically results in more lines of code than a single
 
 Additionally, branching statements can require a variable to use `let` or `var` solely so it can be reassigned. This adds unnecessary mutability and prevents `prefer-const` from flagging the variable.
 
+## Readability boundaries
+
+The rule skips:
+
+- Bare `return;` in either branch. Explicit `return undefined;` remains eligible.
+- Comments within or between merged statements, including trailing comments on a following `return`. Comments outside this range are allowed.
+- Conditions or merged values containing:
+  - Ternaries, except inside expression-bodied callbacks.
+  - Statement blocks or class bodies, even on one line.
+  - Multiline objects, arrays, JSX elements/fragments, or template literals.
+
+These checks include nested expressions, such as call arguments and TypeScript wrappers, and apply in both modes. Wrapped calls, logical expressions, inline literals, and concise callbacks remain eligible unless excluded above. [`only-single-line`](#options) additionally excludes all multiline conditions and values.
+
 ## Examples
 
 ```js
@@ -34,6 +47,18 @@ function unicorn() {
 // ✅
 function unicorn() {
 	return test ? a : b;
+}
+```
+
+```js
+// ✅
+// Preserve the early return to avoid nesting ternaries.
+function unicorn() {
+	if (test) {
+		return a;
+	}
+
+	return String(otherTest ? b : c);
 }
 ```
 
@@ -163,9 +188,9 @@ Default: `'always'`
 /* eslint unicorn/prefer-ternary: ["error", "only-single-line"] */
 // ✅
 if (test) {
-	foo = [
-		'multiple line array'
-	];
+	foo = format(
+		value,
+	);
 } else {
 	foo = bar;
 }
