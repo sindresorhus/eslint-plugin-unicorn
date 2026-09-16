@@ -6,6 +6,8 @@ import {
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from '../utils/index.js';
 
+const linebreakPattern = /\r\n|[\n\r\u2028\u2029]/;
+
 const getStatements = node => node.type === 'BlockStatement' ? node.body : [node];
 
 const isLabeledFunctionDeclaration = node =>
@@ -62,7 +64,9 @@ const getFix = (guard, statements, context) => {
 	const indent = getLineIndent(guard, context);
 	const bodyIndent = getLineIndent(statements[0], context);
 	const bodyText = sourceCode.text.slice(sourceCode.getRange(statements[0])[0], sourceCode.getRange(statements.at(-1))[1]);
-	const lines = bodyText.split('\n').map((line, index) => {
+	const linebreak = sourceCode.text.slice(...range).match(linebreakPattern)?.[0] ?? '\n';
+	const linebreaks = bodyText.match(/\r\n|[\n\r\u2028\u2029]/g) ?? [];
+	const lines = bodyText.split(linebreakPattern).map((line, index) => {
 		if (!line.trim()) {
 			return '';
 		}
@@ -70,8 +74,9 @@ const getFix = (guard, statements, context) => {
 		const text = index > 0 && line.startsWith(bodyIndent) ? line.slice(bodyIndent.length) : line;
 		return `${indent}\t${text}`;
 	});
+	const indentedBodyText = lines.map((line, index) => `${index === 0 ? '' : linebreaks[index - 1]}${line}`).join('');
 
-	return replace(`if (${condition}) {\n${lines.join('\n')}\n${indent}}`);
+	return replace(`if (${condition}) {${linebreak}${indentedBodyText}${linebreak}${indent}}`);
 };
 
 /**

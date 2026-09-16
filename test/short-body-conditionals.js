@@ -43,7 +43,21 @@ for (const [rule, exit, opening] of [
 		t.deepEqual(result.messages, []);
 		t.false(linter.verifyAndFix(result.output, config).fixed);
 	});
+
+	test(`${rule}: preserves local CRLF line endings`, t => {
+		const code = `const prefix = true;\n${opening}\r\n\tif (!condition) {\r\n\t\t${exit}\r\n\t}\r\n\twork();\r\n}`;
+		const expected = `const prefix = true;\n${opening}\r\n\tif (condition) {\r\n\t\twork();\r\n\t}\r\n}`;
+		const result = new Linter().verifyAndFix(code, config);
+		t.is(result.output, expected);
+	});
 }
+
+test('short-body wrapping preserves mixed line endings inside the moved body', t => {
+	const code = 'function foo() {\r\n\tif (!condition) {\r\n\t\treturn;\r\n\t}\r\n\twork(\n\t\tvalue,\r\n\t);\r\n}';
+	const expected = 'function foo() {\r\n\tif (condition) {\r\n\t\twork(\n\t\t\tvalue,\r\n\t\t);\r\n\t}\r\n}';
+	const result = new Linter().verifyAndFix(code, config);
+	t.is(result.output, expected);
+});
 
 test('short-body wrapping preserves function and loop behavior', t => {
 	for (const code of [
