@@ -110,9 +110,26 @@ const weakMap = new WeakMap([
 ]);
 ```
 
-## Conditional mutations
+## Options
 
-The rule also checks the mutations above when they immediately follow initialization in an `if` statement, `condition && mutation`, or `condition ? mutation : mutation`. Each branch must contain one mutation, optionally enclosed in a block. Both branches must use the same mutation type on the same variable, and `Object.assign()` is limited to one source.
+Type: `object`
+
+### checkConditionals
+
+Type: `boolean`\
+Default: `false`
+
+By default, conditional mutations are allowed. Set `checkConditionals` to `true` to check them:
+
+```js
+{
+	rules: {
+		'unicorn/no-immediate-mutation': ['error', {checkConditionals: true}],
+	},
+}
+```
+
+With this option enabled, the rule also checks the mutations above when they immediately follow initialization in an `if` statement, `condition && mutation`, or `condition ? mutation : mutation`. Each branch must contain one mutation, optionally enclosed in a block. Both branches must use the same mutation type on the same variable, and `Object.assign()` is limited to one source.
 
 ```js
 // ❌
