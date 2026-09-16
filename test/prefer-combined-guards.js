@@ -6,6 +6,7 @@ import plugin from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: testRule} = getTester(import.meta);
+const checkCompoundConditionsOptions = [{checkCompoundConditions: true}];
 
 testRule.snapshot({
 	valid: [
@@ -47,7 +48,7 @@ testRule.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			options: [{checkCompoundConditions: true}],
+			options: checkCompoundConditionsOptions,
 			code: outdent`
 				type A = {type: 'a'; exitCode(value: string): number};
 				type B = {type: 'b'; exitCode(value: number): number};
@@ -63,7 +64,7 @@ testRule.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			options: [{checkCompoundConditions: true}],
+			options: checkCompoundConditionsOptions,
 			code: outdent`
 				type A = {type: 'a'; method(value: string): string};
 				type B = {type: 'b'; method(value: number): string};
@@ -82,7 +83,7 @@ testRule.snapshot({
 	],
 	invalid: [
 		{
-			options: [{checkCompoundConditions: true}],
+			options: checkCompoundConditionsOptions,
 			code: outdent`
 				function check(context) {
 					if (context.finished) {
@@ -118,7 +119,7 @@ testRule.snapshot({
 		'async function foo() { if (await a) { return await result; } if (await b) { return await result; } }',
 		{
 			code: 'function* foo() { if (yield a) { return yield result; } if (yield b) { return yield result; } }',
-			options: [{checkCompoundConditions: true}],
+			options: checkCompoundConditionsOptions,
 		},
 		...['a || b', '((a))', '!a', '!!a', 'a || (b || c)', 'predicate(a && b)'].map(condition => `function foo() { if (${condition}) { return; } if (${condition}) { return; } }`),
 		'function foo() { if (a?.b) { return result?.(); } if (c?.[d]) { return result?.(); } }',
@@ -166,7 +167,7 @@ testRule({
 		'if (a) { process.exit(/* Exit code. */ 1); } if (b) { process.exit(/* Exit code. */ 1); }',
 	].flatMap(code => [
 		{code},
-		{code, options: [{checkCompoundConditions: true}]},
+		{code, options: checkCompoundConditionsOptions},
 	]),
 	invalid: [],
 });
@@ -243,8 +244,8 @@ testRule.snapshot({
 		`,
 	],
 	invalid: [
-		...compoundCases.map(code => ({code, options: [{checkCompoundConditions: true}]})),
-		...wrappedCompoundCases.map(testCase => ({...testCase, options: [{checkCompoundConditions: true}]})),
+		...compoundCases.map(code => ({code, options: checkCompoundConditionsOptions})),
+		...wrappedCompoundCases.map(testCase => ({...testCase, options: checkCompoundConditionsOptions})),
 	],
 });
 

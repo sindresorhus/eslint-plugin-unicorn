@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Consecutive guard clauses with identical exits can be combined using `||`, removing duplication while preserving condition evaluation order. By default, only simple conditions and flat `||` chains are checked, avoiding nested Boolean groups.
+Consecutive guard clauses with identical exits can be combined using `||`, removing duplication while preserving condition evaluation order. By default, only simple conditions and `||` chains of simple conditions are checked.
 
 This rule checks adjacent `if` statements without `else`. Each body, with or without braces, must consist of one `return`, `throw`, `break`, `continue`, or direct call to the global `process.exit()` function. Both exits must have the same kind, and their values, labels, or `process.exit()` calls must match.
 
