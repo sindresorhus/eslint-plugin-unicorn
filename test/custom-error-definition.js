@@ -2166,7 +2166,11 @@ ruleTest({
 		},
 		{
 			code: 'class FooError extends Error { constructor(status, message, opts) { super(message, opts); this.name = \'FooError\'; } }',
-			errors: [invalidOptionsParameterError],
+			errors: [{
+				...invalidOptionsParameterError,
+				column: 32,
+				endColumn: 43,
+			}],
 		},
 		{
 			code: 'class FooError extends Error { constructor(status, message, options) { super(message /* Preserve this note */); this.name = \'FooError\'; } }',

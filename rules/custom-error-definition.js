@@ -318,7 +318,7 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 
 	if (!optionsParameter) {
 		return {
-			node: secondParameter,
+			node: constructor.key,
 			messageId: MESSAGE_ID_INVALID_OPTIONS_PARAMETER,
 		};
 	}
