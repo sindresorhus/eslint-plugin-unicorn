@@ -248,8 +248,7 @@ function getProblem({
 	right,
 	operators = ['??', '||'],
 }) {
-	// The suggestion rebuilds the expression from `left`/`right` only, so it would drop
-	// any comment elsewhere in the ternary. Report without a suggestion in that case.
+	// The suggestion rebuilds the expression from `left`/`right` only, so it would drop any comment elsewhere in the ternary. Report without a suggestion in that case.
 	if (context.sourceCode.getCommentsInside(conditionalExpression).length > 0) {
 		return {
 			node: conditionalExpression,

@@ -26,7 +26,9 @@ test({
 		['value ? fallback() : true', '!value || fallback()'],
 		['const condition = () => true; condition() ? true : fallback()', 'const condition = () => true; condition() || fallback()'],
 		['function condition() { return true; } condition() ? true : fallback()', 'function condition() { return true; } condition() || fallback()'],
-		['const outer = function condition(value = condition() ? true : fallback()) { return true; };', 'const outer = function condition(value = condition() || fallback()) { return true; };'],
+		['async function f() { return await Boolean(value) ? true : fallback(); }', 'async function f() { return (await Boolean(value)) || fallback(); }'],
+		['async function f() { return await value ? false : fallback(); }', 'async function f() { return !await value && fallback(); }'],
+		['function * f() { return (yield value) ? false : fallback(); }', 'function * f() { return !(yield value) && fallback(); }'],
 		['const array = []; array.some(predicate) ? true : fallback()', 'const array = []; array.some(predicate) || fallback()'],
 		['const yes = true; a === b ? yes : fallback()', 'const yes = true; (a === b) || fallback()'],
 		['const yes = true, alias = yes; a === b ? alias : fallback()', 'const yes = true, alias = yes; (a === b) || fallback()'],
@@ -168,6 +170,10 @@ test.snapshot({
 			languageOptions: {sourceType: 'script'},
 		},
 		{
+			code: '\'use strict\'; function condition() { return true; } globalThis.condition = () => 1; condition() ? true : 0;',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
 			code: 'function outer() { function condition() { return true; } if (true) { function condition() { return 1; } } return condition() ? true : 0; }',
 			languageOptions: {sourceType: 'script'},
 		},
@@ -225,6 +231,10 @@ test.snapshot({
 		{
 			code: 'function condition(): boolean; function condition() { return true; } condition() ? true : fallback();',
 			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const outer = function condition(value = condition() ? true : fallback()) { return true; };',
+			languageOptions: {sourceType: 'script'},
 		},
 	],
 });
