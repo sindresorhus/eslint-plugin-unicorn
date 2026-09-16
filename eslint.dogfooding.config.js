@@ -55,6 +55,8 @@ const config = [
 			// Recursive AST/tree walkers are intentional in rule implementation code.
 			'unicorn/no-useless-recursion': 'off',
 			// Disabled violations remain intentional in this codebase.
+			'unicorn/prefer-continue': 'off',
+			'unicorn/prefer-early-return': 'off',
 			'unicorn/prefer-minimal-ternary': 'off',
 			'unicorn/prefer-simple-condition-first': 'off',
 			'unicorn/prefer-simplified-conditions': 'off',
