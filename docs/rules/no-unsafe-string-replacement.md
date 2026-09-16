@@ -11,6 +11,8 @@ The replacement argument of [`String#replace()`](https://developer.mozilla.org/e
 
 Use a literal string when the replacement is static. Use a replacement function when the replacement is dynamic.
 
+Calls to [`String#repeat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat) on string literals whose values do not contain `$` are also allowed when the count can be statically evaluated to a finite, non-negative number.
+
 ## Examples
 
 ```js
@@ -37,4 +39,10 @@ template.replace('{url}', 'https://example.com');
 ```js
 // ✅
 template.replace('{url}', `https://example.com`);
+```
+
+```js
+// ✅
+text.replaceAll('\t', ' '.repeat(4));
+text.replaceAll('\t', '\u00A0'.repeat(4));
 ```

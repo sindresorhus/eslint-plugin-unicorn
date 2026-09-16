@@ -15,6 +15,17 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
+		String.raw`text.replaceAll("\t", " ".repeat(4))`,
+		String.raw`text.replaceAll("\t", "\u00A0".repeat(4))`,
+		String.raw`text.replace("\t", " ".repeat(2 + 2))`,
+		String.raw`const count = 4; text.replaceAll("\t", " ".repeat(count))`,
+		'text.replace("pattern", (" ").repeat(0))',
+		'text.replace("pattern", "abc".repeat(2.5))',
+		'text.replace("pattern", " ".repeat(1e9))',
+		{
+			code: 'text.replace("pattern", ((" " as string).repeat(4 as number)) satisfies string)',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'template.replace("{url}", "https://example.com")',
 		'template.replace("{url}", `https://example.com`)',
 		'template.replace("{url}", String.raw`https://example.com`)',
@@ -115,5 +126,20 @@ test.snapshot({
 			'\t/* comment */ htmlEscape(url)',
 			')',
 		].join('\n'),
+		'text.replace("pattern", replacement.repeat(4))',
+		'text.replace("pattern", " ".repeat(count))',
+		'text.replace("pattern", " ".repeat(-1))',
+		'text.replace("pattern", " ".repeat(Infinity))',
+		'text.replace("pattern", " ".repeat(NaN))',
+		'text.replace("pattern", " ".repeat("4"))',
+		'text.replace("pattern", " ".repeat())',
+		'text.replace("pattern", " ".repeat(...counts))',
+		'text.replace("pattern", " ".repeat(4, extra))',
+		'text.replace("pattern", " ".repeat?.(4))',
+		'text.replace("pattern", " "["repeat"](4))',
+		'text.replace("pattern", "$$$$".repeat(2))',
+		'text.replaceAll("pattern", "$&".repeat(2))',
+		'text.replace("pattern", "&$".repeat(2))',
+		String.raw`text.replace("pattern", "\u0024".repeat(2))`,
 	],
 });
