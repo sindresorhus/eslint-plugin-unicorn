@@ -71,13 +71,18 @@ Default: `false`
 Also check unlabeled `continue` statements in nested loops and switches inside loops.
 
 ```js
-export default {
-	rules: {
-		'unicorn/no-break-in-nested-loop': ['error', {
-			checkContinue: true,
-		}],
+import unicorn from 'eslint-plugin-unicorn';
+
+export default [
+	unicorn.configs.recommended,
+	{
+		rules: {
+			'unicorn/no-break-in-nested-loop': ['error', {
+				checkContinue: true,
+			}],
+		},
 	},
-};
+];
 ```
 
 Allowed by default; reported with `checkContinue: true`:
