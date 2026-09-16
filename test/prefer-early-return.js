@@ -1031,5 +1031,12 @@ test({
 			output: null,
 			errors: [{messageId: 'prefer-early-return/short-body'}],
 		},
+		{
+			code: 'function foo() { if (!condition) { return; } declare function work(): void; }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parser: parsers.typescript},
+			output: null,
+			errors: [{messageId: 'prefer-early-return/short-body'}],
+		},
 	],
 });

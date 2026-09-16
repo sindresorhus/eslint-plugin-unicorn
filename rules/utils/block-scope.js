@@ -1,7 +1,9 @@
 const blockScopedDeclarationTypes = new Set([
 	'ClassDeclaration',
 	'FunctionDeclaration',
+	'TSDeclareFunction',
 	'TSEnumDeclaration',
+	'TSImportEqualsDeclaration',
 	'TSInterfaceDeclaration',
 	'TSModuleDeclaration',
 	'TSTypeAliasDeclaration',
@@ -15,7 +17,7 @@ const isBlockScopedDeclaration = node =>
 	|| blockScopedDeclarationTypes.has(node.type);
 
 /**
-Check whether a node is, or directly contains, a block-scoped declaration (`let`/`const`, class, function, or TypeScript type declaration).
+Check whether a node is, or directly contains, a block-scoped declaration (`let`/`const`, class, function, or TypeScript declaration).
 
 @param {object} node
 @returns {boolean}

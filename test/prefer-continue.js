@@ -861,5 +861,12 @@ test({
 			output: null,
 			errors: [{messageId: 'prefer-continue/short-body'}],
 		},
+		{
+			code: 'for (const item of items) { if (!condition) { continue; } import work = require(\'work\'); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parser: parsers.typescript},
+			output: null,
+			errors: [{messageId: 'prefer-continue/short-body'}],
+		},
 	],
 });
