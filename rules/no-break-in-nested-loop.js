@@ -135,7 +135,7 @@ const config = {
 			properties: {
 				checkContinue: {
 					type: 'boolean',
-					description: 'Also disallow `continue` in nested loops and switches inside loops.',
+					description: 'Whether to also check unlabeled `continue` statements in nested loops and switches inside loops.',
 				},
 			},
 		}],

@@ -71,11 +71,13 @@ Default: `false`
 Also check unlabeled `continue` statements in nested loops and switches inside loops.
 
 ```js
-{
-	'unicorn/no-break-in-nested-loop': ['error', {
-		checkContinue: true,
-	}],
-}
+export default {
+	rules: {
+		'unicorn/no-break-in-nested-loop': ['error', {
+			checkContinue: true,
+		}],
+	},
+};
 ```
 
 Allowed by default; reported with `checkContinue: true`:
