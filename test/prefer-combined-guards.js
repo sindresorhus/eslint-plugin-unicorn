@@ -47,6 +47,7 @@ testRule.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			options: [{checkCompoundConditions: true}],
 			code: outdent`
 				type A = {type: 'a'; exitCode(value: string): number};
 				type B = {type: 'b'; exitCode(value: number): number};
@@ -62,6 +63,7 @@ testRule.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			options: [{checkCompoundConditions: true}],
 			code: outdent`
 				type A = {type: 'a'; method(value: string): string};
 				type B = {type: 'b'; method(value: number): string};
@@ -79,16 +81,19 @@ testRule.snapshot({
 		},
 	],
 	invalid: [
-		outdent`
-			function check(context) {
-				if (context.finished) {
-					return;
+		{
+			options: [{checkCompoundConditions: true}],
+			code: outdent`
+				function check(context) {
+					if (context.finished) {
+						return;
+					}
+					if (!context.hasResult && !context.hasError) {
+						return;
+					}
 				}
-				if (!context.hasResult && !context.hasError) {
-					return;
-				}
-			}
-		`,
+			`,
+		},
 		'if (value < 0) { throw invalidValue; } if (!Number.isFinite(value)) { throw invalidValue; }',
 		'function foo() { if (a) { return result; } if (b) { return result; } }',
 		'function foo() { if (first()) { return result(); } if (second()) { return result(); } }',
@@ -111,8 +116,11 @@ testRule.snapshot({
 		},
 		'class Foo { static { if (a) { throw error; } if (b) { throw error; } } }',
 		'async function foo() { if (await a) { return await result; } if (await b) { return await result; } }',
-		'function* foo() { if (yield a) { return yield result; } if (yield b) { return yield result; } }',
-		...['a || b', 'a && b', 'a ?? b', 'a ? b : c', 'a = b', 'a, b', '() => a', '((a))'].map(condition => `function foo() { if (${condition}) { return; } if (${condition}) { return; } }`),
+		{
+			code: 'function* foo() { if (yield a) { return yield result; } if (yield b) { return yield result; } }',
+			options: [{checkCompoundConditions: true}],
+		},
+		...['a || b', '((a))', '!a', '!!a', 'a || (b || c)', 'predicate(a && b)'].map(condition => `function foo() { if (${condition}) { return; } if (${condition}) { return; } }`),
 		'function foo() { if (a?.b) { return result?.(); } if (c?.[d]) { return result?.(); } }',
 		'function foo() { if (tag`first`) { return [...values]; } if (tag`second`) { return [...values]; } }',
 		'function foo({a, b}) { if (a) { return {value}; } if (b) { return {value}; } }',
@@ -120,7 +128,7 @@ testRule.snapshot({
 		'function foo() { if (a) { return value }\nif (b) return value\ndone() }',
 		'for (;;) { if (a) break\nif (b) break\ndone() }',
 		'function foo() { if (a) { return; } if (b) { return; } /* Keep trailing comment. */ }',
-		...['a as boolean', '<boolean>a', 'a!', 'a satisfies boolean', 'predicate<string>(a)'].map(condition => ({
+		...['a as boolean', '<boolean>a', 'a!', 'a satisfies boolean', 'predicate<string>(a)', '(a || b) as boolean'].map(condition => ({
 			code: `function foo() { if (${condition}) { return; } if (b) { return; } }`,
 			languageOptions: {parser: parsers.typescript},
 		})),
@@ -145,8 +153,9 @@ testRule.snapshot({
 });
 
 testRule({
-	valid: [],
-	invalid: [
+	valid: [
+		'function foo() { /* First reason. */ if (a) { return; } if (b) { return; } }',
+		'function foo() { // First reason.\nif (a) { return; } if (b) { return; } }',
 		'function foo() { if (a) { /* First guard. */ return; } if (b) { return; } }',
 		'function foo() { if (a) { return; } /* Between guards. */ if (b) { return; } }',
 		'function foo() { if (a) { return; } if (b) { /* Second guard. */ return; } }',
@@ -155,7 +164,87 @@ testRule({
 		'function foo() { if (a) { return; } // First guard.\nif (b) { return; } }',
 		'function foo() { if (a) { return; }\n// eslint-disable-next-line no-console\nif (b) { return; } }',
 		'if (a) { process.exit(/* Exit code. */ 1); } if (b) { process.exit(/* Exit code. */ 1); }',
-	].map(code => ({code, errors: [{messageId: 'prefer-combined-guards'}]})),
+	].flatMap(code => [
+		{code},
+		{code, options: [{checkCompoundConditions: true}]},
+	]),
+	invalid: [],
+});
+
+const compoundConditions = [
+	'a && b',
+	'a ?? b',
+	'a ? b : c',
+	'a = b',
+	'a, b',
+	'() => a',
+	'a || (b && c)',
+	'!(a || b)',
+	'!!(a && b)',
+	'!(a ? b : c)',
+];
+const compoundCases = [
+	...compoundConditions.flatMap(condition => [
+		`function foo() { if (${condition}) { return; } if (other) { return; } }`,
+		`function foo() { if (other) { return; } if (${condition}) { return; } }`,
+	]),
+	...['a && b', 'a || b'].map(condition => `async function foo() { if (await (${condition})) { return; } if (other) { return; } }`),
+];
+const wrappedCompoundCases = ['(a && b) as boolean', '<boolean>(a && b)', '(a && b)!', '(a && b) satisfies boolean', '!((a || b) as boolean)'].map(condition => ({
+	code: `function foo() { if (${condition}) { return; } if (other) { return; } }`,
+	languageOptions: {parser: parsers.typescript},
+}));
+
+testRule.snapshot({
+	valid: [
+		...compoundCases,
+		'function* foo() { if (yield a) { return; } if (b) { return; } }',
+		...wrappedCompoundCases,
+		{
+			code: 'function foo() { if (a && b) { return; } if (c) { return; } }',
+			options: [{checkCompoundConditions: false}],
+		},
+		outdent`
+			for (const comment of comments) {
+				// Exclude explicitly linked comments #5363
+				if (commentText === linkedComment) {
+					continue;
+				}
+
+				if (!isLowQualityComment(commentText.textContent) && isFocused(comment)) {
+					continue;
+				}
+
+				// Comments that contain useful images or links shouldn't be removed
+				// Images are wrapped in <a> tags on GitHub hence included in the selector
+				if (elementExists('a', commentText)) {
+					continue;
+				}
+			}
+		`,
+		outdent`
+			function processCommit() {
+				if (!commit) {
+					return;
+				}
+
+				if (
+					// Skip commits that are only "ci:" without anything else.
+					commit.raw === textNode.textContent
+					&& !commitTitleElement.nextElementSibling
+
+					// Ensure that the element contains only plain text, not stuff like <code>.
+					&& commitTitleElement.childElementCount < 1
+				) {
+					return;
+				}
+			}
+		`,
+	],
+	invalid: [
+		...compoundCases.map(code => ({code, options: [{checkCompoundConditions: true}]})),
+		...wrappedCompoundCases.map(testCase => ({...testCase, options: [{checkCompoundConditions: true}]})),
+	],
 });
 
 const config = {
@@ -168,6 +257,25 @@ test('repeated fixes combine all consecutive guards', t => {
 	const {output, messages} = linter.verifyAndFix('function foo() { if (a) { return; } if (b) { return; } if (c) { return; } }', config);
 	t.is(output, 'function foo() { if (a || b || c) { return; } }');
 	t.deepEqual(messages, []);
+});
+
+test('repeated fixes preserve compound and documented guard boundaries', t => {
+	const linter = new Linter();
+	const code = outdent`
+		function foo() {
+			if (a) { return; }
+			if (b || c) { return; }
+			if (d && e) { return; }
+			if (f) { return; }
+			// A separate reason.
+			if (g) { return; }
+			if (h) { return; }
+		}
+	`;
+	const {output, messages} = linter.verifyAndFix(code, config);
+	t.is(output, code.replace('if (a) { return; }\n\tif (b || c)', 'if (a || b || c)'));
+	t.deepEqual(messages, []);
+	t.false(linter.verifyAndFix(output, config).fixed);
 });
 
 test('fixes compose with related control-flow rules', t => {

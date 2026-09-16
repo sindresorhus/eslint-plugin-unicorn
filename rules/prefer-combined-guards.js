@@ -6,6 +6,7 @@ import {
 	isProcessExitCall,
 	isTypeScriptExpressionWrapper,
 	shouldAddParenthesesToLogicalExpressionChild,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-combined-guards';
@@ -19,6 +20,36 @@ const exitStatementTypes = new Set([
 	'BreakStatement',
 	'ContinueStatement',
 ]);
+
+function isSimpleCondition(node, allowLogicalOr = true) {
+	node = unwrapTypeScriptExpression(node);
+
+	switch (node.type) {
+		case 'LogicalExpression': {
+			return allowLogicalOr
+				&& node.operator === '||'
+				&& isSimpleCondition(node.left)
+				&& isSimpleCondition(node.right);
+		}
+
+		case 'UnaryExpression':
+		case 'AwaitExpression': {
+			return isSimpleCondition(node.argument, false);
+		}
+
+		case 'ConditionalExpression':
+		case 'AssignmentExpression':
+		case 'SequenceExpression':
+		case 'ArrowFunctionExpression':
+		case 'YieldExpression': {
+			return false;
+		}
+
+		default: {
+			return true;
+		}
+	}
+}
 
 function getExitStatement(node, context) {
 	if (node?.type !== 'IfStatement' || node.alternate) {
@@ -101,6 +132,7 @@ function getConditionText(node, property, context) {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const {checkCompoundConditions} = context.options[0];
 
 	context.on('IfStatement', node => {
 		const exit = getExitStatement(node, context);
@@ -116,19 +148,21 @@ const create = context => {
 			// Preserve significant whitespace, including ASI inside returned functions.
 			|| getExitText(previousExit, sourceCode) !== getExitText(exit, sourceCode)
 			|| isExitUnsafeToCombine(exit, sourceCode)
+			|| (!checkCompoundConditions && (!isSimpleCondition(previousNode.test) || !isSimpleCondition(node.test)))
 		) {
+			return;
+		}
+
+		const range = [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]];
+		// Comments can describe distinct exit reasons that combining guards would obscure.
+		if (sourceCode.getCommentsBefore(previousNode).length > 0 || hasCommentInRange(context, range)) {
 			return;
 		}
 
 		return {
 			node,
 			messageId: MESSAGE_ID,
-			* fix(fixer, {abort}) {
-				const range = [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]];
-				if (hasCommentInRange(context, range)) {
-					abort();
-				}
-
+			* fix(fixer) {
 				const left = getConditionText(previousNode.test, 'left', context);
 				const right = getConditionText(node.test, 'right', context);
 				const closingParenthesis = sourceCode.getTokenBefore(node.consequent);
@@ -152,7 +186,17 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
-		schema: [],
+		schema: [{
+			type: 'object',
+			properties: {
+				checkCompoundConditions: {
+					type: 'boolean',
+					description: 'Check guards with compound conditions.',
+				},
+			},
+			additionalProperties: false,
+		}],
+		defaultOptions: [{checkCompoundConditions: false}],
 		messages,
 		languages: [
 			'js/js',

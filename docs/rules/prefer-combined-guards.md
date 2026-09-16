@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Consecutive guard clauses with identical exits can be combined using `||`, removing duplication while preserving condition evaluation order.
+Consecutive guard clauses with identical exits can be combined using `||`, removing duplication while preserving condition evaluation order. By default, only simple conditions and flat `||` chains are checked, avoiding nested Boolean groups.
 
 This rule checks adjacent `if` statements without `else`. Each body, with or without braces, must consist of one `return`, `throw`, `break`, `continue`, or direct call to the global `process.exit()` function. Both exits must have the same kind, and their values, labels, or `process.exit()` calls must match.
 
@@ -17,7 +17,7 @@ Exit values, labels, and calls are compared by source text, ignoring surrounding
 
 To preserve TypeScript control-flow narrowing, the rule ignores non-literal `return` and `throw` values and non-literal `process.exit()` arguments in TypeScript. It also ignores exits containing tagged templates because each source location has its own cached template object.
 
-Comments inside or between guards prevent autofixing.
+Guards with comments before either guard, inside them, or between them are ignored. Comments can describe distinct exit reasons, and combining the guards would obscure that separation.
 
 ## Examples
 
@@ -28,14 +28,14 @@ function check(context) {
 		return;
 	}
 
-	if (!context.hasResult && !context.hasError) {
+	if (context.cancelled) {
 		return;
 	}
 }
 
 // ✅
 function check(context) {
-	if (context.finished || (!context.hasResult && !context.hasError)) {
+	if (context.finished || context.cancelled) {
 		return;
 	}
 }
@@ -43,17 +43,21 @@ function check(context) {
 
 ```js
 // ❌
-if (value < 0) {
-	throw invalidValue;
-}
+function validate(value) {
+	if (value < 0) {
+		throw invalidValue;
+	}
 
-if (!Number.isFinite(value)) {
-	throw invalidValue;
+	if (!Number.isFinite(value)) {
+		throw invalidValue;
+	}
 }
 
 // ✅
-if ((value < 0) || !Number.isFinite(value)) {
-	throw invalidValue;
+function validate(value) {
+	if ((value < 0) || !Number.isFinite(value)) {
+		throw invalidValue;
+	}
 }
 ```
 
@@ -91,6 +95,37 @@ if (firstCondition) {
 
 if (secondCondition) {
 	count++;
+}
+```
+
+## Options
+
+### checkCompoundConditions
+
+Type: `boolean`\
+Default: `false`
+
+Also check compound conditions, such as `&&`, `??`, ternaries, and negated groups. Comments still prevent reporting.
+
+```js
+// With {checkCompoundConditions: true}:
+
+// ❌
+function check(context) {
+	if (context.finished) {
+		return;
+	}
+
+	if (!context.hasResult && !context.hasError) {
+		return;
+	}
+}
+
+// ✅
+function check(context) {
+	if (context.finished || (!context.hasResult && !context.hasError)) {
+		return;
+	}
 }
 ```
 
