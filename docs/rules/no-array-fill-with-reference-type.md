@@ -13,6 +13,8 @@ Create the value inside an `Array.from()` mapping function when each array eleme
 
 A receiver known not to be an array is ignored, including a typed array, since [`TypedArray#fill()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/fill) coerces the value to a number and no two elements can end up sharing a reference. Unknown receivers are still reported.
 
+Without type-aware linting, TypeScript calls to local function declarations and `const` function initializers are classified from explicit return annotations. Variable annotations, assertions, generics, overloads, imports, and inferred returns require type-aware linting.
+
 ## Examples
 
 ```js

@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isCallExpression,
+	isFunction,
 	isNewExpression,
 } from '../ast/index.js';
 import {
@@ -483,6 +484,47 @@ const getTypeFromVariable = (node, context, options, visitedVariables) => {
 	return type;
 };
 
+const getTypeFromFunctionCall = (node, context, options) => {
+	if (node.callee.type !== 'Identifier') {
+		return unknown;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node.callee), node.callee);
+	if (
+		!variable
+		|| variable.defs.length !== 1
+		|| variable.references.some(reference => reference.isWrite() && !reference.init)
+	) {
+		return unknown;
+	}
+
+	const [definition] = variable.defs;
+	let functionNode;
+	if (definition.type === 'FunctionName') {
+		functionNode = definition.node;
+	} else if (
+		definition.type === 'Variable'
+		&& definition.parent.kind === 'const'
+		&& definition.node.id === definition.name
+	) {
+		let initializer = definition.node.init;
+		while (
+			initializer?.type === 'TSSatisfiesExpression'
+			|| initializer?.type === 'TSNonNullExpression'
+		) {
+			initializer = initializer.expression;
+		}
+
+		if (initializer && isFunction(initializer)) {
+			functionNode = initializer;
+		}
+	}
+
+	return functionNode?.returnType && !functionNode.typeParameters
+		? getTypeAnnotationType(functionNode.returnType, context.sourceCode.getScope(functionNode).upper, options)
+		: unknown;
+};
+
 const getClassType = (node, scope, options, visitedNames) => {
 	if (!node.superClass) {
 		return nonTarget;
@@ -625,6 +667,10 @@ const getTypeFromExpression = (node, context, options, visitedVariables) => {
 	switch (node.type) {
 		case 'Identifier': {
 			return getTypeFromVariable(node, context, options, visitedVariables);
+		}
+
+		case 'CallExpression': {
+			return getTypeFromFunctionCall(node, context, options);
 		}
 
 		case 'ThisExpression': {
