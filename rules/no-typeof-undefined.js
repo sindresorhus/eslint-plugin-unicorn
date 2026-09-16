@@ -7,7 +7,7 @@ import {
 	needsSemicolon,
 	isParenthesized,
 	isOnSameLine,
-	isGlobalIdentifier,
+	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
@@ -15,6 +15,40 @@ const MESSAGE_ID_SUGGESTION = 'no-typeof-undefined/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Compare with `undefined` directly instead of using `typeof`.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `… {{operator}} undefined`.',
+};
+
+const isAmbientVariableDefinition = definition =>
+	definition.type === 'Variable'
+	&& definition.parent.declare === true;
+
+function unwrapTypeofArgument(node) {
+	while (isTypeScriptExpressionWrapper(node) || node.type === 'TSInstantiationExpression') {
+		node = node.expression;
+	}
+
+	return node;
+}
+
+const getIdentifierReference = (identifier, scope) => {
+	while (scope) {
+		const reference = scope.references.find(reference => reference.identifier === identifier);
+		if (reference) {
+			return reference;
+		}
+
+		scope = scope.upper;
+	}
+};
+
+const isAmbientVariable = variable => {
+	if (!variable) {
+		return false;
+	}
+
+	return variable.defs.some(definition => isAmbientVariableDefinition(definition))
+		&& variable.defs.every(definition =>
+			definition.type === 'Type'
+			|| isAmbientVariableDefinition(definition));
 };
 
 /**
@@ -43,8 +77,17 @@ const create = context => {
 
 		const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
 		const {sourceCode} = context;
-		const valueNode = typeofNode.argument;
-		const isGlobalVariable = isGlobalIdentifier(valueNode, context);
+		const valueNode = unwrapTypeofArgument(typeofNode.argument);
+		let isGlobalVariable = false;
+
+		if (valueNode.type === 'Identifier') {
+			const reference = getIdentifierReference(valueNode, sourceCode.getScope(valueNode));
+			if (isAmbientVariable(reference?.resolved)) {
+				return;
+			}
+
+			isGlobalVariable = sourceCode.isGlobalReference(valueNode) || !reference?.resolved;
+		}
 
 		if (!checkGlobalVariables && isGlobalVariable) {
 			return;
