@@ -19,6 +19,11 @@ testRule({
 			output: 'if (condition) { const value = 1; consume(/* keep */ value); }',
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'value'}}],
 		},
+		{
+			code: 'const value = 1; if (condition) { consume(value); // Keep this comment.\n}',
+			output: 'if (condition) { const value = 1; consume(value); // Keep this comment.\n}',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'value'}}],
+		},
 	],
 });
 
@@ -27,6 +32,7 @@ testRule.snapshot({
 		'const value = 1; if (condition) { consume(); }',
 		'const value = 1; if (value) { consume(value); }',
 		'const value = 1; if (condition) { consume(value); } consume(value);',
+		'const value = 1; if (condition) { consume(value); } export {value};',
 		'let value = 1; if (condition) { consume(value); } value = 2;',
 		'const value = 1; if (condition) { consume(value); } else { consume(value); }',
 		'const value = 1; consume(); if (condition) { consume(value); }',
@@ -95,7 +101,9 @@ testRule.snapshot({
 	invalid: [
 		...['1', '1n', 'true', 'false', 'null', '"value"', '`value`'].map(initializer => `const value = ${initializer}; if (condition) { consume(value); }`),
 		'let value = 1; if (condition) { value++; consume(value); }',
+		'let value = 1; if (condition) { ({value} = object); }',
 		'const value = 1; if (condition) { consume(); } else { consume(value); }',
+		'const value = 1; if (condition) { consume(value); } else { const value = 2; consume(value); }',
 		'const value = 1; if (condition) { if (other) { consume(value); } }',
 		'const value = (1); if (condition) { consume(value); }',
 		{
