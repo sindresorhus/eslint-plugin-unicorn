@@ -24,7 +24,7 @@ The rule handles ternaries with exactly one constant boolean branch, including s
 | `condition ? expression : false` | `condition && expression` | Boolean |
 | `condition ? expression : true` | `!condition \|\| expression` | Any |
 
-The other branch can have any type. The condition must be known to be boolean unless the replacement negates it. TypeScript, JavaScript parsed with TypeScript services, and ternaries containing comments are reported without a fix. These cases are skipped inside `with` statements. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
+The other branch can have any type. The condition must be known to be boolean unless the replacement negates it. TypeScript cases, JavaScript parsed with TypeScript services, and ternaries containing comments are reported without a fix. Constant-boolean checks are skipped inside `with` statements; other matching patterns may still be reported. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
 
 ## Examples
 
