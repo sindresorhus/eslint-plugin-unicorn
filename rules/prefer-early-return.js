@@ -1,3 +1,4 @@
+import getShortBodyProblem from './shared/short-body-conditional.js';
 import {
 	getParenthesizedText,
 	hasMultilineToken,
@@ -7,7 +8,9 @@ import {isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-early-return';
 const SUGGESTION_MESSAGE_ID = 'prefer-early-return/suggestion';
+const SHORT_BODY_MESSAGE_ID = 'prefer-early-return/short-body';
 const messages = {
+	[SHORT_BODY_MESSAGE_ID]: 'Prefer conditional wrapping over an early return for a short body.',
 	[MESSAGE_ID]: 'Prefer an early return over wrapping the remainder of the function body in an `if` statement.',
 	[SUGGESTION_MESSAGE_ID]: 'Rewrite to an early return.',
 };
@@ -35,6 +38,10 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
+			checkShortBodies: {
+				type: 'boolean',
+				description: 'Enforce conditional wrapping for bodies at or below maximumStatements.',
+			},
 			maximumStatements: {
 				type: 'integer',
 				minimum: 0,
@@ -356,6 +363,11 @@ const create = context => {
 			return;
 		}
 
+		const shortBodyProblem = getShortBodyProblem(node.body, context, 'ReturnStatement');
+		if (shortBodyProblem) {
+			return {...shortBodyProblem, messageId: SHORT_BODY_MESSAGE_ID};
+		}
+
 		const {body} = node.body;
 		const statement = body.at(-1);
 		if (
@@ -392,7 +404,7 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
-		defaultOptions: [{maximumStatements: 1}],
+		defaultOptions: [{maximumStatements: 1, checkShortBodies: false}],
 		messages,
 		languages: [
 			'js/js',

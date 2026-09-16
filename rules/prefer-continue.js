@@ -1,3 +1,4 @@
+import getShortBodyProblem from './shared/short-body-conditional.js';
 import {isCallExpression, loopTypes} from './ast/index.js';
 import {
 	getParenthesizedText,
@@ -10,7 +11,9 @@ import {
 */
 
 const MESSAGE_ID = 'prefer-continue';
+const SHORT_BODY_MESSAGE_ID = 'prefer-continue/short-body';
 const messages = {
+	[SHORT_BODY_MESSAGE_ID]: 'Prefer conditional wrapping over an early continue for a short body.',
 	[MESSAGE_ID]: 'Prefer an early continue over wrapping the remainder of the loop body in an `if` statement.',
 };
 
@@ -30,6 +33,10 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
+			checkShortBodies: {
+				type: 'boolean',
+				description: 'Enforce conditional wrapping for bodies at or below maximumStatements.',
+			},
 			maximumStatements: {
 				type: 'integer',
 				minimum: 0,
@@ -342,6 +349,11 @@ const create = context => {
 			return;
 		}
 
+		const shortBodyProblem = getShortBodyProblem(loop.body, context, 'ContinueStatement');
+		if (shortBodyProblem) {
+			return {...shortBodyProblem, messageId: SHORT_BODY_MESSAGE_ID};
+		}
+
 		const statement = loop.body.body.at(-1);
 		if (
 			statement?.type !== 'IfStatement'
@@ -375,7 +387,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{maximumStatements: 1}],
+		defaultOptions: [{maximumStatements: 1, checkShortBodies: false}],
 		messages,
 		languages: [
 			'js/js',

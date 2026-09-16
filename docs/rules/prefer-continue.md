@@ -11,7 +11,7 @@
 
 Avoid wrapping the rest of a loop body in a conditional. A `continue` guard often makes the main path clearer by skipping uninteresting iterations first.
 
-This rule reports when the last statement of a block-bodied loop is an `if` statement without `else`, even when other statements precede it. With the default `maximumStatements` option, it does not report nested `if` statements, loops that continue after the `if`, or non-block loop bodies.
+By default, this rule reports when the last statement of a block-bodied loop is an `if` statement without `else`, even when other statements precede it. With the default `maximumStatements` option, it does not report nested `if` statements, loops that continue after the `if`, or non-block loop bodies.
 
 It also does not report when the `if` body unconditionally exits the iteration (its last statement is `return`, `break`, `continue`, or `throw`), since an early `continue` would not flatten anything.
 
@@ -103,6 +103,53 @@ Set `maximumStatements` to `0` to report any non-empty conditional wrapper at th
 ```
 
 Autofix is conservative. When statements precede the final `if`, direct `let` or `const` declarations in its body prevent automatic fixes. It skips wrappers with comments outside the condition or moved body, trailing wrapper comments, moved lexical names that are used in the condition, direct `eval(...)` with moved lexical declarations, direct function, class, TypeScript, `using`, or `await using` declarations, and multiline-sensitive strings, templates, or JSX. Multiline unbraced consequents are report-only.
+
+### checkShortBodies
+
+Type: `boolean`\
+Default: `false`
+
+Require conditional wrapping instead of an early `continue` for short bodies. This applies when the body contains between one and `maximumStatements` direct statements, excluding empty statements. With `maximumStatements: 0`, this option has no effect. Whole-body conditional wrappers without an `else` that exceed `maximumStatements` are still required to use an early `continue`.
+
+```js
+'unicorn/prefer-continue': [
+	'error',
+	{
+		checkShortBodies: true,
+	},
+]
+```
+
+```js
+// ❌
+for (const item of items) {
+	if (!condition) {
+		continue;
+	}
+
+	doSomething();
+}
+
+// ❌
+for (const item of items) {
+	if (!condition) {
+		continue;
+	} else {
+		doSomething();
+	}
+}
+
+// ✅
+for (const item of items) {
+	if (condition) {
+		doSomething();
+	}
+}
+```
+
+The guard must be the first statement of the whole loop body and contain only an unlabeled `continue;`. An explicit `else` is supported only when the `if` is the whole body; `else if` chains are ignored. Guards after preceding statements and guards that perform additional work are ignored.
+
+Autofix preserves an existing `else` block's scope. Otherwise, direct block-scoped declarations prevent autofixing. Comments in the rewritten range or after it also prevent autofixing, as do multiline-sensitive tokens in statements that would need reindentation. These cases are still reported.
 
 ## Related Rules
 
