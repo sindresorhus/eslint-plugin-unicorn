@@ -11,7 +11,7 @@ The replacement argument of [`String#replace()`](https://developer.mozilla.org/e
 
 Use a literal string when the replacement is static. Use a replacement function when the replacement is dynamic.
 
-Direct calls to [`String#repeat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat) using dot notation and no optional chaining are also allowed when the receiver is a string literal or no-substitution template literal whose value does not contain `$`. The repeat arguments do not need to be static because only the repeated string can introduce replacement patterns.
+Direct, non-optional [`.repeat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat) calls on string or no-substitution template literals without `$` are allowed. The arguments need not be static because only the receiver can introduce replacement patterns.
 
 ## Examples
 
