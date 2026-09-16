@@ -172,7 +172,7 @@ testRule({
 	invalid: [],
 });
 
-const compoundConditions = [
+const nonSimpleConditions = [
 	'a && b',
 	'a ?? b',
 	'a ? b : c',
@@ -185,23 +185,23 @@ const compoundConditions = [
 	'!!(a && b)',
 	'!(a ? b : c)',
 ];
-const compoundCases = [
-	...compoundConditions.flatMap(condition => [
+const nonSimpleConditionCases = [
+	...nonSimpleConditions.flatMap(condition => [
 		`function foo() { if (${condition}) { return; } if (other) { return; } }`,
 		`function foo() { if (other) { return; } if (${condition}) { return; } }`,
 	]),
 	...['a && b', 'a || b'].map(condition => `async function foo() { if (await (${condition})) { return; } if (other) { return; } }`),
 ];
-const wrappedCompoundCases = ['(a && b) as boolean', '<boolean>(a && b)', '(a && b)!', '(a && b) satisfies boolean', '!((a || b) as boolean)'].map(condition => ({
+const wrappedNonSimpleConditionCases = ['(a && b) as boolean', '<boolean>(a && b)', '(a && b)!', '(a && b) satisfies boolean', '!((a || b) as boolean)'].map(condition => ({
 	code: `function foo() { if (${condition}) { return; } if (other) { return; } }`,
 	languageOptions: {parser: parsers.typescript},
 }));
 
 testRule.snapshot({
 	valid: [
-		...compoundCases,
+		...nonSimpleConditionCases,
 		'function* foo() { if (yield a) { return; } if (b) { return; } }',
-		...wrappedCompoundCases,
+		...wrappedNonSimpleConditionCases,
 		{
 			code: 'function foo() { if (a && b) { return; } if (c) { return; } }',
 			options: [{checkCompoundConditions: false}],
@@ -244,8 +244,8 @@ testRule.snapshot({
 		`,
 	],
 	invalid: [
-		...compoundCases.map(code => ({code, options: checkCompoundConditionsOptions})),
-		...wrappedCompoundCases.map(testCase => ({...testCase, options: checkCompoundConditionsOptions})),
+		...nonSimpleConditionCases.map(code => ({code, options: checkCompoundConditionsOptions})),
+		...wrappedNonSimpleConditionCases.map(testCase => ({...testCase, options: checkCompoundConditionsOptions})),
 	],
 });
 
