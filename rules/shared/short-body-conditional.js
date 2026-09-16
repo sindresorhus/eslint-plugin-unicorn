@@ -1,8 +1,8 @@
 import {
 	getParenthesizedText,
 	hasCommentInRange,
-	hasDirectBlockScopedDeclaration,
 	hasMultilineToken,
+	isBlockScopedDeclaration,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from '../utils/index.js';
 
@@ -117,7 +117,7 @@ const getFix = (guard, statements, context) => {
 	}
 
 	if (statements.some(statement =>
-		(statement.type !== 'BlockStatement' && hasDirectBlockScopedDeclaration(statement))
+		isBlockScopedDeclaration(statement)
 		|| isLabeledFunctionDeclaration(statement)
 		|| hasMultilineToken(statement, context),
 	)) {
