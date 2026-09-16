@@ -53,6 +53,22 @@ test.snapshot({
 		'const no = (sideEffect(), false); condition ? no : fallback()',
 		'const yes = true; const no = false; a === b ? yes : no',
 		{code: 'value ? (true as const) : (false as const)', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const condition: boolean; const result: string = condition ? (false as never) : "value";', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const condition: boolean; const result: string = condition ? (<never>false) : "value";', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const condition: boolean; const result: string = condition ? (false as any) : "value";', languageOptions: {parser: parsers.typescript}},
+		{code: 'const no = false as never; const alias = no; condition ? alias : fallback()', languageOptions: {parser: parsers.typescript}},
+		{code: 'const no: any = false; condition ? no : fallback()', languageOptions: {parser: parsers.typescript}},
+		{code: 'const yes = true; value ? fallback() : (yes as boolean)', languageOptions: {parser: parsers.typescript}},
+		{code: 'value ? <boolean>false : fallback()', languageOptions: {parser: parsers.typescript}},
+		{
+			code: outdent`
+				declare const condition: boolean;
+				declare function pick(value: false | string): number;
+				declare function pick(value: boolean | string): string;
+				const result: string = pick(condition ? (false as boolean) : 'value');
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'const yes = true; const alias = yes; a === b ? alias : fallback()',
@@ -61,11 +77,13 @@ test.snapshot({
 		'const no = false; value ? (no) : fallback()',
 		'const no = false; value ? no : (first(), fallback())',
 		{code: 'const no = false as const; value ? no : fallback()', languageOptions: {parser: parsers.typescript}},
+		{code: 'const no: false = false; value ? no : fallback()', languageOptions: {parser: parsers.typescript}},
 		{code: 'value ? (false as const) : fallback()', languageOptions: {parser: parsers.typescript}},
-		{code: 'const yes = true; value ? fallback() : (yes as boolean)', languageOptions: {parser: parsers.typescript}},
+		{code: 'value ? <const>false : fallback()', languageOptions: {parser: parsers.typescript}},
+		{code: 'const yes = true; value ? fallback() : (yes as true)', languageOptions: {parser: parsers.typescript}},
 		{code: 'const no = false; a === b ? fallback() : no!', languageOptions: {parser: parsers.typescript}},
 		{code: 'a === b ? (true satisfies boolean) : fallback()', languageOptions: {parser: parsers.typescript}},
-		{code: 'value ? <boolean>false : fallback()', languageOptions: {parser: parsers.typescript}},
+		{code: 'value ? <false>false : fallback()', languageOptions: {parser: parsers.typescript}},
 		{code: 'value ? (false /* keep */ as const) : fallback()', languageOptions: {parser: parsers.typescript}},
 	],
 });

@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isBooleanLiteral,
 	isMemberExpression,
@@ -11,7 +12,6 @@ import {
 	hasCommentInRange,
 	isSameReference,
 	isBoolean,
-	getStaticValueForControlFlow,
 	shouldAddParenthesesToLogicalExpressionChild,
 	shouldAddParenthesesToUnaryExpressionArgument,
 	needsSemicolon,
@@ -110,19 +110,67 @@ function fix({
 	return fixer.replaceText(conditionalExpression, text);
 }
 
-function getBooleanConstantValue(node, context) {
-	node = unwrapTypeScriptExpression(node);
+function getBooleanLiteralTypeValue(node) {
+	if (node?.type === 'TSTypeAnnotation') {
+		node = node.typeAnnotation;
+	}
 
+	return node?.type === 'TSLiteralType' && isBooleanLiteral(node.literal)
+		? node.literal.value
+		: undefined;
+}
+
+const isConstAssertion = node => node.type === 'TSTypeReference'
+	&& node.typeName.type === 'Identifier'
+	&& node.typeName.name === 'const';
+
+function getBooleanConstantVariableValue(node, context, visitedVariables) {
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	if (
+		!variable
+		|| visitedVariables.has(variable)
+		|| definition?.type !== 'Variable'
+		|| definition.parent.kind !== 'const'
+		|| definition.node.id !== definition.name
+		|| !definition.node.init
+		|| context.sourceCode.getRange(definition.node)[1] > context.sourceCode.getRange(node)[0]
+	) {
+		return;
+	}
+
+	visitedVariables.add(variable);
+	const value = getBooleanConstantValue(definition.node.init, context, visitedVariables);
+	visitedVariables.delete(variable);
+
+	const annotatedValue = getBooleanLiteralTypeValue(definition.name.typeAnnotation);
+	if (definition.name.typeAnnotation && annotatedValue !== value) {
+		return;
+	}
+
+	return value;
+}
+
+function getBooleanConstantValue(node, context, visitedVariables = new Set()) {
 	if (isBooleanLiteral(node)) {
 		return node.value;
 	}
 
-	if (node.type === 'Identifier') {
-		const value = getStaticValueForControlFlow(node, context)?.value;
+	if (node.type === 'TSNonNullExpression' || node.type === 'TSSatisfiesExpression') {
+		return getBooleanConstantValue(node.expression, context, visitedVariables);
+	}
 
-		if (typeof value === 'boolean') {
-			return value;
-		}
+	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+		const value = getBooleanConstantValue(node.expression, context, visitedVariables);
+		const assertedValue = getBooleanLiteralTypeValue(node.typeAnnotation);
+
+		return isConstAssertion(node.typeAnnotation) || assertedValue === value
+			? value
+			: undefined;
+	}
+
+	if (node.type === 'Identifier') {
+		return getBooleanConstantVariableValue(node, context, visitedVariables);
 	}
 }
 

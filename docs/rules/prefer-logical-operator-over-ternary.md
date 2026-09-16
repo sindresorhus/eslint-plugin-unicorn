@@ -15,7 +15,7 @@ Ideally, most reported cases have an equivalent [`Logical OR` (`||`)](https://de
 
 For explicit nullish-check ternaries, this rule only suggests `??` when the source code itself proves nullish intent. It does not report arbitrary `foo || bar` expressions. TypeScript users who want type-aware `||` checks should use [`@typescript-eslint/prefer-nullish-coalescing`](https://typescript-eslint.io/rules/prefer-nullish-coalescing/).
 
-Ternaries with exactly one constant boolean branch are automatically fixed as shown below. This includes boolean literals and identifiers that resolve to constant boolean values, including chains of `const` aliases and values wrapped in TypeScript assertions, `satisfies`, or non-null assertions. Mutable bindings, references before initialization, and aliases with side-effectful initializers are not resolved.
+Ternaries with exactly one constant boolean branch are automatically fixed as shown below. This includes boolean literals and chains of simple `const` aliases. TypeScript `satisfies` and non-null wrappers are supported, as are `as const`, `<const>`, and matching literal assertions such as `as true`. Other type assertions and explicitly widened alias types are skipped because replacing the ternary can change the expression's static type. Mutable bindings, references before initialization, and computed initializer expressions are not resolved.
 
 The other branch can have any type. Replacements that negate the condition work with any condition; the remaining forms require a known boolean condition. Boolean conditions can be recognized from expressions, variable declarations, TypeScript annotations, or TypeScript type information when available. If the ternary contains comments, it is reported without a fix.
 
