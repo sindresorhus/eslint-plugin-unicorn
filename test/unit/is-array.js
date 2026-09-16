@@ -133,6 +133,7 @@ test('both checkers agree that an unknown receiver is not known to be anything',
 	]) {
 		const verdicts = getReceiverVerdicts(code);
 
+		t.false(verdicts.isArray, `Unexpected verdict for: ${code}`);
 		t.false(verdicts.isKnownNonArray, `Unexpected verdict for: ${code}`);
 		t.false(verdicts.isKnownNonIndexedCollection, `Unexpected verdict for: ${code}`);
 	}
@@ -141,6 +142,7 @@ test('both checkers agree that an unknown receiver is not known to be anything',
 test('array checkers resolve explicit local function return annotations', t => {
 	for (const code of [
 		'declare function getValues(): object[]; getValues().method();',
+		'declare function getValues(): object[]; const values = getValues(); values.method();',
 		'declare function getValues(): [object, object]; getValues().method();',
 		'interface Values extends Array<object> {} declare function getValues(): Values; getValues().method();',
 	]) {
@@ -172,7 +174,12 @@ test('array checkers leave unsupported local function returns unknown', t => {
 	for (const code of [
 		'function getValues() { return []; } getValues().method();',
 		'interface Collection {} function getValues<T extends Collection>(): T { return value; } getValues().method();',
+		'interface Collection {} const getValues: () => Collection = () => value; getValues().method();',
+		'interface Collection {} declare const getValues: () => Collection; getValues().method();',
+		'interface Collection {} const getValues = (((): Collection => value) as unknown as (() => object[])); getValues().method();',
+		'import {getValues} from "collection"; getValues().method();',
 		'import type {Collection} from "collection"; declare function getValues(): Collection; getValues().method();',
+		'interface Collection {} declare function getValues(): Collection; declare function getValues(): object[]; getValues().method();',
 	]) {
 		const verdicts = getReceiverVerdicts(code);
 

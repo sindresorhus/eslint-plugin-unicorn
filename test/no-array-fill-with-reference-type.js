@@ -68,6 +68,8 @@ test.typescript({
 			'function restore(): Template { return template; }',
 			'const restore = (): Template => template;',
 			'const restore = function (): Template { return template; };',
+			'const restore = (((): Template => template) satisfies (() => Template));',
+			'const restore = (((): Template => template)!);',
 		].map(declaration => `interface Template { fill(value: object): void; } ${declaration} restore().fill({});`),
 		'declare function restore(): Uint8Array; restore().fill({});',
 		'declare function restore(): {fill(value: object): void}; restore().fill({});',
@@ -95,6 +97,7 @@ test.typescript({
 			'function restore() { return template; }',
 			'import {restore} from "template";',
 			'import type {Template} from "template"; declare function restore(): Template;',
+			'interface Template {fill(value: object): void} const restore: () => Template = () => template;',
 			'let restore = (): {fill(value: object): void} => template;',
 			'declare function original(): {fill(value: object): void}; const restore = original;',
 			'declare function restore(value: string): {fill(value: object): void}; declare function restore(): object[];',
@@ -127,6 +130,14 @@ test.typescript({
 			code: 'interface Items extends Array<object> {} declare function restore(): Items; restore().fill({});',
 			errors: [{messageId: 'no-array-fill-with-reference-type'}],
 		},
+		{
+			code: 'declare function restore(): object[]; const restored = restore(); restored.fill({});',
+			errors: [{messageId: 'no-array-fill-with-reference-type'}],
+		},
+		{
+			code: 'interface Template {fill(value: object): void} const restore = (((): Template => template) as unknown as (() => object[])); restore().fill({});',
+			errors: [{messageId: 'no-array-fill-with-reference-type'}],
+		},
 	],
 });
 
@@ -140,11 +151,13 @@ test.snapshot({
 			restored.fill(values);
 		`),
 		typeAware('function restore() { return {fill(value: object) {}}; } const restored = restore(); restored.fill({});'),
+		typeAware('interface Template {fill(value: object): void} const restore = (((): object[] => []) as unknown as (() => Template)); restore().fill({});'),
 	],
 	invalid: [
 		typeAware('declare function restore(): object[]; const restored = restore(); const value = {}; restored.fill(value);'),
 		typeAware('function restore() { return [{}]; } const restored = restore(); restored.fill({});'),
 		typeAware('interface Fillable {fill(value: object): unknown;} function identity<T extends Fillable>(value: T): T {return value;} identity([{}]).fill({});'),
+		typeAware('interface Template {fill(value: object): void} const restore = (((): Template => template) as unknown as (() => object[])); restore().fill({});'),
 	],
 });
 

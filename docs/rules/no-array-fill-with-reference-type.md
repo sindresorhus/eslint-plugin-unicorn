@@ -13,7 +13,7 @@ Create the value inside an `Array.from()` mapping function when each array eleme
 
 A receiver known not to be an array is ignored, including a typed array, since [`TypedArray#fill()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/fill) coerces the value to a number and no two elements can end up sharing a reference. Unknown receivers are still reported.
 
-In TypeScript, calls to local function declarations and functions assigned to `const` variables can be classified without type-aware linting when their explicit return types can be resolved syntactically. For example, a custom object returned by `declare function restoreTemplate(): CustomTemplate` is ignored. Generic functions, overloaded functions, imported functions and return types, and inferred return types require type-aware linting to determine the receiver type.
+In TypeScript, calls to local function declarations and functions assigned to `const` variables can be classified without type-aware linting when the declaration or initializer function has a directly written, syntactically resolvable return annotation. For example, a custom object returned by `declare function restoreTemplate(): CustomTemplate` is ignored. Variable type annotations, type assertions on functions, generic functions, overloaded functions, imported functions and return types, and inferred return types require type-aware linting to determine the receiver type.
 
 ## Examples
 
