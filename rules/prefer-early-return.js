@@ -30,14 +30,14 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
-			checkShortBodies: {
-				type: 'boolean',
-				description: 'Enforce conditional wrapping when the body after a guard, or its else body, has between one and maximumStatements statements.',
-			},
 			maximumStatements: {
 				type: 'integer',
 				minimum: 0,
 				description: 'Maximum number of statements allowed in a conditional wrapping the remainder of the function body.',
+			},
+			checkShortBodies: {
+				type: 'boolean',
+				description: 'Enforce conditional wrapping when the body after a guard, or its else body, has between one and maximumStatements statements.',
 			},
 		},
 	},
