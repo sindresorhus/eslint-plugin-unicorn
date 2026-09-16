@@ -39,6 +39,30 @@ test({
 	})),
 });
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function f(condition: boolean) { return condition ? true : "fallback"; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			declare function pick(value: true): 'literal';
+			declare function pick(value: true | 'fallback'): 'union';
+			const result: 'union' = pick(true ? true : 'fallback');
+		`),
+		typeAware('function f(a: number, b: number) { const result: true | 0 = ((a === b) as unknown) ? true : 0; return result; }'),
+		typeAware('function f<T extends boolean>(condition: T) { return condition ? true : "x"; } const result: true | "x" = f(false);'),
+		typeAware('function f<T extends boolean>(condition: T) { return condition ? "x" : false; } const result: false | "x" = f(false);'),
+		typeAware('function f(condition: boolean) { if (condition) { return condition ? true : "fallback"; } }'),
+		typeAware('declare function condition(): true; const result = condition() ? true : "fallback";'),
+		typeAware('const result = true ? false : "fallback";'),
+	].map(testCase => ({
+		...testCase,
+		errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+	})),
+});
+
 test.snapshot({
 	valid: [
 		'const yes = true; condition ? yes : fallback()',
@@ -51,6 +75,8 @@ test.snapshot({
 		'condition ? no : fallback(); const no = false;',
 		'const no = alias; condition ? no : fallback(); const alias = false;',
 		'const no = (sideEffect(), false); condition ? no : fallback()',
+		'f(); const yes = true; function f() { return flag === 1 ? yes : fallback(); }',
+		'switch (kind) { case 0: const yes = true; break; case 1: result = flag === 1 ? yes : fallback(); }',
 		'const yes = true; const no = false; a === b ? yes : no',
 		{code: 'value ? (true as const) : (false as const)', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const condition: boolean; const result: string = condition ? (false as never) : "value";', languageOptions: {parser: parsers.typescript}},
@@ -76,6 +102,7 @@ test.snapshot({
 		'const no = false; value ? /* keep */ no : fallback()',
 		'const no = false; value ? (no) : fallback()',
 		'const no = false; value ? no : (first(), fallback())',
+		'const yes = true; if (guard) { result = flag === 1 ? yes : fallback(); }',
 		{code: 'const no = false as const; value ? no : fallback()', languageOptions: {parser: parsers.typescript}},
 		{code: 'const no: false = false; value ? no : fallback()', languageOptions: {parser: parsers.typescript}},
 		{code: 'value ? (false as const) : fallback()', languageOptions: {parser: parsers.typescript}},

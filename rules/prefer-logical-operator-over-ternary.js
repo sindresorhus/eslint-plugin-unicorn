@@ -15,6 +15,7 @@ import {
 	shouldAddParenthesesToLogicalExpressionChild,
 	shouldAddParenthesesToUnaryExpressionArgument,
 	needsSemicolon,
+	isTypeScriptFile,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -124,24 +125,24 @@ const isConstAssertion = node => node.type === 'TSTypeReference'
 	&& node.typeName.type === 'Identifier'
 	&& node.typeName.name === 'const';
 
-function getBooleanConstantVariableValue(node, context, visitedVariables) {
-	const variable = findVariable(context.sourceCode.getScope(node), node);
+function getBooleanConstantVariableValue(node, context) {
+	const scope = context.sourceCode.getScope(node);
+	const variable = findVariable(scope, node);
 	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
 	if (
 		!variable
-		|| visitedVariables.has(variable)
 		|| definition?.type !== 'Variable'
 		|| definition.parent.kind !== 'const'
 		|| definition.node.id !== definition.name
 		|| !definition.node.init
+		|| scope.variableScope !== variable.scope.variableScope
+		|| variable.scope.type === 'switch'
 		|| context.sourceCode.getRange(definition.node)[1] > context.sourceCode.getRange(node)[0]
 	) {
 		return;
 	}
 
-	visitedVariables.add(variable);
-	const value = getBooleanConstantValue(definition.node.init, context, visitedVariables);
-	visitedVariables.delete(variable);
+	const value = getBooleanConstantValue(definition.node.init, context);
 
 	const annotatedValue = getBooleanLiteralTypeValue(definition.name.typeAnnotation);
 	if (definition.name.typeAnnotation && annotatedValue !== value) {
@@ -151,17 +152,17 @@ function getBooleanConstantVariableValue(node, context, visitedVariables) {
 	return value;
 }
 
-function getBooleanConstantValue(node, context, visitedVariables = new Set()) {
+function getBooleanConstantValue(node, context) {
 	if (isBooleanLiteral(node)) {
 		return node.value;
 	}
 
 	if (node.type === 'TSNonNullExpression' || node.type === 'TSSatisfiesExpression') {
-		return getBooleanConstantValue(node.expression, context, visitedVariables);
+		return getBooleanConstantValue(node.expression, context);
 	}
 
 	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-		const value = getBooleanConstantValue(node.expression, context, visitedVariables);
+		const value = getBooleanConstantValue(node.expression, context);
 		const assertedValue = getBooleanLiteralTypeValue(node.typeAnnotation);
 
 		return isConstAssertion(node.typeAnnotation) || assertedValue === value
@@ -170,7 +171,25 @@ function getBooleanConstantValue(node, context, visitedVariables = new Set()) {
 	}
 
 	if (node.type === 'Identifier') {
-		return getBooleanConstantVariableValue(node, context, visitedVariables);
+		return getBooleanConstantVariableValue(node, context);
+	}
+}
+
+function canFixBooleanTernaryCondition(node, context) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.esTreeNodeToTSNodeMap && !isTypeScriptFile(context.physicalFilename)) {
+		return true;
+	}
+
+	if (!parserServices?.program) {
+		return false;
+	}
+
+	try {
+		const checker = parserServices.program.getTypeChecker();
+		return checker.typeToString(parserServices.getTypeAtLocation(node)) === 'boolean';
+	} catch {
+		return false;
 	}
 }
 
@@ -197,7 +216,10 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 		messageId: MESSAGE_ID_ERROR,
 	};
 
-	if (context.sourceCode.getCommentsInside(conditionalExpression).length === 0) {
+	if (
+		context.sourceCode.getCommentsInside(conditionalExpression).length === 0
+		&& canFixBooleanTernaryCondition(test, context)
+	) {
 		problem.fix = fixer => fix({
 			fixer,
 			context,
