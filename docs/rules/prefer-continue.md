@@ -109,7 +109,7 @@ Autofix is conservative. When statements precede the final `if`, direct `let` or
 Type: `boolean`\
 Default: `false`
 
-Require conditional wrapping instead of an early `continue` for short bodies. This applies when the body contains between one and `maximumStatements` direct statements, excluding empty statements. With `maximumStatements: 0`, this option has no effect. Whole-body conditional wrappers without an `else` that exceed `maximumStatements` are still required to use an early `continue`.
+Require conditional wrapping instead of an early `continue` for short bodies. This applies when the body contains between one and `maximumStatements` direct statements, excluding empty statements. With `maximumStatements: 0`, this option has no effect. The rule's existing handling of wrappers above `maximumStatements` remains unchanged.
 
 ```js
 'unicorn/prefer-continue': [

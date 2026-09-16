@@ -34,7 +34,7 @@ const getFix = (guard, statements, context) => {
 		return;
 	}
 
-	// Reserve the enclosing scope so `no-useless-return` cannot remove the guard first.
+	// Reserve the enclosing scope so related rules cannot remove the exit first.
 	const replace = text => fixer => [
 		fixer.insertTextBefore(guard.parent.parent, ''),
 		fixer.replaceTextRange(range, text),
