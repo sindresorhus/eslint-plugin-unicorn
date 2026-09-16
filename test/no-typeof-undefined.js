@@ -1,7 +1,50 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const ambientVariableComparisons = [
+	outdent`
+		declare const COMPILE_TIME_FLAG: boolean | undefined;
+		if (typeof COMPILE_TIME_FLAG !== 'undefined' && COMPILE_TIME_FLAG) {
+			console.log('Compiled');
+		}
+	`,
+	'declare let foo: unknown; typeof foo === "undefined";',
+	'declare var foo: unknown; typeof foo == "undefined";',
+	'declare const foo: unknown; function bar() { return typeof (foo) != "undefined"; }',
+	'declare var foo: unknown; declare var foo: unknown; typeof foo === "undefined";',
+	'declare const foo: unknown; typeof (foo as unknown) === "undefined";',
+	'declare const foo: unknown; typeof <unknown>foo === "undefined";',
+	'declare const foo: unknown; typeof foo! === "undefined";',
+	'declare const foo: unknown; typeof (foo satisfies unknown) === "undefined";',
+	'declare const foo: unknown; typeof ((foo as unknown)!) === "undefined";',
+	'interface Foo {} declare const Foo: unknown; typeof Foo === "undefined";',
+];
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {parser: parsers.typescript},
+	},
+	valid: [
+		...ambientVariableComparisons.flatMap(code => [[], [{checkGlobalVariables: true}]].map(options => ({code, options}))),
+		'typeof (undefinedVariableIdentifier as unknown) === "undefined";',
+	],
+	invalid: [
+		{
+			code: 'declare const foo: unknown; function bar(foo: unknown) { return typeof (foo as unknown) === "undefined"; }',
+			options: [{checkGlobalVariables: true}],
+		},
+		'declare var foo: unknown; var foo: unknown; typeof foo === "undefined";',
+		'interface Foo {} const Foo = 1; typeof Foo === "undefined";',
+		'import foo from "foo"; typeof foo === "undefined";',
+		'declare const foo: {bar?: string}; typeof foo.bar === "undefined";',
+		{
+			code: 'typeof (undefinedVariableIdentifier as unknown) === "undefined";',
+			options: [{checkGlobalVariables: true}],
+		},
+	],
+});
 
 test.snapshot({
 	valid: [

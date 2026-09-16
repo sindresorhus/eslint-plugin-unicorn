@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isLiteral} from './ast/index.js';
 import {
 	addParenthesesToReturnOrThrowExpression,
@@ -8,6 +9,7 @@ import {
 	isParenthesized,
 	isOnSameLine,
 	isGlobalIdentifier,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
@@ -15,6 +17,21 @@ const MESSAGE_ID_SUGGESTION = 'no-typeof-undefined/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Compare with `undefined` directly instead of using `typeof`.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `… {{operator}} undefined`.',
+};
+
+const isAmbientVariableDefinition = definition =>
+	definition.type === 'Variable'
+	&& definition.parent.declare === true;
+
+const isAmbientVariable = variable => {
+	if (!variable) {
+		return false;
+	}
+
+	return variable.defs.some(definition => isAmbientVariableDefinition(definition))
+		&& variable.defs.every(definition =>
+			definition.type === 'Type'
+			|| isAmbientVariableDefinition(definition));
 };
 
 /**
@@ -43,7 +60,15 @@ const create = context => {
 
 		const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
 		const {sourceCode} = context;
-		const valueNode = typeofNode.argument;
+		const valueNode = unwrapTypeScriptExpression(typeofNode.argument);
+
+		if (valueNode.type === 'Identifier') {
+			const variable = findVariable(sourceCode.getScope(valueNode), valueNode);
+			if (isAmbientVariable(variable)) {
+				return;
+			}
+		}
+
 		const isGlobalVariable = isGlobalIdentifier(valueNode, context);
 
 		if (!checkGlobalVariables && isGlobalVariable) {
