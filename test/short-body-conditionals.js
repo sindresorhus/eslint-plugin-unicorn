@@ -86,7 +86,8 @@ test('short-body wrapping preserves function and loop behavior', t => {
 			}
 		`,
 	]) {
-		const result = new Linter().verifyAndFix(code, config);
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, config);
 		t.true(result.fixed);
 		t.deepEqual(result.messages, []);
 		for (const enabled of [false, true]) {
