@@ -11,7 +11,7 @@ import {
 
 const MESSAGE_ID = 'prefer-continue';
 const messages = {
-	[MESSAGE_ID]: 'Prefer an early continue over wrapping the whole loop body in an `if` statement.',
+	[MESSAGE_ID]: 'Prefer an early continue over wrapping the remainder of the loop body in an `if` statement.',
 };
 
 const blockScopedDeclarationTypes = new Set([
@@ -33,7 +33,7 @@ const schema = [
 			maximumStatements: {
 				type: 'integer',
 				minimum: 0,
-				description: 'Maximum number of statements allowed in a whole-loop conditional wrapper.',
+				description: 'Maximum number of statements allowed in a conditional wrapping the remainder of the loop body.',
 			},
 		},
 	},
@@ -280,6 +280,10 @@ const canSafelyMoveLexicalDeclarations = (ifStatement, sourceCode) => {
 		return true;
 	}
 
+	if (ifStatement.parent.body.length > 1) {
+		return false;
+	}
+
 	const names = new Set(variables.map(variable => variable.name));
 
 	return !hasDirectEvalCall(ifStatement.test, sourceCode)
@@ -334,16 +338,13 @@ const create = context => {
 	const {maximumStatements} = context.options[0];
 
 	context.on(loopTypes, loop => {
-		if (
-			loop.body.type !== 'BlockStatement'
-			|| loop.body.body.length !== 1
-		) {
+		if (loop.body.type !== 'BlockStatement') {
 			return;
 		}
 
-		const [statement] = loop.body.body;
+		const statement = loop.body.body.at(-1);
 		if (
-			statement.type !== 'IfStatement'
+			statement?.type !== 'IfStatement'
 			|| statement.alternate
 			|| getConsequentStatementCount(statement) <= maximumStatements
 			|| consequentExitsLoop(statement.consequent)
@@ -369,7 +370,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer early continues over whole-loop conditional wrapping.',
+			description: 'Prefer early continues over conditionals wrapping the remainder of the loop body.',
 			recommended: true,
 		},
 		fixable: 'code',

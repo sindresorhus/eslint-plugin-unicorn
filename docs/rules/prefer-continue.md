@@ -1,6 +1,6 @@
 # prefer-continue
 
-📝 Prefer early continues over whole-loop conditional wrapping.
+📝 Prefer early continues over conditionals wrapping the remainder of the loop body.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Avoid wrapping an entire loop body in a conditional. A `continue` guard often makes the main path clearer by skipping uninteresting iterations first.
+Avoid wrapping the rest of a loop body in a conditional. A `continue` guard often makes the main path clearer by skipping uninteresting iterations first.
 
-This rule only reports when a block-bodied loop contains exactly one statement and that statement is an `if` statement without `else`. With the default `maximumStatements` option, it does not report nested `if` statements, loops that continue after the `if`, or non-block loop bodies.
+This rule reports when the last statement of a block-bodied loop is an `if` statement without `else`, even when other statements precede it. With the default `maximumStatements` option, it does not report nested `if` statements, loops that continue after the `if`, or non-block loop bodies.
 
 It also does not report when the `if` body unconditionally exits the iteration (its last statement is `return`, `break`, `continue`, or `throw`), since an early `continue` would not flatten anything.
 
@@ -20,6 +20,7 @@ It also does not report when the `if` body unconditionally exits the iteration (
 ```js
 // ❌
 for (const item of items) {
+	doSomethingBefore();
 	if (item.isActive) {
 		process(item);
 		save(item);
@@ -28,6 +29,7 @@ for (const item of items) {
 
 // ✅
 for (const item of items) {
+	doSomethingBefore();
 	if (!item.isActive) {
 		continue;
 	}
@@ -77,7 +79,7 @@ function findActive(items) {
 Type: `integer`\
 Default: `1`
 
-Maximum number of statements allowed in a whole-loop conditional wrapper.
+Maximum number of statements allowed in a conditional wrapper at the end of a loop body.
 
 With the default, a single-statement wrapper is allowed:
 
@@ -89,7 +91,7 @@ for (const item of items) {
 }
 ```
 
-Set `maximumStatements` to `0` to report any non-empty whole-loop conditional wrapper:
+Set `maximumStatements` to `0` to report any non-empty conditional wrapper at the end of a loop body:
 
 ```js
 'unicorn/prefer-continue': [
@@ -100,7 +102,7 @@ Set `maximumStatements` to `0` to report any non-empty whole-loop conditional wr
 ]
 ```
 
-Autofix is conservative. It skips wrappers with comments outside the condition or moved body, trailing wrapper comments, moved lexical names that are used in the condition, direct `eval(...)` with moved lexical declarations, direct function, class, TypeScript, `using`, or `await using` declarations, and multiline-sensitive strings, templates, or JSX. Multiline unbraced consequents are report-only.
+Autofix is conservative. When statements precede the final `if`, direct `let` or `const` declarations in its body prevent automatic fixes. It skips wrappers with comments outside the condition or moved body, trailing wrapper comments, moved lexical names that are used in the condition, direct `eval(...)` with moved lexical declarations, direct function, class, TypeScript, `using`, or `await using` declarations, and multiline-sensitive strings, templates, or JSX. Multiline unbraced consequents are report-only.
 
 ## Related Rules
 

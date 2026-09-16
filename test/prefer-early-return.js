@@ -709,3 +709,105 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function foo() {
+					doSomethingBefore();
+					if (condition) {
+						doSomething();
+						doSomethingElse();
+					}
+				}
+			`,
+			output: outdent`
+				function foo() {
+					doSomethingBefore();
+					if (!condition) {
+						return;
+					}
+
+					doSomething();
+					doSomethingElse();
+				}
+			`,
+			errors: [{messageId: 'prefer-early-return'}],
+		},
+		{
+			code: outdent`
+				function foo() {
+					before();
+					if (condition) {
+						var value = getValue();
+						use(value);
+					}
+				}
+			`,
+			output: outdent`
+				function foo() {
+					before();
+					if (!condition) {
+						return;
+					}
+
+					var value = getValue();
+					use(value);
+				}
+			`,
+			errors: [{messageId: 'prefer-early-return'}],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		'function foo() {}',
+		'function foo() { before(); }',
+		'function foo() { before(); if (condition) { first(); } }',
+		'function foo() { before(); if (condition) { first(); second(); } after(); }',
+		'function foo() { before(); if (condition) { first(); second(); }; }',
+		'function foo() { before(); if (condition) { first(); second(); } else { other(); } }',
+		'function foo() { before(); { if (condition) { first(); second(); } } }',
+		{code: 'function foo() { before(); if (condition) {} }', options: [{maximumStatements: 0}]},
+		{code: 'function foo() { before(); if (condition); }', options: [{maximumStatements: 0}]},
+		{code: 'function foo() { before(); if (condition) { first(); second(); } }', options: [{maximumStatements: 2}]},
+	],
+	invalid: [
+		'const foo = function() { before(); if (condition) { first(); second(); } };',
+		'const foo = () => { before(); if (condition) { first(); second(); } };',
+		'const object = {foo() { before(); if (condition) { first(); second(); } }};',
+		'class Foo { method() { before(); if (condition) { first(); second(); } } }',
+		'async function foo() { before(); if (condition) { first(); second(); } }',
+		'function* foo() { before(); if (condition) { first(); second(); } }',
+		{code: 'function foo() { before(); if (condition) { first(); } }', options: [{maximumStatements: 0}]},
+		{code: 'function foo() { before(); if (condition) first(); }', options: [{maximumStatements: 0}]},
+		{code: 'function foo() { before(); if (condition) { first(); second(); third(); } }', options: [{maximumStatements: 2}]},
+		{code: 'function foo() { before(); if (condition as boolean) { first(); second(); } }', languageOptions: {parser: parsers.typescript}},
+		outdent`
+			function foo() {
+				const ready = prepare();
+				// Keep this comment before the guard.
+				if (ready) {
+					// Keep this comment with the moved body.
+					first();
+					second();
+				}
+			}
+		`,
+	],
+});
+
+for (const kind of ['let', 'const']) {
+	test({
+		valid: [],
+		invalid: [
+			{
+				code: `function foo() { before(); if (condition) { ${kind} value = getValue(); use(value); } }`,
+				errors: [{messageId: 'prefer-early-return', suggestions: []}],
+			},
+		],
+	});
+}
