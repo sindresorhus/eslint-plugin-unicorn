@@ -24,6 +24,8 @@ test({
 		['a === b ? fallback() : false', '(a === b) && fallback()'],
 		['value ? false : fallback()', '!value && fallback()'],
 		['value ? fallback() : true', '!value || fallback()'],
+		['const condition = () => true; condition() ? true : fallback()', 'const condition = () => true; condition() || fallback()'],
+		['const array = []; array.some(predicate) ? true : fallback()', 'const array = []; array.some(predicate) || fallback()'],
 		['const yes = true; a === b ? yes : fallback()', 'const yes = true; (a === b) || fallback()'],
 		['const yes = true, alias = yes; a === b ? alias : fallback()', 'const yes = true, alias = yes; (a === b) || fallback()'],
 		['const no = false; value ? no : fallback()', 'const no = false; !value && fallback()'],
