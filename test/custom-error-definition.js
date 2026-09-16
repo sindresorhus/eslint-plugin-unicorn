@@ -2140,7 +2140,20 @@ ruleTest({
 		'class FooError extends Error { constructor(status, options, message) { super(message, options); this.name = \'FooError\'; } }',
 		'class FooError extends Error { constructor(status, message, options = {}) { super(message, options); this.name = \'FooError\'; } }',
 		'class FooError extends Error { constructor(options, status, message) { super(message, options); this.name = \'FooError\'; } }',
-		'class FooError extends Error { constructor(status, response, options) { super(undefined, options); this.status = status; this.response = response; this.name = \'FooError\'; } get message() { return `${this.status}: ${this.response.statusText}`; } }',
+		outdent`
+			class FooError extends Error {
+				constructor(status, response, options) {
+					super(undefined, options);
+					this.status = status;
+					this.response = response;
+					this.name = 'FooError';
+				}
+
+				get message() {
+					return \`\${this.status}: \${this.response.statusText}\`;
+				}
+			}
+		`,
 	],
 	invalid: [
 		{
