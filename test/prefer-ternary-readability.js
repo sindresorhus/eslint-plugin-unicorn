@@ -95,7 +95,8 @@ test('preserves early returns after minimizing a ternary', t => {
 			);
 		}
 	`;
-	const result = new Linter().verifyAndFix(code, {
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
 		plugins: {unicorn},
 		rules: {
 			'unicorn/prefer-ternary': 'error',
