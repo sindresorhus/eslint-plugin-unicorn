@@ -7,7 +7,6 @@ import {
 import {unwrapExpression} from './utils/comparison.js';
 import {
 	getConstVariableInitializer,
-	getStaticValueIfNoSideEffects,
 	isKnownNonString,
 } from './utils/index.js';
 
@@ -30,7 +29,7 @@ const isStaticStringRawTaggedTemplate = (node, sourceCode) =>
 	})
 	&& sourceCode.isGlobalReference(node.tag.object);
 
-const isSafeStringRepeat = (node, context) => {
+const isSafeStringRepeat = node => {
 	if (!isMethodCall(node, {
 		method: 'repeat',
 		argumentsLength: 1,
@@ -41,21 +40,16 @@ const isSafeStringRepeat = (node, context) => {
 	}
 
 	const stringLiteral = unwrapExpression(node.callee.object);
-	if (!isStringLiteral(stringLiteral) || stringLiteral.value.includes('$')) {
-		return false;
-	}
-
-	const count = getStaticValueIfNoSideEffects(node.arguments[0], context)?.value;
-	return Number.isFinite(count) && count >= 0;
+	return isStringLiteral(stringLiteral) && !stringLiteral.value.includes('$');
 };
 
-const isAllowedReplacement = (node, context) => {
+const isAllowedReplacement = (node, sourceCode) => {
 	node = unwrapExpression(node);
 
 	return isStringLiteral(node)
 		|| isStaticTemplateLiteral(node)
-		|| isStaticStringRawTaggedTemplate(node, context.sourceCode)
-		|| isSafeStringRepeat(node, context)
+		|| isStaticStringRawTaggedTemplate(node, sourceCode)
+		|| isSafeStringRepeat(node)
 		|| isFunction(node);
 };
 
@@ -91,7 +85,7 @@ const create = context => {
 		}
 
 		const [, replacement] = node.arguments;
-		if (isAllowedReplacement(replacement, context)) {
+		if (isAllowedReplacement(replacement, context.sourceCode)) {
 			return;
 		}
 
