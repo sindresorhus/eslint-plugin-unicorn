@@ -13,7 +13,9 @@ const typeAware = code => ({
 	},
 });
 
-const booleanAliasChain = Array.from({length: 20_001}, (_, index) => `const value${index} = ${index === 0 ? 'true' : `value${index - 1}`};`).join('\n');
+const createBooleanAliasChain = initialValue => Array.from({length: 20_001}, (_, index) => `const value${index} = ${index === 0 ? initialValue : `value${index - 1}`};`).join('\n');
+const booleanAliasChain = createBooleanAliasChain('true');
+const booleanConditionAliasChain = createBooleanAliasChain('a === b');
 
 test({
 	valid: [],
@@ -57,6 +59,12 @@ test({
 			output: `${booleanAliasChain}\n(a === b) || fallback();`,
 			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
 		},
+		{
+			name: 'deep boolean condition alias chains do not overflow the call stack',
+			code: `${booleanConditionAliasChain}\nvalue20000 ? true : Boolean(fallback());`,
+			output: `${booleanConditionAliasChain}\nvalue20000 || Boolean(fallback());`,
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
 	],
 });
 
@@ -76,6 +84,11 @@ test({
 			code: 'function f(condition: boolean) { return condition ? true : "fallback"; }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'declare const value: unknown; const condition: boolean = value as any; condition ? true : "fallback";',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('declare const value: boolean | string; const condition = value; if (typeof condition === "boolean") { condition ? true : "fallback"; }'),
 		typeAware(outdent`
 			declare function pick(value: true): 'literal';
 			declare function pick(value: true | 'fallback'): 'union';
@@ -161,6 +174,12 @@ test.snapshot({
 		'condition ? false : true',
 		'condition ? true : true',
 		'condition ? false : false',
+		'true ? true : false',
+		'true ? true : true',
+		'false ? false : true',
+		'false ? false : false',
+		'!false ? true : false',
+		'!true ? false : true',
 		'a === b ? true : false',
 		'a === b ? false : true',
 		'a === b ? true : true',

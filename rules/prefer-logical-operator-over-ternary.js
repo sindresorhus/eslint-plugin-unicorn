@@ -125,7 +125,7 @@ const isConstAssertion = node => node.type === 'TSTypeReference'
 	&& node.typeName.type === 'Identifier'
 	&& node.typeName.name === 'const';
 
-function getBooleanConstantVariableDefinition(node, context, visitedVariables) {
+function getConstantVariableDefinition(node, context) {
 	const scope = context.sourceCode.getScope(node);
 	const variable = findVariable(scope, node);
 	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
@@ -137,18 +137,28 @@ function getBooleanConstantVariableDefinition(node, context, visitedVariables) {
 		|| scope.variableScope !== variable.scope.variableScope
 		|| variable.scope.type === 'switch'
 		|| context.sourceCode.getRange(definition.node)[1] > context.sourceCode.getRange(node)[0]
-		|| visitedVariables.has(variable)
 	) {
 		return;
 	}
 
-	visitedVariables.add(variable);
 	return definition;
+}
+
+function unwrapConstantAliases(node, context) {
+	while (node.type === 'Identifier') {
+		const definition = getConstantVariableDefinition(node, context);
+		if (!definition) {
+			break;
+		}
+
+		node = definition.node.init;
+	}
+
+	return node;
 }
 
 function getBooleanConstantValue(node, context) {
 	const literalTypeAnnotations = [];
-	const visitedVariables = new Set();
 
 	while (node) {
 		if (isBooleanLiteral(node)) {
@@ -178,7 +188,7 @@ function getBooleanConstantValue(node, context) {
 			return;
 		}
 
-		const definition = getBooleanConstantVariableDefinition(node, context, visitedVariables);
+		const definition = getConstantVariableDefinition(node, context);
 		if (!definition) {
 			return;
 		}
@@ -215,8 +225,11 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 	const right = isConsequentBooleanConstant ? alternate : consequent;
 	const negateLeft = consequentValue === false || alternateValue === true;
 
-	if (!negateLeft && !isBoolean(test, context)) {
-		return;
+	if (!negateLeft) {
+		const booleanTest = canFixBooleanTernary(context) ? unwrapConstantAliases(test, context) : test;
+		if (!isBoolean(booleanTest, context)) {
+			return;
+		}
 	}
 
 	const problem = {
@@ -493,6 +506,10 @@ const create = context => {
 
 	context.on('ConditionalExpression', conditionalExpression => {
 		const {test, consequent, alternate} = conditionalExpression;
+		if (isBooleanLiteral(consequent) && isBooleanLiteral(alternate)) {
+			return;
+		}
+
 		const booleanTernaryProblem = getBooleanTernaryProblem(conditionalExpression, context);
 
 		if (booleanTernaryProblem) {
