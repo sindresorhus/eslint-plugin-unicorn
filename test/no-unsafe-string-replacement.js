@@ -17,6 +17,7 @@ test.snapshot({
 	valid: [
 		String.raw`text.replaceAll("\t", " ".repeat(4))`,
 		String.raw`text.replaceAll("\t", "\u00A0".repeat(4))`,
+		'text.replace("pattern", "".repeat(count))',
 		'text.replace("pattern", " ".repeat(count))',
 		'text.replace("pattern", " ".repeat(getCount()))',
 		'text.replace("pattern", " ".repeat(2n ** 100000000000n))',
@@ -130,11 +131,11 @@ test.snapshot({
 		].join('\n'),
 		'text.replace("pattern", replacement.repeat(4))',
 		'text.replace("pattern", " ".repeat?.(4))',
+		'text.replace("pattern", " "?.repeat(4))',
 		'text.replace("pattern", " "["repeat"](4))',
 		'text.replace("pattern", `$`.repeat(count))',
 		'text.replace("pattern", `\\u0024`.repeat(2))',
 		'text.replace("pattern", `${prefix}`.repeat(2))', // eslint-disable-line no-template-curly-in-string
-		'text.replace("pattern", "$$$$".repeat(2))',
 		'text.replaceAll("pattern", "$&".repeat(2))',
 		'text.replace("pattern", "&$".repeat(2))',
 		String.raw`text.replace("pattern", "\u0024".repeat(2))`,
