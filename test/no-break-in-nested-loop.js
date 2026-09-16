@@ -121,6 +121,10 @@ ruleTest.snapshot({
 				for (const item of items) {
 					function processItem() {
 						for (const child of item.children) {
+							if (child.done) {
+								break;
+							}
+
 							continue;
 						}
 					}
