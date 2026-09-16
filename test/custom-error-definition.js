@@ -2161,6 +2161,10 @@ ruleTest({
 			errors: [passOptionsToSuperError],
 		},
 		{
+			code: 'class FooError extends Error { constructor(status, message, options) { super(options); this.name = \'FooError\'; } }',
+			errors: [passOptionsToSuperError],
+		},
+		{
 			code: 'class FooError extends Error { constructor(status, message, ...options) { super(message, options); this.name = \'FooError\'; } }',
 			errors: [invalidOptionsParameterError],
 		},

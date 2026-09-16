@@ -335,11 +335,16 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 	}
 
 	if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
-		return {
+		const problem = {
 			node: superCallExpression,
 			messageId: MESSAGE_ID_PASS_OPTIONS_TO_SUPER,
-			fix: fixSuperOptionsArgument(context, superCallExpression, messageArgumentText),
 		};
+
+		if (!isSameIdentifier(superCallExpression.arguments[0], getParameterIdentifier(optionsParameter))) {
+			problem.fix = fixSuperOptionsArgument(context, superCallExpression, messageArgumentText);
+		}
+
+		return problem;
 	}
 };
 
