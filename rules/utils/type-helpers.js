@@ -483,6 +483,41 @@ const getTypeFromVariable = (node, context, options, visitedVariables) => {
 	return type;
 };
 
+const getFunctionCallReturnType = (node, context, options) => {
+	if (node.callee.type !== 'Identifier') {
+		return unknown;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node.callee);
+	if (
+		!variable
+		|| variable.defs.length !== 1
+		|| variable.references.some(reference => reference.isWrite() && !reference.init)
+	) {
+		return unknown;
+	}
+
+	const [definition] = variable.defs;
+	let functionNode;
+	if (definition.type === 'FunctionName') {
+		functionNode = definition.node;
+	} else if (
+		definition.type === 'Variable'
+		&& definition.parent.kind === 'const'
+		&& definition.node.id === definition.name
+		&& (
+			definition.node.init?.type === 'ArrowFunctionExpression'
+			|| definition.node.init?.type === 'FunctionExpression'
+		)
+	) {
+		functionNode = definition.node.init;
+	}
+
+	return functionNode?.returnType && !functionNode.typeParameters
+		? getTypeAnnotationType(functionNode.returnType, context.sourceCode.getScope(functionNode).upper, options)
+		: unknown;
+};
+
 const getClassType = (node, scope, options, visitedNames) => {
 	if (!node.superClass) {
 		return nonTarget;
@@ -625,6 +660,10 @@ const getTypeFromExpression = (node, context, options, visitedVariables) => {
 	switch (node.type) {
 		case 'Identifier': {
 			return getTypeFromVariable(node, context, options, visitedVariables);
+		}
+
+		case 'CallExpression': {
+			return getFunctionCallReturnType(node, context, options);
 		}
 
 		case 'ThisExpression': {

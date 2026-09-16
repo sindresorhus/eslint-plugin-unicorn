@@ -1,13 +1,13 @@
 import {Linter} from 'eslint';
 import test from 'ava';
-import {isKnownNonArray, isKnownNonIndexedCollection} from '../../rules/utils/is-array.js';
+import isArray, {isKnownNonArray, isKnownNonIndexedCollection} from '../../rules/utils/is-array.js';
 import typedArray from '../../rules/shared/typed-array.js';
 import parsers from '../utils/parsers.js';
 
 const linter = new Linter();
 
 /*
-Resolve the receiver of the only method call in `code` and return both checkers' verdicts for it.
+Resolve the receiver of the `.method()` call in `code` and return the array checkers' verdicts for it.
 */
 const getReceiverVerdicts = code => {
 	let verdicts;
@@ -25,12 +25,18 @@ const getReceiverVerdicts = code => {
 					capture: {
 						create: context => ({
 							CallExpression(node) {
-								if (node.callee.type !== 'MemberExpression') {
+								if (
+									node.callee.type !== 'MemberExpression'
+									|| node.callee.computed
+									|| node.callee.property.type !== 'Identifier'
+									|| node.callee.property.name !== 'method'
+								) {
 									return;
 								}
 
 								const receiver = node.callee.object;
 								verdicts ??= {
+									isArray: isArray(receiver, context),
 									isKnownNonArray: isKnownNonArray(receiver, context),
 									isKnownNonIndexedCollection: isKnownNonIndexedCollection(receiver, context),
 								};
@@ -111,6 +117,7 @@ test('both checkers agree that an array is neither a non-array nor a non-indexed
 	]) {
 		const verdicts = getReceiverVerdicts(code);
 
+		t.true(verdicts.isArray, `Unexpected verdict for: ${code}`);
 		t.false(verdicts.isKnownNonArray, `Unexpected verdict for: ${code}`);
 		t.false(verdicts.isKnownNonIndexedCollection, `Unexpected verdict for: ${code}`);
 	}
@@ -126,6 +133,50 @@ test('both checkers agree that an unknown receiver is not known to be anything',
 	]) {
 		const verdicts = getReceiverVerdicts(code);
 
+		t.false(verdicts.isKnownNonArray, `Unexpected verdict for: ${code}`);
+		t.false(verdicts.isKnownNonIndexedCollection, `Unexpected verdict for: ${code}`);
+	}
+});
+
+test('array checkers resolve explicit local function return annotations', t => {
+	for (const code of [
+		'declare function getValues(): object[]; getValues().method();',
+		'declare function getValues(): [object, object]; getValues().method();',
+		'interface Values extends Array<object> {} declare function getValues(): Values; getValues().method();',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+
+		t.true(verdicts.isArray, `Unexpected verdict for: ${code}`);
+		t.false(verdicts.isKnownNonArray, `Unexpected verdict for: ${code}`);
+		t.false(verdicts.isKnownNonIndexedCollection, `Unexpected verdict for: ${code}`);
+	}
+
+	for (const code of [
+		'interface Collection {} declare function getValues(): Collection; getValues().method();',
+		'declare function getValues(): Set<object>; getValues().method();',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+
+		t.false(verdicts.isArray, `Unexpected verdict for: ${code}`);
+		t.true(verdicts.isKnownNonArray, `Unexpected verdict for: ${code}`);
+		t.true(verdicts.isKnownNonIndexedCollection, `Unexpected verdict for: ${code}`);
+	}
+
+	const typedArray = getReceiverVerdicts('declare function getValues(): Uint8Array; getValues().method();');
+	t.false(typedArray.isArray);
+	t.true(typedArray.isKnownNonArray);
+	t.false(typedArray.isKnownNonIndexedCollection);
+});
+
+test('array checkers leave unsupported local function returns unknown', t => {
+	for (const code of [
+		'function getValues() { return []; } getValues().method();',
+		'interface Collection {} function getValues<T extends Collection>(): T { return value; } getValues().method();',
+		'import type {Collection} from "collection"; declare function getValues(): Collection; getValues().method();',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+
+		t.false(verdicts.isArray, `Unexpected verdict for: ${code}`);
 		t.false(verdicts.isKnownNonArray, `Unexpected verdict for: ${code}`);
 		t.false(verdicts.isKnownNonIndexedCollection, `Unexpected verdict for: ${code}`);
 	}
