@@ -298,7 +298,7 @@ function isMinimalTernary(consequent, alternate, context, options) {
 function canMoveBeforeCondition(node, context) {
 	const {sourceCode} = context;
 	return !hasSideEffect(node, sourceCode, {considerImplicitTypeConversion: true})
-		&& sourceCode.getTokens(node).every(token => token.type !== 'Template' && !['**', 'instanceof', '...'].includes(token.value));
+		&& sourceCode.getTokens(node).every(token => token.type !== 'Template' && !['**', 'instanceof', '...', '@'].includes(token.value));
 }
 
 function getExpressionItems(node) {
@@ -413,7 +413,10 @@ function fixMinimalTernary(node, context, fixer, abort) {
 	}
 
 	let text = getMinimalExpressionText(node.consequent, node.alternate, {condition: node.test, context, abort});
-	if (node.consequent.type === 'ObjectExpression') {
+	if (
+		node.consequent.type === 'ObjectExpression'
+		|| (node.consequent.type === 'BinaryExpression' && node.consequent.operator === 'in')
+	) {
 		text = `(${text})`;
 	}
 

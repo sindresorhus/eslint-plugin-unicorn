@@ -19,6 +19,9 @@ test({
 			['check() ? [1, a] : [1, b];', '[1, check() ? a : b];'],
 			['check() ? {fixed: true, value: a} : {fixed: true, value: b};', '({fixed: true, value: check() ? a : b});'],
 			['check() ? 1 + a : 1 + b;', '1 + (check() ? a : b);'],
+			['for (test ? (a in object) : (b in object); false;) {}', 'for (((test ? a : b) in object); false;) {}'],
+			['for (let result = test ? (a in object) : (b in object); false;) {}', 'for (let result = ((test ? a : b) in object); false;) {}'],
+			['for (test ? (key in first) : (key in second); false;) {}', 'for ((key in (test ? first : second)); false;) {}'],
 		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-minimal-ternary'}]})),
 		{
 			code: 'check() ? first(value) : second(value);',
@@ -67,6 +70,10 @@ test({
 			'[...iterable] ? [shared, a] : [shared, b];',
 			'test ? call([shared, ...iterable], a) : call([shared, ...iterable], b);',
 		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		...[
+			'(class { @decorator method() {} }) ? call(a) : call(b);',
+			'test ? call((class { @decorator method() {} }), a) : call((class { @decorator method() {} }), b);',
+		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}], languageOptions: {parser: parsers.typescript}})),
 	],
 });
 
@@ -139,6 +146,18 @@ test.snapshot({
 			options: [{checkVaryingBase: true}],
 		},
 		{
+			code: '(test ? object.first : object.second)`value`;',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: '(test ? object.first : object.second)?.();',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: 'previous()\ntest ? first(value) : second(value);',
+			options: [{checkVaryingBase: true}],
+		},
+		{
 			code: 'delete (test ? object.first : object.second);',
 			options: [{checkComputedMemberAccess: true}],
 		},
@@ -169,6 +188,7 @@ test.snapshot({
 			'(test ? [a] : [b])!;',
 			'(test ? a + 1 : b + 1)!;',
 			'test ? {value: (1 as number)} : {value: (2 as number)};',
+			'(class { @decorator method() {} }) ? [a] : [b];',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	],
 });
