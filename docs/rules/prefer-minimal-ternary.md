@@ -61,8 +61,6 @@ For these cases, shared values before the varying value must be simple expressio
 
 Only shallow cases are reported; nested expressions are not recursively minimized. Autofixes preserve evaluation order or only reorder safe expressions. Cases with comments or unsafe reordering require manual review.
 
-Autofixes may affect TypeScript inference or overload resolution. For example, `call(test ? 1 : 'x')` requires an overload accepting `number | string`.
-
 ## Design boundaries
 
 These transformations are intentionally excluded:
