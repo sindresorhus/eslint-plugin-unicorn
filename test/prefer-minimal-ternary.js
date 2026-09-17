@@ -97,11 +97,19 @@ test({
 			'test ? {method: existing} : {method: (() => 2) as Function};',
 			'test ? {method: (function() {}) as Function} : {method: existing};',
 			'test ? {constructor: (class {}) satisfies Function} : {constructor: existing};',
+			'test ? {method: (function<T>() {})<string>} : {method: (function<T>() {})<number>};',
+			'test ? {method: (<T,>() => 1)<string>} : {method: (<T,>() => 2)<string>};',
+			'test ? {constructor: (class<T> {})<string>} : {constructor: (class<T> {})<number>};',
+			'test ? {method: existing} : {method: ((function<T>() {})<string>) as Function};',
 		].map(code => ({
 			code,
 			errors: [{messageId: 'prefer-minimal-ternary'}],
 			languageOptions: {parser: parsers.typescript},
 		})),
+		...[
+			{code: 'var let = {a: 1, b: 2}; test ? let[first] : let[second];'},
+			{code: 'var let = {a() {}, b() {}}; test ? let.a() : let.b();', options: [{checkComputedMemberAccess: true}]},
+		].map(testCase => ({...testCase, errors: [{messageId: 'prefer-minimal-ternary'}], languageOptions: {sourceType: 'script'}})),
 		...[
 			'const first = {a: 1}, second = {a: 2}; const result = false ? first[key] : second.a; const key = "a";',
 			'const first = {a: 1}, second = {a: 2}; const result = false ? first.a : second[key]; const key = "a";',

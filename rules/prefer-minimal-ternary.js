@@ -395,6 +395,11 @@ function getMinimalExpressionText(left, right, {condition, context, abort}) {
 			return replace(left.object, `(${getConditionalText(left.object, right.object)})`);
 		}
 
+		// A statement starting with `let[…]` is parsed as a declaration in scripts.
+		if (left.object.type === 'Identifier' && left.object.name === 'let') {
+			abort();
+		}
+
 		requireSafeExpressions([left.object]);
 		const getKeyText = member => member.computed ? getText(member.property) : JSON.stringify(member.property.name);
 		return `${getText(left.object)}[${conditionText} ? ${getKeyText(left)} : ${getKeyText(right)}]`;
@@ -428,7 +433,10 @@ function getMinimalExpressionText(left, right, {condition, context, abort}) {
 	requireSafeExpressions(leftItems.slice(0, differentIndex));
 	if (
 		left.type === 'ObjectExpression'
-		&& [leftItems[differentIndex], rightItems[differentIndex]].some(item => ['ArrowFunctionExpression', 'FunctionExpression', 'ClassExpression'].includes(unwrapTypeScriptExpression(item).type))
+		&& [leftItems[differentIndex], rightItems[differentIndex]].some(item => {
+			const {type} = unwrapTypeScriptExpression(item);
+			return type.startsWith('TS') || ['ArrowFunctionExpression', 'FunctionExpression', 'ClassExpression'].includes(type);
+		})
 	) {
 		abort();
 	}
