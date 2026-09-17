@@ -4,6 +4,8 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
@@ -57,7 +59,7 @@ const date = new Date(test ? a : b);
 
 For these cases, shared values before the varying value must be simple expressions such as identifiers or literals.
 
-Only shallow cases are reported; nested expressions are not recursively minimized. The rule is not autofixable, since moving the ternary can change evaluation order. Review each report.
+Only shallow cases are reported; nested expressions are not recursively minimized. The rule offers autofixes when evaluation order is preserved, or when it can verify that the condition and shared expressions moved before it have no side effects. Shared literals can also move before a condition with side effects, since their values cannot change. Reports that cannot be safely fixed, including expressions containing comments, require manual review.
 
 ## Design boundaries
 
@@ -77,6 +79,8 @@ Type: `boolean`\
 Default: `false`
 
 Also report ternaries that share everything but the base of a call or member access. Minimizing these moves the ternary into the base (`(test ? a : b)()`, `(test ? a : b).foo`), which hides the call site, breaks plain-text searches, and breaks TypeScript `const enum` access, so it is opt-in.
+
+Autofixes for member accesses with a varying base require dot access or literal computed keys.
 
 ```js
 // eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
