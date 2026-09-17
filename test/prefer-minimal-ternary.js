@@ -4,6 +4,262 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const result = test ? call(a) : call(b);',
+			output: 'const result = call(test ? a : b);',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		...[
+			'ready && enabled',
+			'ready ?? fallback',
+			'ready === enabled',
+			'ready !== enabled',
+			'typeof value',
+			'void value',
+			'!true',
+			'object.ready',
+			'object?.ready',
+			'object["ready"]',
+			'(ready ? enabled : fallback)',
+		].map(condition => ({
+			code: `${condition} ? call(a) : call(b);`,
+			output: `call(${condition} ? a : b);`,
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		})),
+		{
+			code: '(ready as boolean) && enabled! ? call(a) : call(b);',
+			output: 'call((ready as boolean) && enabled! ? a : b);',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		...[
+			['check() ? [a, later()] : [b, later()];', '[check() ? a : b, later()];'],
+			['check() ? {value: a} : {value: b};', '({value: check() ? a : b});'],
+			['check() ? a + later() : b + later();', '(check() ? a : b) + later();'],
+			['check() ? [1, a] : [1, b];', '[1, check() ? a : b];'],
+			['check() ? {fixed: true, value: a} : {fixed: true, value: b};', '({fixed: true, value: check() ? a : b});'],
+			['check() ? 1 + a : 1 + b;', '1 + (check() ? a : b);'],
+			['test ? call(ready ? a : b, c) : call(ready ? a : b, d);', 'call(ready ? a : b, test ? c : d);'],
+			['test ? call(object?.ready, a) : call(object?.ready, b);', 'call(object?.ready, test ? a : b);'],
+			['for (test ? (a in object) : (b in object); false;) {}', 'for (((test ? a : b) in object); false;) {}'],
+			['for (let result = test ? (a in object) : (b in object); false;) {}', 'for (let result = ((test ? a : b) in object); false;) {}'],
+			['for (test ? (key in first) : (key in second); false;) {}', 'for ((key in (test ? first : second)); false;) {}'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		{
+			code: 'check() ? first(value) : second(value);',
+			output: '(check() ? first : second)(value);',
+			options: [{checkVaryingBase: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'check() ? first.method(value) : second.method(value);',
+			output: '(check() ? first : second).method(value);',
+			options: [{checkVaryingBase: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'const result = test ? object[(change(), "a")] : object[(change(), "b")];',
+			output: 'const result = object[test ? (change(), "a") : (change(), "b")];',
+			options: [{checkComputedMemberAccess: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		...[
+			['test ? object[first(), a] : object[second(), b];', 'object[test ? (first(), a) : (second(), b)];'],
+			['test ? object[first(), a] : object[b];', 'object[test ? (first(), a) : b];'],
+			['test ? object[a] : object[second(), b];', 'object[test ? a : (second(), b)];'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		{
+			code: 'test ? object[change(), "a"] : object[change(), "b"];',
+			output: 'object[test ? (change(), "a") : (change(), "b")];',
+			options: [{checkComputedMemberAccess: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'test ? object[change(), "first"](value) : object[change(), "second"](value);',
+			output: 'object[test ? (change(), "first") : (change(), "second")](value);',
+			options: [{checkComputedMemberAccess: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			'test ? {method: (() => 1) as Function} : {method: (() => 2) as Function};',
+			'test ? {method: (() => 1)!} : {method: (() => 2)!};',
+			'test ? {method: (() => 1) satisfies Function} : {method: (() => 2) satisfies Function};',
+			'test ? {method: <Function>(() => 1)} : {method: <Function>(() => 2)};',
+			'test ? {method: existing} : {method: (() => 2) as Function};',
+			'test ? {method: (function() {}) as Function} : {method: existing};',
+			'test ? {constructor: (class {}) satisfies Function} : {constructor: existing};',
+			'test ? {method: (function<T>() {})<string>} : {method: (function<T>() {})<number>};',
+			'test ? {method: (<T,>() => 1)<string>} : {method: (<T,>() => 2)<string>};',
+			'test ? {constructor: (class<T> {})<string>} : {constructor: (class<T> {})<number>};',
+			'test ? {method: existing} : {method: ((function<T>() {})<string>) as Function};',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+			languageOptions: {parser: parsers.typescript},
+		})),
+		...[
+			{code: 'var let = {a: 1, b: 2}; test ? let[first] : let[second];'},
+			{code: 'var let = {a() {}, b() {}}; test ? let.a() : let.b();', options: [{checkComputedMemberAccess: true}]},
+		].map(testCase => ({...testCase, errors: [{messageId: 'prefer-minimal-ternary'}], languageOptions: {sourceType: 'script'}})),
+		...[
+			'const first = {a: 1}, second = {a: 2}; const result = false ? first[key] : second.a; const key = "a";',
+			'const first = {a: 1}, second = {a: 2}; const result = false ? first.a : second[key]; const key = "a";',
+		].map(code => ({code, options: [{checkVaryingBase: true}], errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		...[
+			'value ** 1 ? [shared, a] : [shared, b];',
+			'value instanceof Constructor ? [shared, a] : [shared, b];',
+			'[...iterable] ? [shared, a] : [shared, b];',
+			'test ? call([shared, ...iterable], a) : call([shared, ...iterable], b);',
+		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		...[
+			'(class { @decorator method() {} }) ? call(a) : call(b);',
+			'test ? call((class { @decorator method() {} }), a) : call((class { @decorator method() {} }), b);',
+		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}], languageOptions: {parser: parsers.typescript}})),
+		...[
+			'(<div />) ? call(a) : call(b);',
+			'(<></>) ? call(a) : call(b);',
+			'test ? call(<div />, a) : call(<div />, b);',
+			'test ? call(<></>, a) : call(<></>, b);',
+			'(ready && <div />) ? call(a) : call(b);',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		})),
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		// Evaluating the condition must not mutate a shared value moved before it.
+		'change() ? call(a) : call(b);',
+		'(value = other) ? [value, a] : [value, b];',
+		'value++ ? value + a : value + b;',
+		// Implicit conversions can mutate a shared value just like a function call.
+		'+value ? call(a) : call(b);',
+		'value == 1 ? [shared, a] : [shared, b];',
+		'test ? call(value ** 1, a) : call(value ** 1, b);',
+		'test ? call(value instanceof Constructor, a) : call(value instanceof Constructor, b);',
+		'check() ? new Foo(a) : new Foo(b);',
+		'check() ? {shared, value: a} : {shared, value: b};',
+		'check() ? object[a] : object[b];',
+		'check() ? [1, shared, a] : [1, shared, b];',
+		'check() ? [shared, 1, a] : [shared, 1, b];',
+		'check() ? ["fixed", null, false, 1n, a] : ["fixed", null, false, 1n, b];',
+		'check() ? [/pattern/, a] : [/pattern/, b];',
+		// Calls, assignments, and suspension are safe when the condition still runs first.
+		'(value = other) ? [value] : [fallback];',
+		'tag`condition` ? a + 1 : b + 1;',
+		'async function run() { return (await condition) ? [a] : [b]; }',
+		'function* run() { return (yield condition) ? [a] : [b]; }',
+		// Earlier shared arguments must not mutate values read by the condition.
+		'test ? call(change(), a) : call(change(), b);',
+		'test ? call(value++, a) : call(value++, b);',
+		'test ? call(tag`value`, a) : call(tag`value`, b);',
+		'tag`condition` ? call(a) : call(b);',
+		'!tag`condition` ? call(a) : call(b);',
+		'async function run() { return (await condition) ? call(a) : call(b); }',
+		// Side effects in the varying part or later shared values keep their order.
+		'test ? call(a(), later()) : call(b(), later());',
+		'test ? a() + later() : b() + later();',
+		'test ? call(shared, a()) : call(shared, b());',
+		// Keep reports without removing or relocating comments.
+		'test /* keep */ ? call(a) : call(b);',
+		'test ? call(a) : call(/* keep */ b);',
+		'test ? /* keep */ [a] : [b];',
+		// Parentheses and automatic semicolon insertion.
+		'(first ? second : third) ? call((a, b)) : call(c);',
+		'previous()\ntest ? [a] : [b];',
+		'previous()\ntest ? a + 1 : b + 1;',
+		'() => test ? {a: 1} : {a: 2};',
+		'function run() { return test ? {a: 1} : {a: 2}; }',
+		'test ? call({a: 1}) : call({a: 2});',
+		'test ? call(() => a) : call(() => b);',
+		// Moving anonymous functions into a conditional would lose the property name inference.
+		'test ? {method: () => a} : {method: () => b};',
+		'test ? {method: function() { return a; }} : {method: function() { return b; }};',
+		'test ? {constructor: class {}} : {constructor: other};',
+		'test ? object[a?.key] : object[b?.key];',
+		{
+			code: 'test ? first.method(change()) : second.method(change());',
+			options: [{checkVaryingBase: true}],
+		},
+		{
+			code: 'test ? object.first(change()) : object.second(change());',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: 'test ? eval(code) : other(code);',
+			options: [{checkVaryingBase: true}],
+		},
+		{
+			code: '(test ? first.method : second.method)();',
+			options: [{checkVaryingBase: true}],
+		},
+		{
+			code: '(test ? object.first : object.second)`value`;',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: '(test ? object.first : object.second)?.();',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: 'previous()\ntest ? first(value) : second(value);',
+			options: [{checkVaryingBase: true}],
+		},
+		{
+			code: 'delete (test ? object.first : object.second);',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: 'test ? object[(change(), "a")] : object[(change(), "b")];',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: 'test ? first[(change(), "method")] : second.method;',
+			options: [{checkVaryingBase: true}],
+		},
+		{
+			code: 'test ? first.method : second[(change(), "method")];',
+			options: [{checkVaryingBase: true}],
+		},
+		...[
+			'(test ? first.method : second.method)!();',
+			'((test ? first.method : second.method) as Function)();',
+		].map(code => ({code, options: [{checkVaryingBase: true}], languageOptions: {parser: parsers.typescript}})),
+		{
+			code: 'const element = <div>{test ? call(a) : call(b)}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		...[
+			'(<div />) ? [a] : [b];',
+			'(<></>) ? [a] : [b];',
+		].map(code => ({code, languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}})),
+		...[
+			'(test as boolean) ? call(a) : call(b);',
+			'test! ? call(a) : call(b);',
+			'test ? call<A>(a) : call<B>(b);',
+			'(test ? [a] : [b])!;',
+			'(test ? a + 1 : b + 1)!;',
+			'test ? {value: (1 as number)} : {value: (2 as number)};',
+			'(class { @decorator method() {} }) ? [a] : [b];',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		'async function run() { return test ? [await a] : [await b]; }',
+		'function* run() { return test ? [yield a] : [yield b]; }',
+	],
+});
+
 // Runs with full type information and `checkVaryingBase` enabled, so `const enum` objects can be detected.
 const typeAwareVaryingBase = code => ({
 	code,

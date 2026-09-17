@@ -1,5 +1,12 @@
-import {getPropertyName} from '@eslint-community/eslint-utils';
-import {hasOptionalChainElement, isConstEnumReference} from './utils/index.js';
+import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
+import {
+	getParenthesizedText,
+	hasOptionalChainElement,
+	isConstEnumReference,
+	isParenthesized,
+	needsSemicolon,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-minimal-ternary';
 const messages = {
@@ -183,11 +190,9 @@ function isMinimalNewExpression(left, right, context) {
 		return false;
 	}
 
-	const leftTypeArguments = left.typeArguments ?? left.typeParameters;
-	const rightTypeArguments = right.typeArguments ?? right.typeParameters;
 	const {sourceCode} = context;
 
-	return (leftTypeArguments ? sourceCode.getText(leftTypeArguments) : '') === (rightTypeArguments ? sourceCode.getText(rightTypeArguments) : '')
+	return getTypeArgumentsText(left, sourceCode) === getTypeArgumentsText(right, sourceCode)
 		&& hasOneMinimalValueDifference(left.arguments, right.arguments, sourceCode);
 }
 
@@ -289,6 +294,193 @@ function isMinimalTernary(consequent, alternate, context, options) {
 		|| isMinimalNewExpression(consequent, alternate, context);
 }
 
+// Only known expression forms may move before the condition, since `hasSideEffect` does not detect every implicit call.
+function isSafeToReorderExpression(node) {
+	node = unwrapTypeScriptExpression(node);
+	if (isSafeSharedExpression(node)) {
+		return true;
+	}
+
+	switch (node.type) {
+		case 'MemberExpression': {
+			return isSafeToReorderExpression(node.object)
+				&& (!node.computed || isSafeToReorderExpression(node.property));
+		}
+
+		case 'ChainExpression': {
+			return isSafeToReorderExpression(node.expression);
+		}
+
+		case 'UnaryExpression': {
+			return ['!', 'typeof', 'void'].includes(node.operator)
+				&& isSafeToReorderExpression(node.argument);
+		}
+
+		case 'BinaryExpression': {
+			return ['===', '!=='].includes(node.operator)
+				&& isSafeToReorderExpression(node.left)
+				&& isSafeToReorderExpression(node.right);
+		}
+
+		case 'LogicalExpression': {
+			return isSafeToReorderExpression(node.left) && isSafeToReorderExpression(node.right);
+		}
+
+		case 'ConditionalExpression': {
+			return isSafeToReorderExpression(node.test)
+				&& isSafeToReorderExpression(node.consequent)
+				&& isSafeToReorderExpression(node.alternate);
+		}
+
+		default: {
+			return false;
+		}
+	}
+}
+
+function canMoveBeforeCondition(node, context) {
+	return isSafeToReorderExpression(node)
+		&& !hasSideEffect(node, context.sourceCode, {considerImplicitTypeConversion: true});
+}
+
+function getExpressionItems(node) {
+	return node.type === 'ObjectExpression' ? node.properties.map(property => property.value) : node.elements ?? node.arguments;
+}
+
+function getTypeArgumentsText(node, sourceCode) {
+	const typeArguments = node.typeArguments ?? node.typeParameters;
+	return typeArguments ? sourceCode.getText(typeArguments) : '';
+}
+
+function getMinimalExpressionText(left, right, {condition, context, abort}) {
+	const {sourceCode} = context;
+	const getText = node => {
+		const text = getParenthesizedText(node, context);
+		return node.type === 'SequenceExpression' && !isParenthesized(node, context) ? `(${text})` : text;
+	};
+
+	const conditionText = getText(condition);
+	const getConditionalText = (consequent, alternate) => `${conditionText} ? ${getText(consequent)} : ${getText(alternate)}`;
+
+	if (left.type === 'Identifier') {
+		if (left.name === 'eval' || right.name === 'eval') {
+			abort();
+		}
+
+		return `(${getConditionalText(left, right)})`;
+	}
+
+	const replace = (node, text) => {
+		const [start, end] = sourceCode.getRange(node);
+		const [expressionStart, expressionEnd] = sourceCode.getRange(left);
+		return sourceCode.text.slice(expressionStart, start) + text + sourceCode.text.slice(end, expressionEnd);
+	};
+
+	const requireSafeExpressions = expressions => {
+		// Literal values cannot be changed by the condition.
+		if (expressions.some(expression => expression.type !== 'Literal') && (
+			!canMoveBeforeCondition(condition, context)
+			|| expressions.some(expression => !canMoveBeforeCondition(expression, context))
+		)) {
+			abort();
+		}
+	};
+
+	if (left.type === 'MemberExpression') {
+		if (!isSameSourceText(left.object, right.object, sourceCode)) {
+			if ([left, right].some(member => member.computed && member.property.type !== 'Literal')) {
+				abort();
+			}
+
+			return replace(left.object, `(${getConditionalText(left.object, right.object)})`);
+		}
+
+		// A statement starting with `let[…]` is parsed as a declaration in scripts.
+		if (left.object.type === 'Identifier' && left.object.name === 'let') {
+			abort();
+		}
+
+		requireSafeExpressions([left.object]);
+		const getKeyText = member => member.computed ? getText(member.property) : JSON.stringify(member.property.name);
+		return `${getText(left.object)}[${conditionText} ? ${getKeyText(left)} : ${getKeyText(right)}]`;
+	}
+
+	if (left.type === 'BinaryExpression') {
+		const isLeftSame = isSameSourceText(left.left, right.left, sourceCode);
+		if (isLeftSame) {
+			requireSafeExpressions([left.left]);
+		}
+
+		const key = isLeftSame ? 'right' : 'left';
+		return replace(left[key], `(${getConditionalText(left[key], right[key])})`);
+	}
+
+	if (left.type === 'CallExpression' || left.type === 'NewExpression') {
+		if (getTypeArgumentsText(left, sourceCode) !== getTypeArgumentsText(right, sourceCode)) {
+			abort();
+		}
+
+		if (!isSameSourceText(left.callee, right.callee, sourceCode)) {
+			return replace(left.callee, getMinimalExpressionText(left.callee, right.callee, {condition, context, abort}));
+		}
+
+		requireSafeExpressions([left.callee]);
+	}
+
+	const leftItems = getExpressionItems(left);
+	const rightItems = getExpressionItems(right);
+	const differentIndex = leftItems.findIndex((item, index) => !isSameSourceText(item, rightItems[index], sourceCode));
+	requireSafeExpressions(leftItems.slice(0, differentIndex));
+	if (
+		left.type === 'ObjectExpression'
+		&& [leftItems[differentIndex], rightItems[differentIndex]].some(item => {
+			const {type} = unwrapTypeScriptExpression(item);
+			return type.startsWith('TS') || ['ArrowFunctionExpression', 'FunctionExpression', 'ClassExpression'].includes(type);
+		})
+	) {
+		abort();
+	}
+
+	const conditionalText = getConditionalText(leftItems[differentIndex], rightItems[differentIndex]);
+
+	if (left.type === 'ObjectExpression' && left.properties[differentIndex].shorthand) {
+		const property = left.properties[differentIndex];
+		return replace(property, `${sourceCode.getText(property.key)}: ${conditionalText}`);
+	}
+
+	return replace(leftItems[differentIndex], conditionalText);
+}
+
+function fixMinimalTernary(node, context, fixer, abort) {
+	const {sourceCode} = context;
+	if (
+		sourceCode.getCommentsInside(node).length > 0
+		// A conditional produces a value, while member access produces a reference.
+		|| (node.consequent.type === 'MemberExpression' && (
+			node.parent.type.startsWith('TS')
+			|| (node.parent.type === 'CallExpression' && node.parent.callee === node)
+			|| (node.parent.type === 'TaggedTemplateExpression' && node.parent.tag === node)
+			|| (node.parent.type === 'UnaryExpression' && node.parent.operator === 'delete')
+		))
+	) {
+		abort();
+	}
+
+	let text = getMinimalExpressionText(node.consequent, node.alternate, {condition: node.test, context, abort});
+	if (
+		node.consequent.type === 'ObjectExpression'
+		|| (node.consequent.type === 'BinaryExpression' && node.consequent.operator === 'in')
+	) {
+		text = `(${text})`;
+	}
+
+	if (!isParenthesized(node, context) && needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {
+		text = `;${text}`;
+	}
+
+	return fixer.replaceText(node, text);
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -303,6 +495,9 @@ const create = context => {
 		return {
 			node,
 			messageId: MESSAGE_ID,
+			* fix(fixer, {abort}) {
+				yield fixMinimalTernary(node, context, fixer, abort);
+			},
 		};
 	});
 };
@@ -318,6 +513,7 @@ const config = {
 			description: 'Prefer moving ternaries into the minimal varying part of an expression.',
 			recommended: 'unopinionated',
 		},
+		fixable: 'code',
 		schema: [
 			{
 				type: 'object',
