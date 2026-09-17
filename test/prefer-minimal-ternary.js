@@ -42,6 +42,8 @@ test({
 			['check() ? [1, a] : [1, b];', '[1, check() ? a : b];'],
 			['check() ? {fixed: true, value: a} : {fixed: true, value: b};', '({fixed: true, value: check() ? a : b});'],
 			['check() ? 1 + a : 1 + b;', '1 + (check() ? a : b);'],
+			['test ? call(ready ? a : b, c) : call(ready ? a : b, d);', 'call(ready ? a : b, test ? c : d);'],
+			['test ? call(object?.ready, a) : call(object?.ready, b);', 'call(object?.ready, test ? a : b);'],
 			['for (test ? (a in object) : (b in object); false;) {}', 'for (((test ? a : b) in object); false;) {}'],
 			['for (let result = test ? (a in object) : (b in object); false;) {}', 'for (let result = ((test ? a : b) in object); false;) {}'],
 			['for (test ? (key in first) : (key in second); false;) {}', 'for ((key in (test ? first : second)); false;) {}'],
@@ -228,6 +230,8 @@ test.snapshot({
 			'test ? {value: (1 as number)} : {value: (2 as number)};',
 			'(class { @decorator method() {} }) ? [a] : [b];',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		'async function run() { return test ? [await a] : [await b]; }',
+		'function* run() { return test ? [yield a] : [yield b]; }',
 	],
 });
 
