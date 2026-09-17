@@ -59,7 +59,9 @@ const date = new Date(test ? a : b);
 
 For these cases, shared values before the varying value must be simple expressions such as identifiers or literals.
 
-Only shallow cases are reported; nested expressions are not recursively minimized. The rule offers autofixes when evaluation order is preserved, or when it can verify that the condition and shared expressions moved before it have no side effects. Shared literals can also move before a condition with side effects, since their values cannot change. Reports that cannot be safely fixed, including expressions containing comments, require manual review.
+Only shallow cases are reported; nested expressions are not recursively minimized. The rule offers autofixes when evaluation order is preserved, or when the condition and shared expressions moved before it use supported simple expression forms without side effects. Expressions such as JSX, templates, and classes are not reordered, since they can execute implicit calls. Shared literals can also move before a condition with side effects, since their values cannot change. Reports that cannot be safely fixed, including expressions containing comments, require manual review.
+
+Autofixes preserve runtime behavior, but may affect TypeScript inference or overload resolution. For example, `test ? call(1) : call('x')` may match separate overloads, while `call(test ? 1 : 'x')` requires an overload accepting `number | string`.
 
 ## Design boundaries
 

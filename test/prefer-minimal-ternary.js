@@ -13,6 +13,29 @@ test({
 			errors: [{messageId: 'prefer-minimal-ternary'}],
 		},
 		...[
+			'ready && enabled',
+			'ready ?? fallback',
+			'ready === enabled',
+			'ready !== enabled',
+			'typeof value',
+			'void value',
+			'!true',
+			'object.ready',
+			'object?.ready',
+			'object["ready"]',
+			'(ready ? enabled : fallback)',
+		].map(condition => ({
+			code: `${condition} ? call(a) : call(b);`,
+			output: `call(${condition} ? a : b);`,
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		})),
+		{
+			code: '(ready as boolean) && enabled! ? call(a) : call(b);',
+			output: 'call((ready as boolean) && enabled! ? a : b);',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		...[
 			['check() ? [a, later()] : [b, later()];', '[check() ? a : b, later()];'],
 			['check() ? {value: a} : {value: b};', '({value: check() ? a : b});'],
 			['check() ? a + later() : b + later();', '(check() ? a : b) + later();'],
@@ -74,6 +97,17 @@ test({
 			'(class { @decorator method() {} }) ? call(a) : call(b);',
 			'test ? call((class { @decorator method() {} }), a) : call((class { @decorator method() {} }), b);',
 		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}], languageOptions: {parser: parsers.typescript}})),
+		...[
+			'(<div />) ? call(a) : call(b);',
+			'(<></>) ? call(a) : call(b);',
+			'test ? call(<div />, a) : call(<div />, b);',
+			'test ? call(<></>, a) : call(<></>, b);',
+			'(ready && <div />) ? call(a) : call(b);',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		})),
 	],
 });
 
@@ -181,6 +215,10 @@ test.snapshot({
 			code: 'const element = <div>{test ? call(a) : call(b)}</div>;',
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
+		...[
+			'(<div />) ? [a] : [b];',
+			'(<></>) ? [a] : [b];',
+		].map(code => ({code, languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}})),
 		...[
 			'(test as boolean) ? call(a) : call(b);',
 			'test! ? call(a) : call(b);',

@@ -294,11 +294,53 @@ function isMinimalTernary(consequent, alternate, context, options) {
 		|| isMinimalNewExpression(consequent, alternate, context);
 }
 
-// These tokens conservatively exclude implicit calls that `hasSideEffect` does not detect.
+// Only known expression forms may move before the condition, since `hasSideEffect` does not detect every implicit call.
+function isSafeToReorderExpression(node) {
+	node = unwrapTypeScriptExpression(node);
+	if (isSafeSharedExpression(node)) {
+		return true;
+	}
+
+	switch (node.type) {
+		case 'MemberExpression': {
+			return isSafeToReorderExpression(node.object)
+				&& (!node.computed || isSafeToReorderExpression(node.property));
+		}
+
+		case 'ChainExpression': {
+			return isSafeToReorderExpression(node.expression);
+		}
+
+		case 'UnaryExpression': {
+			return ['!', 'typeof', 'void'].includes(node.operator)
+				&& isSafeToReorderExpression(node.argument);
+		}
+
+		case 'BinaryExpression': {
+			return ['===', '!=='].includes(node.operator)
+				&& isSafeToReorderExpression(node.left)
+				&& isSafeToReorderExpression(node.right);
+		}
+
+		case 'LogicalExpression': {
+			return isSafeToReorderExpression(node.left) && isSafeToReorderExpression(node.right);
+		}
+
+		case 'ConditionalExpression': {
+			return isSafeToReorderExpression(node.test)
+				&& isSafeToReorderExpression(node.consequent)
+				&& isSafeToReorderExpression(node.alternate);
+		}
+
+		default: {
+			return false;
+		}
+	}
+}
+
 function canMoveBeforeCondition(node, context) {
-	const {sourceCode} = context;
-	return !hasSideEffect(node, sourceCode, {considerImplicitTypeConversion: true})
-		&& sourceCode.getTokens(node).every(token => token.type !== 'Template' && !['**', 'instanceof', '...', '@'].includes(token.value));
+	return isSafeToReorderExpression(node)
+		&& !hasSideEffect(node, context.sourceCode, {considerImplicitTypeConversion: true});
 }
 
 function getExpressionItems(node) {
