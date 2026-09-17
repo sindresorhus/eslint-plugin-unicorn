@@ -354,7 +354,11 @@ function getTypeArgumentsText(node, sourceCode) {
 
 function getMinimalExpressionText(left, right, {condition, context, abort}) {
 	const {sourceCode} = context;
-	const getText = node => getParenthesizedText(node, context);
+	const getText = node => {
+		const text = getParenthesizedText(node, context);
+		return node.type === 'SequenceExpression' && !isParenthesized(node, context) ? `(${text})` : text;
+	};
+
 	const conditionText = getText(condition);
 	const getConditionalText = (consequent, alternate) => `${conditionText} ? ${getText(consequent)} : ${getText(alternate)}`;
 

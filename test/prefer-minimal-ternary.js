@@ -66,6 +66,23 @@ test({
 			options: [{checkComputedMemberAccess: true}],
 			errors: [{messageId: 'prefer-minimal-ternary'}],
 		},
+		...[
+			['test ? object[first(), a] : object[second(), b];', 'object[test ? (first(), a) : (second(), b)];'],
+			['test ? object[first(), a] : object[b];', 'object[test ? (first(), a) : b];'],
+			['test ? object[a] : object[second(), b];', 'object[test ? a : (second(), b)];'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		{
+			code: 'test ? object[change(), "a"] : object[change(), "b"];',
+			output: 'object[test ? (change(), "a") : (change(), "b")];',
+			options: [{checkComputedMemberAccess: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'test ? object[change(), "first"](value) : object[change(), "second"](value);',
+			output: 'object[test ? (change(), "first") : (change(), "second")](value);',
+			options: [{checkComputedMemberAccess: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
 	],
 });
 
