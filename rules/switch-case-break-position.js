@@ -1,6 +1,5 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
-import getIndentString from './utils/get-indent-string.js';
-import {getLastTrailingCommentOnSameLine} from './utils/index.js';
+import {getIndentString, getLastTrailingCommentOnSameLine, getLinebreak} from './utils/index.js';
 
 const MESSAGE_ID = 'switch-case-break-position';
 const messages = {
@@ -109,7 +108,7 @@ const create = context => {
 					const lastTokenBeforeBrace = sourceCode.getTokenBefore(closingBrace, {includeComments: true});
 					yield fixer.insertTextAfter(
 						lastTokenBeforeBrace,
-						`\n${bodyIndent}${terminatingStatementText}`,
+						`${getLinebreak(context)}${bodyIndent}${terminatingStatementText}`,
 					);
 
 					// Remove the terminating statement and whitespace between it and the closing brace

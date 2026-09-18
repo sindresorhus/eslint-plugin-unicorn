@@ -1,7 +1,7 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isUndefined} from './ast/index.js';
 import isSameReference from './utils/is-same-reference.js';
-import getIndentString from './utils/get-indent-string.js';
+import {getIndentString, getLinebreak} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-switch';
 const messages = {
@@ -123,21 +123,21 @@ function hasBreakInside(breakStatements, node, context) {
 	return false;
 }
 
-function * insertBracesIfNotBlockStatement(node, fixer, indent) {
+function * insertBracesIfNotBlockStatement(node, fixer, indent, linebreak) {
 	if (!node || node.type === 'BlockStatement') {
 		return;
 	}
 
-	yield fixer.insertTextBefore(node, `{\n${indent}`);
-	yield fixer.insertTextAfter(node, `\n${indent}}`);
+	yield fixer.insertTextBefore(node, `{${linebreak}${indent}`);
+	yield fixer.insertTextAfter(node, `${linebreak}${indent}}`);
 }
 
-function * insertBreakStatement(node, fixer, sourceCode, indent) {
+function * insertBreakStatement(node, fixer, sourceCode, indent, linebreak) {
 	if (node.type === 'BlockStatement') {
 		const lastToken = sourceCode.getLastToken(node);
-		yield fixer.insertTextBefore(lastToken, `\n${indent}break;\n${indent}`);
+		yield fixer.insertTextBefore(lastToken, `${linebreak}${indent}break;${linebreak}${indent}`);
 	} else {
-		yield fixer.insertTextAfter(node, `\n${indent}break;`);
+		yield fixer.insertTextAfter(node, `${linebreak}${indent}break;`);
 	}
 }
 
@@ -194,12 +194,13 @@ function fix({discriminant, ifStatements}, context, options) {
 	return function * (fixer) {
 		const firstStatement = ifStatements[0].statement;
 		const indent = getIndentString(firstStatement, context);
+		const linebreak = getLinebreak(context);
 		yield fixer.insertTextBefore(firstStatement, `switch (${discriminantText}) {`);
 
 		const lastStatement = ifStatements.at(-1).statement;
 		if (lastStatement.alternate) {
 			const {alternate} = lastStatement;
-			yield fixer.insertTextBefore(alternate, `\n${indent}default: `);
+			yield fixer.insertTextBefore(alternate, `${linebreak}${indent}default: `);
 			/*
 			Technically, we should insert braces for the following case,
 			but who writes like this? And using `let`/`const` is invalid.
@@ -214,19 +215,19 @@ function fix({discriminant, ifStatements}, context, options) {
 		} else {
 			switch (options.emptyDefaultCase) {
 				case 'no-default-comment': {
-					yield fixer.insertTextAfter(firstStatement, `\n${indent}// No default`);
+					yield fixer.insertTextAfter(firstStatement, `${linebreak}${indent}// No default`);
 					break;
 				}
 
 				case 'do-nothing-comment': {
-					yield fixer.insertTextAfter(firstStatement, `\n${indent}default:\n${indent}// Do nothing`);
+					yield fixer.insertTextAfter(firstStatement, `${linebreak}${indent}default:${linebreak}${indent}// Do nothing`);
 					break;
 				}
 				// No default
 			}
 		}
 
-		yield fixer.insertTextAfter(firstStatement, `\n${indent}}`);
+		yield fixer.insertTextAfter(firstStatement, `${linebreak}${indent}}`);
 
 		for (const {statement, compareExpressions} of ifStatements) {
 			const {consequent, alternate} = statement;
@@ -245,12 +246,12 @@ function fix({discriminant, ifStatements}, context, options) {
 			for (const {left, right} of compareExpressions) {
 				const node = isSame(left, discriminant) ? right : left;
 				const text = sourceCode.getText(node);
-				yield fixer.insertTextBefore(consequent, `\n${indent}case ${text}: `);
+				yield fixer.insertTextBefore(consequent, `${linebreak}${indent}case ${text}: `);
 			}
 
 			if (shouldInsertBreakStatement(consequent)) {
-				yield insertBreakStatement(consequent, fixer, sourceCode, indent);
-				yield insertBracesIfNotBlockStatement(consequent, fixer, indent);
+				yield insertBreakStatement(consequent, fixer, sourceCode, indent, linebreak);
+				yield insertBracesIfNotBlockStatement(consequent, fixer, indent, linebreak);
 			}
 		}
 	};

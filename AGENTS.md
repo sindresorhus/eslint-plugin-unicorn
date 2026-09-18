@@ -245,6 +245,7 @@ When writing fix functions:
 4. **Spacing** - Replacing `{foo}` with an identifier may merge tokens: `const{foo}` becomes `constfoo`. Add spaces when a symbol-boundary becomes a letter-boundary.
 5. **Generator fixes** - Use `* fix(fixer) { yield ... }` for multi-step fixes.
 6. **Suggestions** - Use `suggest` array with `messageId` and `fix` when autofix could change runtime behavior. Set `hasSuggestions: true` in meta.
+7. **Indentation and line endings** - ESLint inserts fix text verbatim and does not re-indent it. Never hardcode `\t` or `\n` when building new lines. Use the helpers in `rules/utils/`: `getLineIndent(node, context)` for the indentation of the line a node is on, `getIndentUnit(context)` for one level of the file's indentation, `getLinebreak(context)` for the file's line ending, and `reindentText(text, sourceIndent, targetIndent)` to move multi-line text to another indentation. Test fixes with space-indented and CRLF input, not only tabs and LF.
 
 ## Rule naming
 

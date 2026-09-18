@@ -44,9 +44,10 @@ for (const [rule, exit, opening] of [
 		t.false(linter.verifyAndFix(result.output, config).fixed);
 	});
 
-	test(`${rule}: preserves local CRLF line endings`, t => {
+	test(`${rule}: uses the file's first line ending for inserted lines`, t => {
+		// The file starts with LF, so the inserted lines use LF even though the surrounding code uses CRLF
 		const code = `const prefix = true;\n${opening}\r\n\tif (!condition) {\r\n\t\t${exit}\r\n\t}\r\n\twork();\r\n}`;
-		const expected = `const prefix = true;\n${opening}\r\n\tif (condition) {\r\n\t\twork();\r\n\t}\r\n}`;
+		const expected = `const prefix = true;\n${opening}\r\n\tif (condition) {\n\t\twork();\n\t}\r\n}`;
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, config);
 		t.is(result.output, expected);
@@ -119,9 +120,9 @@ test('short-body wrapping preserves a trailing file line ending', t => {
 	t.is(result.output, expected);
 });
 
-test('short-body wrapping prefers the nearest structural line ending', t => {
+test('short-body wrapping uses the file\'s first line ending, not the nearest one', t => {
 	const code = 'const prefix = true;\nconst nearby = true;\r\nfunction foo() { if (!condition) return; work(); }\r\n';
-	const expected = 'const prefix = true;\nconst nearby = true;\r\nfunction foo() { if (condition) {\r\n\twork();\r\n} }\r\n';
+	const expected = 'const prefix = true;\nconst nearby = true;\r\nfunction foo() { if (condition) {\n\twork();\n} }\r\n';
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
 	t.is(result.output, expected);

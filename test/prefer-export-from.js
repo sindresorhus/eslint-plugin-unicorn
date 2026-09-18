@@ -701,3 +701,20 @@ test.snapshot({
 		`,
 	].map(code => ({code, options: [{checkUsedVariables: false}]})),
 });
+
+// The inserted export uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'import {foo} from "foo";\r\nexport {foo};\r\n',
+			output: '\r\n\r\n\r\nexport {foo} from "foo";',
+			errors: 1,
+		},
+		{
+			code: 'import * as namespace from "foo";\r\nexport {namespace};\r\n',
+			output: '\r\n\r\n\r\nexport * as namespace from "foo";',
+			errors: 1,
+		},
+	],
+});

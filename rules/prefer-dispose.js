@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isCallExpression, isFunction} from './ast/index.js';
+import {getLinebreak} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-dispose/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-dispose/suggestion';
@@ -254,12 +255,14 @@ function hasShadowingConflict(tryStatement, resources, sourceCode) {
 	return blockScope.variables.some(({name}) => resourceNames.has(name));
 }
 
-function * fixTryStatement(fixer, tryStatement, resources, sourceCode) {
+function * fixTryStatement(fixer, tryStatement, resources, context) {
+	const {sourceCode} = context;
+	const linebreak = getLinebreak(context);
 	// Turn each declaration into `using`/`await using`, opening a new block before the first one.
 	for (const [index, {declaration, isAwaited}] of resources.entries()) {
 		const keywordToken = sourceCode.getFirstToken(declaration);
 		const keyword = isAwaited ? 'await using' : 'using';
-		yield fixer.replaceText(keywordToken, index === 0 ? `{\n${keyword}` : keyword);
+		yield fixer.replaceText(keywordToken, index === 0 ? `{${linebreak}${keyword}` : keyword);
 	}
 
 	const [, tryStatementEnd] = sourceCode.getRange(tryStatement);
@@ -267,7 +270,7 @@ function * fixTryStatement(fixer, tryStatement, resources, sourceCode) {
 	if (tryStatement.handler) {
 		// Keep `try { … } catch (…) { … }`, drop only the `finally`, and close the new block.
 		const [, handlerEnd] = sourceCode.getRange(tryStatement.handler);
-		yield fixer.replaceTextRange([handlerEnd, tryStatementEnd], '\n}');
+		yield fixer.replaceTextRange([handlerEnd, tryStatementEnd], `${linebreak}}`);
 		return;
 	}
 
@@ -276,7 +279,7 @@ function * fixTryStatement(fixer, tryStatement, resources, sourceCode) {
 	const tryBlockOpen = sourceCode.getFirstToken(tryStatement.block);
 	const tryBlockClose = sourceCode.getLastToken(tryStatement.block);
 	yield fixer.removeRange([sourceCode.getRange(tryToken)[0], sourceCode.getRange(tryBlockOpen)[1]]);
-	yield fixer.replaceTextRange([sourceCode.getRange(tryBlockClose)[0], tryStatementEnd], '\n}');
+	yield fixer.replaceTextRange([sourceCode.getRange(tryBlockClose)[0], tryStatementEnd], `${linebreak}}`);
 }
 
 /**
@@ -315,7 +318,7 @@ const create = context => {
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
 				data,
-				fix: fixer => fixTryStatement(fixer, tryStatement, resources, sourceCode),
+				fix: fixer => fixTryStatement(fixer, tryStatement, resources, context),
 			},
 		];
 

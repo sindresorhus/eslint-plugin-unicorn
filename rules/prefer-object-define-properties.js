@@ -1,12 +1,15 @@
 import {isMethodCall} from './ast/index.js';
 import {
 	getIndentString,
+	getIndentUnit,
+	getLinebreak,
 	getNextNode,
 	getPreviousNode,
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableMemberAccess,
 	isSameReference,
 	isIdentifierName,
+	reindentText,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-object-define-properties';
@@ -106,21 +109,23 @@ function getDefinePropertiesFix(expressionStatements, calls, context) {
 	const firstExpressionStatement = expressionStatements[0];
 	const lastExpressionStatement = expressionStatements.at(-1);
 	const indent = getIndentString(firstExpressionStatement, context);
-	const propertyIndent = `${indent}\t`;
+	const indentUnit = getIndentUnit(context);
+	const linebreak = getLinebreak(context);
+	const propertyIndent = `${indent}${indentUnit}`;
 	const targetText = sourceCode.getText(calls[0].arguments[0]);
 	const propertiesText = calls.map(call => {
 		const propertyKeyText = getPropertyKeyText(call.arguments[1], sourceCode);
-		const descriptorText = sourceCode.getText(call.arguments[2]).replaceAll('\n', '\n\t');
+		const descriptorText = reindentText(sourceCode.getText(call.arguments[2]), '', indentUnit);
 
 		return `${propertyIndent}${propertyKeyText}: ${descriptorText},`;
-	}).join('\n');
+	}).join(linebreak);
 
 	return fixer => fixer.replaceTextRange(
 		[
 			sourceCode.getRange(firstExpressionStatement)[0],
 			sourceCode.getRange(lastExpressionStatement)[1],
 		],
-		`Object.defineProperties(${targetText}, {\n${propertiesText}\n${indent}});`,
+		`Object.defineProperties(${targetText}, {${linebreak}${propertiesText}${linebreak}${indent}});`,
 	);
 }
 

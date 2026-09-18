@@ -4,6 +4,7 @@ import {
 	getParenthesizedRange,
 	getScopes,
 	isLeftHandSide,
+	getLinebreak,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'require-passive-events';
@@ -197,11 +198,12 @@ const fixObjectOptionsWithoutPassive = (optionsNode, context) => fixer => {
 
 	const tokenAfterLastProperty = sourceCode.getTokenAfter(lastProperty);
 	const indent = getIndentString(lastProperty, context);
+	const linebreak = getLinebreak(context);
 	if (tokenAfterLastProperty.value === ',') {
-		return fixer.insertTextAfter(tokenAfterLastProperty, `\n${indent}passive: true,`);
+		return fixer.insertTextAfter(tokenAfterLastProperty, `${linebreak}${indent}passive: true,`);
 	}
 
-	return fixer.insertTextAfter(lastProperty, `,\n${indent}passive: true`);
+	return fixer.insertTextAfter(lastProperty, `,${linebreak}${indent}passive: true`);
 };
 
 const fixPassiveFalse = passiveProperty => fixer =>

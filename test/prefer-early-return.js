@@ -1050,3 +1050,154 @@ test({
 		},
 	],
 });
+
+// The inserted `return;` follows the file's indentation
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function run(item) {
+				  if (item.isActive) {
+				    process(item);
+				    save(item);
+				  }
+				}
+			`,
+			output: outdent`
+				function run(item) {
+				  if (!item.isActive) {
+				    return;
+				  }
+
+				  process(item);
+				  save(item);
+				}
+			`,
+			errors: [{messageId: 'prefer-early-return'}],
+		},
+		{
+			code: outdent`
+				function run(item) {
+				    if (item.isActive) {
+				        process(item);
+				        save(item);
+				    }
+				}
+			`,
+			output: outdent`
+				function run(item) {
+				    if (!item.isActive) {
+				        return;
+				    }
+
+				    process(item);
+				    save(item);
+				}
+			`,
+			errors: [{messageId: 'prefer-early-return'}],
+		},
+		{
+			code: outdent`
+				const run = item => {
+				  if (item.isActive) {
+				    if (item.isReady) {
+				      process(item);
+				    }
+				    save(item);
+				  }
+				};
+			`,
+			output: outdent`
+				const run = item => {
+				  if (!item.isActive) {
+				    return;
+				  }
+
+				  if (item.isReady) {
+				    process(item);
+				  }
+				  save(item);
+				};
+			`,
+			errors: [{messageId: 'prefer-early-return'}],
+		},
+		{
+			code: outdent`
+				function run(item) {
+				  if (!item.isActive) {
+				    return;
+				  }
+
+				  process(item);
+				}
+			`,
+			options: [{checkShortBodies: true}],
+			output: outdent`
+				function run(item) {
+				  if (item.isActive) {
+				    process(item);
+				  }
+				}
+			`,
+			errors: [{messageId: 'prefer-early-return/short-body'}],
+		},
+	],
+});
+
+// The inserted lines use the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run(item) {\r\n\tif (item.isActive) {\r\n\t\tprocess(item);\r\n\t\tsave(item);\r\n\t}\r\n}\r\n',
+			output: 'function run(item) {\r\n\tif (!item.isActive) {\r\n\t\treturn;\r\n\t}\r\n\r\n\tprocess(item);\r\n\tsave(item);\r\n}\r\n',
+			errors: [{messageId: 'prefer-early-return'}],
+		},
+		{
+			code: 'function run(item) {\r\n\tif (!item.isActive) {\r\n\t\treturn;\r\n\t}\r\n\r\n\tprocess(item);\r\n}\r\n',
+			options: [{checkShortBodies: true}],
+			output: 'function run(item) {\r\n\tif (item.isActive) {\r\n\t\tprocess(item);\r\n\t}\r\n}\r\n',
+			errors: [{messageId: 'prefer-early-return/short-body'}],
+		},
+	],
+});
+
+// Moved bodies keep nested indentation and blank lines, and drop whitespace-only lines
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function run(item) {
+				  if (item.isActive) {
+				    if (item.isReady) {
+				      process(item);
+				    }
+
+				    save(item);
+				  }
+				}
+			`,
+			output: outdent`
+				function run(item) {
+				  if (!item.isActive) {
+				    return;
+				  }
+
+				  if (item.isReady) {
+				    process(item);
+				  }
+
+				  save(item);
+				}
+			`,
+			errors: [{messageId: 'prefer-early-return'}],
+		},
+		{
+			code: 'function run(item) {\n  if (item.isActive) {\n    handle(item);\n    \n    store(item);\n  }\n}\n',
+			output: 'function run(item) {\n  if (!item.isActive) {\n    return;\n  }\n\n  handle(item);\n\n  store(item);\n}\n',
+			errors: [{messageId: 'prefer-early-return'}],
+		},
+	],
+});

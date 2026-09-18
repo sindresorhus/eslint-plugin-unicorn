@@ -145,7 +145,8 @@ ruleTest({
 		errors: [{messageId: 'useExplicitReturn'}],
 	}, {
 		code: 'const first = 1;\nconst value = () => foo(\r\n\t\tbar,\r\n\t);',
-		output: 'const first = 1;\nconst value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\r\n};',
+		// Inserted lines use the file's first line ending; the body keeps its own
+		output: 'const first = 1;\nconst value = () => {\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\n};',
 		errors: [{messageId: 'useExplicitReturn'}],
 	}, {
 		code: 'const value = () => foo(\r\n\t\tbar,\n\t\tbaz,\r\n\t);',
@@ -243,5 +244,44 @@ ruleTest.snapshot({
 		'const value = (): Foo => {\n\t\treturn {} as Foo;\n\t};',
 		'const value = (): Foo => {\n\t\treturn {} satisfies Foo;\n\t};',
 		'const value = (): Foo => {\n\t\treturn {}!;\n\t};',
+	],
+});
+
+// The inserted `return` follows the file's indentation
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'const value = () => compute(\n  bar,\n);',
+			output: 'const value = () => {\n  return compute(\n    bar,\n  );\n};',
+			errors: [{messageId: 'useExplicitReturn'}],
+		},
+		{
+			code: 'function run() {\n  const value = () => compute(\n    bar,\n  );\n}',
+			output: 'function run() {\n  const value = () => {\n    return compute(\n      bar,\n    );\n  };\n}',
+			errors: [{messageId: 'useExplicitReturn'}],
+		},
+		{
+			code: 'const value = () => compute(\n    bar,\n);',
+			output: 'const value = () => {\n    return compute(\n        bar,\n    );\n};',
+			errors: [{messageId: 'useExplicitReturn'}],
+		},
+	],
+});
+
+// The body keeps blank lines and drops whitespace-only lines
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'const value = () => compute(\n  bar,\n\n  baz,\n);',
+			output: 'const value = () => {\n  return compute(\n    bar,\n\n    baz,\n  );\n};',
+			errors: [{messageId: 'useExplicitReturn'}],
+		},
+		{
+			code: 'const value = () => compute(\n  bar,\n  \n  baz,\n);',
+			output: 'const value = () => {\n  return compute(\n    bar,\n\n    baz,\n  );\n};',
+			errors: [{messageId: 'useExplicitReturn'}],
+		},
 	],
 });

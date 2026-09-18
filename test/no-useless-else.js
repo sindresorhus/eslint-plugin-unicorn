@@ -1495,3 +1495,72 @@ test.snapshot({
 		`,
 	],
 });
+
+// The moved lines use the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run(item) {\r\n\tif (item.isActive) {\r\n\t\treturn process(item);\r\n\t} else {\r\n\t\tsave(item);\r\n\t\tlog(item);\r\n\t}\r\n}\r\n',
+			output: 'function run(item) {\r\n\tif (item.isActive) {\r\n\t\treturn process(item);\r\n\t}\r\n\tsave(item);\r\n\tlog(item);\r\n}\r\n',
+			errors: 1,
+		},
+		{
+			code: 'function run(item) {\r\n\tif (item.isActive) {\r\n\t\treturn process(item);\r\n\t} else save(item);\r\n}\r\n',
+			output: 'function run(item) {\r\n\tif (item.isActive) {\r\n\t\treturn process(item);\r\n\t}\r\n\tsave(item);\r\n}\r\n',
+			errors: 1,
+		},
+	],
+});
+
+// Moved bodies keep nested indentation and blank lines in space-indented files
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function run(item) {
+				  if (item.isActive) {
+				    return process(item);
+				  } else {
+				    if (item.isReady) {
+				      save(item);
+				    }
+
+				    log(item);
+				  }
+				}
+			`,
+			output: outdent`
+				function run(item) {
+				  if (item.isActive) {
+				    return process(item);
+				  }
+				  if (item.isReady) {
+				    save(item);
+				  }
+
+				  log(item);
+				}
+			`,
+			errors: 1,
+		},
+	],
+});
+
+// An empty `else` block is removed without leaving a blank line
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run(item) {\n\tif (item.isActive) {\n\t\treturn process(item);\n\t} else {}\n}\n',
+			output: 'function run(item) {\n\tif (item.isActive) {\n\t\treturn process(item);\n\t}\n}\n',
+			errors: 1,
+		},
+		{
+			code: 'function run(item) {\n\tif (item.isActive) {\n\t\treturn process(item);\n\t} else {\n\t}\n}\n',
+			output: 'function run(item) {\n\tif (item.isActive) {\n\t\treturn process(item);\n\t}\n}\n',
+			errors: 1,
+		},
+	],
+});

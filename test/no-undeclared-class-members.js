@@ -280,3 +280,120 @@ test.snapshot({
 		`,
 	],
 });
+
+// The suggested field follows the file's indentation when the first member is not indented
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				class Foo {
+				setName(name) {
+				  this.name = name;
+				}
+				}
+			`,
+			errors: [
+				{
+					messageId: 'no-undeclared-class-members',
+					suggestions: [
+						{
+							messageId: 'no-undeclared-class-members/suggestion',
+							output: outdent`
+								class Foo {
+								  name;
+								setName(name) {
+								  this.name = name;
+								}
+								}
+							`,
+						},
+					],
+				},
+			],
+		},
+		{
+			code: outdent`
+				class Foo {
+				setName(name) {
+				    this.name = name;
+				}
+				}
+			`,
+			errors: [
+				{
+					messageId: 'no-undeclared-class-members',
+					suggestions: [
+						{
+							messageId: 'no-undeclared-class-members/suggestion',
+							output: outdent`
+								class Foo {
+								    name;
+								setName(name) {
+								    this.name = name;
+								}
+								}
+							`,
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
+// The suggested field uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'class Foo {\r\n\tsetName(name) {\r\n\t\tthis.name = name;\r\n\t}\r\n}\r\n',
+			errors: [
+				{
+					messageId: 'no-undeclared-class-members',
+					suggestions: [
+						{
+							messageId: 'no-undeclared-class-members/suggestion',
+							output: 'class Foo {\r\n\tname;\r\n\tsetName(name) {\r\n\t\tthis.name = name;\r\n\t}\r\n}\r\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
+// The suggested field uses the indentation of the class's line, even when the class does not start the line
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'export class Foo {\nsetName(name) {\n\tthis.name = name;\n}\n}\n',
+			errors: [
+				{
+					messageId: 'no-undeclared-class-members',
+					suggestions: [
+						{
+							messageId: 'no-undeclared-class-members/suggestion',
+							output: 'export class Foo {\n\tname;\nsetName(name) {\n\tthis.name = name;\n}\n}\n',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'function run() {\n  const Foo = class {\nsetName(name) {\n    this.name = name;\n}\n}\n}\n',
+			errors: [
+				{
+					messageId: 'no-undeclared-class-members',
+					suggestions: [
+						{
+							messageId: 'no-undeclared-class-members/suggestion',
+							output: 'function run() {\n  const Foo = class {\n    name;\nsetName(name) {\n    this.name = name;\n}\n}\n}\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});

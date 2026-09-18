@@ -79,3 +79,20 @@ test.snapshot({
 		`,
 	],
 });
+
+// The inserted property uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'window.addEventListener("wheel", () => {}, {\r\n\tcapture: true,\r\n});\r\n',
+			output: 'window.addEventListener("wheel", () => {}, {\r\n\tcapture: true,\r\n\tpassive: true,\r\n});\r\n',
+			errors: 1,
+		},
+		{
+			code: 'window.addEventListener("wheel", () => {}, {\r\n\tcapture: true\r\n});\r\n',
+			output: 'window.addEventListener("wheel", () => {}, {\r\n\tcapture: true,\r\n\tpassive: true\r\n});\r\n',
+			errors: 1,
+		},
+	],
+});

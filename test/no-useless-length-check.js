@@ -372,11 +372,24 @@ test({
 			errors: [{messageId: 'for-of'}],
 		},
 		{
+			// A line that does not start with the loop's indentation is kept as it is
 			code: misindentedMultilineBlockComment,
+			output: [
+				'for (const element of array) {',
+				'\t/*',
+				'Keep this column.',
+				'\t*/',
+				'}',
+			].join('\n'),
 			errors: [{messageId: 'for-of'}],
 		},
 		{
 			code: misindentedLoop,
+			output: [
+				'for (const element of array) {',
+				'use(element);',
+				'}',
+			].join('\n'),
 			errors: [{messageId: 'for-of'}],
 		},
 		{
@@ -405,6 +418,36 @@ test({
 		{
 			code: mixedLineEndingLoop,
 			output: unwrappedMixedLineEndingLoop,
+			errors: [{messageId: 'for-of'}],
+		},
+	],
+});
+
+// The unwrapped loop keeps nested indentation in space-indented files
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function run() {
+				  if (array.length > 0) {
+				    for (const element of array) {
+				      use({
+				        element,
+				      });
+				    }
+				  }
+				}
+			`,
+			output: outdent`
+				function run() {
+				  for (const element of array) {
+				    use({
+				      element,
+				    });
+				  }
+				}
+			`,
 			errors: [{messageId: 'for-of'}],
 		},
 	],

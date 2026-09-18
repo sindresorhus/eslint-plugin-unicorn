@@ -1,8 +1,11 @@
-import detectIndent from 'detect-indent';
 import {
+	getIndentUnit,
+	getLineIndent,
+	getLinebreak,
 	getParenthesizedRange,
 	getParenthesizedText,
 	isParenthesized,
+	reindentText,
 } from './utils/index.js';
 
 const MESSAGE_ID_EXPLICIT = 'useExplicitReturn';
@@ -64,25 +67,6 @@ const getReturnStatement = node => {
 
 const hasCommentsInside = (node, sourceCode) => sourceCode.getCommentsInside(node).length > 0;
 
-const getLineIndent = (sourceCode, node) => {
-	const {line, column} = sourceCode.getLoc(node).start;
-
-	return /^[\t ]*/.exec(sourceCode.lines[line - 1].slice(0, column))[0];
-};
-
-const getIndentationUnit = sourceCode => {
-	const lines = [...sourceCode.lines];
-	for (const token of sourceCode.getTokens(sourceCode.ast, {includeComments: true})) {
-		const {start, end} = sourceCode.getLoc(token);
-		if (start.line !== end.line) {
-			lines.fill('', start.line, end.line);
-		}
-	}
-
-	const {type, indent} = detectIndent(lines.join('\n'));
-	return type === 'space' ? indent : '\t';
-};
-
 const getArrowToken = (node, context) => {
 	const bodyRange = getParenthesizedRange(node.body, context);
 	return context.sourceCode.getTokenBefore({range: bodyRange});
@@ -133,25 +117,7 @@ const hasMultilineSignificantWhitespace = (node, sourceCode) =>
 		tokensWithSignificantWhitespace.has(token.type)
 		&& sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line);
 
-const getBodyText = (text, shouldIndent, indentationUnit) => {
-	if (!shouldIndent) {
-		return text;
-	}
-
-	const lines = text.split(linebreakPattern);
-	const linebreaks = text.match(/\r\n|[\n\r\u2028\u2029]/g);
-	let result = lines[0];
-	for (const [index, line] of lines.slice(1).entries()) {
-		result += linebreaks[index] + (line ? indentationUnit + line : line);
-	}
-
-	return result;
-};
-
-const getLinebreak = (sourceCode, range) =>
-	sourceCode.text.slice(...range).match(linebreakPattern)?.[0] ?? '\n';
-
-const getExplicitReturnFix = (node, context, indentationUnit) => {
+const getExplicitReturnFix = (node, context) => {
 	const {sourceCode} = context;
 	const arrowToken = getArrowToken(node, context);
 	const bodyRange = getParenthesizedRange(node.body, context);
@@ -162,14 +128,15 @@ const getExplicitReturnFix = (node, context, indentationUnit) => {
 		return;
 	}
 
-	const linebreak = getLinebreak(sourceCode, [arrowEnd, bodyRange[1]]);
-	const bodyText = getBodyText(
-		node.body.type === 'ObjectExpression' ? sourceCode.getText(node.body) : sourceCode.text.slice(...bodyRange),
-		bodyStartsOnArrowLine,
-		indentationUnit,
-	);
-	const indentation = getLineIndent(sourceCode, arrowToken);
-	const replacement = `{${linebreak}${indentation}${indentationUnit}return ${bodyText};${linebreak}${indentation}}`;
+	const linebreak = getLinebreak(context);
+	const indentUnit = getIndentUnit(context);
+	const indent = getLineIndent(arrowToken, context);
+	let bodyText = node.body.type === 'ObjectExpression' ? sourceCode.getText(node.body) : sourceCode.text.slice(...bodyRange);
+	if (bodyStartsOnArrowLine) {
+		bodyText = reindentText(bodyText, '', indentUnit);
+	}
+
+	const replacement = `{${linebreak}${indent}${indentUnit}return ${bodyText};${linebreak}${indent}}`;
 
 	return fixer => fixer.replaceTextRange([arrowEnd, bodyRange[1]], ` ${replacement}`);
 };
@@ -191,7 +158,6 @@ const getImplicitReturnFix = (node, returnStatement, context) => {
 */
 const create = context => {
 	const {sourceCode} = context;
-	let indentationUnit;
 
 	context.on('ArrowFunctionExpression', node => {
 		if (hasCommentsInside(node, sourceCode)) {
@@ -216,8 +182,7 @@ const create = context => {
 			return;
 		}
 
-		indentationUnit ??= getIndentationUnit(sourceCode);
-		const fix = getExplicitReturnFix(node, context, indentationUnit);
+		const fix = getExplicitReturnFix(node, context);
 		return {
 			node,
 			messageId: MESSAGE_ID_EXPLICIT,

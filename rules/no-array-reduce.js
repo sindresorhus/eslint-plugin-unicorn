@@ -2,7 +2,10 @@ import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getAvailableVariableName,
+	getIndentUnit,
 	getLastTrailingCommentOnSameLine,
+	getLineIndent,
+	getLinebreak,
 	getParenthesizedText,
 	isKnownBigIntTypedArray,
 	isFunctionSelfUsedInside,
@@ -21,8 +24,6 @@ const messages = {
 	[MESSAGE_ID_REDUCE_RIGHT]: '`Array#reduceRight()` is not allowed. Prefer other types of loop for readability. You may want to call `Array#toReversed()` before looping it.',
 	[MESSAGE_ID_SUM_PRECISE]: 'Switch to `Math.sumPrecise()`.',
 };
-
-const getIndent = (sourceCode, node) => sourceCode.lines[sourceCode.getLoc(node).start.line - 1].match(/^\s*/v)[0];
 
 const isSingleDeclaratorVariableInitializer = callExpression =>
 	callExpression.parent.type === 'VariableDeclarator'
@@ -524,9 +525,11 @@ function createFix(callExpression, context) {
 		return;
 	}
 
-	const indent = getIndent(sourceCode, variableDeclaration);
-	const bodyIndent = `${indent}\t`;
-	const nestedBodyIndent = `${bodyIndent}\t`;
+	const indent = getLineIndent(variableDeclaration, context);
+	const indentUnit = getIndentUnit(context);
+	const linebreak = getLinebreak(context);
+	const bodyIndent = `${indent}${indentUnit}`;
+	const nestedBodyIndent = `${bodyIndent}${indentUnit}`;
 	const hasInitialValue = Boolean(initialValue);
 	const initialValueText = hasInitialValue ? ` = ${sourceCode.getText(initialValue)}` : '';
 	const loopHead = `${indent}for (const [${indexName}, ${elementName}] of ${arrayText}.entries()) {`;
@@ -539,14 +542,14 @@ function createFix(callExpression, context) {
 			`${bodyIndent}}`,
 			'',
 			`${bodyIndent}${resultName} = ${inlineExpressionText};`,
-		].join('\n');
+		].join(linebreak);
 	const replacement = [
 		`let ${resultName}${initialValueText};`,
 		'',
 		loopHead,
 		loopBody,
 		`${indent}}`,
-	].join('\n');
+	].join(linebreak);
 
 	return fixer => {
 		let [, end] = sourceCode.getRange(variableDeclaration);

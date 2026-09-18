@@ -279,3 +279,24 @@ test.snapshot({
 
 // Decorators
 
+// The named declaration uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'export default () => {\r\n\tbar();\r\n};\r\n',
+			filename: '/path/to/foo.js',
+			errors: [
+				{
+					messageId: 'no-anonymous-default-export/error',
+					suggestions: [
+						{
+							messageId: 'no-anonymous-default-export/suggestion',
+							output: 'const foo = () => {\r\n\tbar();\r\n};\r\nexport default foo;\r\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});

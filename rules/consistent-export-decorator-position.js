@@ -1,3 +1,5 @@
+import {getLinebreak, getLineIndent} from './utils/index.js';
+
 const STYLE_ABOVE = 'above';
 const STYLE_BEFORE = 'before';
 const STYLE_AFTER = 'after';
@@ -29,9 +31,6 @@ const getDecoratorTexts = (decorators, sourceCode, separator) =>
 	decorators
 		.map(decorator => sourceCode.getText(decorator))
 		.join(separator);
-
-const getIndent = (sourceCode, token) =>
-	sourceCode.lines[sourceCode.getLoc(token).start.line - 1].match(/^\s*/v)[0];
 
 const getExportText = (exportDeclaration, sourceCode) => {
 	if (exportDeclaration.type !== 'ExportDefaultDeclaration') {
@@ -72,10 +71,10 @@ const getActualStyle = ({decorators, exportToken, sourceCode}) => {
 		: STYLE_MIXED;
 };
 
-const getExpectedHeadText = ({style, decorators, exportText, sourceCode, indent}) => {
+const getExpectedHeadText = ({style, decorators, exportText, sourceCode, indent, linebreak}) => {
 	switch (style) {
 		case STYLE_ABOVE: {
-			return `${getDecoratorTexts(decorators, sourceCode, `\n${indent}`)}\n${indent}${exportText} `;
+			return `${getDecoratorTexts(decorators, sourceCode, `${linebreak}${indent}`)}${linebreak}${indent}${exportText} `;
 		}
 
 		case STYLE_BEFORE: {
@@ -168,7 +167,8 @@ const getProblem = ({exportDeclaration, expectedStyle, context}) => {
 				decorators,
 				exportText: getExportText(exportDeclaration, sourceCode),
 				sourceCode,
-				indent: getIndent(sourceCode, exportToken),
+				indent: getLineIndent(exportToken, context),
+				linebreak: getLinebreak(context),
 			}),
 		),
 	};

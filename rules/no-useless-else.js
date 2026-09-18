@@ -1,4 +1,6 @@
 import {
+	getLinebreak,
+	getUnwrappedBranchText,
 	hasCommentInRange,
 	hasDirectBlockScopedDeclaration,
 	isBranchExit,
@@ -33,11 +35,6 @@ const asiHazardCharacters = new Set([
 	'-',
 ]);
 
-const getLineIndent = (sourceCode, index) => {
-	const lineStart = sourceCode.text.lastIndexOf('\n', index - 1) + 1;
-	return /^[\t ]*/.exec(sourceCode.text.slice(lineStart, index))[0];
-};
-
 const startsWithAsiHazard = token => asiHazardCharacters.has(token.value[0]);
 
 const isJsxChildTextToken = (token, sourceCode) =>
@@ -54,56 +51,9 @@ const hasReindentUnsafeMultilineToken = (node, context) => {
 	);
 };
 
-const getBlockBodyText = (blockStatement, ifStatement, sourceCode) => {
-	const openingBrace = sourceCode.getFirstToken(blockStatement);
-	const closingBrace = sourceCode.getLastToken(blockStatement);
-	const bodyText = sourceCode.text.slice(sourceCode.getRange(openingBrace)[1], sourceCode.getRange(closingBrace)[0]);
-
-	if (!bodyText.includes('\n')) {
-		const trimmedBodyText = bodyText.trim();
-		return trimmedBodyText ? `\n${getLineIndent(sourceCode, sourceCode.getRange(ifStatement)[0])}${trimmedBodyText}` : '';
-	}
-
-	const lines = bodyText.split('\n');
-
-	if (lines[0]?.trim() === '') {
-		lines.shift();
-	}
-
-	if (lines.at(-1)?.trim() === '') {
-		lines.pop();
-	}
-
-	if (lines.length === 0) {
-		return '';
-	}
-
-	const firstBodyToken = sourceCode.getTokenAfter(openingBrace, {includeComments: true});
-	const ifIndent = getLineIndent(sourceCode, sourceCode.getRange(ifStatement)[0]);
-	const bodyIndent = firstBodyToken && firstBodyToken !== closingBrace
-		? getLineIndent(sourceCode, sourceCode.getRange(firstBodyToken)[0])
-		: ifIndent;
-
-	return `\n${lines.map(line => {
-		if (line.trim() === '') {
-			return '';
-		}
-
-		return line.startsWith(bodyIndent)
-			? `${ifIndent}${line.slice(bodyIndent.length)}`
-			: `${ifIndent}${line.trimStart()}`;
-	}).join('\n')}`;
-};
-
-const getReplacementText = (ifStatement, sourceCode) => {
-	const {alternate} = ifStatement;
-
-	if (alternate.type === 'BlockStatement') {
-		return getBlockBodyText(alternate, ifStatement, sourceCode);
-	}
-
-	const ifIndent = getLineIndent(sourceCode, sourceCode.getRange(ifStatement)[0]);
-	return `\n${ifIndent}${sourceCode.getText(alternate)}`;
+const getReplacementText = (ifStatement, context) => {
+	const text = getUnwrappedBranchText(ifStatement.alternate, context);
+	return text ? `${getLinebreak(context)}${text}` : '';
 };
 
 const hasSameLineFollowingTokenOrComment = (node, sourceCode) => {
@@ -189,7 +139,7 @@ const fix = (ifStatement, context) => function * (fixer) {
 		return;
 	}
 
-	yield fixer.replaceTextRange(replacementRange, getReplacementText(ifStatement, sourceCode));
+	yield fixer.replaceTextRange(replacementRange, getReplacementText(ifStatement, context));
 	// Prevent other rules from changing the branch whose exit makes the `else` useless.
 	yield extendFixRange(fixer, consequentRange);
 };

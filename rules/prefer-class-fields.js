@@ -1,5 +1,5 @@
 import {isSemicolonToken} from '@eslint-community/eslint-utils';
-import getIndentString from './utils/get-indent-string.js';
+import {getIndentString, getLinebreak} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-class-fields/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-class-fields/suggestion';
@@ -102,12 +102,13 @@ const create = context => {
 
 			const closingBrace = sourceCode.getLastToken(classBody);
 			const indent = getIndentString(constructor, context);
+			const linebreak = getLinebreak(context);
 
-			let text = `${indent}${propertyName} = ${propertyValue};\n`;
+			let text = `${indent}${propertyName} = ${propertyValue};${linebreak}`;
 
 			const characterBefore = sourceCode.getText()[sourceCode.getRange(closingBrace)[0] - 1];
 			if (characterBefore !== '\n') {
-				text = `\n${text}`;
+				text = `${linebreak}${text}`;
 			}
 
 			const lastProperty = classBody.body.at(-1);
