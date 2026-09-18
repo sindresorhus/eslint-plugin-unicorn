@@ -1,4 +1,9 @@
-import getIndentString from './utils/get-indent-string.js';
+import {
+	getIndentString,
+	getIndentUnit,
+	getLinebreak,
+	getLineIndent,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-undeclared-class-members';
 const MESSAGE_ID_SUGGESTION = 'no-undeclared-class-members/suggestion';
@@ -235,8 +240,8 @@ const getInsertClassFieldSuggestion = (classBody, name, context) => {
 	const firstMember = classBody.body[0];
 
 	if (firstMember) {
-		const classIndent = getIndentString(classBody.parent, context);
-		const memberIndent = getIndentString(firstMember, context) || `${classIndent}\t`;
+		const classIndent = getLineIndent(classBody.parent, context);
+		const memberIndent = getIndentString(firstMember, context) || `${classIndent}${getIndentUnit(context)}`;
 		const openingBrace = sourceCode.getFirstToken(classBody);
 		const insertionTarget = sourceCode.getCommentsBefore(firstMember)[0] ?? firstMember;
 		const firstMemberLocation = sourceCode.getLoc(insertionTarget).start;
@@ -249,16 +254,16 @@ const getInsertClassFieldSuggestion = (classBody, name, context) => {
 		return {
 			messageId: MESSAGE_ID_SUGGESTION,
 			data: {name},
-			fix: fixer => fixer.insertTextBeforeRange([insertIndex, insertIndex], `${memberIndent}${name};\n`),
+			fix: fixer => fixer.insertTextBeforeRange([insertIndex, insertIndex], `${memberIndent}${name};${getLinebreak(context)}`),
 		};
 	}
 
 	const closingBrace = sourceCode.getLastToken(classBody);
-	const classIndent = getIndentString(classBody.parent, context);
+	const classIndent = getLineIndent(classBody.parent, context);
 	return {
 		messageId: MESSAGE_ID_SUGGESTION,
 		data: {name},
-		fix: fixer => fixer.insertTextBefore(closingBrace, `\n${classIndent}\t${name};\n${classIndent}`),
+		fix: fixer => fixer.insertTextBefore(closingBrace, `${getLinebreak(context)}${classIndent}${getIndentUnit(context)}${name};${getLinebreak(context)}${classIndent}`),
 	};
 };
 

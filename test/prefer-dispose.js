@@ -493,3 +493,38 @@ test.snapshot({
 		},
 	],
 });
+
+// The suggested block uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run() {\r\n\tconst resource = open();\r\n\ttry {\r\n\t\tuse(resource);\r\n\t} finally {\r\n\t\tresource.close();\r\n\t}\r\n}\r\n',
+			errors: [
+				{
+					messageId: 'prefer-dispose/error',
+					suggestions: [
+						{
+							messageId: 'prefer-dispose/suggestion',
+							output: 'function run() {\r\n\t{\r\nusing resource = open();\r\n\t\r\n\t\tuse(resource);\r\n\t\r\n}\r\n}\r\n',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'const foo = open();\r\ntry {\r\n\tuse(foo);\r\n} catch (error) {\r\n\thandle(error);\r\n} finally {\r\n\tfoo.close();\r\n}\r\n',
+			errors: [
+				{
+					messageId: 'prefer-dispose/error',
+					suggestions: [
+						{
+							messageId: 'prefer-dispose/suggestion',
+							output: '{\r\nusing foo = open();\r\ntry {\r\n\tuse(foo);\r\n} catch (error) {\r\n\thandle(error);\r\n}\r\n}\r\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});

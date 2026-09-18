@@ -299,3 +299,71 @@ test.snapshot({
 		'function f() { if (a) { throw new Error("x"); doA(); } else { throw new Error("x"); doB(); } }',
 	],
 });
+
+// The hoisted code uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (a) {\r\n\tbar();\r\n\tfoo();\r\n} else {\r\n\tbaz();\r\n\tfoo();\r\n}\r\n',
+			output: 'if (a) {\r\n\tbar();\r\n} else {\r\n\tbaz();\r\n}\r\nfoo();\r\n',
+			errors: 1,
+		},
+		{
+			code: 'function run() {\r\n\tif (a) {\r\n\t\tbar();\r\n\t\tfoo(\r\n\t\t\t1,\r\n\t\t);\r\n\t} else {\r\n\t\tbaz();\r\n\t\tfoo(\r\n\t\t\t1,\r\n\t\t);\r\n\t}\r\n}\r\n',
+			output: 'function run() {\r\n\tif (a) {\r\n\t\tbar();\r\n\t} else {\r\n\t\tbaz();\r\n\t}\r\n\tfoo(\r\n\t\t1,\r\n\t);\r\n}\r\n',
+			errors: 1,
+		},
+		{
+			code: 'if (a) {\r\n\tfoo();\r\n\tbar();\r\n} else {\r\n\tfoo();\r\n\tbaz();\r\n}\r\n',
+			errors: [
+				{
+					messageId: 'prefer-hoisting-branch-code/start',
+					suggestions: [
+						{
+							messageId: 'prefer-hoisting-branch-code/suggestion',
+							output: 'foo();\r\nif (a) {\r\n\tbar();\r\n} else {\r\n\tbaz();\r\n}\r\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
+// A multi-line hoisted statement keeps nested indentation in space-indented files
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function run() {
+				  if (a) {
+				    bar();
+				    foo({
+				      deep: true,
+				    });
+				  } else {
+				    baz();
+				    foo({
+				      deep: true,
+				    });
+				  }
+				}
+			`,
+			output: outdent`
+				function run() {
+				  if (a) {
+				    bar();
+				  } else {
+				    baz();
+				  }
+				  foo({
+				    deep: true,
+				  });
+				}
+			`,
+			errors: 1,
+		},
+	],
+});

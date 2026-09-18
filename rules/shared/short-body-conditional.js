@@ -1,14 +1,14 @@
 import {
+	getIndentUnit,
+	getLineIndent,
+	getLinebreak,
 	getParenthesizedText,
 	hasCommentInRange,
 	hasMultilineToken,
 	isBlockScopedDeclaration,
+	reindentText,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from '../utils/index.js';
-
-const linebreakPattern = /\r\n|[\n\r\u2028\u2029]/;
-const linebreaksPattern = /\r\n|[\n\r\u2028\u2029]/g;
-const sourceLinebreaksCache = new WeakMap();
 
 const getStatements = node => node.type === 'BlockStatement' ? node.body : [node];
 
@@ -26,73 +26,6 @@ const getNegatedConditionText = (node, context) => {
 
 	const text = context.sourceCode.getText(node);
 	return shouldAddParenthesesToUnaryExpressionArgument(node, '!') ? `!(${text})` : `!${text}`;
-};
-
-const getLineIndent = (node, context) => {
-	const {sourceCode} = context;
-	const {line} = sourceCode.getLoc(node).start;
-	return /^[\t ]*/.exec(sourceCode.getLines()[line - 1])[0];
-};
-
-const appendLinebreaks = (linebreaks, start, end, context) => {
-	const {sourceCode} = context;
-	for (const match of sourceCode.text.slice(start, end).matchAll(linebreaksPattern)) {
-		linebreaks.push({index: start + match.index, value: match[0]});
-	}
-};
-
-const getSourceLinebreaks = context => {
-	const {sourceCode} = context;
-	const cachedLinebreaks = sourceLinebreaksCache.get(sourceCode);
-	if (cachedLinebreaks) {
-		return cachedLinebreaks;
-	}
-
-	const linebreaks = [];
-	let previousEnd = 0;
-	for (const token of sourceCode.getTokens(sourceCode.ast, {includeComments: true})) {
-		const [start, end] = sourceCode.getRange(token);
-		appendLinebreaks(linebreaks, previousEnd, start, context);
-		previousEnd = end;
-	}
-
-	appendLinebreaks(linebreaks, previousEnd, sourceCode.text.length, context);
-	sourceLinebreaksCache.set(sourceCode, linebreaks);
-	return linebreaks;
-};
-
-const getLinebreak = (guard, context) => {
-	const {sourceCode} = context;
-	const [start, end] = sourceCode.getRange(guard.parent);
-	const linebreaks = getSourceLinebreaks(context);
-	let lowerIndex = 0;
-	let upperIndex = linebreaks.length;
-	while (lowerIndex < upperIndex) {
-		const middleIndex = Math.floor((lowerIndex + upperIndex) / 2);
-		if (linebreaks[middleIndex].index < start) {
-			lowerIndex = middleIndex + 1;
-		} else {
-			upperIndex = middleIndex;
-		}
-	}
-
-	const following = linebreaks[lowerIndex];
-	if (following?.index < end) {
-		return following.value;
-	}
-
-	const previous = linebreaks[lowerIndex - 1];
-	if (!previous) {
-		return following?.value ?? '\n';
-	}
-
-	if (!following) {
-		return previous.value;
-	}
-
-	const previousDistance = start - previous.index - previous.value.length;
-	const followingDistance = following.index - end;
-	return followingDistance <= previousDistance ? following.value : previous.value;
 };
 
 const getFix = (guard, statements, context) => {
@@ -125,21 +58,12 @@ const getFix = (guard, statements, context) => {
 	}
 
 	const indent = getLineIndent(guard, context);
-	const bodyIndent = getLineIndent(statements[0], context);
-	const bodyText = sourceCode.text.slice(sourceCode.getRange(statements[0])[0], sourceCode.getRange(statements.at(-1))[1]);
-	const linebreak = getLinebreak(guard, context);
-	const linebreaks = bodyText.match(linebreaksPattern) ?? [];
-	const lines = bodyText.split(linebreakPattern).map((line, index) => {
-		if (!line.trim()) {
-			return '';
-		}
-
-		const text = index > 0 && line.startsWith(bodyIndent) ? line.slice(bodyIndent.length) : line;
-		return `${indent}\t${text}`;
-	});
-	const indentedBodyText = lines.map((line, index) => `${index === 0 ? '' : linebreaks[index - 1]}${line}`).join('');
-
-	return replace(`if (${condition}) {${linebreak}${indentedBodyText}${linebreak}${indent}}`);
+	const bodyIndent = `${indent}${getIndentUnit(context)}`;
+	const [bodyStart] = sourceCode.getRange(statements[0]);
+	const [, bodyEnd] = sourceCode.getRange(statements.at(-1));
+	const bodyText = reindentText(sourceCode.text.slice(bodyStart, bodyEnd), getLineIndent(statements[0], context), bodyIndent);
+	const linebreak = getLinebreak(context);
+	return replace(`if (${condition}) {${linebreak}${bodyIndent}${bodyText}${linebreak}${indent}}`);
 };
 
 /**

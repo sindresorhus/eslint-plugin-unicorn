@@ -1,6 +1,7 @@
 import {isCommaToken, isOpeningBraceToken} from '@eslint-community/eslint-utils';
 import {removeSpecifier} from './fix/index.js';
 import assertToken from './utils/assert-token.js';
+import {getLinebreak} from './utils/index.js';
 
 const MESSAGE_ID = 'no-named-default';
 const messages = {
@@ -49,7 +50,7 @@ const fixImportSpecifier = (importSpecifier, context) => function * (fixer) {
 		const [startOfFromToken] = sourceCode.getRange(fromToken);
 		const [, endOfDeclaration] = sourceCode.getRange(declaration);
 		const text = `import ${nameText} ${sourceCode.text.slice(startOfFromToken, endOfDeclaration)}`;
-		yield fixer.insertTextBefore(declaration, `${text}\n`);
+		yield fixer.insertTextBefore(declaration, `${text}${getLinebreak(context)}`);
 
 		return;
 	}
@@ -69,7 +70,7 @@ const fixExportSpecifier = (exportSpecifier, context) => function * (fixer) {
 	yield removeSpecifier(exportSpecifier, fixer, context);
 
 	const text = `export default ${context.sourceCode.getText(exportSpecifier.local)};`;
-	yield fixer.insertTextBefore(declaration, `${text}\n`);
+	yield fixer.insertTextBefore(declaration, `${text}${getLinebreak(context)}`);
 };
 
 /**

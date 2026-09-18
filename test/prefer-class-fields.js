@@ -198,3 +198,15 @@ test.snapshot({
 		`,
 	],
 });
+
+// The inserted field uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'class Foo {\r\n\tconstructor() {\r\n\t\tthis.bar = 1;\r\n\t}\r\n}\r\n',
+			output: 'class Foo {\r\n\tconstructor() {\r\n\t}\r\n\tbar = 1;\r\n}\r\n',
+			errors: 1,
+		},
+	],
+});

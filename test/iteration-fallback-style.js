@@ -218,3 +218,114 @@ test('iteration-fallback-style rejects invalid style options', t => {
 		t.throws(() => verify(options));
 	}
 });
+
+// The wrapped loop follows the file's indentation
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function run() {
+				  for (const item of items ?? []) {
+				    use(item);
+				  }
+				}
+			`,
+			output: outdent`
+				function run() {
+				  if ((items) != null) {
+				    for (const item of items) {
+				      use(item);
+				    }
+				  }
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function run() {
+				    for (const item of items || []) {
+				        use(item);
+				    }
+				}
+			`,
+			output: outdent`
+				function run() {
+				    if (items) {
+				        for (const item of items) {
+				            use(item);
+				        }
+				    }
+				}
+			`,
+			errors: 1,
+		},
+	],
+});
+
+// The wrapping `if` uses the file's line ending
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (const item of items ?? []) {\r\n\tuse(item);\r\n}\r\n',
+			output: 'if ((items) != null) {\r\n\tfor (const item of items) {\r\n\t\tuse(item);\r\n\t}\r\n}\r\n',
+			errors: 1,
+		},
+	],
+});
+
+// The wrapped loop keeps nested indentation in space-indented files
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function run() {
+				  for (const item of items ?? []) {
+				    if (item) {
+				      use(item);
+				    }
+				  }
+				}
+			`,
+			output: outdent`
+				function run() {
+				  if ((items) != null) {
+				    for (const item of items) {
+				      if (item) {
+				        use(item);
+				      }
+				    }
+				  }
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function run() {
+				  if (items) {
+				    for (const item of items) {
+				      if (item) {
+				        use(item);
+				      }
+				    }
+				  }
+				}
+			`,
+			options: ['fallback'],
+			output: outdent`
+				function run() {
+				  for (const item of items || []) {
+				    if (item) {
+				      use(item);
+				    }
+				  }
+				}
+			`,
+			errors: 1,
+		},
+	],
+});

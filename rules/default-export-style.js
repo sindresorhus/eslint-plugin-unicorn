@@ -3,6 +3,7 @@ import {
 	getComments,
 	getParenthesizedText,
 	hasUnsafeArrowConversionReference,
+	getLinebreak,
 } from './utils/index.js';
 
 const MESSAGE_ID_INLINE = 'default-export-style/inline';
@@ -216,8 +217,13 @@ const getArrowFunctionBodyText = (functionNode, context) =>
 const getInlineFunctionText = (name, functionNode, context) =>
 	`export default ${functionNode.async ? 'async ' : ''}function ${name}(${getParametersText(functionNode, context.sourceCode)}) ${getArrowFunctionBodyText(functionNode, context)}`;
 
-const getSeparateArrowFunctionText = (name, functionNode, context) =>
-	`const ${name} = ${functionNode.async ? 'async ' : ''}(${getParametersText(functionNode, context.sourceCode)}) => ${context.sourceCode.getText(functionNode.body)};\nexport default ${name};`;
+const getSeparateArrowFunctionText = (name, functionNode, context) => {
+	const {sourceCode} = context;
+	const asyncKeyword = functionNode.async ? 'async ' : '';
+	const parametersText = getParametersText(functionNode, sourceCode);
+	const bodyText = sourceCode.getText(functionNode.body);
+	return `const ${name} = ${asyncKeyword}(${parametersText}) => ${bodyText};${getLinebreak(context)}export default ${name};`;
+};
 
 const fixSeparateToInline = (declaration, exportDeclaration, context) => function * (fixer) {
 	yield fixer.insertTextBefore(declaration, 'export default ');
@@ -231,7 +237,7 @@ const fixInlineClassToSeparate = (exportDeclaration, context) => fixer => {
 	const {declaration} = exportDeclaration;
 	return fixer.replaceText(
 		exportDeclaration,
-		`${context.sourceCode.getText(declaration)}\nexport default ${declaration.id.name};`,
+		`${context.sourceCode.getText(declaration)}${getLinebreak(context)}export default ${declaration.id.name};`,
 	);
 };
 

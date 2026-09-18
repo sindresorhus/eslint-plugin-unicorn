@@ -1,6 +1,4 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import indentString from 'indent-string';
-import stripIndent from 'strip-indent';
 import {
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
@@ -9,9 +7,12 @@ import {
 } from './ast/index.js';
 import {
 	getIndentString,
+	getIndentUnit,
+	getLinebreak,
 	hasMultilineToken,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
+	reindentText,
 } from './utils/index.js';
 import {containsOptionalChain, isReference, unwrapExpression} from './utils/comparison.js';
 
@@ -196,22 +197,14 @@ const getForOfFix = (node, fallbackInfo, context) => fixer => {
 		loopText.slice(logicalEnd - nodeStart),
 	].join('');
 	const indent = getIndentString(node, context);
-	const normalizedLoop = stripIndent(`${indent}${loopWithoutFallback}`);
+	const bodyIndent = `${indent}${getIndentUnit(context)}`;
 	const condition = operator === '??' ? `(${sourceText}) != null` : sourceText;
+	const linebreak = getLinebreak(context);
 
 	return fixer.replaceText(
 		node,
-		`if (${condition}) {\n${indentString(normalizedLoop, 1, {indent: `${indent}\t`})}\n${indent}}`,
+		`if (${condition}) {${linebreak}${bodyIndent}${reindentText(loopWithoutFallback, indent, bodyIndent)}${linebreak}${indent}}`,
 	);
-};
-
-const getUnindentedText = (text, sourceIndent, targetIndent) => {
-	const [firstLine, ...remainingLines] = stripIndent(`${sourceIndent}${text}`).split('\n');
-
-	return [
-		firstLine,
-		...remainingLines.map(line => line === '' ? line : `${targetIndent}${line}`),
-	].join('\n');
 };
 
 const getFallbackFix = (node, guardInfo, context) => fixer => {
@@ -229,7 +222,7 @@ const getFallbackFix = (node, guardInfo, context) => fixer => {
 	].join('');
 	const indent = getIndentString(node, context);
 
-	return fixer.replaceText(node, getUnindentedText(loopWithFallback, getIndentString(loop, context), indent));
+	return fixer.replaceText(node, reindentText(loopWithFallback, getIndentString(loop, context), indent));
 };
 
 const getFallbackProblem = (node, context) => {

@@ -394,3 +394,38 @@ test.snapshot({
 		},
 	],
 });
+
+// The separated export uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'export default class Foo {}\r\nfoo();\r\n',
+			options: [{classes: 'separate'}],
+			output: 'class Foo {}\r\nexport default Foo;\r\nfoo();\r\n',
+			errors: 1,
+		},
+	],
+});
+
+// The suggested separate arrow function uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'export default function foo(a) {\r\n\treturn a;\r\n}\r\n',
+			options: [{functions: 'separate'}],
+			errors: [
+				{
+					messageId: 'default-export-style/separate',
+					suggestions: [
+						{
+							messageId: 'default-export-style/suggestion-separate',
+							output: 'const foo = (a) => {\r\n\treturn a;\r\n};\r\nexport default foo;\r\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});

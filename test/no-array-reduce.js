@@ -505,3 +505,102 @@ test.snapshot({
 		reportedTypeScript('function sum(values: BigInt64Array | Int8Array) { return values.reduce((a, b) => a + b); }'),
 	],
 });
+
+// The generated loop follows the file's indentation
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function run() {
+				  const array = [];
+				  const total = array.reduce((total, item) => merge(total, item), 0);
+				}
+			`,
+			output: outdent`
+				function run() {
+				  const array = [];
+				  let total = 0;
+
+				  for (const [index, item] of array.entries()) {
+				    total = merge(total, item);
+				  }
+				}
+			`,
+			errors: errorsReduce,
+		},
+		{
+			code: outdent`
+				function run() {
+				  const array = [];
+				  const result = array.reduce((result, item) => merge(result, item));
+				}
+			`,
+			output: outdent`
+				function run() {
+				  const array = [];
+				  let result;
+
+				  for (const [index, item] of array.entries()) {
+				    if (index === 0) {
+				      result = item;
+				      continue;
+				    }
+
+				    result = merge(result, item);
+				  }
+				}
+			`,
+			errors: errorsReduce,
+		},
+		{
+			code: outdent`
+				function run() {
+				    const array = [];
+				    const result = array.reduce((result, item) => merge(result, item));
+				}
+			`,
+			output: outdent`
+				function run() {
+				    const array = [];
+				    let result;
+
+				    for (const [index, item] of array.entries()) {
+				        if (index === 0) {
+				            result = item;
+				            continue;
+				        }
+
+				        result = merge(result, item);
+				    }
+				}
+			`,
+			errors: errorsReduce,
+		},
+	],
+});
+
+// The generated loop uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const array = [];\r\nconst result = array.reduce((result, item) => merge(result, item));\r\n',
+			output: [
+				'const array = [];',
+				'let result;',
+				'',
+				'for (const [index, item] of array.entries()) {',
+				'\tif (index === 0) {',
+				'\t\tresult = item;',
+				'\t\tcontinue;',
+				'\t}',
+				'',
+				'\tresult = merge(result, item);',
+				'}',
+				'',
+			].join('\r\n'),
+			errors: errorsReduce,
+		},
+	],
+});

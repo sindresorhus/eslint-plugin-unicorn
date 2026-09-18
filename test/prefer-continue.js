@@ -880,3 +880,186 @@ test({
 		},
 	],
 });
+
+// The inserted `continue;` follows the file's indentation
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				for (const item of items) {
+				  if (item.isActive) {
+				    process(item);
+				    save(item);
+				  }
+				}
+			`,
+			output: outdent`
+				for (const item of items) {
+				  if (!item.isActive) {
+				    continue;
+				  }
+
+				  process(item);
+				  save(item);
+				}
+			`,
+			errors: [{messageId: 'prefer-continue'}],
+		},
+		{
+			code: outdent`
+				for (const item of items) {
+				    if (item.isActive) {
+				        process(item);
+				        save(item);
+				    }
+				}
+			`,
+			output: outdent`
+				for (const item of items) {
+				    if (!item.isActive) {
+				        continue;
+				    }
+
+				    process(item);
+				    save(item);
+				}
+			`,
+			errors: [{messageId: 'prefer-continue'}],
+		},
+		{
+			code: outdent`
+				function run() {
+				  for (const item of items) {
+				    if (item.isActive) {
+				      if (item.isReady) {
+				        process(item);
+				      }
+				      save(item);
+				    }
+				  }
+				}
+			`,
+			output: outdent`
+				function run() {
+				  for (const item of items) {
+				    if (!item.isActive) {
+				      continue;
+				    }
+
+				    if (item.isReady) {
+				      process(item);
+				    }
+				    save(item);
+				  }
+				}
+			`,
+			errors: [{messageId: 'prefer-continue'}],
+		},
+		{
+			code: outdent`
+				for (const item of items) {
+				  if (!item.isActive) {
+				    continue;
+				  }
+
+				  process(item);
+				}
+			`,
+			options: [{checkShortBodies: true}],
+			output: outdent`
+				for (const item of items) {
+				  if (item.isActive) {
+				    process(item);
+				  }
+				}
+			`,
+			errors: [{messageId: 'prefer-continue/short-body'}],
+		},
+		{
+			code: outdent`
+				function run() {
+				  for (const item of items) {
+				    if (!item.isActive) {
+				      continue;
+				    }
+
+				    process(
+				      item,
+				    );
+				  }
+				}
+			`,
+			options: [{checkShortBodies: true}],
+			output: outdent`
+				function run() {
+				  for (const item of items) {
+				    if (item.isActive) {
+				      process(
+				        item,
+				      );
+				    }
+				  }
+				}
+			`,
+			errors: [{messageId: 'prefer-continue/short-body'}],
+		},
+	],
+});
+
+// The inserted lines use the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (const item of items) {\r\n\tif (item.isActive) {\r\n\t\tprocess(item);\r\n\t\tsave(item);\r\n\t}\r\n}\r\n',
+			output: 'for (const item of items) {\r\n\tif (!item.isActive) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\tprocess(item);\r\n\tsave(item);\r\n}\r\n',
+			errors: [{messageId: 'prefer-continue'}],
+		},
+		{
+			code: 'for (const item of items) {\r\n\tif (!item.isActive) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\tprocess(item);\r\n}\r\n',
+			options: [{checkShortBodies: true}],
+			output: 'for (const item of items) {\r\n\tif (item.isActive) {\r\n\t\tprocess(item);\r\n\t}\r\n}\r\n',
+			errors: [{messageId: 'prefer-continue/short-body'}],
+		},
+	],
+});
+
+// Moved bodies keep nested indentation and blank lines, and drop whitespace-only lines
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				for (const item of items) {
+				  if (item.isActive) {
+				    if (item.isReady) {
+				      process(item);
+				    }
+
+				    save(item);
+				  }
+				}
+			`,
+			output: outdent`
+				for (const item of items) {
+				  if (!item.isActive) {
+				    continue;
+				  }
+
+				  if (item.isReady) {
+				    process(item);
+				  }
+
+				  save(item);
+				}
+			`,
+			errors: [{messageId: 'prefer-continue'}],
+		},
+		{
+			code: 'for (const item of items) {\n  if (item.isActive) {\n    handle(item);\n    \n    store(item);\n  }\n}\n',
+			output: 'for (const item of items) {\n  if (!item.isActive) {\n    continue;\n  }\n\n  handle(item);\n\n  store(item);\n}\n',
+			errors: [{messageId: 'prefer-continue'}],
+		},
+	],
+});

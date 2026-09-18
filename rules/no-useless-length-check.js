@@ -6,6 +6,7 @@ import {
 	isSameReference,
 	isLogicalExpression,
 	isKnownNonIndexedCollection,
+	reindentText,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -39,21 +40,6 @@ const getGuardedForOfStatement = node => {
 	if (consequent.type === 'ForOfStatement' && !consequent.await) {
 		return consequent;
 	}
-};
-
-const getUnindentedText = (node, parent, context) => {
-	const {sourceCode} = context;
-	const sourceIndent = getIndentString(node, context);
-	const targetIndent = getIndentString(parent, context);
-	const [firstLine, ...remainingLines] = sourceCode.getText(node).split('\n');
-	if (remainingLines.some(line => line.trim() !== '' && !line.startsWith(sourceIndent))) {
-		return;
-	}
-
-	return [
-		firstLine,
-		...remainingLines.map(line => line.trim() === '' ? line : `${targetIndent}${line.slice(sourceIndent.length)}`),
-	].join('\n');
 };
 
 const hasLoopBindingReferenceInRight = (loop, sourceCode) => {
@@ -167,10 +153,7 @@ const create = context => {
 			&& !hasMultilineToken(loop, context)
 			&& !wouldRemoveComments(context, node, [loop])
 		) {
-			const unindentedText = getUnindentedText(loop, node, context);
-			if (unindentedText !== undefined) {
-				problem.fix = fixer => fixer.replaceText(node, unindentedText);
-			}
+			problem.fix = fixer => fixer.replaceText(node, reindentText(sourceCode.getText(loop), getIndentString(loop, context), getIndentString(node, context)));
 		}
 
 		return problem;

@@ -12,6 +12,7 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 	wouldRemoveComments,
 	isIdentifierName,
+	getLinebreak,
 } from './utils/index.js';
 import {removeStatement} from './fix/index.js';
 import {
@@ -421,7 +422,7 @@ const create = context => {
 
 				fix = fixer => fixer.replaceText(
 					declaration,
-					`${declarations.join(`;\n${indent}`)};`,
+					`${declarations.join(`;${getLinebreak(context)}${indent}`)};`,
 				);
 			}
 

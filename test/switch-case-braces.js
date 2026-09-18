@@ -577,3 +577,15 @@ test({
 		},
 	],
 });
+
+// The inserted closing brace uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'switch (foo) {\r\n\tcase 1:\r\n\t\tbar();\r\n\t\tbreak;\r\n}\r\n',
+			output: 'switch (foo) {\r\n\tcase 1: {\r\n\t\tbar();\r\n\t\tbreak;\r\n\t}\r\n}\r\n',
+			errors: 1,
+		},
+	],
+});

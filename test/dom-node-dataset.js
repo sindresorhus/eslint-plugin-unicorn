@@ -387,3 +387,16 @@ test.snapshot({
 		{code: 'const data = (element as HTMLElement).dataset; foo(data.fooBar);', languageOptions: {parser: parsers.typescript}},
 	].map(code => ({options: [{preferAttributes: true}], ...(typeof code === 'string' ? {code} : code)})),
 });
+
+// The split declarations use the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run() {\r\n\tconst {foo, bar} = element.dataset;\r\n\tuse(foo, bar);\r\n}\r\n',
+			options: [{preferAttributes: true}],
+			output: 'function run() {\r\n\tconst foo = element.getAttribute(\'data-foo\');\r\n\tconst bar = element.getAttribute(\'data-bar\');\r\n\tuse(foo, bar);\r\n}\r\n',
+			errors: 1,
+		},
+	],
+});

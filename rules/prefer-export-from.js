@@ -1,7 +1,7 @@
 import {isOpeningBraceToken} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from './ast/index.js';
 import {removeSpecifier} from './fix/index.js';
-import {isTypeImportSpecifier} from './utils/index.js';
+import {getLinebreak, isTypeImportSpecifier} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -107,7 +107,7 @@ function getFixFunction({
 		if (imported.name === NAMESPACE_SPECIFIER_NAME) {
 			yield fixer.insertTextAfter(
 				program,
-				`\nexport ${shouldExportAsType ? 'type ' : ''}* as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, context)}`,
+				`${getLinebreak(context)}export ${shouldExportAsType ? 'type ' : ''}* as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, context)}`,
 			);
 		} else {
 			let specifierText = exported.name === imported.name
@@ -132,7 +132,7 @@ function getFixFunction({
 			} else {
 				yield fixer.insertTextAfter(
 					program,
-					`\nexport {${specifierText}} ${getSourceAndAssertionsText(importDeclaration, context)}`,
+					`${getLinebreak(context)}export {${specifierText}} ${getSourceAndAssertionsText(importDeclaration, context)}`,
 				);
 			}
 		}

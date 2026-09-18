@@ -1,6 +1,10 @@
 import getShortBodyProblem from './shared/short-body-conditional.js';
 import {
+	getIndentUnit,
+	getLineIndent,
+	getLinebreak,
 	getParenthesizedText,
+	getUnwrappedBranchText,
 	hasMultilineToken,
 	isBlockScopedDeclaration,
 	shouldAddParenthesesToUnaryExpressionArgument,
@@ -51,11 +55,6 @@ const getConsequentStatementCount = node => {
 	return node.consequent.type === 'BlockStatement'
 		? node.consequent.body.filter(({type}) => type !== 'EmptyStatement').length
 		: 1;
-};
-
-const getLineIndent = (sourceCode, index) => {
-	const lineStart = sourceCode.text.lastIndexOf('\n', index - 1) + 1;
-	return /^[\t ]*/.exec(sourceCode.text.slice(lineStart, index))[0];
 };
 
 const isNodeInsideRange = (node, [start, end], sourceCode) => {
@@ -138,64 +137,14 @@ const getNegatedIfConditionText = (ifStatement, context) => {
 	return getNegatedConditionText(ifStatement.test, context);
 };
 
-const getBlockBodyText = (blockStatement, ifStatement, sourceCode) => {
-	const openingBraceToken = sourceCode.getFirstToken(blockStatement);
-	const closingBraceToken = sourceCode.getLastToken(blockStatement);
-	const bodyText = sourceCode.text.slice(sourceCode.getRange(openingBraceToken)[1], sourceCode.getRange(closingBraceToken)[0]);
-
-	if (!bodyText.includes('\n')) {
-		const trimmedBodyText = bodyText.trim();
-		return trimmedBodyText ? `${getLineIndent(sourceCode, sourceCode.getRange(ifStatement)[0])}${trimmedBodyText}` : '';
-	}
-
-	const lines = bodyText.split('\n');
-
-	if (lines[0]?.trim() === '') {
-		lines.shift();
-	}
-
-	if (lines.at(-1)?.trim() === '') {
-		lines.pop();
-	}
-
-	if (lines.length === 0) {
-		return '';
-	}
-
-	const firstBodyToken = sourceCode.getTokenAfter(openingBraceToken, {includeComments: true});
-	const ifIndent = getLineIndent(sourceCode, sourceCode.getRange(ifStatement)[0]);
-	const bodyIndent = firstBodyToken && firstBodyToken !== closingBraceToken
-		? getLineIndent(sourceCode, sourceCode.getRange(firstBodyToken)[0])
-		: `${ifIndent}\t`;
-
-	return lines.map(line => {
-		if (line.trim() === '') {
-			return '';
-		}
-
-		return line.startsWith(bodyIndent)
-			? `${ifIndent}${line.slice(bodyIndent.length)}`
-			: `${ifIndent}${line.trimStart()}`;
-	}).join('\n');
-};
-
-const getConsequentText = (ifStatement, sourceCode) => {
-	const {consequent} = ifStatement;
-
-	if (consequent.type === 'BlockStatement') {
-		return getBlockBodyText(consequent, ifStatement, sourceCode);
-	}
-
-	return `${getLineIndent(sourceCode, sourceCode.getRange(ifStatement)[0])}${sourceCode.getText(consequent).trim()}`;
-};
-
 const getReplacementText = (ifStatement, context) => {
 	const {sourceCode} = context;
-	const ifIndent = getLineIndent(sourceCode, sourceCode.getRange(ifStatement)[0]);
+	const ifIndent = getLineIndent(ifStatement, context);
 	const conditionText = getNegatedIfConditionText(ifStatement, context);
-	const consequentText = getConsequentText(ifStatement, sourceCode);
+	const consequentText = getUnwrappedBranchText(ifStatement.consequent, context);
+	const linebreak = getLinebreak(context);
 
-	return `if (${conditionText}) {\n${ifIndent}\treturn;\n${ifIndent}}\n\n${consequentText}`;
+	return `if (${conditionText}) {${linebreak}${ifIndent}${getIndentUnit(context)}return;${linebreak}${ifIndent}}${linebreak}${linebreak}${consequentText}`;
 };
 
 const getDirectLexicalDeclarationVariables = (node, sourceCode) => {

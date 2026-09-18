@@ -4,6 +4,8 @@ import {
 	hasCommentInRange,
 	hasDirectBlockScopedDeclaration,
 	needsSemicolon,
+	reindentText,
+	getLinebreak,
 } from './utils/index.js';
 
 /**
@@ -250,23 +252,7 @@ function getHoistedText(statements, ifIndent, context) {
 	const {sourceCode} = context;
 	const [start] = sourceCode.getRange(statements[0]);
 	const [, end] = sourceCode.getRange(statements.at(-1));
-	const text = sourceCode.text.slice(start, end);
-	const branchIndent = getIndentString(statements[0], context);
-
-	if (branchIndent === ifIndent) {
-		return text;
-	}
-
-	return text
-		.split('\n')
-		.map((line, index) => {
-			if (index === 0) {
-				return line;
-			}
-
-			return line.startsWith(branchIndent) ? `${ifIndent}${line.slice(branchIndent.length)}` : line;
-		})
-		.join('\n');
+	return reindentText(sourceCode.text.slice(start, end), getIndentString(statements[0], context), ifIndent);
 }
 
 // Range of a branch's shared statements to remove, consuming the gap up to the retained code so no
@@ -299,14 +285,14 @@ function createHoistFix({ifStatement, blocks, leading, trailing, isStart}, conte
 		if (isStart) {
 			const tokenBefore = sourceCode.getTokenBefore(ifStatement);
 			const semicolon = tokenBefore && needsSemicolon(tokenBefore, context, hoistedText) ? ';' : '';
-			yield fixer.insertTextBefore(ifStatement, `${semicolon}${hoistedText}\n${ifIndent}`);
+			yield fixer.insertTextBefore(ifStatement, `${semicolon}${hoistedText}${getLinebreak(context)}${ifIndent}`);
 		} else {
 			// The hoisted code now sits before whatever followed the `if`, so guard against it merging with
 			// the next token (for example `foo` followed by `(bar)()` becoming `foo(bar)()`).
 			const lastToken = sourceCode.getLastToken(movedStatements.at(-1));
 			const tokenAfter = sourceCode.getTokenAfter(ifStatement);
 			const semicolon = tokenAfter && needsSemicolon(lastToken, context, tokenAfter.value) ? ';' : '';
-			yield fixer.insertTextAfter(ifStatement, `\n${ifIndent}${hoistedText}${semicolon}`);
+			yield fixer.insertTextAfter(ifStatement, `${getLinebreak(context)}${ifIndent}${hoistedText}${semicolon}`);
 		}
 
 		for (const block of blocks) {

@@ -142,3 +142,20 @@ test.snapshot({
 		})),
 	],
 });
+
+// The inserted import uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'import bar, {default as foo} from "foo";\r\nuse(foo, bar);\r\n',
+			output: 'import foo from "foo";\r\nimport bar from "foo";\r\nuse(foo, bar);\r\n',
+			errors: 1,
+		},
+		{
+			code: 'const foo = 1, bar = 2;\r\nexport {foo as default, bar};\r\n',
+			output: 'const foo = 1, bar = 2;\r\nexport default foo;\r\nexport { bar};\r\n',
+			errors: 1,
+		},
+	],
+});

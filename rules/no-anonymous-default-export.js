@@ -9,6 +9,7 @@ import {
 	upperFirst,
 	isVirtualFilename,
 	isIdentifierName,
+	getLinebreak,
 } from './utils/index.js';
 import {isMemberExpression} from './ast/index.js';
 
@@ -85,7 +86,7 @@ function addName(fixer, node, name, context) {
 			let textBefore = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart);
 			let textAfter = sourceCode.text.slice(arrowFunctionEnd, exportDeclarationEnd);
 
-			textBefore = `\n${textBefore}`;
+			textBefore = `${getLinebreak(context)}${textBefore}`;
 			if (!/\s$/.test(textBefore)) {
 				textBefore += ' ';
 			}

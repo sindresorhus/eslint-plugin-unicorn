@@ -2,6 +2,8 @@ import {getPropertyName} from '@eslint-community/eslint-utils';
 import {isDirective} from './ast/index.js';
 import {
 	getIndentString,
+	getIndentUnit,
+	getLinebreak,
 	getParenthesizedRange,
 	getParenthesizedText,
 	getReferences,
@@ -10,6 +12,7 @@ import {
 	isCallExpressionValueDiscardedWithVoid,
 	isParenthesized,
 	isPromiseType,
+	reindentText,
 	shouldAddParenthesesToAwaitExpressionArgument,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
@@ -23,7 +26,6 @@ const messages = {
 };
 
 const promiseMethods = new Set(['then', 'catch', 'finally']);
-const linebreakPattern = /\r\n|[\n\r]/;
 const whitespaceSensitiveNodeTypes = new Set(['JSXText', 'Literal', 'TemplateElement']);
 
 function isKnownNonPromiseObject(node, context) {
@@ -132,10 +134,6 @@ function getLineIndentAtIndex(index, sourceCode) {
 	return before.trim() === '' ? before : undefined;
 }
 
-function getLinebreak(sourceCode) {
-	return sourceCode.text.match(linebreakPattern)?.[0] ?? '\n';
-}
-
 function hasMultilineWhitespaceSensitiveContent(node, context) {
 	const {sourceCode} = context;
 	return containsNodeMatching(
@@ -187,26 +185,14 @@ function getChildIndent(callExpression, callback, context) {
 		}
 	}
 
-	return `${indent}\t`;
+	return `${indent}${getIndentUnit(context)}`;
 }
 
 function getExpressionBodyText(callbackBody, callExpression, childIndent, context) {
 	const {sourceCode} = context;
 	const [start, end] = getParenthesizedRange(callbackBody, context);
 	const sourceIndent = getLineIndentAtIndex(start, sourceCode) ?? getIndentString(callExpression, context);
-	const [firstLine, ...remainingLines] = sourceCode.text.slice(start, end).split(linebreakPattern);
-	const lines = [
-		firstLine,
-		...remainingLines.map(line => {
-			if (line.trim() === '') {
-				return line;
-			}
-
-			const relativeLine = line.startsWith(sourceIndent) ? line.slice(sourceIndent.length) : line;
-			return `${childIndent}${relativeLine}`;
-		}),
-	];
-	return `return ${lines.join(getLinebreak(sourceCode))};`;
+	return `return ${reindentText(sourceCode.text.slice(start, end), sourceIndent, childIndent)};`;
 }
 
 function canSuggestForCall(callExpression, context) {
@@ -285,7 +271,7 @@ function getSuggestion(callExpression, context) {
 		return;
 	}
 
-	const linebreak = getLinebreak(context.sourceCode);
+	const linebreak = getLinebreak(context);
 	const bodyText = callback.body.type === 'BlockStatement'
 		? context.sourceCode.getText(callback.body).slice(1, -1).trim()
 		: getExpressionBodyText(callback.body, callExpression, childIndent, context);

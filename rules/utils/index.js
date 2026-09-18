@@ -34,6 +34,11 @@ export {default as getCallExpressionArgumentsText} from './get-call-expression-a
 export {getCallExpressionTokens, getNewExpressionTokens} from './get-call-or-new-expression-tokens.js';
 export {default as getDuplicateArrayElements, isComparableStaticValue} from './get-duplicate-array-elements.js';
 export {default as getIndentString} from './get-indent-string.js';
+export {default as getIndentUnit} from './get-indent-unit.js';
+export {default as getLinebreak} from './get-linebreak.js';
+export {default as getLineIndent} from './get-line-indent.js';
+export {default as getUnwrappedBranchText} from './get-unwrapped-branch-text.js';
+export {default as reindentText} from './reindent-text.js';
 export {default as isCallExpressionValueDiscardedWithVoid} from './is-call-expression-value-discarded-with-void.js';
 export {default as isIdentifierName} from './is-identifier-name.js';
 export {default as getComments} from './get-comments.js';

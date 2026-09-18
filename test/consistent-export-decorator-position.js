@@ -376,3 +376,31 @@ test({
 		},
 	].map(testCase => withTypescriptParser(testCase)),
 });
+
+// The moved decorator uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'export @decorator class Foo {}\r\n',
+			options: ['above'],
+			output: '@decorator\r\nexport class Foo {}\r\n',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: '@decorator export class Foo {}\r\n',
+			options: ['above'],
+			output: '@decorator\r\nexport class Foo {}\r\n',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: '@a @b export class Foo {}\r\n',
+			options: ['above'],
+			output: '@a\r\n@b\r\nexport class Foo {}\r\n',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});

@@ -272,3 +272,59 @@ test({
 		},
 	],
 });
+
+// The generated async IIFE body follows the file's indentation when the callback gives no indentation to reuse
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'promise.then(value => transform(value));\nif (condition) {\n  run();\n}\n',
+			errors: [
+				{
+					messageId: MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_ID,
+							output: 'void (async () => {\n  const value = await promise;\n  return transform(value);\n})();\nif (condition) {\n  run();\n}\n',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'promise.then(value => transform(value));\nif (condition) {\n    run();\n}\n',
+			errors: [
+				{
+					messageId: MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_ID,
+							output: 'void (async () => {\n    const value = await promise;\n    return transform(value);\n})();\nif (condition) {\n    run();\n}\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
+// A multi-line callback expression keeps nested indentation in the generated body
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'promise.then(value => transform(\n  value,\n  {\n    deep: true,\n  },\n));\n',
+			errors: [
+				{
+					messageId: MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_ID,
+							output: 'void (async () => {\n  const value = await promise;\n  return transform(\n    value,\n    {\n      deep: true,\n    },\n  );\n})();\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});

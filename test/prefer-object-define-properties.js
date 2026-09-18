@@ -1,3 +1,4 @@
+import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -63,5 +64,98 @@ Object.defineProperty(foo, 'baz', {value: 2});`,
 		},
 		'Object.defineProperty(foo, "bar", {value: 1});\n// comment\nObject.defineProperty(foo, "baz", {value: 2});',
 		'Object.defineProperty(foo, "bar", /* comment */ {value: 1});\nObject.defineProperty(foo, "baz", {value: 2});',
+	],
+});
+
+// The generated properties object follows the file's indentation
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function run() {
+				  Object.defineProperty(foo, 'a', {
+				    value: 1,
+				  });
+				  Object.defineProperty(foo, 'b', {value: 2});
+				}
+			`,
+			output: outdent`
+				function run() {
+				  Object.defineProperties(foo, {
+				    a: {
+				      value: 1,
+				    },
+				    b: {value: 2},
+				  });
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function run() {
+				    Object.defineProperty(foo, 'a', {
+				        value: 1,
+				    });
+				    Object.defineProperty(foo, 'b', {value: 2});
+				}
+			`,
+			output: outdent`
+				function run() {
+				    Object.defineProperties(foo, {
+				        a: {
+				            value: 1,
+				        },
+				        b: {value: 2},
+				    });
+				}
+			`,
+			errors: 1,
+		},
+	],
+});
+
+// The generated properties object uses the file's line ending
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Object.defineProperty(foo, \'a\', {\r\n\tvalue: 1,\r\n});\r\nObject.defineProperty(foo, \'b\', {value: 2});\r\n',
+			output: 'Object.defineProperties(foo, {\r\n\ta: {\r\n\t\tvalue: 1,\r\n\t},\r\n\tb: {value: 2},\r\n});\r\n',
+			errors: 1,
+		},
+	],
+});
+
+// A multi-line descriptor keeps nested indentation and blank lines
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				Object.defineProperty(foo, 'a', {
+				  get() {
+				    return 1;
+				  },
+
+				  set(value) {},
+				});
+				Object.defineProperty(foo, 'b', {value: 2});
+			`,
+			output: outdent`
+				Object.defineProperties(foo, {
+				  a: {
+				    get() {
+				      return 1;
+				    },
+
+				    set(value) {},
+				  },
+				  b: {value: 2},
+				});
+			`,
+			errors: 1,
+		},
 	],
 });
