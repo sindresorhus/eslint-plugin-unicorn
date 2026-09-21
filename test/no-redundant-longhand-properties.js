@@ -29,7 +29,9 @@ testRule.snapshot({
 		'a { border-top-width: 1px; border-right-width: 2px; border-block-start-width: 5px; border-bottom-width: 3px; border-left-width: 4px; }',
 		'a { border-image-source: url(border.png); border-width: 1px; border-style: solid; border-color: red; }',
 		'a { column-width: 20rem; column-count: 2; }',
+		'a { column-wrap: wrap; column-height: 100px; column-width: 20rem; column-count: 2; }',
 		'a { font-feature-settings: "kern"; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: serif; }',
+		'a { font-feature-settings: initial; font-kerning: initial; font-language-override: initial; font-optical-sizing: initial; font-size-adjust: initial; font-variation-settings: initial; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-width: expanded; font-size: 16px; line-height: 1.5; font-family: serif; }',
 		'@font-face { font-feature-settings: initial; font-kerning: initial; font-language-override: initial; font-optical-sizing: initial; font-size-adjust: initial; font-variation-settings: initial; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: Example; src: url(example.woff2); }',
 		'a { font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: serif; }',
 		'a { font: inherit; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: serif; }',
@@ -55,6 +57,7 @@ testRule.snapshot({
 			}
 		`,
 		'a { font-synthesis-position: auto; font-synthesis: none; font-synthesis-weight: auto; font-synthesis-style: auto; font-synthesis-small-caps: auto; }',
+		'a { font-synthesis-weight: auto; font-synthesis-style: oblique-only; font-synthesis-small-caps: auto; font-synthesis-position: auto; }',
 		'a { transition-property: opacity; transition-duration: 1s; transition-timing-function: ease; transition-delay: 0s; }',
 		'a { transition: opacity 1s allow-discrete; transition-property: opacity; transition-duration: 1s; transition-timing-function: ease; transition-delay: 0s; }',
 		outdent`
@@ -104,6 +107,8 @@ testRule.snapshot({
 			}
 		`,
 		'a { transition-behavior: normal; transition-property: opacity; transition-duration: 1s, 2s; transition-timing-function: ease; transition-delay: 0s; }',
+		'a { row-gap: 1px; grid-gap: 3px; column-gap: 2px; }',
+		'a { grid-row-gap: 1px; gap: 3px; grid-column-gap: 2px; }',
 		outdent`
 			a {
 				animation-trigger: initial;
@@ -123,6 +128,7 @@ testRule.snapshot({
 		`,
 		outdent`
 			a {
+				background-blend-mode: initial;
 				background-image: url(a.png);
 				background-position: 0 0, 10px 10px;
 				background-size: auto;
@@ -131,6 +137,33 @@ testRule.snapshot({
 				background-origin: padding-box;
 				background-clip: border-box;
 				background-color: red;
+			}
+		`,
+		outdent`
+			a {
+				background-blend-mode: initial;
+				background-image: none;
+				background-position: 0% 0%;
+				background-position-x: 10px;
+				background-size: auto;
+				background-repeat: repeat;
+				background-attachment: scroll;
+				background-origin: padding-box;
+				background-clip: border-box;
+				background-color: transparent;
+			}
+		`,
+		outdent`
+			a {
+				background-blend-mode: multiply;
+				background-image: none;
+				background-position: 0% 0%;
+				background-size: auto;
+				background-repeat: repeat;
+				background-attachment: scroll;
+				background-origin: padding-box;
+				background-clip: border-box;
+				background-color: transparent;
 			}
 		`,
 		outdent`
@@ -153,6 +186,7 @@ testRule.snapshot({
 		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: auto; animation-timeline: --timeline; }',
 		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: --keyframes; animation-timeline: auto; }',
 		'a { -webkit-transition-property: opacity; transition-duration: 1s; -webkit-transition-timing-function: ease; -webkit-transition-delay: 0s; }',
+		'a { -webkit-align-content: center; -webkit-justify-content: center; }',
 		String.raw`a { m\61 rgin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }`,
 		'a { --margin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
 	].map(code => css(code)),
@@ -197,12 +231,32 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { margin-top: 1px; margin-right: 2px; margin-bottom: 1px; margin-left: 2px; }',
+			output: 'a { margin: 1px 2px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { margin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 2px; }',
+			output: 'a { margin: 1px 2px 3px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { row-gap: 1px; column-gap: 1px; }',
+			output: 'a { gap: 1px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { grid-gap: 3px; row-gap: 1px; column-gap: 2px; }',
+			output: 'a { grid-gap: 3px; gap: 1px 2px; }',
+			errors: 1,
+		},
+		{
 			code: 'a { border-top-left-radius: 50% 10%; border-top-right-radius: 50% 10%; border-bottom-right-radius: 50% 10%; border-bottom-left-radius: 50% 10%; }',
 			output: 'a { border-radius: 50% / 10%; }',
 			errors: 1,
 		},
 		{
-			code: 'a { column-height: 100px; column-width: 20rem; column-count: 2; }',
+			code: 'a { column-wrap: initial; column-height: 100px; column-width: 20rem; column-count: 2; }',
 			output: 'a { columns: 20rem 2 / 100px; }',
 			errors: 1,
 		},
@@ -234,6 +288,11 @@ testRule({
 					font: italic normal 700 normal 16px / 1.5 serif;
 				}
 			`,
+			errors: 1,
+		},
+		{
+			code: 'a { font-width: expanded; font-feature-settings: initial; font-kerning: initial; font-language-override: initial; font-optical-sizing: initial; font-size-adjust: initial; font-variation-settings: initial; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: serif; }',
+			output: 'a { font-width: expanded; font: italic normal 700 normal 16px / 1.5 serif; }',
 			errors: 1,
 		},
 		{
@@ -374,6 +433,7 @@ testRule({
 		{
 			code: outdent`
 				a {
+					background-blend-mode: initial;
 					background-image: none;
 					background-size: auto;
 					background-position: 0% 0%;
@@ -386,6 +446,29 @@ testRule({
 			`,
 			output: outdent`
 				a {
+					background: none 0% 0% / auto repeat scroll padding-box border-box transparent;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				a {
+					background-position-x: 10px;
+					background-blend-mode: initial;
+					background-image: none;
+					background-position: 0% 0%;
+					background-size: auto;
+					background-repeat: repeat;
+					background-attachment: scroll;
+					background-origin: padding-box;
+					background-clip: border-box;
+					background-color: transparent;
+				}
+			`,
+			output: outdent`
+				a {
+					background-position-x: 10px;
 					background: none 0% 0% / auto repeat scroll padding-box border-box transparent;
 				}
 			`,
@@ -444,6 +527,11 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { grid-template-rows: none; grid-template-columns: 100px; grid-template-areas: none; grid-auto-rows: 1fr; grid-auto-columns: auto; grid-auto-flow: dense; }',
+			output: 'a { grid: auto-flow dense 1fr / 100px; }',
+			errors: 1,
+		},
+		{
 			code: outdent`
 				a {
 					grid-column-gap: initial;
@@ -488,6 +576,7 @@ testRule({
 		{
 			code: outdent`
 				a {
+					background-blend-mode: initial;
 					background-image: url(a.png), url(b.png);
 					background-position: 0 0, 10px 10px;
 					background-size: auto;

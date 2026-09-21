@@ -40,6 +40,8 @@ At-rule descriptor blocks, such as `@font-face`, are ignored because their decla
 
 Vendor-prefixed and unprefixed declarations are tracked separately. Prefixed `animation`, `columns`, and `transition` groups use their historical component sets, so `animation-timeline`, `column-height`, and `transition-behavior` are not required. A complete prefixed group produces the corresponding prefixed shorthand:
 
+Other prefixed properties are ignored because support for their corresponding prefixed shorthands cannot be validated.
+
 ```css
 /* Before */
 a {

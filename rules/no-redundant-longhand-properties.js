@@ -18,11 +18,20 @@ const pairShorthands = new Set(['gap', 'inset-block', 'inset-inline', 'margin-bl
 const fourSideShorthands = new Set(['border-color', 'border-style', 'border-width', 'inset', 'margin', 'padding', 'scroll-margin', 'scroll-padding']);
 const additionalResetProperties = new Map([
 	['animation', ['animation-composition', 'animation-range-start', 'animation-range-end', 'animation-trigger']],
+	['background', ['background-blend-mode']],
+	['columns', ['column-wrap']],
 	['mask', ['mask-border']],
 ]);
-const additionalResetPropertyComponents = new Map([
+const additionalAffectedProperties = new Map([
 	['animation-range', ['animation-range-start', 'animation-range-end']],
+	['background-position', ['background-position-x', 'background-position-y']],
+	['column-gap', ['grid-column-gap']],
+	['font-stretch', ['font-width']],
+	['font-width', ['font-stretch']],
+	['grid-column-gap', ['column-gap']],
+	['grid-row-gap', ['row-gap']],
 	['mask-border', ['mask-border-source', 'mask-border-slice', 'mask-border-width', 'mask-border-outset', 'mask-border-repeat', 'mask-border-mode']],
+	['row-gap', ['grid-row-gap']],
 ]);
 
 const getValue = (declaration, sourceCode) => sourceCode.getText(declaration.value).trim();
@@ -181,7 +190,7 @@ const serializeGrid = (declarations, sourceCode) => {
 		areas.toLowerCase() === 'none'
 		&& rows.toLowerCase() === 'none'
 		&& autoColumns.toLowerCase() === 'auto'
-		&& normalizedAutoFlow.has('row')
+		&& !normalizedAutoFlow.has('column')
 	) {
 		return `auto-flow${dense} ${autoRows} / ${columns}`;
 	}
@@ -344,7 +353,7 @@ const getLogicalPropertyMapping = property => {
 };
 
 const getAffectedProperties = property => {
-	const properties = new Set([property, ...(shorthandToAffectedProperties.get(property) ?? []), ...(additionalResetPropertyComponents.get(property) ?? [])]);
+	const properties = new Set([property, ...(shorthandToAffectedProperties.get(property) ?? []), ...(additionalAffectedProperties.get(property) ?? [])]);
 	const logicalBorderProperties = [];
 	for (const affectedProperty of properties) {
 		const match = affectedProperty.match(/^border-(block|inline)-(width|style|color)$/u);
@@ -573,7 +582,9 @@ const create = context => {
 		for (const [shorthand, definition] of shorthandProperties) {
 			if (!ignoredShorthands.has(shorthand)) {
 				for (const vendorPrefix of prefixes) {
-					candidates.push(...getCandidates(declarationChildren, {shorthand, definition, catalogIndex}, vendorPrefix, sourceCode));
+					if (vendorPrefix === '' || legacyVendorShorthands.has(shorthand)) {
+						candidates.push(...getCandidates(declarationChildren, {shorthand, definition, catalogIndex}, vendorPrefix, sourceCode));
+					}
 				}
 			}
 
