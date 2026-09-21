@@ -24,6 +24,8 @@ testRule.snapshot({
 		'a { margin-top: 1px; margin-right: 2px; margin-inline-start: 5px; margin-bottom: 3px; margin-left: 4px; }',
 		'a { top: 1px; inset-block-start: 5px; right: 2px; bottom: 3px; left: 4px; }',
 		'a { inset-block-start: 1px; top: 5px; inset-block-end: 2px; }',
+		'a { overflow-x: hidden; overflow-block: scroll; overflow-y: auto; }',
+		'a { overscroll-behavior-x: contain; overscroll-behavior-inline: none; overscroll-behavior-y: auto; }',
 		'a { border-top-width: 1px; border-right-width: 2px; border-block-start-width: 5px; border-bottom-width: 3px; border-left-width: 4px; }',
 		'a { border-image-source: url(border.png); border-width: 1px; border-style: solid; border-color: red; }',
 		'a { column-width: 20rem; column-count: 2; }',
@@ -69,6 +71,7 @@ testRule.snapshot({
 		`,
 		outdent`
 			a {
+				animation-trigger: initial;
 				animation-range-start: initial;
 				animation-range-end: initial;
 				animation-range: entry;
@@ -84,9 +87,26 @@ testRule.snapshot({
 				animation-play-state: running;
 			}
 		`,
+		outdent`
+			a {
+				animation-trigger: --button play;
+				animation-composition: initial;
+				animation-range: initial;
+				animation-duration: 1s;
+				animation-timing-function: ease;
+				animation-delay: 0s;
+				animation-iteration-count: 1;
+				animation-direction: normal;
+				animation-fill-mode: none;
+				animation-play-state: running;
+				animation-name: fade;
+				animation-timeline: auto;
+			}
+		`,
 		'a { transition-behavior: normal; transition-property: opacity; transition-duration: 1s, 2s; transition-timing-function: ease; transition-delay: 0s; }',
 		outdent`
 			a {
+				animation-trigger: initial;
 				animation-composition: initial;
 				animation-timeline: auto;
 				animation-range-start: initial;
@@ -130,8 +150,8 @@ testRule.snapshot({
 		'a { border-top-left-radius: 1px; border-start-start-radius: 2px; border-top-right-radius: 3px; border-bottom-right-radius: 4px; border-bottom-left-radius: 5px; }',
 		'a { grid-template-rows: [foo] 1fr; grid-template-columns: 1fr; grid-template-areas: "a" "b"; }',
 		'a { margin-top: 1px; margin-right: 2px; all: initial; margin-bottom: 3px; margin-left: 4px; }',
-		'a { animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: auto; animation-timeline: --timeline; }',
-		'a { animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: --keyframes; animation-timeline: auto; }',
+		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: auto; animation-timeline: --timeline; }',
+		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: --keyframes; animation-timeline: auto; }',
 		'a { -webkit-transition-property: opacity; transition-duration: 1s; -webkit-transition-timing-function: ease; -webkit-transition-delay: 0s; }',
 		String.raw`a { m\61 rgin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }`,
 		'a { --margin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
@@ -219,6 +239,7 @@ testRule({
 		{
 			code: outdent`
 				a {
+					animation-trigger: initial;
 					animation-composition: initial;
 					animation-range: initial;
 					animation-duration: 1s;
@@ -240,12 +261,12 @@ testRule({
 			errors: 1,
 		},
 		{
-			code: 'a { animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: --timeline; }',
+			code: 'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: --timeline; }',
 			output: 'a { animation: 1s ease 0s 1 normal none running none --timeline; }',
 			errors: 1,
 		},
 		{
-			code: 'a { animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: none; }',
+			code: 'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: none; }',
 			output: 'a { animation: 1s ease 0s 1 normal none running none none; }',
 			errors: 1,
 		},
@@ -279,6 +300,16 @@ testRule({
 		{
 			code: 'a { font-synthesis-weight: auto; font-synthesis-style: none; font-synthesis-small-caps: none; font-synthesis-position: auto; }',
 			output: 'a { font-synthesis: weight position; }',
+			errors: 1,
+		},
+		{
+			code: 'a { font-synthesis-weight: none; font-synthesis-style: none; font-synthesis-small-caps: none; font-synthesis-position: none; }',
+			output: 'a { font-synthesis: none; }',
+			errors: 1,
+		},
+		{
+			code: 'a { font-synthesis-weight: auto; font-synthesis-style: auto; font-synthesis-small-caps: auto; font-synthesis-position: auto; }',
+			output: 'a { font-synthesis: weight style small-caps position; }',
 			errors: 1,
 		},
 		{
@@ -318,6 +349,7 @@ testRule({
 		{
 			code: outdent`
 				a {
+					animation-trigger: initial;
 					animation-composition: initial;
 					animation-timeline: auto, --timeline;
 					animation-range-start: initial;
@@ -522,6 +554,11 @@ testRule({
 		{
 			code: 'a { overflow-x: hidden; overflow-y: auto; }',
 			output: 'a { overflow: hidden auto; }',
+			errors: 1,
+		},
+		{
+			code: 'a { overflow-x: hidden; overflow-y: auto; overflow-block: scroll; }',
+			output: 'a { overflow: hidden auto; overflow-block: scroll; }',
 			errors: 1,
 		},
 		{

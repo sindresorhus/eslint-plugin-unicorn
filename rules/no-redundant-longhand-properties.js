@@ -17,7 +17,7 @@ const slashShorthands = new Set(['grid-area', 'grid-column', 'grid-row']);
 const pairShorthands = new Set(['gap', 'inset-block', 'inset-inline', 'margin-block', 'margin-inline', 'overflow', 'overscroll-behavior', 'padding-block', 'padding-inline', 'scroll-margin-block', 'scroll-margin-inline', 'scroll-padding-block', 'scroll-padding-inline']);
 const fourSideShorthands = new Set(['border-color', 'border-style', 'border-width', 'inset', 'margin', 'padding', 'scroll-margin', 'scroll-padding']);
 const additionalResetProperties = new Map([
-	['animation', ['animation-composition', 'animation-range-start', 'animation-range-end']],
+	['animation', ['animation-composition', 'animation-range-start', 'animation-range-end', 'animation-trigger']],
 	['mask', ['mask-border']],
 ]);
 const additionalResetPropertyComponents = new Map([
@@ -308,6 +308,14 @@ const serializeShorthand = (shorthand, declarations, sourceCode) => {
 const getLogicalPropertyMapping = property => {
 	if (/^(?:top|right|bottom|left)$/u.test(property)) {
 		return {group: 'inset', mapping: 'physical'};
+	}
+
+	const overflowMatch = property.match(/^(overflow|overscroll-behavior)-(x|y|block|inline)$/u);
+	if (overflowMatch) {
+		return {
+			group: overflowMatch[1],
+			mapping: /^(?:x|y)$/u.test(overflowMatch[2]) ? 'physical' : 'logical',
+		};
 	}
 
 	const boxMatch = property.match(/^(margin|padding|inset|scroll-margin|scroll-padding)-(top|right|bottom|left|block-start|block-end|inline-start|inline-end)$/u);
