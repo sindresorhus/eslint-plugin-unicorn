@@ -75,6 +75,7 @@ test.snapshot({
 				a { color: blue; }
 			}
 		`,
+		'b a { @media print { color: red; } } @media screen { a { color: blue; } }',
 		outdent`
 			@media print {
 				b a { color: red; }
@@ -238,6 +239,7 @@ test.snapshot({
 				a { color: blue; }
 			}
 		`,
+		'b a { @media print { color: red; } } @media print { a { color: blue; } }',
 		outdent`
 			@supports (display: grid) {
 				b a { color: red; }
