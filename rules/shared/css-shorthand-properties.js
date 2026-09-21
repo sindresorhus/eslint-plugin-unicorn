@@ -20,7 +20,7 @@ const shorthandEntries = [
 	['border-top', 'border-top-width border-top-style border-top-color'],
 	['border-width', 'border-top-width border-right-width border-bottom-width border-left-width'],
 	['column-rule', 'column-rule-width column-rule-style column-rule-color'],
-	['columns', 'column-width column-count'],
+	['columns', 'column-width column-count column-height'],
 	['flex', 'flex-grow flex-shrink flex-basis'],
 	['flex-flow', 'flex-direction flex-wrap'],
 	[
@@ -73,6 +73,7 @@ const shorthandProperties = new Map(shorthandEntries.map(([shorthand, components
 // Preserve the published scope of `no-shorthand-property-overrides` while the shared catalog follows the current shorthand grammars.
 const inverseRuleComponentOverrides = new Map([
 	['animation', splitProperties('animation-duration animation-timing-function animation-delay animation-iteration-count animation-direction animation-fill-mode animation-play-state animation-name')],
+	['columns', splitProperties('column-width column-count')],
 	['font-synthesis', splitProperties('font-synthesis-weight font-synthesis-style font-synthesis-small-caps')],
 	['transition', splitProperties('transition-property transition-duration transition-timing-function transition-delay')],
 ]);

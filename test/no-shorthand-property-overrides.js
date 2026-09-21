@@ -13,6 +13,7 @@ test.snapshot({
 		String.raw`a { p\61 dding-left: 10px; padding: 20px; }`,
 		'a { color: red; padding: 20px; }',
 		'a { font-synthesis-position: auto; font-synthesis: none; }',
+		'a { column-height: 100px; columns: 20rem 2; }',
 		'a { transition-behavior: allow-discrete; transition: opacity 1s linear; }',
 		'a { animation-timeline: --timeline; animation: 1s ease fade; }',
 		outdent`

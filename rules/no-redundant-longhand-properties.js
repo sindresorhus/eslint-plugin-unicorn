@@ -12,6 +12,7 @@ const messages = {
 
 const cssWideKeywords = new Set(['initial', 'inherit', 'unset', 'revert', 'revert-layer', 'revert-rule']);
 const substitutionFunctions = new Set(['attr', 'env', 'first-valid', 'ident', 'if', 'inherit', 'random-item', 'var']);
+const legacyVendorShorthands = new Set(['animation', 'columns', 'transition']);
 const slashShorthands = new Set(['grid-area', 'grid-column', 'grid-row']);
 const pairShorthands = new Set(['gap', 'inset-block', 'inset-inline', 'margin-block', 'margin-inline', 'overflow', 'overscroll-behavior', 'padding-block', 'padding-inline', 'scroll-margin-block', 'scroll-margin-inline', 'scroll-padding-block', 'scroll-padding-inline']);
 const fourSideShorthands = new Set(['border-color', 'border-style', 'border-width', 'inset', 'margin', 'padding', 'scroll-margin', 'scroll-padding']);
@@ -111,6 +112,7 @@ const serializeBorderRadius = (declarations, sourceCode) => {
 };
 
 const serializeBorderImage = values => `${values[0]} ${values[1]} / ${values[2]} / ${values[3]} ${values[4]}`;
+const serializeColumns = values => values.length === 2 ? values.join(' ') : `${values[0]} ${values[1]} / ${values[2]}`;
 const serializeFont = values => `${values.slice(0, 4).join(' ')} ${values[4]} / ${values[5]} ${values[6]}`;
 
 const serializeFontSynthesis = values => {
@@ -266,6 +268,7 @@ const serializers = new Map([
 	['background', serializeBackground],
 	['border-image', (declarations, sourceCode) => serializeBorderImage(declarations.map(declaration => getValue(declaration, sourceCode)))],
 	['border-radius', serializeBorderRadius],
+	['columns', (declarations, sourceCode) => serializeColumns(declarations.map(declaration => getValue(declaration, sourceCode)))],
 	['font', (declarations, sourceCode) => serializeFont(declarations.map(declaration => getValue(declaration, sourceCode)))],
 	['font-synthesis', (declarations, sourceCode) => serializeFontSynthesis(declarations.map(declaration => getValue(declaration, sourceCode).toLowerCase()))],
 	['font-variant', (declarations, sourceCode) => serializeFontVariant(declarations.map(declaration => getValue(declaration, sourceCode)))],
@@ -303,6 +306,10 @@ const serializeShorthand = (shorthand, declarations, sourceCode) => {
 };
 
 const getLogicalPropertyMapping = property => {
+	if (/^(?:top|right|bottom|left)$/u.test(property)) {
+		return {group: 'inset', mapping: 'physical'};
+	}
+
 	const boxMatch = property.match(/^(margin|padding|inset|scroll-margin|scroll-padding)-(top|right|bottom|left|block-start|block-end|inline-start|inline-end)$/u);
 	if (boxMatch) {
 		return {
@@ -360,11 +367,11 @@ const propertyAffectsComponent = (property, component) => {
 	});
 };
 
-const getCandidates = (block, {shorthand, definition, catalogIndex}, vendorPrefix, sourceCode) => {
+const getCandidates = (declarationChildren, {shorthand, definition, catalogIndex}, vendorPrefix, sourceCode) => {
 	const candidates = [];
 	const declarations = new Map();
 	const duplicateComponents = new Set();
-	const usesLegacyVendorGrammar = vendorPrefix !== '' && (shorthand === 'animation' || shorthand === 'transition');
+	const usesLegacyVendorGrammar = vendorPrefix !== '' && legacyVendorShorthands.has(shorthand);
 	const components = usesLegacyVendorGrammar ? definition.components.slice(0, -1) : definition.components;
 	const resetProperties = [...definition.resetProperties, ...(vendorPrefix === '' ? additionalResetProperties.get(shorthand) ?? [] : [])];
 	const resetStates = new Map();
@@ -401,7 +408,6 @@ const getCandidates = (block, {shorthand, definition, catalogIndex}, vendorPrefi
 		});
 	};
 
-	const declarationChildren = block.children.filter(child => child.type === 'Declaration');
 	for (const child of declarationChildren) {
 		const property = child.property.toLowerCase();
 		const childVendorPrefix = getVendorPrefix(property);
@@ -533,14 +539,25 @@ const getFix = (candidate, block, comments, sourceCode) => {
 const create = context => {
 	const {sourceCode} = context;
 	const ignoredShorthands = new Set(context.options[0].ignoreShorthands);
-	const comments = [...getComments(context)];
+	const comments = getComments(context);
 
 	context.on('Block', function * (block) {
-		const prefixes = new Set(['']);
-		for (const child of block.children) {
-			if (child.type === 'Declaration') {
-				prefixes.add(getVendorPrefix(child.property.toLowerCase()));
+		const declarationChildren = block.children.filter(child => child.type === 'Declaration');
+		if (declarationChildren.length === 0) {
+			return;
+		}
+
+		const parent = sourceCode.getAncestors(block).at(-1);
+		if (parent?.type === 'Atrule') {
+			const atRule = sourceCode.lexer.getAtrule(parent.name.toLowerCase());
+			if (!atRule || atRule.descriptors !== null) {
+				return;
 			}
+		}
+
+		const prefixes = new Set();
+		for (const declaration of declarationChildren) {
+			prefixes.add(getVendorPrefix(declaration.property.toLowerCase()));
 		}
 
 		const candidates = [];
@@ -548,7 +565,7 @@ const create = context => {
 		for (const [shorthand, definition] of shorthandProperties) {
 			if (!ignoredShorthands.has(shorthand)) {
 				for (const vendorPrefix of prefixes) {
-					candidates.push(...getCandidates(block, {shorthand, definition, catalogIndex}, vendorPrefix, sourceCode));
+					candidates.push(...getCandidates(declarationChildren, {shorthand, definition, catalogIndex}, vendorPrefix, sourceCode));
 				}
 			}
 

@@ -22,9 +22,13 @@ testRule.snapshot({
 		'a { margin-top: 1px; margin-top: 2px; margin-right: 3px; margin-bottom: 4px; margin-left: 5px; }',
 		'a { margin-top: 1px; margin: 2px; margin-right: 3px; margin-bottom: 4px; margin-left: 5px; }',
 		'a { margin-top: 1px; margin-right: 2px; margin-inline-start: 5px; margin-bottom: 3px; margin-left: 4px; }',
+		'a { top: 1px; inset-block-start: 5px; right: 2px; bottom: 3px; left: 4px; }',
+		'a { inset-block-start: 1px; top: 5px; inset-block-end: 2px; }',
 		'a { border-top-width: 1px; border-right-width: 2px; border-block-start-width: 5px; border-bottom-width: 3px; border-left-width: 4px; }',
 		'a { border-image-source: url(border.png); border-width: 1px; border-style: solid; border-color: red; }',
+		'a { column-width: 20rem; column-count: 2; }',
 		'a { font-feature-settings: "kern"; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: serif; }',
+		'@font-face { font-feature-settings: initial; font-kerning: initial; font-language-override: initial; font-optical-sizing: initial; font-size-adjust: initial; font-variation-settings: initial; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: Example; src: url(example.woff2); }',
 		'a { font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: serif; }',
 		'a { font: inherit; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: serif; }',
 		'a { border: nonsense; border-width: 1px; border-style: solid; border-color: red; }',
@@ -178,6 +182,11 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { column-height: 100px; column-width: 20rem; column-count: 2; }',
+			output: 'a { columns: 20rem 2 / 100px; }',
+			errors: 1,
+		},
+		{
 			code: 'a { border-image-source: none; border-image-slice: 100%; border-image-width: 1; border-image-outset: 0; border-image-repeat: stretch; }',
 			output: 'a { border-image: none 100% / 1 / 0 stretch; }',
 			errors: 1,
@@ -233,6 +242,11 @@ testRule({
 		{
 			code: 'a { animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: --timeline; }',
 			output: 'a { animation: 1s ease 0s 1 normal none running none --timeline; }',
+			errors: 1,
+		},
+		{
+			code: 'a { animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: none; }',
+			output: 'a { animation: 1s ease 0s 1 normal none running none none; }',
 			errors: 1,
 		},
 		{
@@ -486,6 +500,11 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { -webkit-column-width: 20rem; -webkit-column-count: 2; }',
+			output: 'a { -webkit-columns: 20rem 2; }',
+			errors: 1,
+		},
+		{
 			code: 'a { -webkit-transition-property: ease-in; -webkit-transition-duration: 1s; -webkit-transition-timing-function: linear; -webkit-transition-delay: 0s; }',
 			output: 'a { -webkit-transition: 1s linear 0s ease-in; }',
 			errors: 1,
@@ -521,6 +540,11 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { border-width: 1px; border-style: solid; border-color: red; border-image: initial; }',
+			output: 'a { border: 1px solid red; }',
+			errors: 1,
+		},
+		{
 			code: 'a { border-image: inherit; border-width: inherit; border-style: inherit; border-color: inherit; }',
 			output: 'a { border: inherit; }',
 			errors: 1,
@@ -548,6 +572,11 @@ testRule({
 		{
 			code: 'a { margin-top: 1px; color: red; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
 			output: null,
+			errors: 1,
+		},
+		{
+			code: 'a { @media (width > 0px) { margin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; } }',
+			output: 'a { @media (width > 0px) { margin: 1px 2px 3px 4px; } }',
 			errors: 1,
 		},
 		{

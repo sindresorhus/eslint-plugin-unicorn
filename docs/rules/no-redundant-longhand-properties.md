@@ -30,13 +30,15 @@ div {
 
 The rule validates both the longhand values and the generated shorthand against the CSS grammar. It does not report groups containing invalid values, mixed `!important` states, duplicate components, or substitution functions such as `var()` and `env()`.
 
-Animation groups with an unquoted `auto`, dashed, or escaped animation name are not reported because those names can be parsed as an animation timeline in the shorthand.
+Animation groups with an unquoted `auto`, a dashed name, or an escaped name are not reported because those names can be parsed as an animation timeline in the shorthand.
 
 Shorter comma-separated longhand lists are cycled when required by the CSS grammar. Lists longer than the shorthand's primary list are not reported. Shorthands that reset additional properties, such as `font` and `border`, are only reported when those properties are known to have compatible values, either through explicit CSS-wide keyword declarations or an earlier shorthand that resets them; the autofix consumes those declarations too.
 
 The autofix is available when the declarations are contiguous and the replaced source contains no comments. Other safe groups are still reported without a fix.
 
-Vendor-prefixed and unprefixed declarations are tracked separately. A complete prefixed group produces the corresponding prefixed shorthand:
+At-rule descriptor blocks, such as `@font-face`, are ignored because their declarations do not necessarily support the corresponding property shorthand.
+
+Vendor-prefixed and unprefixed declarations are tracked separately. Prefixed `animation`, `columns`, and `transition` groups use their historical component sets, so `animation-timeline`, `column-height`, and `transition-behavior` are not required. A complete prefixed group produces the corresponding prefixed shorthand:
 
 ```css
 /* Before */
