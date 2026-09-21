@@ -197,6 +197,7 @@ export default defineConfig([
 | [no-late-event-control](docs/rules/no-late-event-control.md)                                               | Disallow event-control method calls after the synchronous event dispatch has finished.                                         | ✅    |    |    |    |
 | [no-lonely-if](docs/rules/no-lonely-if.md)                                                                 | Disallow `if` statements as the only statement in `if` blocks without `else`.                                                  | ✅ ☑️ | 🔧 |    |    |
 | [no-loop-iterable-mutation](docs/rules/no-loop-iterable-mutation.md)                                       | Disallow mutating a loop iterable during iteration.                                                                            | ✅    |    |    |    |
+| [no-loss-of-precision](docs/rules/no-loss-of-precision.md)                                                 | Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.                                    |      |    |    |    |
 | [no-magic-array-flat-depth](docs/rules/no-magic-array-flat-depth.md)                                       | Disallow a magic number as the `depth` argument in `Array#flat(…).`                                                            | ✅ ☑️ |    |    |    |
 | [no-manually-wrapped-comments](docs/rules/no-manually-wrapped-comments.md)                                 | Disallow manually wrapped comments.                                                                                            |      | 🔧 |    |    |
 | [no-mismatched-map-key](docs/rules/no-mismatched-map-key.md)                                               | Disallow checking a Map key before accessing a different key.                                                                  | ✅    |    |    |    |
@@ -580,6 +581,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |  |
+| [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md) | ✅ |  | ✅ |  | ✅ |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  | ✅ |  |
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |  |  |
 | [`no-nesting-with-mixed-specificity`](docs/rules/no-nesting-with-mixed-specificity.md) | ✅ |  |  |  |  |  |
