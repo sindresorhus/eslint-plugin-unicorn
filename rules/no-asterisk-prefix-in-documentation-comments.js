@@ -4,13 +4,20 @@ import {
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-asterisk-prefix-in-documentation-comments';
+const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
+const LINE_ENDING_PATTERN = /[\n\r\u{2028}\u{2029}]/v;
 const messages = {
-	[MESSAGE_ID]: 'Remove the asterisk prefix from this documentation comment.',
+	[MESSAGE_ID]: 'Remove the asterisk prefix from this comment.',
 };
 
-const getLinePrefix = (sourceCode, comment) => {
-	const [start] = sourceCode.getRange(comment);
-	const lineStart = sourceCode.text.lastIndexOf('\n', start - 1) + 1;
+const getCommentRange = (sourceCode, comment) => {
+	// `@eslint/json` comment ranges count CRLF as one character, so derive raw source indices from locations.
+	const {start, end} = sourceCode.getLoc(comment);
+	return [sourceCode.getIndexFromLoc(start), sourceCode.getIndexFromLoc(end)];
+};
+
+const getLinePrefix = (sourceCode, start) => {
+	const lineStart = Math.max(...LINE_ENDINGS.map(lineEnding => sourceCode.text.lastIndexOf(lineEnding, start - 1))) + 1;
 	return sourceCode.text.slice(lineStart, start);
 };
 
@@ -24,19 +31,17 @@ const getFixedCommentText = (text, linePrefix) => {
 };
 
 const getProblem = (context, comment) => {
-	if (comment.type !== 'Block') {
-		return;
-	}
-
 	const {sourceCode} = context;
-	const range = sourceCode.getRange(comment);
+	const range = getCommentRange(sourceCode, comment);
 	const text = sourceCode.text.slice(...range);
+	const isJavaScriptComment = comment.type === 'Block';
+	const isJavaScriptDocumentationComment = text.startsWith('/**') && text[3] !== '*';
 
-	if (!text.startsWith('/**') || !/[\n\r]/v.test(text)) {
+	if (!text.startsWith('/*') || (isJavaScriptComment && !isJavaScriptDocumentationComment) || !LINE_ENDING_PATTERN.test(text)) {
 		return;
 	}
 
-	const linePrefix = getLinePrefix(sourceCode, comment);
+	const linePrefix = getLinePrefix(sourceCode, range[0]);
 
 	if (!/^[\t ]*$/v.test(linePrefix)) {
 		return;
@@ -78,14 +83,17 @@ const config = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Disallow asterisk prefixes in documentation comments.',
-			recommended: false,
+			description: 'Disallow asterisk prefixes in multiline comments.',
+			recommended: true,
 		},
 		fixable: 'whitespace',
 		schema: [],
 		messages,
 		languages: [
 			'js/js',
+			'css/css',
+			'json/jsonc',
+			'json/json5',
 		],
 	},
 };
