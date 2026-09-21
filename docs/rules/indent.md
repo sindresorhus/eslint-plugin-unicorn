@@ -81,5 +81,3 @@ Only ASCII spaces and tabs are treated as indentation. Unicode identifier charac
 ## Preserved content
 
 Preserves inline spacing, trailing whitespace, line endings, and non-whitespace token contents. Ignores blank lines and continuation lines inside multiline tokens and comments. Indentation before comment openers is checked.
-
-Recognizes LF, CRLF, and CR, plus form feed in CSS.
