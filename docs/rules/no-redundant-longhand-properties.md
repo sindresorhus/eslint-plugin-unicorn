@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule reports complete groups of longhand CSS properties that can be represented by one shorthand. It complements [`no-shorthand-property-overrides`](./no-shorthand-property-overrides.md), which catches a later shorthand that accidentally overrides an earlier longhand.
+This rule reports longhands that can be combined into one shorthand. It pairs with [`no-shorthand-property-overrides`](./no-shorthand-property-overrides.md), which catches shorthands that override earlier longhands.
 
 ## Examples
 
@@ -28,25 +28,13 @@ div {
 }
 ```
 
-The rule validates both the longhand values and the generated shorthand against the CSS grammar. It does not report groups containing invalid values, mixed `!important` states, duplicate components, or substitution functions such as `var()` and `env()`.
+The rule skips invalid values, duplicate longhands, mixed `!important` declarations, and values containing `var()` or similar functions. It also skips some ambiguous or inconsistently supported animation, font, column, and list-style values.
 
-Animation groups with an unquoted `auto`, a dashed name, or an escaped name are not reported because those names can be parsed as an animation timeline in the shorthand.
+Comma-separated values can repeat across shorthand layers, but lists longer than the primary list are skipped. If a shorthand would also reset another property, such as `border-image`, the rule only reports when it can verify that reset is safe.
 
-`list-style-type` values of `inside` or `outside` are not reported because those counter-style names conflict with `list-style-position` values in the shorthand.
+Autofix requires contiguous declarations with no comments in the replaced text. Otherwise, the rule reports without fixing. It preserves explicit `background-blend-mode` declarations to account for browser differences.
 
-For non-CSS-wide values, the rule requires `animation-timeline: auto`, `column-height: auto`, `font-synthesis-position: none`, and `font-variant-emoji: normal` when forming their respective shorthands. Animation groups with `animation-duration: auto` are also skipped. These restrictions avoid shorthand syntax that is not supported consistently across browsers. The generated `animation` and `columns` shorthands omit the corresponding `auto` values.
-
-Shorter comma-separated longhand lists are cycled when required by the CSS grammar. Lists longer than the shorthand's primary list are not reported. Shorthands that reset additional properties, such as `font` and `border`, are only reported when those properties are known to have compatible values, either through explicit CSS-wide keyword declarations or an earlier shorthand that resets them; the autofix generally consumes those declarations too.
-
-The autofix preserves explicit `background-blend-mode` declarations because some browsers do not reset that property when parsing `background`.
-
-The autofix is available when the declarations are contiguous and the replaced source contains no comments. Other safe groups are still reported without a fix.
-
-Nested rules separate groups of declarations because moving values across them can change the cascade.
-
-At-rule descriptor blocks, such as `@font-face`, are ignored because their declarations do not necessarily support the corresponding property shorthand.
-
-Vendor-prefixed groups are not reported. Some prefixed properties are aliases for their unprefixed counterparts, and replacing prefixed longhands with a shorthand can reset additional properties. Any prefixed declaration prevents combining unprefixed declarations across it.
+Nested rules and vendor-prefixed declarations split groups. Descriptor blocks such as `@font-face` and vendor-prefixed groups are ignored.
 
 ## Options
 
@@ -65,7 +53,10 @@ export default [
 			'unicorn/no-redundant-longhand-properties': [
 				'error',
 				{
-					ignoreShorthands: ['transition', 'font'],
+					ignoreShorthands: [
+						'transition',
+						'font',
+					],
 				},
 			],
 		},
