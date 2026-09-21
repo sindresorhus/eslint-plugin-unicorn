@@ -3,6 +3,7 @@ import test from 'ava';
 import {
 	renamableRules,
 	renameRule,
+	replaceRuleId,
 	replaceRuleIdInRulesIndex,
 	sortReadmeRuleRows,
 } from '../../scripts/rename-rule.js';
@@ -12,7 +13,7 @@ test('single-word rules are not offered for renaming', t => {
 	t.true(renamableRules.includes('prefer-array-flat'));
 });
 
-test.serial('renameRule rejects single-word source names before changing files', async t => {
+test.serial('renameRule rejects unsafe names before changing files', async t => {
 	const originalRename = fs.rename;
 	t.teardown(() => {
 		fs.rename = originalRename;
@@ -21,9 +22,38 @@ test.serial('renameRule rejects single-word source names before changing files',
 		throw new Error('Attempted to rename a file.');
 	};
 
-	await t.throwsAsync(renameRule('indent', 'indent-style'), {
-		message: 'Rules without hyphens must be renamed manually to avoid changing unrelated code.',
-	});
+	for (const [from, to, message] of [
+		['indent', 'indent-style', 'Rules without hyphens must be renamed manually to avoid changing unrelated code.'],
+		['prefer-array-flat', '123', 'Invalid rule name.'],
+		['prefer-array-flat', 'foo.bar', 'Invalid rule name.'],
+		['prefer-array-flat', '../foo', 'Invalid rule name.'],
+		['prefer-array-flat', undefined, 'Invalid rule name.'],
+		['prefer-array-flat', null, 'Invalid rule name.'],
+	]) {
+		// eslint-disable-next-line no-await-in-loop
+		await t.throwsAsync(renameRule(from, to), {message});
+	}
+});
+
+test('replaceRuleId only rewrites complete rule IDs', t => {
+	const input = [
+		'const MESSAGE_ID = \'prefer-array-flat\';',
+		'\'unicorn/prefer-array-flat\'',
+		'./docs/rules/prefer-array-flat.md',
+		'prefer-array-flat-map',
+		'no-prefer-array-flat',
+	].join('\n');
+
+	t.is(
+		replaceRuleId(input, 'prefer-array-flat', 'renamed-rule'),
+		[
+			'const MESSAGE_ID = \'renamed-rule\';',
+			'\'unicorn/renamed-rule\'',
+			'./docs/rules/renamed-rule.md',
+			'prefer-array-flat-map',
+			'no-prefer-array-flat',
+		].join('\n'),
+	);
 });
 
 test('replaceRuleIdInRulesIndex only rewrites the exact export', t => {

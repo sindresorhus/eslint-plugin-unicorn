@@ -8,6 +8,7 @@ import unicorn from '../index.js';
 const rules = Object.keys(unicorn.rules);
 const renamableRules = rules.filter(ruleId => ruleId.includes('-'));
 const resolveFile = file => new URL(`../${file}`, import.meta.url);
+const isValidRuleId = ruleId => typeof ruleId === 'string' && /^[-a-z]+$/.test(ruleId);
 
 function checkFiles(ruleId) {
 	const files = [
@@ -73,7 +74,16 @@ function replaceRuleIdInRulesIndex(text, from, to) {
 	return text.replace(fromLine, () => toLine);
 }
 
+function replaceRuleId(text, from, to) {
+	const pattern = new RegExp(String.raw`(?<![\w-])${from}(?![\w-])`, 'gu');
+	return text.replaceAll(pattern, () => to);
+}
+
 async function renameRule(from, to) {
+	if (!isValidRuleId(from) || !isValidRuleId(to)) {
+		throw new Error('Invalid rule name.');
+	}
+
 	if (!from.includes('-')) {
 		throw new Error('Rules without hyphens must be renamed manually to avoid changing unrelated code.');
 	}
@@ -105,7 +115,7 @@ async function renameRule(from, to) {
 		let text = await fsAsync.readFile(file, 'utf8');
 		text = file.pathname.endsWith('/rules/index.js')
 			? replaceRuleIdInRulesIndex(text, from, to)
-			: text.replaceAll(from, () => to);
+			: replaceRuleId(text, from, to);
 		// eslint-disable-next-line no-await-in-loop
 		await fsAsync.writeFile(file, text);
 	}
@@ -124,6 +134,7 @@ const run = async () => {
 	const ruleNamePrompt = new enquirer.Input({
 		message: 'New name:',
 		initial: originalRuleId,
+		validate: ruleId => isValidRuleId(ruleId) || 'Invalid rule name.',
 	});
 	const ruleId = await ruleNamePrompt.run();
 
@@ -149,6 +160,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 export {
 	renamableRules,
 	renameRule,
+	replaceRuleId,
 	replaceRuleIdInRulesIndex,
 	sortReadmeRuleRows,
 };
