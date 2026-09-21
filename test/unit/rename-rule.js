@@ -8,12 +8,14 @@ import {
 	sortReadmeRuleRows,
 } from '../../scripts/rename-rule.js';
 
-test('single-word rules are not offered for renaming', t => {
+test('only source rules with hyphens are offered for renaming', t => {
 	t.false(renamableRules.includes('indent'));
 	t.true(renamableRules.includes('prefer-array-flat'));
+	t.true(renamableRules.includes('prefer-path2d'));
+	t.false(renamableRules.includes('no-unused-array-method-return'));
 });
 
-test.serial('renameRule rejects unsafe names before changing files', async t => {
+test.serial('renameRule validates names before changing files', async t => {
 	const originalRename = fs.rename;
 	t.teardown(() => {
 		fs.rename = originalRename;
@@ -32,6 +34,10 @@ test.serial('renameRule rejects unsafe names before changing files', async t => 
 		// eslint-disable-next-line no-await-in-loop
 		await t.throwsAsync(renameRule(from, to), {message});
 	}
+
+	await t.throwsAsync(renameRule('prefer-path2d', 'renamed-rule'), {
+		message: 'Attempted to rename a file.',
+	});
 });
 
 test('replaceRuleId only rewrites complete rule IDs', t => {

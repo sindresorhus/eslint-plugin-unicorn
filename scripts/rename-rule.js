@@ -4,9 +4,10 @@ import process from 'node:process';
 import {pathToFileURL} from 'node:url';
 import enquirer from 'enquirer';
 import unicorn from '../index.js';
+import * as ruleModules from '../rules/index.js';
 
-const rules = Object.keys(unicorn.rules);
-const renamableRules = rules.filter(ruleId => ruleId.includes('-'));
+const sourceRuleIds = Object.keys(ruleModules);
+const renamableRules = sourceRuleIds.filter(ruleId => ruleId.includes('-'));
 const resolveFile = file => new URL(`../${file}`, import.meta.url);
 const isValidRuleId = ruleId => typeof ruleId === 'string' && /^[-a-z]+$/.test(ruleId);
 
@@ -80,7 +81,7 @@ function replaceRuleId(text, from, to) {
 }
 
 async function renameRule(from, to) {
-	if (!isValidRuleId(from) || !isValidRuleId(to)) {
+	if (!sourceRuleIds.includes(from) || !isValidRuleId(to)) {
 		throw new Error('Invalid rule name.');
 	}
 
@@ -142,7 +143,7 @@ const run = async () => {
 		return;
 	}
 
-	if (rules.includes(ruleId)) {
+	if (Object.hasOwn(unicorn.rules, ruleId)) {
 		console.log(`${ruleId} already exists.`);
 		return;
 	}
