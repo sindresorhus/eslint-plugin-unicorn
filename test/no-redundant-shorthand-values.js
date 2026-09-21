@@ -36,6 +36,7 @@ test.snapshot({
 	].map(code => css(code)),
 	invalid: [
 		'a { margin: 1px 1px; }',
+		'a { margin: 100% 100%; }',
 		'a { margin: 1px 1px 1px; }',
 		'a { margin: 1px 2px 1px; }',
 		'a { margin: 1px 1px 1px 1px; }',
