@@ -10,7 +10,7 @@ const animationProperties = new Set([
 	'animation-name',
 ]);
 
-const animationShorthandLonghandProperties = [
+const otherAnimationShorthandProperties = [
 	'animation-duration',
 	'animation-timing-function',
 	'animation-delay',
@@ -26,6 +26,25 @@ const keyframesNamePattern = /^(?:-(?:moz|o|webkit)-)?keyframes$/u;
 const toAsciiLowerCase = string => string.replaceAll(/[A-Z]/g, character => character.toLowerCase());
 
 const normalizeCssIdentifier = identifier => toAsciiLowerCase(ident.decode(identifier));
+
+// The lexer does not consistently recognize escaped keyword, function, or unit spellings.
+const getCanonicalLexerNode = node => {
+	let canonicalNode = node;
+	if (node.type === 'Identifier' || node.type === 'Function') {
+		canonicalNode = {...node, name: ident.encode(ident.decode(node.name))};
+	} else if (node.type === 'Dimension') {
+		canonicalNode = {...node, unit: ident.encode(ident.decode(node.unit))};
+	}
+
+	if (node.children) {
+		canonicalNode = {
+			...canonicalNode,
+			children: node.children.map(child => getCanonicalLexerNode(child)),
+		};
+	}
+
+	return canonicalNode;
+};
 
 const getAnimationName = node => {
 	if (node.type === 'Identifier') {
@@ -43,8 +62,9 @@ const isAnimationNameNode = (node, lexer) => {
 		return false;
 	}
 
-	const matchResult = lexer.matchProperty('animation-name', node);
-	return Boolean(matchResult.matched && matchResult.isType(node, 'keyframes-name'));
+	const canonicalNode = getCanonicalLexerNode(node);
+	const matchResult = lexer.matchProperty('animation-name', canonicalNode);
+	return Boolean(matchResult.matched && matchResult.isType(canonicalNode, 'keyframes-name'));
 };
 
 const getCommaSeparatedGroups = value => {
@@ -63,9 +83,10 @@ const getCommaSeparatedGroups = value => {
 };
 
 const getGroupAnimationNameNodes = (nodes, property, value, lexer) => {
-	const matchResult = lexer.matchProperty(property, {...value, children: nodes});
+	const canonicalNodes = nodes.map(node => getCanonicalLexerNode(node));
+	const matchResult = lexer.matchProperty(property, {...value, children: canonicalNodes});
 	if (matchResult.matched) {
-		return nodes.filter(node => getAnimationName(node) !== '' && matchResult.isType(node, 'keyframes-name'));
+		return nodes.filter((node, index) => getAnimationName(node) !== '' && matchResult.isType(canonicalNodes[index], 'keyframes-name'));
 	}
 
 	const animationNameNodes = nodes.filter(node => isAnimationNameNode(node, lexer));
@@ -73,9 +94,10 @@ const getGroupAnimationNameNodes = (nodes, property, value, lexer) => {
 		return animationNameNodes;
 	}
 
-	return animationNameNodes.filter(node =>
-		animationShorthandLonghandProperties.every(longhandProperty => !lexer.matchProperty(longhandProperty, node).matched),
-	);
+	return animationNameNodes.filter(node => {
+		const canonicalNode = getCanonicalLexerNode(node);
+		return otherAnimationShorthandProperties.every(property => !lexer.matchProperty(property, canonicalNode).matched);
+	});
 };
 
 const getAnimationNameNodes = (declaration, property, lexer) => getCommaSeparatedGroups(declaration.value)
@@ -93,12 +115,7 @@ const getKeyframesName = (atRule, lexer) => {
 
 	const [nameNode] = atRule.prelude.children;
 	const name = getAnimationName(nameNode);
-	if (
-		name === undefined
-		|| name === ''
-		|| (nameNode.type === 'Identifier' && normalizeCssIdentifier(nameNode.name) === 'none')
-		|| !lexer.matchType('keyframes-name', nameNode).matched
-	) {
+	if (!isAnimationNameNode(nameNode, lexer)) {
 		return;
 	}
 
@@ -111,13 +128,13 @@ const getKeyframesName = (atRule, lexer) => {
 const create = context => {
 	const {sourceCode} = context;
 	const {lexer} = sourceCode;
-	const definedAnimations = new Set();
-	const usedAnimations = [];
+	const definedAnimationNames = new Set();
+	const animationNameReferences = [];
 
 	context.on('Atrule', atRule => {
 		const name = getKeyframesName(atRule, lexer);
 		if (name !== undefined) {
-			definedAnimations.add(name);
+			definedAnimationNames.add(name);
 		}
 	});
 
@@ -132,7 +149,7 @@ const create = context => {
 		}
 
 		for (const node of getAnimationNameNodes(declaration, property, lexer)) {
-			usedAnimations.push({
+			animationNameReferences.push({
 				node,
 				name: getAnimationName(node),
 			});
@@ -140,8 +157,8 @@ const create = context => {
 	});
 
 	context.onExit('StyleSheet', function * () {
-		for (const {node, name} of usedAnimations) {
-			if (!definedAnimations.has(name)) {
+		for (const {node, name} of animationNameReferences) {
+			if (!definedAnimationNames.has(name)) {
 				yield {
 					node,
 					messageId: MESSAGE_ID,
