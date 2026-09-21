@@ -65,7 +65,7 @@ A later normal declaration cannot override an earlier important declaration, so 
 
 The rule compares exact property names after decoding CSS escapes and normalizing ASCII case in standard property names. It intentionally does not expand shorthands, longhands, aliases, or `all`. Custom property names remain case-sensitive.
 
-Selectors are compared only within the same enclosing at-rule context. Equivalent formatting of media queries and other at-rule preludes is normalized, named layers are compared across matching blocks, and anonymous layers remain separate. The rule follows standard CSS nesting specificity, including the highest parent-list specificity used by `&`. Selectors that cannot be resolved conservatively are ignored, including nested selectors whose target appears only inside a pseudo-class, such as `:where(&)`.
+Selectors are compared only within the same enclosing at-rule context. Equivalent formatting of media queries and other at-rule preludes is normalized, named layers are compared across matching blocks, and anonymous layers remain separate. The rule follows standard CSS nesting specificity, including the highest parent-list specificity used by `&`. Selectors that cannot be resolved conservatively are ignored, including selectors with `&` inside a pseudo-class or pseudo-element.
 
 The rule supports standard CSS represented as selector AST nodes by `@eslint/css`, not SCSS or Less. Parser output left as raw or otherwise ambiguous syntax is ignored. Direct declarations inside `@scope` are also ignored because they match the scoping root with zero specificity rather than inheriting an enclosing selector.
 

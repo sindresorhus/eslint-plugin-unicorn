@@ -73,7 +73,8 @@ const getTerminalCompoundNodes = selector => {
 	return selector.children.slice(lastCombinatorIndex + 1);
 };
 
-const isPseudoElementWithNestingSelector = node => node.type === 'PseudoElementSelector' && Boolean(find(node, descendant => descendant.type === 'NestingSelector'));
+const isPseudoSelectorWithNestingSelector = node => (node.type === 'PseudoClassSelector' || node.type === 'PseudoElementSelector')
+	&& Boolean(find(node, descendant => descendant.type === 'NestingSelector'));
 
 const getTypeSelectorKey = name => {
 	const tokens = [];
@@ -151,11 +152,11 @@ const joinTerminalKeyParts = (parts, parentKey = '') => {
 };
 
 const getTerminalKeys = (selector, parentTerminalKeys) => {
-	const nodes = getTerminalCompoundNodes(selector);
-	if (nodes.some(node => isPseudoElementWithNestingSelector(node))) {
+	if (find(selector, isPseudoSelectorWithNestingSelector)) {
 		return [];
 	}
 
+	const nodes = getTerminalCompoundNodes(selector);
 	const hasNestingSelector = nodes.some(node => node.type === 'NestingSelector');
 	const parts = nodes.map(node => getTerminalNodeKey(node));
 

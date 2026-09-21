@@ -32,6 +32,10 @@ test.snapshot({
 		'@scope (.root) { b :scope.foo { color: red; } .foo { color: blue; } }',
 		'@scope (.root) { b :where(&).foo { color: red; } .foo { color: blue; } }',
 		'#dialog a { color: red; :where(&) { color: blue; } }',
+		'b { a:hover:where(&) { color: red; } } a { color: blue; }',
+		'b { a:where(&) > c { color: red; } } c { color: blue; }',
+		'#dialog a { color: blue; :where(&) a { color: red; } }',
+		'#dialog a, a { color: red; b :where(&) a { color: blue; } color: green; }',
 		'b a { É: red; } a { é: blue; }',
 		'b a { margin: 1px; } a { margin-top: 2px; }',
 		'b a { word-wrap: break-word; } a { overflow-wrap: normal; }',
@@ -278,28 +282,8 @@ test.snapshot({
 		'#dialog, .dialog { && { color: red; } } .dialog.dialog { color: blue; }',
 		'.dialog:hover { & { color: red; } } .dialog { color: blue; }',
 		'a { color: red; b & { color: blue; } color: green; }',
-		'#dialog a, a { color: red; b :where(&) a { color: blue; } color: green; }',
 		'a { color: red !important; b & { color: blue !important; } color: green !important; }',
 		'b a:before { color: red; } a::before { color: blue; }',
-		'#dialog a { color: blue; :where(&) a { color: red; } }',
-		'#dialog a { color: blue; :where(&) a { color: red; } color: green !important; }',
-		outdent`
-			#dialog a {
-				@media (width > 40rem) {
-					color: blue;
-					:where(&) a { color: red; }
-				}
-			}
-		`,
-		outdent`
-			#dialog a {
-				@media (width > 40rem) {
-					color: blue;
-					:where(&) a { color: red; }
-					color: green !important;
-				}
-			}
-		`,
 		'b a { @unknown feature { color: red; } } a { @unknown feature { color: blue; } }',
 		outdent`
 			.card {
