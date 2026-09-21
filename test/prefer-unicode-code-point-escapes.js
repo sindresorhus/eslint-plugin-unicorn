@@ -70,6 +70,8 @@ ruleTest.snapshot({
 		String.raw`const foo = '\u2661'`,
 		String.raw`const foo = '\u00001'`,
 		String.raw`const foo = '\uD83D\uDCA9'`,
+		String.raw`const foo = '\uD800\uDC00'`,
+		String.raw`const foo = '\uDBFF\uDFFF'`,
 		{
 			code: String.raw`const foo = '\123'`,
 			languageOptions: {
@@ -84,6 +86,12 @@ ruleTest.snapshot({
 		},
 		{
 			code: String.raw`const foo = '\1\12\123\4\45'`,
+			languageOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: String.raw`const foo = '\377'`,
 			languageOptions: {
 				sourceType: 'script',
 			},
@@ -105,6 +113,7 @@ ruleTest.snapshot({
 		String.raw`const foo = /[\x2D]/u`,
 		String.raw`const foo = /[\cA]/u`,
 		String.raw`const foo = /\cA/u`,
+		String.raw`const foo = /\ca/u`,
 		String.raw`const foo = /\cA/`,
 		String.raw`const foo = /\u0061/`,
 		String.raw`const foo = /\u{61}/`,
