@@ -108,6 +108,7 @@ testRule.snapshot({valid, invalid});
 
 const fixCases = [
 	{language: json, code: '{\n"value": [\n1\n]\n}', output: '{\n\t"value": [\n\t\t1\n\t]\n}'},
+	{language: json, code: '{\n"items": [\n{\n"value": true\n}],\n"after": false\n}', output: '{\n\t"items": [\n\t\t{\n\t\t\t"value": true\n\t\t}],\n\t"after": false\n}'},
 	{language: languages.json5, code: '{\n\u00A0value: "first\\\n  second"\n}', output: '{\n\tvalue: "first\\\n  second"\n}'},
 	{language: languages.jsonc, code: '{\n  /* comment\n * [{\n */ "value": 1\n}', output: '{\n\t/* comment\n * [{\n */ "value": 1\n}'},
 	{language: languages.css, code: 'a {\n     color: red;\n}', output: 'a {\n\t\tcolor: red;\n}'},
