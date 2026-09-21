@@ -539,6 +539,30 @@ testRule({
 		{
 			code: outdent`
 				a {
+					background-blend-mode: multiply;
+					BACKGROUND-BLEND-MODE: INITIAL;
+					background-image: none;
+					background-position: 0% 0%;
+					background-size: auto;
+					background-repeat: repeat;
+					background-attachment: scroll;
+					background-origin: padding-box;
+					background-clip: border-box;
+					background-color: transparent;
+				}
+			`,
+			output: outdent`
+				a {
+					background-blend-mode: multiply;
+					BACKGROUND-BLEND-MODE: INITIAL;
+					background: none 0% 0% / auto repeat scroll padding-box border-box transparent;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				a {
 					background-position-x: 10px;
 					background-blend-mode: initial;
 					background-image: none;
