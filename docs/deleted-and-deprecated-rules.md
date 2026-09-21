@@ -20,7 +20,7 @@ Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) whic
 
 ### no-hex-escape
 
-Replaced by [`prefer-literal-ascii`](rules/prefer-literal-ascii.md) for printable ASCII escapes in strings and untagged template literals, and [`prefer-unicode-code-point-escapes`](rules/prefer-unicode-code-point-escapes.md) for other legacy escapes, including those in regular expression literals.
+Replaced by [`prefer-literal-ascii`](rules/prefer-literal-ascii.md) for printable ASCII hexadecimal and Unicode escapes in strings and untagged template literals, and [`prefer-unicode-code-point-escapes`](rules/prefer-unicode-code-point-escapes.md) for other legacy escapes, including those in regular expression literals.
 
 ### prevent-abbreviations
 
