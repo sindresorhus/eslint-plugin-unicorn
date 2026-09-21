@@ -85,6 +85,14 @@ const getTypeSelectorKey = name => {
 	return JSON.stringify(tokens);
 };
 
+const compareTerminalKeyParts = (first, second) => {
+	if (first === second) {
+		return 0;
+	}
+
+	return first < second ? -1 : 1;
+};
+
 const getTerminalNodeKey = node => {
 	switch (node.type) {
 		case 'NestingSelector': {
@@ -138,7 +146,7 @@ const joinTerminalKeyParts = (parts, parentKey = '') => {
 		return;
 	}
 
-	const key = JSON.stringify([...keyParts].toSorted());
+	const key = JSON.stringify([...keyParts].toSorted(compareTerminalKeyParts));
 	return key.length <= MAXIMUM_TERMINAL_KEY_LENGTH ? key : undefined;
 };
 
