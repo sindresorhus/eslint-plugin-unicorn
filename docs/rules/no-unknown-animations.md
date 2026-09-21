@@ -33,7 +33,7 @@ An animation name that does not match a `@keyframes` rule silently prevents the 
 }
 ```
 
-Animation names are case-sensitive. When both syntaxes are valid, quoted and unquoted names are equivalent, and CSS escapes are decoded before comparison. Reserved names such as `none` and CSS-wide keywords must be quoted.
+Animation names are case-sensitive. When both syntaxes are valid, quoted and unquoted names are equivalent, and CSS escapes are decoded before comparison. Reserved names such as `none`, `default`, and CSS-wide keywords must be quoted.
 
 The rule recognizes `@keyframes`, `@-webkit-keyframes`, `@-moz-keyframes`, and `@-o-keyframes`, but it only checks the standard `animation` and `animation-name` properties.
 
