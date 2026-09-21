@@ -310,6 +310,7 @@ const create = context => {
 			if (
 				isInPreservedContext(node, sourceCode)
 				|| isCustomIdentifier(node.name)
+				|| normalizeIdentifier(node.name) === 'charset'
 			) {
 				return;
 			}

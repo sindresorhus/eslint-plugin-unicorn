@@ -41,6 +41,8 @@ When a declaration contains a substitution such as `var()`, `env()`, `attr()`, o
 
 The rule does not change custom property names or values (including `@property` initial values), custom functions or at-rules and their contents, other author-defined names beginning with `--`, font feature value names, type selectors, classes, IDs, attribute data, environment variable data, paint worklet arguments, strings, URL payloads, or user data in selector arguments. It also leaves `!important` and encoding strings to their dedicated rules.
 
+The `@charset` encoding signature is left unchanged because its exact initial byte sequence determines whether the browser recognizes it.
+
 ```css
 /* ✅ */
 linearGradient.Theme#Main[data-mode="DARK"] {

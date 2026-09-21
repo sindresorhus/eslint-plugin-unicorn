@@ -33,6 +33,8 @@ test.snapshot({
 		'a { color: attr(RED); color: env(RED); display: env(BLOCK); }',
 		String.raw`a { background-image: element(#\41 BC); background-image: var(--Fallback), element(#DEF); background-image: -moz-element(#ABC); }`,
 		'a { color: red !IMPORTANT; } @charset "UTF-8";',
+		'@CHARSET "iso-8859-1";',
+		String.raw`@\63 HARSET "iso-8859-1";`,
 		'@property --ThemeColor { syntax: "<COLOR> | MyToken"; inherits: false; initial-value: CanvasText; }',
 		'@property --ThemeColor { syntax: "<color>"; inherits: false; initial-value: #ABCDEF; }',
 		'@font-face { font-weight: BOLDER; color: RED; }',
