@@ -119,6 +119,7 @@ const fixCases = [
 	{language: languages.css, code: 'a {\n  --value: "first\\\n  second";\n}', output: 'a {\n\t--value: "first\\\n  second";\n}'},
 	{language: languages.css, code: 'a {\n  --value: foo\\31\n  bar;\n}', output: 'a {\n\t--value: foo\\31\n\tbar;\n}'},
 	{language: languages.css, code: 'a {\n  background: url(\n    image.png\n  );\n}', output: 'a {\n\tbackground: url(\n    image.png\n  );\n}'},
+	{language: languages.css, code: 'a {\n  background: url(\n    "image.png"\n  );\n}', output: 'a {\n\tbackground: url(\n\t"image.png"\n\t);\n}'},
 	{language: languages.css, code: '  .foo\\ bar {\n  color: red;\n}', output: '\t.foo\\ bar {\n\tcolor: red;\n}'},
 	{language: languages.json5, code: '{\n  items: [\n    {value: -Infinity},\n  ],\n}', output: '{\n\titems: [\n\t\t{value: -Infinity},\n\t],\n}'},
 	{language: languages.jsonc, code: '{\n  // eslint-disable-next-line unicorn/indent\n  "value": 1\n}', output: '{\n\t// eslint-disable-next-line unicorn/indent\n  "value": 1\n}'},

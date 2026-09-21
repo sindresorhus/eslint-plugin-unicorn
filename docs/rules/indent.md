@@ -80,6 +80,6 @@ Only ASCII spaces and tabs are treated as indentation. Unicode identifier charac
 
 ## Preserved content
 
-Preserves inline spacing, trailing whitespace, line endings, and token contents. Ignores blank lines and continuation lines inside strings, comments, and URLs. Indentation before comment openers is checked.
+Preserves inline spacing, trailing whitespace, line endings, and non-whitespace token contents. Ignores blank lines and continuation lines inside multiline tokens and comments. Indentation before comment openers is checked.
 
 Recognizes LF, CRLF, and CR, plus form feed in CSS. JSON5 indentation containing `U+2028` or `U+2029` is left untouched because its parser does not recognize them as line boundaries.
