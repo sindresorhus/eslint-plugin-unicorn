@@ -79,6 +79,14 @@ const getTerminalCompoundNodes = selector => {
 	return selector.children.slice(lastCombinatorIndex + 1);
 };
 
+const canCompareAsLaterSelector = (selector, parentRule) => !parentRule && selector.children.every(node => {
+	if (node.type === 'PseudoClassSelector') {
+		return LEGACY_PSEUDO_ELEMENTS.has(normalizeCssIdentifier(node.name));
+	}
+
+	return node.type !== 'Combinator' && node.type !== 'NestingSelector';
+});
+
 const isPseudoSelectorWithNestingSelector = node => (node.type === 'PseudoClassSelector' || node.type === 'PseudoElementSelector')
 	&& Boolean(find(node, descendant => descendant.type === 'NestingSelector'));
 
@@ -287,7 +295,7 @@ const getConflict = (analysis, record, entriesByTerminalKey) => {
 function * getSelectorProblems(analyses, record, entriesByTerminalKey, reportedSelectors) {
 	const {property} = record;
 	for (const analysis of analyses) {
-		if (reportedSelectors.has(analysis.selector)) {
+		if (!analysis.canCompareAsLaterSelector || reportedSelectors.has(analysis.selector)) {
 			continue;
 		}
 
@@ -408,6 +416,7 @@ const create = context => {
 				}
 
 				analyses.push({
+					canCompareAsLaterSelector: canCompareAsLaterSelector(selector, parentRule),
 					line: sourceCode.getLoc(selector).start.line,
 					selector,
 					selectorText: generate(selector),

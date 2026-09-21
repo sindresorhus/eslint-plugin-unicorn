@@ -24,6 +24,15 @@ test.snapshot({
 		'a:hover { color: red; } a::before { color: blue; }',
 		'a::before { color: red; } a { color: blue; }',
 		'a:hover { color: red; } a:focus { color: blue; }',
+		'#x a:hover { color: red; } a:not(:hover) { color: blue; }',
+		'#x a:nth-child(odd) { color: red; } a:nth-child(even) { color: blue; }',
+		'#x a:link { color: red; } a:visited { color: blue; }',
+		'div.foo > a { color: red; } span > a { color: blue; }',
+		'#header.foo > a { color: red; } #footer > a { color: blue; }',
+		'a:matches(#dialog) { color: red; } .footer a { color: blue; }',
+		'@scope (.page) { > b a { color: red; } > a { color: blue; } }',
+		'#dialog, .dialog { & a { color: red; } } .footer a { color: blue; }',
+		'#x a:hover { color: red; } b { a { color: blue; } }',
 		'b a { color: red; } a { color: blue !important; }',
 		'b a { color: red; } a { color: blue; color: green !important; }',
 		'b a { color: red !important; } a { background: blue; }',
@@ -179,6 +188,7 @@ test.snapshot({
 	invalid: [
 		'b a { color: red; } a { color: blue; }',
 		'a:hover { color: red; } a { color: blue; }',
+		'#x a:hover { color: red; } a:not(:hover), a { color: blue; }',
 		'b a::before { color: red; } a::before { color: blue; }',
 		'b a { color: red !important; } a { color: blue; }',
 		'b a { color: red !important; } a { color: blue !important; }',
@@ -208,7 +218,7 @@ test.snapshot({
 		'b a { color: red; } #dialog a, a { color: green; } a { color: blue; }',
 		'#dialog a, a { color: red; & { color: green; } color: blue; }',
 		'a:is(#dialog) { color: red; } a { color: blue; }',
-		'a:matches(#dialog) { color: red; } .footer a { color: blue; }',
+		'a:matches(#dialog) { color: red; } a { color: blue; }',
 		'b a:is(::before, *) { color: red; } a { color: blue; }',
 		'b a:is(:unknown, *) { color: red; } a { color: blue; }',
 		'a:not(#dialog) { color: red; } a { color: blue; }',
@@ -277,7 +287,7 @@ test.snapshot({
 				a { color: blue; }
 			}
 		`,
-		'@scope (.page) { > b a { color: red; } > a { color: blue; } }',
+		'@scope (.page) { > b a { color: red; } a { color: blue; } }',
 		outdent`
 			@starting-style {
 				b a { color: red; }
@@ -296,12 +306,13 @@ test.snapshot({
 		`,
 		'a { & > b { color: red; } } b { color: blue; }',
 		'a { b { color: red; } } b { color: blue; }',
-		'#dialog, .dialog { & a { color: red; } } .footer a { color: blue; }',
+		'#dialog, .dialog { & a { color: red; } } a { color: blue; }',
 		'#dialog, .dialog { && { color: red; } } .dialog.dialog { color: blue; }',
 		'.dialog:hover { & { color: red; } } .dialog { color: blue; }',
 		'a { color: red; b & { color: blue; } color: green; }',
 		'a { color: red !important; b & { color: blue !important; } color: green !important; }',
 		'b a:before { color: red; } a::before { color: blue; }',
+		'b a::before { color: red; } a:before { color: blue; }',
 		'b a { @unknown feature { color: red; } } a { @unknown feature { color: blue; } }',
 		outdent`
 			.card {

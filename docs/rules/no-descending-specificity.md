@@ -9,7 +9,7 @@
 
 Selectors with higher specificity should come after lower-specificity selectors they override. Keeping source order and specificity order aligned makes the cascade easier to understand.
 
-This rule compares selectors only when their terminal compounds match after ignoring pseudo-classes and both rules set the same property. For example, `a:hover` is compared with `a`, while `a.foo` and `a::before` are each kept separate from `a`. This is intentionally narrower than Stylelint's [`no-descending-specificity`](https://stylelint.io/user-guide/rules/no-descending-specificity/) rule.
+This rule compares selectors only when their terminal compounds match after ignoring pseudo-classes, both rules set the same property, and the later selector is an unqualified single compound. For example, `a:hover` is compared with a later `a`, while `a.foo` and `a::before` are each kept separate from `a`. This is intentionally narrower than Stylelint's [`no-descending-specificity`](https://stylelint.io/user-guide/rules/no-descending-specificity/) rule.
 
 ## Examples
 
@@ -47,6 +47,8 @@ a {
 	text-decoration: none;
 }
 ```
+
+Complex later selectors are not compared because matching terminal compounds do not prove that both selectors can match the same element. For example, `div.foo > a` and `span > a` require incompatible direct parents. A later selector with a combinator, nesting selector, or pseudo-class other than a legacy pseudo-element such as `:before` is therefore skipped, as is a selector nested under another style rule. This conservative boundary does not attempt to prove that every selector is satisfiable.
 
 A later `!important` declaration is a legitimate override of an earlier normal declaration:
 

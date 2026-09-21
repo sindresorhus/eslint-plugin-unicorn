@@ -41,6 +41,7 @@ test.snapshot({
 		'::slotted(#dialog), #modal { & .close {} }',
 		'ns|*, |* { & .close {} }',
 		'@scope (#dialog) { #dialog { .close {} } }',
+		'@scope (.root) { &, :where(.x) { .child {} } }',
 		'.root { :is(&), & { .child {} } }',
 		'.root { :has(> &), & { .child {} } }',
 		'.root { :is(:unknown(&), .bar), & { .child {} } }',
