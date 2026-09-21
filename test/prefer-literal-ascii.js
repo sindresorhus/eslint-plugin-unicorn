@@ -111,14 +111,14 @@ ruleTest.snapshot({
 test('scans long backslash runs efficiently', t => {
 	const code = `const value = '${'\\\\'.repeat(40_000)}';`;
 	const linter = new Linter({configType: 'flat'});
-	const configuration = {
+	const config = {
 		plugins: {unicorn},
 		rules: {
 			[RULE_ID]: 'error',
 		},
 	};
 	const startTime = performance.now();
-	const messages = linter.verify(code, configuration);
+	const messages = linter.verify(code, config);
 	const duration = performance.now() - startTime;
 
 	t.deepEqual(messages, []);
