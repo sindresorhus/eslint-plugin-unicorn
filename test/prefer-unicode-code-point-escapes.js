@@ -10,6 +10,12 @@ test.snapshot({
 		String.raw`const foo = '\n\t\r\\\'\"'`,
 		String.raw`const foo = '\0'`,
 		{
+			code: String.raw`const element = <div title="\u0041" />;`,
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		String.raw`const foo = '\u0000\u0008\u0009\u000A\u000B\u000C\u000D\u0022\u0027\u002F\u005C\u0060'`,
+		'const foo = `\\u000A\\u0060`',
+		{
 			code: String.raw`const foo = '\8\9\08'`,
 			languageOptions: {
 				sourceType: 'script',
@@ -37,6 +43,7 @@ test.snapshot({
 		String.raw`const foo = "\x7A"`,
 		String.raw`const foo = '\xa9'`,
 		String.raw`const foo = '\u2661'`,
+		String.raw`const foo = '\u00001'`,
 		String.raw`const foo = '\uD83D\uDCA9'`,
 		{
 			code: String.raw`const foo = '\123'`,
@@ -67,6 +74,7 @@ test.snapshot({
 		'const foo = `\\\\\\x7A`',
 		String.raw`const foo = /\x7A/u`,
 		String.raw`const foo = /\u0061/v`,
+		String.raw`const foo = /\u000A/u`,
 		String.raw`const foo = /\uD83D\uDCA9/u`,
 		String.raw`const foo = /\[\uD83D\uDCA9/u`,
 		String.raw`const foo = /[\x2D]/u`,
@@ -78,5 +86,16 @@ test.snapshot({
 		String.raw`const foo = /\x7A/g`,
 		String.raw`const foo = /\x61\_/`,
 		String.raw`const foo = /\u{61}\_/`,
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const foo = `line one\r\n\\u2661`;',
+			output: 'const foo = `line one\r\n\\u{2661}`;',
+			errors: [{messageId: 'prefer-unicode-code-point-escapes'}],
+		},
 	],
 });
