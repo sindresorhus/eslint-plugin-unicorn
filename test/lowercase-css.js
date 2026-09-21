@@ -113,6 +113,11 @@ test({
 			errors: 5,
 		},
 		{
+			code: '@import URL(FOO.CSS) LAYER(Theme) SUPPORTS(DISPLAY: GRID) screen and (MIN-WIDTH: 1PX);',
+			output: '@import url(FOO.CSS) layer(Theme) supports(display: grid) screen and (min-width: 1px);',
+			errors: 7,
+		},
+		{
 			code: String.raw`@container (/* before */ \57 IDTH: 1PX) {}`,
 			output: '@container (/* before */ width: 1px) {}',
 			errors: 2,
