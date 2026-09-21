@@ -51,3 +51,15 @@ test.snapshot({
 		'const foo = `$\\{a}${expr}$\\{b}`',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const foo = `a$\\{b}\r\nc`;',
+			// eslint-disable-next-line no-template-curly-in-string
+			output: 'const foo = `a\\${b}\r\nc`;',
+			errors: 1,
+		},
+	],
+});

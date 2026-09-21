@@ -63,6 +63,11 @@ ruleTest.snapshot({
 			filename: 'fixture.config',
 			language: languages.json5,
 		},
+		{
+			code: String.raw`{"\u0027":"\u0027\u0022"}`,
+			filename: 'fixture.JSON5',
+			language: languages.json5,
+		},
 	],
 	invalid: [
 		{
@@ -91,11 +96,6 @@ ruleTest.snapshot({
 		{
 			code: String.raw`{'\u0022':'\u000B\u000b\u0000\u0027'}`,
 			filename: 'fixture.json5',
-			language: languages.json5,
-		},
-		{
-			code: String.raw`{"\u0027":"\u0027\u0022"}`,
-			filename: 'fixture.JSON5',
 			language: languages.json5,
 		},
 		{
@@ -128,47 +128,36 @@ ruleTest.snapshot({
 
 ruleTest({
 	testerOptions: json,
-	valid: [],
-	invalid: [
+	valid: [
 		{
 			code: String.raw`["\u005C\u0022","\u005Cn","\u005Cu000A"]`,
 			filename: 'fixture.json',
-			output: String.raw`["\\\"","\\n","\\u000A"]`,
-			errors: [
-				{messageId: MESSAGE_ID},
-				{messageId: MESSAGE_ID},
-				{messageId: MESSAGE_ID},
-			],
 		},
 	],
+	invalid: [],
 });
 
 ruleTest({
 	testerOptions: languages.json5,
-	valid: [],
-	invalid: [
+	valid: [
 		{
 			code: String.raw`'\u005C\u0027'`,
 			filename: 'fixture.json5',
-			output: String.raw`'\\\''`,
-			errors: [{messageId: MESSAGE_ID}],
 		},
 		{
 			code: String.raw`"\u005C\u0022"`,
 			filename: 'fixture.json5',
-			output: String.raw`"\\\""`,
-			errors: [{messageId: MESSAGE_ID}],
-		},
-		{
-			code: String.raw`'\u005C\u0000'`,
-			filename: 'fixture.json5',
-			output: String.raw`'\\\0'`,
-			errors: [{messageId: MESSAGE_ID}],
 		},
 		{
 			code: String.raw`'\u0022'`,
 			filename: 'fixture.config',
-			output: String.raw`'\"'`,
+		},
+	],
+	invalid: [
+		{
+			code: String.raw`'\u005C\u0000'`,
+			filename: 'fixture.json5',
+			output: String.raw`'\u005C\0'`,
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{
@@ -184,7 +173,12 @@ ruleTest({
 	valid: [
 		String.raw`const text = '\b\t\n\v\f\r\0';`,
 		String.raw`const text = '\u0041\u00001';`,
+		String.raw`const text = '\u0022\u0027\u002F\u005C';`,
+		String.raw`const text = "\u0022\u0027\u0060";`,
+		String.raw`const text = "\u005C\u0022";`,
 		String.raw`const text = '\\u000A\\\\u000A';`,
+		'const text = `\\u0060`;',
+		'const text = `\\u005C\\u0022`;',
 		{
 			code: String.raw`const element = <div title="\u000A" />;`,
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
@@ -199,38 +193,17 @@ ruleTest({
 			output: String.raw`const text = "\b\t\n\v\f\r\0";`,
 		},
 		{
-			code: String.raw`const text = '\u0022\u0027\u002F\u005C';`,
-			output: String.raw`const text = '"\'/\\';`,
-		},
-		{
-			code: String.raw`const text = "\u0022\u0027\u0060";`,
-			output: 'const text = "\\"\'`";',
-		},
-		{
-			code: String.raw`const text = "\u005C\u0022";`,
-			output: String.raw`const text = "\\\"";`,
-		},
-		{
 			code: String.raw`const object = {'\u000A': "\u0009"};`,
 			output: String.raw`const object = {'\n': "\t"};`,
 			errors: [{messageId: MESSAGE_ID}, {messageId: MESSAGE_ID}],
 		},
 		{
 			code: 'const text = `\\u000A${value}\\u0022`;',
-			output: 'const text = `\\n${value}"`;',
-			errors: [{messageId: MESSAGE_ID}, {messageId: MESSAGE_ID}],
+			output: 'const text = `\\n${value}\\u0022`;',
 		},
 		{
 			code: 'const text = `line one\r\n\\u000A`;',
 			output: 'const text = `line one\r\n\\n`;',
-		},
-		{
-			code: 'const text = `\\u0060`;',
-			output: 'const text = `\\``;',
-		},
-		{
-			code: 'const text = `\\u005C\\u0022`;',
-			output: 'const text = `\\\\"`;',
 		},
 		{
 			code: 'const text = `before \\u000A${tag`raw \\u000B`}${`after \\u0009`}`;',
@@ -266,6 +239,22 @@ test('Short and code point escapes converge when both rules are enabled', t => {
 	t.deepEqual(result.messages, []);
 	t.is(result.output, expected);
 	t.false(linter.verifyAndFix(result.output, config).fixed);
+});
+
+test('Printable ASCII escapes are reported only by prefer-literal-ascii', t => {
+	const linter = new Linter({configType: 'flat'});
+	const rules = {
+		'unicorn/prefer-literal-ascii': 'error',
+		'unicorn/prefer-short-escape-sequences': 'error',
+	};
+
+	for (const code of [String.raw`const value = '\u002F';`, String.raw`const value = '\u0022';`]) {
+		const messages = linter.verify(code, [{plugins: {unicorn}, rules}]);
+		t.deepEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-literal-ascii']);
+	}
+
+	const messages = linter.verify(String.raw`{"value":"\u002F"}`, [{language: 'json/json', plugins: {json: languages.jsonc.plugins.json, unicorn}, rules}]);
+	t.deepEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-literal-ascii']);
 });
 
 ruleTest({

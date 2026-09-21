@@ -27,6 +27,7 @@ export {default as assertToken} from './assert-token.js';
 export {default as canTokensBeAdjacent} from './can-tokens-be-adjacent.js';
 export {default as cartesianProductSamples} from './cartesian-product-samples.js';
 export {default as containsSuspensionPoint} from './contains-suspension-point.js';
+export {default as escapeTemplateElementRaw} from './escape-template-element-raw.js';
 export {default as escapeString} from './escape-string.js';
 export {default as getClassHeadLocation} from './get-class-head-location.js';
 export {default as getAvailableVariableName} from './get-available-variable-name.js';
@@ -75,6 +76,7 @@ export {default as isVirtualFilename} from './is-virtual-filename.js';
 export {default as onRoot} from './on-root.js';
 export {default as getScopes} from './get-scopes.js';
 export {default as getTokenStore} from './get-token-store.js';
+export {default as getTemplateElementRaw} from './get-template-element-raw.js';
 export {default as getVariableIdentifiers} from './get-variable-identifiers.js';
 export {default as hasUnsafeArrowConversionReference} from './has-unsafe-arrow-conversion-reference.js';
 export {

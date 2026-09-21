@@ -1,5 +1,6 @@
 import {replaceTemplateElement} from './fix/index.js';
 import {isRegexLiteral, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
+import {getTemplateElementRaw} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-unicode-code-point-escapes';
 const MESSAGE_ID_SUGGESTION = 'prefer-unicode-code-point-escapes/add-unicode-flag';
@@ -13,6 +14,8 @@ const CODE_POINT_ESCAPE_PREFIX = String.raw`\u{`;
 const HEX_DIGIT = /^[\da-f]$/iv;
 const OCTAL_DIGIT = /^[0-7]$/v;
 const CONTROL_LETTER = /^[A-Za-z]$/v;
+const MINIMUM_PRINTABLE_ASCII = 0x20;
+const MAXIMUM_PRINTABLE_ASCII = 0x7E;
 const MAXIMUM_CODE_POINT = 0x10_FF_FF;
 const SHORT_ESCAPE_CODE_POINTS = new Set([0, 8, 9, 10, 11, 12, 13, 34, 39, 47, 92, 96]);
 
@@ -26,26 +29,6 @@ function isOctalDigit(character) {
 
 function isControlLetter(character) {
 	return CONTROL_LETTER.test(character);
-}
-
-function isActiveBackslash(text, index) {
-	let backslashCount = 0;
-
-	for (let previousIndex = index - 1; previousIndex >= 0 && text[previousIndex] === BACKSLASH; previousIndex--) {
-		backslashCount++;
-	}
-
-	return backslashCount % 2 === 0;
-}
-
-function isEscapedCharacter(text, index) {
-	let backslashCount = 0;
-
-	for (let previousIndex = index - 1; previousIndex >= 0 && text[previousIndex] === BACKSLASH; previousIndex--) {
-		backslashCount++;
-	}
-
-	return backslashCount % 2 === 1;
 }
 
 function parseHex(text, start, length) {
@@ -155,6 +138,7 @@ function getHexEscape(text, index) {
 	return {
 		end: index + 4,
 		replacement: formatCodePointEscape(value),
+		value,
 	};
 }
 
@@ -191,14 +175,15 @@ function getUnicodeEscape(text, index, {allowSurrogatePair, allowSurrogate, pref
 		allowSurrogatePair
 		&& isHighSurrogate(value)
 		&& text[nextEscapeIndex] === BACKSLASH
-		&& isActiveBackslash(text, nextEscapeIndex)
 		&& text[nextEscapeIndex + 1] === 'u'
 	) {
 		const nextValue = parseHex(text, nextEscapeIndex + 2, 4);
 		if (isLowSurrogate(nextValue)) {
+			const codePoint = getSurrogatePairCodePoint(value, nextValue);
 			return {
 				end: nextEscapeIndex + 6,
-				replacement: formatCodePointEscape(getSurrogatePairCodePoint(value, nextValue)),
+				replacement: formatCodePointEscape(codePoint),
+				value: codePoint,
 			};
 		}
 	}
@@ -206,90 +191,100 @@ function getUnicodeEscape(text, index, {allowSurrogatePair, allowSurrogate, pref
 	return {
 		end: index + 6,
 		replacement: formatCodePointEscape(value),
+		value,
 	};
 }
 
-function getEscapeReplacement(text, index, {isRegex, isInCharacterClass}) {
-	return getHexEscape(text, index)
+function getEscapeReplacement(text, index, {isRegex, isInCharacterClass, allowOctal}) {
+	const legacyEscape = getHexEscape(text, index)
 		?? getUnicodeEscape(text, index, {
 			allowSurrogatePair: !isInCharacterClass,
 			allowSurrogate: !isRegex || !isInCharacterClass,
 			preferShortEscape: !isRegex,
-		})
-		?? (isRegex ? getControlEscape(text, index) : getOctalEscape(text, index));
+		});
+
+	if (
+		!isRegex
+		&& legacyEscape?.value >= MINIMUM_PRINTABLE_ASCII
+		&& legacyEscape.value <= MAXIMUM_PRINTABLE_ASCII
+	) {
+		return;
+	}
+
+	if (legacyEscape) {
+		return legacyEscape;
+	}
+
+	if (isRegex) {
+		return getControlEscape(text, index);
+	}
+
+	if (allowOctal) {
+		return getOctalEscape(text, index);
+	}
 }
 
-function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterClasses = false} = {}) {
+function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterClasses = false, allowOctal = true} = {}) {
 	let fixed = '';
 	let characterClassDepth = 0;
 	let hasReplacement = false;
+	let hasCodePointEscape = false;
 
 	for (let index = 0; index < text.length; index++) {
 		const character = text[index];
 		const isInCharacterClass = characterClassDepth > 0;
 
+		if (character === BACKSLASH) {
+			if (
+				isRegex
+				&& parseCodePointEscape(text, index) !== undefined
+			) {
+				hasCodePointEscape = true;
+			}
+
+			const replacement = getEscapeReplacement(text, index, {isRegex, isInCharacterClass, allowOctal});
+			if (replacement) {
+				fixed += replacement.replacement;
+				index = replacement.end - 1;
+				hasReplacement = true;
+				continue;
+			}
+
+			fixed += character;
+			if (index + 1 < text.length) {
+				fixed += text[index + 1];
+				index++;
+			}
+
+			continue;
+		}
+
 		if (
 			isRegex
 			&& character === '['
 			&& (!isInCharacterClass || supportsNestedCharacterClasses)
-			&& !isEscapedCharacter(text, index)
 		) {
 			characterClassDepth++;
-			fixed += character;
-			continue;
-		}
-
-		if (
+		} else if (
 			isRegex
 			&& character === ']'
 			&& isInCharacterClass
-			&& !isEscapedCharacter(text, index)
 		) {
 			characterClassDepth--;
-			fixed += character;
-			continue;
 		}
 
-		if (
-			character !== BACKSLASH
-			|| !isActiveBackslash(text, index)
-		) {
-			fixed += character;
-			continue;
-		}
-
-		const replacement = getEscapeReplacement(text, index, {isRegex, isInCharacterClass});
-		if (!replacement) {
-			fixed += character;
-			continue;
-		}
-
-		fixed += replacement.replacement;
-		index = replacement.end - 1;
-		hasReplacement = true;
+		fixed += character;
 	}
 
 	return {
 		fixed,
 		hasReplacement,
+		hasCodePointEscape,
 	};
 }
 
-function hasUnicodeCodePointEscape(text) {
-	for (let index = 0; index < text.length; index++) {
-		if (
-			parseCodePointEscape(text, index) !== undefined
-			&& isActiveBackslash(text, index)
-		) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-function getStringProblem(node, value, fix) {
-	const {fixed, hasReplacement} = replaceEscapeSequences(value);
+function getStringProblem(node, value, {fix, allowOctal} = {}) {
+	const {fixed, hasReplacement} = replaceEscapeSequences(value, {allowOctal});
 
 	if (!hasReplacement) {
 		return;
@@ -328,21 +323,22 @@ function isValidRegex(pattern, flags) {
 function getRegexProblem(node) {
 	const {raw} = node;
 	const {pattern, flags} = getRegexLiteralParts(raw);
-	const {fixed, hasReplacement} = replaceEscapeSequences(pattern, {
+	const {fixed, hasReplacement, hasCodePointEscape} = replaceEscapeSequences(pattern, {
 		isRegex: true,
 		supportsNestedCharacterClasses: flags.includes('v'),
 	});
 	const hasUnicodeFlag = flags.includes('u') || flags.includes('v');
-	const hasCodePointEscape = hasUnicodeCodePointEscape(pattern);
 
 	if (!hasReplacement && (hasUnicodeFlag || !hasCodePointEscape)) {
 		return;
 	}
 
-	const fixedRegex = `/${hasReplacement ? fixed : pattern}/${addUnicodeFlag(flags)}`;
+	const fixedPattern = hasReplacement ? fixed : pattern;
+	const fixedFlags = addUnicodeFlag(flags);
+	const fixedRegex = `/${fixedPattern}/${fixedFlags}`;
 
 	if (!hasUnicodeFlag) {
-		if (!isValidRegex(hasReplacement ? fixed : pattern, addUnicodeFlag(flags))) {
+		if (!isValidRegex(fixedPattern, fixedFlags)) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
@@ -373,7 +369,10 @@ function getRegexProblem(node) {
 */
 const create = context => {
 	context.on('Literal', node => {
-		if (isStringLiteral(node) && node.parent.type !== 'JSXAttribute') {
+		if (
+			isStringLiteral(node)
+			&& node.parent.type !== 'JSXAttribute'
+		) {
 			return getStringProblem(node, node.raw);
 		}
 
@@ -387,8 +386,10 @@ const create = context => {
 			return;
 		}
 
-		const raw = context.sourceCode.getText(node);
-		return getStringProblem(node, raw.slice(1, node.tail ? -1 : -2), (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
+		return getStringProblem(node, getTemplateElementRaw(node, context), {
+			allowOctal: false,
+			fix: (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer),
+		});
 	});
 };
 

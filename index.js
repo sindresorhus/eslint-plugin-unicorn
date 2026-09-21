@@ -25,8 +25,8 @@ const deprecatedRules = createDeprecatedRules({
 		replacedBy: ['unicorn/no-unnecessary-slice-end'],
 	},
 	'no-hex-escape': {
-		message: 'Replaced by `unicorn/prefer-unicode-code-point-escapes` which covers more cases.',
-		replacedBy: ['unicorn/prefer-unicode-code-point-escapes'],
+		message: 'Replaced by `unicorn/prefer-literal-ascii` and `unicorn/prefer-unicode-code-point-escapes`, which cover more cases.',
+		replacedBy: ['unicorn/prefer-literal-ascii', 'unicorn/prefer-unicode-code-point-escapes'],
 	},
 	'no-array-push-push': {
 		message: 'Replaced by `unicorn/prefer-single-call` which covers more cases.',

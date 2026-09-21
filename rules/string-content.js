@@ -1,6 +1,5 @@
-import escapeString from './utils/escape-string.js';
-import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
 import {replaceTemplateElement} from './fix/index.js';
+import {escapeString, escapeTemplateElementRaw, getTemplateElementRaw} from './utils/index.js';
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 const SUGGESTION_MESSAGE_ID = 'replace';
@@ -91,7 +90,7 @@ const create = context => {
 		if (type === 'Literal' || type === 'TOMLValue') {
 			string = value;
 		} else if (!isIgnoredTag(node)) {
-			string = value.raw;
+			string = getTemplateElementRaw(node, context);
 		}
 
 		if (!string || typeof string !== 'string') {

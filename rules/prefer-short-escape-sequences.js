@@ -15,7 +15,10 @@ const commonReplacements = new Map([
 	['000A', String.raw`\n`],
 	['000C', String.raw`\f`],
 	['000D', String.raw`\r`],
+]);
+const tomlReplacements = new Map([
 	['0022', String.raw`\"`],
+	['0027', '\''],
 	['002F', '/'],
 	['005C', String.raw`\\`],
 ]);
@@ -26,17 +29,9 @@ const javascriptAndJson5Replacements = new Map([
 // Consume backslash runs even without a Unicode suffix to avoid quadratic backtracking.
 const unicodeEscapePattern = /(?<backslashes>\\+)(?:u(?<codePoint>[\dA-Fa-f]{4}))?/gv;
 
-function getReplacement(codePoint, {dialect, quote, nextCharacter}) {
-	if (codePoint === '0022' && quote !== '"' && dialect !== 'json') {
-		return '"';
-	}
-
-	if (codePoint === '0027' && dialect !== 'json') {
-		return quote === '\'' ? String.raw`\'` : '\'';
-	}
-
-	if (codePoint === '0060' && dialect === 'javascript') {
-		return quote === '`' ? String.raw`\`` : '`';
+function getReplacement(codePoint, {dialect, nextCharacter}) {
+	if (dialect === 'toml') {
+		return tomlReplacements.get(codePoint) ?? commonReplacements.get(codePoint);
 	}
 
 	if (dialect === 'javascript' || dialect === 'json5') {
@@ -53,7 +48,7 @@ function getReplacement(codePoint, {dialect, quote, nextCharacter}) {
 	return commonReplacements.get(codePoint);
 }
 
-function replaceUnicodeEscapeSequences(content, {dialect, quote}) {
+function replaceUnicodeEscapeSequences(content, {dialect}) {
 	const fixed = content.replaceAll(unicodeEscapePattern, (match, backslashes, codePoint, offset) => {
 		if (codePoint === undefined || backslashes.length % 2 === 0) {
 			return match;
@@ -61,7 +56,6 @@ function replaceUnicodeEscapeSequences(content, {dialect, quote}) {
 
 		const replacement = getReplacement(codePoint.toUpperCase(), {
 			dialect,
-			quote,
 			nextCharacter: content[offset + match.length],
 		});
 		if (!replacement) {
@@ -97,7 +91,7 @@ const create = context => {
 	context.on('String', node => {
 		const raw = sourceCode.getText(node);
 		const [start, end] = sourceCode.getRange(node);
-		return getProblem(node, raw.slice(1, -1), {dialect: jsonDialect, quote: raw[0]}, (fixer, fixed) => fixer.replaceTextRange([start + 1, end - 1], fixed));
+		return getProblem(node, raw.slice(1, -1), {dialect: jsonDialect}, (fixer, fixed) => fixer.replaceTextRange([start + 1, end - 1], fixed));
 	});
 
 	context.on('Literal', node => {
@@ -107,7 +101,7 @@ const create = context => {
 
 		const {raw} = node;
 		const [start, end] = sourceCode.getRange(node);
-		return getProblem(node, raw.slice(1, -1), {dialect: 'javascript', quote: raw[0]}, (fixer, fixed) => fixer.replaceTextRange([start + 1, end - 1], fixed));
+		return getProblem(node, raw.slice(1, -1), {dialect: 'javascript'}, (fixer, fixed) => fixer.replaceTextRange([start + 1, end - 1], fixed));
 	});
 
 	context.on('TemplateElement', node => {
@@ -116,7 +110,7 @@ const create = context => {
 		}
 
 		const raw = sourceCode.getText(node);
-		return getProblem(node, raw.slice(1, node.tail ? -1 : -2), {dialect: 'javascript', quote: '`'}, (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
+		return getProblem(node, raw.slice(1, node.tail ? -1 : -2), {dialect: 'javascript'}, (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
 	});
 
 	context.on(['TOMLValue', 'TOMLQuoted'], node => {
@@ -130,7 +124,7 @@ const create = context => {
 		return getProblem(
 			node,
 			raw.slice(delimiterLength, -delimiterLength),
-			{dialect: 'toml', quote: '"'},
+			{dialect: 'toml'},
 			(fixer, fixed) => fixer.replaceTextRange([start + delimiterLength, end - delimiterLength], fixed),
 		);
 	});

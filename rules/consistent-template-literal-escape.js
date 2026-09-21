@@ -1,5 +1,6 @@
 import {replaceTemplateElement} from './fix/index.js';
 import {isTaggedTemplateLiteral} from './ast/index.js';
+import {getTemplateElementRaw} from './utils/index.js';
 
 const MESSAGE_ID = 'consistent-template-literal-escape';
 const messages = {
@@ -15,7 +16,7 @@ const create = context => {
 			return;
 		}
 
-		const {raw} = node.value;
+		const raw = getTemplateElementRaw(node, context);
 
 		// Match `$\{` or `\$\{` and replace with `\${`.
 		// The `\\?` makes the leading backslash optional to handle both patterns.
