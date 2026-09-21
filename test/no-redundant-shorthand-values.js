@@ -26,6 +26,11 @@ test.snapshot({
 		'a { margin: var(--margin) var(--margin); }',
 		'a { margin: 1px var(--margin) 1px; }',
 		'a { margin: calc(var(--margin) + 1px) calc(var(--margin) + 1px); }',
+		'a { margin: calc(attr(data-spacing type(*)) + 0px) calc(attr(data-spacing type(*)) + 0px); }',
+		'a { margin: calc(inherit(--spacing) + 0px) calc(inherit(--spacing) + 0px); }',
+		'a { margin: calc(RANDOM(0px, 10px) + 0px) calc(RANDOM(0px, 10px) + 0px); }',
+		'a { margin: calc(random-item(auto, 1px, 2px) + 0px) calc(random-item(auto, 1px, 2px) + 0px); }',
+		'a { margin: calc(--spacing() + 0px) calc(--spacing() + 0px); }',
 		'a { margin: calc(1px + 1px) CALC(1px + 1px); }',
 		'a { margin: 1px 1.0px; }',
 		'a { margin: inherit inherit; }',
@@ -90,6 +95,7 @@ test.snapshot({
 		'a { margin: /* keep */ 1px 1px; }',
 		'a { margin: 1px /* keep */ 2px 1px; }',
 		'a { margin: 1px /* prevent fix */ 1px; }',
+		'a { margin: 1px 1px /* keep */; }',
 		outdent`
 			a {
 				margin:
@@ -97,7 +103,18 @@ test.snapshot({
 					1px;
 			}
 		`,
-		'a { margin: 1px 1px; }\r\n',
 		'.parent { @media (width > 0px) { margin: 1px 1px; } }',
 	].map(code => css(code)),
+});
+
+test({
+	testerOptions: languages.css,
+	valid: [],
+	invalid: [
+		{
+			code: 'a {\r\n\tmargin: 1px 1px;\r\n}',
+			output: 'a {\r\n\tmargin: 1px;\r\n}',
+			errors: [{messageId: 'no-redundant-shorthand-values'}],
+		},
+	],
 });

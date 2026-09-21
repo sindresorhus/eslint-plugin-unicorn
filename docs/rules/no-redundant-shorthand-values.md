@@ -23,7 +23,9 @@ Four-value edge declarations that could only be reduced to three values are allo
 
 Slash-separated `border-radius` values are shortened independently on each side of the slash. The slash itself is preserved, so `border-radius: 4px / 4px` is allowed.
 
-Declarations containing `var()` are ignored because a custom property may expand to multiple shorthand values. Invalid declarations are also ignored. Functions are compared without evaluating them, and numeric spellings such as `1px` and `1.0px` are kept distinct.
+Declarations containing potentially non-repeatable functions are ignored because repeated occurrences may expand to multiple values or resolve independently. This includes `var()`, `attr()`, `env()`, `if()`, `inherit()`, `random()`, `random-item()`, and custom functions such as `--spacing()`. Invalid declarations are also ignored. Other functions are compared without evaluating them, and numeric spellings such as `1px` and `1.0px` are kept distinct.
+
+The autofix is omitted when removing a redundant suffix would also remove a comment.
 
 ## Examples
 

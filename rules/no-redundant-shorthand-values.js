@@ -1,5 +1,5 @@
 import {generate, ident} from '@eslint/css-tree';
-import {getComments} from './utils/index.js';
+import {wouldRemoveComments} from './utils/index.js';
 
 const MESSAGE_ID = 'no-redundant-shorthand-values';
 const messages = {
@@ -46,15 +46,28 @@ const placeProperties = new Set([
 	'place-self',
 ]);
 
+const nonRepeatableFunctionNames = new Set([
+	'attr',
+	'env',
+	'if',
+	'inherit',
+	'random',
+	'random-item',
+	'var',
+]);
+
 const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
 const getVendorPrefix = property => property.match(/^-\w+-/u)?.[0] ?? '';
 
-const hasVariableFunction = node => {
-	if (node.type === 'Function' && normalizeCssIdentifier(node.name) === 'var') {
-		return true;
+const hasNonRepeatableFunction = node => {
+	if (node.type === 'Function') {
+		const functionName = normalizeCssIdentifier(node.name);
+		if (functionName.startsWith('--') || nonRepeatableFunctionNames.has(functionName)) {
+			return true;
+		}
 	}
 
-	return node.children?.some(child => hasVariableFunction(child)) ?? false;
+	return node.children?.some(child => hasNonRepeatableFunction(child)) ?? false;
 };
 
 const getValueKey = node => {
@@ -205,17 +218,11 @@ const getPlaceReduction = (values, sourceCode) => {
 	return getReduction(values, getRepeatedPlaceValueCount(values), sourceCode);
 };
 
-const hasCommentInRange = (comments, range, sourceCode) => comments.some(comment => {
-	const [commentStart, commentEnd] = sourceCode.getRange(comment);
-	return commentStart >= range[0] && commentEnd <= range[1];
-});
-
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
 	const {sourceCode} = context;
-	const comments = getComments(context);
 
 	context.on('Declaration', declaration => {
 		const {value} = declaration;
@@ -236,7 +243,7 @@ const create = context => {
 		}
 
 		if (
-			hasVariableFunction(value)
+			hasNonRepeatableFunction(value)
 			|| !sourceCode.lexer.matchProperty(property, value).matched
 		) {
 			return;
@@ -266,7 +273,7 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			data: {replacement},
 			* fix(fixer, {abort}) {
-				if (reductions.some(({removeRange}) => hasCommentInRange(comments, removeRange, sourceCode))) {
+				if (reductions.some(({removeRange}) => wouldRemoveComments(context, removeRange))) {
 					return abort();
 				}
 
