@@ -29,6 +29,7 @@ test.snapshot({
 		String.raw`a { background-image: element(#\41 BC); background-image: var(--Fallback), element(#DEF); background-image: -moz-element(#ABC); }`,
 		'a { color: red !IMPORTANT; } @charset "UTF-8";',
 		'@property --ThemeColor { syntax: "<COLOR> | MyToken"; inherits: false; initial-value: CanvasText; }',
+		'@property --ThemeColor { syntax: "<color>"; inherits: false; initial-value: #ABCDEF; }',
 		'@font-face { font-weight: BOLDER; color: RED; }',
 		outdent`
 			@font-feature-values Font {
@@ -98,6 +99,11 @@ test({
 			code: 'a { background-image: PAINT(MyPainter, #ABC, 1PX, CALC(1PX)); }',
 			output: 'a { background-image: paint(MyPainter, #ABC, 1PX, CALC(1PX)); }',
 			errors: 1,
+		},
+		{
+			code: '@property --Theme { SYNTAX: "*"; INHERITS: FALSE; INITIAL-VALUE: FOO(1PX) #ABC; }',
+			output: '@property --Theme { syntax: "*"; inherits: false; initial-value: FOO(1PX) #ABC; }',
+			errors: 4,
 		},
 		{
 			code: 'a { font: var(--Style) BOLD 1PX Arial; background: var(--Color) CENTER / COVER NO-REPEAT; }',

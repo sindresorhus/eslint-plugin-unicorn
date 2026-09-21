@@ -39,7 +39,7 @@ When a function contains a variable substitution, the rule may leave other ident
 
 ## Ignored syntax
 
-The rule does not change custom property names or values, custom functions or at-rules and their contents, other author-defined names beginning with `--`, font feature value names, type selectors, classes, IDs, attribute data, environment variable data, paint worklet arguments, strings, URL payloads, or user data in selector arguments. It also leaves `!important` and encoding strings to their dedicated rules.
+The rule does not change custom property names or values (including `@property` initial values), custom functions or at-rules and their contents, other author-defined names beginning with `--`, font feature value names, type selectors, classes, IDs, attribute data, environment variable data, paint worklet arguments, strings, URL payloads, or user data in selector arguments. It also leaves `!important` and encoding strings to their dedicated rules.
 
 ```css
 /* ✅ */

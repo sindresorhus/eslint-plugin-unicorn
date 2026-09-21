@@ -89,7 +89,14 @@ function isInPreservedContext(node, sourceCode) {
 		}
 
 		if (ancestor.type === 'Declaration') {
-			return isCustomIdentifier(ancestor.property);
+			if (isCustomIdentifier(ancestor.property)) {
+				return true;
+			}
+
+			const owner = getBlockOwner(ancestor, sourceCode);
+			return normalizeIdentifier(ancestor.property) === 'initial-value'
+				&& owner?.type === 'Atrule'
+				&& normalizeIdentifier(owner.name) === 'property';
 		}
 
 		if (ancestor.type === 'Url') {
