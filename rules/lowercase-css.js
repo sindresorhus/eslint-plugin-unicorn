@@ -22,7 +22,9 @@ const fontFeatureValueAtRules = new Set([
 ]);
 const preservedFunctionPayloadNames = new Set([
 	'-moz-element',
+	'attr',
 	'element',
+	'env',
 	'url',
 ]);
 
@@ -78,13 +80,12 @@ function getDeclaration(node, sourceCode) {
 	return sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'Declaration');
 }
 
-function isInCustomProperty(node, sourceCode) {
-	const declaration = getDeclaration(node, sourceCode);
-	return Boolean(declaration && isCustomIdentifier(declaration.property));
-}
-
-function isInPreservedFunction(node, sourceCode) {
+function isInPreservedValue(node, sourceCode) {
 	return sourceCode.getAncestors(node).some(ancestor => {
+		if (ancestor.type === 'Declaration') {
+			return isCustomIdentifier(ancestor.property);
+		}
+
 		if (ancestor.type === 'Url') {
 			return true;
 		}
@@ -96,11 +97,6 @@ function isInPreservedFunction(node, sourceCode) {
 		const functionName = normalizeIdentifier(ancestor.name);
 		return functionName.startsWith('--') || preservedFunctionPayloadNames.has(functionName);
 	});
-}
-
-function isInPreservedValue(node, sourceCode) {
-	return isInCustomProperty(node, sourceCode)
-		|| isInPreservedFunction(node, sourceCode);
 }
 
 function getBlockOwner(node, sourceCode) {
@@ -190,12 +186,13 @@ function isValueKeyword(node, declaration, sourceCode) {
 
 	const ancestors = sourceCode.getAncestors(node);
 	const declarationIndex = ancestors.lastIndexOf(declaration);
-	const candidates = [node, ...ancestors.slice(declarationIndex + 2).toReversed()];
+	const candidates = [...ancestors.slice(declarationIndex + 2).toReversed(), node];
 
 	for (const candidate of candidates) {
 		const {match, target} = getValueMatch(matchValue, candidate, node, sourceCode);
-		if (!match.error && match.isKeyword(target)) {
-			return true;
+		if (!match.error) {
+			// A system font keyword is only unambiguously a keyword when it is the complete font shorthand value.
+			return match.isKeyword(target) && !match.isType(target, 'system-family-name');
 		}
 	}
 
