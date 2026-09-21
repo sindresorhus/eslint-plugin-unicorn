@@ -12,6 +12,10 @@ test.snapshot({
 		'a { --padding-left: 10px; padding: 20px; }',
 		String.raw`a { p\61 dding-left: 10px; padding: 20px; }`,
 		'a { color: red; padding: 20px; }',
+		'a { font-synthesis-position: auto; font-synthesis: none; }',
+		'a { column-height: 100px; columns: 20rem 2; }',
+		'a { transition-behavior: allow-discrete; transition: opacity 1s linear; }',
+		'a { animation-timeline: --timeline; animation: 1s ease fade; }',
 		outdent`
 			a {
 				padding-left: 10px;
@@ -28,6 +32,7 @@ test.snapshot({
 		'a { font-variant-caps: small-caps; font: 1em sans-serif; }',
 		'a { transition-property: opacity; transition: opacity 1s linear; }',
 		'a { grid-row-start: 1; grid-row: 1 / 3; }',
+		'a { grid-row-gap: 1px; grid: 1fr / 1fr; }',
 		'a { inset-block-end: 1px; inset-block: 2px; }',
 		'a { scroll-padding-left: 1px; scroll-padding: 2px; }',
 		'a { PADDING-LEFT: 10px; PADDING: 20px; }',
