@@ -36,7 +36,9 @@ Animation groups with an unquoted `auto`, a dashed name, or an escaped name are 
 
 For non-CSS-wide values, the rule requires `animation-timeline: auto`, `column-height: auto`, `font-synthesis-position: none`, and `font-variant-emoji: normal` when forming their respective shorthands. Animation groups with `animation-duration: auto` are also skipped. These restrictions avoid shorthand syntax that is not supported consistently across browsers. The generated `animation` and `columns` shorthands omit the corresponding `auto` values.
 
-Shorter comma-separated longhand lists are cycled when required by the CSS grammar. Lists longer than the shorthand's primary list are not reported. Shorthands that reset additional properties, such as `font` and `border`, are only reported when those properties are known to have compatible values, either through explicit CSS-wide keyword declarations or an earlier shorthand that resets them; the autofix consumes those declarations too.
+Shorter comma-separated longhand lists are cycled when required by the CSS grammar. Lists longer than the shorthand's primary list are not reported. Shorthands that reset additional properties, such as `font` and `border`, are only reported when those properties are known to have compatible values, either through explicit CSS-wide keyword declarations or an earlier shorthand that resets them; the autofix generally consumes those declarations too.
+
+The autofix preserves explicit `background-blend-mode` declarations because some browsers do not reset that property when parsing `background`.
 
 The autofix is available when the declarations are contiguous and the replaced source contains no comments. Other safe groups are still reported without a fix.
 

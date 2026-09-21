@@ -484,6 +484,31 @@ testRule({
 			`,
 			output: outdent`
 				a {
+					background-blend-mode: initial;
+					background: none 0% 0% / auto repeat scroll padding-box border-box transparent;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				a {
+					background-blend-mode: multiply;
+					background-blend-mode: initial;
+					background-image: none;
+					background-position: 0% 0%;
+					background-size: auto;
+					background-repeat: repeat;
+					background-attachment: scroll;
+					background-origin: padding-box;
+					background-clip: border-box;
+					background-color: transparent;
+				}
+			`,
+			output: outdent`
+				a {
+					background-blend-mode: multiply;
+					background-blend-mode: initial;
 					background: none 0% 0% / auto repeat scroll padding-box border-box transparent;
 				}
 			`,
@@ -507,6 +532,7 @@ testRule({
 			output: outdent`
 				a {
 					background-position-x: 10px;
+					background-blend-mode: initial;
 					background: none 0% 0% / auto repeat scroll padding-box border-box transparent;
 				}
 			`,
@@ -627,6 +653,7 @@ testRule({
 			`,
 			output: outdent`
 				a {
+					background-blend-mode: initial;
 					background: url(a.png) 0 0 / auto no-repeat scroll padding-box border-box, url(b.png) 10px 10px / auto no-repeat scroll padding-box border-box red;
 				}
 			`,
@@ -681,6 +708,16 @@ testRule({
 		{
 			code: 'a { border-image: initial; border-width: 1px; border-style: solid; border-color: red; }',
 			output: 'a { border: 1px solid red; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-image: initial !important; border-width: 1px !important; border-style: solid !important; border-color: red !important; }',
+			output: 'a { border: 1px solid red !important; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-image: initial; border-width: 1px; border-style: solid; border-color: red; border-image-source: url(border.png); }',
+			output: 'a { border: 1px solid red; border-image-source: url(border.png); }',
 			errors: 1,
 		},
 		{

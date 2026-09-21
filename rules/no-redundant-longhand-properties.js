@@ -433,7 +433,8 @@ const getCandidates = (children, {shorthand, definition, catalogIndex}, sourceCo
 
 		const componentDeclarations = components.map(component => declarations.get(component));
 		const resetStateValues = resetStates.values().toArray();
-		const resetDeclarations = resetStateValues.map(({declaration}) => declaration);
+		// Some browsers do not reset this property with `background`, so preserve an explicit declaration.
+		const resetDeclarations = resetStateValues.filter(({declaration}) => declaration.property.toLowerCase() !== 'background-blend-mode').map(({declaration}) => declaration);
 		const sourceDeclarationSet = new Set([...componentDeclarations, ...resetDeclarations]);
 		const sourceDeclarations = sourceDeclarationSet.values().toArray().toSorted((first, second) => sourceCode.getRange(first)[0] - sourceCode.getRange(second)[0]);
 		candidates.push({
