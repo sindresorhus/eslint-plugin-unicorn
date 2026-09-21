@@ -128,6 +128,7 @@ export default defineConfig([
 | [isolated-functions](docs/rules/isolated-functions.md)                                                     | Prevent usage of variables from outside the scope of isolated functions.                                                       | ✅    |    |    |    |
 | [iteration-fallback-style](docs/rules/iteration-fallback-style.md)                                         | Enforce a consistent style for optional loop sources.                                                                          |      | 🔧 |    |    |
 | [logical-assignment-operators](docs/rules/logical-assignment-operators.md)                                 | Require or disallow logical assignment operator shorthand                                                                      | ✅    | 🔧 | 💡 |    |
+| [lowercase-css](docs/rules/lowercase-css.md)                                                               | Enforce lowercase CSS syntax.                                                                                                  |      | 🔧 |    |    |
 | [max-nested-calls](docs/rules/max-nested-calls.md)                                                         | Limit the depth of nested calls.                                                                                               | ✅    |    |    |    |
 | [name-replacements](docs/rules/name-replacements.md)                                                       | Enforce replacements for variable, property, and filenames.                                                                    | ✅    | 🔧 | 💡 |    |
 | [new-for-builtins](docs/rules/new-for-builtins.md)                                                         | Enforce correct use of `new` for builtin constructors.                                                                         | ✅ ☑️ | 🔧 | 💡 |    |
@@ -579,6 +580,7 @@ These rules also work on specific non-JavaScript languages:
 | [`escape-case`](docs/rules/escape-case.md) |  |  |  |  | ✅ |  |
 | [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`indent`](docs/rules/indent.md) | ✅ |  | ✅ |  |  |  |
+| [`lowercase-css`](docs/rules/lowercase-css.md) | ✅ |  |  |  |  |  |
 | [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | ✅ |  | ✅ |  |  |  |
 | [`no-declarations-after-nested-rules`](docs/rules/no-declarations-after-nested-rules.md) | ✅ |  |  |  |  |  |
 | [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |  |
