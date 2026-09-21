@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforce leading indentation in JSON, JSONC, and JSON5 (`@eslint/json`) and CSS (`@eslint/css`). JSON checks nesting depth; CSS checks indentation style only.
+Enforce leading indentation in JSON, JSONC, and JSON5 ([`@eslint/json`](https://github.com/eslint/json)) and CSS ([`@eslint/css`](https://github.com/eslint/css)). JSON checks nesting depth; CSS checks indentation style only.
 
 JavaScript and TypeScript are excluded because their statements and expressions need more detailed indentation rules. Use [`@stylistic/indent`](https://eslint.style/rules/indent) for those languages.
 
@@ -82,4 +82,4 @@ Only ASCII spaces and tabs are treated as indentation. Unicode identifier charac
 
 Preserves inline spacing, trailing whitespace, line endings, and non-whitespace token contents. Ignores blank lines and continuation lines inside multiline tokens and comments. Indentation before comment openers is checked.
 
-Recognizes LF, CRLF, and CR, plus form feed in CSS. JSON5 indentation containing `U+2028` or `U+2029` is left untouched because its parser does not recognize them as line boundaries.
+Recognizes LF, CRLF, and CR, plus form feed in CSS.
