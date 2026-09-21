@@ -233,6 +233,11 @@ ruleTest({
 			output: 'const text = `\\\\"`;',
 		},
 		{
+			code: 'const text = `before \\u000A${tag`raw \\u000B`}${`after \\u0009`}`;',
+			output: 'const text = `before \\n${tag`raw \\u000B`}${`after \\t`}`;',
+			errors: [{messageId: MESSAGE_ID}, {messageId: MESSAGE_ID}],
+		},
+		{
 			code: String.raw`const text = "\u0000\u0031";`,
 			output: String.raw`const text = "\0\u0031";`,
 		},
@@ -291,6 +296,10 @@ ruleTest({
 		{
 			code: 'value = """\n' + String.raw`\u000A\u0022\u005C` + '\n"""',
 			output: 'value = """\n' + String.raw`\n\"\\` + '\n"""',
+		},
+		{
+			code: 'value = """before\\\n  \\u000Aafter"""',
+			output: 'value = """before\\\n  \\nafter"""',
 		},
 		{
 			code: String.raw`value = "\u005C\u0022"`,
