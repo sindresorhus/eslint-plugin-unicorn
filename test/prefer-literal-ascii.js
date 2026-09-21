@@ -148,6 +148,52 @@ ruleTest({
 			output: 'const value = `aA\r\n${value}b`;',
 			errors: 1,
 		},
+		{
+			code: 'type Value = `\\x\\u0034\\u0031`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'type Value = `\\x\\u0041\\u0042`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'type Value = `\\u\\u0030\\u0030\\u0034\\u0031`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'type Value = `\\u{\\u0034\\u0031}`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'type Value = `\\u{4\\u007D`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'type Value = `\\u\\u007B41}`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'type Value = `\\x\\u0047`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'type Value = `\\\\x\\u0034\\u0031`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'type Value = `\\xA9\\u0041`;',
+			languageOptions: {parser: parsers.typescript},
+			output: 'type Value = `\\xA9A`;',
+			errors: 1,
+		},
 	],
 });
 

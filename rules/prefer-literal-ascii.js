@@ -127,10 +127,12 @@ function getProblem(node, original, quote, fix) {
 		return;
 	}
 
+	const isTypeTemplateWithLiteralBackslash = node.type === 'TemplateElement' && node.parent.parent.type === 'TSLiteralType' && node.value.cooked.includes(BACKSLASH);
+
 	return {
 		node,
 		messageId: MESSAGE_ID,
-		...(canFix && !isDirective(node.parent) && {
+		...(canFix && !isTypeTemplateWithLiteralBackslash && !isDirective(node.parent) && {
 			fix: fixer => fix ? fix(fixer, fixed) : fixer.replaceText(node, fixed),
 		}),
 	};

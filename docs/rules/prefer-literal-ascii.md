@@ -15,7 +15,7 @@ Characters that need escaping for JavaScript syntax, such as the surrounding quo
 
 Tagged template literals are ignored because tag functions can observe the raw escape sequences. Regular expression literals are also ignored because their escape semantics differ from strings. JSX attribute strings are ignored because JSX does not interpret JavaScript escape sequences in them.
 
-Directive prologues are reported but not automatically fixed because replacing an escape can turn a plain string expression into a directive and change runtime behavior. A fix is also omitted when a literal digit would extend a preceding `\0` or legacy octal escape.
+Directive prologues are reported but not automatically fixed because replacing an escape can turn a plain string expression into a directive and change runtime behavior. A fix is also omitted when a literal digit would extend a preceding `\0` or legacy octal escape. TypeScript template literal types containing a literal backslash are reported without an autofix because replacing another escape could complete an incomplete escape and change the type.
 
 This rule intentionally does not report `\/` in JavaScript. Use ESLint's [`no-useless-escape`](https://eslint.org/docs/latest/rules/no-useless-escape) rule for that. If this rule gains JSON support later, it can report `\/` there because JSON permits the escape.
 
