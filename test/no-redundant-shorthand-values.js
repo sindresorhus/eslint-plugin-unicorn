@@ -17,6 +17,7 @@ test.snapshot({
 		'a { scroll-padding: 1px 2px 3px 2px; }',
 		'a { inset: 1px 2px 3px 2px; }',
 		'a { border-radius: 4px / 4px; }',
+		'a { border-radius: 1px 2px 3px 4px; }',
 		'a { border-radius: 1px 2px / 3px 4px; }',
 		'a { border-radius: 1px 1px / 2px / 3px; }',
 		'a { border-radius: var(--radius) var(--radius); }',
