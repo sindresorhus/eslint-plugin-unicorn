@@ -6,6 +6,7 @@ import enquirer from 'enquirer';
 import unicorn from '../index.js';
 
 const rules = Object.keys(unicorn.rules);
+const renamableRules = rules.filter(ruleId => ruleId.includes('-'));
 const resolveFile = file => new URL(`../${file}`, import.meta.url);
 
 function checkFiles(ruleId) {
@@ -116,7 +117,7 @@ const run = async () => {
 	const ruleSelector = new enquirer.AutoComplete({
 		message: 'Select the rule you want to rename:',
 		limit: 10,
-		choices: rules,
+		choices: renamableRules,
 	});
 	const originalRuleId = await ruleSelector.run();
 
@@ -146,6 +147,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 // Exported for unit tests.
 // eslint-disable-next-line unicorn/no-exports-in-scripts
 export {
+	renamableRules,
 	renameRule,
 	replaceRuleIdInRulesIndex,
 	sortReadmeRuleRows,

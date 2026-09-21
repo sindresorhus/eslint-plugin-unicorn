@@ -1,6 +1,16 @@
 import fs from 'node:fs/promises';
 import test from 'ava';
-import {renameRule, replaceRuleIdInRulesIndex, sortReadmeRuleRows} from '../../scripts/rename-rule.js';
+import {
+	renamableRules,
+	renameRule,
+	replaceRuleIdInRulesIndex,
+	sortReadmeRuleRows,
+} from '../../scripts/rename-rule.js';
+
+test('single-word rules are not offered for renaming', t => {
+	t.false(renamableRules.includes('indent'));
+	t.true(renamableRules.includes('prefer-array-flat'));
+});
 
 test.serial('renameRule rejects single-word source names before changing files', async t => {
 	const originalRename = fs.rename;

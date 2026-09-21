@@ -9,33 +9,27 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforce a configured indentation style in JSON, JSONC, JSON5, and CSS files. This rule only changes leading whitespace. It preserves existing line breaks, inline spacing, and trailing whitespace.
+Enforce leading indentation in JSON, JSONC, and JSON5 (`@eslint/json`) and CSS (`@eslint/css`). JSON checks nesting depth; CSS checks indentation style only.
 
-JSON indentation follows object and array nesting. CSS indentation checks only the indentation characters and width multiples, **not nesting depth**.
-
-This rule is opt-in. Enable it in configurations using `json/json`, `json/jsonc`, `json/json5`, or `css/css` from `@eslint/json` or `@eslint/css`.
+JavaScript and TypeScript are excluded because their statements and expressions need more detailed indentation rules. Use [`@stylistic/indent`](https://eslint.style/rules/indent) for those languages.
 
 ## Options
-
-```js
-{
-	'unicorn/indent': ['error', {
-		indent: 'tab',
-		tabWidth: 4,
-	}],
-}
-```
 
 ### `indent`
 
 Type: `'tab' | number`\
 Default: `'tab'`
 
-Use `'tab'` for tabs, or a positive integer for the number of spaces per indentation unit. Mixing spaces and tabs is not allowed.
+Use tabs, or a positive integer to set the number of spaces per indentation unit. Mixed tabs and spaces are rejected.
 
 ```js
 {
-	'unicorn/indent': ['error', {indent: 2}],
+	'unicorn/indent': [
+		'error',
+		{
+			indent: 2,
+		},
+	],
 }
 ```
 
@@ -44,31 +38,29 @@ Use `'tab'` for tabs, or a positive integer for the number of spaces per indenta
 Type: `number`\
 Default: `4`
 
-A positive integer specifying the distance between tab stops when converting CSS indentation. It applies when converting either to tabs or to spaces. JSON ignores this option because nesting determines its exact indentation.
+A positive integer tab stop width for CSS conversion, whether converting to tabs or spaces. Ignored for JSON.
 
 ## Examples
 
 ### JSON
 
-Each open object or array adds one indentation unit. A line starting with `}` or `]` is indented one unit less. When several closing delimiters share a line, the first determines that line's indentation. Top-level content has no indentation.
+Each open object or array adds one level. A line starting with `}` or `]` uses one level less; only the first closing delimiter determines that line's indentation. Top-level content is unindented.
 
 For `{indent: 2}`:
 
 ```json
 {
   "items": [
-    {
-      "value": true
-    }
+    true
   ]
 }
 ```
 
-Inline containers stay inline. Braces and brackets inside strings and comments do not affect depth. JSON5's additional whitespace characters, such as non-breaking spaces, are replaced when used as indentation.
+Strings and comments do not affect depth. JSON5 indentation whitespace, including non-breaking spaces, is replaced.
 
 ### CSS
 
-In tab mode, any number of tabs is valid. In space mode, indentation must contain a multiple of the configured number of spaces. Unindented lines are valid at any nesting depth. This deliberately avoids prescribing alignment for selectors, at-rules, and multiline values.
+Accepts any number of tabs in tab mode, or multiples of `indent` spaces in space mode. **Nesting depth is not checked**, so unindented lines are valid anywhere.
 
 For `{indent: 2}`, both examples pass:
 
@@ -82,21 +74,12 @@ color: blue;
 }
 ```
 
-Autofixes calculate the indentation's visual width using `tabWidth`, then round upward to the next whole indentation unit. With the default options, four spaces become one tab and five spaces become two tabs. A space followed by a tab has width four, not five. With `{indent: 2, tabWidth: 4}`, a tab followed by a space becomes six spaces.
+Fixes expand tabs using tab stops, then round width up to a whole indentation unit. With defaults, four spaces become one tab, five become two tabs, and a space followed by a tab becomes one tab. With `{indent: 2, tabWidth: 4}`, a tab followed by a space becomes six spaces.
 
-Only ASCII spaces and tabs are indentation in CSS. Non-breaking spaces and other Unicode identifier characters are preserved because replacing them could change selector meaning.
+Only ASCII spaces and tabs are treated as indentation. Unicode identifier characters, including non-breaking spaces, are preserved.
 
 ## Preserved content
 
-Whitespace-only lines and continuation lines inside multiline strings, comments, URLs, or other tokens are ignored. Indentation before a comment opener is checked, but comment contents are preserved. Escaped characters within tokens are never modified.
+Preserves inline spacing, trailing whitespace, line endings, and token contents. Ignores blank lines and continuation lines inside strings, comments, and URLs. Indentation before comment openers is checked.
 
-Line boundaries follow the parser: LF, CRLF, and CR, plus form feed in CSS. JSON5's Unicode line and paragraph separators (`U+2028` and `U+2029`) are not recognized as line boundaries by the parser. Indentation prefixes containing them are left untouched.
-
-## Related rules
-
-- [`jsonc/indent`](https://ota-meshi.github.io/eslint-plugin-jsonc/rules/indent.html) offers more indentation options and experimental compatibility with `@eslint/json`.
-- [`css-stylistic/indentation`](https://github.com/KazariEX/eslint-plugin-css-stylistic) checks CSS depth and provides additional alignment options.
-- [`json-canonical/pretty-format`](https://github.com/ExaDev/eslint-plugin-json-canonical) formats entire JSON documents, including line breaks.
-- [`template-indent`](./template-indent.md) handles selected JavaScript template literals, which this rule does not check.
-
-Disable this rule where another formatter or indentation rule enforces a conflicting layout.
+Recognizes LF, CRLF, and CR, plus form feed in CSS. JSON5 indentation containing `U+2028` or `U+2029` is left untouched because its parser does not recognize them as line boundaries.
