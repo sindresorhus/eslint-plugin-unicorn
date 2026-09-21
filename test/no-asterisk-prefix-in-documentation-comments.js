@@ -26,6 +26,11 @@ test.snapshot({
 			 */
 		`,
 		outdent`
+			/****
+			 * Decorative banner.
+			 */
+		`,
+		outdent`
 			/**
 			* This leading asterisk is content.
 			*/

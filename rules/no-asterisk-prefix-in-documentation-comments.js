@@ -35,8 +35,9 @@ const getProblem = (context, comment) => {
 	const range = getCommentRange(sourceCode, comment);
 	const text = sourceCode.text.slice(...range);
 	const isJavaScriptComment = comment.type === 'Block';
+	const isJavaScriptDocumentationComment = text.startsWith('/**') && text[3] !== '*';
 
-	if (!text.startsWith('/*') || (isJavaScriptComment && !text.startsWith('/**')) || !LINE_ENDING_PATTERN.test(text)) {
+	if (!text.startsWith('/*') || (isJavaScriptComment && !isJavaScriptDocumentationComment) || !LINE_ENDING_PATTERN.test(text)) {
 		return;
 	}
 
