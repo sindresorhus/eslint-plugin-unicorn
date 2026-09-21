@@ -57,7 +57,8 @@ a {
 
 ### `ignoreShorthands`
 
-Type: `string[]`  
+Type: `string[]`
+
 Default: `[]`
 
 The exact unprefixed shorthand names to ignore. Ignoring a shorthand also ignores its vendor-prefixed forms.
