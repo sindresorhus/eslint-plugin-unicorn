@@ -9,6 +9,7 @@ test.snapshot({
 	valid: withCssLanguage([
 		'#dialog, .dialog {}',
 		'#dialog, > .dialog { .close {} }',
+		'#dialog, .dialog* { & .close {} }',
 		'#dialog, .dialog { @media (width > 40rem) { color: red; } }',
 		'#dialog { & .close {} }',
 		'#dialog, #modal { & .close {} }',

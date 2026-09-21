@@ -87,6 +87,41 @@ const hasInvalidCombinator = (selector, allowLeadingCombinator) => selector.chil
 	|| nodes[index + 1]?.type === 'Combinator'
 ));
 
+const hasInvalidCompound = selector => {
+	let hasSimpleSelector = false;
+	let hasPseudoElement = false;
+
+	for (const node of selector.children) {
+		if (node.type === 'Combinator') {
+			if (hasPseudoElement) {
+				return true;
+			}
+
+			hasSimpleSelector = false;
+			continue;
+		}
+
+		const isPseudoElement = node.type === 'PseudoElementSelector'
+			|| (node.type === 'PseudoClassSelector' && LEGACY_PSEUDO_ELEMENTS.has(normalizeCssIdentifier(node.name)));
+		if (isPseudoElement) {
+			if (hasPseudoElement) {
+				return true;
+			}
+
+			hasPseudoElement = true;
+		} else if (
+			hasPseudoElement
+			|| (node.type === 'TypeSelector' && hasSimpleSelector)
+		) {
+			return true;
+		}
+
+		hasSimpleSelector = true;
+	}
+
+	return false;
+};
+
 const areSelectorArgumentsRepresentable = (node, name, selectorArgument) => {
 	const selectors = selectorArgument.type === 'Selector' ? [selectorArgument] : selectorArgument.children;
 	if (
@@ -152,7 +187,9 @@ const isPseudoSelectorRepresentable = (node, allowPseudoElements) => {
 };
 
 function isSelectorRepresentable(selector, allowPseudoElements, allowLeadingCombinator) {
-	return !hasInvalidCombinator(selector, allowLeadingCombinator) && selector.children.every(node => isPseudoSelectorRepresentable(node, allowPseudoElements));
+	return !hasInvalidCombinator(selector, allowLeadingCombinator)
+		&& !hasInvalidCompound(selector)
+		&& selector.children.every(node => isPseudoSelectorRepresentable(node, allowPseudoElements));
 }
 
 const canMatchSelector = selector => isSelectorRepresentable(selector, true, true);

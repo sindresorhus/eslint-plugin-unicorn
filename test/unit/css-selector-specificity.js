@@ -67,4 +67,9 @@ test('recognizes supported pseudo-selector forms', t => {
 	t.false(canMatchSelector(parseSelector(':host(#dialog a)')));
 	t.false(canMatchSelector(parseSelector('::slotted(#dialog a)')));
 	t.false(canMatchSelector(parseSelector(':has(:has(#dialog))')));
+	t.false(canMatchSelector(parseSelector('a::before c')));
+	t.false(canMatchSelector(parseSelector('a::before.foo')));
+	t.false(canMatchSelector(parseSelector('a::before:not(.x)')));
+	t.false(canMatchSelector(parseSelector('a*')));
+	t.false(canMatchSelector(parseSelector('a::before::marker')));
 });

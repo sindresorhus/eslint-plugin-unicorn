@@ -1,4 +1,10 @@
-import {find, generate, ident} from '@eslint/css-tree';
+import {
+	find,
+	generate,
+	ident,
+	tokenize,
+	tokenTypes,
+} from '@eslint/css-tree';
 import {
 	canBeRepresentedByNestingSelector,
 	canMatchSelector,
@@ -69,10 +75,24 @@ const getTerminalCompoundNodes = selector => {
 
 const isPseudoElementWithNestingSelector = node => node.type === 'PseudoElementSelector' && Boolean(find(node, descendant => descendant.type === 'NestingSelector'));
 
+const getTypeSelectorKey = name => {
+	const tokens = [];
+	tokenize(name, (type, start, end) => {
+		const value = name.slice(start, end);
+		tokens.push([type, type === tokenTypes.Ident ? ident.decode(value) : value]);
+	});
+
+	return JSON.stringify(tokens);
+};
+
 const getTerminalNodeKey = node => {
 	switch (node.type) {
 		case 'NestingSelector': {
 			return;
+		}
+
+		case 'TypeSelector': {
+			return `TypeSelector:${getTypeSelectorKey(node.name)}`;
 		}
 
 		case 'ClassSelector':
@@ -96,21 +116,30 @@ const getTerminalNodeKey = node => {
 };
 
 const joinTerminalKeyParts = (parts, parentKey = '') => {
-	let key = '';
+	const parentParts = parentKey ? JSON.parse(parentKey) : [];
+	const keyParts = new Set();
+	let unnormalizedLength = 0;
 	for (const part of parts) {
-		if (part === '') {
-			continue;
-		}
-
-		const value = part === undefined ? parentKey : `${part.length}:${part}`;
-		if (key.length + value.length > MAXIMUM_TERMINAL_KEY_LENGTH) {
+		unnormalizedLength += part === undefined ? parentKey.length : part.length;
+		if (unnormalizedLength > MAXIMUM_TERMINAL_KEY_LENGTH) {
 			return;
 		}
 
-		key += value;
+		if (part === undefined) {
+			for (const parentPart of parentParts) {
+				keyParts.add(parentPart);
+			}
+		} else if (part !== '') {
+			keyParts.add(part);
+		}
 	}
 
-	return key;
+	if (keyParts.size === 0) {
+		return;
+	}
+
+	const key = JSON.stringify([...keyParts].toSorted());
+	return key.length <= MAXIMUM_TERMINAL_KEY_LENGTH ? key : undefined;
 };
 
 const getTerminalKeys = (selector, parentTerminalKeys) => {
@@ -319,8 +348,13 @@ const create = context => {
 		const parentTerminalKeys = parentRule ? ruleTerminalKeys.get(parentRule) ?? [] : [];
 		const nestingSpecificity = getMaximumSpecificity(parentSpecificities ?? []);
 		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, context);
-		const allowsRelativeSelector = Boolean(parentRule) || hasScopeAncestor(rule, context);
-		const hasUnresolvedSelectorList = rule.prelude.children.some(selector => hasRawNode(selector) || !canMatchSelector(selector) || (!allowsRelativeSelector && hasLeadingCombinator(selector)));
+		const isScoped = hasScopeAncestor(rule, context);
+		const allowsRelativeSelector = Boolean(parentRule) || isScoped;
+		const hasUnresolvedSelectorList = rule.prelude.children.some(selector => hasRawNode(selector)
+			|| !canMatchSelector(selector)
+			|| (!allowsRelativeSelector && hasLeadingCombinator(selector))
+			|| (isScoped && Boolean(find(selector, node => (!parentRule && node.type === 'NestingSelector')
+				|| (node.type === 'PseudoClassSelector' && normalizeCssIdentifier(node.name) === 'scope')))));
 		const canResolveAgainstParent = !hasUnresolvedParent && (!parentRule || parentSpecificities?.length > 0);
 
 		const analyses = [];
