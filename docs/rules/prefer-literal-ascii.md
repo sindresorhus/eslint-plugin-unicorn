@@ -19,7 +19,7 @@ Directive prologues are reported but not automatically fixed because replacing a
 
 This rule intentionally does not report `\/` in JavaScript. Use ESLint's [`no-useless-escape`](https://eslint.org/docs/latest/rules/no-useless-escape) rule for that. If this rule gains JSON support later, it can report `\/` there because JSON permits the escape.
 
-Use the [`prefer-unicode-code-point-escapes`](prefer-unicode-code-point-escapes.md) rule for non-ASCII legacy escapes.
+Use the [`prefer-unicode-code-point-escapes`](prefer-unicode-code-point-escapes.md) rule for other legacy escapes.
 
 Autofixes assume standalone JavaScript syntax. If JavaScript is embedded directly in HTML, materializing a character such as `<` may affect how the surrounding HTML is parsed.
 
