@@ -3,98 +3,45 @@ const messages = {
 	[MESSAGE_ID]: 'This numeric literal loses precision when represented as an IEEE 754 binary64 value.',
 };
 
-/*
-The precision comparison below is adapted from https://github.com/eslint/eslint/blob/v10.11.0/lib/rules/no-loss-of-precision.js
-
-Copyright OpenJS Foundation and other contributors, <www.openjsf.org>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-const removeSign = number => number[0] === '+' || number[0] === '-' ? number.slice(1) : number;
-
-const removeLeadingZeros = number => number.replace(/^0+/u, '') || '0';
-
-const removeTrailingZeros = number => number.replace(/0+$/u, '') || '0';
-
-const normalizeInteger = integer => {
-	const withoutLeadingZeros = removeLeadingZeros(integer);
-	return {
-		coefficient: removeTrailingZeros(withoutLeadingZeros),
-		magnitude: withoutLeadingZeros.length - 1,
-	};
-};
-
-const normalizeFloat = float => {
-	const withoutLeadingZeros = removeLeadingZeros(float);
-	const decimalPointIndex = withoutLeadingZeros.indexOf('.');
-
-	if (decimalPointIndex === 0) {
-		const coefficient = removeLeadingZeros(withoutLeadingZeros.slice(1));
-		return {
-			coefficient,
-			magnitude: coefficient.length - withoutLeadingZeros.length,
-		};
-	}
-
-	if (decimalPointIndex === -1) {
-		return {
-			coefficient: withoutLeadingZeros,
-			magnitude: withoutLeadingZeros.length - 1,
-		};
-	}
+const getDecimalRepresentation = text => {
+	const [mantissa, exponent = '0'] = text.toLowerCase().split('e', 2);
+	const decimalPointIndex = mantissa.indexOf('.');
+	const fractionLength = decimalPointIndex === -1 ? 0 : mantissa.length - decimalPointIndex - 1;
+	const significantDigits = mantissa.replace('.', '').replace(/^0+/u, '');
+	const digits = significantDigits.replace(/0+$/u, '');
 
 	return {
-		coefficient: withoutLeadingZeros.replace('.', ''),
-		magnitude: decimalPointIndex - 1,
+		digits,
+		power: Number(exponent) - fractionLength + significantDigits.length - digits.length,
+		precision: (decimalPointIndex === -1 || text.endsWith('.') ? digits : significantDigits).length || 1,
 	};
-};
-
-const normalizeNumber = (number, parseAsFloat) => {
-	const [coefficient, exponent] = number.split('e', 2);
-	const normalized = parseAsFloat || coefficient.includes('.') ? normalizeFloat(coefficient) : normalizeInteger(coefficient);
-	if (exponent !== undefined) {
-		normalized.magnitude += Number(exponent);
-	}
-
-	return normalized;
 };
 
 const decimalLosesPrecision = (raw, value) => {
-	const normalizedRaw = normalizeNumber(raw.toLowerCase().replace(/\.$/u, ''), false);
-	value = Math.abs(value);
-
+	const written = getDecimalRepresentation(raw);
 	if (value === 0) {
-		return !/^0+$/u.test(normalizedRaw.coefficient);
+		return written.digits !== '';
 	}
 
-	if (!Number.isFinite(value)) {
+	if (!Number.isFinite(value) || written.precision > 100) {
 		return true;
 	}
 
-	const requestedPrecision = normalizedRaw.coefficient.length;
-	if (requestedPrecision > 100) {
-		// `Number#toPrecision()` only accepts up to 100 significant digits.
-		return true;
-	}
-
-	const normalizedStored = normalizeNumber(value.toPrecision(requestedPrecision), true);
-	return normalizedRaw.magnitude !== normalizedStored.magnitude || normalizedRaw.coefficient !== normalizedStored.coefficient;
+	const stored = getDecimalRepresentation(Math.abs(value).toPrecision(written.precision));
+	return written.digits !== stored.digits || written.power !== stored.power;
 };
 
-const hexadecimalLosesPrecision = (raw, value) => !raw.toLowerCase().endsWith(Math.abs(value).toString(16));
-
 const losesPrecision = (raw, value) => {
-	raw = removeSign(raw);
+	raw = raw.replace(/^[+-]/u, '');
 	if (/^(?:inf(?:inity)?|nan)$/iu.test(raw)) {
 		return false;
 	}
 
-	return /^0x/iu.test(raw) ? hexadecimalLosesPrecision(raw, value) : decimalLosesPrecision(raw, value);
+	if (/^0x/iu.test(raw)) {
+		return !Number.isFinite(value) || BigInt(raw) !== BigInt(Math.abs(value));
+	}
+
+	return decimalLosesPrecision(raw, value);
 };
 
 const getProblem = (node, raw, value) => {
