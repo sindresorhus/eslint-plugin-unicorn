@@ -127,6 +127,7 @@ export {default as 'no-object-methods-with-collections'} from './no-object-metho
 export {default as 'no-optional-chaining-on-undeclared-variable'} from './no-optional-chaining-on-undeclared-variable.js';
 export {default as 'no-process-exit'} from './no-process-exit.js';
 export {default as 'no-redundant-comparison'} from './no-redundant-comparison.js';
+export {default as 'no-redundant-longhand-properties'} from './no-redundant-longhand-properties.js';
 export {default as 'no-redundant-nested-style-rules'} from './no-redundant-nested-style-rules.js';
 export {default as 'no-return-array-push'} from './no-return-array-push.js';
 export {default as 'no-selector-as-dom-name'} from './no-selector-as-dom-name.js';

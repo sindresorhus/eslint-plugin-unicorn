@@ -96,6 +96,7 @@ const config = [
 	{
 		files: [
 			'test/no-deprecated-css-features.js',
+			'test/no-redundant-longhand-properties.js',
 			'test/prefer-continue.js',
 			'test/prefer-early-return.js',
 			'test/prefer-ternary.js',
