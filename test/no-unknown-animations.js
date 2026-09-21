@@ -26,6 +26,7 @@ test.snapshot({
 		`,
 		'@keyframes fade {} a { animation-name: "fade"; }',
 		'@keyframes "fade" {} a { animation-name: fade; }',
+		'@keyframes "fade" {} a { animation: 1s "fade"; }',
 		'@keyframes "none" {} a { animation-name: "none"; }',
 		'@keyframes "inherit" {} a { animation-name: "inherit"; }',
 		'@keyframes "default" {} a { animation-name: "default"; }',
@@ -53,6 +54,7 @@ test.snapshot({
 		'a { animation-name: inherit; }',
 		String.raw`a { animation-name: \69 nherit; animation: 1s \6e one; }`,
 		'a { animation: 1s ease infinite alternate both paused; }',
+		'a { animation: --timeline; }',
 		String.raw`a { animation: \65 ase var(--duration); }`,
 		'a { animation: var(--value) ease; } b { animation: var(--value) --timeline; }',
 		'a { animation-name: var(--animation); }',
@@ -79,6 +81,7 @@ test.snapshot({
 			@keyframes fade {}
 		`,
 		'a { animation-name: "missing"; }',
+		'a { animation: 1s "missing"; }',
 		'a { animation-name: ease; }',
 		String.raw`a { animation-name: m\69 ssing; }`,
 		String.raw`a { anim\61 tion-name: missing; }`,
