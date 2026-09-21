@@ -320,6 +320,10 @@ const serializeShorthand = (shorthand, declarations, sourceCode) => {
 	}
 
 	if (shorthand === 'list-style') {
+		if (['inside', 'outside'].includes(values[0].toLowerCase())) {
+			return;
+		}
+
 		return `${values[1]} ${values[0]} ${values[2]}`;
 	}
 
@@ -397,7 +401,7 @@ const propertyAffectsComponent = (property, component) => {
 	});
 };
 
-const getCandidates = (declarationChildren, {shorthand, definition, catalogIndex}, sourceCode) => {
+const getCandidates = (children, {shorthand, definition, catalogIndex}, sourceCode) => {
 	const candidates = [];
 	const declarations = new Map();
 	const duplicateComponents = new Set();
@@ -410,6 +414,11 @@ const getCandidates = (declarationChildren, {shorthand, definition, catalogIndex
 		for (const property of resetProperties) {
 			resetStates.set(property, {declaration, keyword});
 		}
+	};
+	const clearState = () => {
+		declarations.clear();
+		duplicateComponents.clear();
+		resetStates.clear();
 	};
 
 	const addCandidate = () => {
@@ -436,24 +445,20 @@ const getCandidates = (declarationChildren, {shorthand, definition, catalogIndex
 		});
 	};
 
-	for (const child of declarationChildren) {
+	for (const child of children) {
+		if (child.type !== 'Declaration') {
+			addCandidate();
+			clearState();
+			continue;
+		}
+
 		const property = child.property.toLowerCase();
 		const childVendorPrefix = getVendorPrefix(property);
 		const unprefixedProperty = property.slice(childVendorPrefix.length);
 
-		if (unprefixedProperty === 'all') {
+		if (unprefixedProperty === 'all' || childVendorPrefix !== '') {
 			addCandidate();
-			declarations.clear();
-			duplicateComponents.clear();
-			resetStates.clear();
-			continue;
-		}
-
-		if (childVendorPrefix !== '') {
-			addCandidate();
-			declarations.clear();
-			duplicateComponents.clear();
-			resetStates.clear();
+			clearState();
 			continue;
 		}
 
@@ -576,8 +581,7 @@ const create = context => {
 	const comments = getComments(context);
 
 	context.on('Block', function * (block) {
-		const declarationChildren = block.children.filter(child => child.type === 'Declaration');
-		if (declarationChildren.length === 0) {
+		if (!block.children.some(child => child.type === 'Declaration')) {
 			return;
 		}
 
@@ -593,7 +597,7 @@ const create = context => {
 		let catalogIndex = 0;
 		for (const [shorthand, definition] of shorthandProperties) {
 			if (!ignoredShorthands.has(shorthand)) {
-				candidates.push(...getCandidates(declarationChildren, {shorthand, definition, catalogIndex}, sourceCode));
+				candidates.push(...getCandidates(block.children, {shorthand, definition, catalogIndex}, sourceCode));
 			}
 
 			catalogIndex++;

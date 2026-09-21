@@ -12,6 +12,7 @@ testRule.snapshot({
 	valid: [
 		'a { margin-top: 1px; margin-right: 2px; margin-bottom: 3px; }',
 		'a { margin-top: 1px; margin-right: 2px; } b { margin-bottom: 3px; margin-left: 4px; }',
+		'a { margin-top: 1px; margin-right: 2px; @media (width > 0px) { margin-top: 9px; margin-bottom: 9px; } margin-bottom: 3px; margin-left: 4px; }',
 		'a { margin-top: 1px; margin-right: 2px; margin-bottom: 3px !important; margin-left: 4px; }',
 		'a { margin-top: inherit; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
 		'a { margin-top: red; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
@@ -29,6 +30,8 @@ testRule.snapshot({
 		'a { border-top-width: 1px; border-right-width: 2px; border-block-start-width: 5px; border-bottom-width: 3px; border-left-width: 4px; }',
 		'a { border-image-source: url(border.png); border-width: 1px; border-style: solid; border-color: red; }',
 		'a { column-width: 20rem; column-count: 2; }',
+		'a { list-style-type: inside; list-style-position: outside; list-style-image: none; }',
+		'a { list-style-type: outside; list-style-position: inside; list-style-image: none; }',
 		'a { column-wrap: wrap; column-height: 100px; column-width: 20rem; column-count: 2; }',
 		'a { column-wrap: initial; column-height: 100px; column-width: 20rem; column-count: 2; }',
 		'a { columns: 20rem 2 / 100px; column-height: auto; column-width: 20rem; column-count: 2; }',
@@ -281,6 +284,11 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { margin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; @media (width > 0px) { color: red; } }',
+			output: 'a { margin: 1px 2px 3px 4px; @media (width > 0px) { color: red; } }',
+			errors: 1,
+		},
+		{
 			code: 'a { row-gap: 1px; column-gap: 1px; }',
 			output: 'a { gap: 1px; }',
 			errors: 1,
@@ -298,6 +306,16 @@ testRule({
 		{
 			code: 'a { text-emphasis-style: filled circle; text-emphasis-color: red; }',
 			output: 'a { text-emphasis: filled circle red; }',
+			errors: 1,
+		},
+		{
+			code: 'a { text-decoration-line: underline; text-decoration-style: solid; text-decoration-color: red; text-decoration-thickness: 2px; }',
+			output: 'a { text-decoration: underline solid red 2px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-width: 1px; border-block-style: solid; border-block-color: red; }',
+			output: 'a { border-block: 1px solid red; }',
 			errors: 1,
 		},
 		{
@@ -433,6 +451,11 @@ testRule({
 		{
 			code: 'a { grid-row-start: 1; grid-column-start: 2; grid-row-end: 3; grid-column-end: 4; }',
 			output: 'a { grid-area: 1 / 2 / 3 / 4; }',
+			errors: 1,
+		},
+		{
+			code: 'a { grid-row-start: 1; grid-row-end: 3; }',
+			output: 'a { grid-row: 1 / 3; }',
 			errors: 1,
 		},
 		{
@@ -631,8 +654,8 @@ testRule({
 			errors: 1,
 		},
 		{
-			code: 'a { list-style-type: inside; list-style-position: outside; list-style-image: none; }',
-			output: 'a { list-style: outside inside none; }',
+			code: 'a { list-style-type: disc; list-style-position: outside; list-style-image: none; }',
+			output: 'a { list-style: outside disc none; }',
 			errors: 1,
 		},
 		{
