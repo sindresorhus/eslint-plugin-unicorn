@@ -318,8 +318,8 @@ const create = context => {
 		const parentSpecificities = parentRule && ruleSpecificities.get(parentRule);
 		const parentTerminalKeys = parentRule ? ruleTerminalKeys.get(parentRule) ?? [] : [];
 		const nestingSpecificity = getMaximumSpecificity(parentSpecificities ?? []);
-		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, sourceCode);
-		const allowsRelativeSelector = Boolean(parentRule) || hasScopeAncestor(rule, sourceCode);
+		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, context);
+		const allowsRelativeSelector = Boolean(parentRule) || hasScopeAncestor(rule, context);
 		const hasUnresolvedSelectorList = rule.prelude.children.some(selector => hasRawNode(selector) || !canMatchSelector(selector) || (!allowsRelativeSelector && hasLeadingCombinator(selector)));
 		const canResolveAgainstParent = !hasUnresolvedParent && (!parentRule || parentSpecificities?.length > 0);
 

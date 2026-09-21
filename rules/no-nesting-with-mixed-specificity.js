@@ -19,7 +19,6 @@ const hasMixedSpecificity = specificities => specificities.some(specificity => c
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
 	const ruleSpecificities = new WeakMap();
 
 	context.on('Rule', rule => {
@@ -30,8 +29,8 @@ const create = context => {
 		const parentRule = getParentStyleRule(rule, context);
 		const parentSpecificities = parentRule && ruleSpecificities.get(parentRule);
 		const nestingSpecificity = getMaximumSpecificity(parentSpecificities ?? []);
-		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, sourceCode);
-		const hasTopLevelRelativeSelector = !parentRule && !hasScopeAncestor(rule, sourceCode) && rule.prelude.children.some(selector => hasLeadingCombinator(selector));
+		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, context);
+		const hasTopLevelRelativeSelector = !parentRule && !hasScopeAncestor(rule, context) && rule.prelude.children.some(selector => hasLeadingCombinator(selector));
 		const specificities = parentSpecificities?.length === 0 || hasUnresolvedParent || hasTopLevelRelativeSelector ? [] : getRuleSpecificities(rule, nestingSpecificity);
 		ruleSpecificities.set(rule, specificities);
 
