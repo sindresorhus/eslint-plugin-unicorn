@@ -5,7 +5,8 @@ const {test} = getTester(import.meta);
 
 const asCss = code => ({code, language: languages.css});
 const tooManyTerminalKeys = `body { .x { ${Array.from({length: 65}, (_, index) => `&.item-${index}`).join(', ')} { &.leaf { color: red; } } } } .x.item-0.leaf { color: blue; }`;
-const tooLongTerminalKey = `body { .x { ${'&& { '.repeat(10)}color: red;${'}'.repeat(10)} } } ${'.x'.repeat(1024)} { color: blue; }`;
+const overlongClassName = 'x'.repeat(1030);
+const tooLongTerminalKey = `body .${overlongClassName} { color: red; } .${overlongClassName} { color: blue; }`;
 const tooManyTerminalKeyAssociations = `body { .x, .y { ${Array.from({length: 200}, () => '&.item').join(', ')} { color: red; } } } .x.item { color: blue; }`;
 
 test.snapshot({
