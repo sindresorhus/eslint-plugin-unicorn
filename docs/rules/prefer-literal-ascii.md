@@ -9,19 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Numeric escapes can obscure ordinary printable characters. This rule replaces `\xXX`, `\uXXXX`, and `\u{X…}` escapes in JavaScript string literals and untagged template literals for printable ASCII code points from U+0020 through U+007E with their literal characters.
+Prefer literal printable ASCII (U+0020–U+007E) over `\xXX`, `\uXXXX`, and `\u{X…}` escapes in JavaScript strings and untagged templates. Quotes, backslashes, and template delimiters stay escaped when needed.
 
-Characters that need escaping for JavaScript syntax, such as the surrounding quote, backslash, and template literal delimiters, are kept escaped using their conventional short form.
+Tagged templates, regex literals, and JSX attribute strings are ignored. Use [`prefer-unicode-code-point-escapes`](prefer-unicode-code-point-escapes.md) for other legacy escapes and ESLint's [`no-useless-escape`](https://eslint.org/docs/latest/rules/no-useless-escape) for `\/` in JavaScript. This rule may cover `\/` if JSON support is added.
 
-Tagged template literals are ignored because tag functions can observe the raw escape sequences. Regular expression literals are also ignored because their escape semantics differ from strings. JSX attribute strings are ignored because JSX does not interpret JavaScript escape sequences in them.
-
-Directive prologues are reported but not automatically fixed because replacing an escape can turn a plain string expression into a directive and change runtime behavior. A fix is also omitted when a literal digit would extend a preceding `\0` or legacy octal escape. TypeScript template literal types containing a literal backslash are reported without an autofix because replacing another escape could complete an incomplete escape and change the type.
-
-This rule intentionally does not report `\/` in JavaScript. Use ESLint's [`no-useless-escape`](https://eslint.org/docs/latest/rules/no-useless-escape) rule for that. If this rule gains JSON support later, it can report `\/` there because JSON permits the escape.
-
-Use the [`prefer-unicode-code-point-escapes`](prefer-unicode-code-point-escapes.md) rule for other legacy escapes.
-
-Autofixes assume standalone JavaScript syntax. If JavaScript is embedded directly in HTML, materializing a character such as `<` may affect how the surrounding HTML is parsed.
+Autofix is omitted for directive prologues, digits that would extend a preceding `\0` or legacy octal escape, and TypeScript template literal types without substitutions when they contain a literal backslash. In HTML-embedded JavaScript, making `<` literal may affect HTML parsing.
 
 ## Examples
 
