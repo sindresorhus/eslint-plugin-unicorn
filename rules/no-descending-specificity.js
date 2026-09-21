@@ -231,6 +231,10 @@ const getRuleTerminalKeys = analyses => {
 	return [...terminalKeys];
 };
 
+const getNestingSpecificities = (rule, nestingSpecificity) => rule.prelude.children.some(selector => !canBeRepresentedByNestingSelector(selector))
+	? []
+	: getRuleSpecificities(rule, nestingSpecificity);
+
 const getStrongerEntry = (first, second) => {
 	if (!first) {
 		return second;
@@ -384,16 +388,16 @@ const create = context => {
 		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, context);
 		const isScoped = hasScopeAncestor(rule, context);
 		const allowsRelativeSelector = Boolean(parentRule) || isScoped;
-		const hasUnresolvedSelectorList = rule.prelude.children.some(selector => hasUnsupportedSelector(selector)
+		const hasUnresolvedSelectors = rule.prelude.children.some(selector => hasUnsupportedSelector(selector)
 			|| !canMatchSelector(selector)
 			|| (!allowsRelativeSelector && hasLeadingCombinator(selector))
-			|| (isScoped && !parentRule && Boolean(find(selector, node => node.type === 'NestingSelector'))));
+			|| (!parentRule && Boolean(find(selector, node => node.type === 'NestingSelector'))));
 		const canResolveAgainstParent = !hasUnresolvedParent && (!parentRule || parentSpecificities?.length > 0);
 
 		const analyses = [];
 		let terminalKeyAssociationCount = 0;
 		let exceedsTerminalKeyBudget = false;
-		if (!hasUnresolvedSelectorList) {
+		if (!hasUnresolvedSelectors) {
 			for (const selector of rule.prelude.children) {
 				const terminalKeys = getResolvableTerminalKeys(selector, parentTerminalKeys, canResolveAgainstParent);
 				terminalKeyAssociationCount += terminalKeys.length;
@@ -413,7 +417,7 @@ const create = context => {
 			}
 		}
 
-		const specificities = hasUnresolvedParent || hasUnresolvedSelectorList || exceedsTerminalKeyBudget || parentSpecificities?.length === 0 ? [] : getRuleSpecificities(rule, nestingSpecificity);
+		const specificities = hasUnresolvedParent || hasUnresolvedSelectors || exceedsTerminalKeyBudget || parentSpecificities?.length === 0 ? [] : getNestingSpecificities(rule, nestingSpecificity);
 		ruleSpecificities.set(rule, specificities);
 		ruleTerminalKeys.set(rule, getRuleTerminalKeys(analyses));
 		analysesByRule.set(rule, analyses);
