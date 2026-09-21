@@ -17,6 +17,20 @@ Common replacements include `\u000A` → `\n`, `\u002F` → `/`, and unescaped q
 
 ## Examples
 
+For JavaScript:
+
+```js
+// ❌
+const text = "Line one\u000ALine two";
+const template = `Line one\u000ALine two`;
+
+// ✅
+const text = "Line one\nLine two";
+const template = `Line one\nLine two`;
+```
+
+For JSON and JSONC:
+
 ```jsonc
 // ❌
 {
@@ -51,18 +65,6 @@ For `.json5` files:
 	nullCharacter: '\0',
 	apostrophe: '\'',
 }
-```
-
-For JavaScript:
-
-```js
-// ❌
-const text = "Line one\u000ALine two";
-const template = `Line one\u000ALine two`;
-
-// ✅
-const text = "Line one\nLine two";
-const template = `Line one\nLine two`;
 ```
 
 For TOML basic strings:
