@@ -235,6 +235,12 @@ test({
 			options: [{patterns: noToYesPattern}],
 			errors: Array.from({length: 3}, () => createError('no', 'yes')[0]),
 		},
+		{
+			code: 'const foo = `no\r\n${foo}no`',
+			output: 'const foo = `yes\r\n${foo}yes`',
+			options: [{patterns: noToYesPattern}],
+			errors: Array.from({length: 2}, () => createError('no', 'yes')[0]),
+		},
 		// Escape
 		{
 			code: 'const foo = `foo_foo`',

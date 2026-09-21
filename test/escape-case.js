@@ -136,6 +136,10 @@ test({
 			output: 'const foo = `\\xA9`;',
 		},
 		{
+			code: 'const foo = `a\\xa9\r\n${foo}b`;',
+			output: 'const foo = `a\\xA9\r\n${foo}b`;',
+		},
+		{
 			code: 'const foo = `\\ud834`;',
 			output: 'const foo = `\\uD834`;',
 		},

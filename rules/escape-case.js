@@ -1,5 +1,6 @@
 import {replaceTemplateElement} from './fix/index.js';
 import {isRegexLiteral, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
+import {getTemplateElementRaw} from './utils/index.js';
 
 const MESSAGE_ID_UPPERCASE = 'escape-uppercase';
 const MESSAGE_ID_LOWERCASE = 'escape-lowercase';
@@ -70,7 +71,7 @@ const create = context => {
 
 		return getProblem({
 			node,
-			original: node.value.raw,
+			original: getTemplateElementRaw(node, context),
 			lowercase: isLowercase,
 			fix: (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer),
 		});
