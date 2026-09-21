@@ -82,6 +82,7 @@ export {default as 'no-duplicate-font-family-names'} from './no-duplicate-font-f
 export {default as 'no-duplicate-if-branches'} from './no-duplicate-if-branches.js';
 export {default as 'no-duplicate-logical-operands'} from './no-duplicate-logical-operands.js';
 export {default as 'no-duplicate-loops'} from './no-duplicate-loops.js';
+export {default as 'no-duplicate-properties'} from './no-duplicate-properties.js';
 export {default as 'no-duplicate-set-values'} from './no-duplicate-set-values.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';
 export {default as 'no-error-property-assignment'} from './no-error-property-assignment.js';

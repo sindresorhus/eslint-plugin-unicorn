@@ -173,6 +173,7 @@ export default defineConfig([
 | [no-duplicate-if-branches](docs/rules/no-duplicate-if-branches.md)                                         | Disallow duplicate adjacent branches in if chains.                                                                             | ✅    |    |    |    |
 | [no-duplicate-logical-operands](docs/rules/no-duplicate-logical-operands.md)                               | Disallow adjacent duplicate operands in logical expressions.                                                                   | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-duplicate-loops](docs/rules/no-duplicate-loops.md)                                                     | Disallow `.map()` and `.filter()` in `for…of` and `for await…of` loop headers.                                                 | ✅    |    |    |    |
+| [no-duplicate-properties](docs/rules/no-duplicate-properties.md)                                           | Disallow duplicate properties within CSS declaration blocks.                                                                   |      |    | 💡 |    |
 | [no-duplicate-set-values](docs/rules/no-duplicate-set-values.md)                                           | Disallow duplicate values in `Set` constructor array literals.                                                                 | ✅    |    |    |    |
 | [no-empty-file](docs/rules/no-empty-file.md)                                                               | Disallow empty files.                                                                                                          | ✅ ☑️ |    |    |    |
 | [no-error-property-assignment](docs/rules/no-error-property-assignment.md)                                 | Disallow assigning to built-in error properties.                                                                               | ✅ ☑️ |    |    |    |
@@ -578,6 +579,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-css-selectors`](docs/rules/no-duplicate-css-selectors.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |  |
+| [`no-duplicate-properties`](docs/rules/no-duplicate-properties.md) | ✅ |  |  |  |  |  |
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |  |
