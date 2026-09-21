@@ -3,6 +3,7 @@ import {
 	tokenize,
 	tokenTypes,
 } from '@eslint/css-tree';
+import standardPseudoSelectors, {functionalPseudoSelectors} from './standard-pseudo-selectors.js';
 
 const ZERO_SPECIFICITY = [0, 0, 0];
 const TRANSPARENT_GROUP_RULES = new Set([
@@ -14,10 +15,13 @@ const TRANSPARENT_GROUP_RULES = new Set([
 const SELECTOR_LIST_PSEUDO_CLASSES = new Set([
 	'has',
 	'is',
+	'matches',
 	'not',
+	'where',
 ]);
 const FORGIVING_SELECTOR_LIST_PSEUDO_CLASSES = new Set([
 	'is',
+	'matches',
 	'where',
 ]);
 const NTH_PSEUDO_CLASSES = new Set([
@@ -30,6 +34,8 @@ const LEGACY_PSEUDO_ELEMENTS = new Set([
 	'first-letter',
 	'first-line',
 ]);
+const STANDARD_PSEUDO_SELECTORS = new Set(standardPseudoSelectors);
+const FUNCTIONAL_PSEUDO_SELECTORS = new Set(functionalPseudoSelectors);
 
 const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
 
@@ -76,16 +82,34 @@ const isSelectorRepresentable = (selector, allowPseudoElements) => selector.chil
 		return true;
 	}
 
+	const name = normalizeCssIdentifier(node.name);
+	const prefix = node.type === 'PseudoElementSelector' ? '::' : ':';
+	const pseudoSelector = `${prefix}${name}`;
+	if (!STANDARD_PSEUDO_SELECTORS.has(pseudoSelector)) {
+		return false;
+	}
+
+	if (node.children?.length === 0) {
+		return false;
+	}
+
+	if (node.children === null && FUNCTIONAL_PSEUDO_SELECTORS.has(pseudoSelector)) {
+		return false;
+	}
+
 	if (node.type === 'PseudoElementSelector' && !allowPseudoElements) {
 		return false;
 	}
 
-	const name = normalizeCssIdentifier(node.name);
 	if (LEGACY_PSEUDO_ELEMENTS.has(name)) {
 		return allowPseudoElements;
 	}
 
 	const selectorArgument = getSelectorArgument(node);
+	if (node.type === 'PseudoClassSelector' && SELECTOR_LIST_PSEUDO_CLASSES.has(name) && !selectorArgument) {
+		return false;
+	}
+
 	if (!selectorArgument) {
 		return true;
 	}
@@ -126,12 +150,14 @@ const getSelectorSpecificity = (selector, nestingSpecificity) => {
 };
 
 const getSelectorArgumentSpecificity = (selectorArgument, nestingSpecificity) => {
-	const selectors = (selectorArgument?.type === 'Selector' ? [selectorArgument] : selectorArgument?.children ?? [])
-		.filter(selector => canBeRepresentedByNestingSelector(selector));
-	const results = selectors.map(selector => getSelectorSpecificity(selector, nestingSpecificity));
+	const selectors = selectorArgument?.type === 'Selector' ? [selectorArgument] : selectorArgument?.children ?? [];
+	const results = selectors.map(selector => ({
+		...getSelectorSpecificity(selector, nestingSpecificity),
+		isRepresentable: canBeRepresentedByNestingSelector(selector),
+	}));
 
 	return {
-		specificity: getMaximumSpecificity(results.map(({specificity}) => specificity)),
+		specificity: getMaximumSpecificity(results.filter(({isRepresentable}) => isRepresentable).map(({specificity}) => specificity)),
 		hasNestingSelector: results.some(({hasNestingSelector}) => hasNestingSelector),
 	};
 };
@@ -223,9 +249,16 @@ const getRuleSelectorSpecificity = (selector, nestingSpecificity) => {
 		: specificity;
 };
 
-const getRuleSpecificities = (rule, nestingSpecificity) => rule.prelude.children
-	.filter(selector => canBeRepresentedByNestingSelector(selector))
-	.map(selector => getRuleSelectorSpecificity(selector, nestingSpecificity));
+const getRuleSpecificities = (rule, nestingSpecificity) => {
+	const selectors = rule.prelude.children;
+	if (selectors.some(selector => !canMatchSelector(selector))) {
+		return [];
+	}
+
+	return selectors
+		.filter(selector => canBeRepresentedByNestingSelector(selector))
+		.map(selector => getRuleSelectorSpecificity(selector, nestingSpecificity));
+};
 
 const getParentStyleRule = (rule, context) => {
 	const {sourceCode} = context;

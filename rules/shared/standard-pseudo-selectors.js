@@ -1,5 +1,38 @@
 // Generated file, DO NOT edit
 
+export const functionalPseudoSelectors = [
+	'::highlight',
+	'::nth-fragment',
+	'::part',
+	'::picker',
+	'::scroll-button',
+	'::slotted',
+	'::view-transition-group',
+	'::view-transition-group-children',
+	'::view-transition-image-pair',
+	'::view-transition-new',
+	'::view-transition-old',
+	':active-view-transition-type',
+	':dir',
+	':has',
+	':host-context',
+	':is',
+	':lang',
+	':link-to',
+	':matches',
+	':not',
+	':nth',
+	':nth-child',
+	':nth-col',
+	':nth-last-child',
+	':nth-last-col',
+	':nth-last-of-type',
+	':nth-of-page',
+	':nth-of-type',
+	':state',
+	':where',
+];
+
 export default [
 	'::after',
 	'::backdrop',

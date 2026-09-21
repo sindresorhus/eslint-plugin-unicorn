@@ -313,13 +313,13 @@ const create = context => {
 		const parentTerminalKeys = parentRule ? ruleTerminalKeys.get(parentRule) ?? [] : [];
 		const nestingSpecificity = getMaximumSpecificity(parentSpecificities ?? []);
 		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, sourceCode);
-		const hasRawSelector = rule.prelude.children.some(selector => hasRawNode(selector));
+		const hasUnresolvedSelectorList = rule.prelude.children.some(selector => hasRawNode(selector) || !canMatchSelector(selector));
 		const canResolveAgainstParent = !hasUnresolvedParent && (!parentRule || parentSpecificities?.length > 0);
 
 		const analyses = [];
 		let terminalKeyAssociationCount = 0;
 		let exceedsTerminalKeyBudget = false;
-		if (!hasRawSelector) {
+		if (!hasUnresolvedSelectorList) {
 			for (const selector of rule.prelude.children) {
 				const terminalKeys = getResolvableTerminalKeys(selector, parentTerminalKeys, canResolveAgainstParent);
 				terminalKeyAssociationCount += terminalKeys.length;
@@ -339,7 +339,7 @@ const create = context => {
 			}
 		}
 
-		const specificities = hasUnresolvedParent || hasRawSelector || exceedsTerminalKeyBudget || parentSpecificities?.length === 0 ? [] : getRuleSpecificities(rule, nestingSpecificity);
+		const specificities = hasUnresolvedParent || hasUnresolvedSelectorList || exceedsTerminalKeyBudget || parentSpecificities?.length === 0 ? [] : getRuleSpecificities(rule, nestingSpecificity);
 		ruleSpecificities.set(rule, specificities);
 		ruleTerminalKeys.set(rule, getRuleTerminalKeys(analyses));
 		analysesByRule.set(rule, analyses);

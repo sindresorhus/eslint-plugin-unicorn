@@ -25,6 +25,9 @@ test('calculates selector specificity', t => {
 	t.deepEqual(getSelectorSpecificities(':where(#dialog)'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':is(.dialog, #dialog)'), [[1, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':is(::before, *)'), [[0, 0, 0]]);
+	t.deepEqual(getSelectorSpecificities(':is(:unknown, *)'), [[0, 0, 0]]);
+	t.deepEqual(getSelectorSpecificities(':matches(.dialog, #dialog)'), [[1, 0, 0]]);
+	t.deepEqual(getSelectorSpecificities(':matches(:unknown, *)'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':not(.dialog, #dialog)'), [[1, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':has(.dialog, #dialog)'), [[1, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':nth-child(2n of .dialog, #dialog)'), [[1, 1, 0]]);
@@ -36,9 +39,11 @@ test('calculates explicit and implicit nesting specificity', t => {
 	const parentSpecificity = [1, 0, 0];
 	const explicitSelector = parseRule('& a').prelude.children.at(0);
 	const implicitSelector = parseRule('a').prelude.children.at(0);
+	const invalidBranchSelector = parseRule(':is(:unknown(&), .dialog)').prelude.children.at(0);
 
 	t.deepEqual(getRuleSelectorSpecificity(explicitSelector, parentSpecificity), [1, 0, 1]);
 	t.deepEqual(getRuleSelectorSpecificity(implicitSelector, parentSpecificity), [1, 0, 1]);
+	t.deepEqual(getRuleSelectorSpecificity(invalidBranchSelector, parentSpecificity), [0, 1, 0]);
 });
 
 test('excludes pseudo-element branches from nesting parents', t => {
