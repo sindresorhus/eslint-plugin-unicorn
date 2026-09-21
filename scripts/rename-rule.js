@@ -9,7 +9,7 @@ import * as ruleModules from '../rules/index.js';
 const sourceRuleIds = Object.keys(ruleModules);
 const renamableRules = sourceRuleIds.filter(ruleId => ruleId.includes('-'));
 const resolveFile = file => new URL(`../${file}`, import.meta.url);
-const isValidRuleId = ruleId => typeof ruleId === 'string' && /^[-a-z]+$/.test(ruleId);
+const isValidRuleId = ruleId => typeof ruleId === 'string' && /^[a-z][\d\-a-z]*$/.test(ruleId);
 
 function checkFiles(ruleId) {
 	const files = [

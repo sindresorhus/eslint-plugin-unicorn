@@ -35,9 +35,12 @@ test.serial('renameRule validates names before changing files', async t => {
 		await t.throwsAsync(renameRule(from, to), {message});
 	}
 
-	await t.throwsAsync(renameRule('prefer-path2d', 'renamed-rule'), {
-		message: 'Attempted to rename a file.',
-	});
+	for (const to of ['renamed-rule', 'prefer-path3d']) {
+		// eslint-disable-next-line no-await-in-loop
+		await t.throwsAsync(renameRule('prefer-path2d', to), {
+			message: 'Attempted to rename a file.',
+		});
+	}
 });
 
 test('replaceRuleId only rewrites complete rule IDs', t => {
