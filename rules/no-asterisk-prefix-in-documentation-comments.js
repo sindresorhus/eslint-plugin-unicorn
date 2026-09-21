@@ -83,7 +83,7 @@ const config = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Disallow asterisk prefixes in documentation, CSS, JSONC, and JSON5 comments.',
+			description: 'Disallow asterisk prefixes in multiline comments.',
 			recommended: true,
 		},
 		fixable: 'whitespace',
