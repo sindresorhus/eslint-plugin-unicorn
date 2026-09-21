@@ -11,7 +11,9 @@
 
 [Unicode code point escapes](https://mathiasbynens.be/notes/javascript-escapes#unicode-code-point) are more consistent than older escape forms. They use the actual code point value, which makes astral symbols easier to read than surrogate pairs.
 
-Tagged template literals are ignored because tag functions can observe the raw escape sequences.
+Tagged templates are ignored because tags can observe their raw text. JSX attributes are ignored because backslashes are literal text there.
+
+In strings and untagged template literals, four-digit `\uXXXX` escapes with shorter equivalents are left to [`prefer-short-escape-sequences`](prefer-short-escape-sequences.md). Regex literals continue to use code point escapes.
 
 Regex literals without the `u` or `v` flag are reported with a suggestion instead of an autofix because adding Unicode mode can change how the rest of the regex is interpreted. The suggestion is only provided when the converted regex is still valid with the `u` flag. [`require-unicode-regexp`](https://eslint.org/docs/latest/rules/require-unicode-regexp) can enforce Unicode regex mode more broadly.
 

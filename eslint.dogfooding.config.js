@@ -35,6 +35,7 @@ const config = [
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2341
 			'unicorn/escape-case': 'off',
 			'unicorn/prefer-unicode-code-point-escapes': 'off',
+			'unicorn/prefer-short-escape-sequences': 'off',
 			// Buggy
 			'unicorn/custom-error-definition': 'off',
 			'unicorn/consistent-function-scoping': 'off',

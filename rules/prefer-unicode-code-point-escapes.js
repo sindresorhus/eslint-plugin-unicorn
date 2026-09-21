@@ -14,6 +14,7 @@ const HEX_DIGIT = /^[\da-f]$/iv;
 const OCTAL_DIGIT = /^[0-7]$/v;
 const CONTROL_LETTER = /^[A-Za-z]$/v;
 const MAXIMUM_CODE_POINT = 0x10_FF_FF;
+const SHORT_ESCAPE_CODE_POINTS = new Set([0, 8, 9, 10, 11, 12, 13, 34, 39, 47, 92, 96]);
 
 function isHexDigit(character) {
 	return HEX_DIGIT.test(character);
@@ -157,7 +158,7 @@ function getHexEscape(text, index) {
 	};
 }
 
-function getUnicodeEscape(text, index, {allowSurrogatePair, allowSurrogate}) {
+function getUnicodeEscape(text, index, {allowSurrogatePair, allowSurrogate, preferShortEscape}) {
 	if (
 		text[index + 1] !== 'u'
 		|| text[index + 2] === '{'
@@ -167,6 +168,14 @@ function getUnicodeEscape(text, index, {allowSurrogatePair, allowSurrogate}) {
 
 	const value = parseHex(text, index + 2, 4);
 	if (value === undefined) {
+		return;
+	}
+
+	if (
+		preferShortEscape
+		&& SHORT_ESCAPE_CODE_POINTS.has(value)
+		&& (value !== 0 || !/^\d$/v.test(text[index + 6]))
+	) {
 		return;
 	}
 
@@ -205,6 +214,7 @@ function getEscapeReplacement(text, index, {isRegex, isInCharacterClass}) {
 		?? getUnicodeEscape(text, index, {
 			allowSurrogatePair: !isInCharacterClass,
 			allowSurrogate: !isRegex || !isInCharacterClass,
+			preferShortEscape: !isRegex,
 		})
 		?? (isRegex ? getControlEscape(text, index) : getOctalEscape(text, index));
 }
@@ -363,7 +373,7 @@ function getRegexProblem(node) {
 */
 const create = context => {
 	context.on('Literal', node => {
-		if (isStringLiteral(node)) {
+		if (isStringLiteral(node) && node.parent.type !== 'JSXAttribute') {
 			return getStringProblem(node, node.raw);
 		}
 
@@ -377,7 +387,8 @@ const create = context => {
 			return;
 		}
 
-		return getStringProblem(node, node.value.raw, (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
+		const raw = context.sourceCode.getText(node);
+		return getStringProblem(node, raw.slice(1, node.tail ? -1 : -2), (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
 	});
 };
 

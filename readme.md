@@ -398,6 +398,7 @@ export default defineConfig([
 | [prefer-set-methods](docs/rules/prefer-set-methods.md)                                                     | Prefer `Set` methods for Set operations.                                                                                       | ✅    | 🔧 | 💡 |    |
 | [prefer-set-size](docs/rules/prefer-set-size.md)                                                           | Prefer using `Set#size` instead of `Array#length`.                                                                             | ✅ ☑️ | 🔧 |    |    |
 | [prefer-short-arrow-method](docs/rules/prefer-short-arrow-method.md)                                       | Prefer arrow function properties over methods with a single return.                                                            |      | 🔧 |    |    |
+| [prefer-short-escape-sequences](docs/rules/prefer-short-escape-sequences.md)                               | Prefer shorter alternatives to Unicode escape sequences.                                                                       | ✅ ☑️ | 🔧 |    |    |
 | [prefer-simple-condition-first](docs/rules/prefer-simple-condition-first.md)                               | Prefer simple conditions first in logical expressions.                                                                         | ✅    | 🔧 |    |    |
 | [prefer-simple-sort-comparator](docs/rules/prefer-simple-sort-comparator.md)                               | Prefer a simple comparison function for `Array#sort()`.                                                                        | ✅ ☑️ |    | 💡 |    |
 | [prefer-simplified-conditions](docs/rules/prefer-simplified-conditions.md)                                 | Prefer simplified conditions.                                                                                                  | ✅ ☑️ | 🔧 |    |    |
@@ -493,6 +494,7 @@ export default defineConfig([
 		rules: {
 			'unicorn/no-empty-file': 'error',
 			'unicorn/prefer-https': 'error',
+			'unicorn/prefer-short-escape-sequences': 'error',
 		},
 	},
 	{
@@ -552,6 +554,7 @@ export default defineConfig([
 			'unicorn/number-literal-case': 'error',
 			'unicorn/numeric-separators-style': 'error',
 			'unicorn/prefer-https': 'error',
+			'unicorn/prefer-short-escape-sequences': 'error',
 		},
 	},
 ]);
@@ -598,6 +601,7 @@ These rules also work on specific non-JavaScript languages:
 | [`numeric-separators-style`](docs/rules/numeric-separators-style.md) |  |  |  |  | ✅ |  |
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |  |
 | [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |  |
+| [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md) |  |  | ✅ |  | ✅ |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |  |
 | [`string-content`](docs/rules/string-content.md) |  |  |  |  | ✅ |  |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |  |  |
