@@ -13,6 +13,8 @@ CSS treats property names, at-rule names, units, standard function names, pseudo
 
 The rule uses the CSS grammar to distinguish value keywords from case-sensitive custom identifiers such as animation names, font families, grid names, and counters.
 
+When a function contains a variable substitution, the rule may leave other identifiers in that function unchanged because their role cannot always be determined safely.
+
 ## Examples
 
 ```css

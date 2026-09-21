@@ -23,6 +23,7 @@ test.snapshot({
 		'a { animation-name: FadeIn; font-family: Times New Roman; grid-area: MainContent; counter-reset: Section; }',
 		'a { font: var(--Size) CAPTION; }',
 		'a { content: var(--Fallback) counter(NORMAL); }',
+		'a { content: counter(var(--Name), NORMAL); font-variant-alternates: styleset(var(--Name), NORMAL); }',
 		'a { content: "UPPERCASE"; background-image: url("IMAGE.PNG#ABC"); }',
 		'a { color: attr(RED); color: env(RED); display: env(BLOCK); }',
 		String.raw`a { background-image: element(#\41 BC); background-image: var(--Fallback), element(#DEF); background-image: -moz-element(#ABC); }`,
@@ -87,6 +88,11 @@ test({
 			code: '@media (\u00A0WIDTH: 1PX) {}',
 			output: '@media (\u00A0width: 1px) {}',
 			errors: 2,
+		},
+		{
+			code: String.raw`@media (\57 IDTH: 1P\58) { a:\48 OVER::\42 EFORE { color: CURRENTCOLOR; } }`,
+			output: '@media (width: 1px) { a:hover::before { color: currentcolor; } }',
+			errors: 5,
 		},
 		{
 			code: 'a { background-image: PAINT(MyPainter, #ABC, 1PX, CALC(1PX)); }',

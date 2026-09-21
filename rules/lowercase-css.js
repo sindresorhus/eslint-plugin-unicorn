@@ -29,7 +29,6 @@ const preservedFunctionPayloadNames = new Set([
 	'paint',
 	'url',
 ]);
-const unsupportedMatcherFunctionNames = new Set(['env', 'var']);
 
 const toAsciiLowerCase = value => value.replaceAll(uppercaseAsciiPattern, character => character.toLowerCase());
 const decodeIdentifier = value => ident.decode(value);
@@ -194,7 +193,7 @@ function hasMatcherBarrier(node) {
 		if (
 			isCustomIdentifier(functionName)
 			|| preservedFunctionPayloadNames.has(functionName)
-			|| unsupportedMatcherFunctionNames.has(functionName)
+			|| functionName === 'var'
 		) {
 			found = true;
 		}
@@ -206,7 +205,12 @@ function hasMatcherBarrier(node) {
 function * getValueCandidates(node, declaration, sourceCode) {
 	const ancestors = sourceCode.getAncestors(node);
 	const declarationIndex = ancestors.lastIndexOf(declaration);
-	yield * ancestors.slice(declarationIndex + 2).toReversed();
+	const enclosingCandidates = ancestors.slice(declarationIndex + 2).toReversed();
+	yield * enclosingCandidates;
+	if (enclosingCandidates.some(candidate => hasMatcherBarrier(candidate))) {
+		return;
+	}
+
 	yield node;
 
 	const {children} = declaration.value;
@@ -411,8 +415,11 @@ const create = context => {
 	});
 
 	context.on('Identifier', node => {
+		const range = sourceCode.getRange(node);
+		const problem = getIdentifierProblem(node, range, 'value keyword', context);
 		if (
-			isInPreservedContext(node, sourceCode)
+			!problem
+			|| isInPreservedContext(node, sourceCode)
 			|| isCustomIdentifier(node.name)
 		) {
 			return;
@@ -427,7 +434,7 @@ const create = context => {
 			return;
 		}
 
-		return getIdentifierProblem(node, sourceCode.getRange(node), 'value keyword', context);
+		return problem;
 	});
 
 	context.on('Hash', node => {
