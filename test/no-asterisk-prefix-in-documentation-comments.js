@@ -1,10 +1,11 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 const error = {
 	messageId: 'no-asterisk-prefix-in-documentation-comments',
 };
+const asCss = code => ({code, language: languages.css});
 
 test.snapshot({
 	valid: [
@@ -104,6 +105,83 @@ test({
 				error,
 				error,
 			],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		outdent`
+			/*
+			Description.
+			*/
+		`,
+		'/* Description. */',
+		outdent`
+			/*
+			* This leading asterisk is content.
+			*/
+		`,
+	].map(code => asCss(code)),
+	invalid: [
+		outdent`
+			/*
+			 * Hide "+ 65 releases" link
+			 * Hide "Learn more about GitHub Sponsors" link
+			 * Hide "+ 123 contributors" link
+			 */
+		`,
+		outdent`
+			.example {
+				/*
+				 * Description.
+				 */
+				color: red;
+			}
+		`,
+	].map(code => asCss(code)),
+});
+
+test.snapshot({
+	valid: [
+		{
+			code: outdent`
+				{
+					/*
+					Description.
+					*/
+					"value": true
+				}
+			`,
+			language: languages.jsonc,
+		},
+		{
+			code: '{/* Description. */value: true}',
+			language: languages.json5,
+		},
+	],
+	invalid: [
+		{
+			code: outdent`
+				{
+					/*
+					 * JSONC description.
+					 */
+					"value": true
+				}
+			`,
+			language: languages.jsonc,
+		},
+		{
+			code: outdent`
+				{
+					/*
+					 * JSON5 description.
+					 */
+					value: true
+				}
+			`,
+			language: languages.json5,
 		},
 	],
 });

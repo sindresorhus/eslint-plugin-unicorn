@@ -145,7 +145,7 @@ export default defineConfig([
 | [no-array-sort](docs/rules/no-array-sort.md)                                                               | Prefer `Array#toSorted()` over `Array#sort()`.                                                                                 | ✅ ☑️ |    | 💡 |    |
 | [no-array-sort-for-min-max](docs/rules/no-array-sort-for-min-max.md)                                       | Disallow sorting arrays to get the minimum or maximum value.                                                                   | ✅ ☑️ |    | 💡 |    |
 | [no-array-splice](docs/rules/no-array-splice.md)                                                           | Prefer `Array#toSpliced()` over `Array#splice()`.                                                                              | ✅    |    | 💡 |    |
-| [no-asterisk-prefix-in-documentation-comments](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | Disallow asterisk prefixes in documentation comments.                                                                          |      | 🔧 |    |    |
+| [no-asterisk-prefix-in-documentation-comments](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | Disallow asterisk prefixes in documentation, CSS, JSONC, and JSON5 comments.                                                   | ✅    | 🔧 |    |    |
 | [no-async-iterator-callback](docs/rules/no-async-iterator-callback.md)                                     | Disallow asynchronous callbacks in synchronous iterator helpers.                                                               | ✅ ☑️ |    |    |    |
 | [no-async-promise-finally](docs/rules/no-async-promise-finally.md)                                         | Disallow async functions as `Promise#finally()` callbacks.                                                                     | ✅ ☑️ |    |    |    |
 | [no-await-expression-member](docs/rules/no-await-expression-member.md)                                     | Disallow member access from await expression.                                                                                  | ✅    | 🔧 |    |    |
@@ -568,6 +568,7 @@ These rules also work on specific non-JavaScript languages:
 | :-- | :-: | :-: | :-: | :-: | :-: | :-: |
 | [`escape-case`](docs/rules/escape-case.md) |  |  |  |  | ✅ |  |
 | [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | ✅ |  | ✅ |  |  |  |
 | [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-css-selectors`](docs/rules/no-duplicate-css-selectors.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |  |

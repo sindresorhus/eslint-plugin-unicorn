@@ -5,7 +5,7 @@ import {
 
 const MESSAGE_ID = 'no-asterisk-prefix-in-documentation-comments';
 const messages = {
-	[MESSAGE_ID]: 'Remove the asterisk prefix from this documentation comment.',
+	[MESSAGE_ID]: 'Remove the asterisk prefix from this comment.',
 };
 
 const getLinePrefix = (sourceCode, comment) => {
@@ -24,15 +24,12 @@ const getFixedCommentText = (text, linePrefix) => {
 };
 
 const getProblem = (context, comment) => {
-	if (comment.type !== 'Block') {
-		return;
-	}
-
 	const {sourceCode} = context;
 	const range = sourceCode.getRange(comment);
 	const text = sourceCode.text.slice(...range);
+	const isJavaScriptComment = comment.type === 'Block';
 
-	if (!text.startsWith('/**') || !/[\n\r]/v.test(text)) {
+	if (!text.startsWith('/*') || (isJavaScriptComment && !text.startsWith('/**')) || !/[\n\r]/v.test(text)) {
 		return;
 	}
 
@@ -78,14 +75,17 @@ const config = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Disallow asterisk prefixes in documentation comments.',
-			recommended: false,
+			description: 'Disallow asterisk prefixes in documentation, CSS, JSONC, and JSON5 comments.',
+			recommended: true,
 		},
 		fixable: 'whitespace',
 		schema: [],
 		messages,
 		languages: [
 			'js/js',
+			'css/css',
+			'json/jsonc',
+			'json/json5',
 		],
 	},
 };
