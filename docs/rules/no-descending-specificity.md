@@ -9,7 +9,7 @@
 
 Selectors with higher specificity should come after lower-specificity selectors they override. Keeping source order and specificity order aligned makes the cascade easier to understand.
 
-This rule compares selectors only when their last compound selector targets the same element or pseudo-element and both rules set the same property. Pseudo-classes are ignored when identifying the target, so `a:hover` is compared with `a`, while `a::before` is kept separate from `a`. This is intentionally narrower than Stylelint's [`no-descending-specificity`](https://stylelint.io/user-guide/rules/no-descending-specificity/) rule.
+This rule compares selectors only when their terminal compounds match after ignoring pseudo-classes and both rules set the same property. For example, `a:hover` is compared with `a`, while `a.foo` and `a::before` are each kept separate from `a`. This is intentionally narrower than Stylelint's [`no-descending-specificity`](https://stylelint.io/user-guide/rules/no-descending-specificity/) rule.
 
 ## Examples
 
@@ -65,9 +65,9 @@ A later normal declaration cannot override an earlier important declaration, so 
 
 The rule compares exact property names after decoding CSS escapes and normalizing ASCII case in standard property names. It intentionally does not expand shorthands, longhands, aliases, or `all`. Custom property names remain case-sensitive.
 
-Selectors are compared only within the same enclosing at-rule context. Equivalent formatting of media queries and other at-rule preludes is normalized, named layers are compared across matching blocks, and anonymous layers remain separate. The rule follows standard CSS nesting specificity, including the highest parent-list specificity used by `&`. Selectors that cannot be resolved conservatively are ignored, including selectors with `&` inside a pseudo-class or pseudo-element.
+Selectors are compared only within the same enclosing at-rule context. Equivalent formatting of media queries and other at-rule preludes is normalized, named layers are compared across matching blocks, and anonymous layers remain separate. The rule follows standard CSS nesting specificity, including the highest parent-list specificity used by `&`. A selector list is ignored if any member uses a construct the rule does not support or has ambiguous syntax. This includes selectors with `&` inside a pseudo-class or pseudo-element, selectors using `:scope`, `:root`, `:host`, or `:host-context`, and namespace-qualified selectors.
 
-The rule supports standard CSS represented as selector AST nodes by `@eslint/css`, not SCSS or Less. Parser output left as raw or otherwise ambiguous syntax is ignored. Direct declarations inside `@scope` are also ignored because they match the scoping root with zero specificity rather than inheriting an enclosing selector.
+The rule supports standard CSS represented as selector AST nodes by `@eslint/css`, not SCSS or Less. Parser output left as raw or otherwise ambiguous syntax is ignored, but not every malformed functional pseudo-class argument is validated. Direct declarations inside `@scope` are also ignored because they match the scoping root with zero specificity rather than inheriting an enclosing selector.
 
 This rule complements [`no-nesting-with-mixed-specificity`](./no-nesting-with-mixed-specificity.md), which checks specificity differences within nesting parent lists, and [`no-duplicate-css-selectors`](./no-duplicate-css-selectors.md), which checks identical selectors.
 

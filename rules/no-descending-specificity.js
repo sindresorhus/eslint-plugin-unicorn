@@ -30,6 +30,12 @@ const LEGACY_PSEUDO_ELEMENTS = new Set([
 	'first-letter',
 	'first-line',
 ]);
+const UNSUPPORTED_PSEUDO_CLASSES = new Set([
+	'host',
+	'host-context',
+	'root',
+	'scope',
+]);
 const keyframesNamePattern = /^(?:-(?:o|moz|webkit)-)?keyframes$/u;
 const MAXIMUM_TERMINAL_KEYS = 64;
 const MAXIMUM_TERMINAL_KEY_LENGTH = 1024;
@@ -75,6 +81,31 @@ const getTerminalCompoundNodes = selector => {
 
 const isPseudoSelectorWithNestingSelector = node => (node.type === 'PseudoClassSelector' || node.type === 'PseudoElementSelector')
 	&& Boolean(find(node, descendant => descendant.type === 'NestingSelector'));
+
+const hasNamespaceSeparator = name => {
+	let hasSeparator = false;
+	tokenize(name, (type, start) => {
+		hasSeparator ||= type === tokenTypes.Delim && name[start] === '|';
+	});
+
+	return hasSeparator;
+};
+
+const hasUnsupportedSelector = selector => Boolean(find(selector, node => {
+	if (node.type === 'Raw' || isPseudoSelectorWithNestingSelector(node)) {
+		return true;
+	}
+
+	if (node.type === 'PseudoClassSelector') {
+		return UNSUPPORTED_PSEUDO_CLASSES.has(normalizeCssIdentifier(node.name));
+	}
+
+	if (node.type === 'TypeSelector') {
+		return hasNamespaceSeparator(node.name);
+	}
+
+	return node.type === 'AttributeSelector' && typeof node.name?.name === 'string' && hasNamespaceSeparator(node.name.name);
+}));
 
 const getTypeSelectorKey = name => {
 	const tokens = [];
@@ -152,10 +183,6 @@ const joinTerminalKeyParts = (parts, parentKey = '') => {
 };
 
 const getTerminalKeys = (selector, parentTerminalKeys) => {
-	if (find(selector, isPseudoSelectorWithNestingSelector)) {
-		return [];
-	}
-
 	const nodes = getTerminalCompoundNodes(selector);
 	const hasNestingSelector = nodes.some(node => node.type === 'NestingSelector');
 	const parts = nodes.map(node => getTerminalNodeKey(node));
@@ -185,8 +212,6 @@ const getTerminalKeys = (selector, parentTerminalKeys) => {
 const getResolvableTerminalKeys = (selector, parentTerminalKeys, canResolveAgainstParent) => canResolveAgainstParent && canMatchSelector(selector)
 	? getTerminalKeys(selector, parentTerminalKeys)
 	: [];
-
-const hasRawNode = selector => Boolean(find(selector, node => node.type === 'Raw'));
 
 const getRuleTerminalKeys = analyses => {
 	const terminalKeys = new Set();
@@ -359,11 +384,10 @@ const create = context => {
 		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, context);
 		const isScoped = hasScopeAncestor(rule, context);
 		const allowsRelativeSelector = Boolean(parentRule) || isScoped;
-		const hasUnresolvedSelectorList = rule.prelude.children.some(selector => hasRawNode(selector)
+		const hasUnresolvedSelectorList = rule.prelude.children.some(selector => hasUnsupportedSelector(selector)
 			|| !canMatchSelector(selector)
 			|| (!allowsRelativeSelector && hasLeadingCombinator(selector))
-			|| (isScoped && Boolean(find(selector, node => (!parentRule && node.type === 'NestingSelector')
-				|| (node.type === 'PseudoClassSelector' && normalizeCssIdentifier(node.name) === 'scope')))));
+			|| (isScoped && !parentRule && Boolean(find(selector, node => node.type === 'NestingSelector'))));
 		const canResolveAgainstParent = !hasUnresolvedParent && (!parentRule || parentSpecificities?.length > 0);
 
 		const analyses = [];
