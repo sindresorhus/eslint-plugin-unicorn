@@ -30,6 +30,8 @@ testRule.snapshot({
 		'a { border-image-source: url(border.png); border-width: 1px; border-style: solid; border-color: red; }',
 		'a { column-width: 20rem; column-count: 2; }',
 		'a { column-wrap: wrap; column-height: 100px; column-width: 20rem; column-count: 2; }',
+		'a { column-wrap: initial; column-height: 100px; column-width: 20rem; column-count: 2; }',
+		'a { columns: 20rem 2 / 100px; column-height: auto; column-width: 20rem; column-count: 2; }',
 		'a { font-feature-settings: "kern"; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: serif; }',
 		'a { font-feature-settings: initial; font-kerning: initial; font-language-override: initial; font-optical-sizing: initial; font-size-adjust: initial; font-variation-settings: initial; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-width: expanded; font-size: 16px; line-height: 1.5; font-family: serif; }',
 		'@font-face { font-feature-settings: initial; font-kerning: initial; font-language-override: initial; font-optical-sizing: initial; font-size-adjust: initial; font-variation-settings: initial; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: Example; src: url(example.woff2); }',
@@ -58,6 +60,8 @@ testRule.snapshot({
 		`,
 		'a { font-synthesis-position: auto; font-synthesis: none; font-synthesis-weight: auto; font-synthesis-style: auto; font-synthesis-small-caps: auto; }',
 		'a { font-synthesis-weight: auto; font-synthesis-style: oblique-only; font-synthesis-small-caps: auto; font-synthesis-position: auto; }',
+		'a { font-synthesis-weight: auto; font-synthesis-style: none; font-synthesis-small-caps: none; font-synthesis-position: auto; }',
+		'a { font-variant-ligatures: normal; font-variant-position: normal; font-variant-caps: small-caps; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; font-variant-emoji: emoji; }',
 		'a { transition-property: opacity; transition-duration: 1s; transition-timing-function: ease; transition-delay: 0s; }',
 		'a { transition: opacity 1s allow-discrete; transition-property: opacity; transition-duration: 1s; transition-timing-function: ease; transition-delay: 0s; }',
 		outdent`
@@ -104,6 +108,23 @@ testRule.snapshot({
 				animation-play-state: running;
 				animation-name: fade;
 				animation-timeline: auto;
+			}
+		`,
+		outdent`
+			a {
+				animation-trigger: initial;
+				animation-composition: initial;
+				animation-timeline: auto, --timeline;
+				animation-range-start: initial;
+				animation-range-end: initial;
+				animation-name: fade, slide;
+				animation-duration: 1s;
+				animation-timing-function: ease;
+				animation-delay: 0s;
+				animation-iteration-count: 1;
+				animation-direction: normal;
+				animation-fill-mode: none;
+				animation-play-state: running;
 			}
 		`,
 		'a { transition-behavior: normal; transition-property: opacity; transition-duration: 1s, 2s; transition-timing-function: ease; transition-delay: 0s; }',
@@ -184,6 +205,11 @@ testRule.snapshot({
 		'a { grid-template-rows: [foo] 1fr; grid-template-columns: 1fr; grid-template-areas: "a" "b"; }',
 		'a { margin-top: 1px; margin-right: 2px; all: initial; margin-bottom: 3px; margin-left: 4px; }',
 		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: auto; animation-timeline: --timeline; }',
+		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: --timeline; }',
+		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: none; }',
+		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: fade; animation-timeline: auto, auto; }',
+		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: auto; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: fade; animation-timeline: auto; }',
+		'a { animation-composition: add; animation: 1s fade --timeline; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: fade; animation-timeline: auto; }',
 		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: --keyframes; animation-timeline: auto; }',
 		'a { -webkit-transition-property: opacity; transition-duration: 1s; -webkit-transition-timing-function: ease; -webkit-transition-delay: 0s; }',
 		'a { -webkit-transition-property: opacity; -webkit-transition-duration: 1s; -webkit-transition-timing-function: ease; -webkit-transition-delay: 0s; }',
@@ -260,6 +286,21 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { flex-grow: 1; flex-shrink: 2; flex-basis: 10px; }',
+			output: 'a { flex: 1 2 10px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { align-items: center; justify-items: start; }',
+			output: 'a { place-items: center start; }',
+			errors: 1,
+		},
+		{
+			code: 'a { text-emphasis-style: filled circle; text-emphasis-color: red; }',
+			output: 'a { text-emphasis: filled circle red; }',
+			errors: 1,
+		},
+		{
 			code: 'a { grid-gap: 3px; row-gap: 1px; column-gap: 2px; }',
 			output: 'a { grid-gap: 3px; gap: 1px 2px; }',
 			errors: 1,
@@ -270,8 +311,8 @@ testRule({
 			errors: 1,
 		},
 		{
-			code: 'a { column-wrap: initial; column-height: 100px; column-width: 20rem; column-count: 2; }',
-			output: 'a { columns: 20rem 2 / 100px; }',
+			code: 'a { column-wrap: initial; column-height: auto; column-width: 20rem; column-count: 2; }',
+			output: 'a { columns: 20rem 2; }',
 			errors: 1,
 		},
 		{
@@ -328,19 +369,9 @@ testRule({
 			`,
 			output: outdent`
 				a {
-					animation: 1s ease 0s 1 normal none running fade auto;
+					animation: 1s ease 0s 1 normal none running fade;
 				}
 			`,
-			errors: 1,
-		},
-		{
-			code: 'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: --timeline; }',
-			output: 'a { animation: 1s ease 0s 1 normal none running none --timeline; }',
-			errors: 1,
-		},
-		{
-			code: 'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: none; animation-timeline: none; }',
-			output: 'a { animation: 1s ease 0s 1 normal none running none none; }',
 			errors: 1,
 		},
 		{
@@ -360,9 +391,14 @@ testRule({
 			`,
 			output: outdent`
 				a {
-					animation: 1s ease 0s 1 normal none running fade auto;
+					animation: 1s ease 0s 1 normal none running fade;
 				}
 			`,
+			errors: 1,
+		},
+		{
+			code: 'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: fade, slide; animation-timeline: auto, auto; }',
+			output: 'a { animation: 1s ease 0s 1 normal none running fade, 1s ease 0s 1 normal none running slide; }',
 			errors: 1,
 		},
 		{
@@ -371,18 +407,8 @@ testRule({
 			errors: 1,
 		},
 		{
-			code: 'a { font-synthesis-weight: auto; font-synthesis-style: none; font-synthesis-small-caps: none; font-synthesis-position: auto; }',
-			output: 'a { font-synthesis: weight position; }',
-			errors: 1,
-		},
-		{
 			code: 'a { font-synthesis-weight: none; font-synthesis-style: none; font-synthesis-small-caps: none; font-synthesis-position: none; }',
 			output: 'a { font-synthesis: none; }',
-			errors: 1,
-		},
-		{
-			code: 'a { font-synthesis-weight: auto; font-synthesis-style: auto; font-synthesis-small-caps: auto; font-synthesis-position: auto; }',
-			output: 'a { font-synthesis: weight style small-caps position; }',
 			errors: 1,
 		},
 		{
@@ -417,31 +443,6 @@ testRule({
 		{
 			code: 'a { transition-behavior: normal, allow-discrete; transition-property: ease-in, color; transition-duration: 1s; transition-timing-function: linear, ease; transition-delay: 0s; }',
 			output: 'a { transition: 1s linear 0s normal ease-in, 1s ease 0s allow-discrete color; }',
-			errors: 1,
-		},
-		{
-			code: outdent`
-				a {
-					animation-trigger: initial;
-					animation-composition: initial;
-					animation-timeline: auto, --timeline;
-					animation-range-start: initial;
-					animation-range-end: initial;
-					animation-name: fade, slide;
-					animation-duration: 1s;
-					animation-timing-function: ease;
-					animation-delay: 0s;
-					animation-iteration-count: 1;
-					animation-direction: normal;
-					animation-fill-mode: none;
-					animation-play-state: running;
-				}
-			`,
-			output: outdent`
-				a {
-					animation: 1s ease 0s 1 normal none running fade auto, 1s ease 0s 1 normal none running slide --timeline;
-				}
-			`,
 			errors: 1,
 		},
 		{

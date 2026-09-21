@@ -120,19 +120,23 @@ const serializeBorderRadius = (declarations, sourceCode) => {
 };
 
 const serializeBorderImage = values => `${values[0]} ${values[1]} / ${values[2]} / ${values[3]} ${values[4]}`;
-const serializeColumns = values => values.length === 2 ? values.join(' ') : `${values[0]} ${values[1]} / ${values[2]}`;
+const serializeColumns = values => values[2].toLowerCase() === 'auto' ? values.slice(0, 2).join(' ') : undefined;
 const serializeFont = values => `${values.slice(0, 4).join(' ')} ${values[4]} / ${values[5]} ${values[6]}`;
 
 const serializeFontSynthesis = values => {
-	if (values.some(value => value !== 'auto' && value !== 'none')) {
+	if (values[3] === 'auto' || values.some(value => value !== 'auto' && value !== 'none')) {
 		return;
 	}
 
-	const enabledValues = ['weight', 'style', 'small-caps', 'position'].filter((value, index) => values[index] === 'auto');
+	const enabledValues = ['weight', 'style', 'small-caps'].filter((value, index) => values[index] === 'auto');
 	return enabledValues.length > 0 ? enabledValues.join(' ') : 'none';
 };
 
 const serializeFontVariant = values => {
+	if (values.at(-1).toLowerCase() !== 'normal') {
+		return;
+	}
+
 	const nonNormalValues = values.filter(value => value.toLowerCase() !== 'normal');
 	return nonNormalValues.length > 0 ? nonNormalValues.join(' ') : 'normal';
 };
@@ -221,11 +225,21 @@ const serializeTransition = (declarations, sourceCode) => {
 
 const serializeAnimation = (declarations, sourceCode) => {
 	const animationNameDeclaration = declarations[7];
+	const timelineValues = splitCommaList(declarations.at(-1).value, sourceCode);
+	if (
+		timelineValues.length > splitCommaList(animationNameDeclaration.value, sourceCode).length
+		|| timelineValues.some(value => value.toLowerCase() !== 'auto')
+		|| splitCommaList(declarations[0].value, sourceCode).some(value => value.toLowerCase() === 'auto')
+	) {
+		return;
+	}
+
 	if (animationNameDeclaration.value.children.some(node => node.type === 'Identifier' && (node.name.toLowerCase() === 'auto' || node.name.startsWith('--') || node.name.includes('\\')))) {
 		return;
 	}
 
-	return serializeCyclicLists(declarations, sourceCode, declarations.keys().toArray(), 7);
+	const shorthandDeclarations = declarations.slice(0, -1);
+	return serializeCyclicLists(shorthandDeclarations, sourceCode, shorthandDeclarations.keys().toArray(), 7);
 };
 
 const serializeBackground = (declarations, sourceCode) => {
@@ -476,11 +490,13 @@ const getCandidates = (declarationChildren, {shorthand, definition, catalogIndex
 
 			if (unprefixedProperty === shorthand) {
 				resetStates.clear();
+				const keyword = getCssWideKeyword(child);
 				if (
 					!hasSubstitutionFunction(child.value)
 					&& !sourceCode.lexer.matchProperty(shorthand, child.value).error
+					&& (!['animation', 'columns'].includes(shorthand) || keyword)
 				) {
-					setAllResetStates(child, getCssWideKeyword(child) ?? 'initial');
+					setAllResetStates(child, keyword ?? 'initial');
 				}
 			}
 
