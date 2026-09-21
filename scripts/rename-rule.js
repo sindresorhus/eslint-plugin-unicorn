@@ -73,6 +73,10 @@ function replaceRuleIdInRulesIndex(text, from, to) {
 }
 
 async function renameRule(from, to) {
+	if (!from.includes('-')) {
+		throw new Error('Rules without hyphens must be renamed manually to avoid changing unrelated code.');
+	}
+
 	await renameFile(`docs/rules/${from}.md`, `docs/rules/${to}.md`);
 	await renameFile(`rules/${from}.js`, `rules/${to}.js`);
 	await renameFile(`test/${from}.js`, `test/${to}.js`);
@@ -110,7 +114,7 @@ async function renameRule(from, to) {
 
 const run = async () => {
 	const ruleSelector = new enquirer.AutoComplete({
-		message: 'Select the rule you want rename:',
+		message: 'Select the rule you want to rename:',
 		limit: 10,
 		choices: rules,
 	});
@@ -142,6 +146,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 // Exported for unit tests.
 // eslint-disable-next-line unicorn/no-exports-in-scripts
 export {
+	renameRule,
 	replaceRuleIdInRulesIndex,
 	sortReadmeRuleRows,
 };

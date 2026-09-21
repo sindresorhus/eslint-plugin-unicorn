@@ -1,5 +1,20 @@
+import fs from 'node:fs/promises';
 import test from 'ava';
-import {replaceRuleIdInRulesIndex, sortReadmeRuleRows} from '../../scripts/rename-rule.js';
+import {renameRule, replaceRuleIdInRulesIndex, sortReadmeRuleRows} from '../../scripts/rename-rule.js';
+
+test.serial('renameRule rejects single-word source names before changing files', async t => {
+	const originalRename = fs.rename;
+	t.teardown(() => {
+		fs.rename = originalRename;
+	});
+	fs.rename = async () => {
+		throw new Error('Attempted to rename a file.');
+	};
+
+	await t.throwsAsync(renameRule('indent', 'indent-style'), {
+		message: 'Rules without hyphens must be renamed manually to avoid changing unrelated code.',
+	});
+});
 
 test('replaceRuleIdInRulesIndex only rewrites the exact export', t => {
 	const input = [
