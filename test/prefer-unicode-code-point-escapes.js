@@ -122,6 +122,7 @@ ruleTest.snapshot({
 		String.raw`const foo = /\cA/`,
 		String.raw`const foo = /\u0061/`,
 		String.raw`const foo = /\u{61}/`,
+		String.raw`const foo = /\u{10FFFF}/`,
 		String.raw`const foo = /\\\u{61}/`,
 		String.raw`const foo = /\x7A/g`,
 		String.raw`const foo = /\x61\_/`,

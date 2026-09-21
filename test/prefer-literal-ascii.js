@@ -93,6 +93,12 @@ ruleTest.snapshot({
 			},
 		},
 		{
+			code: String.raw`const value = '\1\u0037';`,
+			languageOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
 			code: String.raw`const value = '\00\u0031';`,
 			languageOptions: {
 				sourceType: 'script',
@@ -119,6 +125,12 @@ ruleTest.snapshot({
 		},
 		{
 			code: String.raw`const value = '\40\u0031';`,
+			languageOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: String.raw`const value = '\37\u0031';`,
 			languageOptions: {
 				sourceType: 'script',
 			},
