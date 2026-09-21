@@ -93,6 +93,7 @@ test.snapshot({
 			}
 		`,
 		'a { animation: missing var(--duration); }',
+		'a { animation: "missing,animation" var(--duration, 1s); }',
 		'a { animation-name: missing, var(--animation); }',
 		'a { animation: ease-in ease-out; }',
 		String.raw`a { animation: st\65 ps(2) ease; }`,
