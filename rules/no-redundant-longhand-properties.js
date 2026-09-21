@@ -12,7 +12,6 @@ const messages = {
 
 const cssWideKeywords = new Set(['initial', 'inherit', 'unset', 'revert', 'revert-layer', 'revert-rule']);
 const substitutionFunctions = new Set(['attr', 'env', 'first-valid', 'ident', 'if', 'inherit', 'random-item', 'var']);
-const legacyVendorShorthands = new Set(['animation', 'columns', 'transition']);
 const slashShorthands = new Set(['grid-area', 'grid-column', 'grid-row']);
 const pairShorthands = new Set(['gap', 'inset-block', 'inset-inline', 'margin-block', 'margin-inline', 'overflow', 'overscroll-behavior', 'padding-block', 'padding-inline', 'scroll-margin-block', 'scroll-margin-inline', 'scroll-padding-block', 'scroll-padding-inline']);
 const fourSideShorthands = new Set(['border-color', 'border-style', 'border-width', 'inset', 'margin', 'padding', 'scroll-margin', 'scroll-padding']);
@@ -384,13 +383,12 @@ const propertyAffectsComponent = (property, component) => {
 	});
 };
 
-const getCandidates = (declarationChildren, {shorthand, definition, catalogIndex}, vendorPrefix, sourceCode) => {
+const getCandidates = (declarationChildren, {shorthand, definition, catalogIndex}, sourceCode) => {
 	const candidates = [];
 	const declarations = new Map();
 	const duplicateComponents = new Set();
-	const usesLegacyVendorGrammar = vendorPrefix !== '' && legacyVendorShorthands.has(shorthand);
-	const components = usesLegacyVendorGrammar ? definition.components.slice(0, -1) : definition.components;
-	const resetProperties = [...definition.resetProperties, ...(vendorPrefix === '' ? additionalResetProperties.get(shorthand) ?? [] : [])];
+	const {components} = definition;
+	const resetProperties = [...definition.resetProperties, ...additionalResetProperties.get(shorthand) ?? []];
 	const resetStates = new Map();
 
 	const setAllResetStates = (declaration, keyword) => {
@@ -416,7 +414,6 @@ const getCandidates = (declarationChildren, {shorthand, definition, catalogIndex
 		const sourceDeclarations = sourceDeclarationSet.values().toArray().toSorted((first, second) => sourceCode.getRange(first)[0] - sourceCode.getRange(second)[0]);
 		candidates.push({
 			shorthand,
-			vendorPrefix,
 			declarations: componentDeclarations,
 			components,
 			resetStates: resetStateValues,
@@ -438,7 +435,11 @@ const getCandidates = (declarationChildren, {shorthand, definition, catalogIndex
 			continue;
 		}
 
-		if (childVendorPrefix !== vendorPrefix) {
+		if (childVendorPrefix !== '') {
+			addCandidate();
+			declarations.clear();
+			duplicateComponents.clear();
+			resetStates.clear();
 			continue;
 		}
 
@@ -546,7 +547,7 @@ const getFix = (candidate, block, comments, sourceCode) => {
 	}
 
 	const important = candidate.declarations[0].important ? ' !important' : '';
-	const replacement = `${candidate.vendorPrefix}${candidate.shorthand}: ${candidate.value}${important}`;
+	const replacement = `${candidate.shorthand}: ${candidate.value}${important}`;
 	return fixer => fixer.replaceTextRange([start, end], replacement);
 };
 
@@ -572,20 +573,11 @@ const create = context => {
 			}
 		}
 
-		const prefixes = new Set();
-		for (const declaration of declarationChildren) {
-			prefixes.add(getVendorPrefix(declaration.property.toLowerCase()));
-		}
-
 		const candidates = [];
 		let catalogIndex = 0;
 		for (const [shorthand, definition] of shorthandProperties) {
 			if (!ignoredShorthands.has(shorthand)) {
-				for (const vendorPrefix of prefixes) {
-					if (vendorPrefix === '' || legacyVendorShorthands.has(shorthand)) {
-						candidates.push(...getCandidates(declarationChildren, {shorthand, definition, catalogIndex}, vendorPrefix, sourceCode));
-					}
-				}
+				candidates.push(...getCandidates(declarationChildren, {shorthand, definition, catalogIndex}, sourceCode));
 			}
 
 			catalogIndex++;
@@ -609,7 +601,7 @@ const create = context => {
 			yield {
 				node: candidate.sourceDeclarations.at(-1),
 				messageId: MESSAGE_ID,
-				data: {shorthand: candidate.vendorPrefix + candidate.shorthand},
+				data: {shorthand: candidate.shorthand},
 				fix: getFix(candidate, block, comments, sourceCode),
 			};
 		}

@@ -38,24 +38,7 @@ The autofix is available when the declarations are contiguous and the replaced s
 
 At-rule descriptor blocks, such as `@font-face`, are ignored because their declarations do not necessarily support the corresponding property shorthand.
 
-Vendor-prefixed and unprefixed declarations are tracked separately. Prefixed `animation`, `columns`, and `transition` groups use their historical component sets, so `animation-timeline`, `column-height`, and `transition-behavior` are not required. A complete prefixed group produces the corresponding prefixed shorthand:
-
-Other prefixed properties are ignored because support for their corresponding prefixed shorthands cannot be validated.
-
-```css
-/* Before */
-a {
-	-webkit-transition-property: opacity;
-	-webkit-transition-duration: 1s;
-	-webkit-transition-timing-function: ease;
-	-webkit-transition-delay: 0s;
-}
-
-/* After */
-a {
-	-webkit-transition: 1s ease 0s opacity;
-}
-```
+Vendor-prefixed groups are not reported. Some prefixed properties are aliases for their unprefixed counterparts, and replacing prefixed longhands with a shorthand can reset additional properties. Any prefixed declaration prevents combining unprefixed declarations across it.
 
 ## Options
 
@@ -65,7 +48,7 @@ Type: `string[]`
 
 Default: `[]`
 
-The exact unprefixed shorthand names to ignore. Ignoring a shorthand also ignores its vendor-prefixed forms.
+The exact shorthand names to ignore.
 
 ```js
 export default [

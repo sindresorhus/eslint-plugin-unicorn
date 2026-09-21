@@ -186,6 +186,15 @@ testRule.snapshot({
 		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: auto; animation-timeline: --timeline; }',
 		'a { animation-trigger: initial; animation-composition: initial; animation-range: initial; animation-duration: 1s; animation-timing-function: ease; animation-delay: 0s; animation-iteration-count: 1; animation-direction: normal; animation-fill-mode: none; animation-play-state: running; animation-name: --keyframes; animation-timeline: auto; }',
 		'a { -webkit-transition-property: opacity; transition-duration: 1s; -webkit-transition-timing-function: ease; -webkit-transition-delay: 0s; }',
+		'a { -webkit-transition-property: opacity; -webkit-transition-duration: 1s; -webkit-transition-timing-function: ease; -webkit-transition-delay: 0s; }',
+		'a { -webkit-column-width: 20rem; -webkit-column-count: 2; }',
+		'a { -webkit-animation-duration: 1s; -webkit-animation-timing-function: ease; -webkit-animation-delay: 0s; -webkit-animation-iteration-count: 1; -webkit-animation-direction: normal; -webkit-animation-fill-mode: none; -webkit-animation-play-state: running; -webkit-animation-name: fade; }',
+		'a { transition-behavior: allow-discrete; -webkit-transition-property: opacity; -webkit-transition-duration: 1s; -webkit-transition-timing-function: ease; -webkit-transition-delay: 0s; }',
+		'a { animation-composition: add; -webkit-animation-duration: 1s; -webkit-animation-timing-function: ease; -webkit-animation-delay: 0s; -webkit-animation-iteration-count: 1; -webkit-animation-direction: normal; -webkit-animation-fill-mode: none; -webkit-animation-play-state: running; -webkit-animation-name: fade; }',
+		'a { transition-behavior: normal; transition-property: opacity; -webkit-transition: 1s ease; transition-duration: 2s; transition-timing-function: ease; transition-delay: 0s; }',
+		'a { transition-behavior: normal; transition-property: opacity; transition-duration: 1s; -webkit-transition-property: color; transition-timing-function: ease; transition-delay: 0s; }',
+		'a { font-feature-settings: initial; -webkit-font-feature-settings: "kern"; font-style: italic; font-variant: normal; font-weight: 700; font-stretch: normal; font-size: 16px; line-height: 1.5; font-family: serif; }',
+		'a { margin-inline-start: 1px; -webkit-margin-start: 5px; margin-inline-end: 2px; }',
 		'a { -webkit-align-content: center; -webkit-justify-content: center; }',
 		String.raw`a { m\61 rgin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }`,
 		'a { --margin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
@@ -220,7 +229,7 @@ testRule({
 			options: [{ignoreShorthands: ['padding']}],
 		},
 		{
-			code: 'a { -webkit-transition-property: opacity; -webkit-transition-duration: 1s; -webkit-transition-timing-function: ease; -webkit-transition-delay: 0s; }',
+			code: 'a { transition-behavior: normal; transition-property: opacity; transition-duration: 1s; transition-timing-function: ease; transition-delay: 0s; }',
 			options: [{ignoreShorthands: ['transition']}],
 		},
 	],
@@ -228,6 +237,11 @@ testRule({
 		{
 			code: 'a { padding-top: 1px; padding-right: 2px; padding-bottom: 3px; padding-left: 4px; }',
 			output: 'a { padding: 1px 2px 3px 4px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { -webkit-transform: translateX(1px); margin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
+			output: 'a { -webkit-transform: translateX(1px); margin: 1px 2px 3px 4px; }',
 			errors: 1,
 		},
 		{
@@ -613,26 +627,6 @@ testRule({
 					mask: url(a.svg) 0 0 / auto no-repeat border-box border-box add alpha, url(b.svg) 10px 10px / auto no-repeat border-box border-box add alpha;
 				}
 			`,
-			errors: 1,
-		},
-		{
-			code: 'a { -webkit-transition-property: opacity; -webkit-transition-duration: 1s; -webkit-transition-timing-function: ease; -webkit-transition-delay: 0s; }',
-			output: 'a { -webkit-transition: 1s ease 0s opacity; }',
-			errors: 1,
-		},
-		{
-			code: 'a { -webkit-column-width: 20rem; -webkit-column-count: 2; }',
-			output: 'a { -webkit-columns: 20rem 2; }',
-			errors: 1,
-		},
-		{
-			code: 'a { -webkit-transition-property: ease-in; -webkit-transition-duration: 1s; -webkit-transition-timing-function: linear; -webkit-transition-delay: 0s; }',
-			output: 'a { -webkit-transition: 1s linear 0s ease-in; }',
-			errors: 1,
-		},
-		{
-			code: 'a { -webkit-animation-duration: 1s; -webkit-animation-timing-function: ease; -webkit-animation-delay: 0s; -webkit-animation-iteration-count: 1; -webkit-animation-direction: normal; -webkit-animation-fill-mode: none; -webkit-animation-play-state: running; -webkit-animation-name: fade; }',
-			output: 'a { -webkit-animation: 1s ease 0s 1 normal none running fade; }',
 			errors: 1,
 		},
 		{
