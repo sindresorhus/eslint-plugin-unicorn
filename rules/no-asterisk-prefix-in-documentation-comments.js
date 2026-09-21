@@ -8,8 +8,14 @@ const messages = {
 	[MESSAGE_ID]: 'Remove the asterisk prefix from this comment.',
 };
 
+const getCommentRange = (sourceCode, comment) => {
+	// `@eslint/json` ranges count CRLF as one character, while location offsets refer to the raw source text.
+	const {start, end} = sourceCode.getLoc(comment);
+	return Number.isSafeInteger(start.offset) ? [start.offset, end.offset] : sourceCode.getRange(comment);
+};
+
 const getLinePrefix = (sourceCode, comment) => {
-	const [start] = sourceCode.getRange(comment);
+	const [start] = getCommentRange(sourceCode, comment);
 	const lineStart = sourceCode.text.lastIndexOf('\n', start - 1) + 1;
 	return sourceCode.text.slice(lineStart, start);
 };
@@ -25,7 +31,7 @@ const getFixedCommentText = (text, linePrefix) => {
 
 const getProblem = (context, comment) => {
 	const {sourceCode} = context;
-	const range = sourceCode.getRange(comment);
+	const range = getCommentRange(sourceCode, comment);
 	const text = sourceCode.text.slice(...range);
 	const isJavaScriptComment = comment.type === 'Block';
 

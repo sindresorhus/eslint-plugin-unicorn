@@ -6,6 +6,8 @@ const error = {
 	messageId: 'no-asterisk-prefix-in-documentation-comments',
 };
 const asCss = code => ({code, language: languages.css});
+const jsonCrLfInput = '{\r\n\t/*\r\n\t * Description.\r\n\t */\r\n\t"value": true\r\n}';
+const jsonCrLfOutput = '{\r\n\t/*\r\n\tDescription.\r\n\t*/\r\n\t"value": true\r\n}';
 
 test.snapshot({
 	valid: [
@@ -106,6 +108,13 @@ test({
 				error,
 			],
 		},
+		...[languages.jsonc, languages.json5].map(({language, plugins}) => ({
+			code: jsonCrLfInput,
+			output: jsonCrLfOutput,
+			language,
+			plugins,
+			errors: [error],
+		})),
 	],
 });
 
