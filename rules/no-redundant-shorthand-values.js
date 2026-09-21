@@ -173,11 +173,8 @@ const getSimpleReduction = (values, preserveFourValueEdges, sourceCode) => {
 };
 
 const getBorderRadiusResult = (values, sourceCode) => {
-	const slashIndexes = values
-		.map((node, index) => node.type === 'Operator' && node.value === '/' ? index : -1)
-		.filter(index => index !== -1);
-
-	if (slashIndexes.length === 0) {
+	const slashIndex = values.findIndex(node => node.type === 'Operator' && node.value === '/');
+	if (slashIndex === -1) {
 		const reduction = getSimpleReduction(values, false, sourceCode);
 		return reduction && {
 			reductions: [reduction],
@@ -185,14 +182,6 @@ const getBorderRadiusResult = (values, sourceCode) => {
 		};
 	}
 
-	if (
-		slashIndexes.length !== 1
-		|| values.some(node => node.type === 'Operator' && node.value !== '/')
-	) {
-		return;
-	}
-
-	const slashIndex = slashIndexes[0];
 	const horizontalValues = values.slice(0, slashIndex);
 	const verticalValues = values.slice(slashIndex + 1);
 	const horizontalReduction = getSimpleReduction(horizontalValues, false, sourceCode);
