@@ -39,4 +39,6 @@ The rule recognizes `@keyframes`, `@-webkit-keyframes`, `@-moz-keyframes`, and `
 
 Dynamic names inside functions such as `var()` are ignored, including fallback values. Statically unambiguous names outside those functions are still checked. For example, `fade-in` is checked in `animation: fade-in var(--duration)`, but `fallback` is ignored in `animation-name: var(--name, fallback)`.
 
+In uncommon ambiguous shorthands such as `animation: backwards none --fade`, the CSS lexer can interpret `none` as the animation name and `--fade` as the timeline. The rule follows that interpretation and may miss the animation name in such cases.
+
 The rule only considers keyframes defined in the same file. Leave it disabled for files that use keyframes from another stylesheet.

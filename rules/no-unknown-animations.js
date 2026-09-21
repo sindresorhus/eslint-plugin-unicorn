@@ -99,23 +99,21 @@ const getGroupAnimationNameNodes = (nodes, property, value, lexer) => {
 	const canonicalNodes = nodes.map(node => getCanonicalLexerNode(node));
 	const matchResult = lexer.matchProperty(property, {...value, children: canonicalNodes});
 	if (matchResult.matched) {
-		const animationNameIndexes = [];
-		for (const [index, node] of canonicalNodes.entries()) {
-			if (getAnimationName(nodes[index]) !== '' && matchResult.isType(node, 'keyframes-name')) {
-				animationNameIndexes.push(index);
-			}
+		const animationNameIndex = canonicalNodes.findIndex((node, index) => getAnimationName(nodes[index]) !== '' && matchResult.isType(node, 'keyframes-name'));
+		if (animationNameIndex === -1) {
+			return [];
 		}
 
 		if (
 			property === 'animation-name'
-			|| animationNameIndexes.every(index => isAnimationNameByShorthandOrder(
-				index,
+			|| isAnimationNameByShorthandOrder(
+				animationNameIndex,
 				canonicalNodes,
 				matchResult,
 				lexer,
-			))
+			)
 		) {
-			return animationNameIndexes.map(index => nodes[index]);
+			return [nodes[animationNameIndex]];
 		}
 	}
 

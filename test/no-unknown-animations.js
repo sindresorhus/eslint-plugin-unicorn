@@ -59,6 +59,8 @@ test.snapshot({
 		'a { animation: ease steps(2); }',
 		String.raw`a { animation: \69 nfinite 2; }`,
 		'a { animation: --timeline; }',
+		// Ambiguous shorthand interpretation is a documented best-effort limitation.
+		'a { animation: backwards none --missing; }',
 		'@keyframes --fade {} a { animation: --timeline --fade; }',
 		String.raw`a { animation: \65 ase var(--duration); }`,
 		'a { animation: var(--value) ease; } b { animation: var(--value) --timeline; }',
@@ -101,6 +103,8 @@ test.snapshot({
 		'a { animation: "missing,animation" var(--duration, 1s); }',
 		'a { animation-name: missing, var(--animation); }',
 		'a { animation: ease-in ease-out; }',
+		'a { animation: reverse alternate, paused running; }',
+		'a { animation: auto 1s 2s none backwards; }',
 		'a { animation: 2 infinite; }',
 		'a { animation: 1s --timeline auto; }',
 		String.raw`a { animation: st\65 ps(2) ease; }`,
