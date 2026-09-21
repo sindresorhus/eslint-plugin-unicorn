@@ -415,6 +415,7 @@ const getCandidates = (children, {shorthand, definition, catalogIndex}, sourceCo
 			resetStates.set(property, {declaration, keyword});
 		}
 	};
+
 	const clearState = () => {
 		declarations.clear();
 		duplicateComponents.clear();
@@ -581,7 +582,7 @@ const create = context => {
 	const comments = getComments(context);
 
 	context.on('Block', function * (block) {
-		if (!block.children.some(child => child.type === 'Declaration')) {
+		if (block.children.every(child => child.type !== 'Declaration')) {
 			return;
 		}
 
