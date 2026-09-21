@@ -26,6 +26,7 @@ test.snapshot({
 		`,
 		'@keyframes fade {} a { animation-name: "fade"; }',
 		'@keyframes "fade" {} a { animation-name: fade; }',
+		'@keyframes --fade {} a { animation-name: --fade; }',
 		'@keyframes "fade" {} a { animation: 1s "fade"; }',
 		'@keyframes "none" {} a { animation-name: "none"; }',
 		'@keyframes "inherit" {} a { animation-name: "inherit"; }',
@@ -70,6 +71,7 @@ test.snapshot({
 	].map(code => asCss(code)),
 	invalid: [
 		'a { animation-name: missing; }',
+		'a { animation-name: --missing; }',
 		'a { animation: missing 1s ease; }',
 		outdent`
 			a { animation-name: fade, missing; }

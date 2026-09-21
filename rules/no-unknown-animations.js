@@ -10,17 +10,6 @@ const animationProperties = new Set([
 	'animation-name',
 ]);
 
-const otherAnimationShorthandProperties = [
-	'animation-duration',
-	'animation-timing-function',
-	'animation-delay',
-	'animation-iteration-count',
-	'animation-direction',
-	'animation-fill-mode',
-	'animation-play-state',
-	'animation-timeline',
-];
-
 const keyframesNamePattern = /^(?:-(?:moz|o|webkit)-)?keyframes$/u;
 
 const toAsciiLowerCase = string => string.replaceAll(/[A-Z]/g, character => character.toLowerCase());
@@ -56,14 +45,14 @@ const getAnimationName = node => {
 	}
 };
 
-const isAnimationNameNode = (node, lexer) => {
+const isAnimationNameNode = (node, property, lexer) => {
 	const name = getAnimationName(node);
 	if (name === undefined || name === '') {
 		return false;
 	}
 
 	const canonicalNode = getCanonicalLexerNode(node);
-	const matchResult = lexer.matchProperty('animation-name', canonicalNode);
+	const matchResult = lexer.matchProperty(property, canonicalNode);
 	return Boolean(matchResult.matched && matchResult.isType(canonicalNode, 'keyframes-name'));
 };
 
@@ -89,15 +78,7 @@ const getGroupAnimationNameNodes = (nodes, property, value, lexer) => {
 		return nodes.filter((node, index) => getAnimationName(node) !== '' && matchResult.isType(canonicalNodes[index], 'keyframes-name'));
 	}
 
-	const animationNameNodes = nodes.filter(node => isAnimationNameNode(node, lexer));
-	if (property === 'animation-name') {
-		return animationNameNodes;
-	}
-
-	return animationNameNodes.filter(node => {
-		const canonicalNode = getCanonicalLexerNode(node);
-		return otherAnimationShorthandProperties.every(property => !lexer.matchProperty(property, canonicalNode).matched);
-	});
+	return nodes.filter(node => isAnimationNameNode(node, property, lexer));
 };
 
 const getAnimationNameNodes = (declaration, property, lexer) => getCommaSeparatedGroups(declaration.value)
@@ -115,7 +96,7 @@ const getKeyframesName = (atRule, lexer) => {
 
 	const [nameNode] = atRule.prelude.children;
 	const name = getAnimationName(nameNode);
-	if (!isAnimationNameNode(nameNode, lexer)) {
+	if (!isAnimationNameNode(nameNode, 'animation-name', lexer)) {
 		return;
 	}
 
