@@ -37,7 +37,7 @@ The rule uses the CSS grammar to distinguish value keywords from case-sensitive 
 
 ## Ignored syntax
 
-The rule does not change custom property names or values, author-defined names beginning with `--`, font feature value names, type selectors, classes, IDs, attribute data, strings, URL payloads, or user data in selector arguments. It also leaves `!important` and encoding strings to their dedicated rules.
+The rule does not change custom property names or values, custom functions or their contents, other author-defined names beginning with `--`, font feature value names, type selectors, classes, IDs, attribute data, strings, URL payloads, or user data in selector arguments. It also leaves `!important` and encoding strings to their dedicated rules.
 
 ```css
 /* ✅ */

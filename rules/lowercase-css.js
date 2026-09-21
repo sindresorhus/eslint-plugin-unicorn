@@ -20,6 +20,11 @@ const fontFeatureValueAtRules = new Set([
 	'stylistic',
 	'swash',
 ]);
+const preservedFunctionPayloadNames = new Set([
+	'-moz-element',
+	'element',
+	'url',
+]);
 
 const toAsciiLowerCase = value => value.replaceAll(uppercaseAsciiPattern, character => character.toLowerCase());
 const decodeIdentifier = value => ident.decode(value);
@@ -78,12 +83,24 @@ function isInCustomProperty(node, sourceCode) {
 	return Boolean(declaration && isCustomIdentifier(declaration.property));
 }
 
-function isInUrlPayload(node, sourceCode) {
-	return sourceCode.getAncestors(node).some(ancestor => ancestor.type === 'Url' || (ancestor.type === 'Function' && normalizeIdentifier(ancestor.name) === 'url'));
+function isInPreservedFunction(node, sourceCode) {
+	return sourceCode.getAncestors(node).some(ancestor => {
+		if (ancestor.type === 'Url') {
+			return true;
+		}
+
+		if (ancestor.type !== 'Function') {
+			return false;
+		}
+
+		const functionName = normalizeIdentifier(ancestor.name);
+		return functionName.startsWith('--') || preservedFunctionPayloadNames.has(functionName);
+	});
 }
 
 function isInPreservedValue(node, sourceCode) {
-	return isInCustomProperty(node, sourceCode) || isInUrlPayload(node, sourceCode);
+	return isInCustomProperty(node, sourceCode)
+		|| isInPreservedFunction(node, sourceCode);
 }
 
 function getBlockOwner(node, sourceCode) {
