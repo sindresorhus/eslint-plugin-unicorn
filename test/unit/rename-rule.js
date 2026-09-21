@@ -35,7 +35,7 @@ test.serial('renameRule validates names before changing files', async t => {
 		await t.throwsAsync(renameRule(from, to), {message});
 	}
 
-	for (const to of ['renamed-rule', 'prefer-path3d']) {
+	for (const to of ['renamed-rule', 'prefer-path3d', 'path3d']) {
 		// eslint-disable-next-line no-await-in-loop
 		await t.throwsAsync(renameRule('prefer-path2d', to), {
 			message: 'Attempted to rename a file.',
@@ -83,6 +83,7 @@ for (const [from, to, input, output] of [
 	['indent', 'indent-style', 'export {default as indent} from \'./indent.js\';', 'export {default as \'indent-style\'} from \'./indent-style.js\';'],
 	['indent-style', 'indent', 'export {default as \'indent-style\'} from \'./indent-style.js\';', 'export {default as indent} from \'./indent.js\';'],
 	['indent', 'indentation', 'export {default as indent} from \'./indent.js\';', 'export {default as indentation} from \'./indentation.js\';'],
+	['indent-style', 'path3d', 'export {default as \'indent-style\'} from \'./indent-style.js\';', 'export {default as path3d} from \'./path3d.js\';'],
 ]) {
 	test(`replaceRuleIdInRulesIndex renames ${from} to ${to}`, t => {
 		const unrelated = 'export {default as \'indent-other\'} from \'./indent-other.js\';';
