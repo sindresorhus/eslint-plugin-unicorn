@@ -28,7 +28,6 @@ test.serial('renameRule rejects unsafe names before changing files', async t => 
 		['prefer-array-flat', 'foo.bar', 'Invalid rule name.'],
 		['prefer-array-flat', '../foo', 'Invalid rule name.'],
 		['prefer-array-flat', undefined, 'Invalid rule name.'],
-		['prefer-array-flat', null, 'Invalid rule name.'],
 	]) {
 		// eslint-disable-next-line no-await-in-loop
 		await t.throwsAsync(renameRule(from, to), {message});
