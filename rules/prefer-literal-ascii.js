@@ -1,6 +1,6 @@
 import {replaceTemplateElement} from './fix/index.js';
 import {isDirective, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
-import {escapeTemplateElementRaw} from './utils/index.js';
+import {escapeTemplateElementRaw, getTemplateElementRaw} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-literal-ascii';
 const messages = {
@@ -158,7 +158,7 @@ const create = context => {
 
 		return getProblem(
 			node,
-			node.value.raw,
+			getTemplateElementRaw(node, context),
 			'`',
 			(fixer, fixed) => replaceTemplateElement(node, escapeTemplateElementRaw(fixed), context, fixer),
 		);

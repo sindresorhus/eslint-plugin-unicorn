@@ -138,6 +138,19 @@ ruleTest.snapshot({
 	],
 });
 
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			// eslint-disable-next-line no-template-curly-in-string
+			code: 'const value = `a\\u0041\r\n${value}b`;',
+			// eslint-disable-next-line no-template-curly-in-string
+			output: 'const value = `aA\r\n${value}b`;',
+			errors: 1,
+		},
+	],
+});
+
 test('works with `prefer-unicode-code-point-escapes`', t => {
 	const linter = new Linter({configType: 'flat'});
 	const code = String.raw`const value = '\x41\xA9';`;

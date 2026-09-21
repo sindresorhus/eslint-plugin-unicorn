@@ -1,5 +1,6 @@
 import {replaceTemplateElement} from './fix/index.js';
 import {isRegexLiteral, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
+import {getTemplateElementRaw} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-unicode-code-point-escapes';
 const MESSAGE_ID_SUGGESTION = 'prefer-unicode-code-point-escapes/add-unicode-flag';
@@ -194,7 +195,7 @@ function getUnicodeEscape(text, index, {allowSurrogatePair, allowSurrogate, pref
 	};
 }
 
-function getEscapeReplacement(text, index, {isRegex, isInCharacterClass}) {
+function getEscapeReplacement(text, index, {isRegex, isInCharacterClass, allowOctal}) {
 	const legacyEscape = getHexEscape(text, index)
 		?? getUnicodeEscape(text, index, {
 			allowSurrogatePair: !isInCharacterClass,
@@ -210,10 +211,20 @@ function getEscapeReplacement(text, index, {isRegex, isInCharacterClass}) {
 		return;
 	}
 
-	return legacyEscape ?? (isRegex ? getControlEscape(text, index) : getOctalEscape(text, index));
+	if (legacyEscape) {
+		return legacyEscape;
+	}
+
+	if (isRegex) {
+		return getControlEscape(text, index);
+	}
+
+	if (allowOctal) {
+		return getOctalEscape(text, index);
+	}
 }
 
-function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterClasses = false} = {}) {
+function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterClasses = false, allowOctal = true} = {}) {
 	let fixed = '';
 	let characterClassDepth = 0;
 	let hasReplacement = false;
@@ -231,7 +242,7 @@ function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterC
 				hasCodePointEscape = true;
 			}
 
-			const replacement = getEscapeReplacement(text, index, {isRegex, isInCharacterClass});
+			const replacement = getEscapeReplacement(text, index, {isRegex, isInCharacterClass, allowOctal});
 			if (replacement) {
 				fixed += replacement.replacement;
 				index = replacement.end - 1;
@@ -272,8 +283,8 @@ function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterC
 	};
 }
 
-function getStringProblem(node, value, fix) {
-	const {fixed, hasReplacement} = replaceEscapeSequences(value);
+function getStringProblem(node, value, {fix, allowOctal} = {}) {
+	const {fixed, hasReplacement} = replaceEscapeSequences(value, {allowOctal});
 
 	if (!hasReplacement) {
 		return;
@@ -375,8 +386,10 @@ const create = context => {
 			return;
 		}
 
-		const raw = context.sourceCode.getText(node);
-		return getStringProblem(node, raw.slice(1, node.tail ? -1 : -2), (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
+		return getStringProblem(node, getTemplateElementRaw(node, context), {
+			allowOctal: false,
+			fix: (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer),
+		});
 	});
 };
 

@@ -2,7 +2,7 @@
 import test from 'ava';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 const RULE_ID = 'unicorn/prefer-unicode-code-point-escapes';
@@ -35,6 +35,10 @@ ruleTest.snapshot({
 		'const foo = `\\x7A`',
 		'const foo = `\\u007A`',
 		'const foo = `\\\\\\x7A`',
+		{
+			code: 'type Value = `\\123`;',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const foo = tag`\\u2661`',
 		'const foo = tag`\\123`',
 		'const foo = String.raw`\\u2661`',
@@ -107,6 +111,10 @@ ruleTest.snapshot({
 		},
 		String.raw`const foo = '\x7A\u2661\uD83D\uDCA9'`,
 		'const foo = `\\x7A${bar}\\u2661`',
+		{
+			code: 'type Value = `\\xA9`;',
+			languageOptions: {parser: parsers.typescript},
+		},
 		String.raw`const foo = /\x7A/u`,
 		String.raw`const foo = /\u0061/v`,
 		String.raw`const foo = /\u000A/u`,
@@ -140,13 +148,18 @@ ruleTest.snapshot({
 	],
 });
 
-test({
+ruleTest({
 	valid: [],
 	invalid: [
 		{
 			code: 'const foo = `line one\r\n\\u2661`;',
 			output: 'const foo = `line one\r\n\\u{2661}`;',
-			errors: [{messageId: 'prefer-unicode-code-point-escapes'}],
+			errors: 1,
+		},
+		{
+			code: 'const foo = `a\\u2661\rb`;',
+			output: 'const foo = `a\\u{2661}\rb`;',
+			errors: 1,
 		},
 	],
 });

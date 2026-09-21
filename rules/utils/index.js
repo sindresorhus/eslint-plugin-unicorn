@@ -76,6 +76,7 @@ export {default as isVirtualFilename} from './is-virtual-filename.js';
 export {default as onRoot} from './on-root.js';
 export {default as getScopes} from './get-scopes.js';
 export {default as getTokenStore} from './get-token-store.js';
+export {default as getTemplateElementRaw} from './get-template-element-raw.js';
 export {default as getVariableIdentifiers} from './get-variable-identifiers.js';
 export {default as hasUnsafeArrowConversionReference} from './has-unsafe-arrow-conversion-reference.js';
 export {
