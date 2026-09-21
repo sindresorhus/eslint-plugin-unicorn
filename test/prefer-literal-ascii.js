@@ -126,6 +126,22 @@ ruleTest.snapshot({
 	],
 });
 
+test('works with `prefer-unicode-code-point-escapes`', t => {
+	const linter = new Linter({configType: 'flat'});
+	const code = String.raw`const value = '\x41\xA9';`;
+	const result = linter.verifyAndFix(code, [{
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: 'error',
+			'unicorn/prefer-unicode-code-point-escapes': 'error',
+		},
+	}]);
+
+	t.true(result.fixed);
+	t.is(result.output, String.raw`const value = 'A\u{A9}';`);
+	t.deepEqual(result.messages, []);
+});
+
 test('scans long backslash runs efficiently', t => {
 	const code = `const value = '${'\\\\'.repeat(40_000)}';`;
 	const linter = new Linter({configType: 'flat'});

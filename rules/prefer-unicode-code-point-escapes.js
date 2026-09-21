@@ -322,10 +322,12 @@ function getRegexProblem(node) {
 		return;
 	}
 
-	const fixedRegex = `/${hasReplacement ? fixed : pattern}/${addUnicodeFlag(flags)}`;
+	const fixedPattern = hasReplacement ? fixed : pattern;
+	const fixedFlags = addUnicodeFlag(flags);
+	const fixedRegex = `/${fixedPattern}/${fixedFlags}`;
 
 	if (!hasUnicodeFlag) {
-		if (!isValidRegex(hasReplacement ? fixed : pattern, addUnicodeFlag(flags))) {
+		if (!isValidRegex(fixedPattern, fixedFlags)) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
