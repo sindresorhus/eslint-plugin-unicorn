@@ -61,9 +61,9 @@ a {
 }
 ```
 
-When the earlier declaration or both declarations are important, specificity still matters and descending specificity is reported.
+A later normal declaration cannot override an earlier important declaration, so descending specificity is still reported. When both declarations are important, specificity still determines their order.
 
-The rule compares exact property names after decoding CSS escapes and normalizing standard property casing. It intentionally does not expand shorthands, longhands, aliases, or `all`. Custom property names remain case-sensitive.
+The rule compares exact property names after decoding CSS escapes and normalizing ASCII case in standard property names. It intentionally does not expand shorthands, longhands, aliases, or `all`. Custom property names remain case-sensitive.
 
 Selectors are compared only within the same enclosing at-rule context. Equivalent formatting of media queries and other at-rule preludes is normalized, named layers are compared across matching blocks, and anonymous layers remain separate. The rule follows standard CSS nesting specificity, including the highest parent-list specificity used by `&`. Selectors that cannot be resolved conservatively are ignored.
 

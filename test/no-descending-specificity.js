@@ -12,6 +12,7 @@ test.snapshot({
 	valid: [
 		'a { color: red; } b a { color: blue; }',
 		'a { color: red; } a { color: blue; }',
+		'> b a { color: red; } a { color: blue; }',
 		'b a { color: red; } a { background: blue; }',
 		'a:hover { color: red; } a::before { color: blue; }',
 		'a::before { color: red; } a { color: blue; }',
@@ -20,6 +21,7 @@ test.snapshot({
 		'b a { color: red; } a { color: blue; color: green !important; }',
 		'b a { color: red !important; } a { background: blue; }',
 		'b a { --Theme: red; } a { --theme: blue; }',
+		'b a { É: red; } a { é: blue; }',
 		'b a { margin: 1px; } a { margin-top: 2px; }',
 		'b a { word-wrap: break-word; } a { overflow-wrap: normal; }',
 		'b a { all: unset; } a { color: blue; }',
@@ -109,11 +111,17 @@ test.snapshot({
 		'b a::unknown { color: red; } a::unknown { color: blue; }',
 		'a:is(:unknown, *) { color: red; } a { color: blue; }',
 		'a:matches(*) { color: red; } a { color: blue; }',
+		'a:is(> #dialog, *) { color: red; } a { color: blue; }',
+		'a:is(#dialog >, *) { color: red; } a { color: blue; }',
+		'a:not(> #dialog, *) { color: red; } a { color: blue; }',
+		'a:has(:has(#dialog)) { color: red; } a { color: blue; }',
+		':host(#dialog a) a { color: red; } a { color: blue; }',
 		'b a:is() { color: red; } a { color: blue; }',
 		'b a:where() { color: red; } a { color: blue; }',
 		'b a:not() { color: red; } a { color: blue; }',
 		'b a:is { color: red; } a { color: blue; }',
 		'b a:hover() { color: red; } a { color: blue; }',
+		'b a:hover(value) { color: red; } a { color: blue; }',
 		'b a::slotted() { color: red; } a::slotted() { color: blue; }',
 		'b a:nth-child { color: red; } a { color: blue; }',
 		'b a::slotted { color: red; } a::slotted { color: blue; }',
@@ -150,6 +158,11 @@ test.snapshot({
 		String.raw`b a { \63 olor: red; } a { color: blue; }`,
 		'b a { --theme: red; } a { --theme: blue; }',
 		'b a { -webkit-appearance: none; } a { -WEBKIT-APPEARANCE: auto; }',
+		String.raw`b a.\66 oo { color: red; } a.foo { color: blue; }`,
+		String.raw`b a#\66 oo { color: red; } a#foo { color: blue; }`,
+		'b a::MARKER { color: red; } a::marker { color: blue; }',
+		String.raw`b a::\6d arker { color: red; } a::marker { color: blue; }`,
+		'b a::SLOTTED(.foo) { color: red; } a::slotted(.foo) { color: blue; }',
 		'b a { color: red; background: white; } a { color: blue; background: black; }',
 		'b a, b button { color: red; } a, button { color: blue; }',
 		'a:is(#dialog) { color: red; } a { color: blue; }',
@@ -158,6 +171,7 @@ test.snapshot({
 		'b a:is(:unknown, *) { color: red; } a { color: blue; }',
 		'a:not(#dialog) { color: red; } a { color: blue; }',
 		'a:has(#dialog) { color: red; } a { color: blue; }',
+		'a:has(> #dialog) { color: red; } a { color: blue; }',
 		'a:nth-child(2n of #dialog) { color: red; } a { color: blue; }',
 		':host(#dialog) a { color: red; } a { color: blue; }',
 		'b :host a { color: red; } :host a { color: blue; }',
@@ -223,6 +237,7 @@ test.snapshot({
 				a { color: blue; }
 			}
 		`,
+		'@scope (.page) { > b a { color: red; } > a { color: blue; } }',
 		outdent`
 			@starting-style {
 				b a { color: red; }

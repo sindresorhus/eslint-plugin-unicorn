@@ -7,6 +7,9 @@ import {
 	getParentStyleRule,
 	getRuleSelectorSpecificity,
 	getRuleSpecificities,
+	hasAncestorStyleRule,
+	hasLeadingCombinator,
+	hasScopeAncestor,
 	normalizeCssIdentifier,
 } from './shared/css-selector-specificity.js';
 
@@ -35,20 +38,6 @@ const getAtRuleContextPart = (atRule, sourceCode) => {
 	return ['at-rule', name, atRule.prelude ? generate(atRule.prelude) : ''];
 };
 
-const hasAncestorStyleRule = (rule, sourceCode) => {
-	let ancestor = sourceCode.getParent(rule);
-
-	while (ancestor) {
-		if (ancestor.type === 'Rule') {
-			return true;
-		}
-
-		ancestor = sourceCode.getParent(ancestor);
-	}
-
-	return false;
-};
-
 const isInKeyframes = (rule, sourceCode) => {
 	let ancestor = sourceCode.getParent(rule);
 
@@ -68,7 +57,7 @@ const isInKeyframes = (rule, sourceCode) => {
 
 const normalizeProperty = property => {
 	const decodedProperty = ident.decode(property);
-	return decodedProperty.startsWith('--') ? decodedProperty : decodedProperty.toLowerCase();
+	return decodedProperty.startsWith('--') ? decodedProperty : normalizeCssIdentifier(property);
 };
 
 const getDeclarationRecordKey = ({contextIdentifier, property}) => JSON.stringify([contextIdentifier, property]);
@@ -81,12 +70,29 @@ const getTerminalCompoundNodes = selector => {
 const isPseudoElementWithNestingSelector = node => node.type === 'PseudoElementSelector' && Boolean(find(node, descendant => descendant.type === 'NestingSelector'));
 
 const getTerminalNodeKey = node => {
-	if (node.type !== 'PseudoClassSelector') {
-		return node.type === 'NestingSelector' ? undefined : generate(node);
-	}
+	switch (node.type) {
+		case 'NestingSelector': {
+			return;
+		}
 
-	const name = normalizeCssIdentifier(node.name);
-	return LEGACY_PSEUDO_ELEMENTS.has(name) ? `::${name}` : '';
+		case 'ClassSelector':
+		case 'IdSelector': {
+			return `${node.type}:${ident.decode(node.name)}`;
+		}
+
+		case 'PseudoClassSelector': {
+			const name = normalizeCssIdentifier(node.name);
+			return LEGACY_PSEUDO_ELEMENTS.has(name) ? `::${name}` : '';
+		}
+
+		case 'PseudoElementSelector': {
+			return generate({...node, name: normalizeCssIdentifier(node.name)});
+		}
+
+		default: {
+			return generate(node);
+		}
+	}
 };
 
 const joinTerminalKeyParts = (parts, parentKey = '') => {
@@ -313,7 +319,8 @@ const create = context => {
 		const parentTerminalKeys = parentRule ? ruleTerminalKeys.get(parentRule) ?? [] : [];
 		const nestingSpecificity = getMaximumSpecificity(parentSpecificities ?? []);
 		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, sourceCode);
-		const hasUnresolvedSelectorList = rule.prelude.children.some(selector => hasRawNode(selector) || !canMatchSelector(selector));
+		const allowsRelativeSelector = Boolean(parentRule) || hasScopeAncestor(rule, sourceCode);
+		const hasUnresolvedSelectorList = rule.prelude.children.some(selector => hasRawNode(selector) || !canMatchSelector(selector) || (!allowsRelativeSelector && hasLeadingCombinator(selector)));
 		const canResolveAgainstParent = !hasUnresolvedParent && (!parentRule || parentSpecificities?.length > 0);
 
 		const analyses = [];

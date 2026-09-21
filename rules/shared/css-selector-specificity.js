@@ -1,9 +1,10 @@
 import {
+	find,
 	ident,
 	tokenize,
 	tokenTypes,
 } from '@eslint/css-tree';
-import standardPseudoSelectors, {functionalPseudoSelectors} from './standard-pseudo-selectors.js';
+import {functionalPseudoSelectors, nonFunctionalPseudoSelectors} from './standard-pseudo-selectors.js';
 
 const ZERO_SPECIFICITY = [0, 0, 0];
 const TRANSPARENT_GROUP_RULES = new Set([
@@ -28,16 +29,21 @@ const NTH_PSEUDO_CLASSES = new Set([
 	'nth-child',
 	'nth-last-child',
 ]);
+const COMPOUND_SELECTOR_ARGUMENT_PSEUDOS = new Set([
+	'host',
+	'host-context',
+	'slotted',
+]);
 const LEGACY_PSEUDO_ELEMENTS = new Set([
 	'after',
 	'before',
 	'first-letter',
 	'first-line',
 ]);
-const STANDARD_PSEUDO_SELECTORS = new Set(standardPseudoSelectors);
 const FUNCTIONAL_PSEUDO_SELECTORS = new Set(functionalPseudoSelectors);
+const NON_FUNCTIONAL_PSEUDO_SELECTORS = new Set(nonFunctionalPseudoSelectors);
 
-const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
+const normalizeCssIdentifier = identifier => ident.decode(identifier).replaceAll(/[A-Z]/g, character => character.toLowerCase());
 
 const addSpecificity = (first, second) => first.map((value, index) => value + second[index]);
 
@@ -74,7 +80,14 @@ const getSelectorArgument = node => {
 	}
 };
 
-const isSelectorRepresentable = (selector, allowPseudoElements) => selector.children.every(node => {
+const hasLeadingCombinator = selector => selector.children.at(0)?.type === 'Combinator';
+const hasInvalidCombinator = (selector, allowLeadingCombinator) => selector.children.some((node, index, nodes) => node.type === 'Combinator' && (
+	(!allowLeadingCombinator && index === 0)
+	|| index === nodes.length - 1
+	|| nodes[index + 1]?.type === 'Combinator'
+));
+
+const isSelectorRepresentable = (selector, allowPseudoElements, allowLeadingCombinator) => !hasInvalidCombinator(selector, allowLeadingCombinator) && selector.children.every(node => {
 	if (
 		node.type !== 'PseudoClassSelector'
 		&& node.type !== 'PseudoElementSelector'
@@ -85,15 +98,14 @@ const isSelectorRepresentable = (selector, allowPseudoElements) => selector.chil
 	const name = normalizeCssIdentifier(node.name);
 	const prefix = node.type === 'PseudoElementSelector' ? '::' : ':';
 	const pseudoSelector = `${prefix}${name}`;
-	if (!STANDARD_PSEUDO_SELECTORS.has(pseudoSelector)) {
+	const supportedPseudoSelectors = node.children === null
+		? NON_FUNCTIONAL_PSEUDO_SELECTORS
+		: FUNCTIONAL_PSEUDO_SELECTORS;
+	if (!supportedPseudoSelectors.has(pseudoSelector)) {
 		return false;
 	}
 
 	if (node.children?.length === 0) {
-		return false;
-	}
-
-	if (node.children === null && FUNCTIONAL_PSEUDO_SELECTORS.has(pseudoSelector)) {
 		return false;
 	}
 
@@ -115,13 +127,28 @@ const isSelectorRepresentable = (selector, allowPseudoElements) => selector.chil
 	}
 
 	const selectors = selectorArgument.type === 'Selector' ? [selectorArgument] : selectorArgument.children;
+	if (
+		COMPOUND_SELECTOR_ARGUMENT_PSEUDOS.has(name)
+		&& selectors.some(selector => selector.children.some(node => node.type === 'Combinator'))
+	) {
+		return false;
+	}
+
+	if (
+		name === 'has'
+		&& Boolean(find(selectorArgument, descendant => descendant.type === 'PseudoClassSelector' && normalizeCssIdentifier(descendant.name) === 'has'))
+	) {
+		return false;
+	}
+
+	const argumentAllowsLeadingCombinator = node.type === 'PseudoClassSelector' && name === 'has';
 	return node.type === 'PseudoClassSelector' && FORGIVING_SELECTOR_LIST_PSEUDO_CLASSES.has(name)
-		? selectors.some(selector => isSelectorRepresentable(selector, false))
-		: selectors.every(selector => isSelectorRepresentable(selector, false));
+		? selectors.some(selector => isSelectorRepresentable(selector, false, argumentAllowsLeadingCombinator))
+		: selectors.every(selector => isSelectorRepresentable(selector, false, argumentAllowsLeadingCombinator));
 });
 
-const canMatchSelector = selector => isSelectorRepresentable(selector, true);
-const canBeRepresentedByNestingSelector = selector => isSelectorRepresentable(selector, false);
+const canMatchSelector = selector => isSelectorRepresentable(selector, true, true);
+const canBeRepresentedByNestingSelector = (selector, allowLeadingCombinator = true) => isSelectorRepresentable(selector, false, allowLeadingCombinator);
 
 const hasNestingSelectorInRawArgument = argument => {
 	if (argument?.type !== 'Raw') {
@@ -149,11 +176,11 @@ const getSelectorSpecificity = (selector, nestingSpecificity) => {
 	return {specificity, hasNestingSelector};
 };
 
-const getSelectorArgumentSpecificity = (selectorArgument, nestingSpecificity) => {
+const getSelectorArgumentSpecificity = (selectorArgument, nestingSpecificity, allowLeadingCombinator = false) => {
 	const selectors = selectorArgument?.type === 'Selector' ? [selectorArgument] : selectorArgument?.children ?? [];
 	const results = selectors.map(selector => ({
 		...getSelectorSpecificity(selector, nestingSpecificity),
-		isRepresentable: canBeRepresentedByNestingSelector(selector),
+		isRepresentable: canBeRepresentedByNestingSelector(selector, allowLeadingCombinator),
 	}));
 
 	return {
@@ -165,7 +192,7 @@ const getSelectorArgumentSpecificity = (selectorArgument, nestingSpecificity) =>
 const getPseudoClassSpecificity = (node, nestingSpecificity) => {
 	const name = normalizeCssIdentifier(node.name);
 	const argument = node.children?.[0];
-	const selectorArgumentResult = getSelectorArgumentSpecificity(getSelectorArgument(node), nestingSpecificity);
+	const selectorArgumentResult = getSelectorArgumentSpecificity(getSelectorArgument(node), nestingSpecificity, name === 'has');
 	const hasNestingSelector = selectorArgumentResult.hasNestingSelector || hasNestingSelectorInRawArgument(argument);
 
 	if (name === 'where') {
@@ -280,6 +307,37 @@ const getParentStyleRule = (rule, context) => {
 	}
 };
 
+const hasAncestorStyleRule = (rule, sourceCode) => {
+	let ancestor = sourceCode.getParent(rule);
+
+	while (ancestor) {
+		if (ancestor.type === 'Rule') {
+			return true;
+		}
+
+		ancestor = sourceCode.getParent(ancestor);
+	}
+
+	return false;
+};
+
+const hasScopeAncestor = (rule, sourceCode) => {
+	let ancestor = sourceCode.getParent(rule);
+
+	while (ancestor) {
+		if (
+			ancestor.type === 'Atrule'
+			&& normalizeCssIdentifier(ancestor.name) === 'scope'
+		) {
+			return true;
+		}
+
+		ancestor = sourceCode.getParent(ancestor);
+	}
+
+	return false;
+};
+
 export {
 	canBeRepresentedByNestingSelector,
 	canMatchSelector,
@@ -288,5 +346,8 @@ export {
 	getParentStyleRule,
 	getRuleSelectorSpecificity,
 	getRuleSpecificities,
+	hasAncestorStyleRule,
+	hasLeadingCombinator,
+	hasScopeAncestor,
 	normalizeCssIdentifier,
 };

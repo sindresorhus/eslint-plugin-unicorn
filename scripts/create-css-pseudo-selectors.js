@@ -4,7 +4,6 @@ import webref from '@webref/css';
 const targetUrl = new URL('../rules/shared/standard-pseudo-selectors.js', import.meta.url);
 const {selectors} = await webref.listAll();
 const pseudoSelectorNames = selectors.filter(({name}) => name.startsWith(':')).map(({name}) => name);
-const nonFunctionalPseudoSelectors = new Set(pseudoSelectorNames.filter(name => !name.endsWith('()')));
 const comparePseudoSelectors = (first, second) => {
 	if (first === second) {
 		return 0;
@@ -13,8 +12,8 @@ const comparePseudoSelectors = (first, second) => {
 	return first < second ? -1 : 1;
 };
 
-const pseudoSelectors = [...new Set([
-	...pseudoSelectorNames.map(name => name.replace(/\(\)$/u, '')),
+const nonFunctionalPseudoSelectors = [...new Set([
+	...pseudoSelectorNames.filter(name => !name.endsWith('()')),
 	// Missing from Webref: https://drafts.csswg.org/css-logical-1/#page
 	':recto',
 	':verso',
@@ -25,15 +24,22 @@ const pseudoSelectors = [...new Set([
 const functionalPseudoSelectors = [...new Set(
 	pseudoSelectorNames
 		.filter(name => name.endsWith('()'))
-		.map(name => name.slice(0, -2))
-		.filter(name => !nonFunctionalPseudoSelectors.has(name)),
+		.map(name => name.slice(0, -2)),
 )].toSorted(comparePseudoSelectors);
+const pseudoSelectors = [...new Set([
+	...nonFunctionalPseudoSelectors,
+	...functionalPseudoSelectors,
+])].toSorted(comparePseudoSelectors);
 
 const content = [
 	'// Generated file, DO NOT edit',
 	'',
 	'export const functionalPseudoSelectors = [',
 	...functionalPseudoSelectors.map(selector => `\t'${selector}',`),
+	'];',
+	'',
+	'export const nonFunctionalPseudoSelectors = [',
+	...nonFunctionalPseudoSelectors.map(selector => `\t'${selector}',`),
 	'];',
 	'',
 	'export default [',

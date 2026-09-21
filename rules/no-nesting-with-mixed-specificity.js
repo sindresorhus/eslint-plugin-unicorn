@@ -3,6 +3,9 @@ import {
 	getMaximumSpecificity,
 	getParentStyleRule,
 	getRuleSpecificities,
+	hasAncestorStyleRule,
+	hasLeadingCombinator,
+	hasScopeAncestor,
 } from './shared/css-selector-specificity.js';
 
 const MESSAGE_ID = 'no-nesting-with-mixed-specificity';
@@ -16,6 +19,7 @@ const hasMixedSpecificity = specificities => specificities.some(specificity => c
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const {sourceCode} = context;
 	const ruleSpecificities = new WeakMap();
 
 	context.on('Rule', rule => {
@@ -26,7 +30,9 @@ const create = context => {
 		const parentRule = getParentStyleRule(rule, context);
 		const parentSpecificities = parentRule && ruleSpecificities.get(parentRule);
 		const nestingSpecificity = getMaximumSpecificity(parentSpecificities ?? []);
-		const specificities = parentSpecificities?.length === 0 ? [] : getRuleSpecificities(rule, nestingSpecificity);
+		const hasUnresolvedParent = !parentRule && hasAncestorStyleRule(rule, sourceCode);
+		const hasTopLevelRelativeSelector = !parentRule && !hasScopeAncestor(rule, sourceCode) && rule.prelude.children.some(selector => hasLeadingCombinator(selector));
+		const specificities = parentSpecificities?.length === 0 || hasUnresolvedParent || hasTopLevelRelativeSelector ? [] : getRuleSpecificities(rule, nestingSpecificity);
 		ruleSpecificities.set(rule, specificities);
 
 		if (parentSpecificities && hasMixedSpecificity(parentSpecificities)) {

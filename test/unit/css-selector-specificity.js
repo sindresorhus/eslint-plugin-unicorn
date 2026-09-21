@@ -1,6 +1,7 @@
 import test from 'ava';
 import {parse, toPlainObject} from '@eslint/css-tree';
 import {
+	canMatchSelector,
 	compareSpecificity,
 	getMaximumSpecificity,
 	getRuleSelectorSpecificity,
@@ -8,6 +9,7 @@ import {
 } from '../../rules/shared/css-selector-specificity.js';
 
 const parseRule = selector => toPlainObject(parse(`${selector} {}`)).children.at(0);
+const parseSelector = selector => parseRule(selector).prelude.children.at(0);
 const getSelectorSpecificities = selector => parseRule(selector).prelude.children.map(selector => getRuleSelectorSpecificity(selector, [0, 0, 0]));
 
 test('compares specificity lexicographically', t => {
@@ -24,12 +26,15 @@ test('calculates selector specificity', t => {
 	t.deepEqual(getSelectorSpecificities('*'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':where(#dialog)'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':is(.dialog, #dialog)'), [[1, 0, 0]]);
+	t.deepEqual(getSelectorSpecificities(':is(> #dialog, *)'), [[0, 0, 0]]);
+	t.deepEqual(getSelectorSpecificities(':is(#dialog >, *)'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':is(::before, *)'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':is(:unknown, *)'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':matches(.dialog, #dialog)'), [[1, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':matches(:unknown, *)'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':not(.dialog, #dialog)'), [[1, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':has(.dialog, #dialog)'), [[1, 0, 0]]);
+	t.deepEqual(getSelectorSpecificities(':has(> #dialog)'), [[1, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':nth-child(2n of .dialog, #dialog)'), [[1, 1, 0]]);
 	t.deepEqual(getSelectorSpecificities(':host(#dialog)'), [[1, 1, 0]]);
 	t.deepEqual(getSelectorSpecificities('::slotted(#dialog)'), [[1, 0, 1]]);
@@ -49,4 +54,17 @@ test('calculates explicit and implicit nesting specificity', t => {
 test('excludes pseudo-element branches from nesting parents', t => {
 	t.deepEqual(getRuleSpecificities(parseRule('dialog, ::before'), [0, 0, 0]), [[0, 0, 1]]);
 	t.deepEqual(getRuleSpecificities(parseRule(':is(::before)'), [0, 0, 0]), []);
+});
+
+test('recognizes supported pseudo-selector forms', t => {
+	t.false(canMatchSelector(parseSelector(':hover(value)')));
+	t.false(canMatchSelector(parseSelector(':before(value)')));
+	t.false(canMatchSelector(parseSelector('::before(value)')));
+	t.true(canMatchSelector(parseSelector(':host')));
+	t.true(canMatchSelector(parseSelector(':host(.dialog)')));
+	t.false(canMatchSelector(parseSelector(':not(> #dialog, *)')));
+	t.false(canMatchSelector(parseSelector(':has(#dialog >)')));
+	t.false(canMatchSelector(parseSelector(':host(#dialog a)')));
+	t.false(canMatchSelector(parseSelector('::slotted(#dialog a)')));
+	t.false(canMatchSelector(parseSelector(':has(:has(#dialog))')));
 });
