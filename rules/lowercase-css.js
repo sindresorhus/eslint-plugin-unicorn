@@ -29,6 +29,7 @@ const preservedFunctionPayloadNames = new Set([
 	'paint',
 	'url',
 ]);
+const substitutingFunctionNames = new Set(['attr', 'env', 'var']);
 
 const toAsciiLowerCase = value => value.replaceAll(uppercaseAsciiPattern, character => character.toLowerCase());
 const decodeIdentifier = value => ident.decode(value);
@@ -189,19 +190,12 @@ function getValueMatch(matchValue, candidate, target, sourceCode) {
 	return {match: matchValue(normalizedCandidate), target: normalizedTarget};
 }
 
-function hasMatcherBarrier(node) {
+const isSubstitutingFunction = name => name.startsWith('--') || substitutingFunctionNames.has(name);
+
+function hasFunction(node, predicate) {
 	let found = false;
 	walk(node, candidate => {
-		if (candidate.type !== 'Function') {
-			return;
-		}
-
-		const functionName = normalizeIdentifier(candidate.name);
-		if (
-			isCustomIdentifier(functionName)
-			|| preservedFunctionPayloadNames.has(functionName)
-			|| functionName === 'var'
-		) {
+		if (candidate.type === 'Function' && predicate(normalizeIdentifier(candidate.name))) {
 			found = true;
 		}
 	});
@@ -209,14 +203,13 @@ function hasMatcherBarrier(node) {
 	return found;
 }
 
+const hasMatcherBarrier = node => hasFunction(node, name => preservedFunctionPayloadNames.has(name));
+
 function * getValueCandidates(node, declaration, sourceCode) {
 	const ancestors = sourceCode.getAncestors(node);
 	const declarationIndex = ancestors.lastIndexOf(declaration);
 	const enclosingCandidates = ancestors.slice(declarationIndex + 2).toReversed();
 	yield * enclosingCandidates;
-	if (enclosingCandidates.some(candidate => hasMatcherBarrier(candidate))) {
-		return;
-	}
 
 	yield node;
 
@@ -266,6 +259,11 @@ function isValueKeyword(node, declaration, sourceCode) {
 
 	if (!completeMatch.match.error) {
 		return completeMatch.match.isKeyword(completeMatch.target);
+	}
+
+	// A substitution can fill a keyword slot, making another identifier a case-sensitive custom name.
+	if (hasFunction(declaration.value, isSubstitutingFunction)) {
+		return false;
 	}
 
 	for (const candidate of getValueCandidates(node, declaration, sourceCode)) {

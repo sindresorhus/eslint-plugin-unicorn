@@ -13,7 +13,7 @@ CSS treats property names, at-rule names, units, standard function names, pseudo
 
 The rule uses the CSS grammar to distinguish value keywords from case-sensitive custom identifiers such as animation names, font families, grid names, and counters.
 
-When a function contains a variable substitution, the rule may leave other identifiers in that function unchanged because their role cannot always be determined safely.
+When a declaration contains a substitution such as `var()`, `env()`, `attr()`, or a custom function, the rule leaves its value identifiers unchanged because the substitution can determine whether an identifier is a keyword or a case-sensitive name. Units, function names, and hexadecimal colors outside the substitution are still checked.
 
 ## Examples
 
