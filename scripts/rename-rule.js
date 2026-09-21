@@ -4,9 +4,12 @@ import process from 'node:process';
 import {pathToFileURL} from 'node:url';
 import enquirer from 'enquirer';
 import unicorn from '../index.js';
+import * as ruleModules from '../rules/index.js';
 
-const rules = Object.keys(unicorn.rules);
+const sourceRuleIds = Object.keys(ruleModules);
+const renamableRules = sourceRuleIds.filter(ruleId => ruleId.includes('-'));
 const resolveFile = file => new URL(`../${file}`, import.meta.url);
+const isValidRuleId = ruleId => typeof ruleId === 'string' && /^[a-z][\d\-a-z]*$/.test(ruleId);
 
 function checkFiles(ruleId) {
 	const files = [
@@ -65,12 +68,27 @@ function sortReadmeRuleRows(text, ruleId) {
 }
 
 function replaceRuleIdInRulesIndex(text, from, to) {
-	const fromLine = `export {default as '${from}'} from './${from}.js';`;
-	const toLine = `export {default as '${to}'} from './${to}.js';`;
+	const fromExportName = from.includes('-') ? `'${from}'` : from;
+	const toExportName = to.includes('-') ? `'${to}'` : to;
+	const fromLine = `export {default as ${fromExportName}} from './${from}.js';`;
+	const toLine = `export {default as ${toExportName}} from './${to}.js';`;
 	return text.replace(fromLine, () => toLine);
 }
 
+function replaceRuleId(text, from, to) {
+	const pattern = new RegExp(String.raw`(?<![\w-])${from}(?![\w-])`, 'gu');
+	return text.replaceAll(pattern, () => to);
+}
+
 async function renameRule(from, to) {
+	if (!sourceRuleIds.includes(from) || !isValidRuleId(to)) {
+		throw new Error('Invalid rule name.');
+	}
+
+	if (!from.includes('-')) {
+		throw new Error('Rules without hyphens must be renamed manually to avoid changing unrelated code.');
+	}
+
 	await renameFile(`docs/rules/${from}.md`, `docs/rules/${to}.md`);
 	await renameFile(`rules/${from}.js`, `rules/${to}.js`);
 	await renameFile(`test/${from}.js`, `test/${to}.js`);
@@ -98,7 +116,7 @@ async function renameRule(from, to) {
 		let text = await fsAsync.readFile(file, 'utf8');
 		text = file.pathname.endsWith('/rules/index.js')
 			? replaceRuleIdInRulesIndex(text, from, to)
-			: text.replaceAll(from, () => to);
+			: replaceRuleId(text, from, to);
 		// eslint-disable-next-line no-await-in-loop
 		await fsAsync.writeFile(file, text);
 	}
@@ -108,15 +126,16 @@ async function renameRule(from, to) {
 
 const run = async () => {
 	const ruleSelector = new enquirer.AutoComplete({
-		message: 'Select the rule you want rename:',
+		message: 'Select the rule you want to rename:',
 		limit: 10,
-		choices: rules,
+		choices: renamableRules,
 	});
 	const originalRuleId = await ruleSelector.run();
 
 	const ruleNamePrompt = new enquirer.Input({
 		message: 'New name:',
 		initial: originalRuleId,
+		validate: ruleId => isValidRuleId(ruleId) || 'Invalid rule name.',
 	});
 	const ruleId = await ruleNamePrompt.run();
 
@@ -124,7 +143,7 @@ const run = async () => {
 		return;
 	}
 
-	if (rules.includes(ruleId)) {
+	if (Object.hasOwn(unicorn.rules, ruleId)) {
 		console.log(`${ruleId} already exists.`);
 		return;
 	}
@@ -140,6 +159,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 // Exported for unit tests.
 // eslint-disable-next-line unicorn/no-exports-in-scripts
 export {
+	renamableRules,
+	renameRule,
+	replaceRuleId,
 	replaceRuleIdInRulesIndex,
 	sortReadmeRuleRows,
 };

@@ -124,6 +124,7 @@ export default defineConfig([
 | [filename-case](docs/rules/filename-case.md)                                                               | Enforce a case style for filenames and directory names.                                                                        | ✅    |    |    |    |
 | [id-match](docs/rules/id-match.md)                                                                         | Require identifiers to match a specified regular expression.                                                                   |      |    |    |    |
 | [import-style](docs/rules/import-style.md)                                                                 | Enforce specific import styles per module.                                                                                     | ✅ ☑️ |    |    |    |
+| [indent](docs/rules/indent.md)                                                                             | Enforce consistent indentation in JSON and CSS.                                                                                |      | 🔧 |    |    |
 | [isolated-functions](docs/rules/isolated-functions.md)                                                     | Prevent usage of variables from outside the scope of isolated functions.                                                       | ✅    |    |    |    |
 | [iteration-fallback-style](docs/rules/iteration-fallback-style.md)                                         | Enforce a consistent style for optional loop sources.                                                                          |      | 🔧 |    |    |
 | [logical-assignment-operators](docs/rules/logical-assignment-operators.md)                                 | Require or disallow logical assignment operator shorthand                                                                      | ✅    | 🔧 | 💡 |    |
@@ -568,6 +569,7 @@ These rules also work on specific non-JavaScript languages:
 | :-- | :-: | :-: | :-: | :-: | :-: | :-: |
 | [`escape-case`](docs/rules/escape-case.md) |  |  |  |  | ✅ |  |
 | [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`indent`](docs/rules/indent.md) | ✅ |  | ✅ |  |  |  |
 | [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | ✅ |  | ✅ |  |  |  |
 | [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-css-selectors`](docs/rules/no-duplicate-css-selectors.md) | ✅ |  |  |  |  |  |

@@ -54,7 +54,7 @@ async function getData() {
 					return 'Rule name is required.';
 				}
 
-				if (!/^[-a-z]+$/.test(value)) {
+				if (!/^[a-z][\d\-a-z]*$/.test(value)) {
 					return 'Invalid rule name.';
 				}
 
@@ -93,7 +93,7 @@ async function getData() {
 		{
 			type: 'select',
 			name: 'hasSuggestions',
-			message: 'Does it provides suggestions?',
+			message: 'Does it provide suggestions?',
 			choices: ['Yes', 'No'],
 			result: value => value === 'Yes',
 		},
