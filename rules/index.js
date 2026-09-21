@@ -37,6 +37,7 @@ export {default as indent} from './indent.js';
 export {default as 'isolated-functions'} from './isolated-functions.js';
 export {default as 'iteration-fallback-style'} from './iteration-fallback-style.js';
 export {default as 'logical-assignment-operators'} from './logical-assignment-operators.js';
+export {default as 'lowercase-css'} from './lowercase-css.js';
 export {default as 'max-nested-calls'} from './max-nested-calls.js';
 export {default as 'name-replacements'} from './name-replacements.js';
 export {default as 'new-for-builtins'} from './new-for-builtins.js';
