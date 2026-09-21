@@ -26,8 +26,10 @@ const preservedFunctionPayloadNames = new Set([
 	'attr',
 	'element',
 	'env',
+	'paint',
 	'url',
 ]);
+const unsupportedMatcherFunctionNames = new Set(['env', 'var']);
 
 const toAsciiLowerCase = value => value.replaceAll(uppercaseAsciiPattern, character => character.toLowerCase());
 const decodeIdentifier = value => ident.decode(value);
@@ -181,6 +183,72 @@ function getValueMatch(matchValue, candidate, target, sourceCode) {
 	return {match: matchValue(normalizedCandidate), target: normalizedTarget};
 }
 
+function hasMatcherBarrier(node) {
+	let found = false;
+	walk(node, candidate => {
+		if (candidate.type !== 'Function') {
+			return;
+		}
+
+		const functionName = normalizeIdentifier(candidate.name);
+		if (
+			isCustomIdentifier(functionName)
+			|| preservedFunctionPayloadNames.has(functionName)
+			|| unsupportedMatcherFunctionNames.has(functionName)
+		) {
+			found = true;
+		}
+	});
+
+	return found;
+}
+
+function * getValueCandidates(node, declaration, sourceCode) {
+	const ancestors = sourceCode.getAncestors(node);
+	const declarationIndex = ancestors.lastIndexOf(declaration);
+	yield * ancestors.slice(declarationIndex + 2).toReversed();
+	yield node;
+
+	const {children} = declaration.value;
+	if (!Array.isArray(children) || children.length < 2) {
+		return;
+	}
+
+	const valueChild = ancestors[declarationIndex + 2] ?? node;
+	const targetIndex = children.indexOf(valueChild);
+	if (targetIndex === -1) {
+		return;
+	}
+
+	let startIndex = targetIndex;
+	while (startIndex > 0 && !hasMatcherBarrier(children[startIndex - 1])) {
+		startIndex--;
+	}
+
+	if (children[startIndex]?.type === 'Operator' && children[startIndex].value === ',') {
+		startIndex++;
+	}
+
+	let endIndex = targetIndex + 1;
+	while (endIndex < children.length && !hasMatcherBarrier(children[endIndex])) {
+		endIndex++;
+	}
+
+	if (children[endIndex - 1]?.type === 'Operator' && children[endIndex - 1].value === ',') {
+		endIndex--;
+	}
+
+	if (
+		endIndex - startIndex > 1
+		&& (startIndex > 0 || endIndex < children.length)
+	) {
+		yield {
+			...declaration.value,
+			children: children.slice(startIndex, endIndex),
+		};
+	}
+}
+
 function isValueKeyword(node, declaration, sourceCode) {
 	const matchValue = getDeclarationMatcher(declaration, sourceCode);
 	const completeMatch = getValueMatch(matchValue, declaration.value, node, sourceCode);
@@ -189,15 +257,19 @@ function isValueKeyword(node, declaration, sourceCode) {
 		return completeMatch.match.isKeyword(completeMatch.target);
 	}
 
-	const ancestors = sourceCode.getAncestors(node);
-	const declarationIndex = ancestors.lastIndexOf(declaration);
-	const candidates = [...ancestors.slice(declarationIndex + 2).toReversed(), node];
-
-	for (const candidate of candidates) {
+	for (const candidate of getValueCandidates(node, declaration, sourceCode)) {
 		const {match, target} = getValueMatch(matchValue, candidate, node, sourceCode);
-		if (!match.error) {
-			// A system font keyword is only unambiguously a keyword when it is the complete font shorthand value.
-			return match.isKeyword(target) && !match.isType(target, 'system-family-name');
+		if (match.error) {
+			continue;
+		}
+
+		if (!match.isKeyword(target)) {
+			return false;
+		}
+
+		// A system font keyword is only unambiguously a keyword when it is the complete font shorthand value.
+		if (!match.isType(target, 'system-family-name')) {
+			return true;
 		}
 	}
 

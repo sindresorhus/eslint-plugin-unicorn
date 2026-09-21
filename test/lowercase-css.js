@@ -89,6 +89,21 @@ test({
 			errors: 2,
 		},
 		{
+			code: 'a { background-image: PAINT(MyPainter, #ABC, 1PX, CALC(1PX)); }',
+			output: 'a { background-image: paint(MyPainter, #ABC, 1PX, CALC(1PX)); }',
+			errors: 1,
+		},
+		{
+			code: 'a { font: var(--Style) BOLD 1PX Arial; background: var(--Color) CENTER / COVER NO-REPEAT; }',
+			output: 'a { font: var(--Style) bold 1px Arial; background: var(--Color) center / cover no-repeat; }',
+			errors: 5,
+		},
+		{
+			code: 'a { background: var(--Image), CENTER / COVER NO-REPEAT; background: --image(), CENTER / COVER NO-REPEAT; }',
+			output: 'a { background: var(--Image), center / cover no-repeat; background: --image(), center / cover no-repeat; }',
+			errors: 6,
+		},
+		{
 			code: outdent`
 				@supports SELECTOR(a:HOVER) {}
 				@supports FONT-TECH(variations) {}
