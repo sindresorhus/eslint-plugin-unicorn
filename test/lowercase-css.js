@@ -99,6 +99,11 @@ test({
 			errors: 5,
 		},
 		{
+			code: String.raw`@media (1PX < \57 IDTH < 2EM) {}`,
+			output: '@media (1px < width < 2em) {}',
+			errors: 3,
+		},
+		{
 			code: 'a { background-image: PAINT(MyPainter, #ABC, 1PX, CALC(1PX)); }',
 			output: 'a { background-image: paint(MyPainter, #ABC, 1PX, CALC(1PX)); }',
 			errors: 1,
