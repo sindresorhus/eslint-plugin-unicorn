@@ -13,6 +13,7 @@ const messages = {
 const hexadecimalColorPattern = /^(?:[\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/iu;
 const uppercaseAsciiPattern = /[A-Z]/g;
 const cssWhitespacePattern = /[\t\n\f\r ]/u;
+const queryFeatureKinds = new Set(['container', 'media']);
 const fontFeatureValueAtRules = new Set([
 	'annotation',
 	'character-variant',
@@ -376,19 +377,19 @@ const create = context => {
 	context.on('Feature', node => {
 		if (
 			isInPreservedContext(node, sourceCode)
-			|| node.kind !== 'media'
+			|| !queryFeatureKinds.has(node.kind)
 			|| isCustomIdentifier(node.name)
 		) {
 			return;
 		}
 
-		return getIdentifierProblem(node, getFeatureNameRange(node, sourceCode), 'media feature name', context);
+		return getIdentifierProblem(node, getFeatureNameRange(node, sourceCode), `${node.kind} feature name`, context);
 	});
 
 	context.on('FeatureRange', function * (node) {
 		if (
 			isInPreservedContext(node, sourceCode)
-			|| node.kind !== 'media'
+			|| !queryFeatureKinds.has(node.kind)
 		) {
 			return;
 		}
@@ -412,7 +413,7 @@ const create = context => {
 				continue;
 			}
 
-			const problem = getIdentifierProblem(candidate, sourceCode.getRange(candidate), 'media feature name', context);
+			const problem = getIdentifierProblem(candidate, sourceCode.getRange(candidate), `${node.kind} feature name`, context);
 			if (problem) {
 				yield problem;
 			}

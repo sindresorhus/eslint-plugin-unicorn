@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-CSS treats property names, at-rule names, units, standard function names, pseudo-class and pseudo-element names, media feature names, known value keywords, and hexadecimal color digits as ASCII case-insensitive. This rule enforces lowercase for all of them with a single convention.
+CSS treats property names, at-rule names, units, standard function names, pseudo-class and pseudo-element names, media and container size feature names, known value keywords, and hexadecimal color digits as ASCII case-insensitive. This rule enforces lowercase for all of them with a single convention.
 
 The rule uses the CSS grammar to distinguish value keywords from case-sensitive custom identifiers such as animation names, font families, grid names, and counters.
 

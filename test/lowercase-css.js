@@ -18,6 +18,8 @@ test.snapshot({
 		'@--Theme { Value: CALC(1PX) #ABC; }',
 		'@--Theme { .Foo:HOVER { COLOR: RED; } }',
 		'@media (--Wide) {}',
+		'@container (--Theme: RED) {}',
+		'@container style(--Theme: RED) {}',
 		'@supports at-rule(@--Theme) {}',
 		'a { --ThemeColor: CALC(1PX) #ABC; color: --ThemeFunction(RED 1PX #ABC); }',
 		'a { animation-name: FadeIn; font-family: Times New Roman; grid-area: MainContent; counter-reset: Section; }',
@@ -102,6 +104,16 @@ test({
 			code: String.raw`@media (1PX < \57 IDTH < 2EM) {}`,
 			output: '@media (1px < width < 2em) {}',
 			errors: 3,
+		},
+		{
+			code: '@container MyLayout (WIDTH > 1PX) {} @container (1PX < HEIGHT < 2EM) {}',
+			output: '@container MyLayout (width > 1px) {} @container (1px < height < 2em) {}',
+			errors: 5,
+		},
+		{
+			code: String.raw`@container (/* before */ \57 IDTH: 1PX) {}`,
+			output: '@container (/* before */ width: 1px) {}',
+			errors: 2,
 		},
 		{
 			code: 'a { background-image: PAINT(MyPainter, #ABC, 1PX, CALC(1PX)); }',
