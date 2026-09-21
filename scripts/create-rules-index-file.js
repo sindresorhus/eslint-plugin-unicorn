@@ -9,7 +9,11 @@ const files = fs.readdirSync(DIRECTORY, {withFileTypes: true})
 	.toSorted((first, second) => first.localeCompare(second));
 
 const content = files
-	.map(file => `export {default as '${path.basename(file, '.js')}'} from './${file}';`)
+	.map(file => {
+		const ruleId = path.basename(file, '.js');
+		const exportName = ruleId.includes('-') ? `'${ruleId}'` : ruleId;
+		return `export {default as ${exportName}} from './${file}';`;
+	})
 	.join('\n');
 
 fs.writeFileSync(

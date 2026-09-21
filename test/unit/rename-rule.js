@@ -16,6 +16,17 @@ test('replaceRuleIdInRulesIndex only rewrites the exact export', t => {
 	);
 });
 
+for (const [from, to, input, output] of [
+	['indent', 'indent-style', 'export {default as indent} from \'./indent.js\';', 'export {default as \'indent-style\'} from \'./indent-style.js\';'],
+	['indent-style', 'indent', 'export {default as \'indent-style\'} from \'./indent-style.js\';', 'export {default as indent} from \'./indent.js\';'],
+	['indent', 'indentation', 'export {default as indent} from \'./indent.js\';', 'export {default as indentation} from \'./indentation.js\';'],
+]) {
+	test(`replaceRuleIdInRulesIndex renames ${from} to ${to}`, t => {
+		const unrelated = 'export {default as \'indent-other\'} from \'./indent-other.js\';';
+		t.is(replaceRuleIdInRulesIndex(`${input}\n${unrelated}`, from, to), `${output}\n${unrelated}`);
+	});
+}
+
 test('sortReadmeRuleRows keeps the renamed row inside the rules table', t => {
 	const input = [
 		'# eslint-plugin-unicorn',

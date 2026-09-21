@@ -65,8 +65,10 @@ function sortReadmeRuleRows(text, ruleId) {
 }
 
 function replaceRuleIdInRulesIndex(text, from, to) {
-	const fromLine = `export {default as '${from}'} from './${from}.js';`;
-	const toLine = `export {default as '${to}'} from './${to}.js';`;
+	const fromExportName = from.includes('-') ? `'${from}'` : from;
+	const toExportName = to.includes('-') ? `'${to}'` : to;
+	const fromLine = `export {default as ${fromExportName}} from './${from}.js';`;
+	const toLine = `export {default as ${toExportName}} from './${to}.js';`;
 	return text.replace(fromLine, () => toLine);
 }
 
