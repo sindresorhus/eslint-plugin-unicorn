@@ -30,16 +30,6 @@ function isControlLetter(character) {
 	return CONTROL_LETTER.test(character);
 }
 
-function isActiveBackslash(text, index) {
-	let backslashCount = 0;
-
-	for (let previousIndex = index - 1; previousIndex >= 0 && text[previousIndex] === BACKSLASH; previousIndex--) {
-		backslashCount++;
-	}
-
-	return backslashCount % 2 === 0;
-}
-
 function isEscapedCharacter(text, index) {
 	let backslashCount = 0;
 
@@ -48,6 +38,10 @@ function isEscapedCharacter(text, index) {
 	}
 
 	return backslashCount % 2 === 1;
+}
+
+function isActiveBackslash(text, index) {
+	return !isEscapedCharacter(text, index);
 }
 
 function parseHex(text, start, length) {

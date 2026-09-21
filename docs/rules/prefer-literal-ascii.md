@@ -13,7 +13,7 @@ Numeric escapes can obscure ordinary printable characters. This rule replaces `\
 
 Characters that need escaping for JavaScript syntax, such as the surrounding quote, backslash, and template literal delimiters, are kept escaped using their conventional short form.
 
-Tagged template literals are ignored because tag functions can observe the raw escape sequences. Regular expressions are also ignored because their escape semantics differ from strings. JSX attribute strings are ignored because JSX does not interpret JavaScript escape sequences in them.
+Tagged template literals are ignored because tag functions can observe the raw escape sequences. Regular expression literals are also ignored because their escape semantics differ from strings. JSX attribute strings are ignored because JSX does not interpret JavaScript escape sequences in them.
 
 Directive prologues are reported but not automatically fixed because replacing an escape can turn a plain string expression into a directive and change runtime behavior. A fix is also omitted when a literal digit would extend a preceding `\0` or legacy octal escape.
 

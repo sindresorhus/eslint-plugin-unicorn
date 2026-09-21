@@ -1,7 +1,7 @@
 import test from 'ava';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 const RULE_ID = 'unicorn/prefer-literal-ascii';
@@ -48,6 +48,7 @@ ruleTest.snapshot({
 		String.raw`const value = '\x20';`,
 		String.raw`const value = '\u007E';`,
 		String.raw`const value = '\x2F';`,
+		String.raw`const value = '\u0039';`,
 		String.raw`const value = '\x41\u0042\u{43}';`,
 		String.raw`const value = '\x41\xA9';`,
 		String.raw`const value = '\\\x41';`,
@@ -76,6 +77,10 @@ ruleTest.snapshot({
 				},
 			},
 		},
+		{
+			code: 'type Value<T extends string> = `\\u0024\\u007BT}`;',
+			languageOptions: {parser: parsers.typescript},
+		},
 		String.raw`'\u0075se strict';`,
 		String.raw`function function_() {'\u0075se strict';}`,
 		String.raw`const value = '\0\u0031';`,
@@ -88,6 +93,18 @@ ruleTest.snapshot({
 		},
 		{
 			code: String.raw`const value = '\00\u0031';`,
+			languageOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: String.raw`const value = '\\0\u0031';`,
+			languageOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: String.raw`const value = '\1\u0038';`,
 			languageOptions: {
 				sourceType: 'script',
 			},
