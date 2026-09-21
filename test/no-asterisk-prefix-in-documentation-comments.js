@@ -108,6 +108,16 @@ test({
 				error,
 			],
 		},
+		{
+			code: 'const value = true;\r/**\r * Description.\r */',
+			output: 'const value = true;\r/**\rDescription.\r*/',
+			errors: [error],
+		},
+		{
+			code: 'const value = true;\u2028/**\u2028 * Description.\u2028 */',
+			output: 'const value = true;\u2028/**\u2028Description.\u2028*/',
+			errors: [error],
+		},
 		...[languages.jsonc, languages.json5].map(({language, plugins}) => ({
 			code: jsonCrLfInput,
 			output: jsonCrLfOutput,

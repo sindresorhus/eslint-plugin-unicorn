@@ -4,19 +4,20 @@ import {
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-asterisk-prefix-in-documentation-comments';
+const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
+const LINE_ENDING_PATTERN = /[\n\r\u{2028}\u{2029}]/v;
 const messages = {
 	[MESSAGE_ID]: 'Remove the asterisk prefix from this comment.',
 };
 
 const getCommentRange = (sourceCode, comment) => {
-	// `@eslint/json` ranges count CRLF as one character, while location offsets refer to the raw source text.
+	// `@eslint/json` comment ranges count CRLF as one character, so derive raw source indices from locations.
 	const {start, end} = sourceCode.getLoc(comment);
-	return Number.isSafeInteger(start.offset) ? [start.offset, end.offset] : sourceCode.getRange(comment);
+	return [sourceCode.getIndexFromLoc(start), sourceCode.getIndexFromLoc(end)];
 };
 
-const getLinePrefix = (sourceCode, comment) => {
-	const [start] = getCommentRange(sourceCode, comment);
-	const lineStart = sourceCode.text.lastIndexOf('\n', start - 1) + 1;
+const getLinePrefix = (sourceCode, start) => {
+	const lineStart = Math.max(...LINE_ENDINGS.map(lineEnding => sourceCode.text.lastIndexOf(lineEnding, start - 1))) + 1;
 	return sourceCode.text.slice(lineStart, start);
 };
 
@@ -35,11 +36,11 @@ const getProblem = (context, comment) => {
 	const text = sourceCode.text.slice(...range);
 	const isJavaScriptComment = comment.type === 'Block';
 
-	if (!text.startsWith('/*') || (isJavaScriptComment && !text.startsWith('/**')) || !/[\n\r]/v.test(text)) {
+	if (!text.startsWith('/*') || (isJavaScriptComment && !text.startsWith('/**')) || !LINE_ENDING_PATTERN.test(text)) {
 		return;
 	}
 
-	const linePrefix = getLinePrefix(sourceCode, comment);
+	const linePrefix = getLinePrefix(sourceCode, range[0]);
 
 	if (!/^[\t ]*$/v.test(linePrefix)) {
 		return;
