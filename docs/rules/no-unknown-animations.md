@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-An animation name that does not match a `@keyframes` rule silently prevents the animation from running. This rule checks names used by the `animation` and `animation-name` properties against `@keyframes` rules in the same file.
+Checks names in `animation` and `animation-name` against `@keyframes` in the same file. An unmatched name silently prevents the animation from running.
 
 ## Examples
 
@@ -18,7 +18,9 @@ An animation name that does not match a `@keyframes` rule silently prevents the 
 }
 
 @keyframes fade-out {
-	to { opacity: 0; }
+	to {
+		opacity: 0;
+	}
 }
 ```
 
@@ -29,16 +31,18 @@ An animation name that does not match a `@keyframes` rule silently prevents the 
 }
 
 @keyframes fade-in {
-	to { opacity: 1; }
+	to {
+		opacity: 1;
+	}
 }
 ```
 
-Animation names are case-sensitive. When both syntaxes are valid, quoted and unquoted names are equivalent, and CSS escapes are decoded before comparison. Reserved names such as `none`, `default`, and CSS-wide keywords must be quoted.
+Names are case-sensitive. Where both forms are valid, quoted and unquoted names match; CSS escapes are decoded. Reserved names such as `none`, `default`, and CSS-wide keywords must be quoted.
 
-The rule recognizes `@keyframes`, `@-webkit-keyframes`, `@-moz-keyframes`, and `@-o-keyframes`, but it only checks the standard `animation` and `animation-name` properties.
+The rule recognizes `@keyframes` and its `-webkit-`, `-moz-`, and `-o-` variants, but ignores vendor-prefixed animation properties.
 
-Dynamic names inside functions such as `var()` are ignored, including fallback values. Statically unambiguous names outside those functions are still checked. For example, `fade-in` is checked in `animation: fade-in var(--duration)`, but `fallback` is ignored in `animation-name: var(--name, fallback)`.
+Names inside functions such as `var()`, including fallbacks, are ignored; unambiguous static names outside them are checked.
 
-In uncommon ambiguous shorthands such as `animation: backwards none --fade`, the CSS lexer can interpret `none` as the animation name and `--fade` as the timeline. The rule follows that interpretation and may miss the animation name in such cases.
+Ambiguous shorthands such as `animation: backwards none --fade` may be missed when the CSS lexer interprets `none` as the name and `--fade` as the timeline.
 
-The rule only considers keyframes defined in the same file. Leave it disabled for files that use keyframes from another stylesheet.
+Leave the rule disabled when keyframes are defined in another stylesheet.
