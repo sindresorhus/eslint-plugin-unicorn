@@ -56,6 +56,7 @@ test.snapshot({
 		'[open], dialog { & .close {} }',
 		':hover, dialog { & .close {} }',
 		':where(#dialog), :is(.dialog, #dialog) { & .close {} }',
+		':is(::before, *), div { & .close {} }',
 		':nth-child(2n of #dialog), #modal { & .close {} }',
 		':host(#dialog), #modal { & .close {} }',
 		'&, :hover { .close {} }',

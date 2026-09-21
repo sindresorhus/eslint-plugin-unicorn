@@ -16,6 +16,10 @@ const SELECTOR_LIST_PSEUDO_CLASSES = new Set([
 	'is',
 	'not',
 ]);
+const FORGIVING_SELECTOR_LIST_PSEUDO_CLASSES = new Set([
+	'is',
+	'where',
+]);
 const NTH_PSEUDO_CLASSES = new Set([
 	'nth-child',
 	'nth-last-child',
@@ -64,10 +68,36 @@ const getSelectorArgument = node => {
 	}
 };
 
-const canBeRepresentedByNestingSelector = selector => selector.children.every(node =>
-	node.type !== 'PseudoElementSelector'
-	&& (node.type !== 'PseudoClassSelector' || !LEGACY_PSEUDO_ELEMENTS.has(normalizeCssIdentifier(node.name))),
-);
+const isSelectorRepresentable = (selector, allowPseudoElements) => selector.children.every(node => {
+	if (
+		node.type !== 'PseudoClassSelector'
+		&& node.type !== 'PseudoElementSelector'
+	) {
+		return true;
+	}
+
+	if (node.type === 'PseudoElementSelector' && !allowPseudoElements) {
+		return false;
+	}
+
+	const name = normalizeCssIdentifier(node.name);
+	if (LEGACY_PSEUDO_ELEMENTS.has(name)) {
+		return allowPseudoElements;
+	}
+
+	const selectorArgument = getSelectorArgument(node);
+	if (!selectorArgument) {
+		return true;
+	}
+
+	const selectors = selectorArgument.type === 'Selector' ? [selectorArgument] : selectorArgument.children;
+	return node.type === 'PseudoClassSelector' && FORGIVING_SELECTOR_LIST_PSEUDO_CLASSES.has(name)
+		? selectors.some(selector => isSelectorRepresentable(selector, false))
+		: selectors.every(selector => isSelectorRepresentable(selector, false));
+});
+
+const canMatchSelector = selector => isSelectorRepresentable(selector, true);
+const canBeRepresentedByNestingSelector = selector => isSelectorRepresentable(selector, false);
 
 const hasNestingSelectorInRawArgument = argument => {
 	if (argument?.type !== 'Raw') {
@@ -96,7 +126,8 @@ const getSelectorSpecificity = (selector, nestingSpecificity) => {
 };
 
 const getSelectorArgumentSpecificity = (selectorArgument, nestingSpecificity) => {
-	const selectors = selectorArgument?.type === 'Selector' ? [selectorArgument] : selectorArgument?.children ?? [];
+	const selectors = (selectorArgument?.type === 'Selector' ? [selectorArgument] : selectorArgument?.children ?? [])
+		.filter(selector => canBeRepresentedByNestingSelector(selector));
 	const results = selectors.map(selector => getSelectorSpecificity(selector, nestingSpecificity));
 
 	return {
@@ -218,6 +249,7 @@ const getParentStyleRule = (rule, context) => {
 
 export {
 	canBeRepresentedByNestingSelector,
+	canMatchSelector,
 	compareSpecificity,
 	getMaximumSpecificity,
 	getParentStyleRule,

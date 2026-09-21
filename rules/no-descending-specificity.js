@@ -1,6 +1,7 @@
 import {find, generate, ident} from '@eslint/css-tree';
 import {
 	canBeRepresentedByNestingSelector,
+	canMatchSelector,
 	compareSpecificity,
 	getMaximumSpecificity,
 	getParentStyleRule,
@@ -77,6 +78,8 @@ const getTerminalCompoundNodes = selector => {
 	return selector.children.slice(lastCombinatorIndex + 1);
 };
 
+const isPseudoElementWithNestingSelector = node => node.type === 'PseudoElementSelector' && Boolean(find(node, descendant => descendant.type === 'NestingSelector'));
+
 const getTerminalNodeKey = node => {
 	if (node.type !== 'PseudoClassSelector') {
 		return node.type === 'NestingSelector' ? undefined : generate(node);
@@ -89,7 +92,11 @@ const getTerminalNodeKey = node => {
 const joinTerminalKeyParts = (parts, parentKey = '') => {
 	let key = '';
 	for (const part of parts) {
-		const value = part ?? parentKey;
+		if (part === '') {
+			continue;
+		}
+
+		const value = part === undefined ? parentKey : `${part.length}:${part}`;
 		if (key.length + value.length > MAXIMUM_TERMINAL_KEY_LENGTH) {
 			return;
 		}
@@ -102,6 +109,10 @@ const joinTerminalKeyParts = (parts, parentKey = '') => {
 
 const getTerminalKeys = (selector, parentTerminalKeys) => {
 	const nodes = getTerminalCompoundNodes(selector);
+	if (nodes.some(node => isPseudoElementWithNestingSelector(node))) {
+		return [];
+	}
+
 	const hasNestingSelector = nodes.some(node => node.type === 'NestingSelector');
 	const parts = nodes.map(node => getTerminalNodeKey(node));
 
@@ -126,6 +137,10 @@ const getTerminalKeys = (selector, parentTerminalKeys) => {
 
 	return [...terminalKeys];
 };
+
+const getResolvableTerminalKeys = (selector, parentTerminalKeys, canResolveAgainstParent) => canResolveAgainstParent && canMatchSelector(selector)
+	? getTerminalKeys(selector, parentTerminalKeys)
+	: [];
 
 const hasRawNode = selector => Boolean(find(selector, node => node.type === 'Raw'));
 
@@ -306,7 +321,7 @@ const create = context => {
 		let exceedsTerminalKeyBudget = false;
 		if (!hasRawSelector) {
 			for (const selector of rule.prelude.children) {
-				const terminalKeys = canResolveAgainstParent ? getTerminalKeys(selector, parentTerminalKeys) : [];
+				const terminalKeys = getResolvableTerminalKeys(selector, parentTerminalKeys, canResolveAgainstParent);
 				terminalKeyAssociationCount += terminalKeys.length;
 				if (terminalKeyAssociationCount > MAXIMUM_TERMINAL_KEY_ASSOCIATIONS) {
 					analyses.length = 0;

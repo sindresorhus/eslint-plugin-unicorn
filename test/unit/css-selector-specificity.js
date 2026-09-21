@@ -24,6 +24,7 @@ test('calculates selector specificity', t => {
 	t.deepEqual(getSelectorSpecificities('*'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':where(#dialog)'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':is(.dialog, #dialog)'), [[1, 0, 0]]);
+	t.deepEqual(getSelectorSpecificities(':is(::before, *)'), [[0, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':not(.dialog, #dialog)'), [[1, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':has(.dialog, #dialog)'), [[1, 0, 0]]);
 	t.deepEqual(getSelectorSpecificities(':nth-child(2n of .dialog, #dialog)'), [[1, 1, 0]]);
@@ -42,4 +43,5 @@ test('calculates explicit and implicit nesting specificity', t => {
 
 test('excludes pseudo-element branches from nesting parents', t => {
 	t.deepEqual(getRuleSpecificities(parseRule('dialog, ::before'), [0, 0, 0]), [[0, 0, 1]]);
+	t.deepEqual(getRuleSpecificities(parseRule(':is(::before)'), [0, 0, 0]), []);
 });
