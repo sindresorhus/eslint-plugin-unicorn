@@ -30,20 +30,6 @@ function isControlLetter(character) {
 	return CONTROL_LETTER.test(character);
 }
 
-function isEscapedCharacter(text, index) {
-	let backslashCount = 0;
-
-	for (let previousIndex = index - 1; previousIndex >= 0 && text[previousIndex] === BACKSLASH; previousIndex--) {
-		backslashCount++;
-	}
-
-	return backslashCount % 2 === 1;
-}
-
-function isActiveBackslash(text, index) {
-	return !isEscapedCharacter(text, index);
-}
-
 function parseHex(text, start, length) {
 	const value = text.slice(start, start + length);
 	if (value.length !== length || [...value].some(character => !isHexDigit(character))) {
@@ -188,7 +174,6 @@ function getUnicodeEscape(text, index, {allowSurrogatePair, allowSurrogate, pref
 		allowSurrogatePair
 		&& isHighSurrogate(value)
 		&& text[nextEscapeIndex] === BACKSLASH
-		&& isActiveBackslash(text, nextEscapeIndex)
 		&& text[nextEscapeIndex + 1] === 'u'
 	) {
 		const nextValue = parseHex(text, nextEscapeIndex + 2, 4);
@@ -237,45 +222,39 @@ function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterC
 		const character = text[index];
 		const isInCharacterClass = characterClassDepth > 0;
 
+		if (character === BACKSLASH) {
+			const replacement = getEscapeReplacement(text, index, {isRegex, isInCharacterClass});
+			if (replacement) {
+				fixed += replacement.replacement;
+				index = replacement.end - 1;
+				hasReplacement = true;
+				continue;
+			}
+
+			fixed += character;
+			if (index + 1 < text.length) {
+				fixed += text[index + 1];
+				index++;
+			}
+
+			continue;
+		}
+
 		if (
 			isRegex
 			&& character === '['
 			&& (!isInCharacterClass || supportsNestedCharacterClasses)
-			&& !isEscapedCharacter(text, index)
 		) {
 			characterClassDepth++;
-			fixed += character;
-			continue;
-		}
-
-		if (
+		} else if (
 			isRegex
 			&& character === ']'
 			&& isInCharacterClass
-			&& !isEscapedCharacter(text, index)
 		) {
 			characterClassDepth--;
-			fixed += character;
-			continue;
 		}
 
-		if (
-			character !== BACKSLASH
-			|| !isActiveBackslash(text, index)
-		) {
-			fixed += character;
-			continue;
-		}
-
-		const replacement = getEscapeReplacement(text, index, {isRegex, isInCharacterClass});
-		if (!replacement) {
-			fixed += character;
-			continue;
-		}
-
-		fixed += replacement.replacement;
-		index = replacement.end - 1;
-		hasReplacement = true;
+		fixed += character;
 	}
 
 	return {
@@ -286,12 +265,15 @@ function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterC
 
 function hasUnicodeCodePointEscape(text) {
 	for (let index = 0; index < text.length; index++) {
-		if (
-			parseCodePointEscape(text, index) !== undefined
-			&& isActiveBackslash(text, index)
-		) {
+		if (text[index] !== BACKSLASH) {
+			continue;
+		}
+
+		if (parseCodePointEscape(text, index) !== undefined) {
 			return true;
 		}
+
+		index++;
 	}
 
 	return false;

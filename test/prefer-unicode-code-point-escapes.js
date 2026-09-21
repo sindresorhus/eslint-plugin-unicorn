@@ -1,9 +1,13 @@
 /* eslint-disable no-template-curly-in-string */
+import test from 'ava';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
+const RULE_ID = 'unicorn/prefer-unicode-code-point-escapes';
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		String.raw`const foo = '\u{7A}'`,
 		String.raw`const foo = '\u{1F4A9}'`,
@@ -39,6 +43,9 @@ test.snapshot({
 		String.raw`const foo = /[\uD83D\uDCA9]/u`,
 		String.raw`const foo = /[\uD83D\uDCA9]/v`,
 		String.raw`const foo = /[[\uD83D\uDCA9]\uD83D\uDCA9]/v`,
+		String.raw`const foo = /\\[\uD83D\uDCA9]/u`,
+		String.raw`const foo = /[\]\uD83D\uDCA9]/u`,
+		String.raw`const foo = /\\u{61}/`,
 		String.raw`const foo = /\u{XYZ}/`,
 		String.raw`const foo = /\u{110000}/`,
 		String.raw`const foo = /\u{}/`,
@@ -84,12 +91,14 @@ test.snapshot({
 		String.raw`const foo = /\u000A/u`,
 		String.raw`const foo = /\uD83D\uDCA9/u`,
 		String.raw`const foo = /\[\uD83D\uDCA9/u`,
+		String.raw`const foo = /[\\]\uD83D\uDCA9/u`,
 		String.raw`const foo = /[\x2D]/u`,
 		String.raw`const foo = /[\cA]/u`,
 		String.raw`const foo = /\cA/u`,
 		String.raw`const foo = /\cA/`,
 		String.raw`const foo = /\u0061/`,
 		String.raw`const foo = /\u{61}/`,
+		String.raw`const foo = /\\\u{61}/`,
 		String.raw`const foo = /\x7A/g`,
 		String.raw`const foo = /\x61\_/`,
 		String.raw`const foo = /\u{61}\_/`,
@@ -105,4 +114,21 @@ test({
 			errors: [{messageId: 'prefer-unicode-code-point-escapes'}],
 		},
 	],
+});
+
+test('scans long backslash runs efficiently', t => {
+	const code = `const value = /${'\\\\'.repeat(40_000)}/;`;
+	const linter = new Linter({configType: 'flat'});
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const startTime = performance.now();
+	const messages = linter.verify(code, config);
+	const duration = performance.now() - startTime;
+
+	t.deepEqual(messages, []);
+	t.true(duration < 2000, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
 });

@@ -49,6 +49,7 @@ ruleTest.snapshot({
 		String.raw`const value = '\u007E';`,
 		String.raw`const value = '\x2F';`,
 		String.raw`const value = '\u0039';`,
+		String.raw`const value = '\x6a\u007e\u{7a}';`,
 		String.raw`const value = '\x41\u0042\u{43}';`,
 		String.raw`const value = '\x41\xA9';`,
 		String.raw`const value = '\\\x41';`,
