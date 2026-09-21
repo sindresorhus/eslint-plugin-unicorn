@@ -217,12 +217,20 @@ function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterC
 	let fixed = '';
 	let characterClassDepth = 0;
 	let hasReplacement = false;
+	let hasCodePointEscape = false;
 
 	for (let index = 0; index < text.length; index++) {
 		const character = text[index];
 		const isInCharacterClass = characterClassDepth > 0;
 
 		if (character === BACKSLASH) {
+			if (
+				isRegex
+				&& parseCodePointEscape(text, index) !== undefined
+			) {
+				hasCodePointEscape = true;
+			}
+
 			const replacement = getEscapeReplacement(text, index, {isRegex, isInCharacterClass});
 			if (replacement) {
 				fixed += replacement.replacement;
@@ -260,23 +268,8 @@ function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterC
 	return {
 		fixed,
 		hasReplacement,
+		hasCodePointEscape,
 	};
-}
-
-function hasUnicodeCodePointEscape(text) {
-	for (let index = 0; index < text.length; index++) {
-		if (text[index] !== BACKSLASH) {
-			continue;
-		}
-
-		if (parseCodePointEscape(text, index) !== undefined) {
-			return true;
-		}
-
-		index++;
-	}
-
-	return false;
 }
 
 function getStringProblem(node, value, fix) {
@@ -319,12 +312,11 @@ function isValidRegex(pattern, flags) {
 function getRegexProblem(node) {
 	const {raw} = node;
 	const {pattern, flags} = getRegexLiteralParts(raw);
-	const {fixed, hasReplacement} = replaceEscapeSequences(pattern, {
+	const {fixed, hasReplacement, hasCodePointEscape} = replaceEscapeSequences(pattern, {
 		isRegex: true,
 		supportsNestedCharacterClasses: flags.includes('v'),
 	});
 	const hasUnicodeFlag = flags.includes('u') || flags.includes('v');
-	const hasCodePointEscape = hasUnicodeCodePointEscape(pattern);
 
 	if (!hasReplacement && (hasUnicodeFlag || !hasCodePointEscape)) {
 		return;
@@ -364,7 +356,10 @@ function getRegexProblem(node) {
 */
 const create = context => {
 	context.on('Literal', node => {
-		if (isStringLiteral(node) && node.parent.type !== 'JSXAttribute') {
+		if (
+			isStringLiteral(node)
+			&& node.parent.type !== 'JSXAttribute'
+		) {
 			return getStringProblem(node, node.raw);
 		}
 

@@ -52,6 +52,16 @@ ruleTest.snapshot({
 		String.raw`const foo = /\u{/`,
 		String.raw`const foo = /\cK/`,
 		String.raw`const foo = new RegExp("\\u0061")`,
+		{
+			code: String.raw`const element = <Component value="\u2661" other="\xA9" />;`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
 	],
 	invalid: [
 		String.raw`const foo = '\x1F'`,
@@ -102,6 +112,16 @@ ruleTest.snapshot({
 		String.raw`const foo = /\x7A/g`,
 		String.raw`const foo = /\x61\_/`,
 		String.raw`const foo = /\u{61}\_/`,
+		{
+			code: String.raw`const element = <Component value={'\u2661'} />;`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
 	],
 });
 

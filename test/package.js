@@ -200,6 +200,16 @@ test('Every deprecated rules listed in docs/deleted-and-deprecated-rules.md', as
 	}
 });
 
+test('no-hex-escape lists both replacement rules', t => {
+	const replacementRuleNames = eslintPluginUnicorn.rules['no-hex-escape'].meta.deprecated.replacedBy
+		.map(replacement => replacement.rule.name);
+
+	t.deepEqual(replacementRuleNames, [
+		'unicorn/prefer-literal-ascii',
+		'unicorn/prefer-unicode-code-point-escapes',
+	]);
+});
+
 test('Removed rules are listed in docs/deleted-and-deprecated-rules.md', async t => {
 	const content = await fsAsync.readFile('docs/deleted-and-deprecated-rules.md', 'utf8');
 	t.true(content.includes('\n### ~no-array-for-each~\n'));
