@@ -146,6 +146,8 @@ test.snapshot({
 			* This leading asterisk is content.
 			*/
 		`,
+		// CSS treats form feed as a line ending, but supporting it would require language-specific fixer logic.
+		'.example {}\f/*\f * Description.\f */',
 	].map(code => asCss(code)),
 	invalid: [
 		outdent`
