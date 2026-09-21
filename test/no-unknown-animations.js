@@ -55,7 +55,11 @@ test.snapshot({
 		'a { animation-name: inherit; }',
 		String.raw`a { animation-name: \69 nherit; animation: 1s \6e one; }`,
 		'a { animation: 1s ease infinite alternate both paused; }',
+		'a { animation: infinite 2; }',
+		'a { animation: ease steps(2); }',
+		String.raw`a { animation: \69 nfinite 2; }`,
 		'a { animation: --timeline; }',
+		'@keyframes --fade {} a { animation: --timeline --fade; }',
 		String.raw`a { animation: \65 ase var(--duration); }`,
 		'a { animation: var(--value) ease; } b { animation: var(--value) --timeline; }',
 		'a { animation-name: var(--animation); }',
@@ -73,6 +77,7 @@ test.snapshot({
 		'a { animation-name: missing; }',
 		'a { animation-name: --missing; }',
 		'a { animation: missing 1s ease; }',
+		'a { animation: --timeline --missing; }',
 		outdent`
 			a { animation-name: fade, missing; }
 			@keyframes fade {}
@@ -96,6 +101,8 @@ test.snapshot({
 		'a { animation: "missing,animation" var(--duration, 1s); }',
 		'a { animation-name: missing, var(--animation); }',
 		'a { animation: ease-in ease-out; }',
+		'a { animation: 2 infinite; }',
+		'a { animation: 1s --timeline auto; }',
 		String.raw`a { animation: st\65 ps(2) ease; }`,
 		String.raw`a { animation: 1\73  ease-in ease-out; }`,
 		'a { animation: ease-in ease-out, var(--animation); }',
@@ -106,6 +113,7 @@ test.snapshot({
 		'@keyframes default {} a { animation-name: "default"; }',
 		String.raw`@keyframes \69 nherit {} a { animation-name: "inherit"; }`,
 		'@keyframes fade; a { animation-name: fade; }',
+		'@keyframes fade extra {} a { animation-name: fade; }',
 		'@Keyframes fade {} a { animation-name: fade; }',
 		'@-ms-keyframes fade {} a { animation-name: fade; }',
 		'@-custom-keyframes fade {} a { animation-name: fade; }',

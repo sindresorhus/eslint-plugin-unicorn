@@ -10,6 +10,17 @@ const animationProperties = new Set([
 	'animation-name',
 ]);
 
+const animationShorthandComponents = [
+	{property: 'animation-duration'},
+	{property: 'animation-timing-function', type: 'easing-function'},
+	{property: 'animation-delay'},
+	{property: 'animation-iteration-count', type: 'single-animation-iteration-count'},
+	{property: 'animation-direction', type: 'single-animation-direction'},
+	{property: 'animation-fill-mode', type: 'single-animation-fill-mode'},
+	{property: 'animation-play-state', type: 'single-animation-play-state'},
+	{property: 'animation-timeline', type: 'single-animation-timeline'},
+];
+
 const keyframesNamePattern = /^(?:-(?:moz|o|webkit)-)?keyframes$/u;
 
 const toAsciiLowerCase = string => string.replaceAll(/[A-Z]/g, character => character.toLowerCase());
@@ -71,11 +82,41 @@ const getCommaSeparatedGroups = value => {
 	return groups;
 };
 
+const isShorthandComponentNode = (node, component, matchResult) => component.type
+	? matchResult.isType(node, component.type)
+	: matchResult.isProperty(node, component.property);
+
+const isAnimationNameByShorthandOrder = (node, index, nodes, matchResult, lexer) => {
+	const previousNodes = nodes.slice(0, index);
+	return animationShorthandComponents.every(component =>
+		!lexer.matchProperty(component.property, node).matched
+		|| previousNodes.some(previousNode => isShorthandComponentNode(previousNode, component, matchResult)),
+	);
+};
+
 const getGroupAnimationNameNodes = (nodes, property, value, lexer) => {
 	const canonicalNodes = nodes.map(node => getCanonicalLexerNode(node));
 	const matchResult = lexer.matchProperty(property, {...value, children: canonicalNodes});
 	if (matchResult.matched) {
-		return nodes.filter((node, index) => getAnimationName(node) !== '' && matchResult.isType(canonicalNodes[index], 'keyframes-name'));
+		const animationNameIndexes = [];
+		for (const [index, node] of canonicalNodes.entries()) {
+			if (getAnimationName(nodes[index]) !== '' && matchResult.isType(node, 'keyframes-name')) {
+				animationNameIndexes.push(index);
+			}
+		}
+
+		if (
+			property === 'animation-name'
+			|| animationNameIndexes.every(index => isAnimationNameByShorthandOrder(
+				canonicalNodes[index],
+				index,
+				canonicalNodes,
+				matchResult,
+				lexer,
+			))
+		) {
+			return animationNameIndexes.map(index => nodes[index]);
+		}
 	}
 
 	return nodes.filter(node => isAnimationNameNode(node, property, lexer));
