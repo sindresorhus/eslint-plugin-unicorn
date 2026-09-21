@@ -19,26 +19,28 @@ Regex literals without the `u` or `v` flag are reported with a suggestion instea
 
 `RegExp` constructor string patterns are intentionally ignored. Safely fixing those patterns requires handling both string escaping and regex escaping.
 
+Printable ASCII hexadecimal and Unicode escapes in strings and untagged template literals are handled by [`prefer-literal-ascii`](prefer-literal-ascii.md). This rule continues to handle them in regular expressions.
+
 ## Examples
 
 ```js
 // ❌
-const foo = '\x7A';
+const foo = '\xA9';
 const bar = '\u2661';
 const baz = '\uD83D\uDCA9';
 
 // ✅
-const foo = '\u{7A}';
+const foo = '\u{A9}';
 const bar = '\u{2661}';
 const baz = '\u{1F4A9}';
 ```
 
 ```js
 // ❌
-const foo = `\x7A${bar}\u2661`;
+const foo = `\xA9${bar}\u2661`;
 
 // ✅
-const foo = `\u{7A}${bar}\u{2661}`;
+const foo = `\u{A9}${bar}\u{2661}`;
 ```
 
 ```js

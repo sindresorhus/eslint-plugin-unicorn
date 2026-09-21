@@ -27,6 +27,7 @@ export {default as assertToken} from './assert-token.js';
 export {default as canTokensBeAdjacent} from './can-tokens-be-adjacent.js';
 export {default as cartesianProductSamples} from './cartesian-product-samples.js';
 export {default as containsSuspensionPoint} from './contains-suspension-point.js';
+export {default as escapeTemplateElementRaw} from './escape-template-element-raw.js';
 export {default as escapeString} from './escape-string.js';
 export {default as getClassHeadLocation} from './get-class-head-location.js';
 export {default as getAvailableVariableName} from './get-available-variable-name.js';

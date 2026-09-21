@@ -13,6 +13,8 @@ const CODE_POINT_ESCAPE_PREFIX = String.raw`\u{`;
 const HEX_DIGIT = /^[\da-f]$/iv;
 const OCTAL_DIGIT = /^[0-7]$/v;
 const CONTROL_LETTER = /^[A-Za-z]$/v;
+const MINIMUM_PRINTABLE_ASCII = 0x20;
+const MAXIMUM_PRINTABLE_ASCII = 0x7E;
 const MAXIMUM_CODE_POINT = 0x10_FF_FF;
 const SHORT_ESCAPE_CODE_POINTS = new Set([0, 8, 9, 10, 11, 12, 13, 34, 39, 47, 92, 96]);
 
@@ -155,6 +157,7 @@ function getHexEscape(text, index) {
 	return {
 		end: index + 4,
 		replacement: formatCodePointEscape(value),
+		value,
 	};
 }
 
@@ -196,9 +199,11 @@ function getUnicodeEscape(text, index, {allowSurrogatePair, allowSurrogate, pref
 	) {
 		const nextValue = parseHex(text, nextEscapeIndex + 2, 4);
 		if (isLowSurrogate(nextValue)) {
+			const codePoint = getSurrogatePairCodePoint(value, nextValue);
 			return {
 				end: nextEscapeIndex + 6,
-				replacement: formatCodePointEscape(getSurrogatePairCodePoint(value, nextValue)),
+				replacement: formatCodePointEscape(codePoint),
+				value: codePoint,
 			};
 		}
 	}
@@ -206,17 +211,27 @@ function getUnicodeEscape(text, index, {allowSurrogatePair, allowSurrogate, pref
 	return {
 		end: index + 6,
 		replacement: formatCodePointEscape(value),
+		value,
 	};
 }
 
 function getEscapeReplacement(text, index, {isRegex, isInCharacterClass}) {
-	return getHexEscape(text, index)
+	const legacyEscape = getHexEscape(text, index)
 		?? getUnicodeEscape(text, index, {
 			allowSurrogatePair: !isInCharacterClass,
 			allowSurrogate: !isRegex || !isInCharacterClass,
 			preferShortEscape: !isRegex,
-		})
-		?? (isRegex ? getControlEscape(text, index) : getOctalEscape(text, index));
+		});
+
+	if (
+		!isRegex
+		&& legacyEscape?.value >= MINIMUM_PRINTABLE_ASCII
+		&& legacyEscape.value <= MAXIMUM_PRINTABLE_ASCII
+	) {
+		return;
+	}
+
+	return legacyEscape ?? (isRegex ? getControlEscape(text, index) : getOctalEscape(text, index));
 }
 
 function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterClasses = false} = {}) {

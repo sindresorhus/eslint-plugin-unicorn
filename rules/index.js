@@ -267,6 +267,7 @@ export {default as 'prefer-iterator-to-array'} from './prefer-iterator-to-array.
 export {default as 'prefer-iterator-zip'} from './prefer-iterator-zip.js';
 export {default as 'prefer-json-import'} from './prefer-json-import.js';
 export {default as 'prefer-keyboard-event-key'} from './prefer-keyboard-event-key.js';
+export {default as 'prefer-literal-ascii'} from './prefer-literal-ascii.js';
 export {default as 'prefer-location-assign'} from './prefer-location-assign.js';
 export {default as 'prefer-logical-operator-over-ternary'} from './prefer-logical-operator-over-ternary.js';
 export {default as 'prefer-map-from-entries'} from './prefer-map-from-entries.js';

@@ -20,7 +20,7 @@ Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) whic
 
 ### no-hex-escape
 
-Replaced by [`prefer-unicode-code-point-escapes`](rules/prefer-unicode-code-point-escapes.md) which covers more cases.
+Replaced by [`prefer-literal-ascii`](rules/prefer-literal-ascii.md) for printable ASCII escapes and [`prefer-unicode-code-point-escapes`](rules/prefer-unicode-code-point-escapes.md) for other legacy escapes.
 
 ### prevent-abbreviations
 

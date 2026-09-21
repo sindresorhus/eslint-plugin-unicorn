@@ -2079,7 +2079,7 @@ test.typescript({
 			errors: 1,
 		},
 		{
-			code: 'const foo = (extr\u{61}Params     ?    :    string) => {}',
+			code: String.raw`const foo = (extr\u{61}Params     ?    :    string) => {}`,
 			output: 'const foo = (extraParameters?:    string) => {}',
 			errors: 1,
 		},
