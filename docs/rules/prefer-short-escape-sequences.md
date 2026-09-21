@@ -11,7 +11,7 @@
 
 Prefer shorter spellings of `\uXXXX` escapes in JavaScript, JSON, JSONC, JSON5, and TOML strings and quoted keys. Untagged JavaScript templates are also checked. Tagged templates and JSX attributes are ignored because their raw text matters.
 
-Common replacements include `\u000A` → `\n`, `\u002F` → `/`, and unescaped quotes when safe. JavaScript and JSON5 also use `\0` and `\v`; `\u0000` is left unchanged before an ASCII digit. JavaScript also shortens `\u0060` to a backtick. TOML uses only escapes valid in TOML 1.0, so `\u001B` is not replaced with TOML 1.1's `\e`.
+Common replacements include `\u000A` → `\n` and `\u0009` → `\t`. JavaScript and JSON5 also use `\0` and `\v`; `\u0000` is left unchanged before an ASCII digit. Printable ASCII escapes in JavaScript, JSON, JSONC, and JSON5 are handled by [`prefer-literal-ascii`](prefer-literal-ascii.md). TOML also shortens printable escapes such as `\u002F` → `/`, and uses only escapes valid in TOML 1.0, so `\u001B` is not replaced with TOML 1.1's `\e`.
 
 [JSON5-specific escapes](https://spec.json5.org/#escapes) require a physical filename ending in `.json5` (case-insensitive), because `@eslint/json` does not expose the active dialect. JSON5 content under other filenames receives only JSON-safe replacements. TOML literal strings and keys are ignored because their backslashes are not escapes.
 
@@ -34,18 +34,12 @@ For JSON and JSONC:
 ```jsonc
 // ❌
 {
-	"\u0009": "Line one\u000ALine two",
-	"solidus": "\u002F",
-	"quote": "\u0022",
-	"reverseSolidus": "\u005C"
+	"\u0009": "Line one\u000ALine two"
 }
 
 // ✅
 {
-	"\t": "Line one\nLine two",
-	"solidus": "/",
-	"quote": "\"",
-	"reverseSolidus": "\\"
+	"\t": "Line one\nLine two"
 }
 ```
 
@@ -56,14 +50,12 @@ For `.json5` files:
 {
 	verticalTab: '\u000B',
 	nullCharacter: '\u0000',
-	apostrophe: '\u0027',
 }
 
 // ✅
 {
 	verticalTab: '\v',
 	nullCharacter: '\0',
-	apostrophe: '\'',
 }
 ```
 
