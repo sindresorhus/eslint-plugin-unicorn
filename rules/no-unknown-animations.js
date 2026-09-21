@@ -86,7 +86,8 @@ const isShorthandComponentNode = (node, component, matchResult) => component.typ
 	? matchResult.isType(node, component.type)
 	: matchResult.isProperty(node, component.property);
 
-const isAnimationNameByShorthandOrder = (node, index, nodes, matchResult, lexer) => {
+const isAnimationNameByShorthandOrder = (index, nodes, matchResult, lexer) => {
+	const node = nodes[index];
 	const previousNodes = nodes.slice(0, index);
 	return animationShorthandComponents.every(component =>
 		!lexer.matchProperty(component.property, node).matched
@@ -108,7 +109,6 @@ const getGroupAnimationNameNodes = (nodes, property, value, lexer) => {
 		if (
 			property === 'animation-name'
 			|| animationNameIndexes.every(index => isAnimationNameByShorthandOrder(
-				canonicalNodes[index],
 				index,
 				canonicalNodes,
 				matchResult,
