@@ -130,6 +130,7 @@ export {default as 'no-optional-chaining-on-undeclared-variable'} from './no-opt
 export {default as 'no-process-exit'} from './no-process-exit.js';
 export {default as 'no-redundant-comparison'} from './no-redundant-comparison.js';
 export {default as 'no-redundant-nested-style-rules'} from './no-redundant-nested-style-rules.js';
+export {default as 'no-redundant-shorthand-values'} from './no-redundant-shorthand-values.js';
 export {default as 'no-return-array-push'} from './no-return-array-push.js';
 export {default as 'no-selector-as-dom-name'} from './no-selector-as-dom-name.js';
 export {default as 'no-shorthand-property-overrides'} from './no-shorthand-property-overrides.js';
