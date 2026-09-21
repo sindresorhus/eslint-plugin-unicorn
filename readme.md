@@ -358,7 +358,7 @@ export default defineConfig([
 | [prefer-iterator-zip](docs/rules/prefer-iterator-zip.md)                                                   | Prefer `Iterator.zip()` over parallel-array indexing.                                                                          | ✅    |    | 💡 |    |
 | [prefer-json-import](docs/rules/prefer-json-import.md)                                                     | Prefer JSON imports over reading and parsing JSON files.                                                                       |      |    | 💡 |    |
 | [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md)                                       | Prefer `KeyboardEvent#key` over deprecated keyboard event properties.                                                          | ✅ ☑️ | 🔧 | 💡 |    |
-| [prefer-literal-ascii](docs/rules/prefer-literal-ascii.md)                                                 | Prefer literal printable ASCII characters over numeric escape sequences.                                                       | ✅ ☑️ | 🔧 |    |    |
+| [prefer-literal-ascii](docs/rules/prefer-literal-ascii.md)                                                 | Prefer literal printable ASCII characters over escape sequences.                                                               | ✅ ☑️ | 🔧 |    |    |
 | [prefer-location-assign](docs/rules/prefer-location-assign.md)                                             | Prefer `location.assign()` over assigning to `location.href`.                                                                  | ✅    | 🔧 |    |    |
 | [prefer-logical-operator-over-ternary](docs/rules/prefer-logical-operator-over-ternary.md)                 | Prefer using a logical operator over a ternary.                                                                                | ✅ ☑️ | 🔧 | 💡 |    |
 | [prefer-map-from-entries](docs/rules/prefer-map-from-entries.md)                                           | Prefer `new Map()` over `Object.fromEntries()` when using the result as a map.                                                 | ✅ ☑️ | 🔧 |    |    |
@@ -601,6 +601,7 @@ These rules also work on specific non-JavaScript languages:
 | [`number-literal-case`](docs/rules/number-literal-case.md) |  |  |  |  | ✅ |  |
 | [`numeric-separators-style`](docs/rules/numeric-separators-style.md) |  |  |  |  | ✅ |  |
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |  |
+| [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md) |  |  | ✅ |  |  |  |
 | [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |  |
 | [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md) |  |  | ✅ |  | ✅ |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |  |

@@ -1,5 +1,6 @@
 import test from 'ava';
 import {Linter} from 'eslint';
+import json from '@eslint/json';
 import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -192,6 +193,83 @@ ruleTest({
 			code: 'type Value = `\\xA9\\u0041`;',
 			languageOptions: {parser: parsers.typescript},
 			output: 'type Value = `\\xA9A`;',
+			errors: 1,
+		},
+	],
+});
+
+for (const language of ['json/json', 'json/jsonc', 'json/json5']) {
+	const languageConfig = {language, plugins: {json}};
+
+	ruleTest({
+		valid: [
+			String.raw`{"value":"\u001F\u0080"}`,
+			String.raw`{"value":"\\u0041"}`,
+		].map(code => ({code, name: `${language}: ${code}`, ...languageConfig})),
+		invalid: [
+			{
+				code: String.raw`{"\u0041":"\u0042"}`,
+				output: '{"A":"B"}',
+				errors: 2,
+			},
+			{
+				code: String.raw`{"value":"\/"}`,
+				output: '{"value":"/"}',
+				errors: 1,
+			},
+			{
+				code: String.raw`{"value":"\\\/"}`,
+				output: String.raw`{"value":"\\/"}`,
+				errors: 1,
+			},
+			{
+				code: String.raw`{"value":"\u0022\u005C"}`,
+				output: String.raw`{"value":"\"\\"}`,
+				errors: 1,
+			},
+		].map(testCase => ({...testCase, name: `${language}: ${testCase.code}`, ...languageConfig})),
+	});
+}
+
+ruleTest({
+	valid: [
+		{
+			code: String.raw`{"value":"A" /* \u0042 \/ */}`,
+			language: 'json/jsonc',
+			plugins: {json},
+		},
+		{
+			code: String.raw`{\u0041: 1}`,
+			language: 'json/json5',
+			plugins: {json},
+		},
+	],
+	invalid: [
+		{
+			code: String.raw`"\u0041\/"`,
+			output: '"A/"',
+			language: 'json/json',
+			plugins: {json},
+			errors: 1,
+		},
+		{
+			code: String.raw`{key: '\x41', '\u0042': '\/'}`,
+			output: '{key: \'A\', \'B\': \'/\'}',
+			language: 'json/json5',
+			plugins: {json},
+			errors: 3,
+		},
+		{
+			code: String.raw`{'key': '\u0027\/'}`,
+			output: String.raw`{'key': '\'/'}`,
+			language: 'json/json5',
+			plugins: {json},
+			errors: 1,
+		},
+		{
+			code: String.raw`{value: '\0\u0031'}`,
+			language: 'json/json5',
+			plugins: {json},
 			errors: 1,
 		},
 	],

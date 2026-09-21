@@ -1,6 +1,6 @@
 # prefer-literal-ascii
 
-📝 Prefer literal printable ASCII characters over numeric escape sequences.
+📝 Prefer literal printable ASCII characters over escape sequences.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,11 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer literal printable ASCII (U+0020–U+007E) over `\xXX`, `\uXXXX`, and `\u{X…}` escapes in JavaScript strings and untagged templates. Quotes, backslashes, and template delimiters stay escaped when needed.
+Prefer literal printable ASCII (U+0020–U+007E) over numeric escapes in JavaScript strings and untagged templates, and in JSON, JSONC, and JSON5 strings and quoted keys. This covers each language's valid `\xXX`, `\uXXXX`, and `\u{X…}` escapes. Quotes, backslashes, and template delimiters stay escaped when needed.
 
-Tagged templates, regex literals, and JSX attribute strings are ignored. Use [`prefer-unicode-code-point-escapes`](prefer-unicode-code-point-escapes.md) for other legacy escapes and ESLint's [`no-useless-escape`](https://eslint.org/docs/latest/rules/no-useless-escape) for `\/` in JavaScript. This rule may cover `\/` if JSON support is added.
+In JSON, JSONC, and JSON5, `\/` becomes `/`. For `\/` in JavaScript, use ESLint's [`no-useless-escape`](https://eslint.org/docs/latest/rules/no-useless-escape). Tagged templates, regex literals, and JSX attribute strings are ignored. Use [`prefer-unicode-code-point-escapes`](prefer-unicode-code-point-escapes.md) for other legacy escapes.
 
-Autofix is omitted for directive prologues, digits that would extend a preceding `\0` or legacy octal escape, and TypeScript template literal types without substitutions when they contain a literal backslash. In HTML-embedded JavaScript, making `<` literal may affect HTML parsing.
+Autofix is omitted for directive prologues, digits that would extend a preceding `\0` or legacy octal escape, and TypeScript template literal types without substitutions when they contain a literal backslash. In HTML-embedded content, making `<` or `/` literal may affect HTML parsing.
 
 ## Examples
 

@@ -4,7 +4,7 @@ import {escapeTemplateElementRaw, getTemplateElementRaw} from './utils/index.js'
 
 const MESSAGE_ID = 'prefer-literal-ascii';
 const messages = {
-	[MESSAGE_ID]: 'Prefer literal printable ASCII characters over numeric escape sequences.',
+	[MESSAGE_ID]: 'Prefer literal printable ASCII characters over escape sequences.',
 };
 
 const BACKSLASH = '\\';
@@ -86,7 +86,7 @@ function wouldExtendLegacyEscape(text, character) {
 	return digits.length < maximumLength;
 }
 
-function replaceNumericEscapes(text, quote) {
+function replaceEscapes(text, quote, checkSlash) {
 	let fixed = '';
 	let canFix = true;
 
@@ -99,6 +99,12 @@ function replaceNumericEscapes(text, quote) {
 
 		if (text[index + 1] === BACKSLASH) {
 			fixed += BACKSLASH + BACKSLASH;
+			index++;
+			continue;
+		}
+
+		if (checkSlash && text[index + 1] === '/') {
+			fixed += '/';
 			index++;
 			continue;
 		}
@@ -122,17 +128,18 @@ function replaceNumericEscapes(text, quote) {
 }
 
 function getProblem(node, original, quote, fix) {
-	const {fixed, canFix} = replaceNumericEscapes(original, quote);
+	const {fixed, canFix} = replaceEscapes(original, quote, node.type === 'String');
 	if (fixed === original) {
 		return;
 	}
 
 	const isTypeTemplateWithLiteralBackslash = node.type === 'TemplateElement' && node.parent.parent.type === 'TSLiteralType' && node.value.cooked.includes(BACKSLASH);
+	const canAutoFix = canFix && !isTypeTemplateWithLiteralBackslash && (node.type !== 'Literal' || !isDirective(node.parent));
 
 	return {
 		node,
 		messageId: MESSAGE_ID,
-		...(canFix && !isTypeTemplateWithLiteralBackslash && !isDirective(node.parent) && {
+		...(canAutoFix && {
 			fix: fixer => fix ? fix(fixer, fixed) : fixer.replaceText(node, fixed),
 		}),
 	};
@@ -142,6 +149,11 @@ function getProblem(node, original, quote, fix) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	context.on('String', node => {
+		const original = context.sourceCode.getText(node);
+		return getProblem(node, original, original[0]);
+	});
+
 	context.on('Literal', node => {
 		if (
 			!isStringLiteral(node)
@@ -175,13 +187,16 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer literal printable ASCII characters over numeric escape sequences.',
+			description: 'Prefer literal printable ASCII characters over escape sequences.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,
 		languages: [
 			'js/js',
+			'json/json',
+			'json/jsonc',
+			'json/json5',
 		],
 	},
 };
