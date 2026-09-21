@@ -163,6 +163,7 @@ export default defineConfig([
 | [no-confusing-array-with](docs/rules/no-confusing-array-with.md)                                           | Disallow confusing uses of `Array#with()`.                                                                                     | ✅    |    |    |    |
 | [no-console-spaces](docs/rules/no-console-spaces.md)                                                       | Do not use leading/trailing space between `console.log` parameters.                                                            | ✅ ☑️ | 🔧 |    |    |
 | [no-constant-zero-expression](docs/rules/no-constant-zero-expression.md)                                   | Disallow arithmetic and bitwise operations that always evaluate to `0`.                                                        | ✅ ☑️ |    | 💡 |    |
+| [no-declarations-after-nested-rules](docs/rules/no-declarations-after-nested-rules.md)                     | Disallow declarations after nested rules.                                                                                      |      |    |    |    |
 | [no-declarations-before-early-exit](docs/rules/no-declarations-before-early-exit.md)                       | Disallow declarations before conditional early exits when they are only used after the exit.                                   | ✅ ☑️ | 🔧 |    |    |
 | [no-deprecated-css-features](docs/rules/no-deprecated-css-features.md)                                     | Disallow deprecated CSS features.                                                                                              |      | 🔧 | 💡 |    |
 | [no-document-cookie](docs/rules/no-document-cookie.md)                                                     | Do not use `document.cookie` directly.                                                                                         | ✅ ☑️ |    |    |    |
@@ -571,6 +572,7 @@ These rules also work on specific non-JavaScript languages:
 | [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`indent`](docs/rules/indent.md) | ✅ |  | ✅ |  |  |  |
 | [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | ✅ |  | ✅ |  |  |  |
+| [`no-declarations-after-nested-rules`](docs/rules/no-declarations-after-nested-rules.md) | ✅ |  |  |  |  |  |
 | [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-css-selectors`](docs/rules/no-duplicate-css-selectors.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |  |

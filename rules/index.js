@@ -72,6 +72,7 @@ export {default as 'no-confusing-array-splice'} from './no-confusing-array-splic
 export {default as 'no-confusing-array-with'} from './no-confusing-array-with.js';
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
 export {default as 'no-constant-zero-expression'} from './no-constant-zero-expression.js';
+export {default as 'no-declarations-after-nested-rules'} from './no-declarations-after-nested-rules.js';
 export {default as 'no-declarations-before-early-exit'} from './no-declarations-before-early-exit.js';
 export {default as 'no-deprecated-css-features'} from './no-deprecated-css-features.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
