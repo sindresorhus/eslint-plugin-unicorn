@@ -12,6 +12,7 @@ const messages = {
 
 const hexadecimalColorPattern = /^(?:[\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/iu;
 const uppercaseAsciiPattern = /[A-Z]/g;
+const cssWhitespacePattern = /[\t\n\f\r ]/u;
 const fontFeatureValueAtRules = new Set([
 	'annotation',
 	'character-variant',
@@ -59,7 +60,7 @@ function getFeatureNameRange(node, sourceCode) {
 	let index = 0;
 
 	while (index < text.length) {
-		if (text[index] === '(' || text[index].trim() === '') {
+		if (text[index] === '(' || cssWhitespacePattern.test(text[index])) {
 			index++;
 			continue;
 		}
@@ -80,8 +81,12 @@ function getDeclaration(node, sourceCode) {
 	return sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'Declaration');
 }
 
-function isInPreservedValue(node, sourceCode) {
+function isInPreservedContext(node, sourceCode) {
 	return sourceCode.getAncestors(node).some(ancestor => {
+		if (ancestor.type === 'Atrule') {
+			return isCustomIdentifier(ancestor.name);
+		}
+
 		if (ancestor.type === 'Declaration') {
 			return isCustomIdentifier(ancestor.property);
 		}
@@ -207,7 +212,8 @@ const create = context => {
 
 	context.on('Declaration', node => {
 		if (
-			isCustomIdentifier(node.property)
+			isInPreservedContext(node, sourceCode)
+			|| isCustomIdentifier(node.property)
 			|| isFontFeatureValueDefinition(node, sourceCode)
 		) {
 			return;
@@ -217,17 +223,22 @@ const create = context => {
 		return getIdentifierProblem(node, [start, start + node.property.length], 'property', context);
 	});
 
-	context.on('Atrule', node => {
-		if (isCustomIdentifier(node.name)) {
-			return;
-		}
+	for (const nodeType of ['Atrule', 'AtKeyword']) {
+		context.on(nodeType, node => {
+			if (
+				isInPreservedContext(node, sourceCode)
+				|| isCustomIdentifier(node.name)
+			) {
+				return;
+			}
 
-		const [start] = sourceCode.getRange(node);
-		return getIdentifierProblem(node, [start + 1, start + 1 + node.name.length], 'at-rule name', context);
-	});
+			const [start] = sourceCode.getRange(node);
+			return getIdentifierProblem(node, [start + 1, start + 1 + node.name.length], 'at-rule name', context);
+		});
+	}
 
 	context.on('Dimension', node => {
-		if (isInPreservedValue(node, sourceCode)) {
+		if (isInPreservedContext(node, sourceCode)) {
 			return;
 		}
 
@@ -235,20 +246,26 @@ const create = context => {
 		return getIdentifierProblem(node, [end - node.unit.length, end], 'unit', context);
 	});
 
-	context.on('Function', node => {
-		if (
-			isInPreservedValue(node, sourceCode)
-			|| isCustomIdentifier(node.name)
-		) {
-			return;
-		}
+	for (const [nodeType, nameProperty] of [
+		['Function', 'name'],
+		['FeatureFunction', 'feature'],
+	]) {
+		context.on(nodeType, node => {
+			const name = node[nameProperty];
+			if (
+				isInPreservedContext(node, sourceCode)
+				|| isCustomIdentifier(name)
+			) {
+				return;
+			}
 
-		const [start] = sourceCode.getRange(node);
-		return getIdentifierProblem(node, [start, start + node.name.length], 'function name', context);
-	});
+			const [start] = sourceCode.getRange(node);
+			return getIdentifierProblem(node, [start, start + name.length], 'function name', context);
+		});
+	}
 
 	context.on('Url', node => {
-		if (isInPreservedValue(node, sourceCode)) {
+		if (isInPreservedContext(node, sourceCode)) {
 			return;
 		}
 
@@ -263,7 +280,10 @@ const create = context => {
 		['PseudoElementSelector', 'pseudo-element name', 2],
 	]) {
 		context.on(nodeType, node => {
-			if (isCustomIdentifier(node.name)) {
+			if (
+				isInPreservedContext(node, sourceCode)
+				|| isCustomIdentifier(node.name)
+			) {
 				return;
 			}
 
@@ -274,7 +294,8 @@ const create = context => {
 
 	context.on('Feature', node => {
 		if (
-			node.kind !== 'media'
+			isInPreservedContext(node, sourceCode)
+			|| node.kind !== 'media'
 			|| isCustomIdentifier(node.name)
 		) {
 			return;
@@ -284,7 +305,10 @@ const create = context => {
 	});
 
 	context.on('FeatureRange', function * (node) {
-		if (node.kind !== 'media') {
+		if (
+			isInPreservedContext(node, sourceCode)
+			|| node.kind !== 'media'
+		) {
 			return;
 		}
 
@@ -316,7 +340,7 @@ const create = context => {
 
 	context.on('Identifier', node => {
 		if (
-			isInPreservedValue(node, sourceCode)
+			isInPreservedContext(node, sourceCode)
 			|| isCustomIdentifier(node.name)
 		) {
 			return;
@@ -335,7 +359,7 @@ const create = context => {
 	});
 
 	context.on('Hash', node => {
-		if (isInPreservedValue(node, sourceCode)) {
+		if (isInPreservedContext(node, sourceCode)) {
 			return;
 		}
 

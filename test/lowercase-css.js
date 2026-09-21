@@ -14,7 +14,11 @@ test.snapshot({
 		':--Heading { color: red; }',
 		':--Heading(:HOVER) { color: red; }',
 		'@--Theme {}',
+		'@--Theme CALC(1PX) #ABC {}',
+		'@--Theme { Value: CALC(1PX) #ABC; }',
+		'@--Theme { .Foo:HOVER { COLOR: RED; } }',
 		'@media (--Wide) {}',
+		'@supports at-rule(@--Theme) {}',
 		'a { --ThemeColor: CALC(1PX) #ABC; color: --ThemeFunction(RED 1PX #ABC); }',
 		'a { animation-name: FadeIn; font-family: Times New Roman; grid-area: MainContent; counter-reset: Section; }',
 		'a { font: var(--Size) CAPTION; }',
@@ -70,4 +74,40 @@ test.snapshot({
 		String.raw`a { color: #\41 BC; }`,
 		'@-WEBKIT-KEYFRAMES Fade { from { -WEBKIT-TRANSFORM: ROTATE(1DEG); } }',
 	].map(code => css(code)),
+});
+
+test({
+	testerOptions: {
+		language: languages.css.language,
+		plugins: languages.css.plugins,
+	},
+	valid: [],
+	invalid: [
+		{
+			code: '@media (\u00A0WIDTH: 1PX) {}',
+			output: '@media (\u00A0width: 1px) {}',
+			errors: 2,
+		},
+		{
+			code: outdent`
+				@supports SELECTOR(a:HOVER) {}
+				@supports FONT-TECH(variations) {}
+				@supports FONT-FORMAT(woff2) {}
+				@supports AT-RULE(@MEDIA) {}
+				@supports NAMED-FEATURE(foo) {}
+				@supports ENV(foo) {}
+				@container STYLE(COLOR: RED) {}
+			`,
+			output: outdent`
+				@supports selector(a:hover) {}
+				@supports font-tech(variations) {}
+				@supports font-format(woff2) {}
+				@supports at-rule(@media) {}
+				@supports named-feature(foo) {}
+				@supports env(foo) {}
+				@container style(color: red) {}
+			`,
+			errors: 11,
+		},
+	],
 });
