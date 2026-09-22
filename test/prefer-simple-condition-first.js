@@ -30,6 +30,11 @@ test({
 		'if (!(value == null) && ready);',
 		'if (first() && second());',
 
+		// A guarded identifier does not trigger a report
+		'if (typeof FLAG !== "undefined" && check() && FLAG);',
+		'if ("undefined" !== typeof FLAG && check() && FLAG);',
+		'if (typeof FLAG !== "undefined" && FLAG && ready);',
+
 		// A single condition has no ordering to enforce
 		'if (ready);',
 
@@ -182,6 +187,11 @@ test({
 			output: 'if (ready && (foo ? bar : baz) && check());',
 			errors: [error],
 		},
+		{
+			code: 'if (typeof FLAG !== "undefined" && (foo ? bar : baz) && FLAG && ready);',
+			output: 'if ((typeof FLAG !== "undefined") && FLAG && ready && (foo ? bar : baz));',
+			errors: [error],
+		},
 
 		// Comments make the chain unfixable, but do not suppress the report
 		{
@@ -209,6 +219,12 @@ test({
 		{code: 'if (check() && ready);', errors: [unsafeError]},
 		{code: 'if (check() || ready);', errors: [unsafeError]},
 		{code: 'if (check() && a && b);', errors: [unsafeError]},
+		{code: 'if (typeof FLAG !== "undefined" && check() && OTHER);', errors: [unsafeError]},
+		{code: 'if (typeof FLAG === "undefined" && check() && FLAG);', errors: [unsafeError]},
+		{code: 'if (check() && typeof FLAG !== "undefined" && FLAG);', errors: [{...unsafeError, column: 16, endColumn: 43}]},
+		{code: 'if (check() && FLAG && typeof FLAG !== "undefined");', errors: [unsafeError]},
+		{code: 'if (typeof FLAG !== "undefined" || check() || FLAG);', errors: [unsafeError]},
+		{code: 'if (typeof FLAG !== "undefined" && check() && FLAG && ready);', errors: [{...unsafeError, column: 55, endColumn: 60}]},
 		{code: 'if ((first ? second : third) && check() && ready);', errors: [unsafeError]},
 		{code: 'if (check() && value == null);', errors: [unsafeError]},
 		{code: 'if (check() || null != value);', errors: [unsafeError]},
@@ -244,6 +260,8 @@ test({
 
 test.typescript({
 	valid: [
+		'declare const FLAG: boolean | undefined; if (typeof FLAG !== "undefined" && check() && FLAG);',
+		'declare const FLAG: boolean | undefined; if (typeof (FLAG as boolean) !== "undefined" && check() && (FLAG as boolean));',
 		'if ((ready as boolean) && enabled!);',
 		'if (((value as string) === "value") && ready);',
 		'if ((value! === "value") && ready);',
