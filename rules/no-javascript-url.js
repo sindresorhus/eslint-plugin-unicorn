@@ -8,11 +8,13 @@ const messages = {
 */
 const create = context => {
 	context.on(['definition', 'image', 'link'], node => {
-		if (
-			!URL.canParse(node.url)
-			// eslint-disable-next-line no-script-url -- This rule checks for script URLs.
-			|| new URL(node.url).protocol !== 'javascript:'
-		) {
+		if (!URL.canParse(node.url)) {
+			return;
+		}
+
+		const url = new URL(node.url);
+		// eslint-disable-next-line no-script-url -- This rule checks for script URLs.
+		if (url.protocol !== 'javascript:') {
 			return;
 		}
 
