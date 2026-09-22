@@ -1,0 +1,52 @@
+import {getTester, languages} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test({
+	testerOptions: languages.css,
+	valid: [
+		'a { color: #fff; background: #abcd; }',
+		'a { color: #a4a4a4; background: #aabbccdf; }',
+		'#ffffff { color: red; }',
+		'a { content: "#ffffff"; background: url(#ffffff); background-image: url("#aabbccdd"); /* #ffffff */ }',
+		String.raw`a { background: u\72l(#ffffff); --image: u\72l(#aabbccdd); color: custom(u\72l(#ffffff)); }`,
+		String.raw`a { color: #\66fffff; color: #fffff; }`,
+	],
+	invalid: [
+		{
+			code: 'a { color: #ffffff; }',
+			output: 'a { color: #fff; }',
+			errors: 1,
+		},
+		{
+			code: 'a { color: #aabbccdd; }',
+			output: 'a { color: #abcd; }',
+			errors: 1,
+		},
+		{
+			code: 'a { color: #aABbcC; background: #AaBbCcDd; }',
+			output: 'a { color: #aBc; background: #ABCD; }',
+			errors: 2,
+		},
+		{
+			code: 'a { --theme: #ffffff; unknown: #aabbccdd; }',
+			output: 'a { --theme: #fff; unknown: #abcd; }',
+			errors: 2,
+		},
+		{
+			code: String.raw`a { --image: custom(u\72l(#ffffff)) #aabbcc; }`,
+			output: String.raw`a { --image: custom(u\72l(#ffffff)) #abc; }`,
+			errors: 1,
+		},
+		{
+			code: '@supports (color: #ffffff) { a { color: custom(#aabbccdd); } }',
+			output: '@supports (color: #fff) { a { color: custom(#abcd); } }',
+			errors: 2,
+		},
+		{
+			code: 'a { color: #ffffff /* keep */ #aabbccdd; }',
+			output: 'a { color: #fff /* keep */ #abcd; }',
+			errors: 2,
+		},
+	],
+});

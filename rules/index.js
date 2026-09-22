@@ -318,6 +318,7 @@ export {default as 'prefer-set-methods'} from './prefer-set-methods.js';
 export {default as 'prefer-set-size'} from './prefer-set-size.js';
 export {default as 'prefer-short-arrow-method'} from './prefer-short-arrow-method.js';
 export {default as 'prefer-short-escape-sequences'} from './prefer-short-escape-sequences.js';
+export {default as 'prefer-short-hex-color'} from './prefer-short-hex-color.js';
 export {default as 'prefer-simple-condition-first'} from './prefer-simple-condition-first.js';
 export {default as 'prefer-simple-sort-comparator'} from './prefer-simple-sort-comparator.js';
 export {default as 'prefer-simplified-conditions'} from './prefer-simplified-conditions.js';

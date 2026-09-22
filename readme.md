@@ -409,6 +409,7 @@ export default defineConfig([
 | [prefer-set-size](docs/rules/prefer-set-size.md)                                                           | Prefer using `Set#size` instead of `Array#length`.                                                                             | ✅ ☑️ | 🔧 |    |    |
 | [prefer-short-arrow-method](docs/rules/prefer-short-arrow-method.md)                                       | Prefer arrow function properties over methods with a single return.                                                            |      | 🔧 |    |    |
 | [prefer-short-escape-sequences](docs/rules/prefer-short-escape-sequences.md)                               | Prefer shorter alternatives to Unicode escape sequences.                                                                       | ✅ ☑️ | 🔧 |    |    |
+| [prefer-short-hex-color](docs/rules/prefer-short-hex-color.md)                                             | Prefer short hexadecimal color notation.                                                                                       |      | 🔧 |    |    |
 | [prefer-simple-condition-first](docs/rules/prefer-simple-condition-first.md)                               | Prefer simple conditions first in logical expressions.                                                                         | ✅    | 🔧 |    |    |
 | [prefer-simple-sort-comparator](docs/rules/prefer-simple-sort-comparator.md)                               | Prefer a simple comparison function for `Array#sort()`.                                                                        | ✅ ☑️ |    | 💡 |    |
 | [prefer-simplified-conditions](docs/rules/prefer-simplified-conditions.md)                                 | Prefer simplified conditions.                                                                                                  | ✅ ☑️ | 🔧 |    |    |
@@ -625,6 +626,7 @@ These rules also work on specific non-JavaScript languages:
 | [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md) | ✅ |  | ✅ |  |  |  |
 | [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |  |
 | [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md) |  |  | ✅ |  | ✅ |  |
+| [`prefer-short-hex-color`](docs/rules/prefer-short-hex-color.md) | ✅ |  |  |  |  |  |
 | [`relative-url-style`](docs/rules/relative-url-style.md) | ✅ | ✅ |  | ✅ |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |  |
 | [`single-line-block-comment-style`](docs/rules/single-line-block-comment-style.md) | ✅ |  | ✅ |  |  |  |
