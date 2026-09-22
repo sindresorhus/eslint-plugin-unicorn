@@ -184,18 +184,31 @@ function isSameCssTokens(original, fixed) {
 	return originalTokens.length === fixedTokens.length && originalTokens.every((token, index) => token.type === fixedTokens[index].type && token.value === fixedTokens[index].value);
 }
 
-function isCssUrlString(tokens, index, text) {
-	let previousIndex = index - 1;
-	while ([tokenTypes.WhiteSpace, tokenTypes.Comment].includes(tokens[previousIndex]?.type)) {
-		previousIndex--;
-	}
-
-	const previous = tokens[previousIndex];
-	return previous ? isCssUrlFunction(previous.type, text.slice(previous.start, previous.end)) : false;
-}
-
 function isCssUrlFunction(type, text) {
 	return type === tokenTypes.Function && ident.decode(text.slice(0, -1)).toLowerCase() === 'url';
+}
+
+function * getCssTokensOutsideUrls(tokens, text) {
+	let urlDepth = 0;
+	for (const [index, token] of tokens.entries()) {
+		const {type, start, end} = token;
+		if (urlDepth > 0) {
+			if (type === tokenTypes.Function || type === tokenTypes.LeftParenthesis) {
+				urlDepth++;
+			} else if (type === tokenTypes.RightParenthesis) {
+				urlDepth--;
+			}
+
+			continue;
+		}
+
+		if (isCssUrlFunction(type, text.slice(start, end))) {
+			urlDepth = 1;
+			continue;
+		}
+
+		yield {index, ...token};
+	}
 }
 
 function isInitialCharsetToken(tokens, index, text) {
@@ -238,13 +251,13 @@ const create = context => {
 			tokens.push({type, start, end});
 		});
 
-		for (const [index, {type, start, end}] of tokens.entries()) {
+		for (const {index, type, start, end} of getCssTokensOutsideUrls(tokens, text)) {
 			if (isInitialCharsetToken(tokens, index, text)) {
 				continue;
 			}
 
 			const isString = type === tokenTypes.String;
-			if ((!isString && !cssIdentifierTokenTypes.has(type)) || isCssUrlFunction(type, text.slice(start, end)) || (isString && isCssUrlString(tokens, index, text))) {
+			if (!isString && !cssIdentifierTokenTypes.has(type)) {
 				continue;
 			}
 
