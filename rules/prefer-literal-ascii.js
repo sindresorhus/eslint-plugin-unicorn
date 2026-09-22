@@ -198,6 +198,15 @@ function isCssUrlFunction(type, text) {
 	return type === tokenTypes.Function && ident.decode(text.slice(0, -1)).toLowerCase() === 'url';
 }
 
+function isInitialCharsetToken(tokens, index, text) {
+	if (index !== 0 && (index !== 2 || tokens[index].type !== tokenTypes.String)) {
+		return false;
+	}
+
+	const firstToken = tokens[0];
+	return firstToken?.type === tokenTypes.AtKeyword && firstToken.start === 0 && ident.decode(text.slice(0, firstToken.end)) === '@charset';
+}
+
 function getProblem(node, original, quote, fix) {
 	const {fixed, canFix} = replaceEscapes(original, quote, node.type === 'String');
 	if (fixed === original) {
@@ -228,15 +237,13 @@ const create = context => {
 		tokenize(text, (type, start, end) => {
 			tokens.push({type, start, end});
 		});
-		const firstToken = tokens[0];
-		const isInitialCharset = firstToken?.type === tokenTypes.AtKeyword && firstToken.start === 0 && ident.decode(text.slice(0, firstToken.end)) === '@charset';
 
 		for (const [index, {type, start, end}] of tokens.entries()) {
-			const isString = type === tokenTypes.String;
-			if (isInitialCharset && (index === 0 || (index === 2 && isString))) {
+			if (isInitialCharsetToken(tokens, index, text)) {
 				continue;
 			}
 
+			const isString = type === tokenTypes.String;
 			if ((!isString && !cssIdentifierTokenTypes.has(type)) || isCssUrlFunction(type, text.slice(start, end)) || (isString && isCssUrlString(tokens, index, text))) {
 				continue;
 			}
