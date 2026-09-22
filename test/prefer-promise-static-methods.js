@@ -36,6 +36,7 @@ ruleTest({
 		'new OtherPromise(resolve => resolve(value));',
 		'const Promise = OtherPromise; new Promise(resolve => resolve(value));',
 		{code: 'new Promise(function (resolve, resolve) { resolve(value); });', languageOptions: {sourceType: 'script'}},
+		{code: 'new Promise(function (this: object, resolve) { resolve(value); });', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
 		{code: 'new Promise(resolve => resolve(value));', errors: [resolveError], output: 'Promise.resolve(value);'},

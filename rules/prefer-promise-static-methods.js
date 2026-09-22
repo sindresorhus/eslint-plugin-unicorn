@@ -27,7 +27,7 @@ const isSupportedExecutor = executor => (
 	&& !executor.generator
 	&& executor.params.length > 0
 	&& executor.params.length <= 2
-	&& executor.params.every(parameter => parameter.type === 'Identifier')
+	&& executor.params.every(parameter => parameter.type === 'Identifier' && parameter.name !== 'this')
 	&& (executor.params.length === 1 || executor.params[0].name !== executor.params[1].name)
 );
 
