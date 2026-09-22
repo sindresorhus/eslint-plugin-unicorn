@@ -300,6 +300,7 @@ export default defineConfig([
 | [no-using-resource-escape](docs/rules/no-using-resource-escape.md)                                         | Disallow returning or exporting resources declared with `using`, including through capturing functions.                        | ✅ ☑️ |    |    |    |
 | [no-xor-as-exponentiation](docs/rules/no-xor-as-exponentiation.md)                                         | Disallow the bitwise XOR operator where exponentiation was likely intended.                                                    | ✅ ☑️ |    | 💡 |    |
 | [no-zero-fractions](docs/rules/no-zero-fractions.md)                                                       | Require consistent decimal numbers without redundant zeros.                                                                    | ✅ ☑️ | 🔧 |    |    |
+| [no-zero-length-unit](docs/rules/no-zero-length-unit.md)                                                   | Disallow units on zero CSS lengths.                                                                                            |      | 🔧 |    |    |
 | [number-literal-case](docs/rules/number-literal-case.md)                                                   | Enforce proper case for numeric literals.                                                                                      | ✅ ☑️ | 🔧 |    |    |
 | [numeric-separators-style](docs/rules/numeric-separators-style.md)                                         | Enforce the style of numeric separators by correctly grouping digits.                                                          | ✅ ☑️ | 🔧 |    |    |
 | [operator-assignment](docs/rules/operator-assignment.md)                                                   | Require assignment operator shorthand where possible.                                                                          | ✅    | 🔧 | 💡 |    |
@@ -618,6 +619,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-unknown-pseudo-selectors`](docs/rules/no-unknown-pseudo-selectors.md) | ✅ |  |  |  |  |  |
 | [`no-unscoped-css-nesting-selector`](docs/rules/no-unscoped-css-nesting-selector.md) | ✅ |  |  |  |  |  |
 | [`no-zero-fractions`](docs/rules/no-zero-fractions.md) | ✅ |  | ✅ |  | ✅ | ✅ |
+| [`no-zero-length-unit`](docs/rules/no-zero-length-unit.md) | ✅ |  |  |  |  |  |
 | [`number-literal-case`](docs/rules/number-literal-case.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`numeric-separators-style`](docs/rules/numeric-separators-style.md) |  |  |  |  | ✅ |  |
 | [`prefer-escaped-irregular-whitespace`](docs/rules/prefer-escaped-irregular-whitespace.md) |  |  | ✅ |  | ✅ |  |
