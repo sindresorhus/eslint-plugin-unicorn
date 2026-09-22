@@ -1,6 +1,6 @@
 /* eslint-disable @stylistic/max-len, max-lines */
 import outdent from 'outdent';
-import {getTester, avoidTestTitleConflict} from './utils/test.js';
+import {getTester, avoidTestTitleConflict, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -2681,4 +2681,91 @@ test.vue({
 			errors: 1,
 		},
 	],
+});
+
+test.snapshot({
+	valid: [languages.json, languages.jsonc, languages.json5].flatMap(language => [
+		{code: '{"btn": "err"}'},
+		{code: '{"button": "btn"}', options: [{checkProperties: true}]},
+		{code: '{"btn": 1}', options: [{checkProperties: true, allowList: {btn: true}}]},
+	].map(testCase => ({...testCase, language}))),
+	invalid: [languages.json, languages.jsonc, languages.json5].flatMap(language => [
+		'{"btn": 1}',
+		'{"btn-group": {"err": 1}}',
+		String.raw`{"b\u0074n": 1}`,
+	].map(code => ({code, language, options: [{checkProperties: true}]}))),
+});
+
+test.snapshot({
+	valid: [
+		{code: '.button { --button: red; }'},
+		{code: '.btn {}', options: [{checkVariables: false}]},
+		{code: '.btn {}', options: [{allowList: {btn: true}}]},
+		{code: 'a { color: red; content: "btn"; }'},
+	].map(testCase => ({...testCase, language: languages.css})),
+	invalid: [
+		'.btn {}',
+		'#btn-group {}',
+		'a { --btn: var(--err); }',
+		'@keyframes btn {}',
+		'@layer btn {}',
+		'@media (--btn) {}',
+		'a { container: btn / inline-size; }',
+	].map(code => ({code, language: languages.css})),
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [{code: '{btn: 1}', language: languages.json5, options: [{checkProperties: true}]}],
+});
+
+test.snapshot({
+	valid: [
+		{code: '.btn {}', language: languages.css, options: [{ignore: ['^btn$']}]},
+		{code: 'a { --btn: 1; }', language: languages.css, options: [{allowList: {'--btn': true}}]},
+		{code: '.btn { color: red; }', language: languages.css, options: [{extendDefaultReplacements: false}]},
+		{
+			code: '{}', language: languages.json, filename: 'btn.json', options: [{checkFilenames: false}],
+		},
+	],
+	invalid: [
+		{code: '{}', language: languages.json, filename: 'btn.json'},
+		{code: 'a {}', language: languages.css, filename: 'btn.css'},
+		{code: '.widget {}', language: languages.css, options: [{extendDefaultReplacements: false, replacements: {widget: {component: true}}}]},
+	],
+});
+
+test.snapshot({
+	valid: [
+		{code: 'btn: err', language: languages.yaml},
+		{code: 'button: btn\n123: err\n? [btn, err]\n: value', language: languages.yaml, options: [{checkProperties: true}]},
+		{code: 'btn = "err"', language: languages.toml},
+		{code: 'button = "btn"', language: languages.toml, options: [{checkProperties: true}]},
+		{code: '<div id="button" class="error button-group" title="btn"></div>', language: languages.html},
+		{code: '<div id="btn" class="err"></div>', language: languages.html, options: [{checkVariables: false}]},
+		{code: '<div class="btn"></div>', language: languages.html, options: [{allowList: {btn: true}}]},
+		{code: '<div id="prefix-{{btn}}" class="{{btn}}"></div>', language: languages.html},
+		{code: '<div class="<%= btn %>"></div>', language: languages.html},
+	],
+	invalid: [
+		{code: 'btn: 1\nnested: {err: 2}\n"b\\u0074n-group": 3', language: languages.yaml, options: [{checkProperties: true}]},
+		{code: '[btn."err-group"]\n"b\\u0074n".args = "btn"', language: languages.toml, options: [{checkProperties: true}]},
+		{code: '[[btn]]\nvalue = {err = 1}', language: languages.toml, options: [{checkProperties: true}]},
+		{code: '<div id="btn" class="good err-group\targs"></div>', language: languages.html},
+		{code: '<div ID=btn CLASS="b&#116;n&#32;err"></div>', language: languages.html},
+	],
+});
+
+test.snapshot({
+	valid: [
+		{code: 'a { animation-name: button, "error", none; }'},
+		{code: 'a { animation: btn 1s; }'},
+		{code: 'a { animation-name: btn; }', options: [{checkVariables: false}]},
+	].map(testCase => ({...testCase, language: languages.css})),
+	invalid: [
+		'a { animation-name: btn; }',
+		'a { animation-name: btn, "err"; }',
+		String.raw`a { animation-name: b\74 n; }`,
+		'a { -webkit-animation-name: "btn"; }',
+	].map(code => ({code, language: languages.css})),
 });

@@ -127,6 +127,7 @@ export default defineConfig([
 | [indent](docs/rules/indent.md)                                                                             | Enforce consistent indentation in JSON and CSS.                                                                                |      | 🔧 |    |    |
 | [isolated-functions](docs/rules/isolated-functions.md)                                                     | Prevent usage of variables from outside the scope of isolated functions.                                                       | ✅    |    |    |    |
 | [iteration-fallback-style](docs/rules/iteration-fallback-style.md)                                         | Enforce a consistent style for optional loop sources.                                                                          |      | 🔧 |    |    |
+| [key-name-casing](docs/rules/key-name-casing.md)                                                           | Enforce a case style for data keys.                                                                                            |      |    |    |    |
 | [logical-assignment-operators](docs/rules/logical-assignment-operators.md)                                 | Require or disallow logical assignment operator shorthand                                                                      | ✅    | 🔧 | 💡 |    |
 | [lowercase-css](docs/rules/lowercase-css.md)                                                               | Enforce lowercase CSS syntax.                                                                                                  |      | 🔧 |    |    |
 | [max-nested-calls](docs/rules/max-nested-calls.md)                                                         | Limit the depth of nested calls.                                                                                               | ✅    |    |    |    |
@@ -296,7 +297,7 @@ export default defineConfig([
 | [no-useless-undefined](docs/rules/no-useless-undefined.md)                                                 | Disallow useless `undefined`.                                                                                                  | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-using-resource-escape](docs/rules/no-using-resource-escape.md)                                         | Disallow returning or exporting resources declared with `using`, including through capturing functions.                        | ✅ ☑️ |    |    |    |
 | [no-xor-as-exponentiation](docs/rules/no-xor-as-exponentiation.md)                                         | Disallow the bitwise XOR operator where exponentiation was likely intended.                                                    | ✅ ☑️ |    | 💡 |    |
-| [no-zero-fractions](docs/rules/no-zero-fractions.md)                                                       | Disallow number literals with zero fractions or dangling dots.                                                                 | ✅ ☑️ | 🔧 |    |    |
+| [no-zero-fractions](docs/rules/no-zero-fractions.md)                                                       | Require consistent decimal numbers without redundant zeros.                                                                    | ✅ ☑️ | 🔧 |    |    |
 | [number-literal-case](docs/rules/number-literal-case.md)                                                   | Enforce proper case for numeric literals.                                                                                      | ✅ ☑️ | 🔧 |    |    |
 | [numeric-separators-style](docs/rules/numeric-separators-style.md)                                         | Enforce the style of numeric separators by correctly grouping digits.                                                          | ✅ ☑️ | 🔧 |    |    |
 | [operator-assignment](docs/rules/operator-assignment.md)                                                   | Require assignment operator shorthand where possible.                                                                          | ✅    | 🔧 | 💡 |    |
@@ -579,10 +580,15 @@ These rules also work on specific non-JavaScript languages:
 
 | Name | CSS | HTML | JSON | Markdown | TOML | YAML |
 | :-- | :-: | :-: | :-: | :-: | :-: | :-: |
-| [`escape-case`](docs/rules/escape-case.md) |  |  |  |  | ✅ |  |
+| [`consistent-compound-words`](docs/rules/consistent-compound-words.md) | ✅ | ✅ | ✅ |  | ✅ | ✅ |
+| [`empty-brace-spaces`](docs/rules/empty-brace-spaces.md) | ✅ |  | ✅ |  | ✅ | ✅ |
+| [`escape-case`](docs/rules/escape-case.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`id-match`](docs/rules/id-match.md) | ✅ | ✅ |  |  |  |  |
 | [`indent`](docs/rules/indent.md) | ✅ |  | ✅ |  |  |  |
+| [`key-name-casing`](docs/rules/key-name-casing.md) |  |  | ✅ |  | ✅ | ✅ |
 | [`lowercase-css`](docs/rules/lowercase-css.md) | ✅ |  |  |  |  |  |
+| [`name-replacements`](docs/rules/name-replacements.md) | ✅ | ✅ | ✅ |  | ✅ | ✅ |
 | [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | ✅ |  | ✅ |  |  |  |
 | [`no-declarations-after-nested-rules`](docs/rules/no-declarations-after-nested-rules.md) | ✅ |  |  |  |  |  |
 | [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |  |
@@ -594,7 +600,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |  |
 | [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md) | ✅ |  | ✅ |  | ✅ |  |
-| [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  | ✅ |  |
+| [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  | ✅ | ✅ |
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |  |  |
 | [`no-nesting-with-mixed-specificity`](docs/rules/no-nesting-with-mixed-specificity.md) | ✅ |  |  |  |  |  |
 | [`no-redundant-longhand-properties`](docs/rules/no-redundant-longhand-properties.md) | ✅ |  |  |  |  |  |
@@ -606,14 +612,17 @@ These rules also work on specific non-JavaScript languages:
 | [`no-unknown-css-annotations`](docs/rules/no-unknown-css-annotations.md) | ✅ |  |  |  |  |  |
 | [`no-unknown-pseudo-selectors`](docs/rules/no-unknown-pseudo-selectors.md) | ✅ |  |  |  |  |  |
 | [`no-unscoped-css-nesting-selector`](docs/rules/no-unscoped-css-nesting-selector.md) | ✅ |  |  |  |  |  |
-| [`number-literal-case`](docs/rules/number-literal-case.md) |  |  |  |  | ✅ |  |
+| [`no-zero-fractions`](docs/rules/no-zero-fractions.md) | ✅ |  | ✅ |  | ✅ | ✅ |
+| [`number-literal-case`](docs/rules/number-literal-case.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`numeric-separators-style`](docs/rules/numeric-separators-style.md) |  |  |  |  | ✅ |  |
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |  |
 | [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md) |  |  | ✅ |  |  |  |
 | [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |  |
 | [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md) |  |  | ✅ |  | ✅ |  |
+| [`relative-url-style`](docs/rules/relative-url-style.md) | ✅ | ✅ |  | ✅ |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |  |
-| [`string-content`](docs/rules/string-content.md) |  |  |  |  | ✅ |  |
+| [`single-line-block-comment-style`](docs/rules/single-line-block-comment-style.md) | ✅ |  | ✅ |  |  |  |
+| [`string-content`](docs/rules/string-content.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |  |  |
 
 <!-- end auto-generated non-js languages list -->

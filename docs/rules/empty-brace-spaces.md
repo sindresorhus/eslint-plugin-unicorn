@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Empty blocks and object literals do not need internal whitespace, so this rule enforces a compact, consistent style.
+Empty blocks and object literals do not need internal whitespace, so this rule enforces a compact, consistent style. It also checks objects and arrays in JSON, JSONC, and JSON5, blocks in CSS, flow mappings and sequences in YAML, and inline tables and arrays in TOML. Braces and brackets containing comments are left unchanged.
 
 ## Examples
 

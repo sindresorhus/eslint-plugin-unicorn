@@ -1,16 +1,14 @@
 import {isOpeningBraceToken} from '@eslint-community/eslint-utils';
+import {toLocation} from './utils/index.js';
 
 const MESSAGE_ID = 'empty-brace-spaces';
 const messages = {
 	[MESSAGE_ID]: 'Do not add spaces between braces.',
 };
 
-const getProblem = (node, context) => {
+const getProblem = (range, context) => {
 	const {sourceCode} = context;
-	const openingBrace = sourceCode.getFirstToken(node, {filter: isOpeningBraceToken});
-	const closingBrace = sourceCode.getLastToken(node);
-	const [, start] = sourceCode.getRange(openingBrace);
-	const [end] = sourceCode.getRange(closingBrace);
+	const [start, end] = range;
 	const textBetween = sourceCode.text.slice(start, end);
 
 	if (!/^\s+$/.test(textBetween)) {
@@ -18,10 +16,7 @@ const getProblem = (node, context) => {
 	}
 
 	return {
-		loc: {
-			start: sourceCode.getLoc(openingBrace).end,
-			end: sourceCode.getLoc(closingBrace).start,
-		},
+		loc: toLocation(range, context),
 		messageId: MESSAGE_ID,
 		fix: fixer => fixer.removeRange([start, end]),
 	};
@@ -43,7 +38,24 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, context);
+		const {sourceCode} = context;
+		const openingBrace = sourceCode.getFirstToken(node, {filter: isOpeningBraceToken});
+		const closingBrace = sourceCode.getLastToken(node);
+		return getProblem([sourceCode.getRange(openingBrace)[1], sourceCode.getRange(closingBrace)[0]], context);
+	});
+
+	context.on(['Object', 'Array', 'Block', 'TOMLInlineTable', 'TOMLArray', 'YAMLMapping', 'YAMLSequence'], node => {
+		if (node.style === 'block') {
+			return;
+		}
+
+		const children = node.members ?? node.elements ?? node.children ?? node.body ?? node.pairs ?? node.entries;
+		if (children.length > 0) {
+			return;
+		}
+
+		const [start, end] = context.sourceCode.getRange(node);
+		return getProblem([start + 1, end - 1], context);
 	});
 };
 
@@ -62,6 +74,12 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'json/json',
+			'json/jsonc',
+			'json/json5',
+			'css/css',
+			'toml/toml',
+			'yml/yaml',
 		],
 	},
 };

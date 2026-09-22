@@ -15,7 +15,7 @@ Differentiating the casing of the identifier and value clearly separates them an
 - Uppercase or lowercase hexadecimal value for [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) and [`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#BigInt_type).
 - Lowercase `e` for exponential notation.
 
-This rule also supports TOML hexadecimal values and exponential notation.
+This rule also supports JSON, JSONC, JSON5, and TOML numeric literals. In CSS, it lowercases the exponent marker in numbers, percentages, dimensions, and custom property values while preserving units.
 
 ```toml
 # ❌
@@ -114,6 +114,8 @@ const foo = 2E5;
 // ✅
 const foo = 2e5;
 ```
+
+In YAML, this rule checks numeric scalars, including hexadecimal values and exponents. Explicitly tagged scalars, strings, and special `.inf` and `.nan` values are ignored.
 
 ## Options
 

@@ -1,6 +1,6 @@
 # no-zero-fractions
 
-📝 Disallow number literals with zero fractions or dangling dots.
+📝 Require consistent decimal numbers without redundant zeros.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,7 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-There is no difference in JavaScript between, for example, `1`, `1.0` and `1.`, so prefer the former for consistency and brevity.
+Use a leading zero before the decimal point, and remove redundant trailing fractional zeros and dangling decimal points. For example, prefer `0.5` over `.5`, `1.5` over `1.50`, and `1` over `1.0` or `1.`.
+
+The rule also supports JSON, JSONC, JSON5, TOML, YAML, and CSS. It preserves CSS units (`2.0px` → `2px`, `.5s` → `0.5s`) and TOML/YAML float types (`1.00` → `1.0`). Tagged YAML scalars, strings, `.inf`, and `.nan` are skipped.
 
 ## Examples
 

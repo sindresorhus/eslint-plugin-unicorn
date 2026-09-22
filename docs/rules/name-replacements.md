@@ -87,6 +87,14 @@ const levels = {
 this.evt = 'click';
 ```
 
+## Data keys, CSS, and HTML
+
+With `checkProperties: true`, the rule checks JSON object keys, YAML string keys, and TOML key segments, including table names. It skips YAML non-string, tagged, anchored, and alias keys, plus string values.
+
+With `checkVariables` (enabled by default), it checks CSS class and ID selectors, custom properties, keyframes, animation names, layers, containers, and custom media, plus HTML `id` and individual `class` names. Built-in CSS property names and value keywords, and `animation` shorthand values are skipped. CSS escapes and HTML character references are decoded; templated HTML values are skipped.
+
+Ignore patterns match full decoded names, including `--`. Data and CSS/HTML diagnostics have no fixes or suggestions because names may be referenced elsewhere. `checkFilenames` also applies to data, CSS, and HTML files.
+
 ## Options
 
 Type: `object`

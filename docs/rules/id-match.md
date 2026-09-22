@@ -27,6 +27,12 @@ const foo$ = 1;
 const foo = 1;
 ```
 
+## CSS and HTML
+
+In CSS, the rule checks class and ID selectors, custom properties, keyframes, animation names, layers, containers, and custom media. Dotted layer segments are checked separately. CSS escapes are decoded, and leading `--` is excluded when matching custom-property and custom-media names. Built-in value keywords and `animation` shorthand values are skipped.
+
+In HTML, it checks `id` and individual `class` names after decoding character references, retaining any leading `--`. Empty or templated values are skipped. Character references make diagnostics span the whole attribute value. JavaScript-only options do not apply to CSS or HTML. Names have no autofix because references elsewhere may need updating.
+
 ## Options
 
 This rule supports the same options as ESLint `id-match`.

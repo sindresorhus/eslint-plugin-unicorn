@@ -576,3 +576,61 @@ for (const option of ['uppercase', 'lowercase']) {
 		})),
 	});
 }
+
+for (const languageName of ['json', 'jsonc', 'json5']) {
+	const {language, plugins} = languages[languageName];
+	test({
+		testerOptions: {language, plugins},
+		valid: [
+			String.raw`{"value": "\u00AF", "escaped": "\\u00af"}`,
+			'[1, true, null]',
+			{code: String.raw`"\u00af"`, options: ['lowercase']},
+		].map(testCase => ({name: `${languageName}: ${typeof testCase === 'string' ? testCase : testCase.code}`, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+		invalid: [
+			{
+				code: String.raw`{"\u00af": "\u00e9"}`,
+				output: String.raw`{"\u00AF": "\u00E9"}`,
+				errors: [{messageId: MESSAGE_ID_UPPERCASE}, {messageId: MESSAGE_ID_UPPERCASE}],
+			},
+			{
+				code: String.raw`"\u00AF"`,
+				output: String.raw`"\u00af"`,
+				options: ['lowercase'],
+				errors: [{messageId: MESSAGE_ID_LOWERCASE}],
+			},
+		].map(testCase => ({name: `${languageName}: ${testCase.code}`, ...testCase})),
+	});
+}
+
+test.snapshot({
+	valid: [
+		String.raw`a { content: "\\a9"; }`,
+		String.raw`/* \a9 */ a { content: "\A9"; }`,
+		String.raw`.\A9 { --\A9: url(\A9.png); }`,
+	].map(code => ({code, language: languages.css})),
+	invalid: [
+		String.raw`a { content: "\a\a9\00a9\1f600\0000afaf"; }`,
+		String.raw`.\a9#\e9 { --\a9: url(\e9.png); content: "\\\a9"; }`,
+		String.raw`@\6d edia all { a { content: "\a9"; } }`,
+		String.raw`a { content: "/* \a9 */"; width: 1p\78; }`,
+		{code: String.raw`a { content: "\Aa\1F600"; }`, options: ['lowercase']},
+		{code: String.raw`{'value': '\xaf', /* \u00af */ '\u00af': 1}`, language: languages.json5},
+	].map(testCase => ({language: languages.css, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});
+
+test.snapshot({
+	valid: [
+		String.raw`value: "\xAF\u00AF\U000000AF"`,
+		String.raw`value: '\xaf\u00af\U000000af'`,
+		String.raw`value: \xaf`,
+		String.raw`value: "\\xaf\\u00af" # \xaf`,
+		'value: |\n  \\xaf\n',
+		'value: >\n  \\xaf\n',
+	].map(code => ({code, language: languages.yaml})),
+	invalid: [
+		String.raw`value: "\xaf\u00af\U000000af"`,
+		String.raw`"\u00af": "\xaf" # preserve`,
+		String.raw`value: &anchor "\u00af"`,
+		{code: String.raw`value: "\xAF\u00AF\U000000AF"`, options: ['lowercase']},
+	].map(testCase => ({language: languages.yaml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

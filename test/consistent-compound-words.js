@@ -2,7 +2,7 @@ import outdent from 'outdent';
 import test from 'ava';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 
@@ -461,4 +461,94 @@ test('validates options schema', t => {
 		() => verify({extendDefaultAllowList: false}),
 		{message: /Unexpected property "extendDefaultAllowList"/u},
 	);
+});
+
+ruleTest.snapshot({
+	valid: [languages.json, languages.jsonc, languages.json5].flatMap(language => [
+		{code: '{"userName": "backGround"}'},
+		{code: '{"username": "userName"}', options: checkPropertiesOptions},
+		{code: '{"backGround": 1}', options: [{checkProperties: true, allowList: {backGround: true}}]},
+	].map(testCase => ({...testCase, language}))),
+	invalid: [languages.json, languages.jsonc, languages.json5].flatMap(language => [
+		'{"userName": 1}',
+		'{"back-ground": {"data_base": 1}}',
+		String.raw`{"back\u0047round": 1}`,
+	].map(code => ({code, language, options: checkPropertiesOptions}))),
+});
+
+ruleTest.snapshot({
+	valid: [
+		{code: '.background { --background: red; }'},
+		{code: '.backGround {}', options: [{checkVariables: false}]},
+		{code: '.back-ground {}', options: [{allowList: {'back-ground': true}}]},
+		{code: 'a { background: red; content: "backGround"; }'},
+	].map(testCase => ({...testCase, language: languages.css})),
+	invalid: [
+		'.backGround {}',
+		'.back-ground-panel {}',
+		'a { --back-ground: var(--data-base); }',
+		'@keyframes backGround {}',
+		'@keyframes "back-ground" {}',
+		'@media (--back-ground) {}',
+		'a { container: backGround / inline-size; }',
+	].map(code => ({code, language: languages.css})),
+});
+
+ruleTest.snapshot({
+	valid: [],
+	invalid: [{code: '{backGround: 1}', language: languages.json5, options: checkPropertiesOptions}],
+});
+
+ruleTest.snapshot({
+	valid: [
+		{code: 'a { --back-ground: red; }', language: languages.css, options: [{allowList: {'--back-ground': true}}]},
+		{code: '.backGround { color: red; }', language: languages.css, options: [{extendDefaultReplacements: false}]},
+		{code: '.back-groundwork {}', language: languages.css},
+		{code: '.BACKGROUND {}', language: languages.css},
+	],
+	invalid: [
+		{code: '.foo-bar {}', language: languages.css, options: [{extendDefaultReplacements: false, replacements: {fooBar: 'foobar'}}]},
+	],
+});
+
+ruleTest.snapshot({
+	valid: [],
+	invalid: [
+		'.backGround-panel {}',
+		'a { --backGround: red; }',
+	].map(code => ({code, language: languages.css, options: [{allowList: {backGround: true}}]})),
+});
+
+ruleTest.snapshot({
+	valid: [
+		{code: 'backGround: userName', language: languages.yaml},
+		{code: 'background: userName\n123: backGround\n? [backGround, userName]\n: value', language: languages.yaml, options: checkPropertiesOptions},
+		{code: 'backGround = "userName"', language: languages.toml},
+		{code: 'background = "backGround"', language: languages.toml, options: checkPropertiesOptions},
+		{code: '<div id="background" class="database foreground" title="backGround"></div>', language: languages.html},
+		{code: '<div id="backGround" class="dataBase"></div>', language: languages.html, options: [{checkVariables: false}]},
+		{code: '<div class="backGround"></div>', language: languages.html, options: [{allowList: {backGround: true}}]},
+	],
+	invalid: [
+		{code: 'backGround: 1\nnested: {data-base: 2}\n"user\\u004Eame": 3', language: languages.yaml, options: checkPropertiesOptions},
+		{code: '[backGround."data-base"]\n"user\\u004Eame".callBack = "backGround"', language: languages.toml, options: checkPropertiesOptions},
+		{code: '[[backGround]]\nvalue = {data_base = 1}', language: languages.toml, options: checkPropertiesOptions},
+		{code: '<div id="backGround" class="good data-base\tcallBack"></div>', language: languages.html},
+		{code: '<div ID=backGround CLASS="data&#45;base&#32;userName"></div>', language: languages.html},
+		{code: '<div class="backGround-panel"></div>', language: languages.html, options: [{allowList: {backGround: true}}]},
+	],
+});
+
+ruleTest.snapshot({
+	valid: [
+		{code: 'a { animation-name: background, "database", none; }'},
+		{code: 'a { animation: backGround 1s; }'},
+		{code: 'a { animation-name: backGround; }', options: [{checkVariables: false}]},
+	].map(testCase => ({...testCase, language: languages.css})),
+	invalid: [
+		'a { animation-name: backGround; }',
+		'a { animation-name: back-ground, "dataBase"; }',
+		String.raw`a { animation-name: back\47 round; }`,
+		'a { -webkit-animation-name: "back-ground"; }',
+	].map(code => ({code, language: languages.css})),
 });

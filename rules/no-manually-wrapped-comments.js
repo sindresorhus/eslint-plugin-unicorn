@@ -12,7 +12,7 @@ const messages = {
 
 // Trailing `:` marks a complete line (heading, label, list intro), not a wrapped sentence.
 const sentenceEndPattern = /(?:[\p{Extended_Pictographic}!.:?]\p{Variation_Selector}?|\p{RGI_Emoji})$/v;
-const directiveCommentPattern = /^(?:[#\/@]|eslint(?:$|\s|-)|globals?\b|exported\b|no default$|noinspection\b|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|deno|dprint|oxlint|prettier)-|(?:cspell|spell-checker):)/v;
+const directiveCommentPattern = /^(?:[#\/@]|eslint(?:$|\s|-)|globals?\b|exported\b|no default$|noinspection\b|yamllint(?:$|\s)|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|deno|dprint|oxlint|prettier)-|(?:cspell|spell-checker):)/v;
 const annotationCommentPattern = /^[A-Z]{2,}(?:\([^\)]+\))?:/v;
 const spdxCommentPattern = /^SPDX-/v;
 const copyrightCommentPattern = /^(?:©|copyright\b)/iv;
@@ -47,7 +47,7 @@ const getLinePrefix = (sourceCode, comment) => {
 };
 
 const isStandaloneLineComment = (sourceCode, comment) => (
-	(comment.type === 'Line' || sourceCode.parserServices?.isTOML)
+	(comment.type === 'Line' || getLineCommentPrefix(sourceCode) === '#')
 	&& getCommentText(comment).length > 0
 	&& !isIgnoredCommentText(getCommentText(comment))
 	&& getLinePrefix(sourceCode, comment).trim() === ''
@@ -63,7 +63,7 @@ const isConsecutiveComment = (sourceCode, firstComment, secondComment) => {
 
 const isBlankLine = (sourceCode, line) => line < 1 || line > sourceCode.lines.length || sourceCode.lines[line - 1].trim() === '';
 
-const getLineCommentPrefix = sourceCode => sourceCode.parserServices?.isTOML ? '#' : '//';
+const getLineCommentPrefix = sourceCode => sourceCode.parserServices?.isTOML || sourceCode.parserServices?.isYAML ? '#' : '//';
 
 const getLineCommentText = (sourceCode, lineText) => {
 	const trimmedLineText = lineText.trim();
@@ -175,6 +175,7 @@ const config = {
 			'json/jsonc',
 			'json/json5',
 			'toml/toml',
+			'yml/yaml',
 		],
 	},
 };

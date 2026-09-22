@@ -13,7 +13,9 @@ Enforces a consistent escaped value style by defining escape sequence values wit
 
 Tagged template literals are ignored because tag functions can observe the raw escape sequences.
 
-In TOML, this rule checks basic strings (including multiline strings) and basic quoted keys. It supports `\uXXXX`, `\UXXXXXXXX`, and `\xXX` escapes, preserving the escape prefix. Literal strings and literal quoted keys are ignored because they do not interpret escapes.
+In TOML, it checks basic strings and quoted keys, including multiline strings. It preserves `\u` and `\U` prefixes and also normalizes parser-tolerated `\x` escapes, which TOML 1.0 does not define. Literal strings and keys are skipped.
+
+In JSON, JSONC, and JSON5, it checks strings and quoted keys, including JSON5 hexadecimal escapes. In YAML, it checks hexadecimal and Unicode escapes in double-quoted scalars. In CSS, it checks one- to six-digit hexadecimal escapes in identifiers, strings, and URLs, preserving escape-terminating whitespace and skipping comments.
 
 ## Examples
 

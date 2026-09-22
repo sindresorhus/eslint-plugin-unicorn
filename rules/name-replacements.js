@@ -9,6 +9,7 @@ import {
 	lowerFirst,
 	isVirtualFilename,
 	isIdentifierName,
+	onRoot,
 } from './utils/index.js';
 import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/name-replacements.js';
 import {
@@ -20,6 +21,9 @@ import {
 } from './shared/identifier-checks.js';
 import {renameVariable} from './fix/index.js';
 import {functionTypes} from './ast/index.js';
+import onCssIdentifier from './shared/css-identifiers.js';
+import onHtmlIdentifier from './shared/html-identifiers.js';
+import onDataKey from './shared/data-keys.js';
 
 const MESSAGE_ID_REPLACE = 'replace';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -361,6 +365,57 @@ const create = context => {
 	const options = getPreparedOptions(context.options[0]);
 	const filenameWithExtension = context.physicalFilename;
 
+	onRoot(context, node => {
+		if (!options.checkFilenames) {
+			return;
+		}
+
+		if (isVirtualFilename(filenameWithExtension)) {
+			return;
+		}
+
+		const filename = path.basename(filenameWithExtension);
+		const extension = path.extname(filename);
+		const filenameReplacements = getNameReplacements(path.basename(filename, extension), options);
+
+		if (filenameReplacements.total === 0) {
+			return;
+		}
+
+		filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
+
+		context.report({
+			...getMessage(filename, filenameReplacements, 'filename'),
+			node,
+		});
+	});
+	const {ast, parserServices} = context.sourceCode;
+	const isHtml = ast.body?.[0]?.type === 'Document';
+	const isData = ast.type === 'Document' || parserServices?.isYAML || parserServices?.isTOML;
+	const getExternalNameProblem = ({node, name, location}) => {
+		const replacements = getNameReplacements(name, options);
+		if (replacements.total > 0) {
+			return {node, loc: location, ...getMessage(name, replacements, 'identifier')};
+		}
+	};
+
+	if (ast.type === 'StyleSheet' || isHtml) {
+		if (options.checkVariables) {
+			const onIdentifier = isHtml ? onHtmlIdentifier : onCssIdentifier;
+			onIdentifier(context, getExternalNameProblem);
+		}
+
+		return;
+	}
+
+	if (isData) {
+		if (options.checkProperties) {
+			onDataKey(context, getExternalNameProblem);
+		}
+
+		return;
+	}
+
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (wherever the class is declared).
 	// This map holds the outer ones to be later processed when the inner one is encountered.
@@ -540,31 +595,6 @@ const create = context => {
 		context.report(problem);
 	});
 
-	context.on('Program', node => {
-		if (!options.checkFilenames) {
-			return;
-		}
-
-		if (isVirtualFilename(filenameWithExtension)) {
-			return;
-		}
-
-		const filename = path.basename(filenameWithExtension);
-		const extension = path.extname(filename);
-		const filenameReplacements = getNameReplacements(path.basename(filename, extension), options);
-
-		if (filenameReplacements.total === 0) {
-			return;
-		}
-
-		filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
-
-		context.report({
-			...getMessage(filename, filenameReplacements, 'filename'),
-			node,
-		});
-	});
-
 	context.on('Program:exit', program => {
 		if (!options.checkVariables) {
 			return;
@@ -688,6 +718,13 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'json/json',
+			'json/jsonc',
+			'json/json5',
+			'css/css',
+			'html/html',
+			'yml/yaml',
+			'toml/toml',
 		],
 	},
 };

@@ -17,6 +17,12 @@ const htmlLanguage = {
 	plugins: {html: htmlEslintPlugin},
 };
 
+const jsonLanguage = {
+	name: 'json',
+	language: 'json/json',
+	plugins: {json},
+};
+
 const jsoncLanguage = {
 	name: 'jsonc',
 	language: 'json/jsonc',
@@ -50,6 +56,7 @@ const yamlLanguage = {
 const languages = Object.fromEntries([
 	cssLanguage,
 	htmlLanguage,
+	jsonLanguage,
 	jsoncLanguage,
 	json5Language,
 	markdownLanguage,

@@ -1,5 +1,7 @@
 import {checkVueTemplate} from './utils/rule.js';
 import {isNumericLiteral, isBigIntLiteral} from './ast/index.js';
+import {toLocation} from './utils/index.js';
+import getCssNumbers from './shared/css-numbers.js';
 
 const MESSAGE_ID = 'number-literal-case';
 const messages = {
@@ -11,30 +13,24 @@ const messages = {
 @param {Options} options
 */
 const fix = (raw, {hexadecimalValue}) => {
-	let fixed = raw.toLowerCase();
-	if (fixed.startsWith('0x')) {
-		fixed = '0x' + fixed.slice(2)[hexadecimalValue === 'lowercase' ? 'toLowerCase' : 'toUpperCase']();
-	}
-
-	return fixed;
+	const fixed = raw.toLowerCase();
+	return fixed.replace(/0x([\d_a-f]+)/v, (_, digits) => '0x' + digits[hexadecimalValue === 'lowercase' ? 'toLowerCase' : 'toUpperCase']());
 };
 
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	context.on(['Literal', 'TOMLValue'], node => {
-		const raw = context.sourceCode.getText(node);
+	const options = context.options[0];
 
-		/**
-		@type {Options}
-		*/
-		const options = context.options[0] ?? {};
-		options.hexadecimalValue ??= 'uppercase';
+	context.on(['Literal', 'TOMLValue', 'Number', 'YAMLScalar'], node => {
+		const raw = context.sourceCode.getText(node);
 
 		let fixed = raw;
 		if (
 			isNumericLiteral(node)
+			|| (node.type === 'Number' && typeof node.value === 'number' && !/^[+\-]?[IN]/v.test(raw))
+			|| (node.type === 'YAMLScalar' && typeof node.value === 'number' && !node.parent.tag && !/^[+-]?\.(?:inf|nan)$/i.test(raw))
 			|| (node.type === 'TOMLValue' && (node.kind === 'integer' || node.kind === 'float'))
 		) {
 			fixed = fix(raw, options);
@@ -48,6 +44,23 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				fix: fixer => fixer.replaceText(node, fixed),
 			};
+		}
+	});
+
+	context.on(['Number', 'Dimension', 'Percentage', 'Raw'], function * (node) {
+		if (context.sourceCode.ast.type !== 'StyleSheet') {
+			return;
+		}
+
+		for (const {raw, numberRange} of getCssNumbers(node, context)) {
+			const fixed = raw.toLowerCase();
+			if (fixed !== raw) {
+				yield {
+					loc: toLocation(numberRange, context),
+					messageId: MESSAGE_ID,
+					fix: fixer => fixer.replaceTextRange(numberRange, fixed),
+				};
+			}
 		}
 	});
 };
@@ -89,7 +102,12 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'yml/yaml',
 			'toml/toml',
+			'json/json',
+			'json/jsonc',
+			'json/json5',
+			'css/css',
 		],
 	},
 };

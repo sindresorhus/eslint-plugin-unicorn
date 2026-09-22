@@ -11,6 +11,7 @@ const SINGLE_LINE = 'single-line';
 const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
 const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const DIRECTIVE_PATTERNS = [
+	/^\s*[#@]\s*source(?:Mapping)?URL=/v,
 	/^\s*(?:eslint(?:-env)?|jshint|[jt]slint|jscs|globals?|exported|no default|noinspection)(?:\s|:|$)/v,
 	/^\s*(?:\*\s*)?flowlint(?:-(?:line|next-line))?(?:\s|:|$)/v,
 	/^\s*::?/v,
@@ -76,7 +77,7 @@ const getLineEnding = (sourceCode, [start, end], content) =>
 
 const getOpeningDelimiter = text => text.startsWith('/**') && text[3] !== '*' ? '/**' : '/*';
 
-const getCommentText = (comment, opening) => comment.value
+const getCommentText = (comment, opening, context) => context.sourceCode.getText(comment).slice(2, -2)
 	.split(LINE_ENDING_PATTERN)
 	.map(line => line.replace(opening === '/**' ? /^\s*\*?\s*/v : /^\s*/v, ''))
 	.join('\n');
@@ -99,7 +100,7 @@ const isIgnoredComment = (context, comment, opening, ignorePatterns) => {
 		return true;
 	}
 
-	const commentText = getCommentText(comment, opening);
+	const commentText = getCommentText(comment, opening, context);
 	return isIgnoredByPattern(commentText, ignorePatterns) || isDirectiveText(commentText);
 };
 
@@ -128,7 +129,7 @@ const isCanonicalMultiline = content => {
 };
 
 const getProblem = (context, comment, style, ignorePatterns) => {
-	if (comment.type !== 'Block') {
+	if (!['Block', 'BlockComment', 'Comment'].includes(comment.type)) {
 		return;
 	}
 
@@ -238,6 +239,9 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'json/jsonc',
+			'json/json5',
+			'css/css',
 		],
 	},
 };

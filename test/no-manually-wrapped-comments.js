@@ -403,3 +403,24 @@ test.snapshot({
 		'# A wrapped sentence\n# continued here\n\nkey = 1\n\n# Another sentence\n# continues here',
 	].map(code => ({code, filename: 'example.toml', language: languages.toml})),
 });
+
+test.snapshot({
+	valid: [
+		'# A complete YAML sentence.\n# Another complete sentence.',
+		'# A YAML sentence\n\n# separated by a blank line',
+		'key: 1 # An inline YAML comment\n# followed by another comment',
+		'# A YAML comment attached\n# to the following key\nkey: 1',
+		'# TODO: Some YAML work\n# FIXME: Other work',
+		'# yamllint disable rule:line-length\n# A separate explanation',
+		'# yamllint enable rule:line-length\n# A separate explanation',
+		'# yamllint disable-file\n# A separate explanation',
+		'# eslint-disable rule-to-test/no-manually-wrapped-comments\n\n# A YAML sentence\n# continued here',
+		'text: |\n  # A wrapped sentence\n  # inside a string',
+	].map(code => ({code, language: languages.yaml})),
+	invalid: [
+		'# A YAML sentence\n# continued here',
+		'# First YAML sentence.\n# A wrapped sentence\n# continued here',
+		'  # A YAML sentence\n  # continues on another line\n  # and ends here.',
+		'#A YAML sentence\r\n#   continued here\r\n\r\nkey: 1',
+	].map(code => ({code, language: languages.yaml})),
+});

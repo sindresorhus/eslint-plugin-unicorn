@@ -13,6 +13,12 @@ const RULES_REPORTING_EMPTY_FILE = new Set([
 	'no-empty-file',
 ]);
 
+const LANGUAGES_REJECTING_EMPTY_FILES = new Set([
+	'json/json',
+	'json/jsonc',
+	'json/json5',
+]);
+
 function normalizeTestCase(testCase, shouldNormalizeLanguageOptions = true) {
 	if (typeof testCase === 'string') {
 		testCase = {code: testCase};
@@ -30,7 +36,7 @@ function normalizeInvalidTest(test, rule) {
 
 	if (code === output) {
 		console.log(JSON.stringify(test, undefined, 2));
-		throw new Error('Remove output if your test do not fix code.');
+		throw new Error('Remove output if your test does not fix code.');
 	}
 
 	if (Array.isArray(errors) && errors.some(error => error.suggestions) && rule.meta.hasSuggestions !== true) {
@@ -59,10 +65,10 @@ function assertNoManualEmptyFileTestCases(ruleId, testCases) {
 
 const getEmptyFileLanguage = rule => {
 	if (rule.meta.languages?.includes('js/js') || rule.meta.languages?.includes('*')) {
-		return;
+		return {};
 	}
 
-	return Object.values(languages).find(({language}) => rule.meta.languages?.includes(language));
+	return Object.values(languages).find(({language}) => rule.meta.languages?.includes(language) && !LANGUAGES_REJECTING_EMPTY_FILES.has(language));
 };
 
 // https://github.com/tc39/proposal-array-is-template-object
@@ -103,6 +109,9 @@ class Tester {
 		}
 
 		const language = getEmptyFileLanguage(rule);
+		if (!language) {
+			return;
+		}
 
 		Reflect.apply(test, undefined, [`empty file: ${ruleId}`, t => {
 			const linter = new Linter();
@@ -117,7 +126,7 @@ class Tester {
 						reportUnusedDisableDirectives: 'off',
 					},
 					plugins: {
-						...language?.plugins,
+						...language.plugins,
 						'rule-to-test': {
 							rules: {
 								[ruleId]: rule,
@@ -128,7 +137,7 @@ class Tester {
 						[`rule-to-test/${ruleId}`]: 'error',
 					},
 				},
-				{filename: language ? `index.${language.name}` : 'index.js'},
+				{filename: `index.${language.name ?? 'js'}`},
 			);
 
 			t.deepEqual(messages, []);
