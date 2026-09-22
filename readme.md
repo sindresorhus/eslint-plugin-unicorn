@@ -376,6 +376,7 @@ export default defineConfig([
 | [prefer-math-trunc](docs/rules/prefer-math-trunc.md)                                                       | Prefer `Math.trunc()` for truncating numbers.                                                                                  | ✅ ☑️ | 🔧 | 💡 |    |
 | [prefer-media-feature-range-syntax](docs/rules/prefer-media-feature-range-syntax.md)                       | Prefer modern media feature range syntax.                                                                                      |      | 🔧 | 💡 |    |
 | [prefer-minimal-ternary](docs/rules/prefer-minimal-ternary.md)                                             | Prefer moving ternaries into the minimal varying part of an expression.                                                        | ✅ ☑️ | 🔧 |    |    |
+| [prefer-modern-css-syntax](docs/rules/prefer-modern-css-syntax.md)                                         | Prefer modern CSS color and pseudo-element syntax.                                                                             |      | 🔧 |    |    |
 | [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md)                                             | Prefer modern DOM APIs.                                                                                                        | ✅ ☑️ | 🔧 |    |    |
 | [prefer-modern-math-apis](docs/rules/prefer-modern-math-apis.md)                                           | Prefer modern `Math` APIs over legacy patterns.                                                                                | ✅ ☑️ | 🔧 |    |    |
 | [prefer-module](docs/rules/prefer-module.md)                                                               | Prefer JavaScript modules (ESM) over CommonJS.                                                                                 | ✅ ☑️ | 🔧 | 💡 |    |
@@ -624,6 +625,7 @@ These rules also work on specific non-JavaScript languages:
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |  |
 | [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md) | ✅ |  | ✅ |  |  |  |
 | [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |  |
+| [`prefer-modern-css-syntax`](docs/rules/prefer-modern-css-syntax.md) | ✅ |  |  |  |  |  |
 | [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md) |  |  | ✅ |  | ✅ |  |
 | [`relative-url-style`](docs/rules/relative-url-style.md) | ✅ | ✅ |  | ✅ |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |  |
