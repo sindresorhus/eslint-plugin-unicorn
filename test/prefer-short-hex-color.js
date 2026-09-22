@@ -30,6 +30,11 @@ test({
 			errors: 2,
 		},
 		{
+			code: String.raw`a { color: #\46 FFFFF; background: #\61 abbccdd; }`,
+			output: 'a { color: #FFF; background: #abcd; }',
+			errors: 2,
+		},
+		{
 			code: 'a {\n\tcolor: var(--color,\n\t\t#ffffff);\n}',
 			output: 'a {\n\tcolor: var(--color,\n\t\t#fff);\n}',
 			errors: [{

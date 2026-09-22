@@ -64,7 +64,7 @@ const create = context => {
 			}
 
 			const value = valueText.slice(start + 1, end);
-			const replacement = getShortHexColor(value);
+			const replacement = getShortHexColor(ident.decode(value));
 			if (!replacement) {
 				return;
 			}
