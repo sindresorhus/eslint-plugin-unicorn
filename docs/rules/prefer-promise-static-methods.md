@@ -9,13 +9,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Use `Promise.resolve()` and `Promise.reject()` when an inline executor immediately settles a new promise with a simple value. This avoids an unnecessary executor and makes the intent clearer.
+Prefer static methods when a `new Promise()` executor only calls `resolve` or `reject` with no argument or a simple value.
 
-Only executors consisting of one direct resolver call are checked. Calls, property reads, constructors, and other nontrivial expressions are ignored because moving their evaluation outside the executor could turn a rejected promise into a synchronous exception. `prefer-promise-try` covers the common `new Promise(resolve => resolve(fn()))` form.
+Calls, property reads, constructors, and other nontrivial expressions are ignored because they may throw outside the executor. `prefer-promise-try` covers `resolve(fn())`.
 
-The autofix includes identifiers, as in the original proposal. If an identifier is unbound or in its temporal dead zone, its read will throw synchronously after the fix instead of rejecting the promise. If it holds an existing promise, [`Promise.resolve()` may return that same promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve), while `new Promise()` creates a wrapper. Review such fixes where these differences matter.
+Identifier fixes can turn an unbound or temporal dead zone read into a synchronous throw. [`Promise.resolve()` may reuse an existing promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve) instead of wrapping it.
 
-TypeScript constructors with explicit type arguments are reported without an autofix for `resolve`, because `Promise.resolve<T>()` returns `Promise<Awaited<T>>`, which may differ from `Promise<T>`. The `reject` form remains autofixable.
+TypeScript `new Promise<T>()` calls that resolve are reported without a fix: `Promise.resolve<T>()` returns `Promise<Awaited<T>>`, which may differ from `Promise<T>`. The `reject` form remains fixable.
 
 ## Examples
 
@@ -29,21 +29,8 @@ Promise.resolve(value);
 
 ```js
 // ❌
-new Promise((resolve, reject) => {
-	reject(error);
-});
+new Promise((resolve, reject) => reject(error));
 
 // ✅
 Promise.reject(error);
-```
-
-Executors with other work and calls are left alone:
-
-```js
-new Promise(resolve => {
-	setup();
-	resolve(value);
-});
-
-new Promise(resolve => resolve(fn()));
 ```
