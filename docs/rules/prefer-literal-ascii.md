@@ -24,7 +24,7 @@ In CSS, this rule checks quoted strings and identifiers for one- to six-digit he
 .\41 { content: "\42"; }
 
 /* ✅ */
-.A{ content: "B"; }
+.A { content: "B"; }
 ```
 
 ```js
