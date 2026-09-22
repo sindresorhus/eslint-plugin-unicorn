@@ -601,7 +601,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |  |
 | [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md) | ✅ |  | ✅ |  | ✅ |  |
-| [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  | ✅ | ✅ |
+| [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |  |  |
 | [`no-nesting-with-mixed-specificity`](docs/rules/no-nesting-with-mixed-specificity.md) | ✅ |  |  |  |  |  |
 | [`no-redundant-longhand-properties`](docs/rules/no-redundant-longhand-properties.md) | ✅ |  |  |  |  |  |

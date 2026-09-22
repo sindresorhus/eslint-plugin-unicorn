@@ -46,12 +46,20 @@ const getLinePrefix = (sourceCode, comment) => {
 	return sourceCode.text.slice(lineStart, start);
 };
 
+const isProseText = text => text.length > 0 && !isIgnoredCommentText(text);
+
 const isStandaloneLineComment = (sourceCode, comment) => (
 	(comment.type === 'Line' || getLineCommentPrefix(sourceCode) === '#')
-	&& getCommentText(comment).length > 0
-	&& !isIgnoredCommentText(getCommentText(comment))
+	&& isProseText(getCommentText(comment))
 	&& getLinePrefix(sourceCode, comment).trim() === ''
 );
+
+const isStandaloneMultilineBlockComment = (sourceCode, comment) => {
+	const {start, end} = sourceCode.getLoc(comment);
+	return comment.type === 'Block'
+		&& start.line !== end.line
+		&& getLinePrefix(sourceCode, comment).trim() === '';
+};
 
 const isConsecutiveComment = (sourceCode, firstComment, secondComment) => {
 	const firstCommentLocation = sourceCode.getLoc(firstComment);
@@ -107,6 +115,88 @@ const isWrappedCommentBoundary = (context, firstComment, secondComment) => {
 		&& !endsWithSentencePunctuation(firstComment);
 };
 
+/**
+Split a block comment into its lines, without the surrounding whitespace and the optional leading `*` of each line.
+
+@returns {Array<{text: string, start: number, end: number}>}
+*/
+const getBlockCommentLines = (sourceCode, comment) => {
+	const lines = [];
+	let offset = sourceCode.getRange(comment)[0] + '/*'.length;
+
+	for (const line of comment.value.split('\n')) {
+		let content = line.trimStart();
+		if (content.startsWith('*')) {
+			content = content.slice(1).trimStart();
+		}
+
+		const text = content.trimEnd();
+		const start = offset + line.length - content.length;
+		lines.push({text, start, end: start + text.length});
+		offset += line.length + 1;
+	}
+
+	return lines;
+};
+
+// The start and end of a block comment separate its content from the surrounding code, like a blank line does.
+const isBlankLineOrCommentEdge = line => line === undefined || line.text === '';
+
+// License headers are standard texts that should stay verbatim, including their wrapping.
+const isLicenseLine = ({text}) => copyrightCommentPattern.test(text) || spdxCommentPattern.test(text) || text.startsWith('@license');
+
+function * getBlockCommentProblems(context, comment) {
+	const {sourceCode} = context;
+	const lines = getBlockCommentLines(sourceCode, comment);
+
+	if (lines.some(line => isLicenseLine(line))) {
+		return;
+	}
+
+	for (let index = 0; index < lines.length; index++) {
+		if (!isProseText(lines[index].text)) {
+			continue;
+		}
+
+		const group = [lines[index]];
+
+		while (
+			index + group.length < lines.length
+			&& !sentenceEndPattern.test(group.at(-1).text)
+			&& isProseText(lines[index + group.length].text)
+		) {
+			group.push(lines[index + group.length]);
+		}
+
+		if (group.length === 1) {
+			continue;
+		}
+
+		const previousLine = lines[index - 1];
+		const nextLine = lines[index + group.length];
+		index += group.length - 1;
+
+		// Mirrors `isSeparatedCommentGroup` for line comments.
+		const isSeparatedBefore = isBlankLineOrCommentEdge(previousLine) || sentenceEndPattern.test(previousLine.text);
+		const isSeparatedAfter = isBlankLineOrCommentEdge(nextLine) || sentenceEndPattern.test(group.at(-1).text);
+
+		if (!isSeparatedBefore || !isSeparatedAfter) {
+			continue;
+		}
+
+		const range = [group[0].start, group.at(-1).end];
+
+		yield {
+			loc: {
+				start: sourceCode.getLocFromIndex(range[0]),
+				end: sourceCode.getLocFromIndex(range[1]),
+			},
+			messageId: MESSAGE_ID,
+			fix: fixer => fixer.replaceTextRange(range, group.map(line => line.text).join(' ')),
+		};
+	}
+}
+
 const fixCommentGroup = (context, comments) => fixer => {
 	const {sourceCode} = context;
 	const firstComment = comments[0];
@@ -128,6 +218,11 @@ const create = context => {
 		const comments = getComments(context).map(comment => normalizeComment(comment, context));
 
 		for (let index = 0; index < comments.length; index++) {
+			if (isStandaloneMultilineBlockComment(context.sourceCode, comments[index])) {
+				yield * getBlockCommentProblems(context, comments[index]);
+				continue;
+			}
+
 			const group = [comments[index]];
 
 			while (
@@ -172,6 +267,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'css/css',
 			'json/jsonc',
 			'json/json5',
 			'toml/toml',
