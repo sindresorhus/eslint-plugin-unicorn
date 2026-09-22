@@ -340,6 +340,7 @@ export default defineConfig([
 | [prefer-early-return](docs/rules/prefer-early-return.md)                                                   | Prefer early returns over conditionals wrapping the remainder of the function body.                                            | ✅ ☑️ | 🔧 | 💡 |    |
 | [prefer-else-if](docs/rules/prefer-else-if.md)                                                             | Prefer `else if` over adjacent `if` statements with related conditions.                                                        | ✅    | 🔧 | 💡 |    |
 | [prefer-error-is-error](docs/rules/prefer-error-is-error.md)                                               | Prefer `Error.isError()` when checking for errors.                                                                             |      | 🔧 |    |    |
+| [prefer-escaped-irregular-whitespace](docs/rules/prefer-escaped-irregular-whitespace.md)                   | Prefer escape sequences for irregular whitespace characters.                                                                   | ✅ ☑️ | 🔧 |    |    |
 | [prefer-event-target](docs/rules/prefer-event-target.md)                                                   | Prefer `EventTarget` over `EventEmitter`.                                                                                      | ✅ ☑️ |    |    |    |
 | [prefer-explicit-viewport-units](docs/rules/prefer-explicit-viewport-units.md)                             | Prefer explicit viewport units.                                                                                                |      |    | 💡 |    |
 | [prefer-export-from](docs/rules/prefer-export-from.md)                                                     | Prefer `export…from` when re-exporting.                                                                                        | ✅    | 🔧 | 💡 |    |
@@ -615,6 +616,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-zero-fractions`](docs/rules/no-zero-fractions.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`number-literal-case`](docs/rules/number-literal-case.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`numeric-separators-style`](docs/rules/numeric-separators-style.md) |  |  |  |  | ✅ |  |
+| [`prefer-escaped-irregular-whitespace`](docs/rules/prefer-escaped-irregular-whitespace.md) |  |  | ✅ |  | ✅ |  |
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |  |
 | [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md) |  |  | ✅ |  |  |  |
 | [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |  |
