@@ -1,6 +1,7 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 
 const MESSAGE_ID = 'no-incomplete-accessor-override';
+const UNKNOWN_NAME = Symbol('unknown name');
 const messages = {
 	[MESSAGE_ID]: 'This {{kind}}ter hides the inherited {{oppositeKind}}ter for `{{name}}`. Define both accessors in this class.',
 };
@@ -54,7 +55,7 @@ const getMemberName = (member, sourceCode) => {
 
 	const staticValue = getStaticValue(key, sourceCode.getScope(member));
 	if (!staticValue) {
-		return null;
+		return UNKNOWN_NAME;
 	}
 
 	const {value} = staticValue;
@@ -62,8 +63,8 @@ const getMemberName = (member, sourceCode) => {
 		return;
 	}
 
-	if (!['string', 'number', 'bigint', 'boolean', 'undefined'].includes(typeof value) && value !== null) {
-		return null;
+	if (!['string', 'number', 'bigint', 'boolean', 'undefined'].includes(typeof value)) {
+		return UNKNOWN_NAME;
 	}
 
 	return String(value);
@@ -81,7 +82,7 @@ const getMemberDescriptorKind = (member, name, sourceCode) => {
 	}
 
 	const memberName = getMemberName(member, sourceCode);
-	if (memberName === null) {
+	if (memberName === UNKNOWN_NAME) {
 		return 'unknown';
 	}
 
@@ -163,7 +164,7 @@ const create = context => {
 			}
 
 			const name = getMemberName(member, sourceCode);
-			if (name === null || name === undefined || (member.static && (name === 'name' || name === 'length'))) {
+			if (name === UNKNOWN_NAME || name === undefined || (member.static && (name === 'name' || name === 'length'))) {
 				continue;
 			}
 
