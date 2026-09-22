@@ -17,6 +17,7 @@ ruleTest({
 		'new Promise(resolve => resolve(new Error()));',
 		'new Promise(resolve => resolve(object.value));',
 		'new Promise(resolve => resolve(value + 1));',
+		'new Promise(resolve => resolve(value, sideEffect()));',
 		'new Promise(resolve => resolve(...values));',
 		'new Promise(resolve => resolve?.(value));',
 		'new Promise(resolve => { setup(); resolve(value); });',
