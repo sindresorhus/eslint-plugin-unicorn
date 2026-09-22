@@ -11,7 +11,7 @@
 
 In most contexts, zero CSS lengths do not need a unit. Use `0` instead of `0px`, `0rem`, or another zero length.
 
-The rule checks recognized length contexts in declarations and length-based media and container queries. It leaves a zero length unchanged when its context cannot be validated, such as a length inside `translate()` alongside an unresolved `var()`. It ignores angles, times, percentages, `fr` units, unknown or escaped units, custom properties and custom functions, and math functions such as `calc()`. Units can be required for math expressions.
+The rule checks recognized length contexts in declarations and length-based media and container queries. It leaves a zero length unchanged when its context cannot be validated, such as a length inside `translate()` alongside an unresolved `var()`. It ignores angles, times, percentages, `fr` units, unknown or escaped units, custom properties and functions, vendor-prefixed properties and functions, and math functions such as `calc()`. Units can be required for math expressions.
 
 It also ignores properties that accept both lengths and unitless numeric values, including `line-height`, `columns`, and the `flex` shorthand, and registered custom property `initial-value` descriptors. Removing units in those contexts can change the value's meaning.
 

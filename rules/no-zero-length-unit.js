@@ -63,12 +63,12 @@ const containerLengthFeatures = new Set(['width', 'height', 'inline-size', 'bloc
 const isExcludedContext = ancestors => ancestors.some(ancestor => {
 	if (ancestor.type === 'Function') {
 		const name = ident.decode(ancestor.name).toLowerCase();
-		return name.startsWith('--') || mathFunctions.has(name);
+		return name.startsWith('-') || mathFunctions.has(name);
 	}
 
 	if (ancestor.type === 'Declaration') {
 		const name = ident.decode(ancestor.property).toLowerCase();
-		return name.startsWith('--') || excludedProperties.has(name);
+		return name.startsWith('-') || excludedProperties.has(name);
 	}
 
 	return false;
