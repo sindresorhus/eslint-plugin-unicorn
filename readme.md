@@ -197,6 +197,7 @@ export default defineConfig([
 | [no-invalid-media-features](docs/rules/no-invalid-media-features.md)                                       | Disallow unknown media features and invalid values for known media features.                                                   |      |    |    |    |
 | [no-invalid-remove-event-listener](docs/rules/no-invalid-remove-event-listener.md)                         | Prevent calling `EventTarget#removeEventListener()` with the result of an expression.                                          | ✅ ☑️ |    |    |    |
 | [no-invalid-well-known-symbol-methods](docs/rules/no-invalid-well-known-symbol-methods.md)                 | Disallow invalid implementations of well-known symbol methods.                                                                 | ✅ ☑️ | 🔧 | 💡 |    |
+| [no-javascript-url](docs/rules/no-javascript-url.md)                                                       | Disallow `javascript:` URLs in Markdown.                                                                                       |      |    |    |    |
 | [no-keyword-prefix](docs/rules/no-keyword-prefix.md)                                                       | Disallow identifiers starting with `new` or `class`.                                                                           |      |    |    |    |
 | [no-late-current-target-access](docs/rules/no-late-current-target-access.md)                               | Disallow accessing `event.currentTarget` after the synchronous event dispatch has finished.                                    | ✅    |    |    |    |
 | [no-late-event-control](docs/rules/no-late-event-control.md)                                               | Disallow event-control method calls after the synchronous event dispatch has finished.                                         | ✅    |    |    |    |
@@ -601,6 +602,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |  |
+| [`no-javascript-url`](docs/rules/no-javascript-url.md) |  |  |  | ✅ |  |  |
 | [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md) | ✅ |  | ✅ |  | ✅ |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |  |  |
