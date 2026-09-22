@@ -15,7 +15,7 @@ In JSON, JSONC, and JSON5, `\/` becomes `/`. For `\/` in JavaScript, use ESLint'
 
 Autofix is omitted for directive prologues, digits that would extend a preceding `\0` or legacy octal escape, and TypeScript template literal types without substitutions when they contain a literal backslash. In HTML-embedded content, making `<` or `/` literal may affect HTML parsing.
 
-In CSS, this rule checks quoted strings and identifiers for one- to six-digit hexadecimal escapes. Escape-terminating whitespace is removed with the escape. Identifier escapes are fixed only when the resulting tokens have the same values and types. Comments and `url()` values are ignored.
+In CSS, this rule checks quoted strings and identifiers for one- to six-digit hexadecimal escapes. Escape-terminating whitespace is removed with the escape. Identifier escapes are reported and fixed only when the resulting tokens have the same values and types. Comments and `url()` values are ignored.
 
 ## Examples
 
