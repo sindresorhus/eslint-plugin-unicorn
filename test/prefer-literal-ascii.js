@@ -2,7 +2,7 @@ import test from 'ava';
 import {Linter} from 'eslint';
 import json from '@eslint/json';
 import unicorn from '../index.js';
-import {getTester, parsers} from './utils/test.js';
+import {getTester, languages, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 const RULE_ID = 'unicorn/prefer-literal-ascii';
@@ -230,6 +230,52 @@ for (const language of ['json/json', 'json/jsonc', 'json/json5']) {
 		].map(testCase => ({...testCase, name: `${language}: ${testCase.code}`, ...languageConfig})),
 	});
 }
+
+ruleTest({
+	testerOptions: {language: languages.css.language, plugins: languages.css.plugins},
+	valid: [
+		String.raw`/* \41 */ a { content: "\\41 \1f"; }`,
+		String.raw`a { content: "\1f\7f\80"; }`,
+		String.raw`a { content: "\u0041\x41"; }`,
+		String.raw`a { background: url(\41.png); }`,
+		String.raw`a { background: url("\41.png"); }`,
+		String.raw`a { background: \75rl("\41.png"); }`,
+		String.raw`a { background: u\72l(\41); }`,
+		String.raw`a { background: u\72l(\41,\42); }`,
+		String.raw`a { background: u\72l('foo' type('\41')); }`,
+		String.raw`a { background: \75rl(/* keep */ "\41.png"); }`,
+		String.raw`a { background: URL("\41.png"); }`,
+		String.raw`.\31 0 { color: red; }`,
+		String.raw`.a\20 b { color: red; }`,
+		String.raw`.a\2f b { color: red; }`,
+		String.raw`#\31 a { color: red; }`,
+		String.raw`#\2d { color: red; }`,
+		String.raw`a { width: 1\30 em; }`,
+		String.raw`a { --x: 1\65 0em; }`,
+		String.raw`a { --x: 1e\32 px; }`,
+		String.raw`@charset "\55TF-8";`,
+		String.raw`@\63harset "iso-8859-1";`,
+		String.raw`a { content: "\0000041"; }`,
+	],
+	invalid: [
+		{code: String.raw`a { content: "\41 \000042\20 C"; }`, output: 'a { content: "AB C"; }', errors: 1},
+		{code: 'a { content: "\\4A\\000041\\41\r\nB"; }', output: 'a { content: "JAAB"; }', errors: 1},
+		{code: 'a { content: "\\41\tB\\42\nC\\43\fD\\44\rE"; }', output: 'a { content: "ABBCCDDE"; }', errors: 1},
+		{code: String.raw`a { content: "\22 \5c " ; }`, output: String.raw`a { content: "\"\\" ; }`, errors: 1},
+		{code: String.raw`a { content: '\27'; }`, output: String.raw`a { content: '\''; }`, errors: 1},
+		{code: String.raw`.\41 B { --\44: 1p\78; }`, output: '.AB { --D: 1px; }', errors: 3},
+		{code: String.raw`.a\5c b { color: red; }`, output: String.raw`.a\\b { color: red; }`, errors: 1},
+		{code: String.raw`a { --\41\42: 1; }`, output: 'a { --AB: 1; }', errors: 1},
+		{code: String.raw`#\43 { color: red; }`, output: '#C{ color: red; }', errors: 1},
+		{code: String.raw`.\2d foo { color: red; }`, output: '.-foo { color: red; }', errors: 1},
+		{code: String.raw`@\6d edia screen { a { content: "A"; } }`, output: '@media screen { a { content: "A"; } }', errors: 1},
+		{code: String.raw`a { width: \63 alc(1 + 2px); }`, output: 'a { width: calc(1 + 2px); }', errors: 1},
+		{code: String.raw`@import "\41.css";`, output: '@import "A.css";', errors: 1},
+		{code: String.raw`a { background: u\72l('foo' type('\41')); content: "\42"; }`, output: String.raw`a { background: u\72l('foo' type('\41')); content: "B"; }`, errors: 1},
+		{code: String.raw`@charset "\55TF-8"; a { content: "\41"; }`, output: String.raw`@charset "\55TF-8"; a { content: "A"; }`, errors: 1},
+		{code: String.raw`a { content: "\\\41 \7e"; }`, output: String.raw`a { content: "\\A~"; }`, errors: 1},
+	],
+});
 
 ruleTest({
 	valid: [

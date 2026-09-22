@@ -1,3 +1,10 @@
+import {
+	ident,
+	parse as parseCss,
+	string as cssString,
+	tokenize,
+	tokenTypes,
+} from '@eslint/css-tree';
 import {replaceTemplateElement} from './fix/index.js';
 import {isDirective, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
 import {escapeTemplateElementRaw, getTemplateElementRaw} from './utils/index.js';
@@ -11,6 +18,8 @@ const BACKSLASH = '\\';
 const MINIMUM_PRINTABLE_ASCII = 0x20;
 const MAXIMUM_PRINTABLE_ASCII = 0x7E;
 const numericEscapePattern = /\\x(?<hex>[\dA-Fa-f]{2})|\\u(?<unicode>[\dA-Fa-f]{4})|\\u\{(?<codePoint>[\dA-Fa-f]+)\}/vy;
+const cssNumericEscapePattern = /\\(?<digits>[\da-f]{1,6})(?:\r\n|[\t\n\f\r ])?/iy;
+const cssIdentifierTokenTypes = new Set([tokenTypes.Ident, tokenTypes.Hash, tokenTypes.AtKeyword, tokenTypes.Function, tokenTypes.Dimension]);
 
 function isEscapedCharacter(text, index) {
 	let backslashCount = 0;
@@ -127,6 +136,95 @@ function replaceEscapes(text, quote, checkSlash) {
 	return {fixed, canFix};
 }
 
+function replaceCssEscapes(text, quote) {
+	let fixed = '';
+	for (let index = 0; index < text.length; index++) {
+		const character = text[index];
+		if (character !== BACKSLASH) {
+			fixed += character;
+			continue;
+		}
+
+		if (text[index + 1] === BACKSLASH) {
+			fixed += BACKSLASH + BACKSLASH;
+			index++;
+			continue;
+		}
+
+		cssNumericEscapePattern.lastIndex = index;
+		const match = cssNumericEscapePattern.exec(text);
+		if (!match) {
+			fixed += character;
+			continue;
+		}
+
+		const value = Number.parseInt(match.groups.digits, 16);
+		if (!isPrintableAscii(value)) {
+			fixed += character;
+			continue;
+		}
+
+		fixed += getReplacement(String.fromCodePoint(value), quote);
+		index = cssNumericEscapePattern.lastIndex - 1;
+	}
+
+	return fixed;
+}
+
+function getCssTokens(text) {
+	const tokens = [];
+	tokenize(text, (type, start, end) => {
+		tokens.push({type, value: ident.decode(text.slice(start, end))});
+	});
+	return tokens;
+}
+
+function isSameCssTokens(original, fixed) {
+	const originalTokens = getCssTokens(original);
+	const fixedTokens = getCssTokens(fixed);
+	return originalTokens.length === fixedTokens.length && originalTokens.every((token, index) => token.type === fixedTokens[index].type && token.value === fixedTokens[index].value);
+}
+
+function getCssDimensionNumericText(text) {
+	return parseCss(text, {context: 'value'}).children.first.value;
+}
+
+function isCssUrlFunction(type, text) {
+	return type === tokenTypes.Function && ident.decode(text.slice(0, -1)).toLowerCase() === 'url';
+}
+
+function * getCssTokensOutsideUrls(tokens, text) {
+	let urlDepth = 0;
+	for (const [index, token] of tokens.entries()) {
+		const {type, start, end} = token;
+		if (urlDepth > 0) {
+			if (type === tokenTypes.Function || type === tokenTypes.LeftParenthesis) {
+				urlDepth++;
+			} else if (type === tokenTypes.RightParenthesis) {
+				urlDepth--;
+			}
+
+			continue;
+		}
+
+		if (isCssUrlFunction(type, text.slice(start, end))) {
+			urlDepth = 1;
+			continue;
+		}
+
+		yield {index, ...token};
+	}
+}
+
+function isInitialCharsetToken(tokens, index, text) {
+	if (index !== 0 && (index !== 2 || tokens[index].type !== tokenTypes.String)) {
+		return false;
+	}
+
+	const firstToken = tokens[0];
+	return firstToken?.type === tokenTypes.AtKeyword && firstToken.start === 0 && ident.decode(text.slice(0, firstToken.end)) === '@charset';
+}
+
 function getProblem(node, original, quote, fix) {
 	const {fixed, canFix} = replaceEscapes(original, quote, node.type === 'String');
 	if (fixed === original) {
@@ -149,7 +247,69 @@ function getProblem(node, original, quote, fix) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	context.on('StyleSheet', node => {
+		const {sourceCode} = context;
+		const {text} = sourceCode;
+		const problems = [];
+		const tokens = [];
+		tokenize(text, (type, start, end) => {
+			tokens.push({type, start, end});
+		});
+
+		for (const {index, type, start, end} of getCssTokensOutsideUrls(tokens, text)) {
+			if (isInitialCharsetToken(tokens, index, text)) {
+				continue;
+			}
+
+			const isString = type === tokenTypes.String;
+			if (!isString && !cssIdentifierTokenTypes.has(type)) {
+				continue;
+			}
+
+			const original = text.slice(start, end);
+			const fixed = replaceCssEscapes(original, isString ? original[0] : undefined);
+			if (fixed === original) {
+				continue;
+			}
+
+			if (isString) {
+				if (cssString.decode(original) !== cssString.decode(fixed)) {
+					continue;
+				}
+			} else {
+				if (type === tokenTypes.Hash && getCssTokens(fixed.slice(1))[0]?.type !== tokenTypes.Ident) {
+					continue;
+				}
+
+				const previousStart = tokens[index - 1]?.start ?? start;
+				const nextEnd = tokens[index + 1]?.end ?? end;
+				const originalContext = text.slice(previousStart, nextEnd);
+				const fixedContext = text.slice(previousStart, start) + fixed + text.slice(end, nextEnd);
+				if (!isSameCssTokens(originalContext, fixedContext)) {
+					continue;
+				}
+
+				if (type === tokenTypes.Dimension && getCssDimensionNumericText(original) !== getCssDimensionNumericText(fixed)) {
+					continue;
+				}
+			}
+
+			problems.push({
+				node,
+				messageId: MESSAGE_ID,
+				loc: {start: sourceCode.getLocFromIndex(start), end: sourceCode.getLocFromIndex(end)},
+				fix: fixer => fixer.replaceTextRange([start, end], fixed),
+			});
+		}
+
+		return problems;
+	});
+
 	context.on('String', node => {
+		if (context.sourceCode.ast.type === 'StyleSheet') {
+			return;
+		}
+
 		const original = context.sourceCode.getText(node);
 		return getProblem(node, original, original[0]);
 	});
@@ -194,6 +354,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'css/css',
 			'json/json',
 			'json/jsonc',
 			'json/json5',
