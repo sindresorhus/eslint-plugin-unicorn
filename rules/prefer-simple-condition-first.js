@@ -1,5 +1,5 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
-import {isNullLiteral} from './ast/index.js';
+import {isLiteral, isNullLiteral} from './ast/index.js';
 import {
 	isParenthesized,
 	getParenthesizedText,
@@ -132,6 +132,34 @@ function getLogicalOperands(node, operator, operands = []) {
 	return operands;
 }
 
+function isTypeofGuardForIdentifier(node, identifierName) {
+	node = unwrapTypeScriptExpression(node);
+	if (node.type !== 'BinaryExpression' || node.operator !== '!==') {
+		return false;
+	}
+
+	const left = unwrapTypeScriptExpression(node.left);
+	const right = unwrapTypeScriptExpression(node.right);
+	const typeofExpression = left.type === 'UnaryExpression' ? left : right;
+	const undefinedLiteral = left.type === 'Literal' ? left : right;
+	if (
+		typeofExpression.type !== 'UnaryExpression'
+		|| typeofExpression.operator !== 'typeof'
+		|| !isLiteral(undefinedLiteral, 'undefined')
+	) {
+		return false;
+	}
+
+	const identifier = unwrapTypeScriptExpression(typeofExpression.argument);
+	return identifier.type === 'Identifier' && identifier.name === identifierName;
+}
+
+function hasEarlierTypeofGuard(operands, index) {
+	const identifier = unwrapTypeScriptExpression(operands[index]);
+	return identifier.type === 'Identifier'
+		&& operands.slice(0, index).some(operand => isTypeofGuardForIdentifier(operand, identifier.name));
+}
+
 function isSafeConditionalExpression(node) {
 	const unwrappedNode = unwrapTypeScriptExpression(node);
 	return unwrappedNode.type === 'ConditionalExpression'
@@ -207,7 +235,9 @@ const create = context => {
 		const classifiedOperands = operands.map(operand => ({operand, isSimple: isSimple(operand)}));
 		const firstComplexOperandIndex = classifiedOperands.findIndex(({isSimple}) => !isSimple);
 		const firstMisplacedSimpleOperandIndex = classifiedOperands.findIndex(
-			({isSimple}, index) => isSimple && index > firstComplexOperandIndex,
+			({isSimple}, index) => isSimple
+				&& index > firstComplexOperandIndex
+				&& !(node.operator === '&&' && hasEarlierTypeofGuard(operands, index)),
 		);
 		if (
 			firstComplexOperandIndex === -1

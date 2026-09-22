@@ -20,6 +20,8 @@ A condition is considered "simple" if it is:
 
 The rule checks each complete chain of the same logical operator and reports it once when a simple condition follows a complex condition. Conditions are reordered as a stable group, preserving the relative order among both the simple and complex conditions.
 
+In an `&&` chain, an identifier is excluded from this ordering check when an earlier condition guards it with `typeof identifier !== 'undefined'` (or the reversed comparison). Moving the identifier ahead of that guard could throw a `ReferenceError`. Other misplaced simple conditions in the chain are still reported.
+
 ## Examples
 
 ### `&&`
@@ -38,6 +40,11 @@ if (check(foo) && ready);
 
 // ✅ After verifying the short-circuit behavior
 if (ready && check(foo));
+```
+
+```js
+// ✅ Keep the guard before FLAG
+if (typeof FLAG !== 'undefined' && check() && FLAG);
 ```
 
 ### `||`
