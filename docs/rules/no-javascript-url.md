@@ -28,29 +28,3 @@ Reference definitions are reported at the definition, including unused definitio
 ![Image](https://example.com/image.png)
 <https://example.com>
 ```
-
-## Usage
-
-Enable the rule for Markdown files with [`@eslint/markdown`](https://github.com/eslint/markdown):
-
-```js
-import markdown from '@eslint/markdown';
-import unicorn from 'eslint-plugin-unicorn';
-import {defineConfig} from 'eslint/config';
-
-export default defineConfig([
-	{
-		files: ['**/*.md'],
-		plugins: {
-			markdown,
-			unicorn,
-		},
-		language: 'markdown/gfm',
-		rules: {
-			'unicorn/no-javascript-url': 'error',
-		},
-	},
-]);
-```
-
-Use `markdown/commonmark` instead of `markdown/gfm` for CommonMark files.
