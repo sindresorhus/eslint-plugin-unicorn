@@ -248,6 +248,7 @@ export {default as 'prefer-dom-node-text-content'} from './prefer-dom-node-text-
 export {default as 'prefer-early-return'} from './prefer-early-return.js';
 export {default as 'prefer-else-if'} from './prefer-else-if.js';
 export {default as 'prefer-error-is-error'} from './prefer-error-is-error.js';
+export {default as 'prefer-escaped-irregular-whitespace'} from './prefer-escaped-irregular-whitespace.js';
 export {default as 'prefer-event-target'} from './prefer-event-target.js';
 export {default as 'prefer-explicit-viewport-units'} from './prefer-explicit-viewport-units.js';
 export {default as 'prefer-export-from'} from './prefer-export-from.js';

@@ -130,6 +130,11 @@ test('preset configs only enable language-compatible rules', t => {
 	}
 });
 
+test('prefer-escaped-irregular-whitespace is enabled in the JavaScript unopinionated preset', t => {
+	const ruleName = 'prefer-escaped-irregular-whitespace';
+	t.is(eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${ruleName}`], 'error');
+});
+
 test('recommended config works with defineConfig', async t => {
 	const eslint = new ESLint({
 		baseConfig: defineConfig({
