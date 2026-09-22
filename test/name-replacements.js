@@ -167,6 +167,8 @@ const tests = {
 		'let regex',
 		'let min',
 		'let max',
+		'let repository',
+		'let repositoryUrl',
 
 		// Property should not report by default
 		'({err: 1})',
@@ -507,9 +509,14 @@ const tests = {
 			errors: createErrors('The variable `perfBudget` should be named `performanceBudget`. A more descriptive name will do too.'),
 		},
 		{
-			code: 'let repositoryUrl',
-			output: 'let repoUrl',
-			errors: createErrors('The variable `repositoryUrl` should be named `repoUrl`. A more descriptive name will do too.'),
+			code: 'let repo',
+			output: 'let repository',
+			errors: createErrors('The variable `repo` should be named `repository`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let repoUrl',
+			output: 'let repositoryUrl',
+			errors: createErrors('The variable `repoUrl` should be named `repositoryUrl`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'let proto',
