@@ -99,7 +99,7 @@ const create = context => {
 			&& (
 				!isSimpleValue(value)
 				|| (value.type === 'Identifier' && (
-					value.name === 'arguments'
+					(value.name === 'arguments' && executor.type === 'FunctionExpression')
 					|| executor.id?.name === value.name
 					|| executor.params.some(parameter => parameter.name === value.name)
 				))

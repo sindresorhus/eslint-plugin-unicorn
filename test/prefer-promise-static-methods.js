@@ -26,7 +26,7 @@ ruleTest({
 		'new Promise(resolve => reject(value));',
 		'new Promise((resolve, reject) => resolve(reject));',
 		'new Promise(resolve => resolve(resolve));',
-		'new Promise(resolve => resolve(arguments));',
+		'new Promise(function (resolve) { resolve(arguments); });',
 		'new Promise(function executor(resolve) { resolve(executor); });',
 		'new Promise((resolve = fallback) => resolve(value));',
 		'new Promise((...resolvers) => resolvers[0](value));',
@@ -40,6 +40,7 @@ ruleTest({
 	],
 	invalid: [
 		{code: 'new Promise(resolve => resolve(value));', errors: [resolveError], output: 'Promise.resolve(value);'},
+		{code: 'function enclosing() { return new Promise(resolve => resolve(arguments)); }', errors: [resolveError], output: 'function enclosing() { return Promise.resolve(arguments); }'},
 		{code: 'new Promise(resolve => resolve());', errors: [resolveError], output: 'Promise.resolve();'},
 		{code: 'new Promise(resolve => { resolve(1); });', errors: [resolveError], output: 'Promise.resolve(1);'},
 		{code: 'new Promise((resolve, reject) => reject(error));', errors: [rejectError], output: 'Promise.reject(error);'},
@@ -50,6 +51,7 @@ ruleTest({
 		{code: 'const value = new Promise((unused, reject) => reject(null));', errors: [rejectError], output: 'const value = Promise.reject(null);'},
 		{code: 'new Promise(resolve => resolve(`value`));', errors: [resolveError], output: 'Promise.resolve(`value`);'},
 		{code: 'new Promise(resolve => resolve(/* keep */ value));', errors: [resolveError]},
+		{code: 'new Promise((resolve /* keep */) => resolve(value));', errors: [resolveError]},
 		{
 			code: outdent`
 				new Promise(resolve => {
