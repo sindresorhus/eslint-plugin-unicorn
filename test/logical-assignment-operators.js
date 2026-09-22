@@ -22,6 +22,10 @@ test({
 		'foo ||= bar;',
 		'foo ??= bar;',
 		'if (foo) { foo = bar; }',
+		{code: 'if (!(key in object)) { object[key] = []; }', options},
+		{code: 'if (!object.hasOwnProperty(key)) { object[key] = []; }', options},
+		{code: 'if (!Object.hasOwn(object, key)) { object[key] = []; }', options},
+		{code: 'if (!Object.keys(object).includes(key)) { object[key] = []; }', options},
 	],
 	invalid: [
 		{
@@ -43,6 +47,13 @@ test({
 			options,
 			errors: [
 				ifErrorWithSuggestions('foo ||= bar;', 'foo ??= bar;'),
+			],
+		},
+		{
+			code: 'if (!object[key]) { object[key] = []; }',
+			options,
+			errors: [
+				ifErrorWithSuggestions('object[key] ||= [];', 'object[key] ??= [];'),
 			],
 		},
 		{
