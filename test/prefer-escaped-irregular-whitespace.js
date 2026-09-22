@@ -228,6 +228,11 @@ test({
 			language: languages.toml.language,
 			plugins: languages.toml.plugins,
 		},
+		{
+			code: 'value = \'\'\'before\u00A0\nafter\'\'\'',
+			language: languages.toml.language,
+			plugins: languages.toml.plugins,
+		},
 	],
 	invalid: [
 		...['json/json', 'json/jsonc', 'json/json5'].map(language => ({

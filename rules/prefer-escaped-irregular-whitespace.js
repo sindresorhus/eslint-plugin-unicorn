@@ -1,5 +1,6 @@
 import {replaceTemplateElement} from './fix/index.js';
 import {isRegexLiteral, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
+import {getTemplateElementRaw} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-escaped-irregular-whitespace';
 const messages = {
@@ -105,10 +106,7 @@ const create = context => {
 			return;
 		}
 
-		const source = sourceCode.getText(node);
-		const raw = source.slice(1, node.tail ? -1 : -2);
-
-		return getProblem(node, raw, {
+		return getProblem(node, getTemplateElementRaw(node, context), {
 			fix: (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer),
 		});
 	});
