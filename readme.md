@@ -241,6 +241,7 @@ export default defineConfig([
 | [no-typeof-undefined](docs/rules/no-typeof-undefined.md)                                                   | Disallow comparing `undefined` using `typeof`.                                                                                 | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-uncalled-method](docs/rules/no-uncalled-method.md)                                                     | Disallow referencing methods without calling them.                                                                             | ✅    |    |    |    |
 | [no-undeclared-class-members](docs/rules/no-undeclared-class-members.md)                                   | Require class members to be declared.                                                                                          | ✅    |    | 💡 |    |
+| [no-unknown-animations](docs/rules/no-unknown-animations.md)                                               | Disallow unknown animations.                                                                                                   |      |    |    |    |
 | [no-unknown-css-annotations](docs/rules/no-unknown-css-annotations.md)                                     | Disallow unknown and noncanonical CSS annotations.                                                                             |      |    | 💡 |    |
 | [no-unknown-pseudo-selectors](docs/rules/no-unknown-pseudo-selectors.md)                                   | Disallow unknown pseudo-class and pseudo-element selectors.                                                                    |      |    |    |    |
 | [no-unnecessary-array-flat-depth](docs/rules/no-unnecessary-array-flat-depth.md)                           | Disallow using `1` as the `depth` argument of `Array#flat()`.                                                                  | ✅ ☑️ | 🔧 |    |    |
@@ -599,6 +600,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-redundant-shorthand-values`](docs/rules/no-redundant-shorthand-values.md) | ✅ |  |  |  |  |  |
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |  |  |
 | [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |  |  |
+| [`no-unknown-animations`](docs/rules/no-unknown-animations.md) | ✅ |  |  |  |  |  |
 | [`no-unknown-css-annotations`](docs/rules/no-unknown-css-annotations.md) | ✅ |  |  |  |  |  |
 | [`no-unknown-pseudo-selectors`](docs/rules/no-unknown-pseudo-selectors.md) | ✅ |  |  |  |  |  |
 | [`no-unscoped-css-nesting-selector`](docs/rules/no-unscoped-css-nesting-selector.md) | ✅ |  |  |  |  |  |
