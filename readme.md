@@ -167,6 +167,7 @@ export default defineConfig([
 | [no-declarations-after-nested-rules](docs/rules/no-declarations-after-nested-rules.md)                     | Disallow declarations after nested rules.                                                                                      |      |    |    |    |
 | [no-declarations-before-early-exit](docs/rules/no-declarations-before-early-exit.md)                       | Disallow declarations before conditional early exits when they are only used after the exit.                                   | ✅ ☑️ | 🔧 |    |    |
 | [no-deprecated-css-features](docs/rules/no-deprecated-css-features.md)                                     | Disallow deprecated CSS features.                                                                                              |      | 🔧 | 💡 |    |
+| [no-descending-specificity](docs/rules/no-descending-specificity.md)                                       | Disallow lower-specificity selectors from following higher-specificity selectors that set the same property.                   |      |    |    |    |
 | [no-document-cookie](docs/rules/no-document-cookie.md)                                                     | Do not use `document.cookie` directly.                                                                                         | ✅ ☑️ |    |    |    |
 | [no-double-comparison](docs/rules/no-double-comparison.md)                                                 | Disallow two comparisons of the same operands that can be combined into one.                                                   | ✅ ☑️ |    | 💡 |    |
 | [no-duplicate-css-selectors](docs/rules/no-duplicate-css-selectors.md)                                     | Disallow duplicate CSS selectors.                                                                                              |      | 🔧 |    |    |
@@ -585,6 +586,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | ✅ |  | ✅ |  |  |  |
 | [`no-declarations-after-nested-rules`](docs/rules/no-declarations-after-nested-rules.md) | ✅ |  |  |  |  |  |
 | [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |  |
+| [`no-descending-specificity`](docs/rules/no-descending-specificity.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-css-selectors`](docs/rules/no-duplicate-css-selectors.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-properties`](docs/rules/no-duplicate-properties.md) | ✅ |  |  |  |  |  |

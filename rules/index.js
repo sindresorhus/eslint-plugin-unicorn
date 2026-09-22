@@ -76,6 +76,7 @@ export {default as 'no-constant-zero-expression'} from './no-constant-zero-expre
 export {default as 'no-declarations-after-nested-rules'} from './no-declarations-after-nested-rules.js';
 export {default as 'no-declarations-before-early-exit'} from './no-declarations-before-early-exit.js';
 export {default as 'no-deprecated-css-features'} from './no-deprecated-css-features.js';
+export {default as 'no-descending-specificity'} from './no-descending-specificity.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
 export {default as 'no-double-comparison'} from './no-double-comparison.js';
 export {default as 'no-duplicate-css-selectors'} from './no-duplicate-css-selectors.js';
