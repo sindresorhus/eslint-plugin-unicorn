@@ -11,6 +11,7 @@ const messages = {
 };
 
 const longHexColorPattern = /^(?:[\da-f]{6}|[\da-f]{8})$/iu;
+const nonColorFunctionNames = new Set(['-moz-element', 'element', 'url']);
 
 function getShortHexColor(value) {
 	if (!longHexColorPattern.test(value)) {
@@ -39,25 +40,26 @@ const create = context => {
 		const valueText = sourceCode.getText(declaration.value);
 		const [valueStart] = sourceCode.getRange(declaration.value);
 		const problems = [];
-		const urlFunctionStack = [];
+		const nonColorFunctionStack = [];
 
 		tokenize(valueText, (type, start, end) => {
 			if (type === tokenTypes.Function) {
-				urlFunctionStack.push(urlFunctionStack.at(-1) === true || ident.decode(valueText.slice(start, end - 1)).toLowerCase() === 'url');
+				const functionName = ident.decode(valueText.slice(start, end - 1)).toLowerCase();
+				nonColorFunctionStack.push(nonColorFunctionStack.at(-1) === true || nonColorFunctionNames.has(functionName));
 				return;
 			}
 
 			if (type === tokenTypes.LeftParenthesis) {
-				urlFunctionStack.push(urlFunctionStack.at(-1) === true);
+				nonColorFunctionStack.push(nonColorFunctionStack.at(-1) === true);
 				return;
 			}
 
 			if (type === tokenTypes.RightParenthesis) {
-				urlFunctionStack.pop();
+				nonColorFunctionStack.pop();
 				return;
 			}
 
-			if (type !== tokenTypes.Hash || urlFunctionStack.at(-1) === true) {
+			if (type !== tokenTypes.Hash || nonColorFunctionStack.at(-1) === true) {
 				return;
 			}
 

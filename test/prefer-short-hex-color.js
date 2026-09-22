@@ -9,6 +9,7 @@ test({
 		'a { color: #a4a4a4; background: #aabbccdf; }',
 		'#ffffff { color: red; }',
 		'a { content: "#ffffff"; background: url(#ffffff); background-image: url("#aabbccdd"); /* #ffffff */ }',
+		'a { background-image: element(#ffffff); background-image: -moz-element(#aabbccdd); }',
 		String.raw`a { background: u\72l(#ffffff); --image: u\72l(#aabbccdd); --upper-image: U\52L(#ffffff); color: custom(u\72l(#ffffff)); }`,
 		String.raw`a { color: #\66fffff; color: #fffff; }`,
 	],
@@ -48,6 +49,11 @@ test({
 		{
 			code: String.raw`a { --image: custom(u\72l(#ffffff)) #aabbcc; }`,
 			output: String.raw`a { --image: custom(u\72l(#ffffff)) #abc; }`,
+			errors: 1,
+		},
+		{
+			code: 'a { --image: element(#ffffff) -moz-element(#aabbccdd) #112233; }',
+			output: 'a { --image: element(#ffffff) -moz-element(#aabbccdd) #123; }',
 			errors: 1,
 		},
 		{
