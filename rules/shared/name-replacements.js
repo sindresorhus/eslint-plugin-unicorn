@@ -224,8 +224,8 @@ export const defaultReplacements = {
 		relationship: true,
 		relative: true,
 	},
-	repository: {
-		repo: true,
+	repo: {
+		repository: true,
 	},
 	req: {
 		request: true,
