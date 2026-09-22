@@ -29,6 +29,11 @@ test({
 			errors: 2,
 		},
 		{
+			code: 'a {\n\tcolor: var(--color,\n\t\t#ffffff);\n}',
+			output: 'a {\n\tcolor: var(--color,\n\t\t#fff);\n}',
+			errors: [{messageId: 'prefer-short-hex-color', line: 3, column: 3, endLine: 3, endColumn: 10}],
+		},
+		{
 			code: 'a { color: #aABbcC; background: #AaBbCcDd; }',
 			output: 'a { color: #aBc; background: #ABCD; }',
 			errors: 2,
