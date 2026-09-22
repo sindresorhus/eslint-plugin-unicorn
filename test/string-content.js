@@ -580,3 +580,139 @@ test({
 		})),
 	].map(testCase => ({filename: 'example.toml', ...testCase})),
 });
+
+for (const languageName of ['json', 'jsonc', 'json5']) {
+	const {language, plugins} = languages[languageName];
+	test({
+		testerOptions: {language, plugins},
+		valid: [
+			'"no"',
+			{code: '["yes", 1, true, null]', options: [{patterns: noToYesPattern}]},
+		].map(testCase => ({name: `${languageName}: ${typeof testCase === 'string' ? testCase : testCase.code}`, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+		invalid: [
+			{
+				code: String.raw`{"no": ["\u006eo"]}`,
+				output: '{"yes": ["yes"]}',
+				options: [{patterns: noToYesPattern}],
+				errors: [...createError('no', 'yes'), ...createError('no', 'yes')],
+			},
+			{
+				code: '"no"',
+				output: String.raw`"\"\\\n\u0000"`,
+				options: [{patterns: {no: '"\\\n\u0000'}}],
+				errors: createError('no', '"\\\n\u0000'),
+			},
+			{
+				code: '"NO"',
+				options: [{patterns: {no: {suggest: 'yes', fix: false, caseSensitive: false}}}],
+				errors: createSuggestionError('no', 'yes', '"yes"'),
+			},
+		].map(testCase => ({name: `${languageName}: ${testCase.code}`, ...testCase})),
+	});
+}
+
+test.snapshot({
+	valid: [],
+	invalid: [{code: String.raw`{'\u006eo': 'no'}`, language: languages.json5, options: [{patterns: noToYesPattern}]}],
+});
+
+test({
+	testerOptions: {language: languages.json5.language, plugins: languages.json5.plugins},
+	valid: [],
+	invalid: [{
+		code: '\'no\'',
+		output: '"yes\u2028\u2029"',
+		options: [{patterns: {no: 'yes\u2028\u2029'}}],
+		errors: createError('no', 'yes\u2028\u2029'),
+	}],
+});
+
+test.snapshot({
+	valid: [
+		'a { content: "yes"; font-family: no; } /* no */',
+		'.no { --no: no; }',
+		{code: 'a { content: "no"; }', options: []},
+		{code: 'a { content: "no"; }', options: [{patterns: noToYesPattern, selectors: ['Url']}]},
+	].map(testCase => ({language: languages.css, options: [{patterns: noToYesPattern}], ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'a { content: "no"; font-family: "no"; }',
+		'a[data-name="no"] { background: url(no.png); }',
+		String.raw`a { content: "\6e o"; background: url("\6e o.png"); }`,
+		'a { content: \'no\'; background: url( no.png ); }',
+		{code: 'a { content: "no"; background: url(no); }', options: [{patterns: {no: '\'"\\\n\r\f\t() a'}}]},
+		{code: 'a { content: "NO"; background: url(no); }', options: [{patterns: {no: {suggest: 'yes', fix: false, caseSensitive: false}}}]},
+		{code: 'a { content: "no"; background: url(no); }', options: [{patterns: noToYesPattern, selectors: ['Url']}]},
+		{code: '{unquoted: "no", "no": \'no\'}', language: languages.json5},
+	].map(testCase => ({language: languages.css, options: [{patterns: noToYesPattern}], ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});
+
+test({
+	testerOptions: {language: languages.css.language, plugins: languages.css.plugins},
+	valid: [],
+	invalid: [true, false].flatMap(fix => ['\u0000', '\uD800'].map(suggest => ({
+		name: `CSS unrepresentable replacement ${JSON.stringify(suggest)}, fix: ${fix}`,
+		code: 'a { content: "no"; background: url(no); }',
+		options: [{patterns: {no: {suggest, fix}}}],
+		errors: [...createError('no', suggest), ...createError('no', suggest)],
+	}))),
+});
+
+test({
+	testerOptions: {language: languages.css.language, plugins: languages.css.plugins},
+	valid: [
+		{code: 'a { --message: "no"; --image: url(no); }', options: [{patterns: noToYesPattern}]},
+	],
+	invalid: [true, false].map(fix => ({
+		name: `CSS URL comment preservation, fix: ${fix}`,
+		code: 'a { background: url("no"/* keep */); }',
+		options: [{patterns: {no: {suggest: 'yes', fix}}}],
+		errors: createError('no', 'yes'),
+	})),
+});
+
+test({
+	testerOptions: {language: languages.yaml.language, plugins: languages.yaml.plugins},
+	valid: [
+		'value: |\n  no\n',
+		'value: >\n  no\n',
+		'value: !!str no',
+		'value: [1, true, null]',
+		'# no\nvalue: yes',
+	].map(code => ({code, options: [{patterns: noToYesPattern}]})),
+	invalid: [
+		...['value: no', 'value: \'no\''].map(code => ({
+			code,
+			output: 'value: "yes"',
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes'),
+		})),
+		{
+			code: 'no: ["no"] # no',
+			output: '"yes": ["yes"] # no',
+			options: [{patterns: noToYesPattern}],
+			errors: [...createError('no', 'yes'), ...createError('no', 'yes')],
+		},
+		{
+			code: String.raw`value: &message "\u006eo"`,
+			output: 'value: &message "yes"',
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: 'value: NO',
+			options: [{patterns: {no: {suggest: 'yes', caseSensitive: false, fix: false}}}],
+			errors: createSuggestionError('no', 'yes', 'value: "yes"'),
+		},
+		{
+			code: 'value: no',
+			output: String.raw`value: "\"\\\n\u0000\u007f\u0085\u2028\uffff"`,
+			options: [{patterns: {no: '"\\\n\u0000\u007F\u0085\u2028\uFFFF'}}],
+			errors: createError('no', '"\\\n\u0000\u007F\u0085\u2028\uFFFF'),
+		},
+		{
+			code: 'value: no',
+			options: [{patterns: {no: '\uD800'}}],
+			errors: createError('no', '\uD800'),
+		},
+	],
+});

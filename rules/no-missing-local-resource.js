@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
 import {isVirtualFilename} from './utils/index.js';
+import getSrcsetCandidates from './shared/get-srcset-candidates.js';
 
 const MESSAGE_ID_MISSING = 'missing';
 const MESSAGE_ID_INCORRECT_CASE = 'incorrect-case';
@@ -12,20 +14,17 @@ const messages = {
 
 const resourceAttributes = new Set([
 	'href',
+	'imagesrcset',
 	'poster',
 	'src',
 	'srcset',
 ]);
+const imageSetFunctions = new Set(['image-set', '-webkit-image-set']);
 
 const schemePattern = /^[a-z][\d+\-.a-z]*:/i;
-const maximumNamedHtmlCharacterReferenceLength = 64;
-const decimalDigitPattern = /^\d$/u;
-const hexadecimalDigitPattern = /^[\da-f]$/iu;
 const percentEncodedPartPattern = /(?:%[\da-f]{2})+/giu;
 const unquotedAttributeValuePattern = /^[^\t\n\f\r "'<>`]+/u;
 const textEncoder = new TextEncoder();
-
-const isSrcsetWhitespace = character => /^[\t\n\f\r ]$/u.test(character);
 
 function getTrimmedUrlRange(value) {
 	let start = 0;
@@ -58,155 +57,6 @@ function decodePercentEncoded(value) {
 
 function encodePercentEncoded(value) {
 	return Array.from(textEncoder.encode(value), byte => '%' + byte.toString(16).padStart(2, '0').toUpperCase()).join('');
-}
-
-function getNumericCharacterReferenceEnd(value, index) {
-	let end = index + 2;
-	const isHexadecimal = value[end]?.toLowerCase() === 'x';
-	const digitPattern = isHexadecimal
-		? hexadecimalDigitPattern
-		: decimalDigitPattern;
-
-	if (isHexadecimal) {
-		end++;
-	}
-
-	const digitStart = end;
-	while (digitPattern.test(value[end])) {
-		end++;
-	}
-
-	if (end === digitStart) {
-		return;
-	}
-
-	return value[end] === ';' ? end + 1 : end;
-}
-
-function getSrcsetCharacter(value, index) {
-	if (value[index] !== '&') {
-		return {
-			value: value[index],
-			end: index + 1,
-		};
-	}
-
-	let end;
-	if (value[index + 1] === '#') {
-		end = getNumericCharacterReferenceEnd(value, index);
-	} else {
-		const possibleCharacterReference = value.slice(index, index + maximumNamedHtmlCharacterReferenceLength);
-		const semicolonIndex = possibleCharacterReference.indexOf(';');
-		end = semicolonIndex === -1 ? undefined : index + semicolonIndex + 1;
-	}
-
-	if (end === undefined) {
-		return {
-			value: value[index],
-			end: index + 1,
-		};
-	}
-
-	const source = value.slice(index, end);
-	const decodedValue = decodeHTMLAttribute(source);
-	if (decodedValue === source) {
-		return {
-			value: value[index],
-			end: index + 1,
-		};
-	}
-
-	return {
-		value: decodedValue,
-		end,
-	};
-}
-
-function skipSrcsetSeparators(value, index) {
-	while (index < value.length) {
-		const character = getSrcsetCharacter(value, index);
-		if (character.value !== ',' && !isSrcsetWhitespace(character.value)) {
-			return index;
-		}
-
-		index = character.end;
-	}
-
-	return value.length;
-}
-
-function getSrcsetCandidate(value, index) {
-	let end = index;
-	let trailingCommaStart;
-
-	while (index < value.length) {
-		const character = getSrcsetCharacter(value, index);
-		if (isSrcsetWhitespace(character.value)) {
-			return {
-				end: trailingCommaStart ?? end,
-				next: index,
-				hasTrailingComma: trailingCommaStart !== undefined,
-			};
-		}
-
-		if (character.value === ',') {
-			trailingCommaStart ??= index;
-		} else {
-			trailingCommaStart = undefined;
-		}
-
-		end = character.end;
-		index = character.end;
-	}
-
-	return {
-		end: trailingCommaStart ?? end,
-		next: index,
-		hasTrailingComma: trailingCommaStart !== undefined,
-	};
-}
-
-function getNextSrcsetCandidateStart(value, index) {
-	let parenthesisDepth = 0;
-
-	while (index < value.length) {
-		const character = getSrcsetCharacter(value, index);
-		index = character.end;
-
-		if (character.value === '(') {
-			parenthesisDepth++;
-		} else if (character.value === ')' && parenthesisDepth > 0) {
-			parenthesisDepth--;
-		} else if (character.value === ',' && parenthesisDepth === 0) {
-			return index;
-		}
-	}
-
-	return value.length;
-}
-
-function getSrcsetCandidates(value) {
-	const candidates = [];
-	let index = 0;
-
-	while (index < value.length) {
-		index = skipSrcsetSeparators(value, index);
-		const start = index;
-		const candidate = getSrcsetCandidate(value, index);
-
-		if (candidate.end > start) {
-			candidates.push({
-				value: value.slice(start, candidate.end),
-				offsets: [start, candidate.end],
-			});
-		}
-
-		index = candidate.hasTrailingComma
-			? candidate.next
-			: getNextSrcsetCandidateStart(value, candidate.next);
-	}
-
-	return candidates;
 }
 
 function getLocalResource(value, decodeHtmlCharacterReferences = true) {
@@ -350,7 +200,7 @@ const create = context => {
 		}
 
 		const atRule = ancestors[preludeIndex - 1];
-		return atRule?.name?.toLowerCase() === 'import' && atRule.prelude.children.at(0) === node;
+		return atRule?.name !== undefined && ident.decode(atRule.name).toLowerCase() === 'import' && atRule.prelude.children.at(0) === node;
 	};
 
 	const getDirectoryEntries = directory => {
@@ -478,7 +328,7 @@ const create = context => {
 
 	context.on(['definition', 'image', 'link'], node => getResourceProblem(node, node.url));
 	context.on('Atrule', node => {
-		if (node.name?.toLowerCase() !== 'import') {
+		if (!node.name || ident.decode(node.name).toLowerCase() !== 'import') {
 			return;
 		}
 
@@ -491,6 +341,14 @@ const create = context => {
 	});
 	context.on('Url', node => {
 		if (!isCssResourceUrl(node)) {
+			return;
+		}
+
+		return getResourceProblem(node, node.value, getCssValueRange(node, node.value), false);
+	});
+	context.on('String', node => {
+		const parent = context.sourceCode.getParent(node);
+		if (parent?.type !== 'Function' || !imageSetFunctions.has(ident.decode(parent.name).toLowerCase()) || !isCssResourceUrl(node)) {
 			return;
 		}
 
@@ -513,7 +371,7 @@ const create = context => {
 		}
 
 		const {value, valueRange} = htmlAttributeValue;
-		if (name === 'srcset') {
+		if (name === 'srcset' || name === 'imagesrcset') {
 			return getSrcsetCandidates(value).map(candidate => getResourceProblem(attribute, candidate.value, [valueRange[0] + candidate.offsets[0], valueRange[0] + candidate.offsets[1]]));
 		}
 

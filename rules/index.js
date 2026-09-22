@@ -36,6 +36,7 @@ export {default as 'import-style'} from './import-style.js';
 export {default as indent} from './indent.js';
 export {default as 'isolated-functions'} from './isolated-functions.js';
 export {default as 'iteration-fallback-style'} from './iteration-fallback-style.js';
+export {default as 'key-name-casing'} from './key-name-casing.js';
 export {default as 'logical-assignment-operators'} from './logical-assignment-operators.js';
 export {default as 'lowercase-css'} from './lowercase-css.js';
 export {default as 'max-nested-calls'} from './max-nested-calls.js';

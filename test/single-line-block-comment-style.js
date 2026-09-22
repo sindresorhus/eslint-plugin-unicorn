@@ -1,7 +1,7 @@
 import test from 'ava';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test: ruleTest, rule} = getTester(import.meta);
 const error = {messageId: 'single-line-block-comment-style'};
@@ -59,6 +59,9 @@ ruleTest.snapshot({
 		'/* global value */',
 		'/* prettier-ignore */',
 		'/* @ts-ignore */',
+		'/*# sourceMappingURL=app.js.map */',
+		'/*@ sourceMappingURL=legacy.js.map */',
+		'/*# sourceURL=app.js */',
 		'/* @ts-ignore: explanation */',
 		'/* @ts-expect-error: explanation */',
 		'/* @jsxImportSource preact */',
@@ -613,4 +616,21 @@ test('autofixes are idempotent', t => {
 		t.is(secondFix.output, output);
 		t.deepEqual(secondFix.messages, []);
 	}
+});
+
+ruleTest.snapshot({
+	valid: [
+		...[languages.jsonc, languages.json5, languages.css].flatMap(language => [
+			'/*\nComment.\n*/\n{}',
+			'/*! License. */\n{}',
+			'/* eslint-disable */\n{}',
+			'/* Comment. */ {}',
+		].map(code => ({code: language === languages.css ? code.replace('{}', 'a {}') : code, language}))),
+		{code: '/*# sourceMappingURL=style.css.map */\na {}', language: languages.css},
+	],
+	invalid: [languages.jsonc, languages.json5, languages.css].flatMap(language => [
+		{code: '/* Comment. */\n{}'},
+		{code: '  /* Comment. */\r\n{}'},
+		{code: '/*\nComment.\n*/\n{}', options: ['single-line']},
+	].map(testCase => ({...testCase, code: language === languages.css ? testCase.code.replace('{}', 'a {}') : testCase.code, language}))),
 });

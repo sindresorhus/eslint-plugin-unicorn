@@ -21,7 +21,7 @@ This rule ignores the following tagged template literals as they're known to con
 - ``svg`…` ``
 - ``styled.*`…` ``
 
-**This rule has no effect by default. You need set [`patterns`](#patterns) to check string content.**
+**This rule has no effect by default. You need to set [`patterns`](#patterns) to check string content.**
 
 ## Examples
 
@@ -52,6 +52,14 @@ name = 'unicorn'
 # ✅
 name = "🦄"
 ```
+
+## Other languages
+
+In JSON, JSONC, and JSON5, patterns match decoded string values and quoted keys, but not unquoted JSON5 keys. Fixes use JSON-compatible double quotes.
+
+In CSS, patterns match decoded strings and `url()` values, including quoted selectors and font families. Unquoted identifiers, comments, and custom property values are skipped. Fixes use CSS-compatible double quotes; URLs containing comments and replacements with null characters or unpaired surrogates are reported without a fix or suggestion.
+
+In YAML, patterns match decoded string values and keys in plain or quoted scalars, including anchored scalars. Block scalars, tagged scalars, and aliases are skipped. Fixes use YAML-compatible double quotes; unpaired surrogates are reported without a fix. Use `YAMLScalar` selectors to limit checks.
 
 ## Options
 
@@ -121,7 +129,7 @@ Default: `[]`
 
 Only check string nodes matching one of these [ESLint selectors](https://eslint.org/docs/latest/extend/selectors). When empty, all supported string nodes are checked.
 
-The selector must match the string node itself: `Literal` for JavaScript string literals, `TemplateElement` for template literal content, or `TOMLValue[kind="string"]` for TOML string values.
+The selector must match the string node itself: `Literal` for JavaScript string literals, `TemplateElement` for template literal content, `TOMLValue[kind="string"]` for TOML string values, `YAMLScalar` for YAML scalars, `String` for JSON or CSS strings, or `Url` for CSS URLs.
 
 ```js
 'unicorn/string-content': [

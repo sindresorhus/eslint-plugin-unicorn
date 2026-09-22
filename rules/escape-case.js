@@ -1,3 +1,4 @@
+import {tokenize, tokenTypes} from '@eslint/css-tree';
 import {replaceTemplateElement} from './fix/index.js';
 import {isRegexLiteral, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
 import {getTemplateElementRaw} from './utils/index.js';
@@ -11,7 +12,8 @@ const messages = {
 
 const escapeCase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+})/g;
 const escapePatternCase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+}|c[A-Za-z])/g;
-const tomlEscapeCase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|U[\dA-Fa-f]{8})/g;
+const fixedWidthEscapeCase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|U[\dA-Fa-f]{8})/g;
+const cssEscapeCase = /(?<!\\)(?:\\\\)*\\[\da-f]{1,6}/gi;
 const getProblem = ({node, original, regex = escapeCase, lowercase, fix}) => {
 	const fixed = original.replace(regex, data => data[0] + data.slice(1)[lowercase ? 'toLowerCase' : 'toUpperCase']());
 
@@ -30,6 +32,43 @@ const getProblem = ({node, original, regex = escapeCase, lowercase, fix}) => {
 const create = context => {
 	const isLowercase = context.options[0] === 'lowercase';
 
+	context.on('StyleSheet', node => {
+		const {sourceCode} = context;
+		const problems = [];
+		tokenize(sourceCode.text, (type, start, end) => {
+			if (type === tokenTypes.Comment) {
+				return;
+			}
+
+			const problem = getProblem({
+				node,
+				original: sourceCode.text.slice(start, end),
+				regex: cssEscapeCase,
+				lowercase: isLowercase,
+				fix: (fixer, fixed) => fixer.replaceTextRange([start, end], fixed),
+			});
+			if (problem) {
+				problems.push({
+					...problem,
+					loc: {start: sourceCode.getLocFromIndex(start), end: sourceCode.getLocFromIndex(end)},
+				});
+			}
+		});
+		return problems;
+	});
+
+	context.on('String', node => {
+		if (context.sourceCode.ast.type === 'StyleSheet') {
+			return;
+		}
+
+		return getProblem({
+			node,
+			original: context.sourceCode.getText(node),
+			lowercase: isLowercase,
+		});
+	});
+
 	context.on(['TOMLValue', 'TOMLQuoted'], node => {
 		if (node.kind !== 'string' || node.style !== 'basic') {
 			return;
@@ -38,7 +77,20 @@ const create = context => {
 		return getProblem({
 			node,
 			original: context.sourceCode.getText(node),
-			regex: tomlEscapeCase,
+			regex: fixedWidthEscapeCase,
+			lowercase: isLowercase,
+		});
+	});
+
+	context.on('YAMLScalar', node => {
+		if (node.style !== 'double-quoted') {
+			return;
+		}
+
+		return getProblem({
+			node,
+			original: context.sourceCode.getText(node),
+			regex: fixedWidthEscapeCase,
 			lowercase: isLowercase,
 		});
 	});
@@ -102,6 +154,11 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'yml/yaml',
+			'json/json',
+			'json/jsonc',
+			'json/json5',
+			'css/css',
 			'toml/toml',
 		],
 	},

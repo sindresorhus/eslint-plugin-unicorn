@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -102,3 +102,51 @@ const enableBabelPlugins = plugins => ({
 	},
 });
 const enableBabelPlugin = plugin => enableBabelPlugins([plugin]);
+
+test.snapshot({
+	valid: [languages.json, languages.jsonc, languages.json5].flatMap(language => ['{"object": {}}', '[]', '{"value": [1]}'].map(code => ({code, language}))),
+	invalid: [languages.json, languages.jsonc, languages.json5].flatMap(language => ['{"object": { }}', '[ ]', '{"array": [\r\n  ], "object": {\n\t}}'].map(code => ({code, language}))),
+});
+
+test.snapshot({
+	valid: [languages.jsonc, languages.json5].flatMap(language => ['{ /* comment */ }', '[ /* comment */ ]', '{ // comment\n}'].map(code => ({code, language}))),
+	invalid: [],
+});
+
+test.snapshot({
+	valid: ['a {}', 'a { /* comment */ }', '@media screen { a {} }', 'a { --value: { }; }'].map(code => ({code, language: languages.css})),
+	invalid: ['a { }', '@media screen {\n}', '@keyframes animation { from { } }', 'a {\r\n  }'].map(code => ({code, language: languages.css})),
+});
+
+test.snapshot({
+	valid: [
+		'value: {}',
+		'value: []',
+		'value:\n  child: true',
+		'value:\n  - true',
+		'value: { # Keep comment\n}',
+		'value: [ # Keep comment\n]',
+	].map(code => ({code, language: languages.yaml})),
+	invalid: [
+		'value: { }',
+		'value: [ ]',
+		'value: {nested: [\r\n  ]}',
+		'value: &anchor { }',
+	].map(code => ({code, language: languages.yaml})),
+});
+
+test.snapshot({
+	valid: [
+		'value = {}',
+		'value = []',
+		'value = [ # Keep comment\n]',
+		'value = {nested = [1]}',
+		'[table]',
+	].map(code => ({code, language: languages.toml})),
+	invalid: [
+		'value = { }',
+		'value = [ ]',
+		'value = {nested = [\r\n  ]}',
+		'value = [{ }, [ ]]',
+	].map(code => ({code, language: languages.toml})),
+});

@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -94,4 +94,52 @@ test.snapshot({
 			.0.toString()
 		`,
 	],
+});
+
+test.snapshot({
+	valid: ['const value = 0.5;', 'const value = -0.5;'],
+	invalid: ['const value = .5;', 'const value = -.50;', 'function foo() {return.5}', '.5.toString()', 'const value = .50e2;'],
+});
+
+test.snapshot({
+	valid: [languages.json, languages.jsonc, languages.json5].flatMap(language => ['[0.5, -0.5, 1, "1.0"]'].map(code => ({code, language}))),
+	invalid: [languages.json, languages.jsonc, languages.json5].flatMap(language => ['[1.0, -1.00, 1.50, 1.00e2]'].map(code => ({code, language}))),
+});
+
+test.snapshot({
+	valid: ['[0xAB, Infinity, -Infinity, NaN]'].map(code => ({code, language: languages.json5})),
+	invalid: ['[.5, .50, -0.50, +0.50, 1., -1., +1.]'].map(code => ({code, language: languages.json5})),
+});
+
+test.snapshot({
+	valid: ['value = [1.0, -1.0, 1e2, 1.5, inf, nan, 1979-05-27]'].map(code => ({code, language: languages.toml})),
+	invalid: ['value = [1.00, -1.00, +1.00, 1.50, 1.00e2, 1_000.00]'].map(code => ({code, language: languages.toml})),
+});
+
+test.snapshot({
+	valid: [
+		'a { width: 1px; opacity: 0.5; content: "1.0 .5"; background: url(1.0.png) }',
+		String.raw`/* 1.0 */ .item1\.0 { --number: 0.5; }`,
+		'a { --value: foo.5 #a.5 --1.0 1.0.5 2.0.5px ..5 @.5 #.5; }',
+		'a { opacity: foo.5; width: 1.0.5px; }',
+	].map(code => ({code, language: languages.css})),
+	invalid: [
+		'a { width: 2.0PX; animation-delay: .5s; opacity: -.50; height: 10.00%; }',
+		String.raw`a { --number: +.50; --size: 2.00\70x; --exponent: 1.00E2; }`,
+		'@media (width > 1.0px) { a { width: calc(.50px + 1.0px) } }',
+		'a { aspect-ratio: 1.0/2.0; width: calc(1.0px*2.0); height: calc(1.0px/2.0); }',
+	].map(code => ({code, language: languages.css})),
+});
+
+test.snapshot({
+	valid: [
+		'value: [0.5, 1.0, 1.0e2, -1.0, .inf, .nan, "1.00"]',
+		'value: !!str 1.00',
+		'value: |\n  1.00\n',
+	].map(code => ({code, language: languages.yaml})),
+	invalid: [
+		'value: [.5, -.50, +.50, 1.00, -1.00, 1.50, 1.00e2, 1.] # preserve',
+		'value: &number 1.00',
+		'%YAML 1.1\n---\nvalue: [1.00e+2, 1.50, .50]',
+	].map(code => ({code, language: languages.yaml})),
 });

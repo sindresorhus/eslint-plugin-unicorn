@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When using a relative URL in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), the URL should either never or always use the `./` prefix consistently.
+Use a consistent `./` prefix for relative URLs in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), CSS `url()`, `image-set()`, and `@import`, HTML URL attributes (`href`, `src`, `poster`, `srcset`, `imagesrcset`), and Markdown links, images, and definitions. The rule changes a prefix only when both forms resolve to the same URL.
 
-Choosing one spelling where both forms resolve equivalently prevents relative URLs from looking inconsistent.
+In CSS at-rule preludes, only `@import` targets are checked. Fixes preserve `srcset` descriptors and separators; a prefix before a comma is retained to avoid changing candidate boundaries. Templated HTML/CSS URLs, entity-containing `srcset` values, complex Markdown labels, and escaped `./` prefixes are left unchanged.
 
 ## Examples
 

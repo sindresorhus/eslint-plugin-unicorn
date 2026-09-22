@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces a consistent layout for standalone block comments whose content occupies one line. It supports both ordinary block comments and documentation comments.
+This rule enforces a consistent layout for standalone block comments whose content occupies one line. It supports both ordinary block comments and documentation comments in JavaScript, JSONC, JSON5, and CSS.
 
-Comments with multiple content lines, block comments placed beside code, and common tooling directive comments are ignored by default. This includes ESLint, TypeScript, formatter, coverage, and minifier directives. Documentation comments with asterisk prefixes are also ignored. License comments beginning with `/*!` are ignored as well.
+Comments with multiple content lines, block comments placed beside code, and common tooling directive comments are ignored by default. This includes ESLint, TypeScript, formatter, coverage, minifier, and source-map directives. Documentation comments with asterisk prefixes are also ignored. License comments beginning with `/*!` are ignored as well.
 
 ## Examples
 

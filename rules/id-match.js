@@ -1,4 +1,6 @@
 import {getBuiltinRule} from './utils/index.js';
+import onCssIdentifier from './shared/css-identifiers.js';
+import onHtmlIdentifier from './shared/html-identifiers.js';
 
 const baseRule = getBuiltinRule('id-match');
 
@@ -26,6 +28,22 @@ const shouldIgnoreNamedSpecifierReport = (problem, checkNamedSpecifiers) =>
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const isCss = context.sourceCode.ast.type === 'StyleSheet';
+	const isHtml = context.sourceCode.ast.body?.[0]?.type === 'Document';
+	if (isCss || isHtml) {
+		const [pattern] = context.options;
+		const regex = new RegExp(pattern, 'u');
+		const onIdentifier = isHtml ? onHtmlIdentifier : onCssIdentifier;
+		onIdentifier(context, ({node, name, location, isDashedName}) => {
+			if (!regex.test(isDashedName ? name.replace(/^--/, '') : name)) {
+				return {
+					node, loc: location, messageId: 'notMatch', data: {name, pattern},
+				};
+			}
+		});
+		return;
+	}
+
 	const isCheckNamedSpecifiers = context.options[1]?.checkNamedSpecifiers !== false;
 	const fakeContext = Object.create(context, {
 		report: {
@@ -72,6 +90,8 @@ const config = {
 		messages: baseRule.meta.messages,
 		languages: [
 			'js/js',
+			'css/css',
+			'html/html',
 		],
 	},
 };

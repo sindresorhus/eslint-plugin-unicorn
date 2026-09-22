@@ -1,5 +1,8 @@
+import {ident} from '@eslint/css-tree';
+import {decodeHTMLAttribute} from 'entities';
 import {isNewExpression, isStringLiteral} from './ast/index.js';
 import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import getSrcsetCandidates from './shared/get-srcset-candidates.js';
 
 const MESSAGE_ID_NEVER = 'never';
 const MESSAGE_ID_ALWAYS = 'always';
@@ -11,6 +14,7 @@ const messages = {
 };
 
 const DOT_SLASH = './';
+const imageSetFunctions = new Set(['image-set', '-webkit-image-set']);
 const TEST_URL_BASES = [
 	'https://example.com/a/b/',
 	'https://example.com/a/b.html',
@@ -83,8 +87,116 @@ function removeDotSlash(node, sourceCode) {
 */
 const create = context => {
 	const style = context.options[0];
+	const {sourceCode} = context;
+	const templateDelimiters = Object.keys(context.languageOptions?.templateEngineSyntax ?? {});
+	const isCssResourceUrl = node => {
+		const prelude = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'AtrulePrelude');
+		return !prelude || (ident.decode(sourceCode.getParent(prelude).name).toLowerCase() === 'import' && prelude.children.at(0) === node);
+	};
 
-	// TemplateLiteral are not always safe to remove `./`, but if it's starts with `./` we'll report
+	const getMarkupProblem = (node, url, start) => {
+		if (templateDelimiters.some(delimiter => url.includes(delimiter))) {
+			return;
+		}
+
+		if (style === 'never') {
+			if (!sourceCode.text.startsWith(DOT_SLASH, start) || !isSafeToRemoveDotSlash(url)) {
+				return;
+			}
+		} else if (url.startsWith('.') || url.startsWith('/') || !isSafeToAddDotSlash(url)) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: style,
+			fix: fixer => style === 'never'
+				? fixer.removeRange([start, start + DOT_SLASH.length])
+				: fixer.insertTextAfterRange([start, start], DOT_SLASH),
+		};
+	};
+
+	context.on('Url', node => {
+		if (!isCssResourceUrl(node)) {
+			return;
+		}
+
+		const prefix = sourceCode.getText(node).match(/^url\([\t\n\f\r ]*["']?/i)?.[0];
+		if (!prefix) {
+			return;
+		}
+
+		return getMarkupProblem(node, node.value, sourceCode.getRange(node)[0] + prefix.length);
+	});
+
+	context.on('Atrule', node => {
+		if (ident.decode(node.name).toLowerCase() !== 'import') {
+			return;
+		}
+
+		const string = node.prelude?.children?.at(0);
+		if (string?.type === 'String') {
+			return getMarkupProblem(string, string.value, sourceCode.getRange(string)[0] + 1);
+		}
+	});
+	context.on('String', node => {
+		const parent = sourceCode.getParent(node);
+		if (parent?.type !== 'Function' || !imageSetFunctions.has(ident.decode(parent.name).toLowerCase()) || !isCssResourceUrl(node)) {
+			return;
+		}
+
+		return getMarkupProblem(node, node.value, sourceCode.getRange(node)[0] + 1);
+	});
+
+	context.on('Attribute', node => {
+		const name = node.key.value.toLowerCase();
+		if (
+			!['href', 'src', 'poster', 'srcset', 'imagesrcset'].includes(name)
+			|| node.key.parts.length > 0
+			|| !node.value
+			|| node.value.parts.length > 0
+		) {
+			return;
+		}
+
+		const [start] = sourceCode.getRange(node.value);
+		// The HTML parser can stop an unquoted value at a slash.
+		const raw = node.startWrapper ? sourceCode.getText(node.value) : sourceCode.text.slice(start).match(/^[^\t\n\f\r "'<>`]+/u)?.[0];
+		if (!raw || templateDelimiters.some(delimiter => raw.includes(delimiter))) {
+			return;
+		}
+
+		if (name === 'srcset' || name === 'imagesrcset') {
+			if (decodeHTMLAttribute(raw) !== raw) {
+				return;
+			}
+
+			// A leading comma would become a candidate separator if the prefix were removed.
+			return getSrcsetCandidates(raw)
+				.filter(candidate => !candidate.value.startsWith('./,'))
+				.map(candidate => getMarkupProblem(node, candidate.value, start + candidate.offsets[0]));
+		}
+
+		const value = raw.replaceAll(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+		const url = decodeHTMLAttribute(value);
+		if (url !== url.trim()) {
+			return;
+		}
+
+		return getMarkupProblem(node, url, start + raw.indexOf(value));
+	});
+
+	context.on(['link', 'image', 'definition'], node => {
+		// Complex labels are left unchanged when their destination cannot be located unambiguously.
+		const prefix = sourceCode.getText(node).match(/^!?\[(?:\\.|[^<[\\\]`])*\](?:\(|:)[\t\n\r ]*<?/u)?.[0];
+		if (!prefix) {
+			return;
+		}
+
+		return getMarkupProblem(node, node.url, sourceCode.getRange(node)[0] + prefix.length);
+	});
+
+	// Template literals are not always safe to remove `./` from, but report those starting with `./`.
 	if (style === 'never') {
 		context.on('TemplateLiteral', node => {
 			if (!(
@@ -164,6 +276,10 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'css/css',
+			'html/html',
+			'markdown/commonmark',
+			'markdown/gfm',
 		],
 	},
 };

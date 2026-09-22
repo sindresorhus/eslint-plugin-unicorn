@@ -1,5 +1,11 @@
+import {string as cssString} from '@eslint/css-tree';
 import {replaceTemplateElement} from './fix/index.js';
-import {escapeString, escapeTemplateElementRaw, getTemplateElementRaw} from './utils/index.js';
+import {
+	escapeString,
+	escapeTemplateElementRaw,
+	getComments,
+	getTemplateElementRaw,
+} from './utils/index.js';
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 const SUGGESTION_MESSAGE_ID = 'replace';
@@ -7,7 +13,9 @@ const messages = {
 	[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.',
 };
 
-const targetNodeTypes = ['Literal', 'TemplateElement', 'TOMLValue'];
+const yamlCharactersToEscape = /[\u{7f}-\u{9f}\u{2028}\u{2029}\u{fffe}\u{ffff}]/gu;
+
+const targetNodeTypes = ['Literal', 'TemplateElement', 'TOMLValue', 'String', 'Url', 'YAMLScalar'];
 
 const ignoredIdentifier = new Set([
 	'gql',
@@ -69,6 +77,7 @@ function getReplacements(patterns) {
 */
 const create = context => {
 	const {patterns, selectors} = context.options[0];
+	const isCss = context.sourceCode.ast.type === 'StyleSheet';
 	const replacements = getReplacements(patterns);
 
 	if (replacements.length === 0) {
@@ -87,7 +96,7 @@ const create = context => {
 		checked.add(node);
 
 		let string;
-		if (type === 'Literal' || type === 'TOMLValue') {
+		if (type !== 'TemplateElement') {
 			string = value;
 		} else if (!isIgnoredTag(node)) {
 			string = getTemplateElementRaw(node, context);
@@ -114,11 +123,31 @@ const create = context => {
 		};
 
 		const fixed = string.replace(regex, () => suggest);
-		if (type === 'TOMLValue' && !fixed.isWellFormed()) {
+		if (type === 'Url') {
+			const [start, end] = context.sourceCode.getRange(node);
+			if (getComments(context).some(comment => {
+				const [commentStart, commentEnd] = context.sourceCode.getRange(comment);
+				return commentStart >= start && commentEnd <= end;
+			})) {
+				return problem;
+			}
+		}
+
+		if (((type === 'TOMLValue' || type === 'YAMLScalar' || isCss) && !fixed.isWellFormed()) || (isCss && fixed.includes('\0'))) {
 			return problem;
 		}
 
 		const fix = fixer => {
+			if (type === 'YAMLScalar') {
+				const replacementText = JSON.stringify(fixed).replaceAll(yamlCharactersToEscape, character => String.raw`\u${character.codePointAt(0).toString(16).padStart(4, '0')}`);
+				return fixer.replaceText(node, replacementText);
+			}
+
+			if (type === 'String' || type === 'Url') {
+				const replacementText = isCss ? cssString.encode(fixed) : JSON.stringify(fixed);
+				return fixer.replaceText(node, type === 'Url' ? `url(${replacementText})` : replacementText);
+			}
+
 			if (type === 'TOMLValue') {
 				// JSON string escapes are valid in TOML, but TOML also requires escaping DEL.
 				return fixer.replaceText(node, JSON.stringify(fixed).replaceAll('\u007F', String.raw`\u007F`));
@@ -158,7 +187,13 @@ const create = context => {
 
 	context.on(
 		selectors.length === 0 ? targetNodeTypes : selectors,
-		getProblem,
+		node => {
+			if (node.type === 'YAMLScalar' && (['literal', 'folded'].includes(node.style) || node.parent.tag)) {
+				return;
+			}
+
+			return getProblem(node);
+		},
 	);
 };
 
@@ -232,6 +267,11 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'yml/yaml',
+			'json/json',
+			'json/jsonc',
+			'json/json5',
+			'css/css',
 			'toml/toml',
 		],
 	},

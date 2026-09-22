@@ -14,6 +14,9 @@ import {
 	shouldReportIdentifierAsProperty,
 } from './shared/identifier-checks.js';
 import {renameVariable} from './fix/index.js';
+import onCssIdentifier from './shared/css-identifiers.js';
+import onHtmlIdentifier from './shared/html-identifiers.js';
+import onDataKey from './shared/data-keys.js';
 
 const MESSAGE_ID_ERROR = 'consistent-compound-words/error';
 const MESSAGE_ID_RENAME = 'consistent-compound-words/rename';
@@ -164,6 +167,29 @@ const getNameReplacement = (name, {replacementRegExp, replacements, allowList}) 
 	return replacement;
 };
 
+const getNonJavaScriptNameReplacer = options => {
+	const segmentOptions = {...options, allowList: new Set()};
+	const separatedReplacements = new Map();
+	for (const separator of ['-', '_']) {
+		for (const [discouraged, preferred] of options.replacements) {
+			const separated = discouraged.replaceAll(/([a-z])([A-Z])/g, (_, first, second) => first + separator + second.toLowerCase());
+			separatedReplacements.set(separated, preferred);
+		}
+	}
+
+	const pattern = new RegExp(`(?<=^|[-_])(?:${separatedReplacements.keys().map(name => escapeRegExp(name)).toArray().join('|')})(?=$|[-_])`, 'g');
+
+	return name => {
+		if (options.allowList.has(name) || separatedReplacements.size === 0) {
+			return;
+		}
+
+		const replacement = name.replaceAll(pattern, part => separatedReplacements.get(part))
+			.split(/([-_])/).map(part => getNameReplacement(part, segmentOptions) ?? part).join('');
+		return replacement === name ? undefined : replacement;
+	};
+};
+
 const createProblem = (node, replacement) => ({
 	node,
 	messageId: MESSAGE_ID_ERROR,
@@ -180,6 +206,36 @@ const create = context => {
 	const options = Object.keys(context.options[0]).length === 0
 		? defaultPreparedOptions
 		: prepareOptions(context.options[0]);
+
+	const {ast, parserServices} = context.sourceCode;
+	const isHtml = ast.body?.[0]?.type === 'Document';
+	const isData = ast.type === 'Document' || parserServices?.isYAML || parserServices?.isTOML;
+	const replaceExternalName = isHtml || isData || ast.type === 'StyleSheet' ? getNonJavaScriptNameReplacer(options) : undefined;
+	const getExternalNameProblem = ({node, name, location}) => {
+		const replacement = replaceExternalName(name);
+		if (replacement) {
+			return {
+				node, loc: location, messageId: MESSAGE_ID_ERROR, data: {name, replacement},
+			};
+		}
+	};
+
+	if (ast.type === 'StyleSheet' || isHtml) {
+		if (options.checkVariables) {
+			const onIdentifier = isHtml ? onHtmlIdentifier : onCssIdentifier;
+			onIdentifier(context, getExternalNameProblem);
+		}
+
+		return;
+	}
+
+	if (isData) {
+		if (options.checkProperties) {
+			onDataKey(context, getExternalNameProblem);
+		}
+
+		return;
+	}
 
 	const identifierToOuterClassVariable = new WeakMap();
 	const scopeToNamesGeneratedByFixer = new WeakMap();
@@ -345,7 +401,7 @@ const create = context => {
 	context.on('Identifier', reportProperty);
 	context.on('PrivateIdentifier', reportProperty);
 	// eslint-disable-next-line no-warning-comments
-	// TODO: Consider expanding beyond JavaScript identifiers after this rule has proven itself.
+	// TODO: Consider expanding JavaScript property checks beyond identifiers.
 
 	context.on('Program:exit', program => {
 		if (!options.checkVariables) {
@@ -468,6 +524,13 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'json/json',
+			'json/jsonc',
+			'json/json5',
+			'css/css',
+			'html/html',
+			'yml/yaml',
+			'toml/toml',
 		],
 	},
 };

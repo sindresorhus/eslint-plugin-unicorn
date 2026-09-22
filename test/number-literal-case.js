@@ -246,3 +246,42 @@ test.snapshot({
 		'<script>export default {data() {return {n: 0XdeEd_Beefn}}}</script>',
 	],
 });
+
+test.snapshot({
+	valid: [languages.json, languages.jsonc, languages.json5].flatMap(language => ['[1.2e3, -1.2e-3, "1E3"]'].map(code => ({code, language}))),
+	invalid: [languages.json, languages.jsonc, languages.json5].flatMap(language => ['[1E3, -1.2E-3, 1E999]'].map(code => ({code, language}))),
+});
+
+test.snapshot({
+	valid: ['[0xABCD, -0xABCD, Infinity, -Infinity, NaN]'].map(code => ({code, language: languages.json5})),
+	invalid: [
+		{code: '[0Xabcd, -0Xabcd, +0Xabcd]'},
+		{code: '[0XABCD, -0XABCD]', options: [{hexadecimalValue: 'lowercase'}]},
+	].map(testCase => ({...testCase, language: languages.json5})),
+});
+
+test.snapshot({
+	valid: [
+		'a { width: 1e3PX; height: 1EM; content: "1E3"; background: url(1E3.png) }',
+		'/* 1E3 */ .item1E3 { --number: 1e3; }',
+		'@font-face { unicode-range: U+1E3, U+1E3-1E4; }',
+	].map(code => ({code, language: languages.css})),
+	invalid: [
+		'a { width: 1E3PX; opacity: +1E-1; height: 1E2%; }',
+		String.raw`a { --number: -1.2E+3; --size: 1E3\70x; }`,
+		'@media (width > 1E3px) { a { width: calc(1E2px + 1px) } }',
+	].map(code => ({code, language: languages.css})),
+});
+
+test.snapshot({
+	valid: [
+		'value: [0xAF, 1e3, .inf, -.Inf, .INF, .NaN, "1E3", true]',
+		'value: !!str 1E3',
+		'value: |\n  1E3\n',
+	].map(code => ({code, language: languages.yaml})),
+	invalid: [
+		'value: [0xaf, 1E3, -1.2E+3] # preserve',
+		'value: &number 1E3',
+		{code: 'value: 0xABCD', options: [{hexadecimalValue: 'lowercase'}]},
+	].map(testCase => ({language: languages.yaml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

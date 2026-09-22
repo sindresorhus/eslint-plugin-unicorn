@@ -43,9 +43,17 @@ function unsubscribe() {}
 
 ## Intentionally not checked
 
-This rule does not check string keys, computed properties, property reads, JSX attributes, or export aliases. These are often external API surfaces where preserving the exact spelling is more important than normalizing identifier style.
+In JavaScript, this rule does not check string keys, computed properties, property reads, JSX attributes, or export aliases. These are often external API surfaces where preserving the exact spelling is more important than normalizing identifier style.
 
 It also intentionally excludes ambiguous or common API spellings such as `fileName`, `setUp`, `lookUp`, and `newLine`. These can be natural identifiers when the words keep separate meaning, for example a newly created line instead of the newline character.
+
+## Data keys, CSS, and HTML
+
+With `checkProperties: true`, the rule checks JSON object keys, YAML string keys, and TOML key segments, including table names. It skips YAML non-string, tagged, anchored, and alias keys, plus string values.
+
+With `checkVariables` (enabled by default), it checks CSS class and ID selectors, custom properties, keyframes, animation names, layers, containers, and custom media, plus HTML `id` and individual `class` names. Built-in CSS property names and value keywords, and `animation` shorthand values are skipped. CSS escapes and HTML character references are decoded; templated HTML values are skipped.
+
+For example, `backGround`, `back-ground`, and `back_ground` are flagged in favor of `background`. Allow-list entries match the full decoded name, including `--`. Data and CSS/HTML diagnostics have no fixes or suggestions because names may be referenced elsewhere.
 
 ## Options
 
