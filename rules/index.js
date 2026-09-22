@@ -209,6 +209,7 @@ export {default as 'no-useless-undefined'} from './no-useless-undefined.js';
 export {default as 'no-using-resource-escape'} from './no-using-resource-escape.js';
 export {default as 'no-xor-as-exponentiation'} from './no-xor-as-exponentiation.js';
 export {default as 'no-zero-fractions'} from './no-zero-fractions.js';
+export {default as 'no-zero-length-unit'} from './no-zero-length-unit.js';
 export {default as 'number-literal-case'} from './number-literal-case.js';
 export {default as 'numeric-separators-style'} from './numeric-separators-style.js';
 export {default as 'operator-assignment'} from './operator-assignment.js';
