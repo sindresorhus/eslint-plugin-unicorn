@@ -44,6 +44,7 @@ ruleTest({
 		{code: 'new Promise(resolve => resolve());', errors: [resolveError], output: 'Promise.resolve();'},
 		{code: 'new Promise(resolve => { resolve(1); });', errors: [resolveError], output: 'Promise.resolve(1);'},
 		{code: 'new Promise((resolve, reject) => reject(error));', errors: [rejectError], output: 'Promise.reject(error);'},
+		{code: 'new Promise((reject, resolve) => resolve(error));', errors: [rejectError], output: 'Promise.reject(error);'},
 		{code: 'new Promise((unused, reject) => reject());', errors: [rejectError], output: 'Promise.reject();'},
 		{code: 'new Promise(function (resolve) { resolve(value); });', errors: [resolveError], output: 'Promise.resolve(value);'},
 		{code: 'new Promise((resolve, reject) => resolve(false));', errors: [resolveError], output: 'Promise.resolve(false);'},
