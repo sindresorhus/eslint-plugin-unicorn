@@ -71,6 +71,7 @@ const getMemberName = (member, sourceCode) => {
 };
 
 const isRuntimeMember = member => !member.declare && ['MethodDefinition', 'PropertyDefinition', 'AccessorProperty'].includes(member.type);
+const isDefaultClassProperty = (name, isStatic) => isStatic ? ['name', 'length'].includes(name) : name === 'constructor';
 
 const getMemberDescriptorKind = (member, name, sourceCode) => {
 	if (member.decorators?.length > 0) {
@@ -167,8 +168,7 @@ const create = context => {
 			if (
 				name === UNKNOWN_NAME
 				|| name === undefined
-				|| (member.static && (name === 'name' || name === 'length'))
-				|| (!member.static && name === 'constructor')
+				|| isDefaultClassProperty(name, member.static)
 			) {
 				continue;
 			}
