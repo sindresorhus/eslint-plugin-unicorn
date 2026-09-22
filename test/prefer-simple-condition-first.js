@@ -29,6 +29,8 @@ test({
 		'if (null != value && ready);',
 		'if (!(value == null) && ready);',
 		'if (first() && second());',
+
+		// A guarded identifier does not trigger a report
 		'if (typeof FLAG !== "undefined" && check() && FLAG);',
 		'if ("undefined" !== typeof FLAG && check() && FLAG);',
 		'if (typeof FLAG !== "undefined" && FLAG && ready);',
