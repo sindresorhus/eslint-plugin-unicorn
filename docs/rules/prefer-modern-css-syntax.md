@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[CSS Color 4](https://drafts.csswg.org/css-color/#color-functions) defines space-separated color components with an optional slash-separated alpha channel. The `rgba()` and `hsla()` names are aliases of `rgb()` and `hsl()`. This rule prefers those names, modern separators, and percentage notation for direct numeric alpha values.
+[CSS Color 4](https://drafts.csswg.org/css-color/#color-functions) defines space-separated color components with an optional slash-separated alpha channel. The `rgba()` and `hsla()` names are aliases of `rgb()` and `hsl()`. This rule prefers `rgb()` and `hsl()`, modern separators, and percentage notation for direct numeric alpha values.
 
 [Selectors Level 4](https://drafts.csswg.org/selectors/#pseudo-element-syntax) uses two colons for pseudo-elements. This rule changes the four legacy single-colon forms: `:before`, `:after`, `:first-line`, and `:first-letter`.
 
@@ -35,6 +35,6 @@ a::before {
 
 The alpha convention also applies to direct numeric alpha values in `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()`, and `color()`. Values in `opacity` and computed alpha expressions such as `calc()` or `var()` are unchanged.
 
-The rule checks parsed CSS declaration values, including custom properties and declarations inside `@supports`. It does not inspect strings, URLs, CSS-in-JS, or preprocessor syntax. Raw `var()` fallback text in ordinary declarations is skipped; fallback colors in custom properties can be parsed and checked. Color functions with comments, ambiguous comma-separated components, or legacy arguments that cannot be validated are reported without an autofix. Scientific-notation alpha literals are reported but not converted automatically; other parts of the same color function may still be fixed.
+The rule checks parsed CSS declaration values, including custom properties and declarations inside `@supports`. It does not inspect strings, URLs, CSS-in-JS, or preprocessor syntax. Raw `var()` fallback text in ordinary declarations is skipped; fallback colors in custom properties can be parsed and checked. Color functions with comments, ambiguous comma-separated components, or legacy arguments that cannot be validated are reported without an autofix. This includes comma-separated colors with `var()` components: a variable resolving to `none` is invalid in legacy syntax but valid after conversion. Scientific-notation alpha literals are reported but not converted automatically; other parts of the same color function may still be fixed.
 
 Modern media feature ranges, viewport units, casing, and formally deprecated CSS features are handled by their existing Unicorn rules.

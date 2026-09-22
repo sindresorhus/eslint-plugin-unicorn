@@ -14,7 +14,7 @@ const legacyPseudoElements = new Set(['before', 'after', 'first-line', 'first-le
 const decimalPattern = /^(?<sign>[+\-]?)(?<integer>\d*)(?:\.(?<fraction>\d+))?$/v;
 
 const getRange = (node, offset, sourceCode) => sourceCode.getRange(node).map(index => index + offset);
-const normalizeIdentifier = value => ident.decode(value).toLowerCase();
+const normalizeIdentifier = value => ident.decode(value).replaceAll(/[A-Z]/g, character => character.toLowerCase());
 const hasLinebreak = text => text.includes('\n') || text.includes('\r') || text.includes('\f');
 const hasKnownColorComponents = (children, commas, slash) => (commas.length === 2 || commas.length === 3) && !slash && children.length === (commas.length * 2) + 1;
 
