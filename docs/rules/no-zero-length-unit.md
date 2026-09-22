@@ -11,7 +11,7 @@
 
 In most contexts, zero CSS lengths do not need a unit. Use `0` instead of `0px`, `0rem`, or another zero length.
 
-The rule checks recognized length contexts in declarations and length-based media and container queries. It leaves a zero length unchanged when its context cannot be validated, such as a length inside `translate()` alongside an unresolved `var()`. It ignores angles, times, percentages, `fr` units, unknown or escaped units, custom properties and functions, vendor-prefixed properties and functions, and math functions such as `calc()`. Units can be required for math expressions.
+The rule checks lengths in declarations and media and container queries when it can validate their context. It skips unresolved values, such as `translate(0px, var(--space))`, and ignores angles, times, percentages, `fr`, unknown or escaped units, custom and vendor-prefixed properties and functions, and math functions such as `calc()`, where units may be required.
 
 It also ignores properties that accept both lengths and unitless numeric values, including `line-height`, `columns`, and the `flex` shorthand, and registered custom property `initial-value` descriptors. Removing units in those contexts can change the value's meaning.
 
@@ -21,11 +21,21 @@ Use this rule with [`no-zero-fractions`](./no-zero-fractions.md) to turn `0.0px`
 
 ```css
 /* ❌ */
-.item { margin: 0px; transform: translateX(0rem); }
+.item {
+	margin: 0px;
+	transform: translateX(0rem);
+}
 
 /* ✅ */
-.item { margin: 0; transform: translateX(0); }
+.item {
+	margin: 0;
+	transform: translateX(0);
+}
 
 /* ✅ */
-.item { transition-duration: 0s; width: calc(0px + 1px); flex: 0px; }
+.item {
+	transition-duration: 0s;
+	width: calc(0px + 1px);
+	flex: 0px;
+}
 ```
