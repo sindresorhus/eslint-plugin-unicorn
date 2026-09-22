@@ -1,5 +1,6 @@
 import {
 	ident,
+	parse as parseCss,
 	string as cssString,
 	tokenize,
 	tokenTypes,
@@ -184,6 +185,10 @@ function isSameCssTokens(original, fixed) {
 	return originalTokens.length === fixedTokens.length && originalTokens.every((token, index) => token.type === fixedTokens[index].type && token.value === fixedTokens[index].value);
 }
 
+function getCssDimensionNumericText(text) {
+	return parseCss(text, {context: 'value'}).children.first.value;
+}
+
 function isCssUrlFunction(type, text) {
 	return type === tokenTypes.Function && ident.decode(text.slice(0, -1)).toLowerCase() === 'url';
 }
@@ -281,6 +286,10 @@ const create = context => {
 				const originalContext = text.slice(previousStart, nextEnd);
 				const fixedContext = text.slice(previousStart, start) + fixed + text.slice(end, nextEnd);
 				if (!isSameCssTokens(originalContext, fixedContext)) {
+					continue;
+				}
+
+				if (type === tokenTypes.Dimension && getCssDimensionNumericText(original) !== getCssDimensionNumericText(fixed)) {
 					continue;
 				}
 			}
