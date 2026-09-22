@@ -246,6 +246,8 @@ ruleTest({
 		String.raw`.a\2f b { color: red; }`,
 		String.raw`#\31 a { color: red; }`,
 		String.raw`#\2d { color: red; }`,
+		String.raw`@charset "\55TF-8";`,
+		String.raw`@\63harset "iso-8859-1";`,
 		String.raw`a { content: "\0000041"; }`,
 	],
 	invalid: [
@@ -261,6 +263,7 @@ ruleTest({
 		{code: String.raw`@\6d edia screen { a { content: "A"; } }`, output: '@media screen { a { content: "A"; } }', errors: 1},
 		{code: String.raw`a { width: \63 alc(1 + 2px); }`, output: 'a { width: calc(1 + 2px); }', errors: 1},
 		{code: String.raw`@import "\41.css";`, output: '@import "A.css";', errors: 1},
+		{code: String.raw`@charset "\55TF-8"; a { content: "\41"; }`, output: String.raw`@charset "\55TF-8"; a { content: "A"; }`, errors: 1},
 		{code: String.raw`a { content: "\\\41 \7e"; }`, output: String.raw`a { content: "\\A~"; }`, errors: 1},
 	],
 });

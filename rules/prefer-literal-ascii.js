@@ -228,9 +228,15 @@ const create = context => {
 		tokenize(text, (type, start, end) => {
 			tokens.push({type, start, end});
 		});
+		const firstToken = tokens[0];
+		const isInitialCharset = firstToken?.type === tokenTypes.AtKeyword && firstToken.start === 0 && ident.decode(text.slice(0, firstToken.end)) === '@charset';
 
 		for (const [index, {type, start, end}] of tokens.entries()) {
 			const isString = type === tokenTypes.String;
+			if (isInitialCharset && (index === 0 || (index === 2 && isString))) {
+				continue;
+			}
+
 			if ((!isString && !cssIdentifierTokenTypes.has(type)) || isCssUrlFunction(type, text.slice(start, end)) || (isString && isCssUrlString(tokens, index, text))) {
 				continue;
 			}
