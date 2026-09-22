@@ -37,9 +37,11 @@ test.snapshot({
 		commonmark('[Link][destination]\n[Again][destination]\n\n[destination]: javascript:alert(1)'),
 		commonmark('![Image][destination]\n\n[destination]: javascript:alert(1)'),
 		commonmark('[unused]: javascript:alert(1)'),
+		commonmark('[destination]: java&#9;script:alert(1)'),
 		gfm('[Link](javascript:alert(1))'),
 		gfm('![Image](javascript:alert(1))'),
 		gfm('<javascript:alert(1)>'),
+		gfm('<JaVaScRiPt:alert(1)>'),
 		gfm('[unused]: javascript:alert(1)'),
 	],
 });
