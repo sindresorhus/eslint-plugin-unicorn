@@ -183,7 +183,7 @@ const create = context => {
 			yield {
 				node: member.key,
 				messageId: MESSAGE_ID,
-				data: {kind: member.kind, oppositeKind, name: String(name)},
+				data: {kind: member.kind, oppositeKind, name},
 			};
 		}
 	});

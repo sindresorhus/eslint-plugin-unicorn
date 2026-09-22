@@ -27,6 +27,8 @@ test.snapshot({
 		'class Base { static get length() { return 1; } } class Child extends Base { static set length(value) {} }',
 		'class Base { get [Symbol.iterator]() { return 1; } } class Child extends Base { set ["Symbol(Symbol.iterator)"](value) {} }',
 		'class Base { get ["Symbol(Symbol.iterator)"]() { return 1; } } class Child extends Base { set [Symbol.iterator](value) {} }',
+		'class Base { get #value() { return 1; } } class Child extends Base { set #value(value) {} }',
+		'class Base { get value() { return 1; } } class Middle extends Base { get [key]() { return 2; } } class Child extends Middle { set value(value) {} }',
 	],
 	invalid: [
 		'class Base { get value() { return 1; } } class Child extends Base { set value(value) {} }',
@@ -44,7 +46,9 @@ test.snapshot({
 		'class Base { static get value() { return 1; } } class Child extends Base { static set value(value) {} }',
 		'const Base = class { get value() { return 1; } }; class Child extends Base { set value(value) {} }',
 		'const Base = class { get value() { return 1; } }; const alias = Base; class Child extends alias { set value(value) {} }',
+		'const Base = class { get value() { return 1; } }; const first = Base; const second = first; class Child extends second { set value(value) {} }',
 		'class Child extends (class { get value() { return 1; } }) { set value(value) {} }',
+		'class Base { get first() { return 1; } get second() { return 2; } } class Child extends Base { set first(value) {} set second(value) {} }',
 		'const name = "value"; class Base { get [name]() { return 1; } } class Child extends Base { set value(value) {} }',
 		'class Base { get ["value"]() { return 1; } } class Child extends Base { set value(value) {} }',
 		'class Base { get 1() { return 1; } } class Child extends Base { set [1](value) {} }',
