@@ -60,7 +60,10 @@ ruleTest({
 		},
 		{code: 'new Promise((resolve: Resolver) => resolve(value));', languageOptions: {parser: parsers.typescript}, errors: [resolveError]},
 		{
-			code: 'new Promise<string>(resolve => resolve(value));', languageOptions: {parser: parsers.typescript}, errors: [resolveError], output: 'Promise.resolve<string>(value);',
+			code: 'new Promise<string>(resolve => resolve(value));', languageOptions: {parser: parsers.typescript}, errors: [resolveError],
+		},
+		{
+			code: 'new Promise<Promise<number>>(resolve => resolve(value));', languageOptions: {parser: parsers.typescript}, errors: [resolveError],
 		},
 		{
 			code: 'new Promise<string>((unused, reject) => reject(error));', languageOptions: {parser: parsers.typescript}, errors: [rejectError], output: 'Promise.reject<string>(error);',

@@ -59,7 +59,7 @@ const getFix = (newExpression, callExpression, method, context) => {
 		executor.params.some(parameter => parameter.typeAnnotation)
 		|| executor.returnType
 		|| executor.typeParameters
-		|| (typeArguments && method === 'resolve' && !value)
+		|| (typeArguments && method === 'resolve')
 		|| wouldRemoveComments(context, newExpression, value ? [value] : [])
 	) {
 		return;

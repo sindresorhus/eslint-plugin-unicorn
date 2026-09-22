@@ -15,6 +15,8 @@ Only executors consisting of one direct resolver call are checked. Calls, proper
 
 The autofix includes identifiers, as in the original proposal. If an identifier is unbound or in its temporal dead zone, its read will throw synchronously after the fix instead of rejecting the promise. If it holds an existing promise, [`Promise.resolve()` may return that same promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve), while `new Promise()` creates a wrapper. Review such fixes where these differences matter.
 
+TypeScript constructors with explicit type arguments are reported without an autofix for `resolve`, because `Promise.resolve<T>()` returns `Promise<Awaited<T>>`, which may differ from `Promise<T>`. The `reject` form remains autofixable.
+
 ## Examples
 
 ```js
