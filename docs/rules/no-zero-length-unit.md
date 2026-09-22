@@ -9,11 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Zero CSS lengths do not need a unit. Use `0` instead of `0px`, `0rem`, or another zero length.
+In most contexts, zero CSS lengths do not need a unit. Use `0` instead of `0px`, `0rem`, or another zero length.
 
-The rule checks recognized length contexts in declarations and length-based media and container queries. It leaves a zero length unchanged when its context cannot be validated, such as a length inside `translate()` alongside an unresolved `var()`. It ignores angles, times, percentages, flexible lengths, unknown or escaped units, custom properties and custom functions, and math functions such as `calc()`. Units can be required for math expressions.
+The rule checks recognized length contexts in declarations and length-based media and container queries. It leaves a zero length unchanged when its context cannot be validated, such as a length inside `translate()` alongside an unresolved `var()`. It ignores angles, times, percentages, `fr` units, unknown or escaped units, custom properties and custom functions, and math functions such as `calc()`. Units can be required for math expressions.
 
-It also ignores properties that accept both lengths and numbers, including `line-height` and the `flex` shorthand, and registered custom property `initial-value` descriptors. Removing units in those contexts can change the value's meaning.
+It also ignores properties that accept both lengths and unitless numeric values, including `line-height`, `columns`, and the `flex` shorthand, and registered custom property `initial-value` descriptors. Removing units in those contexts can change the value's meaning.
 
 Use this rule with [`no-zero-fractions`](./no-zero-fractions.md) to turn `0.0px` into `0`.
 

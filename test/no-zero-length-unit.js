@@ -15,6 +15,7 @@ ruleTest.snapshot({
 		'a { transform: translate(0px, var(--space)); }',
 		'a { width: unknown(0px); }',
 		'a { flex: 0px; flex: 1 1 0px; flex: 0%; }',
+		'a { columns: 0px; }',
 		'a { line-height: 0px; tab-size: 0px; border-image-width: 0px; border-image-outset: 0px; }',
 		'a { font: 12px/0px sans-serif; border-image: url(image.png) 30 / 0px / 0px; }',
 		'a { mask-border-width: 0px; mask-border-outset: 0px; mask-border: url(image.png) 30 / 0px / 0px; }',

@@ -44,6 +44,7 @@ const excludedProperties = new Set([
 	'border-image',
 	'border-image-outset',
 	'border-image-width',
+	'columns',
 	'flex',
 	'font',
 	'initial-value',
