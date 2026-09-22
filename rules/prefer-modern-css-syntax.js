@@ -42,7 +42,7 @@ function getSeparatorFixes(children, commas, offset, sourceCode) {
 		const commaRange = getRange(comma, offset, sourceCode);
 		const betweenRange = [previousRange[1], nextRange[0]];
 		const between = sourceCode.text.slice(...betweenRange);
-		const isAlphaSeparator = index === 5;
+		const isAlphaSeparator = comma === commas[2];
 		const beforeComma = sourceCode.text.slice(previousRange[1], commaRange[0]);
 		if (hasLinebreak(beforeComma)) {
 			return [];
@@ -118,7 +118,7 @@ function getColorProblem(node, offset, context, reportNode = node) {
 	};
 	if (
 		sourceCode.text.slice(...span).includes('/*')
-		|| (hasLegacyCommas && !hasKnownComponents)
+		|| (hasLegacyCommas && (!hasKnownComponents || !sourceCode.lexer.matchType('color', {...node, name}).matched))
 	) {
 		return problem;
 	}

@@ -35,6 +35,6 @@ a::before {
 
 The alpha convention also applies to direct numeric alpha values in `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()`, and `color()`. Values in `opacity` and computed alpha expressions such as `calc()` or `var()` are unchanged.
 
-The rule checks parsed CSS declaration values, including custom properties and declarations inside `@supports`. It does not inspect strings, URLs, raw `var()` fallback text, CSS-in-JS, or preprocessor syntax. Color functions with comments or ambiguous comma-separated components are reported without an autofix. Scientific-notation alpha literals are reported but not converted automatically; other parts of the same color function may still be fixed.
+The rule checks parsed CSS declaration values, including custom properties and declarations inside `@supports`. It does not inspect strings, URLs, CSS-in-JS, or preprocessor syntax. Raw `var()` fallback text in ordinary declarations is skipped; fallback colors in custom properties can be parsed and checked. Color functions with comments, ambiguous comma-separated components, or legacy arguments that cannot be validated are reported without an autofix. Scientific-notation alpha literals are reported but not converted automatically; other parts of the same color function may still be fixed.
 
 Modern media feature ranges, viewport units, casing, and formally deprecated CSS features are handled by their existing Unicorn rules.
