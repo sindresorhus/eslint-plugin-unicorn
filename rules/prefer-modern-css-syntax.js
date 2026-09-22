@@ -16,7 +16,12 @@ const decimalPattern = /^(?<sign>[+\-]?)(?<integer>\d*)(?:\.(?<fraction>\d+))?$/
 const getRange = (node, offset, sourceCode) => sourceCode.getRange(node).map(index => index + offset);
 const normalizeIdentifier = value => ident.decode(value).replaceAll(/[A-Z]/g, character => character.toLowerCase());
 const hasLinebreak = text => text.includes('\n') || text.includes('\r') || text.includes('\f');
-const hasKnownColorComponents = (children, commas, slash) => (commas.length === 2 || commas.length === 3) && !slash && children.length === (commas.length * 2) + 1;
+const hasKnownColorComponents = (children, commas, slash) => (
+	(commas.length === 2 || commas.length === 3)
+	&& !slash
+	&& children.length === (commas.length * 2) + 1
+	&& children.slice(0, 5).every(child => child.type !== 'Function')
+);
 
 function toPercentage(number) {
 	const match = decimalPattern.exec(number);

@@ -4,17 +4,9 @@ import plugin from '../index.js';
 import {getTester, languages} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
-const css = testCase => ({
-	...(typeof testCase === 'string' ? {code: testCase} : testCase),
-	language: languages.css.language,
-	plugins: languages.css.plugins,
-});
 
 ruleTest({
-	testerOptions: {
-		language: languages.css.language,
-		plugins: languages.css.plugins,
-	},
+	testerOptions: languages.css,
 	valid: [
 		'a { color: rgb(0 0 0 / 50%); }',
 		'a { color: hsl(30 40% 50%); }',
@@ -25,7 +17,7 @@ ruleTest({
 		'a { --brand: rgba(0, 0, 0, .5) #; }',
 		'a { --brand: oKlab(50% 0 0 / .5); color: oKlab(50% 0 0 / .5); }',
 		'a { color: var(--fallback, rgba(0, 0, 0, .5)); }',
-	].map(testCase => css(testCase)),
+	],
 	invalid: [
 		{code: 'a { color: rgba(0, 0, 0, .5); }', output: 'a { color: rgb(0 0 0 / 50%); }', errors: 1},
 		{code: 'a { color: rgb(1,2,3); }', output: 'a { color: rgb(1 2 3); }', errors: 1},
@@ -65,6 +57,10 @@ ruleTest({
 		{code: '@supports (color: rgb(255, 0%, 0)) { a { color: red; } }', errors: 1},
 		{code: 'a { background: linear-gradient(rgba(0, 0, 0, .5), hsl(30, 40%, 50%)); }', output: 'a { background: linear-gradient(rgb(0 0 0 / 50%), hsl(30 40% 50%)); }', errors: 2},
 		{code: 'a { color: rgb(var(--red), 0, 0); }', errors: 1},
+		{code: '@supports (color: rgb(calc(100%), 0, 0)) { a { color: red; } }', errors: 1},
+		{code: 'a { color: rgb(min(100%, 20%), 0, 0); }', errors: 1},
+		{code: 'a { color: rgb(0, 0, calc(100%)); }', errors: 1},
+		{code: 'a { color: rgb(calc(1 + 2), 0, 0); }', errors: 1},
 		{code: 'a { color: rgb(255, 0%, 0); }', errors: 1},
 		{code: 'a { color: hsl(30, 40, 50); }', errors: 1},
 		{code: 'a { color: rgb(none, 0, 0); }', errors: 1},
@@ -87,7 +83,7 @@ ruleTest({
 		{code: 'a { color: rgba(var(--channels), .5); }', errors: 1},
 		{code: 'a { color: rgb(0,\n 0,\n 0); }', output: 'a { color: rgb(0\n 0\n 0); }', errors: 1},
 		{code: 'a { color: rgb(0\n, 0, 0); }', errors: 1},
-	].map(testCase => css(testCase)),
+	],
 });
 
 test('fixes are stable', t => {
