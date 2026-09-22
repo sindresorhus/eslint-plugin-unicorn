@@ -618,7 +618,7 @@ These rules also work on specific non-JavaScript languages:
 | [`numeric-separators-style`](docs/rules/numeric-separators-style.md) |  |  |  |  | ✅ |  |
 | [`prefer-escaped-irregular-whitespace`](docs/rules/prefer-escaped-irregular-whitespace.md) |  |  | ✅ |  | ✅ |  |
 | [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |  |  |
-| [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md) |  |  | ✅ |  |  |  |
+| [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md) | ✅ |  | ✅ |  |  |  |
 | [`prefer-media-feature-range-syntax`](docs/rules/prefer-media-feature-range-syntax.md) | ✅ |  |  |  |  |  |
 | [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md) |  |  | ✅ |  | ✅ |  |
 | [`relative-url-style`](docs/rules/relative-url-style.md) | ✅ | ✅ |  | ✅ |  |  |
