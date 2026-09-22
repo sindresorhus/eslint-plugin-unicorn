@@ -45,4 +45,6 @@ The rule also reports a getter-only override that hides an inherited setter, and
 
 Superclass references must resolve to class declarations or `const` bindings in the same file. The rule skips imported, dynamic, or reassigned superclasses, unknown computed property names, computed symbol keys, and decorated or ambient declarations. It does not track runtime changes to prototypes or class constructors.
 
+The rule skips instance `constructor` and static `name` and `length` because each subclass already owns those properties.
+
 Unlike ESLint's [`accessor-pairs`](https://eslint.org/docs/latest/rules/accessor-pairs), this rule compares accessors across inheritance. A one-sided accessor is allowed when no inherited counterpart would be hidden.

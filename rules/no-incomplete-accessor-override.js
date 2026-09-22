@@ -164,7 +164,12 @@ const create = context => {
 			}
 
 			const name = getMemberName(member, sourceCode);
-			if (name === UNKNOWN_NAME || name === undefined || (member.static && (name === 'name' || name === 'length'))) {
+			if (
+				name === UNKNOWN_NAME
+				|| name === undefined
+				|| (member.static && (name === 'name' || name === 'length'))
+				|| (!member.static && name === 'constructor')
+			) {
 				continue;
 			}
 
