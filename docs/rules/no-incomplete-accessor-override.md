@@ -41,10 +41,8 @@ class Child extends Base {
 
 The rule also reports a getter-only override that hides an inherited setter, and checks static accessors. It reports when an ancestor defines both accessors but the subclass defines only one.
 
+Unlike ESLint's [`accessor-pairs`](https://eslint.org/docs/latest/rules/accessor-pairs), this rule compares accessors across inheritance. A one-sided accessor is allowed when no inherited counterpart would be hidden.
+
 ## Limitations
 
-Superclass references must resolve to class declarations or `const` bindings in the same file. The rule skips imported, dynamic, or reassigned superclasses, unknown computed property names, computed symbol keys, and decorated or ambient declarations. It does not track runtime changes to prototypes or class constructors.
-
-The rule skips instance `constructor` because each subclass prototype already owns it. It skips static `name` and `length` because each subclass constructor already owns them.
-
-Unlike ESLint's [`accessor-pairs`](https://eslint.org/docs/latest/rules/accessor-pairs), this rule compares accessors across inheritance. A one-sided accessor is allowed when no inherited counterpart would be hidden.
+The rule checks locally resolvable class declarations and `const` aliases. It skips imported, dynamic, or reassigned superclasses; unknown or symbol computed keys; decorators and ambient declarations; and runtime mutations. It also skips instance `constructor` and static `name` and `length`, which subclasses already own.
