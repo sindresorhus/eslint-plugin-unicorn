@@ -9,7 +9,7 @@ test({
 		'a { color: #a4a4a4; background: #aabbccdf; }',
 		'#ffffff { color: red; }',
 		'a { content: "#ffffff"; background: url(#ffffff); background-image: url("#aabbccdd"); /* #ffffff */ }',
-		String.raw`a { background: u\72l(#ffffff); --image: u\72l(#aabbccdd); color: custom(u\72l(#ffffff)); }`,
+		String.raw`a { background: u\72l(#ffffff); --image: u\72l(#aabbccdd); --upper-image: U\52L(#ffffff); color: custom(u\72l(#ffffff)); }`,
 		String.raw`a { color: #\66fffff; color: #fffff; }`,
 	],
 	invalid: [
