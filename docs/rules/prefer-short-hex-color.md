@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Hexadecimal colors can use three or four digits when every adjacent pair of digits in a six or eight digit value matches. This rule shortens those values without changing their color.
+Hexadecimal colors can use three or four digits when each adjacent pair in a six or eight digit value represents the same digit, regardless of letter case. This rule shortens those values without changing their color.
 
 It checks hash tokens in declaration values, including custom properties and unknown value syntax. It leaves selectors, strings, comments, and URLs unchanged. The fix preserves the case of the retained digits; use [`lowercase-css`](./lowercase-css.md) to enforce lowercase.
 

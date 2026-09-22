@@ -24,6 +24,11 @@ test({
 			errors: 1,
 		},
 		{
+			code: 'a { color: #112233; background: #11223344; }',
+			output: 'a { color: #123; background: #1234; }',
+			errors: 2,
+		},
+		{
 			code: 'a { color: #aABbcC; background: #AaBbCcDd; }',
 			output: 'a { color: #aBc; background: #ABCD; }',
 			errors: 2,
