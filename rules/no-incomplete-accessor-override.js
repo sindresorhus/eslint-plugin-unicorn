@@ -63,7 +63,7 @@ const getMemberName = (member, sourceCode) => {
 		return;
 	}
 
-	if (!['string', 'number', 'bigint', 'boolean', 'undefined'].includes(typeof value)) {
+	if (value && ['object', 'function'].includes(typeof value)) {
 		return UNKNOWN_NAME;
 	}
 

@@ -48,6 +48,7 @@ test.snapshot({
 		'const name = "value"; class Base { get [name]() { return 1; } } class Child extends Base { set value(value) {} }',
 		'class Base { get ["value"]() { return 1; } } class Child extends Base { set value(value) {} }',
 		'class Base { get 1() { return 1; } } class Child extends Base { set [1](value) {} }',
+		'class Base { get [null]() { return 1; } } class Child extends Base { set null(value) {} }',
 		outdent`
 			class Base {
 				get value() {
