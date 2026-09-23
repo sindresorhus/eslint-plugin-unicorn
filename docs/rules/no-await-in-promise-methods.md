@@ -11,6 +11,8 @@
 
 Using `await` on promises passed as arguments to `Promise.all()`, `Promise.allSettled()`, `Promise.any()`, or `Promise.race()` is likely a mistake.
 
+This also applies to `await` nested inside an element, since it delays the evaluation of the elements after it.
+
 ## Examples
 
 ```js
@@ -43,4 +45,20 @@ Promise.race([await promise, anotherPromise]);
 
 // ✅
 Promise.race([promise, anotherPromise]);
+```
+
+```js
+// ❌
+Promise.all([(await promise).foo, anotherPromise]);
+
+// ✅
+Promise.all([promise.then(value => value.foo), anotherPromise]);
+```
+
+```js
+// ❌
+Promise.all([condition ? await promise : fallbackPromise, anotherPromise]);
+
+// ✅
+Promise.all([condition ? promise : fallbackPromise, anotherPromise]);
 ```

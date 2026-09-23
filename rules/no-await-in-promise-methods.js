@@ -1,4 +1,4 @@
-import {isMethodCall} from './ast/index.js';
+import {isFunction, isMethodCall} from './ast/index.js';
 import {removeSpacesAfter} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'no-await-in-promise-methods/error';
@@ -19,38 +19,58 @@ const isPromiseMethodCallWithArrayExpression = node =>
 	})
 	&& node.arguments[0].type === 'ArrayExpression';
 
+// Get the `Promise` method array element that contains the `await` expression
+const getPromiseMethodArrayElement = awaitExpression => {
+	for (let node = awaitExpression; node.parent; node = node.parent) {
+		const {parent} = node;
+
+		// The `await` belongs to a nested function, or the outer `await` is reported instead
+		if (isFunction(parent) || parent.type === 'AwaitExpression') {
+			return;
+		}
+
+		if (
+			parent.type === 'ArrayExpression'
+			&& isPromiseMethodCallWithArrayExpression(parent.parent)
+		) {
+			return node;
+		}
+	}
+};
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	context.on('CallExpression', function * (callExpression) {
-		if (!isPromiseMethodCallWithArrayExpression(callExpression)) {
+	context.on('AwaitExpression', awaitExpression => {
+		const element = getPromiseMethodArrayElement(awaitExpression);
+		if (!element) {
 			return;
 		}
 
-		for (const element of callExpression.arguments[0].elements) {
-			if (element?.type !== 'AwaitExpression') {
-				continue;
-			}
+		const problem = {
+			node: awaitExpression,
+			messageId: MESSAGE_ID_ERROR,
+			data: {
+				method: element.parent.parent.callee.property.name,
+			},
+		};
 
-			yield {
-				node: element,
-				messageId: MESSAGE_ID_ERROR,
-				data: {
-					method: callExpression.callee.property.name,
-				},
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						* fix(fixer) {
-							const awaitToken = context.sourceCode.getFirstToken(element);
-							yield fixer.remove(awaitToken);
-							yield removeSpacesAfter(awaitToken, context, fixer);
-						},
+		// Only suggest removing `await` when it is the element itself
+		if (element === awaitExpression) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					* fix(fixer) {
+						const awaitToken = context.sourceCode.getFirstToken(awaitExpression);
+						yield fixer.remove(awaitToken);
+						yield removeSpacesAfter(awaitToken, context, fixer);
 					},
-				],
-			};
+				},
+			];
 		}
+
+		return problem;
 	});
 };
 
