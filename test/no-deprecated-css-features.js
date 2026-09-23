@@ -20,6 +20,7 @@ test.snapshot({
 		css('@media (tv) { a { color: red; } }'),
 		css('@supports (overflow-wrap: break-word) { a { color: red; } }'),
 		css('a { __proto__: constructor; constructor: name; appearance: constructor; color: __proto__; }'),
+		css(':deep(a b) {}'),
 		cssWithOptions('word-wrap { word-wrap: break-word; }', {allow: ['word-wrap']}),
 		cssWithOptions('@viewport { acronym:matches(::content) { word-break: break-word; } } @media tv {}', {
 			allow: ['@viewport', 'acronym', ':matches', '::content', 'word-break: break-word', '@media tv'],
@@ -174,6 +175,14 @@ test({
 			code: '::cue(acronym), ::cue-region(:matches(acronym)) {}',
 			output: '::cue(acronym), ::cue-region(:is(acronym)) {}',
 			errors: 3,
+		},
+		{
+			code: ':deep(a acronym) {}',
+			errors: [
+				{
+					messageId: 'no-deprecated-css-features/error', data: {feature: 'selector', name: 'acronym'}, column: 9, endColumn: 16,
+				},
+			],
 		},
 	],
 });

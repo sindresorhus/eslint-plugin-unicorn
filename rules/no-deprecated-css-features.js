@@ -301,7 +301,14 @@ const getParsedSelectorProblems = ({selector, sourceStart, node, context, allow}
 	const problems = [];
 
 	const visit = currentSelector => {
-		const {start} = Reflect.get(currentSelector, 'loc');
+		const location = Reflect.get(currentSelector, 'loc');
+
+		// `css-tree` does not give a location to the descendant combinator (whitespace)
+		if (!location) {
+			return;
+		}
+
+		const {start} = location;
 		let name;
 		let range;
 		let fix;
