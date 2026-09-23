@@ -5,6 +5,7 @@ import {
 } from './ast/index.js';
 import {
 	getParenthesizedText,
+	isGlobalBooleanCall,
 	isParenthesized,
 	isSameReference,
 	shouldAddParenthesesToConditionalExpressionChild,
@@ -16,8 +17,10 @@ const STYLE_LOGICAL = 'logical';
 const STYLE_TERNARY = 'ternary';
 
 const MESSAGE_ID = 'consistent-conditional-object-spread';
+const MESSAGE_ID_BOOLEAN_CAST = 'unnecessary-boolean-cast';
 const messages = {
 	[MESSAGE_ID]: 'Prefer {{expectedStyle}} conditional object spreads.',
+	[MESSAGE_ID_BOOLEAN_CAST]: 'Unnecessary boolean cast. A falsy value spreads nothing.',
 };
 const nullishOperators = new Set(['==', '===']);
 const nonNullishOperators = new Set(['!=', '!==']);
@@ -309,6 +312,62 @@ function getLogicalExpressionProblem(logicalExpression, context) {
 	};
 }
 
+// Get `foo` from `!!foo` or `Boolean(foo)`.
+function getBooleanCastArgument(node, context) {
+	if (
+		node.type === 'UnaryExpression'
+		&& node.operator === '!'
+		&& node.argument.type === 'UnaryExpression'
+		&& node.argument.operator === '!'
+	) {
+		return node.argument.argument;
+	}
+
+	if (isGlobalBooleanCall(node, context)) {
+		return node.arguments[0];
+	}
+}
+
+// `{...(!!foo && bar)}` equals `{...(foo && bar)}` because every falsy value spreads nothing.
+function getBooleanCastProblem(booleanCast, property, context) {
+	const castArgument = getBooleanCastArgument(booleanCast, context);
+
+	if (!castArgument) {
+		return;
+	}
+
+	return {
+		node: booleanCast,
+		messageId: MESSAGE_ID_BOOLEAN_CAST,
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
+		* fix(fixer, {abort}) {
+			if (context.sourceCode.getCommentsInside(booleanCast).length > 0) {
+				return abort();
+			}
+
+			yield fixer.replaceText(booleanCast, getLogicalOperandText(castArgument, property, context));
+		},
+	};
+}
+
+// In `{...(a && b && c)}`, the result is `a` or `b` only when that operand is falsy, so a boolean cast of it is unnecessary.
+function * getBooleanCastProblems(logicalExpression, context) {
+	if (logicalExpression.operator !== '&&') {
+		return;
+	}
+
+	let node = logicalExpression.left;
+
+	while (node.type === 'LogicalExpression' && node.operator === '&&') {
+		yield getBooleanCastProblem(node.right, 'right', context);
+		node = node.left;
+	}
+
+	yield getBooleanCastProblem(node, 'left', context);
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -333,6 +392,14 @@ const create = context => {
 		}
 
 		return getConditionalExpressionProblem(conditionalExpression, context);
+	});
+
+	context.on('LogicalExpression', logicalExpression => {
+		if (!isObjectSpreadArgument(logicalExpression)) {
+			return;
+		}
+
+		return getBooleanCastProblems(logicalExpression, context);
 	});
 };
 
