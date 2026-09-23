@@ -289,11 +289,6 @@ const create = context => {
 			return;
 		}
 
-		const shortBodyProblem = getShortBodyProblem(loop.body, context, 'ContinueStatement');
-		if (shortBodyProblem) {
-			return {...shortBodyProblem, messageId: SHORT_BODY_MESSAGE_ID};
-		}
-
 		const statement = loop.body.body.at(-1);
 		if (
 			statement?.type !== 'IfStatement'
@@ -301,7 +296,9 @@ const create = context => {
 			|| getConsequentStatementCount(statement) <= maximumStatements
 			|| consequentExitsLoop(statement.consequent)
 		) {
-			return;
+			// Checked after the wrapper so a guard before a long wrapper becomes a guard chain instead of nested `if` statements.
+			const shortBodyProblem = getShortBodyProblem(loop.body, context, 'ContinueStatement');
+			return shortBodyProblem && {...shortBodyProblem, messageId: SHORT_BODY_MESSAGE_ID};
 		}
 
 		const fix = getFix(statement, context);

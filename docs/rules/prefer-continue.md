@@ -145,9 +145,40 @@ for (const item of items) {
 		doSomething();
 	}
 }
+
+// ❌
+for (const item of items) {
+	doSomethingBefore();
+	if (!condition) {
+		continue;
+	}
+
+	doSomething();
+}
+
+// ✅
+for (const item of items) {
+	doSomethingBefore();
+	if (condition) {
+		doSomething();
+	}
+}
+
+// ✅
+for (const item of items) {
+	if (!condition) {
+		continue;
+	}
+
+	if (!otherCondition) {
+		continue;
+	}
+
+	doSomething();
+}
 ```
 
-The guard must come first and contain only an unlabeled `continue;`. An `if` with `else` must be the entire loop body. Guards after other statements, `else if` chains, and guards with extra work are ignored.
+The guard is the last top-level `if` that contains only an unlabeled `continue;`, and it can follow other statements. An `if` with `else` must be the last statement of the loop body. A guard directly after another such guard is ignored, so guard chains stay as they are. `else if` chains and guards with extra work are also ignored. The rewrite does not merge conditions, so a short body that is itself an `if` becomes a nested `if`.
 
 Autofix preserves an existing `else` block's scope. Direct declarations that would change scope, comments in or after the rewritten range, and multiline-sensitive tokens requiring reindentation make the violation report-only.
 

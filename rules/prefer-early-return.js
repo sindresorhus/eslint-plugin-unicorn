@@ -303,11 +303,6 @@ const create = context => {
 			return;
 		}
 
-		const shortBodyProblem = getShortBodyProblem(node.body, context, 'ReturnStatement');
-		if (shortBodyProblem) {
-			return {...shortBodyProblem, messageId: SHORT_BODY_MESSAGE_ID};
-		}
-
 		const {body} = node.body;
 		const statement = body.at(-1);
 		if (
@@ -315,7 +310,9 @@ const create = context => {
 			|| statement.alternate
 			|| getConsequentStatementCount(statement) <= maximumStatements
 		) {
-			return;
+			// Checked after the wrapper so a guard before a long wrapper becomes a guard chain instead of nested `if` statements.
+			const shortBodyProblem = getShortBodyProblem(node.body, context, 'ReturnStatement');
+			return shortBodyProblem && {...shortBodyProblem, messageId: SHORT_BODY_MESSAGE_ID};
 		}
 
 		const fix = getFix(statement, node, context);
