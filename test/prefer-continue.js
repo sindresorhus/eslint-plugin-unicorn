@@ -667,7 +667,68 @@ test.snapshot({
 			options: [{checkShortBodies: true}],
 		},
 		{
-			code: 'for (const item of items) { prepare(); if (!condition) { continue; } work(); }',
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } work(); finish(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } else { work(); } finish(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { if (!first) { continue; } if (!second) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!first) { continue; } if (!second) { continue; } else { work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { if (!first) { continue; }; if (!second) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		'for (const item of items) { prepare(); if (!condition) { continue; } work(); }',
+		{
+			code: 'for (const item of items) { if (!first) continue; if (!second) continue; work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { if (!first) { continue; } if (!second) { continue; } if (!third) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } ; }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { if (!first) { continue; } else { log(); } if (!second) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { if (!first) { continue; } work(); if (!second) { continue; } finish(); cleanup(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); { if (!condition) { continue; } work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); switch (item) { case 1: if (!condition) { continue; } work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'outer: for (const item of items) { prepare(); if (!condition) { continue outer; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { break; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { for (const item of items) { prepare(); if (!condition) { return; } work(); } }',
 			options: [{checkShortBodies: true}],
 		},
 		{
@@ -792,6 +853,107 @@ test.snapshot({
 			options: [{checkShortBodies: true}],
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } else { work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { const value = prepare(item); if (!value) { continue; } work(value); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { if (!first) { continue; } prepare(); if (!second) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); finish(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { /* keep */ prepare(); if (!condition) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); /* keep */ if (!condition) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare();; if (!condition) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { if (!first) { break; } if (!second) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { for (const item of items) { if (!first) { return; } if (!second) { continue; } work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'outer: for (const item of items) { if (!first) { continue outer; } if (!second) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { if (!first) { log(); continue; } if (!second) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const group of groups) { for (const item of group) { prepare(item); if (!item.isActive) { continue; } work(item); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) continue; work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) continue; else work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } work(); finish(); }',
+			options: [{checkShortBodies: true, maximumStatements: 2}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } const value = work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } if (other) { break; } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (a || b) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } work(); // keep\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { const value = item.value as Value; if (!value) { continue; } use(value!); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'for (const item of items) { if (!first) { continue; } else if (other) { log(); } if (!second) { continue; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) { if (!first) { continue; } prepare(); if (second) { work(); } }',
+			options: [{checkShortBodies: true, maximumStatements: 2}],
+		},
+		{
+			code: 'for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); break; } }',
+			options: [{checkShortBodies: true}],
+		},
 	],
 });
 
@@ -851,6 +1013,42 @@ test.snapshot({
 			code: 'for (const item of items) { if (!condition) { continue; } performWork(<div>first\nsecond</div>); }',
 			options: [{checkShortBodies: true}],
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: 'for (const item of items) {\n	prepare(item);\n	if (!item.isActive) {\n		continue;\n	}\n\n	processItem(item);\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) {\n  prepare(item);\n  if (!item.isActive) {\n    continue;\n  }\n\n  processItem(item);\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) {\r\n\tprepare(item);\r\n\tif (!item.isActive) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\tprocessItem(item);\r\n}\r\n',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: outdent`
+				for (const group of groups) {
+					for (const item of group) {
+						prepare(item);
+						if (!item.isActive) {
+							continue;
+						}
+
+						processItem(item);
+						saveItem(item);
+					}
+				}
+			`,
+			options: [{checkShortBodies: true, maximumStatements: 2}],
+		},
+		{
+			code: 'for (const item of items) {\n	prepare(item);\n	if (!item.isActive) {\n		continue;\n	}\n\n	processItem({\n		item,\n	});\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'for (const item of items) {\n	prepare(item);\n	if (!item.isActive) {\n		continue;\n	} else {\n		processItem(item);\n	}\n}',
+			options: [{checkShortBodies: true}],
 		},
 	],
 });

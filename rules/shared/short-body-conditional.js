@@ -19,6 +19,21 @@ const isLabeledFunctionDeclaration = node =>
 		|| isLabeledFunctionDeclaration(node.body)
 	);
 
+const isExitGuard = (node, exitStatementType) => {
+	if (
+		node?.type !== 'IfStatement'
+		|| node.alternate?.type === 'IfStatement'
+	) {
+		return false;
+	}
+
+	const exits = getStatements(node.consequent);
+	return exits.length === 1
+		&& exits[0].type === exitStatementType
+		&& !exits[0].argument
+		&& !exits[0].label;
+};
+
 const getNegatedConditionText = (node, context) => {
 	if (node.type === 'UnaryExpression' && node.operator === '!') {
 		return getParenthesizedText(node.argument, context);
@@ -75,26 +90,22 @@ export default function getShortBodyProblem(block, context, exitStatementType) {
 		return;
 	}
 
-	const [guard] = block.body;
+	const guardIndex = block.body.findLastIndex(node => isExitGuard(node, exitStatementType));
+	if (guardIndex === -1) {
+		return;
+	}
+
+	const guard = block.body[guardIndex];
+	const previousStatement = block.body.slice(0, guardIndex).findLast(({type}) => type !== 'EmptyStatement');
 	if (
-		guard?.type !== 'IfStatement'
-		|| guard.alternate?.type === 'IfStatement'
-		|| (guard.alternate && block.body.length !== 1)
+		(guard.alternate && guardIndex !== block.body.length - 1)
+		// Keep guard chains, since wrapping the last guard makes the previous one wrap it too.
+		|| isExitGuard(previousStatement, exitStatementType)
 	) {
 		return;
 	}
 
-	const exits = getStatements(guard.consequent);
-	if (
-		exits.length !== 1
-		|| exits[0].type !== exitStatementType
-		|| exits[0].argument
-		|| exits[0].label
-	) {
-		return;
-	}
-
-	const statements = guard.alternate ? getStatements(guard.alternate) : block.body.slice(1);
+	const statements = guard.alternate ? getStatements(guard.alternate) : block.body.slice(guardIndex + 1);
 	const statementCount = statements.filter(({type}) => type !== 'EmptyStatement').length;
 	if (statementCount === 0 || statementCount > maximumStatements) {
 		return;

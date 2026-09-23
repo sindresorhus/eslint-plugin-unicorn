@@ -131,8 +131,39 @@ function foo() {
 		doSomething();
 	}
 }
+
+// ❌
+function foo() {
+	doSomethingBefore();
+	if (!condition) {
+		return;
+	}
+
+	doSomething();
+}
+
+// ✅
+function foo() {
+	doSomethingBefore();
+	if (condition) {
+		doSomething();
+	}
+}
+
+// ✅
+function foo() {
+	if (!condition) {
+		return;
+	}
+
+	if (!otherCondition) {
+		return;
+	}
+
+	doSomething();
+}
 ```
 
-The guard must come first and contain only a bare `return;`. An `if` with `else` must be the entire function body. Guards after other statements, `else if` chains, and guards with extra work are ignored.
+The guard is the last top-level `if` that contains only a bare `return;`, and it can follow other statements. An `if` with `else` must be the last statement of the function body. A guard directly after another such guard is ignored, so guard chains stay as they are. `else if` chains and guards with extra work are also ignored. The rewrite does not merge conditions, so a short body that is itself an `if` becomes a nested `if`.
 
 Autofix preserves an existing `else` block's scope. Direct declarations that would change scope, comments in or after the rewritten range, and multiline-sensitive tokens requiring reindentation make the violation report-only.

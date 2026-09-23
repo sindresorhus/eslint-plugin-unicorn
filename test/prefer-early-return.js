@@ -833,7 +833,64 @@ test.snapshot({
 			options: [{checkShortBodies: true}],
 		},
 		{
-			code: 'function foo() { prepare(); if (!condition) { return; } work(); }',
+			code: 'function foo() { prepare(); if (!condition) { return; } work(); finish(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } else { work(); } finish(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { return; } if (!second) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!first) { return; } if (!second) { return; } else { work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { return; }; if (!second) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		'function foo() { prepare(); if (!condition) { return; } work(); }',
+		{
+			code: 'function foo() { if (!first) return; if (!second) return; work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { return; } if (!second) { return; } if (!third) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return value; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } ; }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); { if (!condition) { return; } work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); label: if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); switch (value) { case 1: if (!condition) { return; } work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { return; } else { log(); } if (!second) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { return; } work(); if (!second) { return; } finish(); cleanup(); }',
 			options: [{checkShortBodies: true}],
 		},
 		{
@@ -962,6 +1019,116 @@ test.snapshot({
 			options: [{checkShortBodies: true}],
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } else { work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { const value = prepare(); if (!value) { return; } work(value); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { return; } prepare(); if (!second) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } if (other) { work(); finish(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { /* keep */ prepare(); if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { \'use strict\'; if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); /* keep */ if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare();; if (!condition) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { throw new Error(\'Missing\'); } if (!second) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { log(); return; } if (!second) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { return value; } if (!second) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'class Foo { method() { prepare(); if (!condition) { return; } work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) return; work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) return; else work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } work(); finish(); }',
+			options: [{checkShortBodies: true, maximumStatements: 2}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } const value = work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } if (other) { work(); } }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { function helper() {} if (!condition) { return; } helper(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } function helper() {} }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (a || b) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } work(); // keep\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { const value = getValue() as Value; if (!value) { return; } use(value!); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function Foo() { const data = useData(); if (!data) { return; } render(<div>{data}</div>); }',
+			options: [{checkShortBodies: true}],
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: 'function foo() { if (!first) { return; } else if (other) { log(); } if (!second) { return; } work(); }',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() { if (!first) { return; } prepare(); if (second) { work(); } }',
+			options: [{checkShortBodies: true, maximumStatements: 2}],
+		},
+		{
+			code: 'function foo() { prepare(); if (!condition) { return; } if (other) { work(); finish(); } else { log(); } }',
+			options: [{checkShortBodies: true}],
+		},
 	],
 });
 
@@ -1021,6 +1188,26 @@ test.snapshot({
 			code: 'function foo() { if (!condition) { return; } performWork(<div>first\nsecond</div>); }',
 			options: [{checkShortBodies: true}],
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: 'function foo() {\n	prepare();\n	if (!condition) {\n		return;\n	}\n\n	performWork();\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() {\n  prepare();\n  if (!condition) {\n    return;\n  }\n\n  performWork();\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'class Foo {\n	method() {\n		prepare();\n		if (!condition) {\n			return;\n		}\n\n		performWork();\n		finish();\n	}\n}',
+			options: [{checkShortBodies: true, maximumStatements: 2}],
+		},
+		{
+			code: 'function foo() {\n	prepare();\n	if (!condition) {\n		return;\n	}\n\n	performWork({\n		value,\n	});\n}',
+			options: [{checkShortBodies: true}],
+		},
+		{
+			code: 'function foo() {\n	prepare();\n	if (!condition) {\n		return;\n	} else {\n		performWork();\n	}\n}',
+			options: [{checkShortBodies: true}],
 		},
 	],
 });
@@ -1158,6 +1345,12 @@ test({
 			code: 'function run(item) {\r\n\tif (!item.isActive) {\r\n\t\treturn;\r\n\t}\r\n\r\n\tprocess(item);\r\n}\r\n',
 			options: [{checkShortBodies: true}],
 			output: 'function run(item) {\r\n\tif (item.isActive) {\r\n\t\tprocess(item);\r\n\t}\r\n}\r\n',
+			errors: [{messageId: 'prefer-early-return/short-body'}],
+		},
+		{
+			code: 'function run(item) {\r\n\tprepare(item);\r\n\tif (!item.isActive) {\r\n\t\treturn;\r\n\t}\r\n\r\n\tprocess(item);\r\n}\r\n',
+			options: [{checkShortBodies: true}],
+			output: 'function run(item) {\r\n\tprepare(item);\r\n\tif (item.isActive) {\r\n\t\tprocess(item);\r\n\t}\r\n}\r\n',
 			errors: [{messageId: 'prefer-early-return/short-body'}],
 		},
 	],
