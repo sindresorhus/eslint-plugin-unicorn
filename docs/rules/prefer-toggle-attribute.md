@@ -19,6 +19,8 @@ Only direct `hasAttribute()` toggles are autofixed. Condition-driven `toggleAttr
 
 Optional receivers are fixed or suggested only for direct `hasAttribute()` toggles. Generic condition-driven optional receivers are reported without fixes because `element?.toggleAttribute(name, condition)` would skip evaluating `condition` when `element` is nullish.
 
+Property assignments like `element.hidden = condition` are intentionally not checked. They only match `toggleAttribute()` for reflected boolean attributes (for example, `input.checked` does not change the `checked` attribute), and the rule cannot know that the receiver is an element.
+
 ## Examples
 
 ```js
