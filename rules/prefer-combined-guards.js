@@ -51,28 +51,29 @@ function isSimpleCondition(node, allowLogicalOr = true) {
 	}
 }
 
-function getExitStatement(node, context) {
+function getGuardStatements(node, context, checkMultiStatementBodies) {
 	if (node?.type !== 'IfStatement' || node.alternate) {
 		return;
 	}
 
-	let {consequent} = node;
-	if (consequent.type === 'BlockStatement') {
-		if (consequent.body.length !== 1) {
-			return;
-		}
-
-		[consequent] = consequent.body;
+	const {consequent} = node;
+	const statements = consequent.type === 'BlockStatement' ? consequent.body : [consequent];
+	if (
+		statements.length === 0
+		|| (statements.length > 1 && !checkMultiStatementBodies)
+	) {
+		return;
 	}
 
+	const exit = statements.at(-1);
 	if (
-		exitStatementTypes.has(consequent.type)
+		exitStatementTypes.has(exit.type)
 		|| (
-			consequent.type === 'ExpressionStatement'
-			&& isProcessExitCall(consequent.expression, context)
+			exit.type === 'ExpressionStatement'
+			&& isProcessExitCall(exit.expression, context)
 		)
 	) {
-		return consequent;
+		return statements;
 	}
 }
 
@@ -115,6 +116,55 @@ const isExitUnsafeToCombine = (node, sourceCode) => {
 	);
 };
 
+const canCombineBodies = (previousStatements, statements, sourceCode) =>
+	previousStatements.length === statements.length
+	&& statements.slice(0, -1).every((statement, index) =>
+		sourceCode.getText(statement) === sourceCode.getText(previousStatements[index])
+		&& !containsTaggedTemplate(statement, sourceCode.visitorKeys));
+
+// Node types that TypeScript can narrow.
+const referenceTypes = new Set([
+	'Identifier',
+	'MemberExpression',
+	'ThisExpression',
+	'JSXIdentifier',
+	'JSXMemberExpression',
+]);
+
+function hasSameReferenceTypes(previousNode, node, parserServices, visitorKeys) {
+	if (
+		referenceTypes.has(node.type)
+		&& parserServices.getTypeAtLocation(previousNode) !== parserServices.getTypeAtLocation(node)
+	) {
+		return false;
+	}
+
+	for (const key of visitorKeys[node.type] ?? []) {
+		const children = [node[key]].flat();
+		const previousChildren = [previousNode[key]].flat();
+		for (const [index, child] of children.entries()) {
+			if (child?.type && !hasSameReferenceTypes(previousChildren[index], child, parserServices, visitorKeys)) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+/*
+Statements before the exit may depend on each guard's TypeScript narrowing. The combined body sees the union of both narrowed types, so with full type information, combine them only when every reference has the same type in both bodies.
+*/
+function isNarrowingPreserved(previousStatements, statements, sourceCode) {
+	const {parserServices, visitorKeys} = sourceCode;
+	if (statements.length === 1 || !parserServices?.esTreeNodeToTSNodeMap) {
+		return true;
+	}
+
+	return Boolean(parserServices.program)
+		&& statements.slice(0, -1).every((statement, index) => hasSameReferenceTypes(previousStatements[index], statement, parserServices, visitorKeys));
+}
+
 function getConditionText(node, property, context) {
 	if (isParenthesized(node, context)) {
 		return getParenthesizedText(node, context);
@@ -132,22 +182,28 @@ function getConditionText(node, property, context) {
 */
 const create = context => {
 	const {sourceCode} = context;
-	const {checkCompoundConditions} = context.options[0];
+	const {checkCompoundConditions, checkMultiStatementBodies} = context.options[0];
 
 	context.on('IfStatement', node => {
-		const exit = getExitStatement(node, context);
-		if (!exit) {
+		const statements = getGuardStatements(node, context, checkMultiStatementBodies);
+		if (!statements) {
 			return;
 		}
 
 		const previousNode = getPreviousNode(node, context);
-		const previousExit = getExitStatement(previousNode, context);
+		const previousStatements = getGuardStatements(previousNode, context, checkMultiStatementBodies);
+		if (!previousStatements) {
+			return;
+		}
+
+		const exit = statements.at(-1);
+		const previousExit = previousStatements.at(-1);
 		if (
-			!previousExit
-			|| previousExit.type !== exit.type
+			previousExit.type !== exit.type
 			// Preserve significant whitespace, including ASI inside returned functions.
 			|| getExitText(previousExit, sourceCode) !== getExitText(exit, sourceCode)
 			|| isExitUnsafeToCombine(exit, sourceCode)
+			|| !canCombineBodies(previousStatements, statements, sourceCode)
 			|| (!checkCompoundConditions && (!isSimpleCondition(previousNode.test) || !isSimpleCondition(node.test)))
 		) {
 			return;
@@ -156,6 +212,10 @@ const create = context => {
 		const range = [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]];
 		// Comments can describe distinct exit reasons that combining guards would obscure.
 		if (sourceCode.getCommentsBefore(previousNode).length > 0 || hasCommentInRange(context, range)) {
+			return;
+		}
+
+		if (!isNarrowingPreserved(previousStatements, statements, sourceCode)) {
 			return;
 		}
 
@@ -193,10 +253,14 @@ const config = {
 					type: 'boolean',
 					description: 'Check guards with compound conditions.',
 				},
+				checkMultiStatementBodies: {
+					type: 'boolean',
+					description: 'Check guards whose bodies run the same statements before the exit.',
+				},
 			},
 			additionalProperties: false,
 		}],
-		defaultOptions: [{checkCompoundConditions: false}],
+		defaultOptions: [{checkCompoundConditions: false, checkMultiStatementBodies: false}],
 		messages,
 		languages: [
 			'js/js',
