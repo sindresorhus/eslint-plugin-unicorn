@@ -33,6 +33,28 @@ const object = {...(condition ? {property} : undefined)};
 const object = {...(condition && {property})};
 ```
 
+With the default `'logical'` style, a boolean cast of the condition is also reported, because every falsy value spreads nothing:
+
+```js
+// ❌
+const object = {...(!!condition && {property})};
+
+// ❌
+const object = {...(Boolean(condition) && {property})};
+
+// ✅
+const object = {...(condition && {property})};
+
+// ❌
+const object = {...(!!first && !!second && {property})};
+
+// ✅
+const object = {...(first && second && {property})};
+```
+
+> [!NOTE]
+> In TypeScript, a condition of type `unknown` needs the boolean cast, because TypeScript does not allow spreading `unknown`. Use an `// eslint-disable-next-line` comment in that case.
+
 With the `'ternary'` option:
 
 ```js
@@ -52,5 +74,5 @@ Default: `'logical'`
 
 Available options:
 
-- `'logical'` - Prefer `...(condition && object)`.
+- `'logical'` - Prefer `...(condition && object)`, without a boolean cast of `condition`.
 - `'ternary'` - Prefer `...(condition ? object : {})`.
