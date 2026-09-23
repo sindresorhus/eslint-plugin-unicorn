@@ -11,7 +11,7 @@
 
 Consecutive guard clauses with identical exits can be combined using `||`, removing duplication while preserving condition evaluation order. By default, only simple conditions and `||` chains of simple conditions are checked.
 
-This rule checks adjacent `if` statements without `else`. Each body, with or without braces, must consist of one `return`, `throw`, `break`, `continue`, or direct call to the global `process.exit()` function. Both exits must have the same kind, and their values, labels, or `process.exit()` calls must match.
+This rule checks adjacent `if` statements without `else`. By default, each body, with or without braces, must consist of one `return`, `throw`, `break`, `continue`, or direct call to the global `process.exit()` function. Both exits must have the same kind, and their values, labels, or `process.exit()` calls must match.
 
 Exit values, labels, and calls are compared by source text, ignoring surrounding parentheses where applicable. The rule does not normalize internal formatting or infer semantic equivalence. Braces, surrounding whitespace, and optional trailing semicolons may differ.
 
@@ -85,7 +85,7 @@ for (const item of items) {
 }
 ```
 
-Bodies with additional statements or nested control flow are intentionally ignored. Arbitrary identical bodies cannot generally be combined: both original bodies could execute when both conditions are true.
+Bodies with additional statements or nested control flow are ignored by default (see [`checkMultiStatementBodies`](#checkmultistatementbodies)). Arbitrary identical bodies cannot generally be combined: both original bodies could execute when both conditions are true.
 
 ```js
 // ✅
@@ -126,6 +126,44 @@ function check(context) {
 	if (context.finished || (!context.hasResult && !context.hasError)) {
 		return;
 	}
+}
+```
+
+### checkMultiStatementBodies
+
+Type: `boolean`\
+Default: `false`
+
+Also check guards whose bodies have identical statements, compared by source text, before the same exit. Only one body can run, so combining them does not change behavior. Statements containing tagged templates are never combined.
+
+In TypeScript, the statements could depend on each guard's narrowing, so they are only combined with [type information](https://typescript-eslint.io/getting-started/typed-linting) and when every reference has the same type in both bodies. Declarations inside the bodies, such as object literals and functions, get a new type in each body, so those bodies are not combined.
+
+```js
+// With {checkMultiStatementBodies: true}:
+
+// ❌
+for (const item of items) {
+	if (item.hidden) {
+		logSkip(item);
+		continue;
+	}
+
+	if (item.disabled) {
+		logSkip(item);
+		continue;
+	}
+
+	processItem(item);
+}
+
+// ✅
+for (const item of items) {
+	if (item.hidden || item.disabled) {
+		logSkip(item);
+		continue;
+	}
+
+	processItem(item);
 }
 ```
 
