@@ -817,6 +817,19 @@ test('fixes slash-separated acronym pairs', t => {
 // TCP/UDP sockets.`);
 });
 
+// A slash-pair part as long as the longest acronym must still be checked, so a length cutoff set
+// too low would mask `utf-8` here. A part well past any acronym is still a package specifier.
+test('fixes slash pairs holding an optionally dashed acronym', t => {
+	const result = verifyAndFixJavaScript(`// utf8/json pairs.
+// utf-8/json pairs.
+// utf8/somethinglongerthananacronym stays masked.`);
+
+	t.true(result.fixed);
+	t.is(result.output, `// UTF-8/JSON pairs.
+// UTF-8/JSON pairs.
+// utf8/somethinglongerthananacronym stays masked.`);
+});
+
 test('fixes prose comments', t => {
 	const result = verifyAndFixJavaScript('// the api returns json and svg files.');
 
