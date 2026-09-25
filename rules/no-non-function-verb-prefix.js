@@ -2,6 +2,7 @@ import {isRegExp} from 'node:util/types';
 import {
 	isNullishType,
 	isTypeScriptFile,
+	matchesAnyRegExp,
 	isUnknownType,
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
@@ -134,15 +135,6 @@ const getIntersectionTypeCallability = (type, checker, program, visitedTypes) =>
 const isInDeclaredModule = (node, sourceCode) =>
 	sourceCode.getAncestors(node).some(ancestor => ancestor.type === 'TSModuleDeclaration' && ancestor.declare);
 
-function isIgnoredName(name, ignore) {
-	return ignore.some(regexp => {
-		regexp.lastIndex = 0;
-		const isIgnored = regexp.test(name);
-		regexp.lastIndex = 0;
-		return isIgnored;
-	});
-}
-
 function getTypeCallability(type, checker, program, visitedTypes = new Set()) {
 	if (isIgnoredType(type)) {
 		return unknown;
@@ -198,7 +190,7 @@ function getProblem(identifier, context, options, typeNode = identifier) {
 		return;
 	}
 
-	if (isIgnoredName(identifier.name, options.ignore)) {
+	if (matchesAnyRegExp(identifier.name, options.ignore)) {
 		return;
 	}
 
