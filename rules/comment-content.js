@@ -153,15 +153,23 @@ function getDefaultReplacementPattern(pattern) {
 	return `${unicodeWordBoundaryStartPattern}${pattern}${unicodeWordBoundaryEndPattern}`;
 }
 
-const acronymTermPatterns = Object.entries(defaultReplacements)
+const acronymTermEntries = Object.entries(defaultReplacements)
 	.filter(([, options]) => {
 		const replacement = typeof options === 'string' ? options : options.replacement;
 
 		return replacement === replacement.toUpperCase();
-	})
+	});
+const acronymTermPatterns = acronymTermEntries
 	.map(([pattern]) => `(?:${getDefaultReplacementPattern(pattern)})`);
 // A single alternation of every acronym-style term, so a token is tested with one regex instead of one per term.
 const defaultReplacementTermPattern = new RegExp(`^(?:${acronymTermPatterns.join('|')})$`, 'iv');
+
+/*
+Every acronym-style pattern is a boundary-wrapped run of literal ASCII characters, where `x?` marks a character that may be absent. Such a run is never shorter than what the term can match, so a slash-pair part longer than the longest run can never be prose. Checking the length first skips the alternation for the many path segments that exceed it. A pattern of an unrecognized shape makes the bound infinite, leaving the regex authoritative.
+*/
+const acronymTermWordPattern = /^\\b([\d\-?A-Za-z]+)\\b$/v;
+// The `0` floor keeps an empty table exact, since the alternation would then match only an empty part.
+const maxAcronymTermLength = Math.max(0, ...acronymTermEntries.map(([pattern]) => acronymTermWordPattern.exec(pattern)?.[1]?.length ?? Infinity));
 
 /*
 Most patterns start with a literal word (or at least a literal prefix, as in `\bgrunt(?:\.js)?\b`), which must appear verbatim in the text for the pattern to match. Checking for it with `String#includes` is far cheaper than running the regex, and lets the vast majority of comments skip almost every replacement. Patterns of any other shape get no required text and are always run.
@@ -724,7 +732,7 @@ function isSlashPairProse(text) {
 		return false;
 	}
 
-	return parts.every(part => defaultReplacementTermPattern.test(part));
+	return parts.every(part => part.length <= maxAcronymTermLength && defaultReplacementTermPattern.test(part));
 }
 
 function getPackageSpecifierBase(text) {
@@ -1014,7 +1022,9 @@ function getSearchableCommentValue(commentValue, isJSDocument) {
 	/*
 	Mask ignored comment regions with fixed-width sentinel characters before running replacement regexes. This keeps every index identical to the original comment for autofix, prevents custom replacements from treating masked regions as normal whitespace, and keeps region-level exclusions out of the per-match skip path. Only neighbor-sensitive cases such as filenames, paths, member access, and punctuation-adjacent matches remain match-local checks.
 	*/
-	const characters = Array.from({length: commentValue.length}, (_element, index) => commentValue[index]);
+	// `String#split` builds the per-character array in one native call, where `Array.from` over a
+	// length object allocates a separate string for every character.
+	const characters = commentValue.split('');
 
 	maskFencedCodeBlocks(characters, commentValue);
 	maskJsdocExamples(characters, commentValue);
