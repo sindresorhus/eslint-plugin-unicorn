@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -67,5 +67,19 @@ test.snapshot({
 			const foo = {};
 			new Set([foo, foo]);
 		`,
+
+		// TypeScript wrappers around the array literal
+		{
+			code: 'new Set([1, 2, 1] as const);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'new Set([1, 1]!);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'new Set([1, 2, 1] satisfies number[]);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

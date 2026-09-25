@@ -1,5 +1,5 @@
 import {isNewExpression} from './ast/index.js';
-import {getDuplicateArrayElements} from './utils/index.js';
+import {getDuplicateArrayElements, unwrapTypeScriptExpression} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -26,12 +26,13 @@ const create = context => {
 		}
 
 		const [iterable] = node.arguments;
+		const arrayExpression = unwrapTypeScriptExpression(iterable);
 
-		if (iterable.type !== 'ArrayExpression') {
+		if (arrayExpression.type !== 'ArrayExpression') {
 			return;
 		}
 
-		const duplicateElements = getDuplicateArrayElements(iterable.elements, context);
+		const duplicateElements = getDuplicateArrayElements(arrayExpression.elements, context);
 
 		return duplicateElements.map(element => ({
 			node: element ?? iterable,
