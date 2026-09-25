@@ -13,7 +13,8 @@ const create = context => {
 		return;
 	}
 
-	context.on(['ExportNamedDeclaration', 'ExportDefaultDeclaration', 'ExportAllDeclaration'], node => ({
+	// `export = foo;` is a `TSExportAssignment`
+	context.on(['ExportNamedDeclaration', 'ExportDefaultDeclaration', 'ExportAllDeclaration', 'TSExportAssignment'], node => ({
 		node,
 		messageId: MESSAGE_ID,
 	}));

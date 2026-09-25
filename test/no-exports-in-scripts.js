@@ -83,5 +83,9 @@ test.snapshot({
 			#!/usr/bin/env node
 			export interface Foo {}
 		`),
+		typescriptCode(outdent`
+			#!/usr/bin/env node
+			export = foo;
+		`),
 	],
 });
