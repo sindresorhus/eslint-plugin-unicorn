@@ -2,6 +2,7 @@ import {isRegExp} from 'node:util/types';
 import {
 	getComments,
 	isEslintDisableOrEnableDirective,
+	matchesAnyRegExp,
 	onRoot,
 } from './utils/index.js';
 
@@ -87,21 +88,13 @@ const isDirectiveText = commentText =>
 	|| LANGUAGE_DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
 	|| MINIFIER_DIRECTIVE_PATTERN.test(commentText);
 
-const isIgnoredByPattern = (commentText, patterns) => patterns.some(pattern => {
-	pattern.lastIndex = 0;
-	const isMatch = pattern.test(commentText);
-	pattern.lastIndex = 0;
-
-	return isMatch;
-});
-
 const isIgnoredComment = (context, comment, opening, ignorePatterns) => {
 	if (isEslintDisableOrEnableDirective(context, comment)) {
 		return true;
 	}
 
 	const commentText = getCommentText(comment, opening, context);
-	return isIgnoredByPattern(commentText, ignorePatterns) || isDirectiveText(commentText);
+	return matchesAnyRegExp(commentText, ignorePatterns) || isDirectiveText(commentText);
 };
 
 const getIgnorePatterns = ignore => ignore.map(pattern => isRegExp(pattern)
