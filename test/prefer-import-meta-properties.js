@@ -173,5 +173,15 @@ test.snapshot({
 			const filename = process.getBuiltinModule("node:url").fileURLToPath(import.meta.url);
 			const dirname = process.getBuiltinModule("node:path").dirname(filename);
 		`,
+
+		// A comment inside the call is preserved by not fixing
+		outdent`
+			import {fileURLToPath} from 'node:url';
+			const filename = fileURLToPath(/* comment */ import.meta.url);
+		`,
+		outdent`
+			import {dirname} from 'node:path';
+			const directory = dirname(import.meta.filename /* comment */);
+		`,
 	],
 });

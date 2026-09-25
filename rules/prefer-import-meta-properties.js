@@ -313,7 +313,10 @@ function create(context) {
 			return {
 				node,
 				messageId: name === 'dirname' ? ERROR_DIRNAME : ERROR_FILENAME,
-				fix: fixer => fixer.replaceText(node, `import.meta.${name}`),
+				// The call is replaced as a whole, a comment inside it would be dropped
+				fix: sourceCode.getCommentsInside(node).length === 0
+					? fixer => fixer.replaceText(node, `import.meta.${name}`)
+					: undefined,
 			};
 		}
 	});
