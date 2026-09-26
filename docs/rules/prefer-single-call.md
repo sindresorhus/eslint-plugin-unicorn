@@ -63,6 +63,8 @@ importScripts(
 );
 ```
 
+For reported `push()` and `unshift()` calls whose receiver is not known to be an array, merging is offered as a suggestion. This avoids changing custom methods with `--fix`.
+
 ## Options
 
 Type: `object`
@@ -76,8 +78,6 @@ Functions to ignore.
 `stream.push`, `stream.unshift`, `this.push`, `this.unshift`, `this.stream.push`, `this.stream.unshift`, `process.stdin.push`, `process.stdin.unshift`, `process.stdout.push`, `process.stdout.unshift`, `process.stderr.push`, and `process.stderr.unshift` are ignored by default.
 
 `push()` and `unshift()` calls are also skipped when the receiver is known not to be an array, so this option is rarely needed in TypeScript. A locally declared type is recognized from its annotation alone, while a receiver whose type comes from another module, such as a stream, needs [type information](https://typescript-eslint.io/getting-started/typed-linting/).
-
-When the receiver's array type cannot be determined, the rule reports the calls but offers the merge as a suggestion instead of an automatic fix. This prevents `--fix` from changing custom `push()` or `unshift()` methods that accept only one argument.
 
 Example:
 

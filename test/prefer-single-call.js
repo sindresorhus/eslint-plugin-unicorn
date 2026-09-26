@@ -3,25 +3,6 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-test({
-	valid: [],
-	invalid: [
-		{
-			code: 'const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1); container.data.entries.push(2);',
-			errors: 1,
-		},
-		{
-			code: 'const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(1); container.data.entries.unshift(2);',
-			errors: 1,
-		},
-		{
-			code: 'const values = []; values.push(1); values.push(2);',
-			output: 'const values = []; values.push(1, 2);',
-			errors: 1,
-		},
-	],
-});
-
 // `Array#push()`
 test.snapshot({
 	valid: [
@@ -300,6 +281,8 @@ test.snapshot({
 			code: 'function f(foo: number[]) { foo.push(1); foo.push(2); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1); container.data.entries.push(2);',
+		'const values = []; values.push(1); values.push(2);',
 	],
 });
 
@@ -572,6 +555,8 @@ test.snapshot({
 			code: 'function f(foo: number[]) { foo.unshift(1); foo.unshift(2); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(1); container.data.entries.unshift(2);',
+		'const values = []; values.unshift(1); values.unshift(2);',
 	],
 });
 
@@ -604,7 +589,7 @@ test.snapshot({
 		'foo.classList[add]("foo");foo.classList.add("bar")',
 		'foo.classList.add("foo");foo.classList[add]("bar");',
 		'foo.classList.add(foo.classList.add("foo"));',
-		// `.classList` elector
+		// `.classList` selector
 		outdent`
 			foo.classList.add("foo");
 			foo[classList].add("bar");
@@ -638,7 +623,7 @@ test.snapshot({
 			foo.classList.add("foo");
 			const _ = foo.classList.add("bar");
 		`,
-		// Not considered same array
+		// Not considered same element
 		outdent`
 			foo().classList.add("foo");
 			foo().classList.add("bar");
@@ -807,7 +792,7 @@ test.snapshot({
 			importScripts("foo.js");; // <- there is a "EmptyStatement" between
 			importScripts("bar.js");
 		`,
-		// `.add` selector
+		// Constructor calls
 		'new importScripts("foo.js");importScripts("bar.js")',
 		'importScripts("foo.js");new importScripts("bar.js")',
 		// Not `ExpressionStatement`
