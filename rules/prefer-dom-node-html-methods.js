@@ -109,7 +109,7 @@ const create = context => {
 					messageId: MESSAGE_ID_WRITE_SUGGESTION,
 					fix(fixer) {
 						const object = getParenthesizedText(assignmentExpression.left.object, context);
-						const value = sourceCode.getText(assignmentExpression.right);
+						const value = getParenthesizedText(assignmentExpression.right, context);
 						return fixer.replaceText(assignmentExpression, `${object}.setHTML(${value})`);
 					},
 				},

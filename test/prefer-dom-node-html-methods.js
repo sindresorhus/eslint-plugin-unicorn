@@ -98,5 +98,14 @@ test.snapshot({
 			code: 'element.innerHTML = html;',
 			options: [{checkGetHTML: false, checkSetHTML: true}],
 		},
+		// A sequence expression must stay parenthesized, it is not two arguments
+		{
+			code: 'element.innerHTML = (a, b);',
+			options: [{checkSetHTML: true}],
+		},
+		{
+			code: 'element.innerHTML = (a, (b, c));',
+			options: [{checkSetHTML: true}],
+		},
 	],
 });
