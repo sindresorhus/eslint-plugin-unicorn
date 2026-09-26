@@ -206,7 +206,7 @@ function canFixBooleanTernary(context) {
 	return !parserServices?.esTreeNodeToTSNodeMap && !isTypeScriptFile(context.physicalFilename);
 }
 
-function isBooleanTernaryTest(node, context) {
+function isBooleanTernaryExpression(node, context) {
 	try {
 		return isBoolean(node, context);
 	} catch (error) {
@@ -236,12 +236,17 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 
 	const booleanValue = consequentValue ?? alternateValue;
 	const right = isConsequentBooleanConstant ? alternate : consequent;
+	// Keep potentially non-boolean results explicit instead of hiding them behind a logical operator.
+	if (!isBooleanTernaryExpression(right, context)) {
+		return;
+	}
+
 	const negateLeft = consequentValue === false || alternateValue === true;
 	const canFix = canFixBooleanTernary(context);
 
 	if (!negateLeft) {
 		const booleanTest = canFix ? unwrapConstantAliases(test, context) : test;
-		if (!isBooleanTernaryTest(booleanTest, context)) {
+		if (!isBooleanTernaryExpression(booleanTest, context)) {
 			return;
 		}
 	}

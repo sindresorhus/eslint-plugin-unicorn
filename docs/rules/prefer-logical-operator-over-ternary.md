@@ -17,7 +17,7 @@ For explicit nullish-check ternaries, this rule only suggests `??` when the sour
 
 The rule also handles ternaries with exactly one constant boolean branch, including simple `const` aliases: `condition ? true : expression` becomes `condition || expression`; `condition ? false : expression` becomes `!condition && expression`; `condition ? expression : false` becomes `condition && expression`; and `condition ? expression : true` becomes `!condition || expression`.
 
-The other branch can have any type. The condition must be boolean for the first and third forms. These cases are reported without a fix in TypeScript, in JavaScript parsed with TypeScript services, or when they contain comments. This check is skipped inside `with` statements. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
+These constant-boolean rewrites require the other branch to be known boolean. The condition must also be boolean for the first and third forms. These cases are reported without a fix in TypeScript, in JavaScript parsed with TypeScript services, or when they contain comments. This check is skipped inside `with` statements. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
 
 ## Examples
 
