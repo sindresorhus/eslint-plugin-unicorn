@@ -32,7 +32,7 @@ test.snapshot({
 			foo.unshift(2);
 		`,
 		outdent`
-			foo.push(1);; // <- there is a "EmptyStatement" between
+			foo.push(1);; // <- there is an "EmptyStatement" between
 			foo.push(2);
 		`,
 		// Not same array
@@ -297,6 +297,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('const array = [0].map(value => value); array.push(1); array.push(2);'),
+		typeAware('declare const receiver: number[] | {push(value: number): void}; receiver.push(1); receiver.push(2);'),
 		{
 			code: 'function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1); sink.push(2);',
 			languageOptions: {parser: parsers.typescript},
@@ -364,7 +365,7 @@ test.snapshot({
 			foo.push(2);
 		`,
 		outdent`
-			foo.unshift(1);; // <- there is a "EmptyStatement" between
+			foo.unshift(1);; // <- there is an "EmptyStatement" between
 			foo.unshift(2);
 		`,
 		// Not same array
@@ -633,7 +634,7 @@ test.snapshot({
 			foo.classList.remove("bar");
 		`,
 		outdent`
-			foo.classList.add("foo");; // <- there is a "EmptyStatement" between
+			foo.classList.add("foo");; // <- there is an "EmptyStatement" between
 			foo.classList.add("bar");
 		`,
 		// Not same element
@@ -849,7 +850,7 @@ test.snapshot({
 		`,
 		'importScripts("foo.js");',
 		outdent`
-			importScripts("foo.js");; // <- there is a "EmptyStatement" between
+			importScripts("foo.js");; // <- there is an "EmptyStatement" between
 			importScripts("bar.js");
 		`,
 		// Constructor calls
