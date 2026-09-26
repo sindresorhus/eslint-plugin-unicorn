@@ -618,6 +618,7 @@ test.snapshot({
 		},
 		'const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(1); container.data.entries.unshift(2);',
 		'const values = []; values.unshift(1); values.unshift(2);',
+		'const array = []; array.unshift(1); array.unshift(array.length);',
 	],
 });
 
