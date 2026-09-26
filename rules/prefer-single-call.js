@@ -59,13 +59,14 @@ function getMergePlan(firstCall, secondCall, keepSecondCall) {
 	};
 }
 
-function shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, context) {
-	const argumentsToCheckForSideEffects = keepSecondCall
+function shouldUseSuggestionForMerge(firstCall, secondCall, {keepSecondCall, checkArrayReceiver}, context) {
+	const argumentsToCheckForSideEffects = keepSecondCall || checkArrayReceiver
 		? [...firstCall.arguments, ...secondCall.arguments]
 		: secondCall.arguments;
+	const argumentsToCheckForStaticValue = keepSecondCall ? argumentsToCheckForSideEffects : secondCall.arguments;
 
 	return (keepSecondCall && (hasSpreadElement(firstCall) || hasSpreadElement(secondCall)))
-		|| (keepSecondCall && argumentsToCheckForSideEffects.some(element => !hasStaticValue(element, context)))
+		|| (checkArrayReceiver && argumentsToCheckForStaticValue.some(element => !hasStaticValue(element, context)))
 		|| argumentsToCheckForSideEffects.some(element => hasSideEffect(element, context.sourceCode));
 }
 
@@ -250,7 +251,7 @@ function create(context) {
 			if (!hasCommentsInRange(sourceCode, removalRange)) {
 				if (
 					(checkArrayReceiver && !isArray(secondCall.callee.object, context))
-					|| shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, context)
+					|| shouldUseSuggestionForMerge(firstCall, secondCall, {keepSecondCall, checkArrayReceiver}, context)
 				) {
 					problem.suggest = [
 						{
