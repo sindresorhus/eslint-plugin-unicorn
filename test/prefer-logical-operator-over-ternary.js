@@ -17,42 +17,90 @@ const createBooleanAliasChain = initialValue => Array.from({length: 20_001}, (_,
 const booleanAliasChain = createBooleanAliasChain('true');
 const booleanConditionAliasChain = createBooleanAliasChain('a === b');
 
+test.snapshot({
+	valid: [
+		'a === b ? false : null',
+		'reportNonStatic && replacedAt === walkPath.length - 1 ? false : null',
+		'a === b ? null : true',
+		'a === b ? true : undefined',
+		'a === b ? undefined : false',
+		'a === b ? false : 0',
+		'a === b ? 0 : true',
+		'a === b ? true : ""',
+		'a === b ? "fallback" : false',
+		'a === b ? true : fallback()',
+		'a === b ? fallback() : false',
+		'a === b ? false : {value: 1}',
+		'a === b ? [1] : true',
+		'a === b ? true : unknown',
+		'a === b ? 1 : false',
+		'a === b ? foo?.isValid() : false',
+		'"text" ? false : 0',
+		'0 ? "text" : true',
+		'const no = false; a === b ? no : null',
+		'const yes = true; a === b ? null : yes',
+		'value ? false : /* keep */ fallback()',
+		'value ? /* keep */ fallback() : true',
+		'(first(), value) ? false : fallback()',
+		'value ? false : (first(), fallback())',
+		'Boolean(condition()) ? true : fallback()',
+		'delete (value ? false : object.property)',
+		'(value ? false : object.method)()',
+		'(value ? false : object.tag)`template`',
+		'value ? fallback ?? other : true',
+		'first || second ? false : fallback()',
+		'value ? true : Boolean(fallback())',
+		'value ? Boolean(fallback()) : false',
+		typeAware('function f(condition: boolean, value: string | null) { return condition ? false : value; }'),
+		typeAware('function f(condition: boolean, value: number) { return condition ? value : true; }'),
+		typeAware('function f(condition: boolean, value: boolean | undefined) { return condition ? false : value; }'),
+		typeAware('function f(condition = false) { return condition ? true : fallback(); }'),
+	],
+	invalid: [],
+});
+
 test({
 	valid: [
 		{
 			name: 'deep TypeScript condition alias chains do not overflow the call stack',
-			code: `${booleanAliasChain}\nfunction f() { return value20000 ? true : fallback(); }`,
+			code: `${booleanAliasChain}\nfunction f() { return value20000 ? true : Boolean(fallback()); }`,
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			name: 'deep aliases nested in boolean conditions do not overflow the call stack',
-			code: `${booleanAliasChain}\n(value20000 && true) ? true : fallback();`,
+			code: `${booleanAliasChain}\n(value20000 && true) ? true : Boolean(fallback());`,
 		},
+		'value ? false : fallback()',
+		'value ? fallback() : true',
+		'const condition = () => true; condition() ? true : fallback()',
+		'function condition() { return true; } condition() ? true : fallback()',
+		'async function f() { return await Boolean(value) ? true : fallback(); }',
+		'async function f() { return await value ? false : fallback(); }',
+		'function * f() { return (yield value) ? false : fallback(); }',
+		'const array = []; array.some(predicate) ? true : fallback()',
+		'const yes = true; a === b ? yes : fallback()',
+		'const yes = true, alias = yes; a === b ? alias : fallback()',
+		'const no = false; value ? no : fallback()',
+		'const no = false; a === b ? fallback() : no',
+		'const yes = true; value ? fallback() : yes',
+		'function isSubPath(pathA, pathB) { return pathA === "/" || pathA === pathB ? true : pathA.startsWith(pathB) && pathA[pathB.length] === "/"; }',
 	],
 	invalid: [
 		['a === b ? true : c === d', '(a === b) || (c === d)'],
 		['a === b ? false : c === d', '!(a === b) && (c === d)'],
 		['a === b ? c === d : false', '(a === b) && (c === d)'],
 		['a === b ? c === d : true', '!(a === b) || (c === d)'],
-		['a === b ? true : fallback()', '(a === b) || fallback()'],
-		['a === b ? fallback() : false', '(a === b) && fallback()'],
-		['value ? false : fallback()', '!value && fallback()'],
-		['value ? fallback() : true', '!value || fallback()'],
-		['const condition = () => true; condition() ? true : fallback()', 'const condition = () => true; condition() || fallback()'],
-		['function condition() { return true; } condition() ? true : fallback()', 'function condition() { return true; } condition() || fallback()'],
-		['async function f() { return await Boolean(value) ? true : fallback(); }', 'async function f() { return (await Boolean(value)) || fallback(); }'],
-		['async function f() { return await value ? false : fallback(); }', 'async function f() { return !await value && fallback(); }'],
-		['function * f() { return (yield value) ? false : fallback(); }', 'function * f() { return !(yield value) && fallback(); }'],
-		['const array = []; array.some(predicate) ? true : fallback()', 'const array = []; array.some(predicate) || fallback()'],
-		['const yes = true; a === b ? yes : fallback()', 'const yes = true; (a === b) || fallback()'],
-		['const yes = true, alias = yes; a === b ? alias : fallback()', 'const yes = true, alias = yes; (a === b) || fallback()'],
-		['const no = false; value ? no : fallback()', 'const no = false; !value && fallback()'],
-		['const no = false; a === b ? fallback() : no', 'const no = false; (a === b) && fallback()'],
-		['const yes = true; value ? fallback() : yes', 'const yes = true; !value || fallback()'],
-		[
-			'function isSubPath(pathA, pathB) { return pathA === "/" || pathA === pathB ? true : pathA.startsWith(pathB) && pathA[pathB.length] === "/"; }',
-			'function isSubPath(pathA, pathB) { return pathA === "/" || pathA === pathB || (pathA.startsWith(pathB) && pathA[pathB.length] === "/"); }',
-		],
+		['a === b ? true : Boolean(c)', '(a === b) || Boolean(c)'],
+		['a === b ? false : !c', '!(a === b) && !c'],
+		['a === b ? Boolean(c) : false', '(a === b) && Boolean(c)'],
+		['a === b ? !c : true', '!(a === b) || !c'],
+		['value ? false : Boolean(fallback())', '!value && Boolean(fallback())'],
+		['value ? Boolean(fallback()) : true', '!value || Boolean(fallback())'],
+		['a === b ? true : (c === d ?? e === f)', '(a === b) || (c === d ?? e === f)'],
+		['value ? false : (first(), c === d)', '!value && (first(), c === d)'],
+		['const booleanValue = c === d; a === b ? false : booleanValue', 'const booleanValue = c === d; !(a === b) && booleanValue'],
+		['const booleanValue = c === d; a === b ? booleanValue : false', 'const booleanValue = c === d; (a === b) && booleanValue'],
+		['const booleanValue = c === d; a === b ? booleanValue : true', 'const booleanValue = c === d; !(a === b) || booleanValue'],
 	].map(([code, output]) => ({
 		code,
 		output,
@@ -65,8 +113,8 @@ test({
 	invalid: [
 		{
 			name: 'deep constant alias chains do not overflow the call stack',
-			code: `${booleanAliasChain}\na === b ? value20000 : fallback();`,
-			output: `${booleanAliasChain}\n(a === b) || fallback();`,
+			code: `${booleanAliasChain}\na === b ? value20000 : Boolean(fallback());`,
+			output: `${booleanAliasChain}\n(a === b) || Boolean(fallback());`,
 			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
 		},
 		{
@@ -78,9 +126,8 @@ test({
 	],
 });
 
-test({
-	valid: [],
-	invalid: [
+test.snapshot({
+	valid: [
 		{
 			code: 'a === b ? true : fallback()',
 			filename: 'file.ts',
@@ -99,11 +146,6 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('declare const value: boolean | string; const condition = value; if (typeof condition === "boolean") { condition ? true : "fallback"; }'),
-		typeAware(outdent`
-			declare function pick(value: true): 'literal';
-			declare function pick(value: true | 'fallback'): 'union';
-			const result: 'union' = pick(true ? true : 'fallback');
-		`),
 		typeAware('function f(a: number, b: number) { const result: true | 0 = ((a === b) as unknown) ? true : 0; return result; }'),
 		typeAware('function f<T extends boolean>(condition: T) { return condition ? true : "x"; } const result: true | "x" = f(false);'),
 		typeAware('function f<T extends boolean>(condition: T) { return condition ? "x" : false; } const result: false | "x" = f(false);'),
@@ -115,10 +157,15 @@ test({
 		typeAware('declare const condition: boolean; export const result = condition ? "value" : true;'),
 		typeAware('declare function condition(): true; const result = condition() ? true : "fallback";'),
 		typeAware('const result = true ? false : "fallback";'),
-	].map(testCase => ({
-		...testCase,
-		errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
-	})),
+	],
+	invalid: [
+		// The separate `test ? test : alternate` pattern still reports this.
+		typeAware(outdent`
+			declare function pick(value: true): 'literal';
+			declare function pick(value: true | 'fallback'): 'union';
+			const result: 'union' = pick(true ? true : 'fallback');
+		`),
+	],
 });
 
 test.snapshot({
@@ -162,8 +209,6 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
-	],
-	invalid: [
 		'const yes = true; const alias = yes; a === b ? alias : fallback()',
 		'const no = false; const alias = no; value ? alias : fallback()',
 		'const no = false; value ? /* keep */ no : fallback()',
@@ -180,6 +225,7 @@ test.snapshot({
 		{code: 'value ? <false>false : fallback()', languageOptions: {parser: parsers.typescript}},
 		{code: 'value ? (false /* keep */ as const) : fallback()', languageOptions: {parser: parsers.typescript}},
 	],
+	invalid: [],
 });
 
 test.snapshot({
@@ -237,6 +283,21 @@ test.snapshot({
 		},
 		{code: 'function f(condition: string, value: boolean) { return condition ? true : value; }', languageOptions: {parser: parsers.typescript}},
 		typeAware('function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }'),
+		{code: 'function f(value: string, fallback: number) { return value ? false : fallback; }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function f(value: string, fallback: number) { return value ? fallback : true; }', languageOptions: {parser: parsers.typescript}},
+		{code: '(value as string) ? false : fallback()', languageOptions: {parser: parsers.typescript}},
+		{
+			code: '\'use strict\'; function outer() { function condition() { return true; } return condition() ? true : fallback(); }',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: 'function condition(): boolean; function condition() { return true; } condition() ? true : fallback();',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const outer = function condition(value = condition() ? true : fallback()) { return true; };',
+			languageOptions: {sourceType: 'script'},
+		},
 	],
 	invalid: [
 		'const condition = a === b; const value = c === d; condition ? true : value',
@@ -253,43 +314,12 @@ test.snapshot({
 		{code: 'const element = <div>{a === b ? true : c === d}</div>', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
 		'const previous = foo\na === b ? true : c === d',
 		{code: 'function f(condition: boolean, value: boolean) { return condition ? value : true; }', languageOptions: {parser: parsers.typescript}},
-		{code: 'function f(condition: boolean = false) { return condition ? true : fallback(); }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function f(condition: boolean = false) { return condition ? true : Boolean(fallback()); }', languageOptions: {parser: parsers.typescript}},
 		{code: '(condition as boolean) ? true : (value as boolean)', languageOptions: {parser: parsers.typescript}},
 		{code: '(<boolean>condition) ? false : (<boolean>value)', languageOptions: {parser: parsers.typescript}},
 		{code: 'function f(condition: boolean, value: boolean) { return (condition satisfies boolean) ? false : value; }', languageOptions: {parser: parsers.typescript}},
 		{code: 'function f(condition: boolean, value: boolean) { return condition! ? value! : false; }', languageOptions: {parser: parsers.typescript}},
 		typeAware('function f(object: {condition: boolean, value: boolean}) { return object.condition ? true : object.value; }'),
-		typeAware('function f(condition = false) { return condition ? true : fallback(); }'),
-		'a === b ? true : unknown',
-		'a === b ? 1 : false',
-		'a === b ? foo?.isValid() : false',
-		'"text" ? false : 0',
-		'0 ? "text" : true',
-		'value ? false : /* keep */ fallback()',
-		'value ? /* keep */ fallback() : true',
-		'(first(), value) ? false : fallback()',
-		'value ? false : (first(), fallback())',
-		'Boolean(condition()) ? true : fallback()',
-		'delete (value ? false : object.property)',
-		'(value ? false : object.method)()',
-		'(value ? false : object.tag)`template`',
-		'value ? fallback ?? other : true',
-		'first || second ? false : fallback()',
-		{code: 'function f(value: string, fallback: number) { return value ? false : fallback; }', languageOptions: {parser: parsers.typescript}},
-		{code: 'function f(value: string, fallback: number) { return value ? fallback : true; }', languageOptions: {parser: parsers.typescript}},
-		{code: '(value as string) ? false : fallback()', languageOptions: {parser: parsers.typescript}},
-		{
-			code: '\'use strict\'; function outer() { function condition() { return true; } return condition() ? true : fallback(); }',
-			languageOptions: {sourceType: 'script'},
-		},
-		{
-			code: 'function condition(): boolean; function condition() { return true; } condition() ? true : fallback();',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const outer = function condition(value = condition() ? true : fallback()) { return true; };',
-			languageOptions: {sourceType: 'script'},
-		},
 	],
 });
 
