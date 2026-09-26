@@ -320,6 +320,11 @@ test({
 			errors: [{messageId: 'error/array-push', suggestions: 1}],
 		},
 		{
+			code: 'function f(array: unknown[], value: unknown) { array.push(value); array.push(2); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
 			code: 'const array = [1]; array.push(2); array.push(...array);',
 			errors: [{messageId: 'error/array-push', suggestions: 1}],
 		},
@@ -330,6 +335,11 @@ test({
 		},
 		{
 			code: 'function f(array: unknown[]) { const values = { *[Symbol.iterator]() { array = []; yield 1; } }; array.push(...values); array.push(2); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
+			code: 'function f(array: unknown[]) { const values = { *[Symbol.iterator]() { array = []; yield 1; } }; array.push([...values]); array.push(2); }',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'error/array-push', suggestions: 1}],
 		},
