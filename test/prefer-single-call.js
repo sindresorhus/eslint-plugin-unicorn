@@ -1,7 +1,17 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 // `Array#push()`
 test.snapshot({
@@ -11,6 +21,7 @@ test.snapshot({
 			code: 'function f(foo: {push(value: number): void}) { foo.push(1); foo.push(2); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		typeAware('function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1); sink.push(2);'),
 		outdent`
 			foo.forEach(fn);
 			foo.forEach(fn);
@@ -281,6 +292,15 @@ test.snapshot({
 			code: 'function f(foo: number[]) { foo.push(1); foo.push(2); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'const array = [0].map(value => value); array.push(1); array.push(2);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('const array = [0].map(value => value); array.push(1); array.push(2);'),
+		{
+			code: 'function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1); sink.push(2);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1); container.data.entries.push(2);',
 		'const values = []; values.push(1); values.push(2);',
 	],
@@ -295,11 +315,21 @@ test({
 			errors: [{messageId: 'error/array-push', suggestions: 1}],
 		},
 		{
+			code: 'function f(array: unknown[], value: unknown) { array.push(1); array.push(value); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
 			code: 'const array = [1]; array.push(2); array.push(...array);',
 			errors: [{messageId: 'error/array-push', suggestions: 1}],
 		},
 		{
 			code: 'function f(array: unknown[]) { array.push(array = []); array.push(2); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
+			code: 'function f(array: unknown[]) { const values = { *[Symbol.iterator]() { array = []; yield 1; } }; array.push(...values); array.push(2); }',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'error/array-push', suggestions: 1}],
 		},

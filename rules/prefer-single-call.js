@@ -65,7 +65,7 @@ function shouldUseSuggestionForMerge(firstCall, secondCall, {keepSecondCall, che
 		: secondCall.arguments;
 	const argumentsToCheckForStaticValue = keepSecondCall ? argumentsToCheckForSideEffects : secondCall.arguments;
 
-	return (keepSecondCall && (hasSpreadElement(firstCall) || hasSpreadElement(secondCall)))
+	return (checkArrayReceiver && (hasSpreadElement(firstCall) || hasSpreadElement(secondCall)))
 		|| (checkArrayReceiver && argumentsToCheckForStaticValue.some(element => !hasStaticValue(element, context)))
 		|| argumentsToCheckForSideEffects.some(element => hasSideEffect(element, context.sourceCode));
 }
