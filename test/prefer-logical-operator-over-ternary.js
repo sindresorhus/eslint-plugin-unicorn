@@ -70,6 +70,10 @@ test({
 			name: 'deep aliases nested in boolean conditions do not overflow the call stack',
 			code: `${booleanAliasChain}\n(value20000 && true) ? true : Boolean(fallback());`,
 		},
+		{
+			name: 'deep aliases in the other boolean branch do not overflow the call stack',
+			code: `${booleanConditionAliasChain}\na === b ? true : value20000;`,
+		},
 		'value ? false : fallback()',
 		'value ? fallback() : true',
 		'const condition = () => true; condition() ? true : fallback()',
