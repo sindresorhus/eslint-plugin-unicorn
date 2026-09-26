@@ -236,7 +236,7 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 
 	const booleanValue = consequentValue ?? alternateValue;
 	const right = isConsequentBooleanConstant ? alternate : consequent;
-	// Logical operators obscure the return value when the other branch is not known to be boolean.
+	// Keep potentially non-boolean results explicit instead of hiding them behind a logical operator.
 	if (!isBooleanTernaryExpression(right, context)) {
 		return;
 	}
