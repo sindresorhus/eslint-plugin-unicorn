@@ -1,7 +1,17 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 // `Array#push()`
 test.snapshot({
@@ -11,6 +21,7 @@ test.snapshot({
 			code: 'function f(foo: {push(value: number): void}) { foo.push(1); foo.push(2); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		typeAware('function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1); sink.push(2);'),
 		outdent`
 			foo.forEach(fn);
 			foo.forEach(fn);
@@ -21,7 +32,7 @@ test.snapshot({
 			foo.unshift(2);
 		`,
 		outdent`
-			foo.push(1);; // <- there is a "EmptyStatement" between
+			foo.push(1);; // <- there is an "EmptyStatement" between
 			foo.push(2);
 		`,
 		// Not same array
@@ -281,6 +292,58 @@ test.snapshot({
 			code: 'function f(foo: number[]) { foo.push(1); foo.push(2); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'const array = [0].map(value => value); array.push(1); array.push(2);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('const array = [0].map(value => value); array.push(1); array.push(2);'),
+		typeAware('declare const receiver: number[] | {push(value: number): void}; receiver.push(1); receiver.push(2);'),
+		{
+			code: 'function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1); sink.push(2);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1); container.data.entries.push(2);',
+		'const values = []; values.push(1); values.push(2);',
+	],
+});
+
+// Argument evaluation may read or change the receiver between calls.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const array = []; array.push(1); array.push(array.length);',
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
+			code: 'function f(array: unknown[], value: unknown) { array.push(1); array.push(value); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
+			code: 'function f(array: unknown[], value: unknown) { array.push(value); array.push(2); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
+			code: 'const array = [1]; array.push(2); array.push(...array);',
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
+			code: 'function f(array: unknown[]) { array.push(array = []); array.push(2); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
+			code: 'function f(array: unknown[]) { const values = { *[Symbol.iterator]() { array = []; yield 1; } }; array.push(...values); array.push(2); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
+		{
+			code: 'function f(array: unknown[]) { const values = { *[Symbol.iterator]() { array = []; yield 1; } }; array.push([...values]); array.push(2); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/array-push', suggestions: 1}],
+		},
 	],
 });
 
@@ -302,7 +365,7 @@ test.snapshot({
 			foo.push(2);
 		`,
 		outdent`
-			foo.unshift(1);; // <- there is a "EmptyStatement" between
+			foo.unshift(1);; // <- there is an "EmptyStatement" between
 			foo.unshift(2);
 		`,
 		// Not same array
@@ -553,6 +616,9 @@ test.snapshot({
 			code: 'function f(foo: number[]) { foo.unshift(1); foo.unshift(2); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(1); container.data.entries.unshift(2);',
+		'const values = []; values.unshift(1); values.unshift(2);',
+		'const array = []; array.unshift(1); array.unshift(array.length);',
 	],
 });
 
@@ -569,7 +635,7 @@ test.snapshot({
 			foo.classList.remove("bar");
 		`,
 		outdent`
-			foo.classList.add("foo");; // <- there is a "EmptyStatement" between
+			foo.classList.add("foo");; // <- there is an "EmptyStatement" between
 			foo.classList.add("bar");
 		`,
 		// Not same element
@@ -585,7 +651,7 @@ test.snapshot({
 		'foo.classList[add]("foo");foo.classList.add("bar")',
 		'foo.classList.add("foo");foo.classList[add]("bar");',
 		'foo.classList.add(foo.classList.add("foo"));',
-		// `.classList` elector
+		// `.classList` selector
 		outdent`
 			foo.classList.add("foo");
 			foo[classList].add("bar");
@@ -619,7 +685,7 @@ test.snapshot({
 			foo.classList.add("foo");
 			const _ = foo.classList.add("bar");
 		`,
-		// Not considered same array
+		// Not considered same element
 		outdent`
 			foo().classList.add("foo");
 			foo().classList.add("bar");
@@ -785,10 +851,10 @@ test.snapshot({
 		`,
 		'importScripts("foo.js");',
 		outdent`
-			importScripts("foo.js");; // <- there is a "EmptyStatement" between
+			importScripts("foo.js");; // <- there is an "EmptyStatement" between
 			importScripts("bar.js");
 		`,
-		// `.add` selector
+		// Constructor calls
 		'new importScripts("foo.js");importScripts("bar.js")',
 		'importScripts("foo.js");new importScripts("bar.js")',
 		// Not `ExpressionStatement`
@@ -960,38 +1026,12 @@ test({
 					}
 				}
 			`,
-			output: outdent`
-				class A extends B {
-					foo() {
-						this.x.push(1, 2);
-
-						super.x.push(1, 2);
-
-						((a?.x).y).push(1, 1);
-
-						((a?.x.y).z).push(1, 1);
-
-						a[null].push(1, 1);
-
-						'1'.someMagicPropertyReturnsAnArray.push(1, 2);
-
-						/a/i.someMagicPropertyReturnsAnArray.push(1, 2);
-
-						1n.someMagicPropertyReturnsAnArray.push(1, 2);
-
-						(true).someMagicPropertyReturnsAnArray.push(1, 2);
-					}
-				}
-			`,
 			errors: 9,
 		},
 		{
 			code: outdent`
 				a[x].push(1);
 				a[x].push(2);
-			`,
-			output: outdent`
-				a[x].push(1, 2);
 			`,
 			errors: 1,
 		},

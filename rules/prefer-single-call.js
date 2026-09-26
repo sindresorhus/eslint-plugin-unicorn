@@ -9,6 +9,7 @@ import {
 	needsSemicolon,
 	shouldSkipKnownNonArrayReceiver,
 	getStaticValueIfNoSideEffects,
+	isArray,
 } from './utils/index.js';
 import {isMethodCall, isMemberExpression, isCallExpression} from './ast/index.js';
 
@@ -23,10 +24,6 @@ const isClassList = node => isMemberExpression(node, {
 	property: 'classList',
 	computed: false,
 });
-
-const hasSpreadElement = callExpression => callExpression.arguments.some(node => node.type === 'SpreadElement');
-
-const hasStaticValue = (node, context) => getStaticValueIfNoSideEffects(node, context) !== undefined;
 
 function getExpressionStatement(callExpression) {
 	let expressionStatement = callExpression.parent;
@@ -58,14 +55,10 @@ function getMergePlan(firstCall, secondCall, keepSecondCall) {
 	};
 }
 
-function shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, context) {
-	const argumentsToCheckForSideEffects = keepSecondCall
-		? [...firstCall.arguments, ...secondCall.arguments]
-		: secondCall.arguments;
-
-	return (keepSecondCall && (hasSpreadElement(firstCall) || hasSpreadElement(secondCall)))
-		|| (keepSecondCall && argumentsToCheckForSideEffects.some(element => !hasStaticValue(element, context)))
-		|| argumentsToCheckForSideEffects.some(element => hasSideEffect(element, context.sourceCode));
+function shouldUseSuggestionForMerge(firstCall, secondCall, checkArrayReceiver, context) {
+	return checkArrayReceiver
+		? [...firstCall.arguments, ...secondCall.arguments].some(argument => getStaticValueIfNoSideEffects(argument, context) === undefined)
+		: secondCall.arguments.some(argument => hasSideEffect(argument, context.sourceCode));
 }
 
 function hasCommentsInRange(sourceCode, range) {
@@ -247,7 +240,10 @@ function create(context) {
 			};
 
 			if (!hasCommentsInRange(sourceCode, removalRange)) {
-				if (shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, context)) {
+				if (
+					(checkArrayReceiver && !isArray(secondCall.callee.object, context))
+					|| shouldUseSuggestionForMerge(firstCall, secondCall, checkArrayReceiver, context)
+				) {
 					problem.suggest = [
 						{
 							messageId: SUGGESTION,

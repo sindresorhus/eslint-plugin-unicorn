@@ -63,6 +63,10 @@ importScripts(
 );
 ```
 
+For reported `push()` and `unshift()` calls whose receiver is not known to be an array, merging is offered as a suggestion. This avoids changing custom methods with `--fix`.
+
+Known arrays are auto-fixed only when every argument has a statically known value and no side effects.
+
 ## Options
 
 Type: `object`
