@@ -3,6 +3,25 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1); container.data.entries.push(2);',
+			errors: 1,
+		},
+		{
+			code: 'const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(1); container.data.entries.unshift(2);',
+			errors: 1,
+		},
+		{
+			code: 'const values = []; values.push(1); values.push(2);',
+			output: 'const values = []; values.push(1, 2);',
+			errors: 1,
+		},
+	],
+});
+
 // `Array#push()`
 test.snapshot({
 	valid: [
@@ -960,38 +979,12 @@ test({
 					}
 				}
 			`,
-			output: outdent`
-				class A extends B {
-					foo() {
-						this.x.push(1, 2);
-
-						super.x.push(1, 2);
-
-						((a?.x).y).push(1, 1);
-
-						((a?.x.y).z).push(1, 1);
-
-						a[null].push(1, 1);
-
-						'1'.someMagicPropertyReturnsAnArray.push(1, 2);
-
-						/a/i.someMagicPropertyReturnsAnArray.push(1, 2);
-
-						1n.someMagicPropertyReturnsAnArray.push(1, 2);
-
-						(true).someMagicPropertyReturnsAnArray.push(1, 2);
-					}
-				}
-			`,
 			errors: 9,
 		},
 		{
 			code: outdent`
 				a[x].push(1);
 				a[x].push(2);
-			`,
-			output: outdent`
-				a[x].push(1, 2);
 			`,
 			errors: 1,
 		},

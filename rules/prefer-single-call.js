@@ -9,6 +9,7 @@ import {
 	needsSemicolon,
 	shouldSkipKnownNonArrayReceiver,
 	getStaticValueIfNoSideEffects,
+	isArray,
 } from './utils/index.js';
 import {isMethodCall, isMemberExpression, isCallExpression} from './ast/index.js';
 
@@ -247,7 +248,10 @@ function create(context) {
 			};
 
 			if (!hasCommentsInRange(sourceCode, removalRange)) {
-				if (shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, context)) {
+				if (
+					(checkArrayReceiver && !isArray(secondCall.callee.object, context))
+					|| shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, context)
+				) {
 					problem.suggest = [
 						{
 							messageId: SUGGESTION,
