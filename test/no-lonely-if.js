@@ -437,3 +437,25 @@ test('fix should preserve ASI-safe semicolon insertion when keeping trailing tex
 	t.is(result.output, 'if (a && b) foo() /* after */ ;[].forEach(bar)');
 	t.false(result.messages.some(message => message.fatal));
 });
+
+// An arrow function is an `AssignmentExpression` in the grammar, so it needs parentheses before `&&`
+test('fix should parenthesize an arrow function test', async t => {
+	const result = await lintFixture('if (a => b) { if (c => d) { e(); } }');
+
+	t.is(result.output, 'if ((a => b) && (c => d)) { e(); }');
+	t.false(result.messages.some(message => message.fatal));
+});
+
+test('fix should parenthesize a single arrow function test', async t => {
+	const result = await lintFixture('if (x) { if (a => b) { c(); } }');
+
+	t.is(result.output, 'if (x && (a => b)) { c(); }');
+	t.false(result.messages.some(message => message.fatal));
+});
+
+test('fix should parenthesize an async arrow function test', async t => {
+	const result = await lintFixture('if (async a => b) { if (c => d) { e(); } }');
+
+	t.is(result.output, 'if ((async a => b) && (c => d)) { e(); }');
+	t.false(result.messages.some(message => message.fatal));
+});

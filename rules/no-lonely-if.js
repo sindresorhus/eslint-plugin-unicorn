@@ -13,6 +13,8 @@ const isIfStatementWithoutAlternate = node => node.type === 'IfStatement' && !no
 const needParenthesis = node => (
 	(node.type === 'LogicalExpression' && (node.operator === '||' || node.operator === '??'))
 	|| node.type === 'ConditionalExpression'
+	// An arrow function is an `AssignmentExpression` in the grammar
+	|| node.type === 'ArrowFunctionExpression'
 	|| node.type === 'AssignmentExpression'
 	|| node.type === 'YieldExpression'
 	|| node.type === 'SequenceExpression'
