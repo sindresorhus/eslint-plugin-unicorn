@@ -95,6 +95,11 @@ test.snapshot({
 		// TypeScript
 		{code: 'new Date()', languageOptions: {parser: parsers.typescript}},
 		{code: 'new Date(x as number)', languageOptions: {parser: parsers.typescript}},
+
+		// The parentheses around the argument must survive the suggestion
+		'new Date((1))',
+		'new Date((0, 1))',
+		'new Date((1, 2).length)',
 	],
 });
 

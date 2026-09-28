@@ -1,6 +1,6 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
-import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import {getParenthesizedText, getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-temporal';
 const MESSAGE_ID_PARSE = 'prefer-temporal/parse';
@@ -120,7 +120,7 @@ function getNewDateProblem({node}, context) {
 			messageId: MESSAGE_ID,
 			data: {description: 'new Date(…)'},
 			suggest: replacementSuggestions(node, context, [
-				`Temporal.Instant.fromEpochMilliseconds(${sourceCode.getText(argumentNode)})`,
+				`Temporal.Instant.fromEpochMilliseconds(${getParenthesizedText(argumentNode, context)})`,
 			]),
 		};
 	}
