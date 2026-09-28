@@ -34,6 +34,12 @@ test({
 		String.raw`console.log("abc\n", "def");`,
 		'console.log("  abc", "def");',
 
+		// The trailing space is escaped, removing it would break the literal
+		String.raw`console.log('a\ ', "def");`,
+		String.raw`console.log('\ ', "def");`,
+		String.raw`console.log("a\\\ ", "def");`,
+		'console.log(`a\\ `, "def");',
+
 		'console.log(" abc", "def");',
 		'console.log("abc", "def ");',
 
@@ -191,6 +197,12 @@ test({
 					theme.error(errorMessage)
 				);
 			`,
+		},
+		// The space follows an escaped backslash, so it is a real trailing space
+		{
+			code: String.raw`console.log("a\\ ", "def");`,
+			errors: [buildError({method: 'log', position: 'trailing'})],
+			output: String.raw`console.log("a\\", "def");`,
 		},
 	],
 });

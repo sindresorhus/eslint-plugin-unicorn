@@ -10,7 +10,19 @@ const messages = {
 const hasLeadingSpace = value => value.length > 1 && value.charAt(0) === ' ' && value.charAt(1) !== ' ';
 
 // Find exactly one trailing space, allow exactly one space
-const hasTrailingSpace = value => value.length > 1 && value.at(-1) === ' ' && value.at(-2) !== ' ';
+// A space escaped by a backslash belongs to an escape sequence, removing it would break the literal
+const hasTrailingSpace = value => {
+	if (!(value.length > 1 && value.at(-1) === ' ' && value.at(-2) !== ' ')) {
+		return false;
+	}
+
+	let backslashCount = 0;
+	for (let index = value.length - 2; value[index] === '\\'; index--) {
+		backslashCount++;
+	}
+
+	return backslashCount % 2 === 0;
+};
 
 /**
 @param {import('eslint').Rule.RuleContext} context

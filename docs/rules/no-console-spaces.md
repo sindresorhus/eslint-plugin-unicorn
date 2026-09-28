@@ -80,3 +80,8 @@ console.log('abc\t', 'def');
 // ✅
 console.log('abc\n', 'def');
 ```
+
+```js
+// ✅ A space that belongs to an escape sequence, removing it would break the literal
+console.log('a\ ', 'def');
+```
