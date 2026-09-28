@@ -98,3 +98,25 @@ test({
 		},
 	],
 });
+
+// `as`, `satisfies` and `!` have no runtime effect
+test({
+	valid: [
+		// Only a boolean literal counts, an identifier needs type information
+		{...typescript, code: 'function f() {\n\tif (a) {\n\t\treturn t!;\n\t}\n\n\treturn false;\n}'},
+	],
+	invalid: [
+		...[
+			['function f() {\n\tif (a) {\n\t\treturn true as const;\n\t}\n\n\treturn false;\n}', 'function f() {\n\treturn Boolean(a);\n}'],
+			['function f() {\n\tif (a) {\n\t\treturn true as boolean;\n\t}\n\n\treturn false;\n}', 'function f() {\n\treturn Boolean(a);\n}'],
+			['function f() {\n\tif (a) {\n\t\treturn true satisfies boolean;\n\t}\n\n\treturn false;\n}', 'function f() {\n\treturn Boolean(a);\n}'],
+			['function f() {\n\tif (a) {\n\t\treturn false as const;\n\t}\n\n\treturn true;\n}', 'function f() {\n\treturn !a;\n}'],
+			['function f() {\n\tif (a) {\n\t\treturn false!;\n\t}\n\n\treturn true;\n}', 'function f() {\n\treturn !a;\n}'],
+		].map(([code, output]) => ({
+			...typescript,
+			code,
+			output,
+			errors: 1,
+		})),
+	],
+});

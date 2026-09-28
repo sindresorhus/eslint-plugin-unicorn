@@ -6,6 +6,7 @@ import {
 	getPreviousNode,
 	isGlobalBooleanCall,
 	shouldAddParenthesesToUnaryExpressionArgument,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-boolean-return';
@@ -43,12 +44,14 @@ function getNodeBody(node) {
 }
 
 const getBooleanReturnValue = node => {
-	if (
-		node?.type === 'ReturnStatement'
-		&& node.argument?.type === 'Literal'
-		&& typeof node.argument.value === 'boolean'
-	) {
-		return node.argument.value;
+	if (node?.type !== 'ReturnStatement') {
+		return;
+	}
+
+	// `as`, `satisfies` and `!` have no runtime effect, so the value is still the literal
+	const argument = unwrapTypeScriptExpression(node.argument);
+	if (argument?.type === 'Literal' && typeof argument.value === 'boolean') {
+		return argument.value;
 	}
 };
 
