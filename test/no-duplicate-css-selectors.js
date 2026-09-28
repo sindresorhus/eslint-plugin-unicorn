@@ -156,7 +156,12 @@ test.snapshot({
 
 test({
 	testerOptions: languages.css,
-	valid: [],
+	valid: [
+		// `@\6b eyframes` is the same at-rule as `@keyframes`, so keyframe selectors are still ignored
+		String.raw`@\6b eyframes fade { 0%, 0% {} }`,
+		String.raw`@\6B\65 YFRAMES fade { 0%, 0% {} }`,
+		String.raw`@-webkit-\6b eyframes fade { 0%, 0% {} }`,
+	],
 	invalid: [
 		{
 			code: 'a, b, a, b { color: red; }',
@@ -172,6 +177,14 @@ test({
 			code: 'a, /* keep */ a, b, b { color: red; }',
 			output: 'a, /* keep */ a, b { color: red; }',
 			errors: 2,
+		},
+		{
+			code: '@\\6d edia screen { .card { color: red; } }\n@media screen { .card { color: blue; } }',
+			errors: 1,
+		},
+		{
+			code: '@\\6c ayer base { .card { color: red; } }\n@layer base { .card { color: blue; } }',
+			errors: 1,
 		},
 	],
 });

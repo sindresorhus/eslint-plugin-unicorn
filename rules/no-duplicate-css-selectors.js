@@ -1,4 +1,4 @@
-import {generate} from '@eslint/css-tree';
+import {generate, ident} from '@eslint/css-tree';
 
 /**
 @import * as ESLint from 'eslint';
@@ -12,6 +12,9 @@ const messages = {
 };
 
 const keyframesNamePattern = /^(?:-(?:o|moz|webkit)-)?keyframes$/iu;
+
+// `@\6b eyframes` is the same at-rule as `@keyframes`
+const getNormalizedAtRuleName = name => ident.decode(name).toLowerCase();
 
 const hasCommentInRange = (sourceCode, [start, end]) => sourceCode.comments.some(comment => {
 	const [commentStart, commentEnd] = sourceCode.getRange(comment);
@@ -56,7 +59,7 @@ const getContextPart = (node, sourceCode) => {
 		return ['rule', generate(node.prelude)];
 	}
 
-	const name = node.name.toLowerCase();
+	const name = getNormalizedAtRuleName(node.name);
 	if (name === 'layer' && !node.prelude) {
 		return ['anonymous-layer', sourceCode.getRange(node)[0]];
 	}
@@ -70,7 +73,7 @@ const getContextKey = (rule, sourceCode) => {
 
 	while (node) {
 		if (node.type === 'Atrule') {
-			if (keyframesNamePattern.test(node.name)) {
+			if (keyframesNamePattern.test(getNormalizedAtRuleName(node.name))) {
 				return;
 			}
 
