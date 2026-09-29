@@ -7,8 +7,10 @@ import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variab
 import {
 	getAvailableVariableName,
 	getScopes,
+	matchesAnyRegExp,
 	getVariableIdentifiers,
 	getStaticValueIfNoSideEffects,
+	getChildNodes,
 	isReactHookName,
 	lowerFirst,
 	upperFirst,
@@ -176,15 +178,6 @@ const prepareOptions = options => {
 
 	return preparedOptions;
 };
-
-function isIgnoredName(name, ignore) {
-	return ignore.some(regexp => {
-		regexp.lastIndex = 0;
-		const isIgnored = regexp.test(name);
-		regexp.lastIndex = 0;
-		return isIgnored;
-	});
-}
 
 function getBooleanPrefix(name, prefixes) {
 	name = stripLeadingUnderscores(name);
@@ -1359,10 +1352,9 @@ function hasUnresolvedTypeParameterReference(node, typeState, scope, checkNode =
 			return true;
 		}
 
-		const childNodes = Object.entries(current.node)
-			.filter(([key]) => key !== 'parent')
-			.flatMap(([, value]) => Array.isArray(value) ? value : [value]);
-		nodes.push(...childNodes.map(child => ({node: child, checkNode: true})));
+		for (const child of getChildNodes(current.node)) {
+			nodes.push({node: child, checkNode: true});
+		}
 	}
 
 	return false;
@@ -2585,7 +2577,7 @@ const create = context => {
 
 	const checkVariable = variable => {
 		if (
-			isIgnoredName(variable.name, ignore)
+			matchesAnyRegExp(variable.name, ignore)
 			|| isDestructuredVariable(variable)
 		) {
 			return;
@@ -2705,7 +2697,7 @@ const create = context => {
 
 		if (
 			!name
-			|| isIgnoredName(name, ignore)
+			|| matchesAnyRegExp(name, ignore)
 		) {
 			return;
 		}
