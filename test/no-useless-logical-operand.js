@@ -67,6 +67,12 @@ test.snapshot({
 		{code: 'true && (\'use strict\' satisfies string);', languageOptions: {parser: parsers.typescript}},
 		{code: 'true && \'use strict\'!;', languageOptions: {parser: parsers.typescript}},
 		{code: 'true && <const>\'use strict\';', languageOptions: {parser: parsers.typescript}},
+
+		// `switch` compares its discriminant with `===`, so it is not a truthiness test
+		'switch (foo && true) {}',
+		'switch (foo || false) {}',
+		'switch (foo && bar) {}',
+		'switch (foo && true) { case true: break; }',
 	],
 	invalid: [
 		// Leading identity operands.
@@ -185,5 +191,12 @@ test.snapshot({
 
 		// JSX.
 		{code: 'const element = <div>{true && child}</div>;', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
+
+		// TypeScript: a boolean literal wrapped in a type-only expression is still a literal
+		{code: 'declare const a: unknown;\nif (a && (true as boolean)) {}', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const a: unknown;\nif (a && (true!)) {}', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const a: unknown;\nif (a && (<boolean>true)) {}', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const a: unknown;\nif (a && (true satisfies boolean)) {}', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const a: unknown;\nif ((true as boolean) && a) {}', languageOptions: {parser: parsers.typescript}},
 	],
 });

@@ -75,14 +75,16 @@ function isRemovableIdentityOperand(operands, index, context) {
 
 function getLeadingAbsorbingOperand(operands, operator) {
 	const absorbingValue = absorbingByOperator.get(operator);
-	return isBooleanLiteral(operands[0], absorbingValue) ? operands[0] : undefined;
+	// `true as boolean` and `true!` are the literal at runtime
+	return isBooleanLiteral(unwrapTypeScriptExpression(operands[0]), absorbingValue) ? operands[0] : undefined;
 }
 
 function getRemovableIdentityOperands(operands, operator, context) {
 	const identityValue = identityByOperator.get(operator);
 
+	// `true as boolean` and `true!` are the literal at runtime
 	return operands.filter((operand, index) =>
-		isBooleanLiteral(operand, identityValue)
+		isBooleanLiteral(unwrapTypeScriptExpression(operand), identityValue)
 		&& isRemovableIdentityOperand(operands, index, context),
 	);
 }
