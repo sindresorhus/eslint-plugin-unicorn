@@ -83,7 +83,7 @@ You can set it at top-level, or override for each specific number type.
 Example:
 
 ```js
-/* eslint unicorn/numeric-separators-style: ["error", {"onlyIfContainsSeparator": true, "binary": {"onlyIfContainsSeparator": false}] */
+/* eslint unicorn/numeric-separators-style: ["error", {"onlyIfContainsSeparator": true, "binary": {"onlyIfContainsSeparator": false}}] */
 const number = 100000; // Pass, this number does not contain separators
 const binary = 0b101010001; // Fail, `binary` type don't require separators
 const hexadecimal = 0xD_EED_BEE_F; // Fail, it contains separators and it's incorrectly grouped
@@ -91,7 +91,7 @@ const hexadecimal = 0xD_EED_BEE_F; // Fail, it contains separators and it's inco
 
 **`minimumDigits`**
 
-Type: `number`
+Type: `integer`
 
 The minimum amount of digits in a number where you shouldn't use a numeric separator.
 
@@ -99,7 +99,7 @@ Example: With `5` as the minimum digits, `1024` will pass because it has 4 digit
 
 **`groupLength`**
 
-Type: `number`
+Type: `integer`
 
 The size a group of digits between two numeric separators should be.
 
@@ -107,7 +107,7 @@ The size of the first group can be of any length as long as it is equal to or le
 
 **`fractionGroupLength`**
 
-Type: `number`\
+Type: `integer`\
 Default: `Infinity`
 
 The size a group of digits in the fractional part (after the decimal point) should be. Only applies to the `number` type.
