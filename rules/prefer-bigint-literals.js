@@ -14,15 +14,11 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace with {{replacement}}.',
 };
 
-const canUseNumericLiteralRaw = numericLiteral => {
-	const raw = numericLiteral.raw.replaceAll('_', '').toLowerCase();
+// A bigint literal is `0n` or a digit sequence that does not start with `0`, unlike a decimal literal where `08` is a legacy octal
+const isBigIntLiteralText = text => /^(?:0|[1-9]\d*)$/u.test(text);
 
-	if (raw.includes('.')) {
-		return false;
-	}
-
-	const {value} = numericLiteral;
-
+// `0b1`, `0o7`, `0xf`, but not `0b01`, the digits have to be canonical or the literal is a different number
+const canUsePrefixedRaw = (raw, value) => {
 	for (const {prefix, base} of [
 		{prefix: '0b', base: 2},
 		{prefix: '0o', base: 8},
@@ -33,11 +29,20 @@ const canUseNumericLiteralRaw = numericLiteral => {
 		}
 	}
 
-	if (raw.includes('e')) {
+	return false;
+};
+
+const canUseNumericLiteralRaw = numericLiteral => {
+	const raw = numericLiteral.raw.replaceAll('_', '').toLowerCase();
+
+	if (raw.includes('.')) {
 		return false;
 	}
 
-	return raw === String(value);
+	const {value} = numericLiteral;
+
+	// `1e+21` is also how `String()` prints the value, but `1e+21n` is not a bigint literal
+	return canUsePrefixedRaw(raw, value) || (!raw.includes('e') && raw === String(value));
 };
 
 function getReplacement(valueNode) {
@@ -50,9 +55,17 @@ function getReplacement(valueNode) {
 			return;
 		}
 
-		let text = bigint === 0n ? '0' : raw.trim();
+		let text = raw.trim();
 		if (text.startsWith('+')) {
 			text = text.slice(1).trim();
+		}
+
+		// A bigint literal can not have leading zeros, `00001n` is a syntax error
+		if (
+			!isBigIntLiteralText(text)
+			&& !canUsePrefixedRaw(text.toLowerCase(), bigint)
+		) {
+			text = bigint.toString();
 		}
 
 		return {shouldUseSuggestion: raw.includes('+'), text: `${text}n`, bigint};

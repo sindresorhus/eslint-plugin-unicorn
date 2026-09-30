@@ -103,3 +103,57 @@ test.snapshot({
 		'BigInt(-(+(-10)))',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		// A bigint literal can not have leading zeros
+		{
+			code: 'BigInt("00001");',
+			output: '1n;',
+			errors: 1,
+		},
+		{
+			code: 'BigInt("007");',
+			output: '7n;',
+			errors: 1,
+		},
+		{
+			code: 'BigInt("-00001");',
+			output: '(-1n);',
+			errors: 1,
+		},
+		{
+			code: 'BigInt("  00001  ");',
+			output: '1n;',
+			errors: 1,
+		},
+		{
+			code: 'BigInt("-0");',
+			output: '0n;',
+			errors: 1,
+		},
+		...[
+			// A leading zero with a non-octal digit is a legacy octal literal, not a bigint literal
+			'08',
+			'09',
+			'080',
+			'0000008',
+		].map(text => ({
+			code: `BigInt("${text}");`,
+			output: `${BigInt(text)}n;`,
+			errors: 1,
+		})),
+		// `String(1e+21)` is also `1e+21`, but `1e+21n` is not a bigint literal
+		{
+			code: 'BigInt(1e+21);',
+			errors: [{
+				messageId: 'prefer-bigint-literals/error',
+				suggestions: [{
+					messageId: 'prefer-bigint-literals/suggestion',
+					output: '1000000000000000000000n;',
+				}],
+			}],
+		},
+	],
+});
