@@ -215,6 +215,8 @@ const create = context => {
 		};
 
 		const {sourceCode} = context;
+		// The unwrapped call is rebuilt from the promise node alone, so a comment inside the array would be lost
+		const canUnwrap = !hasCommentsInside(sourceCode, callExpression);
 
 		if (
 			callExpression.parent.type === 'AwaitExpression'
@@ -224,7 +226,10 @@ const create = context => {
 				|| isExpressionStatement(callExpression.parent.parent)
 			)
 		) {
-			problem.fix = unwrapAwaitedCallExpression(callExpression, context);
+			if (canUnwrap) {
+				problem.fix = unwrapAwaitedCallExpression(callExpression, context);
+			}
+
 			return problem;
 		}
 
@@ -234,7 +239,7 @@ const create = context => {
 		}
 
 		problem.suggest = [
-			{
+			canUnwrap && {
 				messageId: MESSAGE_ID_SUGGESTION_UNWRAP,
 				fix: unwrapNonAwaitedCallExpression(callExpression, context),
 			},
@@ -242,7 +247,7 @@ const create = context => {
 				messageId: MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE,
 				fix: switchToPromiseResolve(callExpression, sourceCode),
 			},
-		];
+		].filter(Boolean);
 
 		return problem;
 	});
