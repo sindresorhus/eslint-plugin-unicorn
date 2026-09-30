@@ -132,10 +132,8 @@ const getTransparentExpressionAncestor = node => {
 	return node;
 };
 
-const getSingleArgumentText = (callExpression, context) => {
-	const [argument] = callExpression.arguments;
-	return context.sourceCode.getText(argument);
-};
+// Keep the parentheses, a sequence expression is only one argument while it has them
+const getSingleArgumentText = (callExpression, context) => getParenthesizedText(callExpression.arguments[0], context);
 
 const getMemberExpressionObjectText = (node, context) => {
 	const text = getParenthesizedText(node, context);
