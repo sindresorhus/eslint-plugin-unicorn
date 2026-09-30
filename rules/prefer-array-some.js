@@ -161,6 +161,7 @@ const create = context => {
 
 							const {sourceCode} = context;
 							const parenthesizedRange = getParenthesizedRange(callExpression, context);
+							// The comparison is removed from right after the call, the space before the operator goes with it, otherwise it would be left dangling
 							yield fixer.removeRange([parenthesizedRange[1], sourceCode.getRange(callExpression.parent)[1]]);
 
 							if (callExpression.parent.operator === '!=' || callExpression.parent.operator === '!==') {
@@ -188,7 +189,9 @@ const create = context => {
 		if (!(
 			isMethodCall(left, {
 				methods: ['findIndex', 'findLastIndex'],
-				argumentsLength: 1,
+				// The second argument is the `thisArg`, which `.some(…)` takes too
+				minimumArguments: 1,
+				maximumArguments: 2,
 				optionalCall: false,
 				optionalMember: false,
 			})
@@ -215,7 +218,8 @@ const create = context => {
 					left,
 					token => token.type === 'Punctuator' && token.value === operator,
 				);
-				const [start] = sourceCode.getRange(operatorToken);
+				// Start right after the token or comment before the operator, so the space before the operator is not left dangling
+				const [, start] = sourceCode.getRange(sourceCode.getTokenBefore(operatorToken, {includeComments: true}));
 				const [, end] = sourceCode.getRange(binaryExpression);
 
 				// Removing the comparison would drop comments in the removed range.

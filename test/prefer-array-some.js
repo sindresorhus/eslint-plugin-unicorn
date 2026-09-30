@@ -154,6 +154,11 @@ test({
 			`if (${code}) {}`,
 			`if (${code.replace('find', 'findLast')}) {}`,
 		]),
+
+		// `switch` compares its discriminant with `===`, so the element itself is the value that gets compared, not a boolean
+		'switch (foo.find(fn)) { case undefined: break; }',
+		'switch (foo.findLast(fn)) { case undefined: break; }',
+		'const found = foo.find(fn); switch (found) { case undefined: break; }',
 	],
 	invalid: [
 		...[
@@ -409,7 +414,6 @@ test.snapshot({
 	valid: [
 		'foo.notMatchedMethod(bar) !== -1',
 		'new foo.findIndex(bar) !== -1',
-		'foo.findIndex(bar, extraArgument) !== -1',
 		'foo.findIndex(bar) instanceof -1',
 		'foo.findIndex(...bar) !== -1',
 		// We are not ignoring ``{_,lodash,underscore}.{findIndex,findLastIndex}`
@@ -440,6 +444,9 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('declare function getItems(): string[]; getItems().findIndex(fn) !== -1;'),
+		// The second argument is the `thisArg`, `.some(…)` takes it too
+		'foo.findIndex(bar, thisArgument) !== -1;',
+		'foo.findLastIndex(bar, thisArgument) !== -1;',
 	],
 });
 
@@ -468,12 +475,12 @@ test.vue({
 		},
 		{
 			code: '<script>foo.findIndex(fn) !== -1;</script>',
-			output: '<script>foo.some(fn) ;</script>',
+			output: '<script>foo.some(fn);</script>',
 			errors: 1,
 		},
 		{
 			code: '<script>foo.findLastIndex(fn) !== -1;</script>',
-			output: '<script>foo.some(fn) ;</script>',
+			output: '<script>foo.some(fn);</script>',
 			errors: 1,
 		},
 		{
@@ -506,5 +513,50 @@ test.snapshot({
 		'a = (( ((foo.find(fn))) == ((null)) )) ? "no" : "yes";',
 		// Don't drop comments in the removed comparison part
 		'foo.find(fn) === /* keep */ undefined',
+		'foo.find(fn, thisArgument) !== undefined',
+	],
+});
+
+// The space before the operator must not be left dangling
+test({
+	valid: [],
+	invalid: [
+		...[
+			['foo.findIndex(fn) !== -1;', 'foo.some(fn);'],
+			['foo.findLastIndex(fn) !== -1;', 'foo.some(fn);'],
+			['foo.findIndex(fn) === -1;', '!foo.some(fn);'],
+			['const a = foo.findIndex(fn) !== -1;', 'const a = foo.some(fn);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	],
+});
+
+// The parentheses around the call must survive, and the comment before the operator must too
+test({
+	valid: [],
+	invalid: [
+		...[
+			['(foo.findIndex(fn)) !== -1;', '(foo.some(fn));'],
+			['(foo.findIndex(fn) !== -1);', '(foo.some(fn));'],
+			['foo.findIndex(fn) /* c */ !== -1;', 'foo.some(fn) /* c */;'],
+			['const a = (foo.findIndex(fn)) !== -1;', 'const a = (foo.some(fn));'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	],
+});
+
+// The whole comparison is removed, the space before the operator goes with it
+test({
+	valid: [],
+	invalid: [
+		...[
+			['foo.find(fn) === undefined;', '!foo.some(fn);', 'find'],
+			['foo.find(fn) == null;', '!foo.some(fn);', 'find'],
+			['foo.find(fn) !== undefined;', 'foo.some(fn);', 'find'],
+			['foo.findLast(fn) === undefined;', '!foo.some(fn);', 'findLast'],
+			['foo.find(fn)  ===  undefined;', '!foo.some(fn);', 'find'],
+			['foo.find(fn)===undefined;', '!foo.some(fn);', 'find'],
+			['(foo.find(fn)) === undefined;', '!(foo.some(fn));', 'find'],
+			['foo.find(fn) === undefined && bar;', '!foo.some(fn) && bar;', 'find'],
+			['a = (( ((foo.find(fn))) == ((null)) )) ? "no" : "yes";', 'a = (( !((foo.some(fn))) )) ? "no" : "yes";', 'find'],
+		].map(([code, suggestionOutput, method]) => invalidCase({code, suggestionOutput, method})),
 	],
 });
