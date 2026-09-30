@@ -12,6 +12,7 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 	isLeftHandSide,
 	getStaticValueIfNoSideEffects,
+	hasCommentInRange,
 	unwrapTypeScriptExpression as unwrapExpression,
 } from './utils/index.js';
 import {
@@ -134,7 +135,7 @@ function getSliceCallResult(node) {
 				|| ((firstElementGetMethod === 'pop') && (startIndex === -1))
 			)
 		) {
-			return {safeToFix: true, firstElementGetMethod};
+			return firstElementGetMethod;
 		}
 
 		return;
@@ -144,14 +145,10 @@ function getSliceCallResult(node) {
 		isLiteralNegativeInteger(endIndexNode)
 		&& -endIndexNode.argument.value === startIndex + 1
 	) {
-		return {safeToFix: true, firstElementGetMethod};
+		return firstElementGetMethod;
 	}
 
-	if (firstElementGetMethod === 'pop') {
-		return;
-	}
-
-	return {safeToFix: false, firstElementGetMethod};
+	// The slice is not one element wide at the start index, so `.at(startIndex)` is a different value: `array.slice(-1, 0)[0]` is `undefined` while `array.at(-1)` is the last element
 }
 
 const lodashLastFunctions = [
@@ -197,11 +194,8 @@ function create(context) {
 		if (
 			!node.computed
 			|| isLeftHandSide(node)
+			|| isDomCollectionReceiver(node.object)
 		) {
-			return;
-		}
-
-		if (isDomCollectionReceiver(node.object)) {
 			return;
 		}
 
@@ -215,11 +209,12 @@ function create(context) {
 
 			// Only if we are sure it's a non-negative integer
 			const staticValue = getStaticValueIfNoSideEffects(indexNode, context);
-			if (!staticValue || !Number.isSafeInteger(staticValue.value) || staticValue.value < 0) {
-				return;
-			}
-
-			if (isObviouslyNonArrayReceiver(node.object, context)) {
+			if (
+				!staticValue
+				|| !Number.isSafeInteger(staticValue.value)
+				|| staticValue.value < 0
+				|| isObviouslyNonArrayReceiver(node.object, context)
+			) {
 				return;
 			}
 		}
@@ -231,9 +226,14 @@ function create(context) {
 		return {
 			node: indexNode,
 			messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
-			* fix(fixer) {
+			* fix(fixer, {abort}) {
 				if (lengthNode) {
-					yield removeLengthNode(lengthNode, fixer, context);
+					const fix = removeLengthNode(lengthNode, fixer, context);
+					if (!fix) {
+						return abort();
+					}
+
+					yield fix;
 				}
 
 				// Only remove space for `foo[foo.length - 1]`
@@ -278,9 +278,20 @@ function create(context) {
 		const [indexNode] = node.arguments;
 		const lengthNode = getNegativeIndexLengthNode(indexNode, node.callee.object);
 
-		// `String#charAt` don't care about index value, we assume it's always number
-		if (!lengthNode && !checkAllIndexAccess) {
-			return;
+		if (!lengthNode) {
+			if (!checkAllIndexAccess) {
+				return;
+			}
+
+			// `String#charAt()` returns `''` for a negative index while `String#at()` counts from the end. Any other index is assumed to be a non-negative number.
+			const staticValue = getStaticValueIfNoSideEffects(indexNode, context);
+			if (
+				staticValue
+				&& typeof staticValue.value !== 'symbol'
+				&& staticValue.value < 0
+			) {
+				return;
+			}
 		}
 
 		return {
@@ -288,9 +299,14 @@ function create(context) {
 			messageId: lengthNode ? MESSAGE_ID_STRING_CHAR_AT_NEGATIVE : MESSAGE_ID_STRING_CHAR_AT,
 			suggest: [{
 				messageId: SUGGESTION_ID,
-				* fix(fixer) {
+				* fix(fixer, {abort}) {
 					if (lengthNode) {
-						yield removeLengthNode(lengthNode, fixer, context);
+						const fix = removeLengthNode(lengthNode, fixer, context);
+						if (!fix) {
+							return abort();
+						}
+
+						yield fix;
 					}
 
 					yield fixer.replaceText(node.callee.property, 'at');
@@ -348,12 +364,12 @@ function create(context) {
 			return;
 		}
 
-		const result = getSliceCallResult(sliceCall);
-		if (!result) {
+		const firstElementGetMethod = getSliceCallResult(sliceCall);
+		if (!firstElementGetMethod) {
 			return;
 		}
 
-		const {safeToFix, firstElementGetMethod} = result;
+		const firstElementGetNode = firstElementGetMethod === 'zero-index' ? sliceCall.parent : sliceCall.parent.parent;
 
 		/**
 		@param {import('eslint').Rule.RuleFixer} fixer
@@ -372,8 +388,8 @@ function create(context) {
 			yield (
 				// Remove `[0]`, `.shift()`, or `.pop()`
 				firstElementGetMethod === 'zero-index'
-					? removeMemberExpressionProperty(fixer, sliceCall.parent, context)
-					: removeMethodCall(fixer, sliceCall.parent.parent, context)
+					? removeMemberExpressionProperty(fixer, firstElementGetNode, context)
+					: removeMethodCall(fixer, firstElementGetNode, context)
 			);
 		}
 
@@ -382,11 +398,15 @@ function create(context) {
 			messageId: MESSAGE_ID_SLICE,
 		};
 
-		if (safeToFix) {
-			problem.fix = fix;
-		} else {
-			problem.suggest = [{messageId: SUGGESTION_ID, fix}];
+		// The fix removes the extra arguments and the trailing `[0]`/`.pop()`, so a comment anywhere in the call or in them would be lost
+		if (hasCommentInRange(context, [
+			sourceCode.getRange(sliceCall)[0],
+			sourceCode.getRange(firstElementGetNode)[1],
+		])) {
+			return problem;
 		}
+
+		problem.fix = fix;
 
 		return problem;
 	});
@@ -407,10 +427,19 @@ function create(context) {
 			return;
 		}
 
-		return {
+		const problem = {
 			node: node.callee,
 			messageId: MESSAGE_ID_GET_LAST_FUNCTION,
 			data: {description: matchedFunction.trim()},
+		};
+
+		// The call is rebuilt from the argument alone, so a comment inside it would be lost
+		if (sourceCode.getCommentsInside(node).length > 0) {
+			return problem;
+		}
+
+		return {
+			...problem,
 			fix(fixer) {
 				let fixed = getParenthesizedText(array, context);
 

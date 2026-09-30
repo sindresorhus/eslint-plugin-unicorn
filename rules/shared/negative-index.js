@@ -1,5 +1,6 @@
 import {
 	getParenthesizedRange,
+	hasCommentInRange,
 } from '../utils/index.js';
 import {isLengthOf, unwrapExpression} from '../utils/comparison.js';
 import {isNumericLiteral} from '../ast/index.js';
@@ -9,9 +10,11 @@ import {isNumericLiteral} from '../ast/index.js';
 @import * as ESLint from 'eslint';
 */
 
+// `slice(length - n)` and `slice(-n)` only agree for a whole number of elements
 const isLiteralPositiveNumber = node =>
 	isNumericLiteral(node)
-	&& node.value > 0;
+	&& node.value > 0
+	&& Number.isSafeInteger(node.value);
 
 export function getNegativeIndexLengthNode(node, objectNode) {
 	if (!node) {
@@ -47,6 +50,12 @@ export function getNegativeIndexLengthNode(node, objectNode) {
 */
 export function removeLengthNode(node, fixer, context) {
 	const [start, end] = getParenthesizedRange(node, context);
+
+	// The whole `.length` access and its parentheses are removed, so a comment inside them would be lost.
+	if (hasCommentInRange(context, [start, end])) {
+		return;
+	}
+
 	return fixer.removeRange([
 		start,
 		end + context.sourceCode.text.slice(end).match(/\S|$/).index,

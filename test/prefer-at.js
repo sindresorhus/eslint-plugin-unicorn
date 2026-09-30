@@ -24,6 +24,9 @@ test.snapshot({
 		'const modes = new Set([\'foo\']); modes.clear(); array[(modes.size && 1) || index];',
 		typeAware('const modes = new Set([\'foo\']); modes.clear(); array[(modes.size ? 1 : index) as number];'),
 		'foo[bar.length - 1]',
+		// `array[array.length - n]` and `array.at(-n)` only agree for a whole number of elements
+		'array[array.length - 0.5]',
+		'array[array.length - 1.5]',
 		// LHS
 		'array[array.length - 1] = 1',
 		'array[array.length - 1] %= 1',
@@ -337,8 +340,7 @@ test.snapshot({
 		'array.slice(-9, unknown).pop()',
 		'array.slice(-9, ...unknown)[0]',
 		'array.slice(...[-9], unknown)[0]',
-	],
-	invalid: [
+		// A slice that is not one element wide at the start index gives a different value, so `.at(start)` is not a replacement: `array.slice(-1, 0)[0]` is `undefined`
 		'array.slice(-9, unknown)[0]',
 		'array.slice(-0o11, -7)[0]',
 		'array.slice(-9, unknown).shift()',
@@ -347,6 +349,7 @@ test.snapshot({
 		'(( (( array.slice( ((-9)), ((unknown)), ).shift ))() ));',
 		'array.slice(-9, (a, really, _really, complicated, second) => argument)[0]',
 	],
+	invalid: [],
 });
 
 // Functions to get last element
@@ -450,10 +453,101 @@ test.snapshot({
 		'string.charAt(5 + 9)',
 		'const offset = 5;string.charAt(offset + 9)',
 		'string.charAt(unknown)',
-		'string.charAt(-1)',
 		'string.charAt(1.5)',
 		'string.charAt(1n)',
 		'string.charAt(string.length - 1)',
 		'foo.charAt(bar.length - 1)',
 	]),
+});
+
+// `String#charAt()` returns `''` for a negative index while `String#at()` counts from the end
+test({
+	valid: [
+		'string.charAt(-1)',
+		'string.charAt(-1.5)',
+		'string.charAt(-0x1)',
+		'string.charAt(-0b1)',
+		'string.charAt(1 - 2)',
+		'const index = -1; string.charAt(index)',
+	].map(code => ({code, options: [{checkAllIndexAccess: true}]})),
+	invalid: [
+		// A symbol index is not compared with `0`
+		{
+			code: 'string.charAt(Symbol.iterator)',
+			options: [{checkAllIndexAccess: true}],
+			errors: 1,
+		},
+		{
+			code: 'const a = _.last(/* keep */ foo);',
+			errors: 1,
+		},
+		{
+			code: 'const a = _.last(foo);',
+			output: 'const a = foo.at(-1);',
+			errors: 1,
+		},
+	],
+});
+
+// A comment inside the `.length` access would be lost by the fix
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const a = array[array /* keep */ .length - 1];',
+			errors: 1,
+		},
+		{
+			// The comment sits between the bracket and the index, both are kept
+			code: 'const a = array[/* keep */ array.length - 1];',
+			output: 'const a = array.at(/* keep */ -1);',
+			errors: 1,
+		},
+		{
+			code: 'const a = array[(/* keep */ array.length) - 1];',
+			errors: 1,
+		},
+		{
+			code: 'const a = array[array.length - 1];',
+			output: 'const a = array.at(-1);',
+			errors: 1,
+		},
+		// A comment in the index that the fix does not remove is kept
+		{
+			code: 'const a = array[1 /* keep */ + 1];',
+			output: 'const a = array.at(1 /* keep */ + 1);',
+			options: [{checkAllIndexAccess: true}],
+			errors: 1,
+		},
+	],
+});
+
+// A comment anywhere in the removed call would be lost
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'array.slice(-1).pop(/* keep */)',
+			errors: 1,
+		},
+		{
+			code: 'array.slice(/* keep */ -1).pop()',
+			errors: 1,
+		},
+		{
+			code: 'array.slice(-1).shift()',
+			output: 'array.at(-1)',
+			errors: 1,
+		},
+		{
+			code: 'array.slice(-1)[0 /* keep */]',
+			errors: 1,
+		},
+		// A comment outside the removed `[0]` is kept
+		{
+			code: 'foo(array.slice(-1)[0], /* keep */ bar)',
+			output: 'foo(array.at(-1), /* keep */ bar)',
+			errors: 1,
+		},
+	],
 });

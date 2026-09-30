@@ -34,6 +34,13 @@ test({
 		'foo.slice(bar.length - 1)',
 		// - NOT_POSITIVE_VALUE
 		'foo.slice(foo.length - 0)',
+		// - NOT_INTEGER
+		// `slice(length - n)` and `slice(-n)` only agree for a whole number of elements
+		'foo.slice(foo.length - 0.5)',
+		'foo.slice(foo.length - 1.5)',
+		'foo.at(foo.length - 0.5)',
+		'foo.splice(foo.length - 1.5, 1)',
+		'foo[foo.length - 0.5]',
 		// - NOT_NUMBER
 		'foo.slice(foo.length - "1")',
 		// - NOT_LITERAL
@@ -63,55 +70,55 @@ test({
 		{
 			code: 'foo.slice(foo.length - 2, foo.length - 1)',
 			errors: [error],
-			output: 'foo.slice(- 2, - 1)',
+			output: 'foo.slice(-2, -1)',
 		},
 		// Docs example (2)
 		{
 			code: 'foo.splice(foo.length - 1, 1)',
 			errors: [error],
-			output: 'foo.splice(- 1, 1)',
+			output: 'foo.splice(-1, 1)',
 		},
 		// Docs example (3)
 		{
 			code: 'Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1)',
 			errors: [error],
-			output: 'Array.prototype.slice.call(foo, - 2, - 1)',
+			output: 'Array.prototype.slice.call(foo, -2, -1)',
 		},
 		// Docs example (4)
 		{
 			code: 'Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1])',
 			errors: [error],
-			output: 'Array.prototype.slice.apply(foo, [- 2, - 1])',
+			output: 'Array.prototype.slice.apply(foo, [-2, -1])',
 		},
 		// Nested
 		{
 			code: 'foo.slice(foo.length - 1 - 1)',
 			errors: [error],
-			output: 'foo.slice(- 1 - 1)',
+			output: 'foo.slice(-1 - 1)',
 		},
 		// Foo.bar
 		{
 			code: 'foo.bar.slice(foo.bar.length - 1)',
 			errors: [error],
-			output: 'foo.bar.slice(- 1)',
+			output: 'foo.bar.slice(-1)',
 		},
 		// Foo['bar']
 		{
 			code: 'foo[\'bar\'].slice(foo[\'bar\'].length - 1)',
 			errors: [error],
-			output: 'foo[\'bar\'].slice(- 1)',
+			output: 'foo[\'bar\'].slice(-1)',
 		},
 		// Foo[1]
 		{
 			code: 'foo[1].slice(foo[1].length - 1)',
 			errors: [error],
-			output: 'foo[1].slice(- 1)',
+			output: 'foo[1].slice(-1)',
 		},
 		// Comment
 		{
 			code: 'foo.slice(foo.length/* comment */ - 1)',
 			errors: [error],
-			output: 'foo.slice(/* comment */ - 1)',
+			output: 'foo.slice(/* comment */ -1)',
 		},
 		// Comment
 		{
@@ -135,11 +142,11 @@ test({
 					// comment 1
 
 					// comment 2
-					- 1
+					-1
 					-1
 					,
 					// comment 3
-					- 1
+					-1
 				)
 			`,
 		},
@@ -147,13 +154,12 @@ test({
 		{
 			code: 'foo.slice((((foo.length)) - 1) - 1)',
 			errors: [error],
-			output: 'foo.slice((- 1) - 1)',
+			output: 'foo.slice((-1) - 1)',
 		},
 		// Comment inside parentheses
 		{
 			code: 'foo.slice(/* will keep */(/* will keep 1 */(/* will remove 2 */(foo.length)) - 1) - 1)',
 			errors: [error],
-			output: 'foo.slice(/* will keep */(/* will keep 1 */- 1) - 1)',
 		},
 		// [].{slice,splice}
 		{
@@ -169,10 +175,10 @@ test({
 			`,
 			errors: Array.from({length: 4}, () => error),
 			output: outdent`
-				[].slice.call(foo, - 1, - 2, foo.length - 3);
-				[].splice.call(foo, - 1, foo.length - 2, foo.length - 3);
-				[].slice.apply(foo, [- 1, - 2, foo.length - 3]);
-				[].splice.apply(foo, [- 1, foo.length - 2, foo.length - 3]);
+				[].slice.call(foo, -1, -2, foo.length - 3);
+				[].splice.call(foo, -1, foo.length - 2, foo.length - 3);
+				[].slice.apply(foo, [-1, -2, foo.length - 3]);
+				[].splice.apply(foo, [-1, foo.length - 2, foo.length - 3]);
 				[NOT_EMPTY].slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				[NOT_EMPTY].splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				[NOT_EMPTY].slice.call(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
@@ -193,9 +199,9 @@ test({
 			`,
 			errors: Array.from({length: 2}, () => error),
 			output: outdent`
-				''.slice.call(foo, - 1, - 2, foo.length - 3);
+				''.slice.call(foo, -1, -2, foo.length - 3);
 				''.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				''.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				''.slice.apply(foo, [-1, -2, foo.length - 3]);
 				''.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				'NOT_EMPTY'.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				'NOT_EMPTY'.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
@@ -242,35 +248,35 @@ test({
 			`,
 			errors: Array.from({length: 16}, () => error),
 			output: outdent`
-				Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
-				Array.prototype.splice.call(foo, - 1, foo.length - 2, foo.length - 3);
-				String.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+				Array.prototype.splice.call(foo, -1, foo.length - 2, foo.length - 3);
+				String.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				String.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				ArrayBuffer.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				ArrayBuffer.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				ArrayBuffer.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Int8Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Int8Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Int8Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Uint8Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Uint8Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Uint8Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Uint8ClampedArray.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Uint8ClampedArray.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Uint8ClampedArray.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Int16Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Int16Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Int16Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Uint16Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Uint16Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Uint16Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Int32Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Int32Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Int32Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Uint32Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Uint32Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Uint32Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Float16Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Float16Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Float16Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Float32Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Float32Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Float32Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				Float64Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Float64Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				Float64Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				BigInt64Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				BigInt64Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				BigInt64Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-				BigUint64Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				BigUint64Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 				BigUint64Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				NOT_SUPPORTED.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				NOT_SUPPORTED.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
@@ -315,35 +321,35 @@ test({
 			`,
 			errors: Array.from({length: 16}, () => error),
 			output: outdent`
-				Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
-				Array.prototype.splice.apply(foo, [- 1, foo.length - 2, foo.length - 3]);
-				String.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+				Array.prototype.splice.apply(foo, [-1, foo.length - 2, foo.length - 3]);
+				String.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				String.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				ArrayBuffer.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				ArrayBuffer.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				ArrayBuffer.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Int8Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Int8Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Int8Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Uint8Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Uint8Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Uint8Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Uint8ClampedArray.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Uint8ClampedArray.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Uint8ClampedArray.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Int16Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Int16Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Int16Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Uint16Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Uint16Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Uint16Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Int32Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Int32Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Int32Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Uint32Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Uint32Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Uint32Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Float16Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Float16Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Float16Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Float32Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Float32Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Float32Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				Float64Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Float64Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				Float64Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				BigInt64Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				BigInt64Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				BigInt64Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-				BigUint64Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				BigUint64Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
 				BigUint64Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				NOT_SUPPORTED.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				NOT_SUPPORTED.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
@@ -425,3 +431,52 @@ test.snapshot({
 		},
 	],
 });
+
+// A comment inside the `.length` access would be lost by the fix
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'foo.slice(foo /* keep */ .length - 1)',
+			errors: 1,
+		},
+		{
+			// The comment sits before the whole expression, it is kept
+			code: 'foo.slice(/* keep */ foo.length - 1)',
+			output: 'foo.slice(/* keep */ -1)',
+			errors: 1,
+		},
+		{
+			code: 'foo.slice(foo.length - 1)',
+			output: 'foo.slice(-1)',
+			errors: 1,
+		},
+	],
+});
+
+// A comment inside the removed `.length` access or its parentheses would be lost
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'foo.slice(((/* keep */(foo.length)) - 1) - 1)',
+			errors: 1,
+		},
+	],
+});
+
+// The space after the produced operator must go, `foo.length - 1` is `-1`
+test({
+	valid: [],
+	invalid: [
+		...[
+			['foo.slice(foo.length - 1)', 'foo.slice(-1)'],
+			['foo.at(foo.length - 1)', 'foo.at(-1)'],
+			['foo.subarray(foo.length - 1)', 'foo.subarray(-1)'],
+			['foo.toSpliced(foo.length - 1, 1)', 'foo.toSpliced(-1, 1)'],
+			['foo.slice(foo.length  -  1)', 'foo.slice(-1)'],
+			['foo.slice((((foo.length)) - 1) - 1)', 'foo.slice((-1) - 1)'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	],
+});
+

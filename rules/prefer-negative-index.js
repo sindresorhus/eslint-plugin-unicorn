@@ -1,6 +1,7 @@
 import {getNegativeIndexLengthNode, removeLengthNode} from './shared/negative-index.js';
 import typedArray from './shared/typed-array.js';
 import {isEmptyArrayExpression, isLiteral} from './ast/index.js';
+import {getParentheses} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-negative-index';
 const messages = {
@@ -72,77 +73,73 @@ const getMemberName = node => {
 	}
 };
 
+const isMethodOwner = (node, method) =>
+	// `[].{slice,splice,toSpliced,at,with}`
+	isEmptyArrayExpression(node)
+	// `''.slice`
+	|| (
+		method === 'slice'
+		&& isLiteral(node, '')
+	)
+	// {Array,String...}.prototype.slice
+	// Array.prototype.splice
+	|| (
+		getMemberName(node) === 'prototype'
+		&& node.object.type === 'Identifier'
+		&& methods.get(method).supportObjects.has(node.object.name)
+	);
+
 function parse(node) {
 	const {callee, arguments: originalArguments} = node;
 
-	let method = callee.property.name;
-	let target = callee.object;
-	let argumentsNodes = originalArguments;
-
-	if (methods.has(method)) {
+	if (methods.has(callee.property.name)) {
 		return {
-			method,
-			target,
-			argumentsNodes,
+			method: callee.property.name,
+			target: callee.object,
+			argumentsNodes: originalArguments,
 		};
 	}
 
-	if (method !== 'call' && method !== 'apply') {
+	if (callee.property.name !== 'call' && callee.property.name !== 'apply') {
 		return;
 	}
 
-	method = getMemberName(callee.object);
-
-	if (!methods.has(method)) {
-		return;
-	}
-
-	const isApply = callee.property.name === 'apply';
-	const {supportObjects} = methods.get(method);
-
-	const parentCallee = callee.object.object;
+	const method = getMemberName(callee.object);
 
 	if (
-		// `[].{slice,splice,toSpliced,at,with}`
-		isEmptyArrayExpression(parentCallee)
-		// `''.slice`
-		|| (
-			method === 'slice'
-			&& isLiteral(parentCallee, '')
-		)
-		// {Array,String...}.prototype.slice
-		// Array.prototype.splice
-		|| (
-			getMemberName(parentCallee) === 'prototype'
-			&& parentCallee.object.type === 'Identifier'
-			&& supportObjects.has(parentCallee.object.name)
-		)
+		!methods.has(method)
+		|| !isMethodOwner(callee.object.object, method)
 	) {
-		[target] = originalArguments;
+		return;
+	}
 
-		if (isApply) {
-			const [, secondArgument] = originalArguments;
-			if (!secondArgument || secondArgument.type !== 'ArrayExpression') {
-				return;
-			}
+	const [target, secondArgument] = originalArguments;
 
-			argumentsNodes = secondArgument.elements;
-		} else {
-			argumentsNodes = originalArguments.slice(1);
-		}
-
+	if (callee.property.name === 'call') {
 		return {
 			method,
 			target,
-			argumentsNodes,
+			argumentsNodes: originalArguments.slice(1),
 		};
 	}
+
+	if (secondArgument?.type !== 'ArrayExpression') {
+		return;
+	}
+
+	return {
+		method,
+		target,
+		argumentsNodes: secondArgument.elements,
+	};
 }
 
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const {sourceCode} = context;
+
 	context.on('CallExpression', node => {
 		if (node.callee.type !== 'MemberExpression') {
 			return;
@@ -173,9 +170,33 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			data: {method},
-			* fix(fixer) {
+			* fix(fixer, {abort}) {
 				for (const node of removableNodes) {
-					yield removeLengthNode(node, fixer, context);
+					const fix = removeLengthNode(node, fixer, context);
+					if (!fix) {
+						return abort();
+					}
+
+					yield fix;
+
+					// `removeLengthNode()` stops at the operator, so `foo.length - 1` would be left as `- 1` instead of `-1`
+					const lastToken = getParentheses(node, context).at(-1) ?? sourceCode.getLastToken(node);
+					const operatorToken = sourceCode.getTokenAfter(lastToken);
+					const numberToken = sourceCode.getTokenAfter(operatorToken);
+					if (
+						operatorToken?.type === 'Punctuator'
+						&& operatorToken.value === '-'
+						&& numberToken?.type === 'Numeric'
+						&& /^\s+$/u.test(sourceCode.text.slice(
+							sourceCode.getRange(operatorToken)[1],
+							sourceCode.getRange(numberToken)[0],
+						))
+					) {
+						yield fixer.removeRange([
+							sourceCode.getRange(operatorToken)[1],
+							sourceCode.getRange(numberToken)[0],
+						]);
+					}
 				}
 			},
 		};

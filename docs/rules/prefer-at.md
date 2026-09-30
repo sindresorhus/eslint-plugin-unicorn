@@ -120,6 +120,7 @@ Example:
 const foo = bar[10]; // Fails, will fix to `bar.at(10)`
 const foo = bar[unknownProperty]; // Passes
 const foo = string.charAt(unknownIndex); // Fails
+const foo = string.charAt(-1); // Passes, `charAt()` returns `''` for a negative index while `at()` counts from the end
 ```
 
 ### getLastElementFunctions
