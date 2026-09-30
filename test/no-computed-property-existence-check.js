@@ -112,3 +112,60 @@ test.snapshot({
 		typeAware('declare const object: {a?: boolean};\ndeclare const key: \'a\';\nif (object[key]) {}'),
 	],
 });
+
+// `map[key]` does not read a `Map` entry, and `string[index]` is a character read
+test({
+	valid: [
+		'const cache = new Map();\nif (cache[key]) { use(); }',
+		'const set = new Set();\nif (set[key]) { use(); }',
+		'const weak = new WeakMap();\nif (weak[key]) { use(); }',
+		'const name = \'abc\';\nif (name[index]) { use(); }',
+		'if (\'abc\'[index]) { use(); }',
+		// `key in map` is not a `Map#has()` either
+		'const cache = new Map();\nif (key in cache) { use(); }',
+		'const set = new Set();\nif (key in set) { use(); }',
+		// `in` on a string always throws
+		'const name = \'abc\';\nif (key in name) { use(); }',
+		'if (key in \'abc\') { use(); }',
+		'const set = new WeakSet();\nif (key in set) { use(); }',
+		'const name = `abc`;\nif (name[index]) { use(); }',
+		typeAware('declare const cache: Map<string, number>;\ndeclare const key: string;\nif (cache[key]) {}'),
+		typeAware('declare const cache: ReadonlySet<string>;\ndeclare const key: string;\nif (key in cache) {}'),
+		typeAware('declare const name: string;\ndeclare const index: number;\nif (name[index]) {}'),
+	],
+	invalid: [
+		{
+			code: 'if (object[key]) { use(); }',
+			errors: 1,
+		},
+		{
+			code: 'const object = {};\nif (object[key]) { use(); }',
+			errors: 1,
+		},
+		{
+			code: 'const object = new Foo();\nif (key in object) { use(); }',
+			errors: 1,
+		},
+		{
+			code: 'class A extends B { m() { if (super[key]) {} } }',
+			errors: 1,
+		},
+		{
+			...typeAware('declare class B {}\ndeclare const key: string;\nclass A extends B { m() { if (this[key]) {} if (super[key]) {} } }'),
+			errors: 2,
+		},
+		{
+			code: 'if (key in object) { use(); }',
+			errors: 1,
+		},
+	],
+});
+
+// A `switch` discriminant is compared against the case values with `===`, so `object[key]` there is a value read, not an existence check
+test({
+	valid: [
+		'switch (object[key]) {}',
+		'switch (object[key]) {\n\tcase 1:\n\t\tuse();\n}',
+	],
+	invalid: [],
+});

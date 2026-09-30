@@ -4,8 +4,17 @@ import {
 	isBoolean,
 	isBooleanExpression,
 	isControlFlowTest,
+	isMap,
+	isSet,
+	isString,
+	isWeakMap,
+	isWeakSet,
 	wouldRemoveComments,
 } from './utils/index.js';
+
+// `map[key]` reads a property of the `Map` object, not an entry, and `string[index]` is a character read, so for either one `Object.hasOwn()` is not a replacement for the computed access.
+const isKnownNonObjectReceiver = (node, context) =>
+	[isMap, isSet, isWeakMap, isWeakSet, isString].some(isType => isType(node, context));
 
 const MESSAGE_ID = 'no-computed-property-existence-check/error';
 const MESSAGE_ID_SUGGESTION = 'no-computed-property-existence-check/suggestion';
@@ -128,6 +137,10 @@ const create = context => {
 			return;
 		}
 
+		if (isKnownNonObjectReceiver(node.object, context)) {
+			return;
+		}
+
 		return {
 			node,
 			messageId: MESSAGE_ID,
@@ -136,7 +149,12 @@ const create = context => {
 	});
 
 	context.on('BinaryExpression', node => {
-		if (node.operator !== 'in' || isStaticPropertyKey(node.left)) {
+		if (
+			node.operator !== 'in'
+			|| isStaticPropertyKey(node.left)
+			// `key in map` is not a `Map#has()`, and `key in string` throws, so neither is a property lookup
+			|| isKnownNonObjectReceiver(node.right, context)
+		) {
 			return;
 		}
 

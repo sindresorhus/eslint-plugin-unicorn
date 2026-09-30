@@ -49,3 +49,5 @@ declare const key: 'a' | 'b';
 // ✅
 if (object[key]) {}
 ```
+
+A receiver that is known to be a `Map`, `Set`, `WeakMap`, `WeakSet`, or string is ignored, since `Object.hasOwn()` is not the replacement there. Use `Map#has()` or `Set#has()` for a collection.
