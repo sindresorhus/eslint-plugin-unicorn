@@ -11,7 +11,7 @@
 
 Enforces the use of [`KeyboardEvent#key`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key) over deprecated keyboard event properties like [`KeyboardEvent#keyCode`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode), `.charCode`, and `.which`. The `.key` property is also more semantic and readable.
 
-This rule is partly fixable. It can only fix direct property access.
+This rule is partly fixable. It can only fix direct property access. A comparison of `.keyCode` or `.which` with a character key, like `65` for `A`, is only suggested, because the character also depends on Shift, CapsLock, and the keyboard layout.
 
 ## Examples
 

@@ -148,17 +148,29 @@ const getEventContexts = (context, node) => {
 	return eventContexts;
 };
 
-const getKey = value => {
+// A printable key is a letter, number, punctuation mark, or symbol, never a control character
+const printables = /[\p{Letter}\p{Number}\p{Punctuation}\p{Symbol}]/u;
+
+const getCharacter = value => Number.isSafeInteger(value) && value >= 0 && value <= 0x10_FF_FF
+	? String.fromCodePoint(value)
+	: undefined;
+
+/*
+`charCode` is the code point of the typed character, the key table only names the non-printable ones like `Enter`. `keyCode` and `which` only equal the code point for a digit or an uppercase letter. Any other value names a key whose `key` is not that character, like the numeric keypad (the code points of `a` to `o`), `F1` (`p`), or `Meta`.
+*/
+const getKey = (value, name) => {
+	const character = getCharacter(value);
+
+	if (name === 'charCode' && character && printables.test(character)) {
+		return character;
+	}
+
 	if (Object.hasOwn(translateToKey, value)) {
 		return translateToKey[value];
 	}
 
-	if (
-		Number.isSafeInteger(value)
-		&& value >= 0
-		&& value <= 0x10_FF_FF
-	) {
-		return String.fromCodePoint(value);
+	if (name !== 'charCode' && character && /^[\dA-Z]$/.test(character)) {
+		return character;
 	}
 };
 
@@ -189,7 +201,7 @@ const getReplacement = node => {
 	}
 
 	// Either a standard key value or a printable character
-	const key = getKey(right.value);
+	const key = getKey(right.value, node.name);
 	if (!key) {
 		return;
 	}
@@ -217,7 +229,9 @@ const getProblem = (node, {shouldAutofix}) => {
 		fixer.replaceText(replacement.right, escapeString(replacement.key)),
 	];
 
-	if (shouldAutofix) {
+	// A character key from `keyCode` or `which` depends on Shift, CapsLock, and the keyboard layout, `keyCode` 65 is both `a` and `A`
+	const isLayoutDependent = node.name !== 'charCode' && replacement.key.length === 1 && replacement.key !== ' ';
+	if (shouldAutofix && !isLayoutDependent) {
 		problem.fix = fix;
 		return problem;
 	}

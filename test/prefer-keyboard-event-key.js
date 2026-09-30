@@ -228,26 +228,42 @@ test({
 					if (event.keyCode === 65) {}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', 'A', outdent`
 				foo.addEventListener('click', event => {
 					if (event.key === 'A') {}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 		// Make sure `\n` is escaped
+		{
+			code: outdent`
+				foo.addEventListener('click', event => {
+					if (event.charCode === 10) {}
+				});
+			`,
+			errors: [error('charCode')],
+		},
+		// `keyCode` 10 is the numpad Enter key, whose `key` is `Enter`, not `\n`
 		{
 			code: outdent`
 				foo.addEventListener('click', event => {
 					if (event.keyCode === 10) {}
 				});
 			`,
-			output: outdent`
+			errors: [error('keyCode')],
+		},
+		{
+			code: outdent`
 				foo.addEventListener('click', event => {
-					if (event.key === '\\n') {}
+					if (event.which === 91) {}
 				});
 			`,
-			errors: [error('keyCode')],
+			output: outdent`
+				foo.addEventListener('click', event => {
+					if (event.key === 'Meta') {}
+				});
+			`,
+			errors: [error('which')],
 		},
 		{
 			code: outdent`
@@ -656,13 +672,12 @@ test({
 					}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', ']', outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === ']') {
 					}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 		{
 			code: outdent`
@@ -671,13 +686,12 @@ test({
 					}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', ';', outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === ';') {
 					}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 		{
 			code: outdent`
@@ -686,13 +700,12 @@ test({
 					}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', '=', outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '=') {
 					}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 		{
 			code: outdent`
@@ -701,13 +714,12 @@ test({
 					}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', ',', outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === ',') {
 					}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 		{
 			code: outdent`
@@ -716,13 +728,12 @@ test({
 					}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', '-', outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '-') {
 					}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 		{
 			code: outdent`
@@ -731,13 +742,12 @@ test({
 					}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', '.', outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '.') {
 					}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 		{
 			code: outdent`
@@ -746,13 +756,12 @@ test({
 					}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', '/', outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '/') {
 					}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 		{
 			code: outdent`
@@ -761,13 +770,12 @@ test({
 					}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', '[', outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '[') {
 					}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 		{
 			code: outdent`
@@ -776,13 +784,12 @@ test({
 					}
 				});
 			`,
-			output: outdent`
+			errors: [errorWithSuggestion('keyCode', '\'', outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '\\'') {
 					}
 				});
-			`,
-			errors: [error('keyCode')],
+			`)],
 		},
 	],
 });
@@ -960,5 +967,77 @@ test.snapshot({
 				}
 			});
 		`,
+	],
+});
+
+// The numeric keypad shares its code points with the main row but has its own `key` values
+test({
+	valid: [],
+	invalid: [
+		...[
+			96,
+			97,
+			99,
+			103,
+			107,
+			109,
+			111,
+		].flatMap(keyCode => [
+			{
+				code: `element.addEventListener('keydown', event => { if (event.keyCode === ${keyCode}) {} });`,
+				errors: 1,
+			},
+			{
+				code: `element.addEventListener('keydown', event => { if (event.which === ${keyCode}) {} });`,
+				errors: 1,
+			},
+		]),
+		// A character key depends on Shift, CapsLock, and the keyboard layout, so it is only suggested
+		{
+			code: 'element.addEventListener(\'keydown\', event => { if (event.keyCode === 65) {} });',
+			errors: [errorWithSuggestion('keyCode', 'A', 'element.addEventListener(\'keydown\', event => { if (event.key === \'A\') {} });')],
+		},
+		// Only a digit or an uppercase letter has a `keyCode` equal to its code point, `192` is the backquote key and `124` is `F13`
+		...[
+			124,
+			192,
+			226,
+		].map(keyCode => ({
+			code: `element.addEventListener('keydown', event => { if (event.keyCode === ${keyCode}) {} });`,
+			errors: 1,
+		})),
+		// `charCode` is the code point of the typed character
+		{
+			code: 'element.addEventListener(\'keypress\', event => { if (event.charCode === 97) {} });',
+			output: 'element.addEventListener(\'keypress\', event => { if (event.key === \'a\') {} });',
+			errors: 1,
+		},
+		{
+			code: 'element.addEventListener(\'keypress\', event => { if (event.charCode === 233) {} });',
+			output: 'element.addEventListener(\'keypress\', event => { if (event.key === \'é\') {} });',
+			errors: 1,
+		},
+		// `charCode` 112 is `p` and 46 is `.`, not the `F1` and `Delete` keys of `keyCode`
+		{
+			code: 'element.addEventListener(\'keypress\', event => { if (event.charCode === 112) {} });',
+			output: 'element.addEventListener(\'keypress\', event => { if (event.key === \'p\') {} });',
+			errors: 1,
+		},
+		{
+			code: 'element.addEventListener(\'keypress\', event => { if (event.charCode === 46) {} });',
+			output: 'element.addEventListener(\'keypress\', event => { if (event.key === \'.\') {} });',
+			errors: 1,
+		},
+		{
+			code: 'element.addEventListener(\'keypress\', event => { if (event.charCode === 13) {} });',
+			output: 'element.addEventListener(\'keypress\', event => { if (event.key === \'Enter\') {} });',
+			errors: 1,
+		},
+		// A named key and the space bar do not depend on the layout
+		{
+			code: 'element.addEventListener(\'keydown\', event => { if (event.keyCode === 32) {} });',
+			output: 'element.addEventListener(\'keydown\', event => { if (event.key === \' \') {} });',
+			errors: 1,
+		},
 	],
 });

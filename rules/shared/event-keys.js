@@ -24,6 +24,10 @@ const eventKeys = {
 	40: 'ArrowDown',
 	45: 'Insert',
 	46: 'Delete',
+	// These virtual key codes collide with printable characters, but the key is not one
+	91: 'Meta',
+	92: 'Meta',
+	93: 'ContextMenu',
 	112: 'F1',
 	113: 'F2',
 	114: 'F3',
