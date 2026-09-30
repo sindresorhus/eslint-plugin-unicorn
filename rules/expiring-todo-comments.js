@@ -6,6 +6,7 @@ import {
 	isEslintDisableOrEnableDirective,
 	getBuiltinRule,
 	getComments,
+	matchesAnyRegExp,
 	normalizeComment,
 	onRoot,
 } from './utils/index.js';
@@ -194,11 +195,7 @@ function getPackageHelpers(dirname) {
 		// Check if have to skip colon
 		// @example "TODO [...]: message here"
 		const isDropColon = afterArguments[0] === ':';
-		if (isDropColon) {
-			return afterArguments.slice(1).trim();
-		}
-
-		return afterArguments;
+		return isDropColon ? afterArguments.slice(1).trim() : afterArguments;
 	}
 
 	return {
@@ -403,7 +400,7 @@ const create = context => {
 
 	// eslint-disable-next-line complexity
 	function processComment(comment) {
-		if (ignoreRegexes.some(ignore => ignore.test(comment.value))) {
+		if (matchesAnyRegExp(comment.value, ignoreRegexes)) {
 			return;
 		}
 
@@ -582,13 +579,15 @@ const create = context => {
 
 			const withoutWhitespace = unknown.replaceAll(' ', '');
 
-			if (parseArgument(withoutWhitespace).type !== 'unknowns') {
-				uses++;
-				report(MESSAGE_ID_REMOVE_WHITESPACE, {
-					original: unknown,
-					fix: withoutWhitespace,
-				});
+			if (parseArgument(withoutWhitespace).type === 'unknowns') {
+				continue;
 			}
+
+			uses++;
+			report(MESSAGE_ID_REMOVE_WHITESPACE, {
+				original: unknown,
+				fix: withoutWhitespace,
+			});
 		}
 
 		return uses === 0;

@@ -142,6 +142,11 @@ ruleTest({
 			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
 		},
 		{
+			// A `g` flag makes `RegExp#test()` stateful, every comment must still be ignored
+			code: '// TODO: a\n// TODO: b\n// TODO: c',
+			options: [{allowWarningComments: false, ignore: [/TODO/gu]}],
+		},
+		{
 			code: '// TODO [2001-01-01]: quite old',
 			options: [{date: '2000-01-01'}],
 		},
