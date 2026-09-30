@@ -1,5 +1,6 @@
 import {replaceStringRaw} from './fix/index.js';
-import {isMethodCall, isNewExpression} from './ast/index.js';
+import {isMethodCall, isNewExpression, isStaticRequire} from './ast/index.js';
+import {isHtmlRcdataNode} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'text-encoding-identifier/error';
 const MESSAGE_ID_SUGGESTION = 'text-encoding-identifier/suggestion';
@@ -22,6 +23,31 @@ const getReplacement = (encoding, withDash) => {
 		}
 		// No default
 	}
+};
+
+// A module specifier is a package name, never a character encoding.
+const isModuleSpecifier = node => {
+	const {parent} = node;
+	if (
+		['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(parent.type)
+		&& parent.source === node
+	) {
+		return true;
+	}
+
+	if (
+		(parent.type === 'TSExternalModuleReference' && parent.expression === node)
+		|| (parent.type === 'TSImportType' && parent.source === node)
+		|| (parent.type === 'TSModuleDeclaration' && parent.id === node)
+	) {
+		return true;
+	}
+
+	// `require('…')` / `import('…')`
+	return (
+		(parent.type === 'CallExpression' && isStaticRequire(parent))
+		|| (parent.type === 'ImportExpression' && parent.source === node)
+	);
 };
 
 // `fs.{readFile,readFileSync}()`
@@ -76,7 +102,7 @@ const create = context => {
 
 	context.on(['Literal', 'TemplateLiteral'], node => {
 		const value = getStringLiteralValue(node);
-		if (!value) {
+		if (!value || isModuleSpecifier(node)) {
 			return;
 		}
 
@@ -151,6 +177,10 @@ const create = context => {
 	// HTML <meta charset="..."> and <form accept-charset="...">
 	// Listens on Tag nodes from @html-eslint — AttributeValue.range excludes the surrounding quotes.
 	context.on('Tag', node => {
+		if (isHtmlRcdataNode(node)) {
+			return;
+		}
+
 		const tagName = node.name?.toLowerCase();
 
 		let attributeName;

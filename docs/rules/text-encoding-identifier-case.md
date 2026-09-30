@@ -16,6 +16,8 @@ Consistent encoding spellings avoid visually different forms of the same encodin
 
 This rule only auto-fix encoding in `fs.readFile()` and `fs.readFileSync()`.
 
+Module specifiers, like `import utf8 from 'utf-8'` or `require('utf-8')`, are package names, so they are ignored.
+
 When linting CSS files with [`@eslint/css`](https://github.com/eslint/css), this rule also checks `@charset` declarations and enforces the dash form (`utf-8`) as required by the CSS specification.
 
 When linting HTML files with [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), this rule also checks `<meta charset>` and `<form accept-charset>` attributes.

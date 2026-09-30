@@ -1,4 +1,9 @@
-import {getTester, normalizeTestCase, languages} from './utils/test.js';
+import {
+	getTester,
+	normalizeTestCase,
+	languages,
+	parsers,
+} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -12,6 +17,19 @@ test.snapshot({
 		'tag`UTF-8`',
 		'"utf8"',
 		'"utf+8"',
+		// A module specifier is a package name, never a character encoding
+		'import readme from "utf-8";',
+		'import * as readme from "utf-8";',
+		'export * from "utf-8";',
+		'export {readme} from "utf-8";',
+		'const readme = require("utf-8");',
+		'const readme = await import("utf-8");',
+		'const readme = import("utf-8");',
+		...[
+			'import readme = require("utf-8");',
+			'declare module "utf-8" {}',
+			'type Readme = import("utf-8").Readme;',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 		'"   utf8   "',
 		'\'utf8\'',
 		String.raw`"\u0055tf8"`,
@@ -181,6 +199,9 @@ test.snapshot({
 		{code: '<meta name="UTF-8">', language: languages.html},
 		// Valueless charset attribute does not crash
 		{code: '<meta charset>', language: languages.html},
+		// `textarea` and `title` content is text, not markup
+		{code: '<textarea><meta charset="utf8"></textarea>', language: languages.html},
+		{code: '<title><meta charset="utf8"></title>', language: languages.html},
 	],
 	invalid: [
 		{code: '<meta charset="UTF-8">', language: languages.html},
