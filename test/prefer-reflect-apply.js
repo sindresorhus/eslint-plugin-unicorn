@@ -12,6 +12,8 @@ const errors = [
 
 test({
 	valid: [
+		// `super` is not a valid standalone expression
+		'class A extends B { m() { return super.apply(null, [1]); } }',
 		'foo.apply();',
 		'foo.apply(null);',
 		'foo.apply(this);',
@@ -95,6 +97,43 @@ test({
 			code: 'foo["apply"](null, [42]);',
 			output: 'Reflect.apply(foo, null, [42]);',
 			errors,
+		},
+
+		// A parenthesized sequence expression target must keep its parentheses
+		{
+			code: '(0, fn).apply(this, []);',
+			output: 'Reflect.apply((0, fn), this, []);',
+			errors: 1,
+		},
+		{
+			code: 'Function.prototype.apply.call((0, fn), this, []);',
+			output: 'Reflect.apply((0, fn), this, []);',
+			errors: 1,
+		},
+		{
+			code: '(a, b).apply(null, [1]);',
+			output: 'Reflect.apply((a, b), null, [1]);',
+			errors: 1,
+		},
+
+		// A comment in the call is preserved by not fixing
+		{
+			code: 'fn.apply(/* keep */ this, []);',
+			errors: 1,
+		},
+		{
+			code: 'fn.apply(this, /* keep */ []);',
+			errors: 1,
+		},
+		{
+			code: 'fn /* keep */.apply(this, []);',
+			errors: 1,
+		},
+		// `super` is not a valid standalone expression
+		{
+			code: 'class A extends B { m() { return super.method.apply(this, [1]); } }',
+			output: 'class A extends B { m() { return Reflect.apply(super.method, this, [1]); } }',
+			errors: 1,
 		},
 	],
 });

@@ -1,5 +1,6 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {isNullLiteral, isMethodCall} from './ast/index.js';
+import {getParenthesizedText} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {
@@ -17,26 +18,37 @@ const isApplySignature = (argument1, argument2) => (
 	)
 );
 
-const getReflectApplyCall = (sourceCode, target, receiver, argumentsList) => (
-	`Reflect.apply(${sourceCode.getText(target)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(argumentsList)})`
+// A `SequenceExpression` is not a valid call argument without parentheses, and the parentheses are not part of its range
+const getTargetText = (node, context) => (
+	node.type === 'SequenceExpression'
+		? getParenthesizedText(node, context)
+		: context.sourceCode.getText(node)
 );
 
-const fixDirectApplyCall = (node, sourceCode) => {
+// `super` is only valid as `super.method`, never as a standalone expression
+const isValidCallArgument = node => node.type !== 'Super';
+
+const getReflectApplyCall = (target, receiver, argumentsList, context) => (
+	`Reflect.apply(${getTargetText(target, context)}, ${context.sourceCode.getText(receiver)}, ${context.sourceCode.getText(argumentsList)})`
+);
+
+const fixDirectApplyCall = (node, context) => {
 	if (
 		getPropertyName(node.callee) === 'apply'
 		&& node.arguments.length === 2
+		&& isValidCallArgument(node.callee.object)
 		&& isApplySignature(node.arguments[0], node.arguments[1])
 	) {
 		return fixer => (
 			fixer.replaceText(
 				node,
-				getReflectApplyCall(sourceCode, node.callee.object, node.arguments[0], node.arguments[1]),
+				getReflectApplyCall(node.callee.object, node.arguments[0], node.arguments[1], context),
 			)
 		);
 	}
 };
 
-const fixFunctionPrototypeCall = (node, sourceCode) => {
+const fixFunctionPrototypeCall = (node, context) => {
 	if (
 		getPropertyName(node.callee) === 'call'
 		&& getPropertyName(node.callee.object) === 'apply'
@@ -49,7 +61,7 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 		return fixer => (
 			fixer.replaceText(
 				node,
-				getReflectApplyCall(sourceCode, node.arguments[0], node.arguments[1], node.arguments[2]),
+				getReflectApplyCall(node.arguments[0], node.arguments[1], node.arguments[2], context),
 			)
 		);
 	}
@@ -72,13 +84,13 @@ const create = context => {
 			return;
 		}
 
-		const {sourceCode} = context;
-		const fix = fixDirectApplyCall(node, sourceCode) || fixFunctionPrototypeCall(node, sourceCode);
+		const fix = fixDirectApplyCall(node, context) || fixFunctionPrototypeCall(node, context);
 		if (fix) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
-				fix,
+				// The call is rebuilt from the callee object and the argument nodes, a comment in between would be dropped
+				fix: context.sourceCode.getCommentsInside(node).length > 0 ? undefined : fix,
 			};
 		}
 	});
