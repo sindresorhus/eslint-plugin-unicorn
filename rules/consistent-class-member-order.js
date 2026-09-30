@@ -1,4 +1,5 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
+import {getLinebreak} from './utils/index.js';
 
 const MESSAGE_ID = 'consistent-class-member-order';
 const MESSAGE_ID_SUGGESTION = 'consistent-class-member-order-suggestion';
@@ -119,9 +120,17 @@ const getReorderedMembers = (classBody, order) => {
 		return;
 	}
 
-	return members.toSorted((first, second) =>
+	const sorted = members.toSorted((first, second) =>
 		order.get(first.group) - order.get(second.group)
 		|| first.index - second.index);
+
+	// A static field initializer and a static block both run in declaration order, so the two groups must not cross each other. Anything else that would move one past the other is left alone, which is the same reason the rule does not offer an automatic fix.
+	const runsAtClassEvaluationTime = ({group}) =>
+		group === GROUP_STATIC_FIELD || group === GROUP_STATIC_BLOCK;
+	const before = members.filter(member => runsAtClassEvaluationTime(member)).map(({index}) => index);
+	const after = sorted.filter(member => runsAtClassEvaluationTime(member)).map(({index}) => index);
+
+	return before.every((index, position) => index === after[position]) ? sorted : undefined;
 };
 
 const getMemberLineStart = (member, sourceCode) => {
@@ -154,7 +163,7 @@ const getMemberText = (member, sourceCode) => {
 	return sourceCode.text.slice(getMemberStart(member, sourceCode), end);
 };
 
-const getSuggestion = (classBody, order, sourceCode) => {
+const getSuggestion = (classBody, order, sourceCode, context) => {
 	if (
 		classBody.body.length === 0
 		|| sourceCode.getCommentsInside(classBody).length > 0
@@ -168,13 +177,14 @@ const getSuggestion = (classBody, order, sourceCode) => {
 		return;
 	}
 
+	const linebreak = getLinebreak(context);
 	const firstMember = classBody.body[0];
 	const lastMember = classBody.body.at(-1);
 	const start = getMemberStart(firstMember, sourceCode);
 	const [, end] = sourceCode.getRange(lastMember);
 	const replacement = reorderedMembers
 		.map(({member}) => getMemberText(member, sourceCode))
-		.join('\n\n');
+		.join(`${linebreak}${linebreak}`);
 
 	return [
 		{
@@ -210,7 +220,7 @@ const create = context => {
 				highestGroupIndex !== undefined
 				&& groupIndex < highestGroupIndex
 			) {
-				const suggestion = getSuggestion(classBody, order, sourceCode);
+				const suggestion = getSuggestion(classBody, order, sourceCode, context);
 
 				return {
 					node: member,

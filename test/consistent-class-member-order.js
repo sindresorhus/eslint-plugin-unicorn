@@ -1,6 +1,7 @@
 import test from 'ava';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
+import plugin from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
 
@@ -320,4 +321,47 @@ test('order option must contain each group exactly once', t => {
 	t.throws(() => {
 		verifyWithOrder([...customOrder.slice(0, -1), 'unknown-group']);
 	});
+});
+
+test('uses the line ending of the file to separate the reordered members', t => {
+	const linter = new Linter();
+	const result = linter.verifyAndFix('class A {\r\n\tb() {}\r\n\r\n\ta = 1;\r\n}', {
+		languageOptions: DEFAULT_LANGUAGE_OPTIONS,
+		plugins: {
+			'rule-to-test': {
+				rules: {
+					[ruleId]: rule,
+				},
+			},
+		},
+		rules: {
+			[`rule-to-test/${ruleId}`]: 'error',
+		},
+	});
+
+	t.deepEqual(result.messages[0].suggestions.map(({fix}) => fix.text), ['\ta = 1;\r\n\r\n\tb() {}']);
+});
+
+// A static field initializer and a static block both run in declaration order, so moving one across the other changes what runs first. The rule's documentation already says it does not autofix for this reason, so a reorder that crosses the two is not offered at all.
+test('a static field is not moved across a static block', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/consistent-class-member-order': 'error'},
+	};
+	const first = code => linter.verify(code, config, 'index.js').find(problem => !problem.fatal);
+
+	for (const [code, hasSuggestion] of [
+		['class A {\n\tstatic {\n\t\trun();\n\t}\n\tstatic field = 1;\n}', false],
+		['class A {\n\tstatic {\n\t\trun();\n\t}\n\tmethod() {}\n\tstatic field = 1;\n}', false],
+		// No static block, so the groups are reordered against each other as usual
+		['class A {\n\tmethod() {}\n\tstatic value = 2;\n}', true],
+		['class A {\n\tmethod() {}\n\tfield = 1;\n}', true],
+		// Only a static method moves, so the static field and the static block keep their order
+		['class A {\n\tstatic field = 1;\n\tstatic {\n\t\trun();\n\t}\n\tmethod() {}\n\tstatic create() {}\n}', true],
+	]) {
+		const problem = first(code);
+
+		t.is(Boolean(problem?.suggestions?.length), hasSuggestion, `suggestion for \`${code}\``);
+	}
 });

@@ -27,7 +27,7 @@ TypeScript `protected` members follow the same order as public members.
 
 This rule does not autofix because fields and static blocks run in declaration order, and method order is observable through property reflection.
 
-It may offer a manual suggestion for simple class bodies without comments, decorators, computed keys, or unsupported members.
+It may offer a manual suggestion for simple class bodies without comments, decorators, computed keys, or unsupported members. The suggestion is not offered when it would move a static field across a static block.
 
 This rule is intentionally simple. It only enforces group order and will not add options for sorting within groups, newline handling, or more detailed member categories. Use a dedicated sorting rule if you need that.
 
