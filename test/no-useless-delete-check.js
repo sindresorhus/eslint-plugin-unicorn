@@ -348,3 +348,28 @@ test.snapshot({
 		`,
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		// TypeScript: the call is wrapped in a type-only expression
+		{
+			code: 'const map = new Map();\nif (map.has(key) as boolean) {\n\tmap.delete(key);\n}',
+			output: 'const map = new Map();\nmap.delete(key);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'const map = new Map();\nif (map.has(key)!) {\n\tmap.delete(key);\n}',
+			output: 'const map = new Map();\nmap.delete(key);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'const map = new Map();\nif (<boolean>map.has(key)) {\n\tmap.delete(key);\n}',
+			output: 'const map = new Map();\nmap.delete(key);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});

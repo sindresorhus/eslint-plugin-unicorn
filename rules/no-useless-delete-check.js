@@ -73,13 +73,7 @@ const isObjectValue = value => value !== null && (
 	|| typeof value === 'function'
 );
 
-const isObjectTypeAnnotation = node => {
-	if (objectTypeAnnotationTypes.has(node?.type)) {
-		return true;
-	}
-
-	return node?.type === 'TSUnionType' && node.types.every(type => isObjectTypeAnnotation(type));
-};
+const isObjectTypeAnnotation = node => objectTypeAnnotationTypes.has(node?.type) || (node?.type === 'TSUnionType' && node.types.every(type => isObjectTypeAnnotation(type)));
 
 const isFunctionOrClassDeclarationReference = (node, context) => {
 	if (node.type !== 'Identifier') {
@@ -169,19 +163,11 @@ const isKnownObject = (node, context) => {
 		}
 	}
 
-	if (isFunctionOrClassDeclarationReference(unwrapTypeScriptExpression(node), context)) {
-		return false;
-	}
-
-	return isObjectTypeAnnotation(getTypeAnnotation(node, context));
+	return !isFunctionOrClassDeclarationReference(unwrapTypeScriptExpression(node), context) && isObjectTypeAnnotation(getTypeAnnotation(node, context));
 };
 
 const mayNeedRepeatedPropertyKeyCoercion = (node, context) => {
-	if (isKnownObject(node, context)) {
-		return true;
-	}
-
-	if (isFunctionOrClassDeclarationReference(unwrapTypeScriptExpression(node), context)) {
+	if (isKnownObject(node, context) || isFunctionOrClassDeclarationReference(unwrapTypeScriptExpression(node), context)) {
 		return true;
 	}
 
@@ -254,13 +240,17 @@ function getObjectDeleteProblem(ifStatement, deleteExpression, context) {
 function getCollectionDeleteProblem(ifStatement, callExpression, context) {
 	const {test} = ifStatement;
 
+	// `map.has(key) as boolean` and `map.has(key)!` are the call at runtime
+	const hasCall = unwrapTypeScriptExpression(test);
+	const deleteCall = unwrapTypeScriptExpression(callExpression);
+
 	if (!(
-		isOneArgumentMethodCall(test, 'has')
-		&& isOneArgumentMethodCall(callExpression, 'delete')
-		&& isKnownConstCollection(test.callee.object, context)
-		&& isSameReference(test.callee.object, callExpression.callee.object)
-		&& isSameReference(test.arguments[0], callExpression.arguments[0])
-		&& isSafeExpression(test.arguments[0], context)
+		isOneArgumentMethodCall(hasCall, 'has')
+		&& isOneArgumentMethodCall(deleteCall, 'delete')
+		&& isKnownConstCollection(hasCall.callee.object, context)
+		&& isSameReference(hasCall.callee.object, deleteCall.callee.object)
+		&& isSameReference(hasCall.arguments[0], deleteCall.arguments[0])
+		&& isSafeExpression(hasCall.arguments[0], context)
 	)) {
 		return;
 	}
