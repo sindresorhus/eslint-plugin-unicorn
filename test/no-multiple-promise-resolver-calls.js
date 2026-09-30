@@ -3008,3 +3008,52 @@ test({
 		},
 	],
 });
+
+// `Promise` always passes both arguments, so a default value on a resolver is dead code
+test({
+	valid: [
+		// A real reassignment is still skipped
+		'new Promise((resolve, reject) => { reject = other; reject(1); reject(2); });',
+		'new Promise(({resolve}) => { resolve(1); resolve(2); });',
+		'new Promise((resolve, reject, extra) => { extra(1); extra(2); });',
+	],
+	invalid: [
+		...[
+			'new Promise((resolve, reject = other) => { reject(1); reject(2); });',
+			'new Promise((resolve = other, reject) => { resolve(1); resolve(2); });',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+// Code that can never run cannot call a resolver twice
+test({
+	valid: [
+		'new Promise(resolve => { if (false) { resolve(1); } resolve(2); });',
+		'new Promise(resolve => { if (false) { resolve(1); resolve(2); } });',
+		'new Promise(resolve => { for (const x of []) { resolve(1); } resolve(2); });',
+		'new Promise(resolve => { for (const x in {}) { resolve(1); } resolve(2); });',
+		'const empty = []; new Promise(resolve => { for (const x of empty) { resolve(1); } resolve(2); });',
+	],
+	invalid: [
+		...[
+			['new Promise(resolve => { if (true) { resolve(1); } resolve(2); });', 1],
+			['new Promise(resolve => { for (const x of [1]) { resolve(1); } resolve(2); });', 2],
+			['new Promise(resolve => { if (false) { a(); } else { resolve(1); } resolve(2); });', 1],
+			// A mutated binding is not empty anymore
+			['const array = []; array.push(1); new Promise(resolve => { for (const x of array) { resolve(1); } resolve(2); });', 2],
+		].map(([code, errors]) => ({code, errors})),
+	],
+});
+
+// A `null` or `undefined` iterable is not iterable at all, and a falsy primitive has no elements
+test({
+	valid: [
+		'new Promise(resolve => { for (const x of null) { resolve(1); resolve(2); } });',
+		'new Promise(resolve => { for (const x in null) { resolve(1); resolve(2); } });',
+		'new Promise(resolve => { for (const x of undefined) { resolve(1); resolve(2); } });',
+		'new Promise(resolve => { for (const x of "") { resolve(1); resolve(2); } });',
+		'new Promise(resolve => { for (const x of 0) { resolve(1); resolve(2); } });',
+		'new Promise(resolve => { for (const x in "") { resolve(1); resolve(2); } });',
+	],
+	invalid: [],
+});

@@ -74,17 +74,22 @@ const isPromiseExecutor = (node, context) => {
 	&& isGlobalIdentifier(executor.parent.callee, context);
 };
 
-const isReassigned = variable => variable.references.some(reference => reference.isWrite());
+// The parameter's own default value is a write on the binding itself, not a reassignment
+const isReassigned = (variable, parameter) => variable.references.some(reference =>
+	reference.isWrite() && reference.identifier !== parameter,
+);
 
 function registerResolverReferences(executor, resolverReferenceExecutors, sourceCode) {
 	let registered = false;
 	for (const parameter of executor.params.slice(0, 2)) {
-		if (parameter.type !== 'Identifier') {
+		// `Promise` always passes both arguments, so a default value here is dead code and the parameter is still the resolver
+		const identifier = parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
+		if (identifier.type !== 'Identifier') {
 			continue;
 		}
 
-		const variable = findVariable(sourceCode.getScope(parameter), parameter);
-		if (!variable || isReassigned(variable)) {
+		const variable = findVariable(sourceCode.getScope(identifier), identifier);
+		if (!variable || isReassigned(variable, identifier)) {
 			continue;
 		}
 
@@ -450,7 +455,18 @@ const isDirectlyAwaited = node => {
 	return expression.parent?.type === 'AwaitExpression' && expression.parent.argument === expression;
 };
 
-function isInNeverExecutedLoopPart(node) {
+// `[]` and `{}` iterate zero times, and a primitive there is either not iterable at all or has no elements
+const isEmptyIterable = (right, context) => {
+	const staticValue = getStaticValueForControlFlow(right, context);
+	if (!staticValue) {
+		return false;
+	}
+
+	const {value} = staticValue;
+	return !value || (typeof value === 'object' && Object.keys(value).length === 0);
+};
+
+function isInNeverExecutedPart(node, context) {
 	let child = node;
 	let {parent} = node;
 	while (parent) {
@@ -459,7 +475,18 @@ function isInNeverExecutedLoopPart(node) {
 			&& (
 				(parent.type === 'WhileStatement' && parent.body === child)
 				|| (parent.type === 'ForStatement' && (parent.body === child || parent.update === child))
+				// `if (false) { … }` never runs its consequent
+				|| (parent.type === 'IfStatement' && parent.consequent === child)
 			)
+		) {
+			return true;
+		}
+
+		// `for (const x of []) {}` never runs its body
+		if (
+			(parent.type === 'ForOfStatement' || parent.type === 'ForInStatement')
+			&& parent.body === child
+			&& isEmptyIterable(parent.right, context)
 		) {
 			return true;
 		}
@@ -879,7 +906,7 @@ const create = context => {
 		}
 
 		if (
-			isInNeverExecutedLoopPart(node)
+			isInNeverExecutedPart(node, context)
 			|| (executor && isInAlwaysProvidedParameterDefault(node, context))
 		) {
 			return;
