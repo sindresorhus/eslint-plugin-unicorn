@@ -318,6 +318,9 @@ const getSetPredicateProblem = (node, {set, otherSet, method, negated}, context)
 				|| ((parent.type === 'CallExpression' || parent.type === 'NewExpression') && parent.callee === node)
 				|| (parent.type === 'TaggedTemplateExpression' && parent.tag === node)
 				|| (parent.type === 'BinaryExpression' && parent.operator === '**' && parent.left === node)
+				// `!expr` is not a `LeftHandSideExpression`, so it cannot be a `superClass` either
+				|| (parent.type === 'ClassDeclaration' && parent.superClass === node)
+				|| (parent.type === 'ClassExpression' && parent.superClass === node)
 				|| parent.type === 'TSNonNullExpression'
 			)
 		) {

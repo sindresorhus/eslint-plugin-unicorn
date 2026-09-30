@@ -291,3 +291,26 @@ for (const method of ['filter', 'every', 'some']) {
 		],
 	});
 }
+
+// `!expr` is not a `LeftHandSideExpression`, so it cannot be a `superClass`
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const a = new Set([1, 2, 3]); const b = new Set([2, 3, 4]); class X extends [...a].some(x => b.has(x)) {}',
+			output: 'const a = new Set([1, 2, 3]); const b = new Set([2, 3, 4]); class X extends (!a.isDisjointFrom(b)) {}',
+			errors: 1,
+		},
+		{
+			code: 'const a = new Set([1, 2, 3]); const b = new Set([2, 3, 4]); const Y = class extends [...a].some(x => !b.has(x)) {};',
+			output: 'const a = new Set([1, 2, 3]); const b = new Set([2, 3, 4]); const Y = class extends (!a.isSubsetOf(b)) {};',
+			errors: 1,
+		},
+		// A place where the bare `!` is already fine
+		{
+			code: 'const a = new Set([1, 2, 3]); const b = new Set([2, 3, 4]); const y = ![...a].some(x => b.has(x));',
+			output: 'const a = new Set([1, 2, 3]); const b = new Set([2, 3, 4]); const y = !!a.isDisjointFrom(b);',
+			errors: 1,
+		},
+	],
+});
