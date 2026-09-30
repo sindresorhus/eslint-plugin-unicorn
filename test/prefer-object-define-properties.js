@@ -159,3 +159,74 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Object.defineProperty(o, "a", {value: `line1\nline2`});\nObject.defineProperty(o, "b", {value: 2});',
+			errors: 1,
+		},
+		// The `\n` pair is a backslash followed by a line feed, continuing the string onto the next line
+		{
+			code: 'Object.defineProperty(o, "a", {value: "line1\\\nline2"});\nObject.defineProperty(o, "b", {value: 2});',
+			errors: 1,
+		},
+		{
+			code: 'Object.defineProperty(o, "a", {value: 1 /*\nmulti\n*/});\nObject.defineProperty(o, "b", {value: 2});',
+			errors: 1,
+		},
+		{
+			code: 'Object.defineProperty(o, "a", {value: `one\ntwo`});\nObject.defineProperty(o, "b", {value: 2});\nObject.defineProperty(o, "c", {value: 3});',
+			errors: 1,
+		},
+	],
+});
+
+// The already-ordered forms still merge, these are appended to the snapshot cases above
+test.snapshot({
+	valid: [],
+	invalid: [
+		'Object.defineProperty(object, 0, {value: 1});\nObject.defineProperty(object, \'value\', {value: 2});',
+		'Object.defineProperty(object, \'value\', {value: 1});\nObject.defineProperty(object, \'other\', {value: 2});',
+		'Object.defineProperty(o, \'1\', {value: 1});\nObject.defineProperty(o, 2, {value: 2});\nObject.defineProperty(o, \'a\', {value: 3});\nObject.defineProperty(o, Symbol.iterator, {value: 4});',
+		// A dynamic key is assumed not to be an integer key
+		'Object.defineProperty(object, key, {value: 1});\nObject.defineProperty(object, \'value\', {value: 2});',
+	],
+});
+
+// An object literal iterates integer-index keys first, merging would reorder the calls
+test({
+	valid: [],
+	invalid: [
+		// A string key before an integer key
+		{
+			code: 'Object.defineProperty(object, \'value\', {value: 1});\nObject.defineProperty(object, 0, {value: 2});',
+			errors: 1,
+		},
+		// Integer keys out of ascending order
+		{
+			code: 'Object.defineProperty(object, 1, {value: 1});\nObject.defineProperty(object, 0, {value: 2});',
+			errors: 1,
+		},
+		// A string that is an integer key
+		{
+			code: 'Object.defineProperty(array, \'length\', {value: 0});\nObject.defineProperty(array, \'0\', {value: 2});',
+			errors: 1,
+		},
+		{
+			code: 'Object.defineProperty(array, \'length\', {value: 0});\nObject.defineProperty(array, `0`, {value: 2});',
+			errors: 1,
+		},
+		// A number that is not an integer key sorts after the integer keys
+		{
+			code: 'Object.defineProperty(object, 1.5, {value: 1});\nObject.defineProperty(object, 2, {value: 2});',
+			errors: 1,
+		},
+		// An object literal iterates symbol keys after string keys
+		{
+			code: 'Object.defineProperty(object, Symbol.iterator, {value: 1});\nObject.defineProperty(object, \'value\', {value: 2});',
+			errors: 1,
+		},
+	],
+});

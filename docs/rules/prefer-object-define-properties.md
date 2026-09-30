@@ -15,7 +15,7 @@ A single call keeps related property definitions together and avoids repeating t
 
 This rule only checks adjacent `Object.defineProperty()` expression statements with the same target. `Reflect.defineProperty()` is intentionally ignored because it returns a boolean instead of throwing and there is no `Reflect.defineProperties()` equivalent.
 
-The autofix is skipped when comments would be removed or when duplicate property keys can be detected.
+The autofix is skipped when comments would be removed, when duplicate property keys can be detected, or when the merged object would define the properties in a different order. An object literal iterates integer keys first, then string keys, then symbol keys, so `Object.defineProperty(foo, 'bar', …)` followed by `Object.defineProperty(foo, 0, …)` is reported without a fix. A dynamic key is assumed not to be an integer key.
 
 ## Examples
 

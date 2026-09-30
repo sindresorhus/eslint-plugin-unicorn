@@ -104,6 +104,47 @@ function hasCommentsInRange(sourceCode, range) {
 	});
 }
 
+// Reindenting a line inside a template literal or a line-continued string literal would change the value, so such a descriptor has to be copied verbatim. Comments never reach here, `hasCommentsInRange()` already skips the fix.
+const multilineSensitiveTokenTypes = new Set(['String', 'Template']);
+const hasMultilineToken = (node, sourceCode) => sourceCode.getTokens(node).some(token =>
+	multilineSensitiveTokenTypes.has(token.type)
+	&& /\r\n|[\n\r\u{2028}\u{2029}]/u.test(token.value),
+);
+
+const isArrayIndex = key => /^(?:0|[1-9]\d*)$/.test(key) && Number(key) < (2 ** 32) - 1;
+
+// An object literal iterates array-index keys first in ascending order, then the other strings in insertion order, then the symbols in insertion order. `Object.defineProperty()` calls run in source order, so merging them into one object literal reorders the calls whenever that differs. A dynamic key is assumed to be a string that is not an array index.
+const hasReorderedKeys = (calls, sourceCode) => {
+	let previousGroup = 0;
+	let previousIndex = -1;
+
+	for (const call of calls) {
+		const key = getStaticPropertyKey(call.arguments[1], sourceCode) ?? '';
+
+		if (typeof key === 'symbol') {
+			previousGroup = 2;
+			continue;
+		}
+
+		if (!isArrayIndex(key)) {
+			if (previousGroup > 1) {
+				return true;
+			}
+
+			previousGroup = 1;
+			continue;
+		}
+
+		if (previousGroup > 0 || Number(key) < previousIndex) {
+			return true;
+		}
+
+		previousIndex = Number(key);
+	}
+
+	return false;
+};
+
 function getDefinePropertiesFix(expressionStatements, calls, context) {
 	const {sourceCode} = context;
 	const firstExpressionStatement = expressionStatements[0];
@@ -185,6 +226,8 @@ const create = context => {
 		if (
 			!hasDuplicatePropertyKeys(calls, sourceCode)
 			&& !hasCommentsInRange(sourceCode, range)
+			&& calls.every(call => !hasMultilineToken(call.arguments[2], sourceCode))
+			&& !hasReorderedKeys(calls, sourceCode)
 		) {
 			problem.fix = getDefinePropertiesFix(expressionStatements, calls, context);
 		}
