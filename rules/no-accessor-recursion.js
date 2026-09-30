@@ -1,3 +1,5 @@
+import {isStringLiteral} from './ast/index.js';
+
 const MESSAGE_ID_ERROR = 'no-accessor-recursion/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Disallow recursive access to `this` within {{kind}}ters.',
@@ -33,8 +35,11 @@ const isIdentifier = node => node.type === 'Identifier' || node.type === 'Privat
 const isDotNotationAccess = node =>
 	node.parent.type === 'MemberExpression'
 	&& node.parent.object === node
-	&& !node.parent.computed
-	&& isIdentifier(node.parent.property);
+	&& (
+		(!node.parent.computed && isIdentifier(node.parent.property))
+		// `this['foo']` is the same access as `this.foo`
+		|| (node.parent.computed && isStringLiteral(node.parent.property))
+	);
 
 /**
 Check if a property is a valid getter or setter.
@@ -47,13 +52,19 @@ const isValidProperty = property =>
 	&& ['set', 'get'].includes(property.kind)
 	&& isIdentifier(property.key);
 
+const getKeyName = key => isStringLiteral(key) ? key.value : key.name;
+
 /**
 Check if two property keys are the same.
+
+`this['foo']` accesses the same key as `this.foo`, but a private name is never the same as a string key.
 
 @param {import('estree').Property['key']} keyLeft
 @param {import('estree').Property['key']} keyRight
 */
-const isSameKey = (keyLeft, keyRight) => ['type', 'name'].every(key => keyLeft[key] === keyRight[key]);
+const isSameKey = (keyLeft, keyRight) =>
+	(keyLeft.type === 'PrivateIdentifier') === (keyRight.type === 'PrivateIdentifier')
+	&& getKeyName(keyLeft) === getKeyName(keyRight);
 
 /**
 Check if `this` is accessed recursively within a getter or setter.
@@ -80,8 +91,18 @@ const isRecursiveDestructuringAccess = (node, property) =>
 		&& !declaratorProperty.computed
 		&& isSameKey(declaratorProperty.key, property.key));
 
+// A pure write dispatches to the setter instead of re-entering the getter, so it cannot recurse. A compound assignment or an update expression reads the property as well, so they are not pure.
+const isPurePropertyWrite = (thisExpression, property) => {
+	if (!isPropertyWrite(thisExpression, property)) {
+		return false;
+	}
+
+	const {parent} = thisExpression.parent;
+	return parent.type !== 'UpdateExpression' && (parent.type !== 'AssignmentExpression' || parent.operator === '=');
+};
+
 const isPropertyRead = (thisExpression, property) =>
-	isMemberAccess(thisExpression, property)
+	(isMemberAccess(thisExpression, property) && !isPurePropertyWrite(thisExpression, property))
 	|| isRecursiveDestructuringAccess(thisExpression, property);
 
 const isPropertyWrite = (thisExpression, property) => {

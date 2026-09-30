@@ -306,3 +306,45 @@ test.snapshot(avoidTestTitleConflict({
 	valid: validCases,
 	invalid: [],
 }, 'script'));
+
+// `this['foo']` is the same access as `this.foo`
+test.snapshot({
+	valid: [
+		'class A { get foo() { return this[bar]; } }',
+		'class A { get foo() { return this[0]; } }',
+		'class A { get bar() { return this.#bar; } get #bar() { return 0; } }',
+		// A string key is never the same as a private name
+		'class A { get #foo() { return this[\'#foo\']; } }',
+		'class A { get #foo() { const {\'#foo\': foo} = this; return foo; } }',
+		// A template literal key is not checked
+		'class A { get foo() { return this[`foo`]; } }',
+	],
+	invalid: [
+		'class A { get foo() { return this[\'foo\']; } }',
+		'class A { get foo() { return this["foo"]; } }',
+		'class A { set foo(value) { this[\'foo\'] = value; } }',
+		'class A { get foo() { const {\'foo\': foo} = this; return foo; } }',
+	],
+});
+
+// A pure write dispatches to the setter, it cannot re-enter the getter
+test({
+	valid: [
+		'class A { get foo() { this.foo = 1; return 1; } set foo(v) { this._v = v; } }',
+		'class A { get foo() { for (this.foo of y) {} return 1; } }',
+		'class A { get foo() { for (this.foo in y) {} return 1; } }',
+		'class A { get foo() { [this.foo] = y; return 1; } }',
+		'class A { get foo() { [this.foo = 1] = y; return 1; } }',
+		'class A { get foo() { ({x: this.foo} = o); return 1; } }',
+		'class A { get foo() { [...this.foo] = o; return 1; } }',
+	],
+	invalid: [
+		// A compound assignment or an update expression reads the property too
+		...[
+			'class A { get foo() { this.foo += 1; return 1; } set foo(v) {} }',
+			'class A { get foo() { this.foo &&= 1; return 1; } set foo(v) {} }',
+			'class A { get foo() { this.foo++; return 1; } set foo(v) {} }',
+			'class A { get foo() { ++this.foo; return 1; } set foo(v) {} }',
+		].map(code => ({code, errors: 1})),
+	],
+});
