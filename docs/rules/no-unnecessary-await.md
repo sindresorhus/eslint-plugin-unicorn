@@ -11,6 +11,8 @@
 
 The [`await` operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) should only be used on [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) values.
 
+Awaiting a non-promise value still pauses the function for a microtask, so removing the `await` makes the code after it run earlier. The autofix is therefore only offered when nothing runs after the `await` in its function or module.
+
 ## Examples
 
 ```js

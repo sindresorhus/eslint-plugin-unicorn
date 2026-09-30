@@ -1,5 +1,11 @@
+import {isFunction} from './ast/index.js';
 import {addParenthesesToReturnOrThrowExpression, removeSpacesAfter} from './fix/index.js';
-import {isParenthesized, needsSemicolon, isOnSameLine} from './utils/index.js';
+import {
+	isParenthesized,
+	needsSemicolon,
+	isOnSameLine,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-await';
 const messages = {
@@ -33,6 +39,45 @@ function notPromise(node) {
 	return false;
 }
 
+/*
+`await` on a value that is not a promise still suspends the function for a microtask, so removing it makes everything after it run in the same tick, which can reorder it against the caller or another microtask. Only an `await` that is the last thing its function (or module) runs is safe to unroll.
+*/
+function isLastEvaluated(node) {
+	const {parent} = node;
+	switch (parent.type) {
+		case 'ArrowFunctionExpression': {
+			return parent.body === node;
+		}
+
+		case 'Program': {
+			return parent.body.at(-1) === node;
+		}
+
+		case 'BlockStatement': {
+			return parent.body.at(-1) === node && (isFunction(parent.parent) || isLastEvaluated(parent));
+		}
+
+		case 'IfStatement': {
+			return parent.test !== node && isLastEvaluated(parent);
+		}
+
+		case 'VariableDeclaration': {
+			return parent.declarations.at(-1) === node && isLastEvaluated(parent);
+		}
+
+		case 'ExpressionStatement':
+		case 'ReturnStatement':
+		case 'ThrowStatement':
+		case 'VariableDeclarator': {
+			return isLastEvaluated(parent);
+		}
+
+		default: {
+			return false;
+		}
+	}
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -41,7 +86,7 @@ const create = context => {
 		if (
 			// F#-style pipeline operator, `Promise.resolve() |> await`
 			!node.argument
-			|| !notPromise(node.argument)
+			|| !notPromise(unwrapTypeScriptExpression(node.argument))
 		) {
 			return;
 		}
@@ -59,12 +104,8 @@ const create = context => {
 			// Removing `await` may change them to a declaration, if there is no `id` will cause SyntaxError
 			valueNode.type === 'FunctionExpression'
 			|| valueNode.type === 'ClassExpression'
-			// `+await +1` -> `++1`
-			|| (
-				node.parent.type === 'UnaryExpression'
-				&& valueNode.type === 'UnaryExpression'
-				&& node.parent.operator === valueNode.operator
-			)
+			// This also covers `+await +1`, the unary operator runs after the `await`
+			|| !isLastEvaluated(node)
 		) {
 			return problem;
 		}

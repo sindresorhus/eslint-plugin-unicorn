@@ -1,9 +1,12 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import plugin from '../index.js';
+import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
-test.snapshot({
+ruleTest.snapshot({
 	testerOptions: {
 		languageOptions: {
 			parserOptions: {
@@ -111,5 +114,70 @@ test.snapshot({
 		'async function foo() {+await +1}',
 		'async function foo() {-await-1}',
 		'async function foo() {+await -1}',
+		// The unary operator runs after the `await`, so these are only reported
+		'async function foo() {+await ++bar}',
+		'async function foo() {-await --bar}',
+		'async function foo() {const a = +await ++b;}',
+		'async function foo() {+await --bar}',
+		'async function foo() {-await ++bar}',
+		'async function foo() {+await bar++}',
+		'async function foo() {~await ~1}',
 	],
+});
+
+// A TypeScript expression wrapper must not hide the awaited value
+ruleTest.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [
+		'async function f() { return await (a as Promise<number>); }',
+		'async function f() { return await (a!); }',
+	],
+	invalid: [
+		'async function f() { return await (1 as number); }',
+		'async function f() { return await ([1, 2]!); }',
+		'async function f() { return await ([1, 2] as const); }',
+		'async function f() { return await ([1, 2] satisfies number[]); }',
+	],
+});
+
+// `await` on a value that is not a promise still suspends the function for a microtask, so removing it makes the rest of the body run in the same tick and can reorder it against the caller. The original prints `s after e`, the fix prints `s e after`.
+test('only an `await` that is the last thing its function runs is unrolled', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-unnecessary-await': 'error'},
+	};
+
+	for (const [code, isFixed] of [
+		['async function f() { log("s"); await 1; log("e"); }', false],
+		['async function f() { await 1; log("e"); }', false],
+		// The `await` is the last statement, so nothing runs after it either way
+		['async function f() { if (q) { run(); } await 1; }', true],
+		['async function f() { log("s"); await 1; }', true],
+		['async function f() { await 1; }', true],
+		['async function f() { return await 1; }', true],
+		['async function f() { const x = await 1; }', true],
+		['async function f() { if (q) { await 1; } }', true],
+		['const f = async () => { await 1; };', true],
+		// Something still runs after the `await` inside the last statement
+		['async function f() { if (q) { await 1; log("e"); } }', false],
+		['async function f() { log(await 1); }', false],
+		['async function f() { for (const x of xs) { await 1; } }', false],
+		['async function f() { try { await 1; } finally { log("e"); } }', false],
+		['async function outer() { return async () => (await 1, log("e")); }', false],
+		// An expression-bodied arrow function is its own body
+		['async function outer() { const f = async () => await 1; run(); }', true],
+		// A top-level `await` reorders the rest of the module the same way
+		['Promise.resolve().then(() => log("a")); await 1; log("b");', false],
+		['run(); await 1;', true],
+	]) {
+		const problem = linter.verify(code, config).find(problem => !problem.fatal);
+
+		t.truthy(problem, `should report \`${code}\``);
+		t.is(Boolean(problem.fix), isFixed, `fix availability for \`${code}\``);
+	}
 });
