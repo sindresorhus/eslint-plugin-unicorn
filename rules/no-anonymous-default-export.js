@@ -10,6 +10,7 @@ import {
 	isVirtualFilename,
 	isIdentifierName,
 	getLinebreak,
+	getLineIndent,
 } from './utils/index.js';
 import {isMemberExpression} from './ast/index.js';
 
@@ -51,6 +52,9 @@ function getSuggestionName(node, filename, sourceCode) {
 	return name;
 }
 
+// `export default …` or the `module.exports = …;` expression statement
+const getExportStatement = node => node.parent.type === 'ExportDefaultDeclaration' ? node.parent : node.parent.parent;
+
 function addName(fixer, node, name, context) {
 	const {sourceCode} = context;
 	switch (node.type) {
@@ -77,16 +81,16 @@ function addName(fixer, node, name, context) {
 		}
 
 		case 'ArrowFunctionExpression': {
+			const exportDeclaration = getExportStatement(node);
 			const [exportDeclarationStart, exportDeclarationEnd]
-				= sourceCode.getRange(node.parent.type === 'ExportDefaultDeclaration'
-					? node.parent
-					: node.parent.parent);
+				= sourceCode.getRange(exportDeclaration);
 			const [arrowFunctionStart, arrowFunctionEnd] = getParenthesizedRange(node, context);
 
 			let textBefore = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart);
 			let textAfter = sourceCode.text.slice(arrowFunctionEnd, exportDeclarationEnd);
 
-			textBefore = `${getLinebreak(context)}${textBefore}`;
+			// The statement is re-emitted on its own line, so it has to keep the indentation of the line it came from.
+			textBefore = `${getLinebreak(context)}${getLineIndent(exportDeclaration, context)}${textBefore}`;
 			if (!/\s$/.test(textBefore)) {
 				textBefore += ' ';
 			}
@@ -141,7 +145,16 @@ function getProblem(node, context) {
 		},
 	};
 
-	if (!suggestionName) {
+	// The arrow function suggestion turns the statement into a declaration, which is only allowed in a statement list, not in `if (a) module.exports = () => {};`
+	const {parent: statementParent} = getExportStatement(node);
+	if (
+		!suggestionName
+		|| (
+			node.type === 'ArrowFunctionExpression'
+			&& !Array.isArray(statementParent.body)
+			&& statementParent.type !== 'SwitchCase'
+		)
+	) {
 		return problem;
 	}
 

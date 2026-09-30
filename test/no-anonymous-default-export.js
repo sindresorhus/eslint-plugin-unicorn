@@ -274,6 +274,23 @@ test.snapshot({
 			code: '(( module.exports = (( () => {} )) ));',
 			filename: '/path/to/foo.js',
 		},
+		// The arrow function suggestion adds a declaration, which is only allowed in a statement list
+		{
+			code: 'if (a) module.exports = () => {};',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'label: module.exports = () => {};',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'switch (a) {\n\tcase 1:\n\t\tmodule.exports = () => {};\n}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'if (a) module.exports = function () {};',
+			filename: '/path/to/foo.js',
+		},
 	],
 });
 
@@ -293,6 +310,28 @@ test({
 						{
 							messageId: 'no-anonymous-default-export/suggestion',
 							output: 'const foo = () => {\r\n\tbar();\r\n};\r\nexport default foo;\r\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
+// The moved statement keeps the indentation of the line it came from
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function outer() {\n\tif (a) {\n\t\tmodule.exports = () => {};\n\t}\n}\n',
+			filename: '/path/to/foo.js',
+			errors: [
+				{
+					messageId: 'no-anonymous-default-export/error',
+					suggestions: [
+						{
+							messageId: 'no-anonymous-default-export/suggestion',
+							output: 'function outer() {\n\tif (a) {\n\t\tconst foo = () => {};\n\t\tmodule.exports = foo;\n\t}\n}\n',
 						},
 					],
 				},
