@@ -1,5 +1,5 @@
 import {removeParentheses, removeMemberExpressionProperty} from './fix/index.js';
-import {isLiteral} from './ast/index.js';
+import {getStaticNumberValue, isKnownNonIterable, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-await-expression-member';
 const messages = {
@@ -21,19 +21,26 @@ const create = context => {
 			messageId: MESSAGE_ID,
 		};
 
+		// `[-0]` and `[+0]` are the same index as `[0]`
+		const index = getStaticNumberValue(property);
+
 		// `const foo = (await bar)[0]`
 		if (
 			memberExpression.computed
 			&& !memberExpression.optional
-			&& (isLiteral(property, 0) || isLiteral(property, 1))
+			&& (index === 0 || index === 1)
 			&& memberExpression.parent.type === 'VariableDeclarator'
 			&& memberExpression.parent.init === memberExpression
 			&& memberExpression.parent.id.type === 'Identifier'
 			&& !memberExpression.parent.id.typeAnnotation
+			// The fix turns index access into a destructuring pattern, which needs the awaited value to be iterable while `[…]` works on any array-like
+			&& !isKnownNonIterable(unwrapTypeScriptExpression(memberExpression.object.argument))
+			// The fix removes the member access, a comment inside it would be dropped
+			&& context.sourceCode.getCommentsInside(memberExpression).length === 0
 		) {
 			problem.fix = function * (fixer) {
 				const variable = memberExpression.parent.id;
-				yield fixer.insertTextBefore(variable, property.value === 0 ? '[' : '[, ');
+				yield fixer.insertTextBefore(variable, index === 0 ? '[' : '[, ');
 				yield fixer.insertTextAfter(variable, ']');
 
 				yield removeMemberExpressionProperty(fixer, memberExpression, context);
@@ -53,6 +60,8 @@ const create = context => {
 			&& memberExpression.parent.id.type === 'Identifier'
 			&& memberExpression.parent.id.name === property.name
 			&& !memberExpression.parent.id.typeAnnotation
+			// The fix removes the member access, a comment inside it would be dropped
+			&& context.sourceCode.getCommentsInside(memberExpression).length === 0
 		) {
 			problem.fix = function * (fixer) {
 				const variable = memberExpression.parent.id;

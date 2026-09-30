@@ -13,6 +13,8 @@ When accessing a member from an await expression, the await expression has to be
 
 This rule is fixable for simple member access.
 
+The fix turns `[0]` and `[1]` into array destructuring, which needs an iterable value. It is skipped when the awaited expression is clearly not iterable, like an object literal, but an array-like value from a call, like `(await getArrayLike())[0]`, is still fixed and would then throw.
+
 ## Examples
 
 ```js
