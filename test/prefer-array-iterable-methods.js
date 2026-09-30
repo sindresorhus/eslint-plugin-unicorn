@@ -102,5 +102,10 @@ test.snapshot({
 		// Type assertions on the receiver are recognized even without type information.
 		typescript('for (const [, value] of (foo as number[]).entries()) {\n\tbar(value);\n}'),
 		typescript('for (const [, value] of (<number[]>foo).entries()) {\n\tbar(value);\n}'),
+
+		// The `of` keyword abutting the pattern must not merge with the kept binding name.
+		'for(const[,value]of[].entries()){\n\tfoo(value);\n}',
+		'for(const[index,value]of[\'a\'].entries()){\n\tfoo(value);\n}',
+		'for(let[,value]of[].entries()){\n\tfoo(value);\n}',
 	],
 });

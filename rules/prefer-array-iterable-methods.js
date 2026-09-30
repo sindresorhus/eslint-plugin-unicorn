@@ -90,12 +90,14 @@ const create = context => {
 		const hasComments = sourceCode.getCommentsInside(arrayPattern).length > 0
 			|| sourceCode.getCommentsInside(entriesCall).length > 0;
 
-		// Replace the pattern, keeping a space if the `const`/`let` keyword abuts it
-		// (`for (const[index, value]`), so the binding does not merge into `constvalue`.
+		// Replace the pattern, keeping a space where the `const`/`let` keyword or the `of` keyword abuts it (`for (const[index, value]of[…]`), so the binding does not merge into `constvalue` or `valueof`.
 		const replacePattern = (fixer, text) => {
+			const [start, end] = sourceCode.getRange(arrayPattern);
 			const tokenBefore = sourceCode.getTokenBefore(arrayPattern);
-			const isAbutting = sourceCode.getRange(tokenBefore)[1] === sourceCode.getRange(arrayPattern)[0];
-			return fixer.replaceText(arrayPattern, isAbutting ? ` ${text}` : text);
+			const tokenAfter = sourceCode.getTokenAfter(arrayPattern);
+			const spaceBefore = sourceCode.getRange(tokenBefore)[1] === start ? ' ' : '';
+			const spaceAfter = sourceCode.getRange(tokenAfter)[0] === end ? ' ' : '';
+			return fixer.replaceText(arrayPattern, `${spaceBefore}${text}${spaceAfter}`);
 		};
 
 		if (isIndexUnused) {
