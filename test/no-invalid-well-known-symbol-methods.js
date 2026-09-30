@@ -315,3 +315,68 @@ test.snapshot({
 		`),
 	],
 });
+
+// A second `[Symbol.asyncDispose]` would shadow this one, the later member wins
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'class C {\n\tasync [Symbol.asyncDispose]() { await flush(); }\n\tasync [Symbol.dispose]() { await cleanup(); }\n}',
+			errors: 1,
+		},
+		{
+			code: 'class C {\n\tstatic async [Symbol.dispose]() { await cleanup(); }\n}',
+			output: 'class C {\n\tstatic async [Symbol.asyncDispose]() { await cleanup(); }\n}',
+			errors: 1,
+		},
+		{
+			code: 'class C {\n\tasync [Symbol.dispose]() { await cleanup(); }\n}',
+			output: 'class C {\n\tasync [Symbol.asyncDispose]() { await cleanup(); }\n}',
+			errors: 1,
+		},
+	],
+});
+
+// `Symbol.asyncDispose` and `Symbol['asyncDispose']` are the same key
+test({
+	valid: [],
+	invalid: [
+		...[
+			'class C {\n\tasync [Symbol.dispose]() {}\n\tasync [Symbol.asyncDispose]() {}\n}',
+			'class C {\n\tasync [Symbol.dispose]() {}\n\tasync [Symbol["asyncDispose"]]() {}\n}',
+			'class C {\n\tstatic async [Symbol.dispose]() {}\n\tstatic async [Symbol["asyncDispose"]]() {}\n}',
+			'class C {\n\tasync [Symbol.dispose]() {}\n\t[Symbol.asyncDispose] = () => {};\n}',
+			'class C {\n\tasync [Symbol.dispose]() {}\n\t[Symbol["asyncDispose"]] = () => {};\n}',
+			'class C {\n\tstatic async [Symbol.dispose]() {}\n\tstatic [Symbol.asyncDispose] = () => {};\n}',
+			'const object = {\n\tasync [Symbol.dispose]() {},\n\t[Symbol.asyncDispose]() {},\n};',
+			'const object = {\n\tasync [Symbol.dispose]() {},\n\tasync [Symbol["asyncDispose"]]() {},\n};',
+		].map(code => ({code, errors: 1})),
+		{
+			code: 'class C {\n\tasync [Symbol.dispose]() {}\n}',
+			output: 'class C {\n\tasync [Symbol.asyncDispose]() {}\n}',
+			errors: 1,
+		},
+		{
+			code: 'const object = {\n\tasync [Symbol.dispose]() {},\n\tasyncDispose() {},\n};',
+			output: 'const object = {\n\tasync [Symbol.asyncDispose]() {},\n\tasyncDispose() {},\n};',
+			errors: 1,
+		},
+		// A static and an instance member do not share a key
+		{
+			code: 'class C {\n\tstatic async [Symbol.dispose]() {}\n\tasync [Symbol.asyncDispose]() {}\n}',
+			output: 'class C {\n\tstatic async [Symbol.asyncDispose]() {}\n\tasync [Symbol.asyncDispose]() {}\n}',
+			errors: 1,
+		},
+		// An accessor has the same key
+		{
+			code: 'class C {\n\tasync [Symbol.dispose]() {}\n\tget [Symbol.asyncDispose]() {}\n}',
+			errors: 1,
+		},
+		// A spread is not a keyed member
+		{
+			code: 'const object = {\n\t...other,\n\tasync [Symbol.dispose]() {},\n};',
+			output: 'const object = {\n\t...other,\n\tasync [Symbol.asyncDispose]() {},\n};',
+			errors: 1,
+		},
+	],
+});

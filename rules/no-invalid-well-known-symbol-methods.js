@@ -32,21 +32,22 @@ function getWellKnownSymbolName(member) {
 	return member.key.property.name;
 }
 
+// `[Symbol.asyncDispose]` and `[Symbol['asyncDispose']]` are the same key
+const isAsyncDisposeKey = key =>
+	key.type === 'MemberExpression'
+	&& key.object.type === 'Identifier'
+	&& key.object.name === 'Symbol'
+	&& (
+		(!key.computed && key.property.type === 'Identifier' && key.property.name === 'asyncDispose')
+		|| (key.computed && key.property.type === 'Literal' && key.property.value === 'asyncDispose')
+	);
+
 function getFunctionNode(member) {
 	if (member.kind === 'get' || member.kind === 'set') {
 		return;
 	}
 
-	if (
-		member.type === 'MethodDefinition'
-		|| member.type === 'PropertyDefinition'
-	) {
-		return member.value;
-	}
-
-	if (member.type === 'Property') {
-		return member.value;
-	}
+	return member.value;
 }
 
 function isFunctionNode(node) {
@@ -67,15 +68,7 @@ function hasPromiseReturnTypeAnnotation(functionNode) {
 		return false;
 	}
 
-	if (typeNode.type === 'TSTypeReference') {
-		return isPromiseTypeReference(typeNode);
-	}
-
-	if (typeNode.type === 'TSUnionType') {
-		return typeNode.types.some(typeNode => isPromiseTypeReference(typeNode));
-	}
-
-	return false;
+	return typeNode.type === 'TSUnionType' ? typeNode.types.some(typeNode => isPromiseTypeReference(typeNode)) : isPromiseTypeReference(typeNode);
 }
 
 function hasPromiseReturnTypeInformation(functionNode, context) {
@@ -140,11 +133,25 @@ function getProblem(member, context) {
 		symbolName === 'dispose'
 		&& (functionNode.async || returnsPromise)
 	) {
-		return {
+		const problem = {
 			node: member.key,
 			messageId: MESSAGE_ID_ASYNC_DISPOSE,
-			fix: fixer => fixer.replaceText(member.key.property, 'asyncDispose'),
 		};
+
+		const {parent} = member;
+		const siblings = parent.type === 'ClassBody' ? parent.body : parent.properties;
+		// A second `[Symbol.asyncDispose]` would shadow this one, the later member wins. `Symbol.asyncDispose` and `Symbol['asyncDispose']` are the same key.
+		const hasOtherAsyncDispose = siblings.some(node =>
+			node !== member
+			&& node.computed
+			&& isAsyncDisposeKey(node.key)
+			&& node.static === member.static);
+
+		if (!hasOtherAsyncDispose) {
+			problem.fix = fixer => fixer.replaceText(member.key.property, 'asyncDispose');
+		}
+
+		return problem;
 	}
 
 	if (
