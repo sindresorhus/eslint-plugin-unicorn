@@ -19,17 +19,15 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
+          - 26
           - 24
+          - 22
         os:
           - ubuntu-latest
           - windows-latest
-        # Even numbers of node-version
-        include:
-          - os: ubuntu-latest
-            node-version: 22
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install --legacy-peer-deps
@@ -45,15 +43,15 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
       - run: npm install --legacy-peer-deps
       - run: npm run lint
   run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
       - run: npm install --legacy-peer-deps
       - run: npm run run-rules-on-codebase
   integration:
@@ -73,7 +71,7 @@ jobs:
       TIMING: 1
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
       - run: npm install --legacy-peer-deps
       - run: npm run integration -- --group ${{ matrix.group }}

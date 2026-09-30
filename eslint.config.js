@@ -95,6 +95,12 @@ const config = [
 			'unicorn/prefer-minimal-ternary': 'off',
 			'unicorn/prefer-simple-condition-first': 'off',
 			'unicorn/prefer-simplified-conditions': 'off',
+			// `eslint-config-xo` 4 brings in `eslint-plugin-unicorn` 76, which reports much more code with these rules. The codebase does not follow them yet.
+			'unicorn/prefer-ternary': 'off',
+			'unicorn/prefer-combined-guards': 'off',
+			'unicorn/prefer-early-return': 'off',
+			'unicorn/prefer-logical-operator-over-ternary': 'off',
+			'unicorn/prefer-continue': 'off',
 			// Many existing internal utilities intentionally export declarations separately.
 			'unicorn/default-export-style': 'off',
 			'unicorn/prefer-array-flat': ['error', {
