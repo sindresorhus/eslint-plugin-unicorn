@@ -3,6 +3,7 @@ import {isRegExp} from 'node:util/types';
 import {
 	getAvailableVariableName,
 	cartesianProductSamples,
+	matchesAnyRegExp,
 	isShorthandPropertyValue,
 	getScopes,
 	upperFirst,
@@ -132,7 +133,7 @@ const getNameReplacements = (name, options, limit = 3) => {
 	const {allowList, ignore} = options;
 
 	// Skip constants and allowList
-	if (isUpperCase(name) || allowList.get(name) || ignore.some(regexp => regexp.test(name))) {
+	if (isUpperCase(name) || allowList.get(name) || matchesAnyRegExp(name, ignore)) {
 		return {total: 0};
 	}
 
@@ -348,11 +349,7 @@ const shouldFixParameter = (definition, context) => {
 
 	const functionNode = getParentFunctionLikeNode(definition.name);
 
-	if (!functionNode) {
-		return true;
-	}
-
-	return !hasAttachedJSDocumentParameterComment(functionNode, context.sourceCode);
+	return !functionNode || !hasAttachedJSDocumentParameterComment(functionNode, context.sourceCode);
 };
 
 const shouldAutofix = (variable, context) =>
@@ -366,11 +363,7 @@ const create = context => {
 	const filenameWithExtension = context.physicalFilename;
 
 	onRoot(context, node => {
-		if (!options.checkFilenames) {
-			return;
-		}
-
-		if (isVirtualFilename(filenameWithExtension)) {
+		if (!options.checkFilenames || isVirtualFilename(filenameWithExtension)) {
 			return;
 		}
 
@@ -471,11 +464,12 @@ const create = context => {
 
 		const [definition] = variable.defs;
 
-		if (!shouldCheckDefaultOrNamespaceImportName(definition, options)) {
+		// An enum member is a property of the enum object, and `Foo.err` is not tracked as a reference, so renaming the declaration would leave the member access dangling.
+		if (definition.type === 'TSEnumMemberName') {
 			return;
 		}
 
-		if (!shouldCheckShorthandImportName(definition, options, context)) {
+		if (!shouldCheckDefaultOrNamespaceImportName(definition, options) || !shouldCheckShorthandImportName(definition, options, context)) {
 			return;
 		}
 
@@ -496,7 +490,14 @@ const create = context => {
 			...variable.references.map(reference => reference.from),
 			variable.scope,
 		];
-		variableReplacements.samples = variableReplacements.samples.map(name => getAvailableVariableName(name, scopes, isSafeName));
+		// `getAvailableVariableName()` returns `undefined` for a name that is not a usable identifier, and the message interpolates the samples.
+		variableReplacements.samples = variableReplacements.samples
+			.map(name => getAvailableVariableName(name, scopes, isSafeName))
+			.filter(name => typeof name === 'string');
+
+		if (variableReplacements.samples.length === 0) {
+			return;
+		}
 
 		const problem = {
 			...getMessage(definition.name.name, variableReplacements, 'variable'),
@@ -506,7 +507,6 @@ const create = context => {
 		if (
 			variableReplacements.total === 1
 			&& shouldAutofix(variable, context)
-			&& variableReplacements.samples[0]
 			&& variable.references.every(reference => !reference.vueUsedInTemplate)
 		) {
 			const [replacement] = variableReplacements.samples;
@@ -556,11 +556,7 @@ const create = context => {
 	};
 
 	context.on('Identifier', node => {
-		if (!options.checkProperties) {
-			return;
-		}
-
-		if (node.name === '__proto__') {
+		if (!options.checkProperties || node.name === '__proto__') {
 			return;
 		}
 

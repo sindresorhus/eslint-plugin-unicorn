@@ -1996,6 +1996,25 @@ test.typescript({
 		},
 	},
 	valid: [
+		// A replacement that is not a usable identifier is not suggested
+		{code: 'const usr = 1; console.log(usr);', options: [{replacements: {usr: {'a-b': true}}}]},
+		{code: 'const fast = 1; console.log(fast);', options: [{replacements: {fast: {'2fast': true}}}]},
+		// An enum member is a property of the enum, `Foo.err` would not be renamed with it
+		outdent`
+			enum Foo {
+				err,
+			}
+			console.log(Foo.err);
+		`,
+		{
+			code: outdent`
+				enum Foo {
+					err,
+				}
+				console.log(Foo.err);
+			`,
+			options: [{checkProperties: true}],
+		},
 		// Vite type declaration
 		'interface ImportMetaEnv {}',
 		// Node.js environment variables type
@@ -2580,6 +2599,15 @@ test({
 					],
 				},
 			],
+		},
+		{
+			// A `g` flag makes `RegExp#test()` stateful, every name must still be ignored
+			code: outdent`
+				const e_at_start = 1;
+				const end_with_e = 2;
+			`,
+			filename: 'index.js',
+			options: [{ignore: [/^e_/g, /_e$/g]}],
 		},
 	],
 	invalid: [

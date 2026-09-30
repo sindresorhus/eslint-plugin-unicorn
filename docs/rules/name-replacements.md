@@ -19,6 +19,8 @@ This rule is automatically fixable only for variable names with exactly one repl
 
 Parameter names do not provide autofixes or editor suggestions when the function has an attached JSDoc `@param` comment, as those name references are not normal variable references and would otherwise be left stale. TypeScript parameter properties also do not provide autofixes or editor suggestions, as the corresponding class property references are not part of the parameter variable's references. TypeScript type predicate and assertion signature parameter references are updated when the parameter is renamed.
 
+TypeScript enum members are not checked, as a member access like `Foo.err` is not a reference to the member and would not be renamed with it.
+
 ## React
 
 React projects commonly use abbreviation families like `props`, `ref`, `prevState`, and route `params`. The `replacements` option disables matching those words both as complete identifiers and as parts of longer identifiers, for example `someRef`.
