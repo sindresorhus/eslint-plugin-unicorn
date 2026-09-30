@@ -54,7 +54,7 @@ try {
 
 ### max
 
-Type: `number`\
+Type: `integer`\
 Default: `1`
 
 The maximum allowed complexity of a `try` block.

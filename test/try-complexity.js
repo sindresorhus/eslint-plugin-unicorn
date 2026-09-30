@@ -248,3 +248,83 @@ test.snapshot({
 		},
 	],
 });
+
+// Code in a nested `catch` or `finally` body can still throw into the outer `catch`, so it counts for the outer `try` block
+const maxTwo = {options: [{max: 2}]};
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				try {
+					try {
+						load();
+					} catch {
+						if (error) {
+							log(error);
+						}
+					}
+				} catch {}
+			`,
+			...maxTwo,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				try {
+					try {
+						load();
+					} finally {
+						if (error) {
+							log(error);
+						}
+						if (other) {
+							log(other);
+						}
+					}
+				} catch {}
+			`,
+			...maxTwo,
+			errors: 1,
+		},
+		// The `try` block itself still counts
+		{
+			code: outdent`
+				try {
+					try {
+						if (a) {
+							if (b) {
+								if (c) {
+									load();
+								}
+							}
+						}
+					} catch {}
+				} catch {}
+			`,
+			...maxTwo,
+			errors: 2,
+		},
+		// A try nested inside a handler is not part of the outer `try` block
+		{
+			code: outdent`
+				try {
+					load();
+				} catch {
+					try {
+						if (a) {
+							if (b) {
+								if (c) {
+									log();
+								}
+							}
+						}
+					} catch {}
+				}
+			`,
+			...maxTwo,
+			errors: 1,
+		},
+	],
+});
