@@ -15,7 +15,7 @@ It's only somewhat useful in the rare case of summing up numbers, which is allow
 
 Use `eslint-disable` comment if you really need to use it or disable the rule entirely if you prefer functional programming.
 
-This rule can automatically fix common direct `Array#reduce()` calls on local `const` array bindings used as a single variable initializer. Inline reducer callbacks and local `const` callback identifiers declared before the `reduce` call with simple inline-compatible bodies are fixed. More complex cases, `Array#reduceRight()`, and `Array#reduce.call()`/`Array#reduce.apply()` are reported without a fix.
+This rule can automatically fix common direct `Array#reduce()` calls on local `const` array bindings used as a single variable initializer. Inline reducer callbacks and local `const` callback identifiers declared before the `reduce` call with simple inline-compatible bodies are fixed. More complex cases, `Array#reduceRight()`, and `Array#reduce.call()`/`Array#reduce.apply()` are reported without a fix. The generated loop skips array holes like `reduce()` does. A call with no initial value on an array that is known to be empty is reported without a fix, since `reduce()` throws there.
 
 ## Examples
 

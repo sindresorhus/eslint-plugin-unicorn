@@ -293,6 +293,12 @@ test({
 			errors: errorsReduce,
 		},
 		{
+			// A `declare const` has no initializer
+			code: 'declare const reducer: (total: Result, item: Item) => Result; const result = array.reduce(reducer, initialValue);',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsReduce,
+		},
+		{
 			code: 'const result = array.reduce((total: Result, item: Item): Result => transform(total, item), initialValue);',
 			languageOptions: {parser: parsers.typescript},
 			errors: errorsReduce,
@@ -316,6 +322,10 @@ test({
 				const array = []; const callback = (total, item) => transform(total, item); let result = initialValue;
 
 				for (const [index, element] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
 					result = callback(result, element, index, array);
 				}
 			`,
@@ -323,18 +333,6 @@ test({
 		},
 		{
 			code: 'const array = []; const callback = (total, item) => transform(total, item); const result = array.reduce(callback);',
-			output: [
-				'const array = []; const callback = (total, item) => transform(total, item); let result;',
-				'',
-				'for (const [index, element] of array.entries()) {',
-				'\tif (index === 0) {',
-				'\t\tresult = element;',
-				'\t\tcontinue;',
-				'\t}',
-				'',
-				'\tresult = callback(result, element, index, array);',
-				'}',
-			].join('\n'),
 			errors: errorsReduce,
 		},
 		{
@@ -343,6 +341,10 @@ test({
 				const array = []; const callback = (total, item) => transform(total, item); callback.call = () => 0; let result = initialValue;
 
 				for (const [index, element] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
 					result = callback(result, element, index, array);
 				}
 			`,
@@ -358,6 +360,10 @@ test({
 				const array = []; let result = initialValue;
 
 				for (const [index, item] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
 					result = transform(result, item);
 				}
 			`,
@@ -365,18 +371,6 @@ test({
 		},
 		{
 			code: 'const array = []; const result = array.reduce((total, item) => transform(total, item));',
-			output: outdent`
-				const array = []; let result;
-
-				for (const [index, item] of array.entries()) {
-					if (index === 0) {
-						result = item;
-						continue;
-					}
-
-					result = transform(result, item);
-				}
-			`,
 			errors: errorsReduce,
 		},
 		{
@@ -391,6 +385,10 @@ test({
 				let result = initialValue;
 
 				for (const [index, item] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
 					result = transform(result, item);
 				}
 			`,
@@ -408,6 +406,10 @@ test({
 				let result = initialValue;
 
 				for (const [index, item] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
 					result = transform(result, item);
 				}
 			`,
@@ -419,6 +421,10 @@ test({
 				const array = []; let result = initialValue;
 
 				for (const [index, item] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
 					result = array ? transform(result, item, index) : result;
 				}
 			`,
@@ -523,6 +529,10 @@ test({
 				  let total = 0;
 
 				  for (const [index, item] of array.entries()) {
+				    if (!(index in array)) {
+				      continue;
+				    }
+
 				    total = merge(total, item);
 				  }
 				}
@@ -532,18 +542,24 @@ test({
 		{
 			code: outdent`
 				function run() {
-				  const array = [];
+				  const array = [1];
 				  const result = array.reduce((result, item) => merge(result, item));
 				}
 			`,
 			output: outdent`
 				function run() {
-				  const array = [];
+				  const array = [1];
 				  let result;
+				  let isFirst = true;
 
 				  for (const [index, item] of array.entries()) {
-				    if (index === 0) {
+				    if (!(index in array)) {
+				      continue;
+				    }
+
+				    if (isFirst) {
 				      result = item;
+				      isFirst = false;
 				      continue;
 				    }
 
@@ -556,18 +572,24 @@ test({
 		{
 			code: outdent`
 				function run() {
-				    const array = [];
+				    const array = [1];
 				    const result = array.reduce((result, item) => merge(result, item));
 				}
 			`,
 			output: outdent`
 				function run() {
-				    const array = [];
+				    const array = [1];
 				    let result;
+				    let isFirst = true;
 
 				    for (const [index, item] of array.entries()) {
-				        if (index === 0) {
+				        if (!(index in array)) {
+				            continue;
+				        }
+
+				        if (isFirst) {
 				            result = item;
+				            isFirst = false;
 				            continue;
 				        }
 
@@ -585,14 +607,20 @@ test({
 	valid: [],
 	invalid: [
 		{
-			code: 'const array = [];\r\nconst result = array.reduce((result, item) => merge(result, item));\r\n',
+			code: 'const array = [1];\r\nconst result = array.reduce((result, item) => merge(result, item));\r\n',
 			output: [
-				'const array = [];',
+				'const array = [1];',
 				'let result;',
+				'let isFirst = true;',
 				'',
 				'for (const [index, item] of array.entries()) {',
-				'\tif (index === 0) {',
+				'\tif (!(index in array)) {',
+				'\t\tcontinue;',
+				'\t}',
+				'',
+				'\tif (isFirst) {',
 				'\t\tresult = item;',
+				'\t\tisFirst = false;',
 				'\t\tcontinue;',
 				'\t}',
 				'',
@@ -600,6 +628,167 @@ test({
 				'}',
 				'',
 			].join('\r\n'),
+			errors: errorsReduce,
+		},
+	],
+});
+
+// A bare `return;` callback is not a simple operation
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'array.reduce((a, b) => { return; });',
+			errors: errorsReduce,
+		},
+		{
+			code: 'array.reduce(function (a, b) { return; });',
+			errors: errorsReduce,
+		},
+		{
+			code: 'array.reduce((a, b) => { return; }, initialValue);',
+			errors: errorsReduce,
+		},
+	],
+});
+
+// `Math.sumPrecise()` cannot replace an `async`, a generator, or an optional-chained call
+test({
+	valid: [],
+	invalid: [
+		...[
+			'array.reduce(async (a, b) => a + b)',
+			'array.reduce(async function (a, b) { return a + b; })',
+			'array.reduce(function * (a, b) { return a + b; })',
+			'array.reduce(function * (a, b) { yield a; return b; })',
+			'array?.reduce((a, b) => a + b)',
+			'(array?.entries).reduce((a, b) => a + b)',
+			'array?.entries.reduce((a, b) => a + b)',
+		].map(code => ({...reported(code), errors: 1})),
+	],
+});
+
+// `reduce` skips a hole whether or not there is an initial value, so the generated loop has to skip one in both shapes. With no initial value, `reduce` seeds from the first present element, which a flag tracks since it is not at index 0 for a sparse array. `reduce` with no initial value throws a `TypeError` on an empty array, and no loop can reproduce that, so the fix is withheld when the receiver is known to be empty.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const array = [1, , 3]; const result = array.reduce((a, b) => Math.max(a, b), 0);',
+			output: outdent`
+				const array = [1, , 3]; let result = 0;
+
+				for (const [index, b] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
+					result = Math.max(result, b);
+				}
+			`,
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = [, 1, , 3]; const result = array.reduce((a, b) => Math.max(a, b));',
+			output: outdent`
+				const array = [, 1, , 3]; let result;
+				let isFirst = true;
+
+				for (const [index, b] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
+					if (isFirst) {
+						result = b;
+						isFirst = false;
+						continue;
+					}
+
+					result = Math.max(result, b);
+				}
+			`,
+			errors: errorsReduce,
+		},
+		// The flag and the index do not shadow a variable the callback reads
+		{
+			code: 'const index = 1; const isFirst = 2; const array = [1]; const result = array.reduce((a, b) => merge(a, b, index, isFirst));',
+			output: outdent`
+				const index = 1; const isFirst = 2; const array = [1]; let result;
+				let isFirst_ = true;
+
+				for (const [index_, b] of array.entries()) {
+					if (!(index_ in array)) {
+						continue;
+					}
+
+					if (isFirst_) {
+						result = b;
+						isFirst_ = false;
+						continue;
+					}
+
+					result = merge(result, b, index, isFirst);
+				}
+			`,
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = [1]; const callback = (total, item) => transform(total, item); const result = array.reduce(callback);',
+			output: outdent`
+				const array = [1]; const callback = (total, item) => transform(total, item); let result;
+				let isFirst = true;
+
+				for (const [index, element] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
+					if (isFirst) {
+						result = element;
+						isFirst = false;
+						continue;
+					}
+
+					result = callback(result, element, index, array);
+				}
+			`,
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = [, ,]; const result = array.reduce((a, b) => Math.max(a, b));',
+			errors: errorsReduce,
+		},
+		// A spread may add elements, so the array is not known to be empty
+		{
+			code: 'const array = [, ...items]; const result = array.reduce((a, b) => Math.max(a, b), 0);',
+			output: outdent`
+				const array = [, ...items]; let result = 0;
+
+				for (const [index, b] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
+					result = Math.max(result, b);
+				}
+			`,
+			errors: errorsReduce,
+		},
+	],
+});
+
+// An ambient `declare const` callback has no initializer, so it cannot be inlined
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'declare const reducer: (total: number, item: number) => number; const array = [1, 2]; const result = array.reduce(reducer, 0);',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsReduce,
+		},
+		{
+			code: 'declare const reducer: (total: number, item: number) => number; const array = [1, 2]; const result = array.reduce(reducer);',
+			languageOptions: {parser: parsers.typescript},
 			errors: errorsReduce,
 		},
 	],

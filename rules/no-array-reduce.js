@@ -1,6 +1,8 @@
 import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
+	getChildNodes,
+	getConstVariableInitializer,
 	getAvailableVariableName,
 	getIndentUnit,
 	getLastTrailingCommentOnSameLine,
@@ -12,6 +14,7 @@ import {
 	isKnownNonNumber,
 	isNodeValueNotFunction,
 	isArrayPrototypeProperty,
+	hasOptionalChainElement,
 	isSameReference,
 	shouldSkipKnownNonArrayReceiver,
 } from './utils/index.js';
@@ -94,6 +97,11 @@ function getSumPreciseSuggestions(callExpression, context) {
 
 	if (
 		!isSumReduceCallback(callback)
+		// An `async` or generator callback does not return a number
+		|| callback.async
+		|| callback.generator
+		// `a?.b.reduce(…)` short-circuits, `Math.sumPrecise(a?.b)` throws on `undefined`
+		|| hasOptionalChainElement(callExpression.callee.object)
 		|| callExpression.optional
 		|| callExpression.callee.optional
 		// Only no initial value, or a literal `0`.
@@ -151,29 +159,8 @@ const hasParameterWrite = (sourceCode, callback) =>
 			variable.references.some(reference => !reference.init && reference.isWrite()));
 
 function isNodeMatchedInside(node, predicate) {
-	if (predicate(node)) {
-		return true;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(node => node?.type && isNodeMatchedInside(node, predicate))) {
-				return true;
-			}
-
-			continue;
-		}
-
-		if (value?.type && isNodeMatchedInside(value, predicate)) {
-			return true;
-		}
-	}
-
-	return false;
+	return predicate(node)
+		|| [...getChildNodes(node)].some(node => isNodeMatchedInside(node, predicate));
 }
 
 const hasNestedMethod = node => isNodeMatchedInside(node, node =>
@@ -297,6 +284,8 @@ const getLocalCallbackFunction = (callback, sourceCode) => {
 	if (
 		definition?.type === 'Variable'
 		&& definition.parent.kind === 'const'
+		// `init` is `null` for an ambient `declare const` declaration
+		&& definition.node.init
 		&& isInlineCallback(definition.node.init)
 		&& sourceCode.getRange(definition.node)[1] <= sourceCode.getRange(callback)[0]
 	) {
@@ -397,11 +386,7 @@ function getInlineCallbackExpressionText(callback, replacementNames, context) {
 	}
 
 	const callbackScope = context.sourceCode.getScope(callback);
-	if (isFunctionSelfUsedInside(callback, callbackScope)) {
-		return;
-	}
-
-	if (hasParameterMemberAccess(context.sourceCode, callbackScope, callback.params[0], expression)) {
+	if (isFunctionSelfUsedInside(callback, callbackScope) || hasParameterMemberAccess(context.sourceCode, callbackScope, callback.params[0], expression)) {
 		return;
 	}
 
@@ -430,6 +415,7 @@ function getLoopVariableNames(callExpression, resultName, callback, context) {
 	return {
 		elementName: getName(callback.type !== 'Identifier' && callback.params?.[1]?.type === 'Identifier' ? callback.params[1].name : 'element'),
 		indexName: getName(callback.type !== 'Identifier' && callback.params?.[2]?.type === 'Identifier' ? callback.params[2].name : 'index'),
+		isFirstName: getName('isFirst'),
 	};
 }
 
@@ -464,6 +450,14 @@ function isSafeCallbackIdentifier(callback, replacementNames, context, options) 
 	return Boolean(getInlineCallbackExpressionText(callbackFunction, replacementNames, context));
 }
 
+// `[]` and an array of nothing but holes both yield no elements, and a receiver bound to one of them is empty for the loop as well.
+const isStaticallyEmptyArray = (receiver, sourceCode) => {
+	const array = receiver.type === 'Identifier' ? getConstVariableInitializer(receiver, {sourceCode}) : receiver;
+
+	return array?.type === 'ArrayExpression'
+		&& array.elements.every(element => element === null);
+};
+
 function createFix(callExpression, context) {
 	const {sourceCode} = context;
 	const [callback, initialValue] = callExpression.arguments;
@@ -487,21 +481,25 @@ function createFix(callExpression, context) {
 	}
 
 	const arrayVariable = findVariable(sourceCode.getScope(callExpression), callExpression.callee.object);
-	if (hasUnsupportedArrayReference(sourceCode, arrayVariable, variableDeclaration, callback)) {
+	if (hasUnsupportedArrayReference(sourceCode, arrayVariable, variableDeclaration, callback) || hasEscapedAccumulatorWithArrayInitialValue(callExpression, callback, initialValue, sourceCode)) {
 		return;
 	}
 
-	if (hasEscapedAccumulatorWithArrayInitialValue(callExpression, callback, initialValue, sourceCode)) {
+	/*
+	`reduce` with no initial value throws a `TypeError` on an empty array, and no loop can reproduce that, so a receiver that is statically empty is reported without a fix.
+	*/
+	if (!initialValue && isStaticallyEmptyArray(callExpression.callee.object, sourceCode)) {
 		return;
 	}
 
 	const arrayText = getParenthesizedText(callExpression.callee.object, context);
 	const resultName = callExpression.parent.id.name;
-	const {elementName, indexName} = getLoopVariableNames(callExpression, resultName, callback, context);
+	const {elementName, indexName, isFirstName} = getLoopVariableNames(callExpression, resultName, callback, context);
 	const replacementNames = {
 		resultName,
 		elementName,
 		indexName,
+		isFirstName,
 		arrayText,
 	};
 
@@ -533,18 +531,31 @@ function createFix(callExpression, context) {
 	const hasInitialValue = Boolean(initialValue);
 	const initialValueText = hasInitialValue ? ` = ${sourceCode.getText(initialValue)}` : '';
 	const loopHead = `${indent}for (const [${indexName}, ${elementName}] of ${arrayText}.entries()) {`;
+	// `reduce` skips a hole whether or not there is an initial value, and `entries()` yields `undefined` for one, so the loop has to skip it in both shapes.
+	const holeCheck = [
+		`${bodyIndent}if (!(${indexName} in ${arrayText})) {`,
+		`${nestedBodyIndent}continue;`,
+		`${bodyIndent}}`,
+		'',
+	];
 	const loopBody = hasInitialValue
-		? `${bodyIndent}${resultName} = ${inlineExpressionText};`
+		? [...holeCheck, `${bodyIndent}${resultName} = ${inlineExpressionText};`].join(linebreak)
 		: [
-			`${bodyIndent}if (${indexName} === 0) {`,
+			...holeCheck,
+			`${bodyIndent}if (${isFirstName}) {`,
 			`${nestedBodyIndent}${resultName} = ${elementName};`,
+			`${nestedBodyIndent}${isFirstName} = false;`,
 			`${nestedBodyIndent}continue;`,
 			`${bodyIndent}}`,
 			'',
 			`${bodyIndent}${resultName} = ${inlineExpressionText};`,
 		].join(linebreak);
+	// With no initial value, `reduce` seeds from the first present element, which is not at index 0 for a sparse array, so a flag tracks it instead of the index
+	const declaration = hasInitialValue
+		? `let ${resultName}${initialValueText};`
+		: [`let ${resultName};`, `${indent}let ${isFirstName} = true;`].join(linebreak);
 	const replacement = [
-		`let ${resultName}${initialValueText};`,
+		declaration,
 		'',
 		loopHead,
 		loopBody,
@@ -590,6 +601,8 @@ const cases = [
 						&& callback.body.type === 'BlockStatement'
 						&& callback.body.body.length === 1
 						&& callback.body.body[0].type === 'ReturnStatement'
+						// A bare `return;` has no `argument`
+						&& callback.body.body[0].argument
 						&& callback.body.body[0].argument.type === 'BinaryExpression'
 					)
 				)
