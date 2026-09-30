@@ -57,11 +57,7 @@ const hasConflictingModuleMarker = exportDeclaration => {
 		}
 
 		if (node.type.startsWith('Export')) {
-			if (isBareModuleMarker(node)) {
-				return index < exportDeclarationIndex;
-			}
-
-			return isRuntimeExportDeclaration(node);
+			return isBareModuleMarker(node) ? index < exportDeclarationIndex : isRuntimeExportDeclaration(node);
 		}
 
 		return false;
@@ -106,10 +102,16 @@ const create = context => {
 			},
 		};
 
+		// Removing the whole declaration would remove a comment in it too. Removing only tokens keeps comments.
+		const hasComments = sourceCode.getCommentsInside(importDeclaration).length > 0;
+
 		// If there is a `ImportDefaultSpecifier`, it has to be the first.
 		const importDefaultSpecifier = specifiers.length === 1 ? specifiers[0] : undefined;
 		if (importKind === 'type' && !importDefaultSpecifier) {
-			problem.fix = fixer => fixer.remove(importDeclaration);
+			if (!hasComments) {
+				problem.fix = fixer => fixer.remove(importDeclaration);
+			}
+
 			return problem;
 		}
 
@@ -130,10 +132,12 @@ const create = context => {
 		}
 
 		problem.suggest = [
-			{
-				messageId: MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION,
-				fix: fixer => fixer.remove(importDeclaration),
-			},
+			...(hasComments
+				? []
+				: [{
+					messageId: MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION,
+					fix: fixer => fixer.remove(importDeclaration),
+				}]),
 			{
 				messageId: MESSAGE_ID_SUGGESTION_TO_SIDE_EFFECT_IMPORT,
 				* fix(fixer) {
@@ -177,16 +181,24 @@ const create = context => {
 			},
 		};
 
+		// Removing the whole declaration would remove a comment in it too. Removing only tokens keeps comments.
+		const hasComments = sourceCode.getCommentsInside(exportDeclaration).length > 0;
+
 		if (!source || exportKind === 'type') {
-			problem.fix = fixer => fixer.remove(exportDeclaration);
+			if (!hasComments) {
+				problem.fix = fixer => fixer.remove(exportDeclaration);
+			}
+
 			return problem;
 		}
 
 		problem.suggest = [
-			{
-				messageId: MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION,
-				fix: fixer => fixer.remove(exportDeclaration),
-			},
+			...(hasComments
+				? []
+				: [{
+					messageId: MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION,
+					fix: fixer => fixer.remove(exportDeclaration),
+				}]),
 			{
 				messageId: MESSAGE_ID_SUGGESTION_TO_SIDE_EFFECT_IMPORT,
 				* fix(fixer) {

@@ -136,5 +136,14 @@ test.snapshot({
 			} from "foo";
 		`,
 		'export {} from "foo" with {type: "json"};',
+		// Removing the whole declaration would remove the comment, removing only the braces keeps it
+		'import "foo";\nexport {/* keep */}',
+		typescriptCode('export type {/* keep */} from "foo";'),
+		'import a from "foo";\nexport {/* keep */} from "foo";',
+		'import a from "foo";\nexport/* keep */ {/* keep */} from "foo";',
+		'import/* keep */ {} from "foo";',
+		'import foo, /* keep */ {} from "foo";',
+		'import foo, {/* keep */} from "foo";',
+		typescriptCode('import type {/* keep */} from "foo";'),
 	],
 });
