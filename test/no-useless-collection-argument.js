@@ -73,5 +73,13 @@ test.snapshot({
 		'new Set(foo ?? bar ?? [])',
 		// Comments
 		'new Set([/**/])',
+		'new Set(a ?? /* keep */ null)',
+		'new Set(a /* keep */ ?? null)',
+		'new Set(a ?? // keep\n\t\tnull)',
+		'new Set( (/* keep */([])) )',
+		'new Set([] /* keep */,)',
+		'new Set( (( /* keep */ [] )) )',
+		'new Set(/* keep */ a ?? null)',
+		'new Set(a ?? null /* keep */)',
 	],
 });

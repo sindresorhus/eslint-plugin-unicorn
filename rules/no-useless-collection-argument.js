@@ -1,4 +1,5 @@
-import {isParenthesized, getParenthesizedRange} from './utils/index.js';
+import {getParenthesizedRange, hasCommentInRange, isParenthesized} from './utils/index.js';
+import {getArgumentRemovalRange, removeParentheses, removeArgument} from './fix/index.js';
 import {
 	isNewExpression,
 	isEmptyArrayExpression,
@@ -6,7 +7,6 @@ import {
 	isNullLiteral,
 	isUndefined,
 } from './ast/index.js';
-import {removeParentheses, removeArgument} from './fix/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -84,17 +84,12 @@ const create = context => {
 			return;
 		}
 
-		let fix;
-		let shouldUseSuggestion = false;
-		if (isCheckingFallback) {
-			fix = removeFallback(node, context);
-		} else {
-			if (context.sourceCode.getCommentsInside(node).length > 0) {
-				shouldUseSuggestion = true;
-			}
+		const fix = isCheckingFallback
+			? removeFallback(node, context)
+			: fixer => removeArgument(fixer, node, context);
 
-			fix = fixer => removeArgument(fixer, node, context);
-		}
+		// A fix could drop or move a comment inside the argument, so only suggest it
+		const shouldUseSuggestion = hasCommentInRange(context, getArgumentRemovalRange(iterable, context));
 
 		const problem = {
 			node,
