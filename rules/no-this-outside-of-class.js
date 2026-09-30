@@ -21,6 +21,16 @@ const isClassFieldValue = (node, child) =>
 	)
 	&& node.value === child;
 
+// `typeof this` and `typeof this.foo` are a `TSTypeQuery`, the `ThisExpression` is nested in the queried name, so the whole chain is a type position.
+const isInTypeQuery = node => {
+	let current = node;
+	while (current.parent.type === 'TSQualifiedName') {
+		current = current.parent;
+	}
+
+	return current.parent.type === 'TSTypeQuery';
+};
+
 /**
 @param {import('estree').ThisExpression} node
 */
@@ -37,11 +47,7 @@ const isAllowedThisBinding = node => {
 			return isClassMethodFunction(parent) || hasThisParameter(parent);
 		}
 
-		if (parent.type === 'StaticBlock') {
-			return true;
-		}
-
-		if (isClassFieldValue(parent, child)) {
+		if (parent.type === 'StaticBlock' || isClassFieldValue(parent, child)) {
 			return true;
 		}
 	}
@@ -54,6 +60,11 @@ const isAllowedThisBinding = node => {
 */
 const create = context => {
 	context.on('ThisExpression', node => {
+		// A type query has no `this` value at runtime
+		if (isInTypeQuery(node)) {
+			return;
+		}
+
 		if (isAllowedThisBinding(node)) {
 			return;
 		}

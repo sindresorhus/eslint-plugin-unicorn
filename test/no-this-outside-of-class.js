@@ -291,6 +291,25 @@ test.typescript({
 				return this.value;
 			};
 		`,
+
+		// `typeof this` is a type query, not a `this` expression
+		outdent`
+			class Foo {
+				declare value: typeof this;
+			}
+		`,
+		outdent`
+			class Foo {
+				[key: string]: typeof this;
+			}
+		`,
+		'function validator(value: typeof this) {}',
+		// A qualified type query nests the `ThisExpression` in the queried name
+		'type T = typeof this.b;',
+		'let a: typeof this.foo;',
+		'type T = typeof this[foo];',
+		'type T = typeof this.foo.bar;',
+		'type T = typeof foo<typeof this>;',
 	],
 	invalid: [
 		{
@@ -335,6 +354,19 @@ test.typescript({
 					return this.value;
 				}
 			`,
+			errors: 1,
+		},
+		// Only the runtime `this` is reported, not the one in the type query
+		{
+			code: outdent`
+				function validator(value: typeof this) {
+					return this.value;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: 'const value: typeof this = this;',
 			errors: 1,
 		},
 	],
