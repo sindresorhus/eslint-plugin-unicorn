@@ -4,6 +4,7 @@ import {
 	getIndentString,
 	getParenthesizedText,
 	hasOptionalChainElement,
+	isGlobalIdentifier,
 	isKnownNonDomNode,
 	isLeftHandSide,
 	isParenthesized,
@@ -23,10 +24,14 @@ import {
 } from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-dataset';
+const SUGGESTION_MESSAGE_ID = 'prefer-dataset/suggestion';
 const INVERSE_MESSAGE_ID = 'prefer-attributes';
+const INVERSE_SUGGESTION_MESSAGE_ID = 'prefer-attributes/suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.dataset` over `{{method}}(…)`.',
+	[SUGGESTION_MESSAGE_ID]: 'Switch to `.dataset`.',
 	[INVERSE_MESSAGE_ID]: 'Prefer `.{{method}}(…)` over `.dataset`.',
+	[INVERSE_SUGGESTION_MESSAGE_ID]: 'Switch to `getAttribute()`.',
 };
 
 const dashToCamelCase = string => string.replaceAll(/-[a-z]/g, s => s[1].toUpperCase());
@@ -365,11 +370,18 @@ const create = context => {
 			`const data = el.dataset` then `data.fooBar` — assigning `.dataset` to a variable hides attribute access from greppability, the point of this option.
 			*/
 			if (declarator.id.type === 'Identifier') {
+				const inlineFix = getDatasetVariableInlineFix(declarator, context);
 				return {
 					node: datasetNode,
 					messageId: INVERSE_MESSAGE_ID,
 					data: {method: 'getAttribute'},
-					fix: getDatasetVariableInlineFix(declarator, context),
+					// `element.dataset.foo` is `undefined` for a missing attribute, `getAttribute()` is `null`
+					...inlineFix && {
+						suggest: [{
+							messageId: INVERSE_SUGGESTION_MESSAGE_ID,
+							fix: inlineFix,
+						}],
+					},
 				};
 			}
 
@@ -383,15 +395,7 @@ const create = context => {
 					return false;
 				}
 
-				if (!property.computed && property.key.type === 'Identifier') {
-					return isUnsafeDatasetKey(property.key.name);
-				}
-
-				if (isStringLiteral(property.key)) {
-					return isUnsafeDatasetKey(property.key.value);
-				}
-
-				return true;
+				return !property.computed && property.key.type === 'Identifier' ? isUnsafeDatasetKey(property.key.name) : !isStringLiteral(property.key) || isUnsafeDatasetKey(property.key.value);
 			});
 			if (hasUnsafeKey) {
 				return;
@@ -402,9 +406,8 @@ const create = context => {
 			const chain = datasetNode.optional ? '?.' : '.';
 
 			/*
-			Only autofix when all properties are simple (no defaults, rest, computed) and object is a plain identifier (safe to repeat for multi-property).
+			Only suggest when all properties are simple (no defaults, rest, computed) and object is a plain identifier (safe to repeat for multi-property).
 			*/
-			let fix;
 			if (
 				properties.length > 0
 				&& declaration.declarations.length === 1
@@ -415,32 +418,37 @@ const create = context => {
 				&& (properties.length === 1 || datasetNode.object.type === 'Identifier')
 			) {
 				const indent = getIndentString(declaration, context);
+				// The pattern's type annotation describes the whole object, it cannot be carried over to a single destructured binding.
 				const declarations = properties.map(property => {
 					const attributeName = escapeString(camelCaseToDash(property.key.name), '\'');
 					return `${declaration.kind} ${property.value.name} = ${objectText}${chain}getAttribute(${attributeName})`;
 				});
 
-				fix = fixer => fixer.replaceText(
-					declaration,
-					`${declarations.join(`;${getLinebreak(context)}${indent}`)};`,
-				);
+				// `element.dataset.foo` is `undefined` for a missing attribute, `getAttribute()` is `null`
+				return {
+					node: declarator,
+					messageId: INVERSE_MESSAGE_ID,
+					data: {method: 'getAttribute'},
+					suggest: [{
+						messageId: INVERSE_SUGGESTION_MESSAGE_ID,
+						fix: fixer => fixer.replaceText(
+							declaration,
+							`${declarations.join(`;${getLinebreak(context)}${indent}`)};`,
+						),
+					}],
+				};
 			}
 
 			return {
 				node: datasetNode,
 				messageId: INVERSE_MESSAGE_ID,
 				data: {method: 'getAttribute'},
-				fix,
 			};
 		});
 
 		context.on('MemberExpression', memberExpression => {
 			const {object} = memberExpression;
-			if (!isDatasetAccess(object)) {
-				return;
-			}
-
-			if (isKnownNonDomNode(object.object, context)) {
+			if (!isDatasetAccess(object) || isKnownNonDomNode(object.object, context)) {
 				return;
 			}
 
@@ -520,7 +528,16 @@ const create = context => {
 				&& !isDelete
 				&& !wouldRemoveComments(context, memberExpression, [object.object])
 			) {
-				fix = fixer => fixer.replaceText(memberExpression, `${objectText}${chain}getAttribute(${attributeName})`);
+				// `element.dataset.foo` is `undefined` for a missing attribute, `getAttribute()` is `null`
+				return {
+					node: memberExpression,
+					messageId: INVERSE_MESSAGE_ID,
+					data: {method},
+					suggest: [{
+						messageId: INVERSE_SUGGESTION_MESSAGE_ID,
+						fix: fixer => fixer.replaceText(memberExpression, `${objectText}${chain}getAttribute(${attributeName})`),
+					}],
+				};
 			}
 
 			return {
@@ -560,7 +577,12 @@ const create = context => {
 			return;
 		}
 
-		if (isKnownNonDomNode(callExpression.callee.object, context)) {
+		const receiver = callExpression.callee.object;
+		if (
+			isKnownNonDomNode(receiver, context)
+			// `dataset` is only on `HTMLElement`/`SVGElement`/`MathMLElement`, never on `Document`
+			|| (receiver.type === 'Identifier' && receiver.name === 'document' && isGlobalIdentifier(receiver, context))
+		) {
 			return;
 		}
 
@@ -586,12 +608,31 @@ const create = context => {
 			return;
 		}
 
-		return {
+		const problem = {
 			node: callExpression,
 			messageId: MESSAGE_ID,
 			data: {method},
-			fix: getFix(callExpression, context),
 		};
+
+		const fix = getFix(callExpression, context);
+
+		/*
+		For a non-existent attribute, `element.getAttribute('data-foo')` returns `null`, but `element.dataset.foo` returns `undefined`, so this is only a suggestion.
+		*/
+		if (fix) {
+			if (method === 'getAttribute') {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION_MESSAGE_ID,
+						fix,
+					},
+				];
+			} else {
+				problem.fix = fix;
+			}
+		}
+
+		return problem;
 	});
 };
 
@@ -607,6 +648,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		defaultOptions: [{preferAttributes: false}],
 		messages,

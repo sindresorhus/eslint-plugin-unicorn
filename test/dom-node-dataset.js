@@ -104,7 +104,6 @@ test.snapshot({
 		'element.removeAttribute("data-ゆ");',
 		'element.removeAttribute("data-foo2");',
 		'element.removeAttribute("data-foo:bar");',
-		'element.removeAttribute("data-foo:bar");',
 		'element.removeAttribute("data-foo.bar");',
 		'element.removeAttribute("data-foo-bar");',
 		'element.removeAttribute("data-foo");',
@@ -159,7 +158,6 @@ test.snapshot({
 		'element.hasAttribute("data-ゆ");',
 		'element.hasAttribute("data-foo2");',
 		'element.hasAttribute("data-foo:bar");',
-		'element.hasAttribute("data-foo:bar");',
 		'element.hasAttribute("data-foo.bar");',
 		'element.hasAttribute("data-foo-bar");',
 		'element.hasAttribute("data-foo");',
@@ -211,7 +209,6 @@ test.snapshot({
 		'element.getAttribute("data-🦄");',
 		'element.getAttribute("data-ゆ");',
 		'element.getAttribute("data-foo2");',
-		'element.getAttribute("data-foo:bar");',
 		'element.getAttribute("data-foo:bar");',
 		'element.getAttribute("data-foo.bar");',
 		'element.getAttribute("data-foo-bar");',
@@ -395,8 +392,77 @@ test({
 		{
 			code: 'function run() {\r\n\tconst {foo, bar} = element.dataset;\r\n\tuse(foo, bar);\r\n}\r\n',
 			options: [{preferAttributes: true}],
-			output: 'function run() {\r\n\tconst foo = element.getAttribute(\'data-foo\');\r\n\tconst bar = element.getAttribute(\'data-bar\');\r\n\tuse(foo, bar);\r\n}\r\n',
+			errors: [{
+				messageId: 'prefer-attributes',
+				suggestions: [{
+					messageId: 'prefer-attributes/suggestion',
+					output: 'function run() {\r\n\tconst foo = element.getAttribute(\'data-foo\');\r\n\tconst bar = element.getAttribute(\'data-bar\');\r\n\tuse(foo, bar);\r\n}\r\n',
+				}],
+			}],
+		},
+	],
+});
+
+// `dataset` is only on `HTMLElement`/`SVGElement`/`MathMLElement`, never on `Document`
+test({
+	valid: [
+		'document.getAttribute("data-foo");',
+		'document.setAttribute("data-foo", "x");',
+		'document.removeAttribute("data-foo");',
+		'document.hasAttribute("data-foo");',
+	],
+	invalid: [
+		{
+			code: 'element.getAttribute("data-foo");',
+			errors: [
+				{
+					messageId: 'prefer-dataset',
+					suggestions: [
+						{
+							messageId: 'prefer-dataset/suggestion',
+							output: 'element.dataset.foo;',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'element.setAttribute("data-foo", "x");',
+			output: 'element.dataset.foo = "x";',
 			errors: 1,
 		},
+	],
+});
+
+// `const {fooBar}: Props = element.dataset` declares a type for the whole pattern
+const withTypeScript = testCase => ({...testCase, languageOptions: {parser: parsers.typescript}});
+
+test({
+	valid: [],
+	invalid: [
+		// `element.dataset.foo` is `undefined` for a missing attribute, `getAttribute()` is `null`
+		...[
+			'const {fooBar}: Record<string, string> = el.dataset;',
+			'let {fooBar}: Props = el.dataset;',
+		].map(code => withTypeScript({
+			code,
+			options: [{preferAttributes: true}],
+			errors: 1,
+		})),
+		// The pattern's type annotation describes the whole object, it does not apply to a single destructured binding, so it must not be copied over
+		...[
+			['const {fooBar}: Props = el.dataset;', 'const fooBar = el.getAttribute(\'data-foo-bar\');'],
+			[
+				'const {fooBar, baz}: Props = el.dataset;',
+				'const fooBar = el.getAttribute(\'data-foo-bar\');\nconst baz = el.getAttribute(\'data-baz\');',
+			],
+		].map(([code, suggestionOutput]) => withTypeScript({
+			code,
+			options: [{preferAttributes: true}],
+			errors: [{
+				messageId: 'prefer-attributes',
+				suggestions: [{messageId: 'prefer-attributes/suggestion', output: suggestionOutput}],
+			}],
+		})),
 	],
 });
