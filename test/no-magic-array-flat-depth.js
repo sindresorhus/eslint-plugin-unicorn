@@ -23,6 +23,11 @@ test.snapshot({
 		'array.flat?.(2)',
 		'array.notFlat(2)',
 		'flat(2)',
+		'array.flat(+1)',
+		{
+			code: 'array.flat(1 as number)',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'array.flat(2)',
@@ -32,6 +37,15 @@ test.snapshot({
 		// A receiver that is known to be an array must still be reported
 		{
 			code: 'function f(foo: number[][]) { foo.flat(2); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A negated depth is still a magic number
+		'array.flat(-2)',
+		'array.flat(+2)',
+		'array.flat(-1.5)',
+		'array.flat(-1)',
+		{
+			code: 'array.flat(-2 as number)',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

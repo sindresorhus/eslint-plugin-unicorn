@@ -1,5 +1,5 @@
-import {isMethodCall, isNumericLiteral} from './ast/index.js';
-import {getCallExpressionTokens, shouldSkipKnownNonArrayReceiver} from './utils/index.js';
+import {isMethodCall} from './ast/index.js';
+import {getCallExpressionTokens, getStaticNumberValue, shouldSkipKnownNonArrayReceiver} from './utils/index.js';
 
 const MESSAGE_ID = 'no-magic-array-flat-depth';
 const messages = {
@@ -21,7 +21,10 @@ const create = context => {
 
 		const [depth] = callExpression.arguments;
 
-		if (!isNumericLiteral(depth) || depth.value === 1) {
+		// `getStaticNumberValue()` also unwraps a `-2`/`+2` unary expression and TypeScript wrappers
+		const depthValue = getStaticNumberValue(depth);
+
+		if (typeof depthValue !== 'number' || depthValue === 1) {
 			return;
 		}
 
