@@ -47,5 +47,11 @@ test.snapshot({
 			foo
 			(( new (( Response ))(JSON.stringify(data)) ))
 		`,
+		// A comment in the removed part of `JSON.stringify()` is preserved by not fixing
+		'new Response(JSON.stringify(/* keep */ foo));',
+		'new Response(JSON.stringify(foo /* keep */));',
+		'new Response( ( /* keep */ ( JSON.stringify( (( 0, foo )), ) ) ) );',
+		// A comment inside the data argument is kept
+		'new Response(JSON.stringify({a: 1 /* keep */}));',
 	],
 });

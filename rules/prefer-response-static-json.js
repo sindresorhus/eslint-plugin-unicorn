@@ -7,6 +7,7 @@ import {
 } from './fix/index.js';
 import {
 	getParenthesizedRange,
+	hasCommentInRange,
 	isParenthesized,
 	needsSemicolon,
 } from './utils/index.js';
@@ -36,37 +37,48 @@ const create = context => {
 			return;
 		}
 
-		return {
+		const [dataNode] = jsonStringifyNode.arguments;
+		const callExpressionRange = getParenthesizedRange(jsonStringifyNode, context);
+		const dataNodeRange = getParenthesizedRange(dataNode, context);
+		// `(( JSON.stringify( (( data )), ) ))`
+		//  ^^^^^^^^^^^^^^^^^^^
+		const removedRangeBefore = [callExpressionRange[0], dataNodeRange[0]];
+		// `(( JSON.stringify( (( data )), ) ))`
+		//                               ^^^^^^
+		const removedRangeAfter = [dataNodeRange[1], callExpressionRange[1]];
+
+		const problem = {
 			node: jsonStringifyNode.callee,
 			messageId: MESSAGE_ID,
-			/**
-			@param {import('eslint').Rule.RuleFixer} fixer
-			*/
-			* fix(fixer) {
-				yield fixer.insertTextAfter(newExpression.callee, '.json');
-				yield switchNewExpressionToCallExpression(newExpression, context, fixer);
-
-				const [dataNode] = jsonStringifyNode.arguments;
-				const callExpressionRange = getParenthesizedRange(jsonStringifyNode, context);
-				const dataNodeRange = getParenthesizedRange(dataNode, context);
-				// `(( JSON.stringify( (( data )), ) ))`
-				//  ^^^^^^^^^^^^^^^^^^^
-				yield fixer.removeRange([callExpressionRange[0], dataNodeRange[0]]);
-				// `(( JSON.stringify( (( data )), ) ))`
-				//                               ^^^^^^
-				yield fixer.removeRange([dataNodeRange[1], callExpressionRange[1]]);
-
-				if (
-					!isParenthesized(newExpression, context)
-					&& isParenthesized(newExpression.callee, context)
-				) {
-					const tokenBefore = context.sourceCode.getTokenBefore(newExpression);
-					if (needsSemicolon(tokenBefore, context, '(')) {
-						yield fixer.insertTextBefore(newExpression, ';');
-					}
-				}
-			},
 		};
+
+		// A comment in the removed part of the `JSON.stringify()` call would be dropped
+		if (
+			hasCommentInRange(context, removedRangeBefore)
+			|| hasCommentInRange(context, removedRangeAfter)
+		) {
+			return problem;
+		}
+
+		/**
+		@param {import('eslint').Rule.RuleFixer} fixer
+		*/
+		problem.fix = function * (fixer) {
+			yield fixer.insertTextAfter(newExpression.callee, '.json');
+			yield switchNewExpressionToCallExpression(newExpression, context, fixer);
+			yield fixer.removeRange(removedRangeBefore);
+			yield fixer.removeRange(removedRangeAfter);
+
+			if (
+				!isParenthesized(newExpression, context)
+				&& isParenthesized(newExpression.callee, context)
+				&& needsSemicolon(context.sourceCode.getTokenBefore(newExpression), context, '(')
+			) {
+				yield fixer.insertTextBefore(newExpression, ';');
+			}
+		};
+
+		return problem;
 	});
 };
 
