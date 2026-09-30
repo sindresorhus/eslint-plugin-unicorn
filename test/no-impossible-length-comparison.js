@@ -16,6 +16,12 @@ const sizeAlwaysTrueError = createError('size', 'true');
 
 test({
 	valid: [
+		// A getter or setter in the object literal is an accessor, not a fixed value
+		'const object = {get length() { return -1; }};\nif (object.length < 0) {}',
+		'const object = {get size() { return -1; }};\nif (object.size < 0) {}',
+		'const object = {set length(value) {}};\nif (object.length < 0) {}',
+		'const object = {get length() { return 1; }};\nif (object.length < 0) {}',
+		'const object = {get [\'length\']() { return -1; }};\nif (object.length < 0) {}',
 		'if (array.length === 0) {}',
 		'if (array.length <= 0) {}',
 		'if (array.length > 0) {}',
