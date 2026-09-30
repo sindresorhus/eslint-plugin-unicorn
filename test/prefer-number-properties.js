@@ -511,6 +511,10 @@ test.snapshot({
 
 		'(parseFloat)("10.5");',
 		{code: 'parseFloat(foo as string);', languageOptions: {parser: parsers.typescript}},
+		// The whole unary expression is replaced, so a comment between `-` and `Infinity` is lost
+		withCheckInfinity('const foo = -/* keep */Infinity;'),
+		withCheckInfinity('const foo = - /* keep */ Infinity;'),
+		withCheckInfinity('const foo = +/* keep */Infinity;'),
 	],
 });
 

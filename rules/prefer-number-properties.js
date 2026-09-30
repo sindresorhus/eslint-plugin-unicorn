@@ -61,23 +61,16 @@ function isBase10OrNoRadixParseIntCall(node, context) {
 // `isNaN`/`isFinite` differ from `Number.isNaN`/`Number.isFinite` only because they coerce their argument to a number first; when the single argument is already a number, the rewrite is safe to auto-fix
 const isCallWithNumberArgument = (node, context) => {
 	const {parent} = node;
-	if (parent.type !== 'CallExpression' || parent.callee !== node) {
-		return false;
-	}
-
-	if (parent.arguments.length !== 1) {
+	if (parent.type !== 'CallExpression' || parent.callee !== node || parent.arguments.length !== 1) {
 		return false;
 	}
 
 	const [firstArgument] = parent.arguments;
-	if (firstArgument.type === 'SpreadElement') {
-		return false;
-	}
-
-	return isNumber(firstArgument, context);
+	return firstArgument.type !== 'SpreadElement' && isNumber(firstArgument, context);
 };
 
 function getPropertyProblem(reference, context) {
+	const {sourceCode} = context;
 	const {node, path} = reference;
 	const [name] = path;
 	const {parent} = node;
@@ -99,10 +92,13 @@ function getPropertyProblem(reference, context) {
 	if (property === 'NEGATIVE_INFINITY') {
 		problem.node = parent;
 		problem.data.description = '-Infinity';
-		problem.fix = function * (fixer) {
-			yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
-			yield fixSpaceAroundKeyword(fixer, parent, context);
-		};
+		// The whole unary expression is replaced, so a comment between `-` and `Infinity` is lost
+		if (sourceCode.getCommentsInside(parent).length === 0) {
+			problem.fix = function * (fixer) {
+				yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
+				yield fixSpaceAroundKeyword(fixer, parent, context);
+			};
+		}
 
 		return problem;
 	}
@@ -133,13 +129,7 @@ const create = context => {
 		checkNaN,
 	} = context.options[0];
 
-	const objects = Object.keys(globalObjects).filter(name => {
-		if (!checkInfinity && name === 'Infinity') {
-			return false;
-		}
-
-		return checkNaN || name !== 'NaN';
-	});
+	const objects = Object.keys(globalObjects).filter(name => (checkInfinity || name !== 'Infinity') && (checkNaN || name !== 'NaN'));
 
 	const tracker = new GlobalReferenceTracker({
 		objects,
