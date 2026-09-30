@@ -479,5 +479,13 @@ test.snapshot({
 			code: 'const yes = true; const no = false; with (object) { yes ? yes : no; }',
 			languageOptions: {sourceType: 'script'},
 		},
+		// The suggestion keeps the optional chain, the branch spelling is the unsafe one
+		'foo?.bar == null ? undefined : foo.bar',
+		'foo?.bar != null ? foo.bar : undefined',
+		'null == foo?.bar ? undefined : foo.bar',
+		'undefined != foo?.bar ? foo.bar : undefined',
+		'foo?.bar.c == null ? undefined : foo.bar.c',
+		'f(foo?.bar == null ? undefined : foo.bar)',
+		'foo?.bar == null ? null : foo.bar',
 	],
 });

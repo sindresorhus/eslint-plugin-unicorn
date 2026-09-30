@@ -452,6 +452,7 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 
 	const {reference} = nullishTest;
 
+	// The test and the branch can spell the same reference differently, for example `b?.c == null ? undefined : b.c`. The test's spelling is the safe one to keep.
 	if (
 		nullishTest.isTrueWhenNullish
 		&& isSameNode(reference, alternate, context.sourceCode)
@@ -459,7 +460,7 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 		return getProblem({
 			context,
 			conditionalExpression,
-			left: alternate,
+			left: reference,
 			right: consequent,
 			operators: ['??'],
 		});
@@ -472,7 +473,7 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 		return getProblem({
 			context,
 			conditionalExpression,
-			left: consequent,
+			left: reference,
 			right: alternate,
 			operators: ['??'],
 		});
