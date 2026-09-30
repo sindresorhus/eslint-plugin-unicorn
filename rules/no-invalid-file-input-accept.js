@@ -1,7 +1,7 @@
 import {MIMEType} from 'node:util';
 import {isStringLiteral} from './ast/index.js';
 import {replaceStringRaw} from './fix/index.js';
-import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import {getStaticValueIfNoSideEffects, isHtmlRcdataNode} from './utils/index.js';
 
 const MESSAGE_ID_INVALID = 'no-invalid-file-input-accept/invalid';
 const MESSAGE_ID_STATIC = 'no-invalid-file-input-accept/static';
@@ -287,6 +287,11 @@ const readHtmlAttributeValue = (source, index, end) => {
 };
 
 const getHtmlOpeningTagAttribute = (context, node, name) => {
+	// An opening tag that is never terminated has no `openEnd`
+	if (!node.openEnd) {
+		return;
+	}
+
 	const source = context.sourceCode.text;
 	const start = context.sourceCode.getRange(node.openStart)[1];
 	const end = context.sourceCode.getRange(node.openEnd)[1];
@@ -441,7 +446,7 @@ const create = context => {
 	});
 
 	context.on('Tag', node => {
-		if (node.name.toLowerCase() !== 'input') {
+		if (node.name.toLowerCase() !== 'input' || isHtmlRcdataNode(node)) {
 			return;
 		}
 

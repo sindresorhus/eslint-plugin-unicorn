@@ -132,6 +132,12 @@ html.snapshot({
 		'<input type="FILE" accept="image/png">',
 		'<input accept="image/png">',
 		'<input type="text" accept="image/png">',
+		// An opening tag that is never terminated has no `openEnd`
+		'<input type="file" accept="image/jpg"',
+		'<input type="file"',
+		// `textarea` and `title` content is text, not markup
+		'<textarea>Pick an image: <input type="file" accept="image/jpg"></textarea>',
+		'<title><input type="file" accept="image/jpg"></title>',
 		// `@html-eslint/parser` splits unquoted MIME values at `/`; these cover reconstruction for checking.
 		'<input type=file accept=image/png>',
 		'<input type=file accept=image/png >',
