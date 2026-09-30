@@ -145,15 +145,17 @@ const getRegexProblem = ({pattern, flags}) => {
 		}
 	}
 
-	if (pattern.endsWith('$')) {
-		const string = pattern.slice(0, -1);
+	if (!pattern.endsWith('$')) {
+		return;
+	}
 
-		if (isSimpleString(string)) {
-			return {
-				messageId: MESSAGE_ENDS_WITH,
-				string,
-			};
-		}
+	const string = pattern.slice(0, -1);
+
+	if (isSimpleString(string)) {
+		return {
+			messageId: MESSAGE_ENDS_WITH,
+			string,
+		};
 	}
 };
 
@@ -279,11 +281,18 @@ const create = context => {
 		}
 
 		if (!isTargetString) {
+			// An optional chain cannot be the tag of a tagged template
+			const isTemplateTag = node.parent.type === 'TaggedTemplateExpression'
+				&& node.parent.tag === node
+				&& !isParenthesized(node, context);
+
 			problem.suggest = [
 				FIX_TYPE_STRING_CASTING,
-				FIX_TYPE_OPTIONAL_CHAINING,
+				isTemplateTag ? undefined : FIX_TYPE_OPTIONAL_CHAINING,
 				FIX_TYPE_NULLISH_COALESCING,
-			].map(type => ({messageId: type, data: {method}, fix: fixer => fix(fixer, type)}));
+			]
+				.filter(Boolean)
+				.map(type => ({messageId: type, data: {method}, fix: fixer => fix(fixer, type)}));
 		}
 
 		return problem;
@@ -333,11 +342,7 @@ const create = context => {
 			node,
 			messageId: MESSAGE_INDEX_OF_STARTS_WITH,
 			* fix(fixer, {abort}) {
-				if (!isString(searchArgument, context)) {
-					return abort();
-				}
-
-				if (sourceCode.getCommentsInside(node).length > 0) {
+				if (!isString(searchArgument, context) || sourceCode.getCommentsInside(node).length > 0) {
 					return abort();
 				}
 

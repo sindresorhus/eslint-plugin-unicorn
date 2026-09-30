@@ -650,5 +650,14 @@ test.snapshot({
 				/* 14 */
 			) /* 15 */
 		`,
+		// The call is the tag of a template on the next line, an optional chain cannot be a tag, so there is no optional-chaining suggestion
+		'/^a/.test(foo)\n`tpl`',
+		'bar(/^a/.test(foo)`tpl`)',
+		// eslint-disable-next-line no-template-curly-in-string
+		'`${/^a/.test(foo)`tpl`}`',
+		// A parenthesized optional chain can be a tag
+		'(/^a/.test(foo))\n`tpl`',
+		// eslint-disable-next-line no-template-curly-in-string
+		'`${/^a/.test((foo))}`',
 	],
 });
