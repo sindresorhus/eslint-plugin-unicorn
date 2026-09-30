@@ -1,4 +1,5 @@
 import {getStaticStringValue} from './ast/index.js';
+import {replaceReferenceIdentifier} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const messages = {
@@ -114,11 +115,7 @@ Check if the node is a window-specific API.
 @returns {boolean}
 */
 const isWindowSpecificApi = node => {
-	if (node.type !== 'MemberExpression') {
-		return false;
-	}
-
-	if (node.object.name !== 'window' || node.property.type !== 'Identifier') {
+	if (node.type !== 'MemberExpression' || node.object.name !== 'window' || node.property.type !== 'Identifier') {
 		return false;
 	}
 
@@ -179,11 +176,7 @@ function isKnownSpecificApiExistenceCheck(identifier) {
 	}
 
 	const propertyName = getStaticPropertyName(parent.left);
-	if (typeof propertyName !== 'string') {
-		return false;
-	}
-
-	return windowSpecificApis.has(propertyName);
+	return typeof propertyName === 'string' && windowSpecificApis.has(propertyName);
 }
 
 /**
@@ -200,7 +193,10 @@ const create = context => {
 			...scope.through.filter(reference => globalIdentifier.has(reference.identifier.name)),
 		];
 
-		for (const {identifier} of references) {
+		// A destructuring default (`({window = 1} = foo)`) creates two references for the same identifier
+		const identifiers = new Set(references.map(reference => reference.identifier));
+
+		for (const identifier of identifiers) {
 			if (
 				// `typeof window`, `typeof self`, and `typeof global` are portable as-is; leave them untouched.
 				isTypeofOperand(identifier)
@@ -217,7 +213,7 @@ const create = context => {
 				node: identifier,
 				messageId: MESSAGE_ID_ERROR,
 				data: {replacement: 'globalThis', value: identifier.name},
-				fix: fixer => fixer.replaceText(identifier, 'globalThis'),
+				fix: fixer => replaceReferenceIdentifier(identifier, 'globalThis', context, fixer),
 			};
 		}
 	});

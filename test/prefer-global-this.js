@@ -211,6 +211,13 @@ test.snapshot({
 		'global[foo]',
 		// The type query is left as-is, but the value reference is still fixed
 		{code: 'const foo: typeof window = window;', languageOptions: {parser: parsers.typescript}},
+		// A shorthand property is both a value reference and a key, so only the value is replaced
+		'const foo = {window};',
+		'const foo = {window, self};',
+		'foo({window});',
+		'const foo = {[window]: 1};',
+		'({window} = foo);',
+		'({window = 1} = foo);',
 	],
 });
 
