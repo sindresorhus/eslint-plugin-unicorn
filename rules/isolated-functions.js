@@ -371,6 +371,9 @@ const schema = [
 				uniqueItems: true,
 				items: {
 					type: 'string',
+					// An empty or blank selector does not reach ESLint's own selector check, it registers a listener on `undefined` and crashes the whole run
+					minLength: 1,
+					pattern: /\S/.source,
 				},
 				description: 'AST selectors that mark a scope as isolated.',
 			},
