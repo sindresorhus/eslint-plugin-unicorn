@@ -120,3 +120,13 @@ test.snapshot({
 		},
 	],
 });
+
+// A tagged template uses the call's return value, `new` produces the constructed instance
+test({
+	valid: [
+		'const a = MyError(\'x\')`y`;',
+		'const a = new MyError(\'x\')`y`;',
+		'throw MyError(\'x\')`y`;',
+	],
+	invalid: [],
+});
