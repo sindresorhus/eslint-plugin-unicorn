@@ -225,7 +225,6 @@ test.snapshot({
 		'array.some(v => v)',
 		'array.findIndex(v => v)',
 		'array.findLastIndex(v => v)',
-		'array.some(v => v)',
 		outdent`
 			array.some(v => {
 				return v;
@@ -244,5 +243,56 @@ test.snapshot({
 			code: 'array.filter((value): boolean => value)',
 			languageOptions: {parser: parsers.typescript},
 		},
+	],
+});
+
+// A TypeScript expression wrapper around the value must not hide the pattern
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [],
+	invalid: [
+		'const toString = (value: unknown) => String(value) as string;',
+		'const toString = (value: unknown) => String(value) satisfies string;',
+		'const toString = (value: unknown) => String(value)!;',
+		'array.some(value => value!);',
+		'array.some((value: boolean) => value satisfies boolean);',
+		'const toString = (value: unknown) => {\n\treturn String(value) as string;\n};',
+		'array.some(function (value) {\n\treturn value!;\n});',
+	],
+});
+
+// The replacement ends with a bare identifier, so a following `(`, `[`, `+`, `-`, regular expression, or template that ASI separated from the function would be absorbed into it
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const foo = v => {\n\treturn String(v);\n}\n/^a/.test(s) && log(1);',
+		'const foo = v => String(v);\n/^a/.test(s);',
+		'const foo = v => String(v);\n[1, 2].forEach(log);',
+		'foo = v => {\n\treturn String(v);\n}\n(bar);',
+		'foo = v => {\n\treturn String(v);\n}\n[bar] = baz;',
+		'foo = v => {\n\treturn String(v);\n}\n`bar`;',
+		'foo = v => {\n\treturn String(v);\n}\n-bar;',
+		'class A {\n\tfoo = v => {\n\t\treturn String(v);\n\t}\n\t[bar] = 1;\n}',
+		// Nothing follows that could continue it
+		'const foo = v => String(v);\nlog(1);',
+		// The method is only a suggestion
+		'class A { m(v) { return String(v); } }\nlog(1);',
+		// A `:` cannot follow an expression, so it is not absorbed and needs no separator
+		'q ? function f(v) { return String(v); } : 0',
+		// A property value and a template substitution are operands, not statements
+		'const o = {k: function (v) { return String(v); }};',
+		// eslint-disable-next-line no-template-curly-in-string
+		'`${v => { return String(v); }}`',
+		// The next token belongs to the same expression, so it keeps its meaning without a separator
+		'foo = function (v) { return String(v); }(bar);',
+		'foo = function (v) { return String(v); }\n(bar);',
+		'foo = function (v) { return String(v); } + bar;',
+		'foo = function (v) { return String(v); }[bar];',
+		'foo = function (v) { return String(v); }`bar`;',
+		'foo = (v => { return String(v); })\n(bar);',
 	],
 });
