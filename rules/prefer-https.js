@@ -1,5 +1,5 @@
 import {isRegExp} from 'node:util/types';
-import {onRoot} from './utils/index.js';
+import {matchesAnyRegExp, onRoot} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-https';
 const messages = {
@@ -70,6 +70,18 @@ function getHostname(authority) {
 	} catch {}
 }
 
+// Reserved suffixes that never resolve on the public internet, like `localhost`. The hostname from `URL` is already lowercase.
+const nonPublicSuffixes = new Set([
+	'example',
+	'internal',
+	'invalid',
+	'local',
+	'localdomain',
+	'localhost',
+	'onion',
+	'test',
+]);
+
 function hasPublicTld(hostname) {
 	let hostnameEnd = hostname.length;
 	while (hostname[hostnameEnd - 1] === '.') {
@@ -79,7 +91,9 @@ function hasPublicTld(hostname) {
 	const lastDotIndex = hostname.lastIndexOf('.', hostnameEnd - 1);
 	const tld = hostname.slice(lastDotIndex + 1, hostnameEnd);
 
-	return lastDotIndex !== -1 && /[a-z]/iu.test(tld);
+	return lastDotIndex !== -1
+		&& /[a-z]/iu.test(tld)
+		&& !nonPublicSuffixes.has(tld);
 }
 
 function shouldReport(authority) {
@@ -94,16 +108,6 @@ function isXmlNamespaceValue(text, matchIndex) {
 	// The negative lookbehind prevents matching names ending in "xmlns" (e.g. notxmlns, $xmlns, or data-xmlns).
 	// [\w.-]+ covers XML NCNames, which allow hyphens and dots (e.g. xmlns:xsl-fo).
 	return /(?<![\w#$\-.:])xmlns(?::[\w\-.]+)?\s*=\s*["']?$/i.test(preceding);
-}
-
-function isIgnoredByPattern(url, patterns) {
-	return patterns.some(regexp => {
-		regexp.lastIndex = 0;
-		const isMatch = regexp.test(url);
-		regexp.lastIndex = 0;
-
-		return isMatch;
-	});
 }
 
 /**
@@ -149,15 +153,12 @@ const create = context => {
 
 			if (
 				IGNORED_IDENTIFIER_URIS.has(url)
-				|| isIgnoredByPattern(url, IGNORED_URI_PATTERNS)
+				|| matchesAnyRegExp(url, IGNORED_URI_PATTERNS)
 				|| ignoredUrls.has(url)
-				|| isIgnoredByPattern(url, ignoredUrlPatterns)
+				|| matchesAnyRegExp(url, ignoredUrlPatterns)
 				|| isXmlNamespaceValue(text, start)
+				|| !shouldReport(match.groups.authority)
 			) {
-				continue;
-			}
-
-			if (!shouldReport(match.groups.authority)) {
 				continue;
 			}
 

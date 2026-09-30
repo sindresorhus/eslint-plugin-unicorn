@@ -13,7 +13,7 @@ Using HTTPS avoids sending URLs to public resources over an insecure protocol.
 
 This rule checks source text, including strings, template literals, JSX, comments, and non-JavaScript files when they are linted with ESLint language plugins such as [`@eslint/css`](https://github.com/eslint/css), [`@eslint/json`](https://github.com/eslint/json), [`@eslint/markdown`](https://github.com/eslint/markdown), and [`html-eslint`](https://html-eslint.org).
 
-URLs without a public-looking top-level domain are ignored. For example, `http://localhost`, `http://example`, and `http://127.0.0.1` are allowed.
+URLs without a public-looking top-level domain are ignored. For example, `http://localhost`, `http://example`, and `http://127.0.0.1` are allowed. Reserved non-public top-level domains are ignored too: `.example`, `.internal`, `.invalid`, `.local`, `.localdomain`, `.localhost`, `.onion`, and `.test`.
 
 Some well-known XML identifiers are also ignored because rewriting them to `https:` would change their meaning.
 

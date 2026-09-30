@@ -118,10 +118,21 @@ ruleTest.snapshot({
 		},
 	},
 	valid: [
-		'const url = "https://sindresorhus.com";',
-		'const url = "https://example.com/http://sindresorhus.com";',
 		'const url = "HTTP://sindresorhus.com";',
 		'const url = "HTTP://example.com/http://sindresorhus.com";',
+		// Reserved suffixes never resolve on the public internet
+		'const url = "http://myapp.local/api";',
+		'const url = "http://server.test";',
+		'const url = "http://api.internal";',
+		'const url = "http://foo.invalid";',
+		'const url = "http://foo.example";',
+		'const url = "http://app.localhost:3000";',
+		'const url = "http://nas.localdomain";',
+		'const url = "http://duckduckgo.onion";',
+		'const url = "http://SERVER.TEST";',
+		'const url = "http://server.test.";',
+		'const url = "https://sindresorhus.com";',
+		'const url = "https://example.com/http://sindresorhus.com";',
 		'const url = "http://localhost";',
 		'const url = "http://example";',
 		'const url = "http://127.0.0.1";',
@@ -234,6 +245,9 @@ ruleTest.snapshot({
 		'const uri = "http://purl.org/dc/terms/title?format=xml";',
 		'const uri = "http://purl.org/dc/terms/title.";',
 		'const uri = "http://schemas.android.com/apk/res/android.";',
+		// A reserved suffix only counts as the last label
+		'const url = "http://test.com";',
+		'const url = "http://local.example.com";',
 	],
 });
 
