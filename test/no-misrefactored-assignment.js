@@ -19,7 +19,6 @@ test.snapshot({
 		// Not a compound assignment we handle
 		'a = a + b;',
 		'a += a;',
-		'a += b;',
 
 		// Logical assignment operators are intentionally excluded
 		'a &&= a && b;',
@@ -126,5 +125,12 @@ test.snapshot({
 			code: 'a += (<number>a) + b;',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// The kept operand must keep its parentheses, otherwise the replacement regroups the expression
+		'a += a + (b, c);',
+		'a += a + (b ? c : d);',
+		'a += (b ? c : d) + a;',
+		// The whole right-hand side is the assignment operand, so parentheses of a tighter operand are not needed
+		'a *= a * (b + c);',
 	],
 });

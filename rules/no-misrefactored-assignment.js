@@ -1,4 +1,9 @@
-import {isSameReference} from './utils/index.js';
+import {
+	getParenthesizedText,
+	getPrecedence,
+	isSameReference,
+	PRECEDENCE_ADDITION,
+} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -31,6 +36,14 @@ const compoundOperators = new Set([
 	'>>=',
 	'>>>=',
 ]);
+
+/*
+The kept operand replaces the whole `a + b` right-hand side, so it needs its own parentheses to keep its grouping. Parentheses are not part of the node range, so they have to be added back.
+*/
+const getKeptOperandText = (keptOperand, context) =>
+	getPrecedence(keptOperand) < PRECEDENCE_ADDITION
+		? getParenthesizedText(keptOperand, context)
+		: context.sourceCode.getText(keptOperand);
 
 /**
 @param {ESLint.Rule.RuleContext} context
@@ -77,7 +90,7 @@ const create = context => {
 					/**
 					@param {ESLint.Rule.RuleFixer} fixer
 					*/
-					fix: fixer => fixer.replaceText(right, sourceCode.getText(keptOperand)),
+					fix: fixer => fixer.replaceText(right, getKeptOperandText(keptOperand, context)),
 				},
 			];
 		}
