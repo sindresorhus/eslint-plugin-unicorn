@@ -29,6 +29,11 @@ test.snapshot({
 		'1.4143',
 		// TypeScript literal type, where `Math.PI` is not a valid substitution
 		{code: 'type Tau = 3.14;', languageOptions: {parser: parsers.typescript}},
+		// A negative literal type is `-3.14`, so the literal is wrapped in a `UnaryExpression`
+		{code: 'type Tau = -3.14;', languageOptions: {parser: parsers.typescript}},
+		{code: 'let value: -3.14;', languageOptions: {parser: parsers.typescript}},
+		{code: 'const value = foo as -3.14;', languageOptions: {parser: parsers.typescript}},
+		{code: 'function f(value: -3.14) {}', languageOptions: {parser: parsers.typescript}},
 		{code: 'const x = y as 3.14;', languageOptions: {parser: parsers.typescript}},
 		// Not plain decimals
 		'3',
@@ -95,5 +100,7 @@ test.snapshot({
 		// TypeScript
 		{code: 'const x = 3.14 as number;', languageOptions: {parser: parsers.typescript}},
 		{code: 'const x = <number>3.14;', languageOptions: {parser: parsers.typescript}},
+		// A negative value is still a runtime expression outside a literal type
+		{code: 'const value = -3.14 as number;', languageOptions: {parser: parsers.typescript}},
 	],
 });

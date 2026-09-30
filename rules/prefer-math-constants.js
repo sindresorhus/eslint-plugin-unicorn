@@ -32,7 +32,14 @@ Check if the literal is in a position where a `Math.*` member expression cannot 
 const isNonReplaceable = node => {
 	const {parent} = node;
 	return (parent.key === node && !parent.computed)
-		|| (parent.type === 'TSLiteralType' && parent.literal === node);
+		|| (parent.type === 'TSLiteralType' && parent.literal === node)
+		// A negative literal type is `-3.14`, so the literal sits inside a `UnaryExpression`
+		|| (
+			parent.type === 'UnaryExpression'
+			&& parent.operator === '-'
+			&& parent.parent.type === 'TSLiteralType'
+			&& parent.parent.literal === parent
+		);
 };
 
 /**
