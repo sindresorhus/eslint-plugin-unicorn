@@ -12,6 +12,7 @@ import {
 	isCallExpressionValueDiscardedWithVoid,
 	isParenthesized,
 	isPromiseType,
+	isTypeScriptFile,
 	reindentText,
 	shouldAddParenthesesToAwaitExpressionArgument,
 	unwrapTypeScriptExpression,
@@ -124,7 +125,11 @@ function containsNodeMatching(node, visitorKeys, predicate) {
 }
 
 function containsNonModuleAwaitIdentifier(node, context) {
-	return context.sourceCode.ast.sourceType !== 'module'
+	// `await` can only be an ordinary identifier outside a JavaScript module, or anywhere the TypeScript parser is used, because there it is not a reserved word.
+	const canBeIdentifier = context.sourceCode.ast.sourceType !== 'module'
+		|| isTypeScriptFile(context.filename);
+
+	return canBeIdentifier
 		&& containsNodeMatching(node, context.sourceCode.visitorKeys, node => node.type === 'Identifier' && node.name === 'await');
 }
 

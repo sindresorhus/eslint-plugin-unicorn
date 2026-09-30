@@ -328,3 +328,39 @@ test({
 		},
 	],
 });
+
+// `await` is a reserved word in a JavaScript module, so the rule skipped a callback that mentions one. The TypeScript parser accepts it as an ordinary identifier anywhere, so the wrapper it builds came out as `return await;` inside an async function, which neither the TypeScript parser nor `tsc` accepts.
+test({
+	valid: [],
+	invalid: [
+		...[
+			'promise.then(() => { return await; });',
+			'promise.then(() => await);',
+			'promise.then(() => { await: doSomething(); });',
+			'promise.then(() => { let await = 1; return await; });',
+			'promise.then(await => await);',
+		].map(code => ({
+			code,
+			filename: 'index.ts',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
+		})),
+		// A real `await` is still suggested
+		{
+			code: 'promise.then(() => { return await promise; });',
+			filename: 'index.ts',
+			languageOptions: {parser: parsers.typescript},
+			errors: [
+				{
+					messageId: MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_ID,
+							output: 'void (async () => {\n\tawait promise;\n\treturn await promise;\n})();',
+						},
+					],
+				},
+			],
+		},
+	],
+});
