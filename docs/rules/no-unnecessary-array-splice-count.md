@@ -9,15 +9,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
-
 When calling [`Array#splice(start, deleteCount)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice) and [`Array#toSpliced(start, skipCount)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced), omitting the `deleteCount` and `skipCount` argument will delete or skip all elements after `start`. Using `.length` or `Infinity` is unnecessary.
 
 ## Examples
 
 ```js
 // ❌
-const foo = array.toSpliced(1, string.length);
+const foo = array.toSpliced(1, array.length);
 
 // ✅
 const foo = array.toSpliced(1);
@@ -41,7 +39,7 @@ const foo = array.toSpliced(1);
 
 ```js
 // ❌
-array.splice(1, string.length);
+array.splice(1, array.length);
 
 // ✅
 array.splice(1);
