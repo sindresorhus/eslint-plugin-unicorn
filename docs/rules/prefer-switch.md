@@ -4,12 +4,14 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 A switch statement is easier to read than multiple if statements with simple equality comparisons.
+
+When the compared value is a member access, like `foo.bar`, the rule offers a suggestion instead of an autofix. A `switch` reads the value once, while the `else-if` chain reads it once per branch, and a getter could return a different value each time.
 
 ## Examples
 

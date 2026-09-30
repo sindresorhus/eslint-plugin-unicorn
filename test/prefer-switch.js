@@ -215,7 +215,7 @@ test.snapshot({
 			else if (foo === 2) {}
 			else if (foo === 3) {}
 		`,
-		// Same reference
+		// Same reference. A `switch` reads the discriminant once and the chain reads it per branch, so a member read that could be a getter is suggested rather than autofixed.
 		outdent`
 			if (foo.baz === 1) {}
 			else if (foo['baz'] === 2) {}
@@ -658,5 +658,89 @@ test({
 			].join('\r\n'),
 			errors: 1,
 		},
+		// The `// No default` comment belongs after the last `case` block, not inside it
+		{
+			code: 'if (a === 1) foo(); else if (a === 2) bar(); else if (a === 3) baz();',
+			output: outdent`
+				switch (a) {
+				case 1: {
+				foo();
+				break;
+				}
+				case 2: {
+				bar();
+				break;
+				}
+				case 3: {
+				baz();
+				break;
+				}
+				// No default
+				}
+			`,
+			options: [{emptyDefaultCase: 'no-default-comment'}],
+			errors: 1,
+		},
+
+		// A comment in the removed text is preserved by not fixing
+		{
+			code: 'if (a === 1) foo(); // keep\nelse if (a === 2) bar();\nelse if (a === 3) baz();',
+			errors: 1,
+		},
+		{
+			code: 'if (a === 1) /* keep */ foo();\nelse if (a === 2) bar();\nelse if (a === 3) baz();',
+			errors: 1,
+		},
+		{
+			code: 'if (a === 1) foo();\nelse /* keep */ if (a === 2) bar();\nelse if (a === 3) baz();',
+			errors: 1,
+		},
+		{
+			// The `if` body is not a block, the `default:` case must not end up inside the last `case` block
+			code: 'if (a === 1) foo(); else if (a === 2) bar(); else if (a === 3) baz();',
+			output: outdent`
+				switch (a) {
+				case 1: {
+				foo();
+				break;
+				}
+				case 2: {
+				bar();
+				break;
+				}
+				case 3: {
+				baz();
+				break;
+				}
+				default:
+				// Do nothing
+				}
+			`,
+			options: [{emptyDefaultCase: 'do-nothing-comment'}],
+			errors: 1,
+		},
+	],
+});
+
+// A repeated `case` label is already dead in the `else-if` chain, the fix should not produce a duplicate label
+test({
+	valid: [],
+	invalid: [
+		...[
+			'if (foo === 1) { a(); } else if (foo === 2) { b(); } else if (foo === 1) { c(); }',
+			'if (foo === 1 || foo === 2) { a(); } else if (foo === 2) { b(); } else if (foo === 3) { c(); }',
+			'if (foo === a) { x(); } else if (foo === b) { y(); } else if (foo === a) { z(); }',
+			// The same value spelled differently is still a duplicate label
+			'if (foo === \'1\') { a(); } else if (foo === 2) { b(); } else if (foo === "1") { c(); }',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+// A `switch` reads the discriminant once, an `else-if` chain reads it once per branch. A member read could be a getter that returns a different value each time, so it is suggested, not autofixed.
+test.snapshot({
+	valid: [],
+	invalid: [
+		'if (o?.v === 1) { a(); } else if (o?.v === 2) { b(); } else if (o?.v === 3) { c(); }',
+		'if (o["v"] === 1) { a(); } else if (o["v"] === 2) { b(); } else if (o["v"] === 3) { c(); }',
 	],
 });

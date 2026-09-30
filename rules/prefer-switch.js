@@ -1,7 +1,7 @@
-import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isUndefined} from './ast/index.js';
 import isSameReference from './utils/is-same-reference.js';
-import {getIndentString, getLinebreak} from './utils/index.js';
+import {getIndentString, getLinebreak, wouldRemoveComments} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-switch';
 const messages = {
@@ -191,10 +191,43 @@ function fix({discriminant, ifStatements}, context, options) {
 	const {sourceCode} = context;
 	const discriminantText = sourceCode.getText(discriminant);
 
-	return function * (fixer) {
+	return function * (fixer, {abort}) {
 		const firstStatement = ifStatements[0].statement;
 		const indent = getIndentString(firstStatement, context);
 		const linebreak = getLinebreak(context);
+
+		// The `if` head and the text before the `else` are removed, a comment in between would be dropped
+		const isCommentRemoved = ifStatements.some(({statement}) => {
+			const {consequent, alternate} = statement;
+			return wouldRemoveComments(context, [sourceCode.getRange(statement)[0], sourceCode.getRange(consequent)[0]])
+				|| (
+					alternate
+					&& wouldRemoveComments(context, [sourceCode.getRange(consequent)[1], sourceCode.getRange(alternate)[0]])
+				);
+		});
+
+		if (isCommentRemoved) {
+			abort();
+		}
+
+		// A repeated `case` label is unreachable. The branch is already dead in the `else-if` chain, but the fix should not produce a duplicate label. `case '1':` and `case "1":` are the same label, so the value is compared, not the text.
+		const caseLabels = new Set();
+		for (const {compareExpressions} of ifStatements) {
+			for (const {left, right} of compareExpressions) {
+				const node = isSame(left, discriminant) ? right : left;
+				const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+				const label = staticValue
+					? `value:${typeof staticValue.value}:${String(staticValue.value)}`
+					: `text:${sourceCode.getText(node)}`;
+
+				if (caseLabels.has(label)) {
+					abort();
+				}
+
+				caseLabels.add(label);
+			}
+		}
+
 		yield fixer.insertTextBefore(firstStatement, `switch (${discriminantText}) {`);
 
 		const lastStatement = ifStatements.at(-1).statement;
@@ -212,22 +245,7 @@ function fix({discriminant, ifStatements}, context, options) {
 			else var a = 1;
 			```
 			*/
-		} else {
-			switch (options.emptyDefaultCase) {
-				case 'no-default-comment': {
-					yield fixer.insertTextAfter(firstStatement, `${linebreak}${indent}// No default`);
-					break;
-				}
-
-				case 'do-nothing-comment': {
-					yield fixer.insertTextAfter(firstStatement, `${linebreak}${indent}default:${linebreak}${indent}// Do nothing`);
-					break;
-				}
-				// No default
-			}
 		}
-
-		yield fixer.insertTextAfter(firstStatement, `${linebreak}${indent}}`);
 
 		for (const {statement, compareExpressions} of ifStatements) {
 			const {consequent, alternate} = statement;
@@ -254,6 +272,17 @@ function fix({discriminant, ifStatements}, context, options) {
 				yield insertBracesIfNotBlockStatement(consequent, fixer, indent, linebreak);
 			}
 		}
+
+		// The empty `default:` case is added between the last `case` braces and the `switch` braces, fixes inserted at the same position are applied in yield order
+		if (!lastStatement.alternate) {
+			if (options.emptyDefaultCase === 'no-default-comment') {
+				yield fixer.insertTextAfter(firstStatement, `${linebreak}${indent}// No default`);
+			} else if (options.emptyDefaultCase === 'do-nothing-comment') {
+				yield fixer.insertTextAfter(firstStatement, `${linebreak}${indent}default:${linebreak}${indent}// Do nothing`);
+			}
+		}
+
+		yield fixer.insertTextAfter(firstStatement, `${linebreak}${indent}}`);
 	};
 }
 
@@ -308,7 +337,19 @@ const create = context => {
 				!hasSideEffect(discriminant, sourceCode)
 				&& ifStatements.every(({statement}) => !hasBreakInside(breakStatements, statement, context))
 			) {
-				problem.fix = fix({discriminant, ifStatements}, context, options);
+				const switchFix = fix({discriminant, ifStatements}, context, options);
+
+				// A `switch` reads the discriminant once, the `else-if` chain reads it once per branch. A getter can return a different value each time, which changes not only how often it is read but which branch runs, so that is offered as a suggestion.
+				if (hasSideEffect(discriminant, sourceCode, {considerGetters: true})) {
+					problem.suggest = [
+						{
+							messageId: MESSAGE_ID,
+							fix: switchFix,
+						},
+					];
+				} else {
+					problem.fix = switchFix;
+				}
 			}
 
 			yield problem;
@@ -350,6 +391,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		defaultOptions: [
 			{
