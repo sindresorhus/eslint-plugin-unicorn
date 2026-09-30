@@ -8,6 +8,7 @@ import {
 	isValueNotUsable,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const ERROR_MESSAGE_ID = 'error';
@@ -54,6 +55,8 @@ const create = context => {
 		const parentNode = node.callee.object;
 		const childNode = node.arguments[0];
 
+		// The call is replaced as a whole, a comment inside it would be dropped
+		const hasComment = wouldRemoveComments(context, node);
 		const problem = {
 			node,
 			messageId: ERROR_MESSAGE_ID,
@@ -79,23 +82,39 @@ const create = context => {
 			return fixer.replaceText(node, `${childNodeText}${optional ? '?' : ''}.remove()`);
 		};
 
-		const createSameReferenceFix = (optional = false) => fixer => {
-			const [, receiverEnd] = getParenthesizedRange(parentNode.object, context);
-			const [, callEnd] = sourceCode.getRange(node);
+		// `node.parentNode.removeChild(node)` names the child twice, so the fix starts after the child and drops the `.parentNode.removeChild(…)` part, which is what keeps the child's own optional chain intact: `a?.b.parentNode.removeChild(a.b)` has to stay `a?.b.remove()`. The parent is not what gets removed here, so the range must not start after `parentNode`.
+		const createSameReferenceFix = (optional = false) => {
+			// The fix replaces everything from the end of the child to the end of the call, so a parenthesis around the callee or around `parentNode` would be left dangling
+			if (
+				isParenthesized(node.callee, sourceCode)
+				|| isParenthesized(parentNode, sourceCode)
+			) {
+				return;
+			}
 
-			return fixer.replaceTextRange([receiverEnd, callEnd], `${optional ? '?' : ''}.remove()`);
+			return fixer => {
+				// The parentheses around the child are not part of its range, so the range starts after them to keep them before `.remove()`
+				const [, receiverEnd] = getParenthesizedRange(parentNode.object, context);
+				const [, callEnd] = sourceCode.getRange(node);
+
+				return fixer.replaceTextRange([receiverEnd, callEnd], `${optional ? '?' : ''}.remove()`);
+			};
 		};
 
 		if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
 			if (isSameReferenceParentNode) {
-				problem.fix = createSameReferenceFix(parentNode.optional);
+				problem.fix = hasComment ? undefined : createSameReferenceFix(parentNode.optional);
 				return problem;
 			}
 
 			if (!isOptionalParentNode) {
-				problem.fix = createFix(false);
+				problem.fix = hasComment ? undefined : createFix(false);
 				return problem;
 			}
+		}
+
+		if (hasComment) {
+			return problem;
 		}
 
 		problem.suggest = (
@@ -106,7 +125,7 @@ const create = context => {
 			fix: isSameReferenceParentNode
 				? createSameReferenceFix(optional)
 				: createFix(optional),
-		}));
+		})).filter(suggestion => suggestion.fix);
 
 		return problem;
 	});

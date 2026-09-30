@@ -122,3 +122,50 @@ test.snapshot({
 		'a[b?.c].parentNode.removeChild(foo)',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		// A comment inside the call is preserved by not fixing
+		{
+			code: 'parent.removeChild(/* keep */ child);',
+			errors: 1,
+		},
+		{
+			code: 'parent /* keep */.removeChild(child);',
+			errors: 1,
+		},
+		{
+			code: 'parent.removeChild(child /* keep */);',
+			errors: 1,
+		},
+		{
+			code: 'node.parentNode.removeChild(/* keep */ node);',
+			errors: 1,
+		},
+	],
+});
+
+// The fix keeps the receiver text and appends `.remove()`, so parentheses around the member access would be left dangling
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const element = document.querySelector(".banner"); (element.parentNode.removeChild)(element);',
+		'const element = document.querySelector(".banner"); ((element.parentNode).removeChild)(element);',
+		'const element = document.querySelector(".banner"); (element.parentNode).removeChild(element);',
+		// Parentheses around the child itself are kept
+		'(element).parentNode.removeChild(element);',
+		'element.parentNode.removeChild((element));',
+	],
+});
+
+// The value is used, so the rewrite can only come from a suggestion, and the parenthesized callee withholds that one too
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'foo((element.parentNode.removeChild)(element));',
+			errors: [{messageId: 'error', suggestions: []}],
+		},
+	],
+});
