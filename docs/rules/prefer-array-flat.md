@@ -13,7 +13,7 @@ ES2019 introduced a new method [`Array#flat()`](https://developer.mozilla.org/en
 
 The native method expresses flattening directly and avoids verbose or indirect flattening patterns.
 
-A `.reduce()` receiver known not to be an array is ignored, including a typed array, since the `.flat()` replacement does not exist on it. Unknown receivers are still reported.
+A value known not to be an array is ignored, including a typed array and `arguments`, since the `.flat()` replacement does not exist on it. Unknown values are still reported.
 
 ## Examples
 
@@ -24,7 +24,7 @@ const foo = array.flatMap(x => x);
 // ❌
 const foo = array.reduce((a, b) => a.concat(b), []);
 
-// ❌
+// ✅ Not reported. A spread in the reducer spreads the elements rather than the arrays, so `['ab'].reduce((a, b) => [...a, ...b], [])` is `['a', 'b']` where `['ab'].flat()` is `['ab']`
 const foo = array.reduce((a, b) => [...a, ...b], []);
 
 // ❌

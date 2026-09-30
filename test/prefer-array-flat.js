@@ -6,6 +6,35 @@ const {test} = getTester(import.meta);
 // `array.flatMap(x => x)`
 test.snapshot({
 	valid: [
+		// A receiver known not to be an array cannot be `.flat()`ed
+		'_.flatten(1)',
+		'_.flatten(1.)',
+		'_.flatten(1.0)',
+		'_.flatten(.1)',
+		'_.flatten(+1)',
+		'_.flatten(-1)',
+		'_.flatten(1n)',
+		'_.flatten("a")',
+		'_.flatten(`a`)',
+		'_.flatten({})',
+		'_.flatten(new Uint8Array())',
+		'_.flatten(new Set())',
+		'_.flatten(new Map())',
+		'_.flatten(new WeakSet())',
+		'_.flatten(new WeakMap())',
+		'_.flatten(new ArrayBuffer())',
+		'_.flatten(new DataView(new ArrayBuffer()))',
+		'_.flatten(function () {})',
+		'_.flatten(function named() {})',
+		'_.flatten(async function () {})',
+		'_.flatten(() => {})',
+		'_.flatten(async function* () {})',
+		'_.flatten(class {})',
+		'_.flatten(new (class {})())',
+		'_.flatten(new Blob())',
+		'[].concat(...new Set([[1], [2]]))',
+		'Array.prototype.concat.apply([], .1)',
+		'Array.prototype.concat.apply([], 1.0)',
 		'array.flatMap',
 		'new array.flatMap(x => x)',
 		'flatMap(x => x)',
@@ -178,7 +207,14 @@ test.snapshot({
 		'array.reduce((a, b) => [,...a, ...b], [])',
 		'array.reduce((a, b) => [, ], [])',
 		'array.reduce((a, b) => [, ,], [])',
-		// The spread form skips a non-array receiver the same way the `concat` form does
+		// Spreading every element is not `.flat()`: `['ab'].reduce((a, b) => [...a, ...b], [])` is `['a', 'b']`
+		'array.reduce((a, b) => [...a, ...b], [])',
+		'array.reduce((a, b) => [...a, ...b,], [])',
+		'function foo(){return[].reduce((a, b) => [...a, ...b,], [])}',
+		{
+			code: 'function f(foo: number[][]) { foo.reduce((a, b) => [...a, ...b], []); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		{
 			code: 'function f(foo: Set<number[]>) { foo.reduce((a, b) => [...a, ...b], []); }',
 			languageOptions: {parser: parsers.typescript},
@@ -188,16 +224,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
-	invalid: [
-		'array.reduce((a, b) => [...a, ...b], [])',
-		'array.reduce((a, b) => [...a, ...b,], [])',
-		'function foo(){return[].reduce((a, b) => [...a, ...b,], [])}',
-		// A receiver known to be an array must still be reported
-		{
-			code: 'function f(foo: number[][]) { foo.reduce((a, b) => [...a, ...b], []); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-	],
+	invalid: [],
 });
 
 // Plain `[].concat(value)` normalization
@@ -231,7 +258,6 @@ test.snapshot({
 		'[].notConcat(...array)',
 		'[,].concat(...array)',
 		'({}).concat(...array)',
-		'[].concat()',
 		'[].concat(...array, EXTRA_ARGUMENT)',
 		'[]?.concat(...array)',
 		'[].concat?.(...array)',
@@ -481,30 +507,42 @@ test.snapshot({
 			before()
 			Array.prototype.concat.apply([], [array].concat(array))
 		`,
-		outdent`
-			before()
-			Array.prototype.concat.apply([], +1)
-		`,
+
 		// Parentheses
 		'Array.prototype.concat.apply([], (0, array))',
 		'_.flatten((0, array))',
 		'async function a() { return _.flatten(await getArray()); }',
 		'async function a() { return _.flatten((await getArray())); }',
-		outdent`
-			before()
-			Array.prototype.concat.apply([], 1)
-		`,
-		outdent`
-			before()
-			Array.prototype.concat.apply([], 1.)
-		`,
-		outdent`
-			before()
-			Array.prototype.concat.apply([], .1)
-		`,
-		outdent`
-			before()
-			Array.prototype.concat.apply([], 1.0)
-		`,
 	],
+});
+
+// `concat()` keeps a string element whole, the same as `.flat()`
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const a = [].concat(...array);',
+			output: 'const a = array.flat();',
+			errors: 1,
+		},
+		{
+			code: 'const e = [\'ab\'].reduce((a, b) => a.concat(b), []);',
+			output: 'const e = [\'ab\'].flat();',
+			errors: 1,
+		},
+	],
+});
+
+// `arguments` is not an array, so the `.flat()` replacement throws where the concat worked
+test.snapshot({
+	valid: [
+		'function unicornRun() { return [].concat(...arguments); }',
+		'function unicornRun() { return [].concat.call([], ...arguments); }',
+		'function unicornRun() { return Array.prototype.concat.apply([], arguments); }',
+		'function unicornRun() { return _.flatten(arguments); }',
+		'function unicornRun() { return arguments.reduce((a, b) => a.concat(b), []); }',
+		'function unicornRun() { return arguments.flatMap(x => x); }',
+		'function unicornRun() { return [].concat(...(arguments)); }',
+	],
+	invalid: [],
 });

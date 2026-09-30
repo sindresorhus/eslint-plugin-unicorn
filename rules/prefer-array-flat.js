@@ -11,7 +11,12 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isMethodCall, isCallExpression, isEmptyArrayExpression} from './ast/index.js';
+import {
+	isArgumentsObject,
+	isMethodCall,
+	isCallExpression,
+	isEmptyArrayExpression,
+} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
@@ -45,10 +50,8 @@ const arrayFlatMap = {
 
 // `array.reduce((a, b) => a.concat(b), [])`
 // `array?.reduce((a, b) => a.concat(b), [])`
-// `array.reduce((a, b) => [...a, ...b], [])`
-// `array?.reduce((a, b) => [...a, ...b], [])`
 const arrayReduce = {
-	testFunction(node, context) {
+	testFunction(node) {
 		if (!isMethodCall(node, {
 			method: 'reduce',
 			argumentsLength: 2,
@@ -67,35 +70,17 @@ const arrayReduce = {
 			return false;
 		}
 
+		// Only `(a, b) => a.concat(b)` is equivalent to `.flat()`. `(a, b) => [...a, ...b]` spreads every element, so `['ab'].reduce((a, b) => [...a, ...b], [])` is `['a', 'b']` while `['ab'].flat()` is `['ab']`.
 		const firstArgumentBody = firstArgument.body;
 		const [firstParameter, secondParameter] = firstArgument.params;
-		if (!(
-			// `(a, b) => a.concat(b)`
-			(
-				isMethodCall(firstArgumentBody, {
-					method: 'concat',
-					argumentsLength: 1,
-					optionalCall: false,
-					optionalMember: false,
-				})
-				&& isSameIdentifier(firstParameter, firstArgumentBody.callee.object)
-				&& isSameIdentifier(secondParameter, firstArgumentBody.arguments[0])
-			)
-			// `(a, b) => [...a, ...b]`
-			|| (
-				firstArgumentBody.type === 'ArrayExpression'
-				&& firstArgumentBody.elements.length === 2
-				&& firstArgumentBody.elements.every((node, index) =>
-					node?.type === 'SpreadElement'
-					&& node.argument.type === 'Identifier'
-					&& isSameIdentifier(firstArgument.params[index], node.argument))
-			)
-		)) {
-			return false;
-		}
-
-		// Deliberately `isKnownNonArray`, not `isKnownNonIndexedCollection`: the replacement calls `flat()`, which a typed array does not have, so a typed array must be skipped along with the other non-arrays
-		return !isKnownNonArray(node.callee.object, context);
+		return isMethodCall(firstArgumentBody, {
+			method: 'concat',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		&& isSameIdentifier(firstParameter, firstArgumentBody.callee.object)
+		&& isSameIdentifier(secondParameter, firstArgumentBody.arguments[0]);
 	},
 	getArrayNode: node => node.callee.object,
 	isOptionalArray: node => node.callee.optional,
@@ -267,6 +252,12 @@ function create(context) {
 			}
 
 			const array = getArrayNode(node);
+
+			// The replacement calls `.flat()`, which only an array has, so a receiver known not to be one cannot be flattened. `arguments` is a language binding that is never an array. Deliberately `isKnownNonArray`, not `isKnownNonIndexedCollection`: a typed array does not have `flat()`, so it must be skipped along with the other non-arrays
+			if (isKnownNonArray(array, context) || isArgumentsObject(array)) {
+				continue;
+			}
+
 			const optional = isOptionalArray?.(node);
 
 			const data = {
