@@ -137,7 +137,7 @@ const create = context => {
 		} = options;
 
 		if (consequent.type !== alternate.type) {
-			return returnFalseIfNotMergeable ? false : options;
+			return !returnFalseIfNotMergeable && options;
 		}
 
 		if (isMergeableReturnStatement(consequent, alternate, sourceCode.visitorKeys)) {
@@ -160,7 +160,7 @@ const create = context => {
 			});
 		}
 
-		return returnFalseIfNotMergeable ? false : options;
+		return !returnFalseIfNotMergeable && options;
 	}
 
 	// Convert an initialized `let` followed by one conditional reassignment.
@@ -207,7 +207,8 @@ const create = context => {
 			return;
 		}
 
-		if (hasSideEffect(declarator.init, sourceCode)) {
+		// The rewrite builds `test ? right : init`, so the initializer moves from before the test to after it. A test with a side effect would observe the change.
+		if (hasSideEffect(declarator.init, sourceCode) || hasSideEffect(node.test, sourceCode)) {
 			return;
 		}
 
@@ -328,11 +329,7 @@ const create = context => {
 	context.on('IfStatement', node => {
 		if (!node.alternate) {
 			const nextNode = getNextNode(node, context);
-			if (nextNode?.type === 'ReturnStatement') {
-				return getIfBranchesProblem(node, nextNode) ?? getLetPlusIfProblem(node);
-			}
-
-			return getLetPlusIfProblem(node);
+			return nextNode?.type === 'ReturnStatement' ? getIfBranchesProblem(node, nextNode) ?? getLetPlusIfProblem(node) : getLetPlusIfProblem(node);
 		}
 
 		return getIfBranchesProblem(node);

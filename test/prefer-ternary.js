@@ -23,6 +23,19 @@ const onlySingleLineOptions = ['only-single-line'];
 // ReturnStatement
 test({
 	valid: [
+		// The rewrite moves the initializer after the test, a test with a side effect would observe the change
+		outdent`
+			let x = y;
+			if (y = 0) {
+				x = 1;
+			}
+		`,
+		outdent`
+			let x = counter;
+			if (bump()) {
+				x = 99;
+			}
+		`,
 		'function unicorn() { if (test) { return value; } else { return; } }',
 		'function unicorn() { if (/* explanation */ test) { return a; } else { return b; } }',
 		'function unicorn() { if (test) { return a; } else { /* explanation */ return b; } }',
@@ -1355,18 +1368,6 @@ test({
 				const x = test ? b : a;
 			`),
 			options: onlySingleLineOptions,
-		},
-		// Test has side effects
-		{
-			code: outdent`
-				let x = y;
-				if (y = 0) {
-					x = 1;
-				}
-			`,
-			errors: errorsWithSuggestion(outdent`
-				const x = (y = 0) ? 1 : y;
-			`),
 		},
 		// Init may be observable
 		{
