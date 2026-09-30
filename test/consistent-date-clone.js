@@ -47,7 +47,14 @@ test.snapshot({
 		'new Date((0, date).getTime())',
 		'new Date(date.getTime(/* comment */))',
 		'new Date(date./* comment */getTime())',
+		'new Date(date /* comment */.getTime())',
+		'new Date(date.getTime /* comment */())',
+		'new Date(date.getTime() /* comment */)',
+		'new Date(date // comment\n\t.getTime())',
 		// TypeScript type assertion on the date object is preserved
 		{code: 'new Date((date as Date).getTime())', languageOptions: {parser: parsers.typescript}},
+		// A comment inside the kept object does not block the fix
+		'new Date(getDate(/* comment */).getTime())',
+		'new Date((date /* comment */).getTime())',
 	],
 });

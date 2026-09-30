@@ -1,5 +1,6 @@
 import {isMethodCall, isNewExpression} from './ast/index.js';
 import {removeMethodCall} from './fix/index.js';
+import {getParenthesizedRange, wouldRemoveComments} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'consistent-date-clone/error';
 const messages = {
@@ -27,15 +28,21 @@ const create = context => {
 		}
 
 		const {sourceCode} = context;
-		return {
+		const problem = {
 			node: callExpression,
 			loc: {
 				start: sourceCode.getLoc(callExpression.callee.property).start,
 				end: sourceCode.getLoc(callExpression).end,
 			},
 			messageId: MESSAGE_ID_ERROR,
-			fix: fixer => removeMethodCall(fixer, callExpression, context),
 		};
+
+		// `removeMethodCall()` removes everything after the object, so a comment there would be lost
+		if (!wouldRemoveComments(context, callExpression, [getParenthesizedRange(callExpression.callee.object, context)])) {
+			problem.fix = fixer => removeMethodCall(fixer, callExpression, context);
+		}
+
+		return problem;
 	});
 };
 
