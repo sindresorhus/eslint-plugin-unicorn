@@ -38,7 +38,7 @@ text.matchAll(pattern).take(10).toArray();
 
 The rule recognizes `.values()`, `.keys()`, `.entries()`, `.matchAll()`, static `Iterator` methods, lazy helper chains, and supported TypeScript iterator types. Slice conversions also treat a zero-argument `.toArray()` as iterator evidence. Custom methods matched by name must support iterator helpers. Arbitrary iterables are ignored because not every iterable has those methods.
 
-Terminal conversions support `.every()`, `.find()`, `.forEach()`, `.reduce()`, and `.some()` after a single-spread array or one-argument `Array.from()`. Inline callbacks that can observe the extra `array` argument are ignored.
+Terminal conversions support `.every()`, `.find()`, `.forEach()`, `.reduce()`, and `.some()` after a single-spread array or one-argument `Array.from()`. Callbacks that can observe the extra `array` argument are ignored, whether they are inline or a reference whose declaration is in the same file. A reference that cannot be resolved here is treated as observing it.
 
 Slice conversions support `.slice()` directly after `.toArray()`, a single-spread array, or one-argument `Array.from()`. Bounds must be statically known nonnegative safe integers. Copy-only `.slice()` and `.slice(0)` are ignored.
 

@@ -91,36 +91,36 @@ test.snapshot({
 	],
 	invalid: [
 		// Spread form.
-		'[...map.values()].find(fn)',
-		'[...map.keys()].some(fn)',
-		'[...map.entries()].every(fn)',
-		'[...set.values()].forEach(fn)',
-		'[...string.matchAll(pattern)].reduce(fn)',
-		'[...string.matchAll(pattern)].reduce(fn, initialValue)',
+		'[...map.values()].find(value => value)',
+		'[...map.keys()].some(value => value)',
+		'[...map.entries()].every(value => value)',
+		'[...set.values()].forEach(value => value)',
+		'[...string.matchAll(pattern)].reduce(value => value)',
+		'[...string.matchAll(pattern)].reduce(value => value, initialValue)',
 
 		// Array.from form.
-		'Array.from(map.values()).find(fn)',
-		'Array.from(map.keys()).some(fn)',
-		'Array.from(map.entries()).every(fn)',
-		'Array.from(set.values()).forEach(fn)',
-		'Array.from(string.matchAll(pattern)).reduce(fn)',
-		'Array.from(string.matchAll(pattern)).reduce(fn, initialValue)',
+		'Array.from(map.values()).find(value => value)',
+		'Array.from(map.keys()).some(value => value)',
+		'Array.from(map.entries()).every(value => value)',
+		'Array.from(set.values()).forEach(value => value)',
+		'Array.from(string.matchAll(pattern)).reduce(value => value)',
+		'Array.from(string.matchAll(pattern)).reduce(value => value, initialValue)',
 
 		// Static Iterator methods and lazy helper chains.
-		'[...Iterator.from(iterable)].find(fn)',
-		'[...globalThis.Iterator.from(iterable)].find(fn)',
-		'[...(globalThis).Iterator.zip(first, second)].some(fn)',
-		'[...Iterator.concat(first, second)].some(fn)',
-		'[...Iterator.zip(first, second)].every(fn)',
-		'[...Iterator.zipKeyed({first, second})].forEach(fn)',
-		'[...map.values().map(fn)].find(fn)',
-		'Array.from(map.values().filter(fn)).some(fn)',
-		'Array.from(map.values().flatMap(fn)).every(fn)',
-		'Array.from(map.values().drop(count)).forEach(fn)',
-		'Array.from(map.values().take(count)).reduce(fn)',
-		'Array.from(map.values().take(count)).reduce(fn, initialValue)',
-		'const iterator = items.values(); [...iterator].find(fn);',
-		'function * generate() { yield 1; } Array.from(generate()).some(fn);',
+		'[...Iterator.from(iterable)].find(value => value)',
+		'[...globalThis.Iterator.from(iterable)].find(value => value)',
+		'[...(globalThis).Iterator.zip(first, second)].some(value => value)',
+		'[...Iterator.concat(first, second)].some(value => value)',
+		'[...Iterator.zip(first, second)].every(value => value)',
+		'[...Iterator.zipKeyed({first, second})].forEach(value => value)',
+		'[...map.values().map(value => value)].find(value => value)',
+		'Array.from(map.values().filter(value => value)).some(value => value)',
+		'Array.from(map.values().flatMap(value => value)).every(value => value)',
+		'Array.from(map.values().drop(count)).forEach(value => value)',
+		'Array.from(map.values().take(count)).reduce(value => value)',
+		'Array.from(map.values().take(count)).reduce(value => value, initialValue)',
+		'const iterator = items.values(); [...iterator].find(value => value);',
+		'function * generate() { yield 1; } Array.from(generate()).some(value => value);',
 
 		// Callback boundary arguments are still safe.
 		'[...map.values()].find((value, index) => value === index)',
@@ -130,7 +130,7 @@ test.snapshot({
 		'[...map.values()].reduce((accumulator, value, index) => accumulator + value + index)',
 
 		// Parenthesized and multiline.
-		'[...(map.values())].find(fn)',
+		'[...(map.values())].find(value => value)',
 		outdent`
 			Array.from(
 				map
@@ -140,17 +140,17 @@ test.snapshot({
 		`,
 
 		// Comments inside the iterator expression are preserved.
-		'[...map.values(/* comment */).map(fn)].find(fn)',
-		'Array.from(map.values(/* comment */)).find(fn)',
+		'[...map.values(/* comment */).map(value => value)].find(value => value)',
+		'Array.from(map.values(/* comment */)).find(value => value)',
 
 		// Comments outside the iterator expression are reported without a suggestion.
-		'[/* comment */ ...map.values()].find(fn)',
-		'[...map.values() /* comment */].find(fn)',
-		'Array.from(/* comment */ map.values()).find(fn)',
+		'[/* comment */ ...map.values()].find(value => value)',
+		'[...map.values() /* comment */].find(value => value)',
+		'Array.from(/* comment */ map.values()).find(value => value)',
 
 		// Optional iterator chains preserve the materialization's throwing behavior.
-		'[...map?.values()].find(fn)',
-		'[...map.values?.()].find(fn)',
+		'[...map?.values()].find(value => value)',
+		'[...map.values?.()].find(value => value)',
 	],
 });
 
@@ -178,12 +178,12 @@ test({
 			}],
 		},
 		{
-			code: 'function foo() { return[...map.values()].find(fn); }',
+			code: 'function foo() { return[...map.values()].find(value => value); }',
 			errors: [{
 				messageId: 'prefer-iterator-helpers',
 				suggestions: [{
 					messageId: 'prefer-iterator-helpers/suggestion',
-					output: 'function foo() { return map.values().find(fn); }',
+					output: 'function foo() { return map.values().find(value => value); }',
 				}],
 			}],
 		},
@@ -197,42 +197,69 @@ test.snapshot({
 		},
 	},
 	valid: [
-		'[...set].find(fn) as Value',
-		'Array.from<number>(map.values()).find(fn)',
+		'[...set].find(value => value) as Value',
+		'Array.from<number>(map.values()).find(value => value)',
 		'[...map.values()].find(((value, index, array) => array.length > 0) as Predicate)',
 		'[...map.values()].reduce((function () { return arguments[3]?.length; }) as Reducer, initialValue)',
-		'function foo(array: string[]) { [...array].find(fn); }',
-		'function foo(iterable: Iterable<string>) { [...iterable].find(fn); }',
-		'type Iterator<T> = T[]; function foo(iterator: Iterator<string>) { [...iterator].find(fn); }',
-		'interface Iterator<T> extends Array<T> {} function foo(iterator: Iterator<string>) { [...iterator].find(fn); }',
-		'import type {Iterator} from "iterators"; function foo(iterator: Iterator<string>) { [...iterator].find(fn); }',
+		'function foo(array: string[]) { [...array].find(value => value); }',
+		'function foo(iterable: Iterable<string>) { [...iterable].find(value => value); }',
+		'type Iterator<T> = T[]; function foo(iterator: Iterator<string>) { [...iterator].find(value => value); }',
+		'interface Iterator<T> extends Array<T> {} function foo(iterator: Iterator<string>) { [...iterator].find(value => value); }',
+		'import type {Iterator} from "iterators"; function foo(iterator: Iterator<string>) { [...iterator].find(value => value); }',
 	],
 	invalid: [
-		'[...map.values()].find(fn) as Value',
-		'[...map!.values()].some(fn)',
-		'Array.from(map.values() satisfies Iterable<Value>).every(fn)',
-		'function foo(iterator: Iterator<string>) { [...iterator].find(fn); }',
-		'function foo(iterator: IterableIterator<string>) { Array.from(iterator).some(fn); }',
+		'[...map.values()].find(value => value) as Value',
+		'[...map!.values()].some(value => value)',
+		'Array.from(map.values() satisfies Iterable<Value>).every(value => value)',
+		'function foo(iterator: Iterator<string>) { [...iterator].find(value => value); }',
+		'function foo(iterator: IterableIterator<string>) { Array.from(iterator).some(value => value); }',
 		outdent`
 			previous
-			Array.from(map.values() satisfies Iterable<Value>).every(fn);
+			Array.from(map.values() satisfies Iterable<Value>).every(value => value);
 		`,
 	],
 });
 
 test.snapshot({
 	valid: [
-		typeAware('declare function getArray(): string[]; [...getArray()].find(fn);'),
-		typeAware('declare function getIterable(): Iterable<string>; [...getIterable()].find(fn);'),
-		typeAware('type Iterator<T> = T[]; declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
-		typeAware('interface Iterator<T> extends Array<T> {} declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
+		typeAware('declare function getArray(): string[]; [...getArray()].find(value => value);'),
+		typeAware('declare function getIterable(): Iterable<string>; [...getIterable()].find(value => value);'),
+		typeAware('type Iterator<T> = T[]; declare function getIterator(): Iterator<string>; [...getIterator()].find(value => value);'),
+		typeAware('interface Iterator<T> extends Array<T> {} declare function getIterator(): Iterator<string>; [...getIterator()].find(value => value);'),
 	],
 	invalid: [
-		typeAware('declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
-		typeAware('declare function getIterator(): Iterator<string>; Array.from(getIterator()).some(fn);'),
-		typeAware('declare function getIteratorObject(): IteratorObject<string>; [...getIteratorObject()].reduce(fn, initialValue);'),
-		typeAware('function * getIterator() { yield ""; } [...getIterator()].find(fn);'),
+		typeAware('declare function getIterator(): Iterator<string>; [...getIterator()].find(value => value);'),
+		typeAware('declare function getIterator(): Iterator<string>; Array.from(getIterator()).some(value => value);'),
+		typeAware('declare function getIteratorObject(): IteratorObject<string>; [...getIteratorObject()].reduce(value => value, initialValue);'),
+		typeAware('function * getIterator() { yield ""; } [...getIterator()].find(value => value);'),
 		typeAware('declare const iterator: IteratorObject<number> | undefined; Array.from(iterator?.map(value => value)!).some(value => value > 0);'),
 		typeAware('declare const iterator: IteratorObject<number> | undefined; [...iterator?.map(value => value)!].some(value => value > 0);'),
+	],
+});
+
+// `Iterator` callbacks take fewer arguments than the array ones, so a named callback is resolved to its declaration to check what it reads
+test.snapshot({
+	valid: [
+		'function callback(value, index, array) { return array.length > 0; } [...map.values()].some(callback);',
+		'const callback = (value, index, array) => array.length > 0; [...map.values()].some(callback);',
+		'function callback(...values) { return values[2]; } [...map.values()].some(callback);',
+		'function callback(value) { return arguments[2]; } [...map.values()].some(callback);',
+		'const callback = function (value) { return arguments[2]; }; [...map.values()].some(callback);',
+		'function callback(accumulator, value, index, array) { return array.length; } [...map.values()].reduce(callback, 0);',
+		// A callback that cannot be resolved here is treated as reading the argument
+		'[...map.values()].some(callback);',
+		'import callback from "callback"; [...map.values()].some(callback);',
+		'function foo(callback) { return [...map.values()].some(callback); }',
+		'[...map.values()].some(foo.callback);',
+	],
+	invalid: [
+		'function callback(value, index) { return value === index; } [...map.values()].some(callback);',
+		'const callback = value => value; [...map.values()].find(callback);',
+		'const callback = function (value) { return value; }; [...map.values()].every(callback);',
+		'function callback(accumulator, value, index) { return accumulator + index; } [...map.values()].reduce(callback, 0);',
+		{
+			code: 'const callback = ((value: number) => value > 0) as Callback; [...map.values()].some(callback);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

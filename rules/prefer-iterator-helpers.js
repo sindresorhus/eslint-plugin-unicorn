@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -7,7 +8,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
-import {isMethodCall} from './ast/index.js';
+import {functionTypes, isMethodCall} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	isIteratorExpression,
@@ -53,6 +54,20 @@ const isTargetTerminalMethodCall = node => (
 	})
 );
 
+// The function a named callback is declared as, when its declaration is in the same file
+const getNamedCallbackFunction = (identifier, context) => {
+	const [definition] = findVariable(context.sourceCode.getScope(identifier), identifier)?.defs ?? [];
+
+	if (definition?.type === 'FunctionName') {
+		return definition.node;
+	}
+
+	if (definition?.type === 'Variable' && definition.node.init) {
+		return unwrapExpression(definition.node.init);
+	}
+};
+
+// `Iterator` callbacks take fewer arguments than the array ones, so a callback that reads the array argument works on the array but not on the iterator
 const canObserveArrayArgument = (callback, arrayParameterIndex, context) => {
 	if (!callback) {
 		return false;
@@ -60,19 +75,21 @@ const canObserveArrayArgument = (callback, arrayParameterIndex, context) => {
 
 	callback = unwrapExpression(callback);
 
-	if (
-		callback.type === 'ArrowFunctionExpression'
-		|| callback.type === 'FunctionExpression'
-	) {
-		return callback.params.length > arrayParameterIndex
-			|| callback.params.at(-1)?.type === 'RestElement'
-			|| (
-				callback.type === 'FunctionExpression'
-				&& context.sourceCode.getTokens(callback).some(token => token.type === 'Identifier' && token.value === 'arguments')
-			);
+	if (callback.type === 'Identifier') {
+		callback = getNamedCallbackFunction(callback, context);
 	}
 
-	return false;
+	// A callback that is not a function declared here is opaque
+	if (!functionTypes.includes(callback?.type)) {
+		return true;
+	}
+
+	return callback.params.length > arrayParameterIndex
+		|| callback.params.at(-1)?.type === 'RestElement'
+		|| (
+			callback.type !== 'ArrowFunctionExpression'
+			&& context.sourceCode.getTokens(callback).some(token => token.type === 'Identifier' && token.value === 'arguments')
+		);
 };
 
 const hasCommentsOutsideIterator = (node, iterator, context) => {
