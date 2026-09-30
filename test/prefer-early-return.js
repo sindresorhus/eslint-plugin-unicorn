@@ -1394,3 +1394,58 @@ test({
 		},
 	],
 });
+
+// The moved body ends with a line comment, which is fine when the next token is on another line
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function foo() {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse(); // Trailing comment.\n\t}\n}',
+			output: 'function foo() {\n\tif (!condition) {\n\t\treturn;\n\t}\n\n\tdoSomething();\n\tdoSomethingElse(); // Trailing comment.\n}',
+			errors: 1,
+		},
+		{
+			code: 'function foo() {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse(); // Trailing comment.\n\n\t}\n}',
+			output: 'function foo() {\n\tif (!condition) {\n\t\treturn;\n\t}\n\n\tdoSomething();\n\tdoSomethingElse(); // Trailing comment.\n}',
+			errors: 1,
+		},
+		{
+			code: 'function foo() {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse();\n\t\t// Trailing comment.\n\t}\n}',
+			output: 'function foo() {\n\tif (!condition) {\n\t\treturn;\n\t}\n\n\tdoSomething();\n\tdoSomethingElse();\n\t// Trailing comment.\n}',
+			errors: 1,
+		},
+		{
+			code: 'class Foo {\n\tbar() {\n\t\tif (condition) {\n\t\t\tdoSomething();\n\t\t\tdoSomethingElse();\n\t\t\t// Trailing comment.\n\t\t}\n\t}\n}',
+			output: 'class Foo {\n\tbar() {\n\t\tif (!condition) {\n\t\t\treturn;\n\t\t}\n\n\t\tdoSomething();\n\t\tdoSomethingElse();\n\t\t// Trailing comment.\n\t}\n}',
+			errors: 1,
+		},
+		{
+			code: 'function foo() {\n\tif (condition) {\n\t\tdoSomething(); // Note.\n\t\tdoSomethingElse();\n\t}\n}',
+			output: 'function foo() {\n\tif (!condition) {\n\t\treturn;\n\t}\n\n\tdoSomething(); // Note.\n\tdoSomethingElse();\n}',
+			errors: 1,
+		},
+		{
+			code: 'function foo() {\n\tif (condition) {\n\t\tdoSomething();\n\t\t// Note.\n\t\tdoSomethingElse();\n\t}\n}',
+			output: 'function foo() {\n\tif (!condition) {\n\t\treturn;\n\t}\n\n\tdoSomething();\n\t// Note.\n\tdoSomethingElse();\n}',
+			errors: 1,
+		},
+		{
+			code: 'function foo() {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse();\n\t}}',
+			output: 'function foo() {\n\tif (!condition) {\n\t\treturn;\n\t}\n\n\tdoSomething();\n\tdoSomethingElse();}',
+			errors: 1,
+		},
+	],
+});
+
+// The moved body ends with a line comment and the next token is on the same line, so it would be swallowed. No fix and no suggestion.
+test({
+	valid: [],
+	invalid: [
+		...[
+			'function foo() {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse(); // Trailing comment.\n\t}}',
+			'function foo() {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse();\n\t\t// Trailing comment.\n\t}}',
+			'const foo = () => {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse();\n\t\t// Trailing comment.\n\t}};',
+			'function foo() {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse();\n\t\t// Trailing comment.\n\t} /* After. */ }',
+		].map(code => ({code, errors: [{messageId: 'prefer-early-return', suggestions: []}]})),
+	],
+});

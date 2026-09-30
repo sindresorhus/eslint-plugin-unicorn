@@ -97,11 +97,9 @@ const getNegatedConditionText = (node, context) => {
 			&& sourceCode.getRange(comment)[1] <= argumentRange[0],
 		);
 
-		if (hasCommentBetweenOperatorAndArgument) {
-			return sourceCode.text.slice(operatorRange[1], nodeRange[1]).trim();
-		}
-
-		return getParenthesizedText(node.argument, context);
+		return hasCommentBetweenOperatorAndArgument
+			? sourceCode.text.slice(operatorRange[1], nodeRange[1]).trim()
+			: getParenthesizedText(node.argument, context);
 	}
 
 	const conditionText = sourceCode.getText(node);
@@ -255,21 +253,31 @@ const hasMultilineUnbracedConsequent = (ifStatement, sourceCode) =>
 	ifStatement.consequent.type !== 'BlockStatement'
 	&& sourceCode.getText(ifStatement.consequent).includes('\n');
 
+// The replacement ends with the body of a braced branch. When that body ends with a line comment, a token after the `if` statement on the same line (like the closing brace of the function in `}}`) would be swallowed by it.
+const hasLineCommentBeforeSameLineToken = (ifStatement, sourceCode) => {
+	const {consequent} = ifStatement;
+	// Only a braced body moves its closing brace away, an unbraced one keeps the source layout
+	if (consequent.type !== 'BlockStatement') {
+		return false;
+	}
+
+	const closingBrace = sourceCode.getLastToken(consequent);
+	return sourceCode.getTokenBefore(closingBrace, {includeComments: true}).type === 'Line'
+		&& sourceCode.getLoc(sourceCode.getTokenAfter(closingBrace, {includeComments: true})).start.line === sourceCode.getLoc(closingBrace).end.line;
+};
+
 const canSuggestRewrite = (ifStatement, functionNode, context) => {
 	const {sourceCode} = context;
 	return canSafelyMoveConsequent(ifStatement, functionNode, context)
 		&& !hasCommentsInsideWrapperOutsideConditionOrConsequent(ifStatement, sourceCode)
-		&& !hasMultilineUnbracedConsequent(ifStatement, sourceCode);
+		&& !hasMultilineUnbracedConsequent(ifStatement, sourceCode)
+		&& !hasLineCommentBeforeSameLineToken(ifStatement, sourceCode);
 };
 
 const getFix = (ifStatement, functionNode, context) => {
 	const {sourceCode} = context;
 
-	if (!canSuggestRewrite(ifStatement, functionNode, context)) {
-		return;
-	}
-
-	if (sourceCode.getCommentsAfter(ifStatement).length > 0) {
+	if (!canSuggestRewrite(ifStatement, functionNode, context) || sourceCode.getCommentsAfter(ifStatement).length > 0) {
 		return;
 	}
 
