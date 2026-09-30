@@ -361,3 +361,15 @@ test.snapshot({
 		typeAware('declare function tag(strings: TemplateStringsArray): {id: string}; const key = tag`feature:${string}`; object[key]'),
 	],
 });
+
+// In a browser all three spellings are the same object
+test({
+	valid: [
+		'const self = {Math: "key"}; object[self.Math]',
+		'const window = {Math: "key"}; object[window.Math]',
+	],
+	invalid: ['globalThis', 'self', 'window'].map(name => ({
+		code: `const object = {[${name}.Math]: 1};`,
+		errors: 1,
+	})),
+});

@@ -40,6 +40,13 @@ const propertyDefinitionNodeTypes = [
 	'TSAbstractAccessorProperty',
 ];
 
+// In a browser all three are the same object
+const globalObjectNames = new Set([
+	'globalThis',
+	'self',
+	'window',
+]);
+
 const unsafeGlobalIdentifiers = new Set([
 	...disallowNewBuiltins,
 	...enforceNewBuiltins,
@@ -299,7 +306,7 @@ function isUnsafeGlobalThisProperty(node, context) {
 	if (
 		node.type !== 'MemberExpression'
 		|| node.object.type !== 'Identifier'
-		|| node.object.name !== 'globalThis'
+		|| !globalObjectNames.has(node.object.name)
 		|| !isGlobalIdentifier(node.object, context)
 	) {
 		return false;
