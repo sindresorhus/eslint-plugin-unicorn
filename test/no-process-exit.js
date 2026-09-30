@@ -23,6 +23,10 @@ test({
 		'process.once("SIGINT", function() { process.exit(1); })',
 		'process.once("SIGKILL", function() { process.exit(1); })',
 		'process.once("SIGINT", () => { process.exit(1); })',
+		// `addListener` is an alias of `on`, the `prepend*` ones register the same way
+		'process.addListener("SIGINT", () => { process.exit(1); })',
+		'process.prependListener("SIGINT", () => { process.exit(1); })',
+		'process.prependOnceListener("SIGINT", () => { process.exit(1); })',
 		'process.once("SIGINT", () => process.exit(1))',
 		'process.once("SIGINT", () => { if (true) { process.exit(1); } })',
 		// A sibling/nested `process.on` must not end the enclosing handler context

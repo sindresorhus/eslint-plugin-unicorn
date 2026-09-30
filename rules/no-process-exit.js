@@ -19,7 +19,7 @@ const create = context => {
 		return;
 	}
 
-	// Track how many `process.on`/`process.once` handler calls we're currently inside.
+	// Track how many `process.on`/`process.once` (and alias) handler calls we're currently inside.
 	// A counter (not a single node) is needed so a nested/sibling handler doesn't end the enclosing context.
 	let processEventHandlerDepth = 0;
 
@@ -27,9 +27,10 @@ const create = context => {
 	let isRequiredWorkerThreadsModule = false;
 	const problemNodes = [];
 
+	// `addListener` is a documented alias of `on`, the `prepend*` ones register the same way
 	const isProcessEventHandler = node => isMethodCall(node, {
 		object: 'process',
-		methods: ['on', 'once'],
+		methods: ['on', 'once', 'addListener', 'prependListener', 'prependOnceListener'],
 		minimumArguments: 1,
 		optionalCall: false,
 		optionalMember: false,
@@ -55,7 +56,7 @@ const create = context => {
 		}
 	});
 
-	// Check `process.on` / `process.once` call
+	// Check `process.on` / `process.once` (and alias) call
 	context.on('CallExpression', node => {
 		if (isProcessEventHandler(node)) {
 			processEventHandlerDepth++;
