@@ -870,3 +870,123 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		// A comment in the removed range would be dropped
+		{
+			code: 'function f(a /* keep */ = undefined) {}',
+			errors: 1,
+		},
+		{
+			code: 'let x = /* keep */ undefined;',
+			errors: 1,
+		},
+		{
+			code: 'const {a /* keep */ = undefined} = object;',
+			errors: 1,
+		},
+		{
+			code: 'let x /* keep */ = undefined;',
+			errors: 1,
+		},
+		{
+			code: 'function f(/* keep */ a = undefined) {}',
+			output: 'function f(/* keep */ a) {}',
+			errors: 1,
+		},
+		{
+			code: 'let x = undefined;',
+			output: 'let x;',
+			errors: 1,
+		},
+	],
+});
+
+// `using` and `await using` declarations require an initializer, so removing it is a syntax error
+test.typescript({
+	valid: [
+		'using resource = undefined;',
+		'using resource = undefined, other = undefined;',
+		'async function f() { await using resource = undefined; }',
+		'for (using resource = undefined; ; ) { break; }',
+	],
+	invalid: [
+		{
+			code: 'let resource = undefined;',
+			output: 'let resource;',
+			errors,
+		},
+	],
+});
+
+// A binding pattern requires an initializer, and the parentheses around the value must go too
+test({
+	valid: [
+		'let {foo} = undefined;',
+		'let [foo] = undefined;',
+		'var {foo: bar} = undefined;',
+		'let {foo: {bar}} = undefined;',
+	],
+	invalid: [
+		...[
+			['let foo = (undefined);', 'let foo;'],
+			['var foo = (undefined);', 'var foo;'],
+			['function foo(bar = (undefined)) {}', 'function foo(bar) {}'],
+			['const {bar = (undefined)} = object;', 'const {bar} = object;'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	],
+});
+
+// A trailing `undefined` is not the same as no argument for these built-ins
+test({
+	valid: [
+		'array.concat(undefined);',
+		'array.concat(other, undefined);',
+		'array.splice(start, undefined);',
+		'array.splice(start, deleteCount, undefined);',
+		'array.toSpliced(start, undefined);',
+		'array.lastIndexOf(value, undefined);',
+		'array.reduce(fn, undefined);',
+		'array.reduceRight(fn, undefined);',
+		'String(undefined);',
+		'String.fromCharCode(undefined);',
+		'String.fromCodePoint(undefined);',
+		'Number(undefined);',
+		'Math.max(undefined);',
+		'Math.min(undefined);',
+		'Math.hypot(undefined);',
+		'Array(undefined);',
+		'Array.of(undefined);',
+		'Array.from(undefined);',
+		'structuredClone(undefined);',
+		// `new Date(undefined)` is an Invalid Date, so the rule does not touch a constructor call
+		'new Date(undefined);',
+		'new RegExp(undefined);',
+		'new Error(undefined);',
+	],
+	invalid: [
+		// The result is the same without the argument
+		...[
+			'Math.sign(undefined);',
+			'Math.trunc(undefined);',
+			'Math.round(undefined);',
+			'Math.log(undefined);',
+			'parseInt(undefined);',
+			'Number.isNaN(undefined);',
+			'Promise.resolve(undefined);',
+			'Promise.reject(undefined);',
+			// Both throw a `TypeError`
+			'Promise.all(undefined);',
+			'Promise.any(undefined);',
+			'Promise.race(undefined);',
+			'Promise.allSettled(undefined);',
+			// Called as a function, `Date()` is the current date either way
+			'Date(undefined);',
+			'RegExp(undefined);',
+			'Boolean(undefined);',
+			'Symbol(undefined);',
+		].map(code => ({code, output: code.replace('(undefined)', '()'), errors: 1})),
+	],
+});

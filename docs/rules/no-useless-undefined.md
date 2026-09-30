@@ -116,6 +116,8 @@ Default: `true`
 
 Disallow the use of `undefined` at the end of function call arguments in JavaScript files. TypeScript files are not checked because the compiler determines whether an argument can be omitted. Pass `checkArguments: false` to disable checking them in JavaScript files.
 
+Calls where a trailing `undefined` is not the same as no argument, like `array.push(undefined)`, `array.splice(start, undefined)`, `Math.max(undefined)`, and `String(undefined)`, are ignored. These functions are matched by name.
+
 ```js
 // ❌
 /* eslint unicorn/no-useless-undefined: ["error", {"checkArguments": true}] */

@@ -1,11 +1,17 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {removeArgument, replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
+import {getArgumentRemovalRange, removeArgument, replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 import {
 	isUndefined,
 	isFunction,
 	isMemberExpression,
 } from './ast/index.js';
-import {getStaticNumberValue, isTypeScriptFile, needsSemicolon} from './utils/index.js';
+import {
+	getParenthesizedRange,
+	getStaticNumberValue,
+	hasCommentInRange,
+	isTypeScriptFile,
+	needsSemicolon,
+} from './utils/index.js';
 import {
 	containsOptionalChain,
 	isLengthMinusOneOf,
@@ -42,6 +48,69 @@ const compareFunctionNames = new Set([
 	'strictSame',
 	'strictNotSame',
 ]);
+// A trailing `undefined` argument is not the same as no argument for these
+const methodsWithUndefinedArgument = new Set([
+	// `array.push(undefined)` appends an `undefined` element
+	'push',
+	// `array.unshift(undefined)` prepends an `undefined` element
+	'unshift',
+	// `array.includes(undefined)` looks for an `undefined` element
+	'includes',
+	// `array.concat(undefined)` appends an `undefined` element, `concat()` does not
+	'concat',
+	// `array.splice(start, undefined)` deletes nothing, `splice(start)` deletes to the end
+	'splice',
+	// `array.toSpliced(start, undefined)` skips nothing, `toSpliced(start)` skips to the end
+	'toSpliced',
+	// `array.lastIndexOf(value, undefined)` searches from index `0`, `lastIndexOf(value)` searches from the end
+	'lastIndexOf',
+	// `array.reduce(fn, undefined)` seeds the accumulator with `undefined`, `reduce(fn)` seeds it with the first element
+	'reduce',
+	'reduceRight',
+	// `String(undefined)` is the string `'undefined'`, `String()` is an empty string
+	'String',
+	// `String.fromCharCode(undefined)` is `'\0'`, `String.fromCharCode()` is an empty string
+	'fromCharCode',
+	// `String.fromCodePoint(undefined)` throws, `String.fromCodePoint()` is an empty string
+	'fromCodePoint',
+
+	// `Number(undefined)` is `NaN`, `Number()` is `0`
+	'Number',
+	// `Math.max(undefined)` is `NaN`, `Math.max()` is `-Infinity`
+	'max',
+	// `Math.min(undefined)` is `NaN`, `Math.min()` is `Infinity`
+	'min',
+	// `Math.hypot(undefined)` is `NaN`, `Math.hypot()` is `0`
+	'hypot',
+
+	// `Array(undefined)` is `[undefined]`, `Array()` is `[]`
+	'Array',
+	// `Array.of(undefined)` is `[undefined]`, `Array.of()` is `[]`
+	'of',
+	// `Array.from(undefined)` throws the same as `Array.from()`, but the name is matched for any object, like a library's `from()`
+	'from',
+
+	// `structuredClone(undefined)` returns `undefined`, `structuredClone()` throws
+	'structuredClone',
+
+	// `set.add(undefined)`
+	'add',
+	// `set.has(undefined)`
+	'has',
+	// `set.delete(undefined)`
+	'delete',
+
+	// `map.set(foo, undefined)`
+	'set',
+
+	// `React.createContext(undefined)`
+	'createContext',
+	// React 19 useRef
+	'useRef',
+
+	// https://vuejs.org/api/reactivity-core.html#ref
+	'ref',
+]);
 const shouldIgnore = node => {
 	let name;
 
@@ -56,32 +125,9 @@ const shouldIgnore = node => {
 	}
 
 	return compareFunctionNames.has(name)
-		// `array.push(undefined)`
-		|| name === 'push'
-		// `array.unshift(undefined)`
-		|| name === 'unshift'
-		// `array.includes(undefined)`
-		|| name === 'includes'
-
-		// `set.add(undefined)`
-		|| name === 'add'
-		// `set.has(undefined)`
-		|| name === 'has'
-		// `set.delete(undefined)`
-		|| name === 'delete'
-
-		// `map.set(foo, undefined)`
-		|| name === 'set'
-
-		// `React.createContext(undefined)`
-		|| name === 'createContext'
+		|| methodsWithUndefinedArgument.has(name)
 		// `setState(undefined)`
-		|| /^set[A-Z]/v.test(name)
-		// React 19 useRef
-		|| name === 'useRef'
-
-		// https://vuejs.org/api/reactivity-core.html#ref
-		|| name === 'ref';
+		|| /^set[A-Z]/v.test(name);
 };
 
 const getFunction = scope => {
@@ -342,15 +388,25 @@ const create = context => {
 		if (
 			parent.type === 'VariableDeclarator'
 			&& parent.init === node
-			&& parent.parent.type === 'VariableDeclaration'
-			&& parent.parent.kind !== 'const'
-			&& parent.parent.declarations.includes(parent)
+			// `const`, `using`, and `await using` declarations require an initializer
+			&& (parent.parent.kind === 'let' || parent.parent.kind === 'var')
+			// A binding pattern requires an initializer, `let {foo} = undefined;` cannot become `let {foo};`
+			&& parent.id.type === 'Identifier'
 		) {
-			const [, start] = sourceCode.getRange(parent.id);
-			const [, end] = sourceCode.getRange(node);
 			return getProblem(
 				node,
-				fixer => fixer.removeRange([start, end]),
+				function * (fixer, {abort}) {
+					const [, start] = sourceCode.getRange(parent.id);
+					// Drop the parentheses around the value too, they would be left dangling
+					const [, end] = getParenthesizedRange(node, context);
+
+					// The removed range includes everything between the id and the value, a comment would be dropped
+					if (hasCommentInRange(context, [start, end])) {
+						return abort();
+					}
+
+					yield fixer.removeRange([start, end]);
+				},
 			);
 		}
 
@@ -361,11 +417,17 @@ const create = context => {
 		) {
 			return getProblem(
 				node,
-				function * (fixer) {
+				function * (fixer, {abort}) {
 					const assignmentPattern = parent;
 					const {left} = assignmentPattern;
 					const [, start] = sourceCode.getRange(left);
-					const [, end] = sourceCode.getRange(node);
+					// Drop the parentheses around the value too, they would be left dangling
+					const [, end] = getParenthesizedRange(node, context);
+
+					// The removed range includes everything between the left and the value, a comment would be dropped
+					if (hasCommentInRange(context, [start, end])) {
+						return abort();
+					}
 
 					yield fixer.removeRange([start, end]);
 					if (
@@ -445,11 +507,17 @@ const create = context => {
 			return;
 		}
 
-		return {
+		const problem = {
 			node: lastArgument,
 			messageId,
-			fix: fixer => removeArgument(fixer, lastArgument, context),
 		};
+
+		// The argument and a trailing comma are removed, so a comment next to them would be lost
+		if (!hasCommentInRange(context, getArgumentRemovalRange(lastArgument, context))) {
+			problem.fix = fixer => removeArgument(fixer, lastArgument, context);
+		}
+
+		return problem;
 	});
 };
 
