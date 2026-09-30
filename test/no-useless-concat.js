@@ -103,3 +103,35 @@ test.snapshot({
 		'`a` + ``',
 	],
 });
+
+// A `BinaryExpression` is never a directive, folding one would turn the function or script strict
+test({
+	valid: [
+		{
+			code: 'function foo() {\n\t\'use \' + \'strict\';\n\treturn this;\n}',
+		},
+		{
+			code: 'function foo() {\n\t\'use asm\';\n\t\'use \' + \'strict\';\n}',
+		},
+		{
+			code: '\'use \' + \'strict\';\nvar a = 1;',
+			languageOptions: {sourceType: 'script'},
+		},
+		// A module is always strict, but tools read other directives there, like `'use client'`
+		'\'use \' + \'client\';\nexport default 1;',
+	],
+	invalid: [
+		// Not in the prologue, no directive is created
+		{
+			code: 'function foo() {\n\tbar();\n\t\'use \' + \'strict\';\n}',
+			output: 'function foo() {\n\tbar();\n\t\'use strict\';\n}',
+			errors: 1,
+		},
+		// A prologue entry that is not a `use …` directive is ignored by engines
+		{
+			code: '\'x\' + \'y\';',
+			output: '\'xy\';',
+			errors: 1,
+		},
+	],
+});
