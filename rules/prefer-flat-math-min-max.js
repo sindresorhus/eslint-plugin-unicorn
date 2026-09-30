@@ -1,4 +1,5 @@
 import {isMethodCall} from './ast/index.js';
+import {getParenthesizedText} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-flat-math-min-max';
 const messages = {
@@ -75,7 +76,8 @@ const create = context => {
 
 				const calleeText = sourceCode.getText(callExpression.callee);
 				const argumentsText = getFlattenedArguments(callExpression, method)
-					.map(argument => sourceCode.getText(argument))
+					// Keep the parentheses, a sequence expression is only one argument while it has them
+					.map(argument => getParenthesizedText(argument, context))
 					.join(', ');
 
 				yield fixer.replaceText(callExpression, `${calleeText}(${argumentsText})`);

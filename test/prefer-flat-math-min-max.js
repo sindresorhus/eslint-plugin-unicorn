@@ -51,5 +51,9 @@ test.snapshot({
 				c,
 			);
 		`,
+		'Math.max(Math.max((a, b), c), d);',
+		'Math.max(c, Math.max((a, b), d));',
+		'Math.min(Math.min((a, b), c), d);',
+		'Math.max(Math.max((a), ...(b)), c);',
 	],
 });
