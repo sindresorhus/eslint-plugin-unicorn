@@ -88,7 +88,7 @@ console.log(myEnum.used, myEnum.usedToo); // Every property is used individually
 
 myEnum[x] // Unpredictable, all properties are considered to be used
 
-// Objects with methods are skipped too, all properties are considered used
+// Objects with methods, getters, setters, or `function` values are skipped too, all properties are considered used
 const foo = {
 	used: 1,
 	method() {

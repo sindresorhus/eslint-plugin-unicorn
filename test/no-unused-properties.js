@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -379,17 +379,6 @@ test({
 		{
 			code: outdent`
 				const foo = {
-					a: 1,
-					[u]: 2
-				};
-				console.log(foo.a);
-			`,
-			errors: [error],
-		},
-
-		{
-			code: outdent`
-				const foo = {
 					__proto__: {a: 1},
 					b: 2,
 					u: 3
@@ -399,14 +388,6 @@ test({
 			errors: [error],
 		},
 
-		{
-			code: outdent`
-				const foo = {
-					[foo.bar]: 1
-				};
-			`,
-			errors: [error],
-		},
 		{
 			code: outdent`
 				const styles = {
@@ -642,5 +623,67 @@ test.snapshot({
 				console.log(bar.b);
 			}
 		`,
+	],
+});
+
+test({
+	valid: [
+		outdent`
+			const foo = {
+				a: 1,
+				[u]: 2
+			};
+			console.log(foo.a);
+		`,
+		outdent`
+			const foo = {
+				[foo.bar]: 1
+			};
+		`,
+		// A computed key is dynamic
+		'const config = {[key]: value, other: 1}; console.log(config.other);',
+		'const object = {a: 1, b: 2}; const {[k]: v} = object; use(v);',
+		'const object = {a: 1, b: 2}; const {[k]: v, ...rest} = object; use(v, rest);',
+		{
+			code: 'const foo: {[key]: number; a: number} = get(); use(foo.a);',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [],
+});
+
+test({
+	valid: [
+		// A computed key with a literal is still a static name
+		'const object = {["a"]: 1}; console.log(object.a);',
+	],
+	invalid: [
+		{
+			code: 'const object = {["a"]: 1, ["b"]: 2}; console.log(object.b);',
+			errors: 1,
+		},
+	],
+});
+
+// An object with a method can be used through `this`, so every property counts as used
+test({
+	valid: [
+		'const foo = {used: 1, unused: 2, method() { return this; }}; console.log(foo.used);',
+		'const foo = {used: 1, unused: 2, get thing() { return this.used; }}; console.log(foo.used);',
+		'const foo = {used: 1, unused: 2, set thing(value) { this.used = value; }}; console.log(foo.used);',
+		'const foo = {used: 1, unused: 2, value: function () { return this.used; }}; console.log(foo.used);',
+		'const foo = {used: 1, nested: {unused: 1, method() {}}}; console.log(foo.used, foo.nested);',
+	],
+	invalid: [
+		// A plain value property does not make the rest unpredictable
+		{
+			code: 'const foo = {used: 1, unused: 2, value: 3}; console.log(foo.used);',
+			errors: 2,
+		},
+		// An arrow keeps the `this` of where it was written, so it cannot read the object it sits in and is a predictable value like any other
+		{
+			code: 'const foo = {used: 1, unused: 2, value: () => {}}; console.log(foo.used);',
+			errors: 2,
+		},
 	],
 });

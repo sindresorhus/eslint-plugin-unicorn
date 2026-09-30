@@ -36,12 +36,21 @@ const getProperties = value => {
 		return value.properties;
 	}
 
-	if (value.type === 'TSTypeLiteral') {
-		return value.members.filter(member => member.type === 'TSPropertySignature');
-	}
-
-	return [];
+	return value.type === 'TSTypeLiteral' ? value.members.filter(member => member.type === 'TSPropertySignature') : [];
 };
+
+// An object literal with a method can be used through `this` in ways static analysis cannot see, so every one of its properties counts as used.
+const hasMethod = objectLike =>
+	objectLike.type === 'ObjectExpression'
+	&& objectLike.properties.some(property =>
+		property.type === 'Property'
+		&& (
+			property.method
+			|| property.kind === 'get'
+			|| property.kind === 'set'
+			// A non-arrow function value can be called with any `this`, so it is as unpredictable as a method. An arrow keeps the `this` of where it was written, so it cannot read the object it sits in and is a predictable value.
+			|| property.value.type === 'FunctionExpression'
+		));
 
 const isMemberExpressionCall = memberExpression =>
 	memberExpression.parent.type === 'CallExpression'
@@ -80,6 +89,9 @@ const getPropertyKeyName = key => {
 	}
 };
 
+// A computed key is dynamic, `{[key]: value}` does not define a property named `key`
+const isComputedProperty = ({computed, key}) => computed && key.type !== 'Literal';
+
 const propertyKeysEqual = (keyA, keyB) => {
 	const keyNameA = getPropertyKeyName(keyA);
 	return keyNameA !== undefined && keyNameA === getPropertyKeyName(keyB);
@@ -96,7 +108,8 @@ const objectPatternMatchesObjectExpressionPropertyKey = (pattern, key) =>
 			return true;
 		}
 
-		return propertyKeysEqual(property.key, key);
+		// `const {[name]: value} = object` can read any property, like a rest element
+		return isComputedProperty(property) || propertyKeysEqual(property.key, key);
 	});
 
 const isUnusedVariable = variable => {
@@ -114,11 +127,7 @@ const create = context => {
 			return property.key.name;
 		}
 
-		if (property.key.type === 'Literal') {
-			return property.key.value;
-		}
-
-		return sourceCode.getText(property.key);
+		return property.key.type === 'Literal' ? property.key.value : sourceCode.getText(property.key);
 	};
 
 	const reportProperty = (property, references) => {
@@ -137,14 +146,14 @@ const create = context => {
 	};
 
 	const reportProperties = (objectLike, references) => {
+		if (hasMethod(objectLike)) {
+			return;
+		}
+
 		for (const property of getProperties(objectLike)) {
 			const {key} = property;
 
-			if (!key) {
-				continue;
-			}
-
-			if (propertyKeysEqual(key, specialProtoPropertyKey)) {
+			if (!key || isComputedProperty(property) || propertyKeysEqual(key, specialProtoPropertyKey)) {
 				continue;
 			}
 
@@ -220,11 +229,7 @@ const create = context => {
 	};
 
 	const reportVariable = variable => {
-		if (variable.defs.length !== 1) {
-			return;
-		}
-
-		if (isUnusedVariable(variable)) {
+		if (variable.defs.length !== 1 || isUnusedVariable(variable)) {
 			return;
 		}
 
