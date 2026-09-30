@@ -17,7 +17,7 @@ JavaScript and TypeScript are excluded because their statements and expressions 
 
 ### `indent`
 
-Type: `'tab' | number`\
+Type: `'tab' | integer`\
 Default: `'tab'`
 
 Use tabs, or a positive integer to set the number of spaces per indentation unit. Mixed tabs and spaces are rejected.
@@ -35,7 +35,7 @@ Use tabs, or a positive integer to set the number of spaces per indentation unit
 
 ### `tabWidth`
 
-Type: `number`\
+Type: `integer`\
 Default: `4`
 
 A positive integer tab stop width for CSS conversion, whether converting to tabs or spaces. Ignored for JSON.

@@ -174,19 +174,21 @@ for (const [index, {language, code, output, options}] of fixCases.entries()) {
 			t.deepEqual(fixed.messages, []);
 			t.false(linter.verifyAndFix(fixed.output, config).fixed);
 
-			if (language === languages.css) {
-				const getTokens = text => {
-					const tokens = [];
-					tokenize(text, (type, start, end) => {
-						if (type !== tokenTypes.WhiteSpace) {
-							tokens.push(text.slice(start, end));
-						}
-					});
-					return tokens;
-				};
-
-				t.deepEqual(getTokens(fixed.output), getTokens(original));
+			if (language !== languages.css) {
+				return;
 			}
+
+			const getTokens = text => {
+				const tokens = [];
+				tokenize(text, (type, start, end) => {
+					if (type !== tokenTypes.WhiteSpace) {
+						tokens.push(text.slice(start, end));
+					}
+				});
+				return tokens;
+			};
+
+			t.deepEqual(getTokens(fixed.output), getTokens(original));
 		});
 	}
 }
