@@ -8,6 +8,7 @@ import {
 	escapeString,
 	getParenthesizedRange,
 	getParenthesizedText,
+	isLeftHandSide,
 	isNodeValueNotDomNode,
 } from './utils/index.js';
 
@@ -211,11 +212,7 @@ const getQuerySelectorChain = node => {
 
 const getMergeQuerySelectorSuggestion = (node, querySelectorChain, context) => {
 	const {sourceCode} = context;
-	if (hasCommentsInside(node, sourceCode)) {
-		return;
-	}
-
-	if (!canMergeSelectorValues(querySelectorChain.selectors)) {
+	if (hasCommentsInside(node, sourceCode) || !canMergeSelectorValues(querySelectorChain.selectors)) {
 		return;
 	}
 
@@ -239,6 +236,8 @@ const create = context => {
 		const collectionName = getIndexedDomCollectionName(node);
 		if (
 			!collectionName
+			// Writing to the indexed access is not a traversal, `element.firstChild` is not assignable the same way
+			|| isLeftHandSide(node)
 			|| isNodeValueNotDomNode(node.object.object)
 			|| (
 				collectionName === 'children'

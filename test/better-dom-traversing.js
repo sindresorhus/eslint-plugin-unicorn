@@ -14,6 +14,18 @@ const jsxLanguageOptions = {
 
 test.snapshot({
 	valid: [
+		// Writing to the indexed access is not a traversal
+		'element.childNodes[0] = node;',
+		'element.children[0] = node;',
+		'element.childNodes[0] += node;',
+		'element.childNodes[0] ||= node;',
+		'element.childNodes[0]++;',
+		'delete element.childNodes[0];',
+		'for (element.childNodes[0] of nodes) {}',
+		'for (element.childNodes[0] in nodes) {}',
+		'[element.childNodes[0]] = nodes;',
+		'({node: element.childNodes[0]} = object);',
+		'element.children[1] = node;',
 		// Already preferred APIs
 		'element.firstChild;',
 		'element.firstElementChild;',
@@ -132,5 +144,7 @@ test.snapshot({
 				.querySelector("a")
 				.querySelector("b");
 		`,
+		// Reading the child to write one of its properties is still a traversal
+		'element.childNodes[0].textContent = text;',
 	],
 });
