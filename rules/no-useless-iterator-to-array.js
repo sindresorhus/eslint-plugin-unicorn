@@ -1,5 +1,5 @@
 import typedArray from './shared/typed-array.js';
-import {unwrapExpression} from './shared/iterator-helpers.js';
+import {isKnownNonIterator, unwrapExpression} from './shared/iterator-helpers.js';
 import {removeMethodCall} from './fix/index.js';
 import {
 	isNewExpression,
@@ -37,12 +37,12 @@ const callbackOnlyIteratorMethods = [
 // `reduce` — both Array and Iterator accept (callback, initialValue).
 const reduceMethod = 'reduce';
 
-const isToArrayCall = node => isMethodCall(node, {
+const isToArrayCall = (node, context) => isMethodCall(node, {
 	method: 'toArray',
 	argumentsLength: 0,
 	optionalCall: false,
 	optionalMember: false,
-});
+}) && !isKnownNonIterator(node.callee.object, context);
 
 const getRemoveToArrayFix = (toArrayCall, context) => {
 	if (context.sourceCode.getCommentsInside(toArrayCall).length > 0) {
@@ -74,7 +74,7 @@ const getArrayFromProblem = (node, context) => {
 			optionalCall: false,
 			optionalMember: false,
 		})
-		|| !isToArrayCall(node.arguments[0])
+		|| !isToArrayCall(node.arguments[0], context)
 	) {
 		return;
 	}
@@ -103,7 +103,7 @@ const getObjectFromEntriesProblem = (node, context) => {
 			optionalCall: false,
 			optionalMember: false,
 		})
-		|| !isToArrayCall(node.arguments[0])
+		|| !isToArrayCall(node.arguments[0], context)
 	) {
 		return;
 	}
@@ -134,7 +134,7 @@ const getPromiseProblem = (node, context) => {
 			optionalCall: false,
 			optionalMember: false,
 		})
-		|| !isToArrayCall(node.arguments[0])
+		|| !isToArrayCall(node.arguments[0], context)
 	) {
 		return;
 	}
@@ -169,7 +169,8 @@ const canObserveArrayArgument = (callback, arrayParameterIndex, context) => {
 			);
 	}
 
-	return false;
+	// `Iterator` callbacks take fewer arguments than the array ones, so a callback that reads the third argument works on the array but not on the iterator. A named callback is opaque here.
+	return true;
 };
 
 const getIteratorMethodProblem = (node, context) => {
@@ -189,7 +190,7 @@ const getIteratorMethodProblem = (node, context) => {
 				optionalMember: false,
 			})
 		)
-		|| !isToArrayCall(node.callee.object)
+		|| !isToArrayCall(node.callee.object, context)
 	) {
 		return;
 	}
@@ -226,7 +227,7 @@ const create = context => {
 				isNewExpression(node, {names: ['Map', 'WeakMap', 'Set', 'WeakSet'], argumentsLength: 1})
 				|| isNewExpression(node, {names: typedArray, minimumArguments: 1})
 			)
-			|| !isToArrayCall(node.arguments[0])
+			|| !isToArrayCall(node.arguments[0], context)
 		) {
 			return;
 		}
@@ -255,38 +256,40 @@ const create = context => {
 
 	// Case 3: `for (const x of iterator.toArray())`
 	context.on('ForOfStatement', node => {
-		if (!isToArrayCall(node.right)) {
+		if (!isToArrayCall(node.right, context)) {
 			return;
 		}
 
-		const fix = getRemoveToArrayFix(node.right, context);
+		// Suggestion only. `.toArray()` drains the iterator before the loop starts, while iterating it directly stops at the first `break`, `return` or `throw`.
+		const suggestion = getRemoveToArraySuggestion(node.right, context, MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING);
 
 		return {
 			node: node.right.callee.property,
 			messageId: MESSAGE_ID_FOR_OF,
-			...(fix && {fix}),
+			...(suggestion && {suggest: [suggestion]}),
 		};
 	});
 
 	// Case 4: `yield* iterator.toArray()`
 	context.on('YieldExpression', node => {
-		if (!node.delegate || !isToArrayCall(node.argument)) {
+		if (!node.delegate || !isToArrayCall(node.argument, context)) {
 			return;
 		}
 
-		const fix = getRemoveToArrayFix(node.argument, context);
+		// Suggestion only, for the same reason as the `for…of` case: delegating to the iterator pulls one element at a time where `.toArray()` had already pulled them all.
+		const suggestion = getRemoveToArraySuggestion(node.argument, context, MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING);
 
 		return {
 			node: node.argument.callee.property,
 			messageId: MESSAGE_ID_YIELD_STAR,
-			...(fix && {fix}),
+			...(suggestion && {suggest: [suggestion]}),
 		};
 	});
 
 	// Case 5: `[...iterator.toArray()]`, `call(...iterator.toArray())`
 	// Spread works on iterables — `.toArray()` is unnecessary.
 	context.on('SpreadElement', node => {
-		if (!isToArrayCall(node.argument)) {
+		if (!isToArrayCall(node.argument, context)) {
 			return;
 		}
 

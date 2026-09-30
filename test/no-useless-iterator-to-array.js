@@ -149,14 +149,6 @@ test.snapshot({
 			}
 		`,
 
-		// Case 2c: Iterator methods
-		'iterator.toArray().every(fn)',
-		'iterator.toArray().find(fn)',
-		'iterator.toArray().forEach(fn)',
-		'iterator.toArray().reduce(fn)',
-		'iterator.toArray().reduce(fn, init)',
-		'iterator.toArray().some(fn)',
-
 		// Complex chains
 		outdent`
 			const result = iterator
@@ -185,6 +177,8 @@ test.snapshot({
 		'[...(iterator.toArray())]',
 		'call(...(iterator.toArray()))',
 		'new Foo(...(iterator.toArray()))',
+		// An iterator helper result is still an `Iterator`
+		'const iterator = set.values().map(fn); new Set(iterator.toArray());',
 	],
 });
 
@@ -201,5 +195,64 @@ test.snapshot({
 	invalid: [
 		'iterator.toArray().find(((value, index) => value === index) as Predicate)',
 		'iterator.toArray().reduce(((accumulator, value, index) => accumulator + value + index) satisfies Reducer)',
+	],
+});
+
+// `Iterator` callbacks take fewer arguments, so a named callback may read the array
+test({
+	valid: [
+		'iterator.toArray().forEach(object.fn);',
+		'function check(value, index, array) {\n\treturn array.length > 0; }\niterator.toArray().every(check);',
+	],
+	invalid: [],
+});
+
+const vecDeclaration = 'class Vec { toArray() { return [1, 2, 3]; } }\nconst vec = new Vec();';
+
+// `toArray()` is a very common user-defined method name
+test({
+	valid: [
+		outdent`
+			class Vec {
+				toArray() {
+					return [];
+				}
+			}
+			new Set(new Vec().toArray());
+		`,
+		outdent`
+			class Vec {
+				toArray() {
+					return [];
+				}
+			}
+			Array.from(new Vec().toArray());
+		`,
+		outdent`
+			const array = [1, 2];
+			new Set(array.toArray());
+		`,
+		outdent`
+			const object = {toArray: () => []};
+			new Set(object.toArray());
+		`,
+		// The same class behind a `const` binding
+		`${vecDeclaration}\nnew Set(vec.toArray());`,
+		`${vecDeclaration}\nconst r = Array.from(vec.toArray());`,
+		`${vecDeclaration}\nconst r = [...vec.toArray()];`,
+		`${vecDeclaration}\nconst r = new Uint8Array(vec.toArray());`,
+	],
+	invalid: [
+		// A real iterator is still reported
+		{
+			code: 'const it = [1, 2, 3].values();\nconst r = Array.from(it.toArray());',
+			output: 'const it = [1, 2, 3].values();\nconst r = Array.from(it);',
+			errors: 1,
+		},
+		{
+			code: 'const s = new Set([1, 2]);\nconst r = [...s.values().toArray()];',
+			output: 'const s = new Set([1, 2]);\nconst r = [...s.values()];',
+			errors: 1,
+		},
 	],
 });

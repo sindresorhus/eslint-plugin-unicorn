@@ -26,6 +26,8 @@
 
 - `yield*` can delegate to any iterable, so converting to an array first is unnecessary.
 
+  `.toArray()` pulls every element before the loop or delegation starts, while the iterator itself is only pulled until a `break`, `return`, or `throw`. So these cases are reported as **suggestions** rather than autofixes.
+
 - `Promise.{all,allSettled,any,race}(…)` accept an iterable, so `.toArray()` is unnecessary. However, removing it can change a synchronous throw into an asynchronous rejection when iteration fails, so these cases are reported as **suggestions** rather than autofixes.
 
 - The spread operator (`...`) works on any iterable, so converting to an array before spreading is unnecessary:
@@ -41,7 +43,7 @@
   - `.reduce()`
   - `.some()`
 
-However, `Array` callbacks receive additional arguments (e.g., the 3rd `array` argument, or 4th for `.reduce()`) that `Iterator` callbacks do not, so removing `.toArray()` can change behavior if the callback uses those arguments. These cases are reported as **suggestions** rather than autofixes.
+However, `Array` callbacks receive additional arguments (e.g., the 3rd `array` argument, or 4th for `.reduce()`) that `Iterator` callbacks do not, so removing `.toArray()` can change behavior if the callback uses those arguments. A callback that can read them, including any named callback, is not reported, and the other cases are reported as **suggestions** rather than autofixes.
 
 This rule does not flag `.filter()`, `.map()`, or `.flatMap()` because their `Iterator` versions return iterators, not arrays, so the semantics differ.
 
@@ -101,13 +103,18 @@ call(...iterator);
 
 ```js
 // ❌
-iterator.toArray().every(fn);
+iterator.toArray().every(element => element > 0);
 
 // ✅
-iterator.every(fn);
+iterator.every(element => element > 0);
 ```
 
 ```js
-// ✅ — `.filter()` returns an array on Array but an iterator on Iterator
+// ✅ A named callback may read the extra `Array` callback arguments
+iterator.toArray().every(fn);
+```
+
+```js
+// ✅ `.filter()` returns an array on Array but an iterator on Iterator
 iterator.toArray().filter(fn);
 ```
