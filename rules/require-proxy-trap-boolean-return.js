@@ -1,6 +1,7 @@
 import {getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNewExpression} from './ast/index.js';
 import {
+	getChildNodes,
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableMemberAccess,
 	hasSideEffectfulConstInitializer,
@@ -33,34 +34,19 @@ const functionTypes = new Set([
 const isReturnOrThrowStatement = node =>
 	node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
 
+// The `return` statements of the function body, not of the functions nested in it
 function * getReturnStatements(node) {
-	if (!node || typeof node.type !== 'string') {
-		return;
-	}
-
 	if (node.type === 'ReturnStatement') {
 		yield node;
 		return;
 	}
 
-	if (node.type !== 'BlockStatement' && functionTypes.has(node.type)) {
+	if (functionTypes.has(node.type)) {
 		return;
 	}
 
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			for (const child of value) {
-				yield * getReturnStatements(child);
-			}
-
-			continue;
-		}
-
-		yield * getReturnStatements(value);
+	for (const child of getChildNodes(node)) {
+		yield * getReturnStatements(child);
 	}
 }
 
@@ -177,11 +163,7 @@ const withoutFix = problem => {
 
 const getProblem = (node, name, sourceCode) => {
 	if (node.type === 'AssignmentExpression') {
-		if (node.operator === '=') {
-			return withoutFix(getProblem(node.right, name, sourceCode));
-		}
-
-		return createProblem(node, name);
+		return node.operator === '=' ? withoutFix(getProblem(node.right, name, sourceCode)) : createProblem(node, name);
 	}
 
 	if (node.type === 'ConditionalExpression') {
