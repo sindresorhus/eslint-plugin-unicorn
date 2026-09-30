@@ -1,4 +1,8 @@
-import {getParenthesizedRange, getParenthesizedText} from './utils/index.js';
+import {
+	getParenthesizedRange,
+	getParenthesizedText,
+	getStaticValueForControlFlow,
+} from './utils/index.js';
 import {
 	comparisonOperators,
 	containsOptionalChain,
@@ -28,6 +32,9 @@ for (const [logicalOperator, [first, second], result] of [
 	reductions.set(reductionKey(logicalOperator, first, second), result);
 	reductions.set(reductionKey(logicalOperator, second, first), result);
 }
+
+// A `RegExp` operand is an object, `<=` compares the primitive value while `===` does not
+const isRegExpValue = (node, context) => getStaticValueForControlFlow(node, context)?.value instanceof RegExp;
 
 const isComparison = node =>
 	node.type === 'BinaryExpression'
@@ -71,7 +78,11 @@ const create = context => {
 		}
 
 		const reduction = reductions.get(reductionKey(node.operator, left.operator, rightOperator));
-		if (!reduction) {
+		if (
+			!reduction
+			|| isRegExpValue(left.left, context)
+			|| isRegExpValue(left.right, context)
+		) {
 			return;
 		}
 

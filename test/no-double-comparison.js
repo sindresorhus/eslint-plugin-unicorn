@@ -45,6 +45,13 @@ test.snapshot({
 		'x === y || x',
 		// Nullish coalescing is not a comparison join.
 		'x === y ?? x < y',
+		// A `RegExp` operand is an object, `<=` compares the primitive value while `===` does not
+		'const y = /foo/; /foo/ === y || /foo/ < y',
+		'const y = /foo/; /foo/ < y || /foo/ === y',
+		'x === /foo/ || x < /foo/',
+		'const a = /foo/, b = /foo/; a === b || a < b',
+		'const a = /foo/; a === b || a < b',
+		'const a = /foo/g; a === b || a < b',
 	],
 	invalid: [
 		// `||` reductions.
