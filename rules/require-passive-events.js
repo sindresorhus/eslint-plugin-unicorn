@@ -1,4 +1,10 @@
-import {isBooleanLiteral, isMethodCall, isStringLiteral} from './ast/index.js';
+import {
+	isBooleanLiteral,
+	isMethodCall,
+	isNullLiteral,
+	isStringLiteral,
+	isUndefined,
+} from './ast/index.js';
 import {
 	getIndentString,
 	getParenthesizedRange,
@@ -58,14 +64,11 @@ const getPassiveProperty = optionsNode =>
 		property.type === 'Property'
 		&& getPropertyName(property) === 'passive');
 
+// `passive` is inserted after the last property, and an empty object is rebuilt, so a comment there would be moved or lost
 const hasCommentsBeforeClosingBrace = (optionsNode, sourceCode) => {
-	const lastProperty = optionsNode.properties.at(-1);
-	if (!lastProperty) {
-		return false;
-	}
-
+	const tokenBefore = optionsNode.properties.at(-1) ?? sourceCode.getFirstToken(optionsNode);
 	const closingBrace = sourceCode.getLastToken(optionsNode);
-	return sourceCode.getTokensBetween(lastProperty, closingBrace, {includeComments: true})
+	return sourceCode.getTokensBetween(tokenBefore, closingBrace, {includeComments: true})
 		.some(token => token.type === 'Block' || token.type === 'Line');
 };
 
@@ -162,11 +165,7 @@ const isEventParameterSafe = (listener, context) => {
 	}
 
 	for (const {identifier} of eventVariable.references) {
-		if (isDirectPreventDefaultReference(identifier)) {
-			return false;
-		}
-
-		if (!isSafeEventPropertyReference(identifier)) {
+		if (isDirectPreventDefaultReference(identifier) || !isSafeEventPropertyReference(identifier)) {
 			return false;
 		}
 	}
@@ -199,11 +198,9 @@ const fixObjectOptionsWithoutPassive = (optionsNode, context) => fixer => {
 	const tokenAfterLastProperty = sourceCode.getTokenAfter(lastProperty);
 	const indent = getIndentString(lastProperty, context);
 	const linebreak = getLinebreak(context);
-	if (tokenAfterLastProperty.value === ',') {
-		return fixer.insertTextAfter(tokenAfterLastProperty, `${linebreak}${indent}passive: true,`);
-	}
-
-	return fixer.insertTextAfter(lastProperty, `,${linebreak}${indent}passive: true`);
+	return tokenAfterLastProperty.value === ','
+		? fixer.insertTextAfter(tokenAfterLastProperty, `${linebreak}${indent}passive: true,`)
+		: fixer.insertTextAfter(lastProperty, `,${linebreak}${indent}passive: true`);
 };
 
 const fixPassiveFalse = passiveProperty => fixer =>
@@ -222,11 +219,12 @@ const getOptionsProblem = (context, callExpression, optionsNode) => {
 		};
 	}
 
-	if (optionsNode.type !== 'ObjectExpression') {
-		return;
+	// `undefined`/`null` is the same as omitting the argument, so no passive listener is installed
+	if (isUndefined(optionsNode) || isNullLiteral(optionsNode)) {
+		return {};
 	}
 
-	if (optionsNode.properties.some(property => property.type === 'SpreadElement' || property.computed)) {
+	if (optionsNode.type !== 'ObjectExpression' || optionsNode.properties.some(property => property.type === 'SpreadElement' || property.computed)) {
 		return;
 	}
 

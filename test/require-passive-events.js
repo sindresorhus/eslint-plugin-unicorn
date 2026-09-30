@@ -94,5 +94,45 @@ test({
 			output: 'window.addEventListener("wheel", () => {}, {\r\n\tcapture: true,\r\n\tpassive: true\r\n});\r\n',
 			errors: 1,
 		},
+		// The object is rebuilt, so a comment inside it would be lost
+		{
+			code: 'window.addEventListener("wheel", () => {}, {/* keep */})',
+			errors: 1,
+		},
+		// A non-empty object is not rebuilt, `passive` is inserted after the last property
+		{
+			code: 'window.addEventListener("wheel", () => {}, {/* keep */ capture: true})',
+			output: 'window.addEventListener("wheel", () => {}, {/* keep */ capture: true, passive: true})',
+			errors: 1,
+		},
+		{
+			code: 'window.addEventListener("wheel", () => {}, {capture: true /* keep */})',
+			errors: 1,
+		},
+		{
+			code: 'window.addEventListener("wheel", () => {}, {})',
+			output: 'window.addEventListener("wheel", () => {}, {passive: true})',
+			errors: 1,
+		},
+	],
+});
+
+// `undefined`/`null` is the same as omitting the argument, so no passive listener is installed
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'element.addEventListener(\'touchstart\', () => {}, undefined);',
+			errors: 1,
+		},
+		{
+			code: 'element.addEventListener(\'wheel\', () => {}, null);',
+			errors: 1,
+		},
+		{
+			code: 'element.addEventListener(\'wheel\', () => {});',
+			output: 'element.addEventListener(\'wheel\', () => {}, {passive: true});',
+			errors: 1,
+		},
 	],
 });
