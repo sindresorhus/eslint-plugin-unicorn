@@ -149,13 +149,6 @@ test.snapshot({
 			else
 				element?.classList.remove('className');
 		`,
-		outdent`
-			if (condition) {
-				element.classList.add('className');
-			} else {
-				element.classList.remove('className');
-			}
-		`,
 		// Negative
 		outdent`
 			if (condition) {
@@ -436,5 +429,42 @@ test.snapshot({
 			'element.classList.contains("className") ? "add": "remove"',
 			'!element.classList.contains("className") ? "add": "remove"',
 		].map(condition => `element.classList[${condition}]("className")`),
+
+		// A comment inside the computed member access is preserved by not fixing
+		'element.classList[/* comment */ condition ? "add" : "remove"]("className");',
+		'element.classList[condition ? /* comment */ "add" : "remove"]("className");',
+
+		// A comment inside the statement is preserved by not fixing
+		outdent`
+			if (condition) {
+				// Keep this comment
+				element.classList.add('className');
+			} else {
+				element.classList.remove('className');
+			}
+		`,
+		outdent`
+			if (condition /* comment */) {
+				element.classList.add('className');
+			} else {
+				element.classList.remove('className');
+			}
+		`,
+		outdent`
+			if (condition) {
+				element.classList.add('className');
+			} else /* comment */ {
+				element.classList.remove('className');
+			}
+		`,
+	],
+});
+
+// A parenthesized argument stays one argument, the condition must not land inside the parentheses
+test.snapshot({
+	valid: [],
+	invalid: [
+		'element.classList[condition ? "add" : "remove"](("className"));',
+		'element.classList[condition ? "add" : "remove"](("a", "b"));',
 	],
 });

@@ -12,6 +12,7 @@ import {
 import {
 	isSameReference,
 	isParenthesized,
+	getParenthesizedRange,
 	getParenthesizedText,
 	shouldAddParenthesesToUnaryExpressionArgument,
 	needsSemicolon,
@@ -172,7 +173,12 @@ const create = context => {
 		/**
 		@param {import('eslint').Rule.RuleFixer} fixer
 		*/
-		function * fix(fixer) {
+		function * fix(fixer, {abort}) {
+			// The whole statement is replaced, a comment inside it would be dropped
+			if (sourceCode.getCommentsInside(node).length > 0) {
+				abort();
+			}
+
 			const elementText = getParenthesizedText(consequent.callee.object.object, context);
 			const classNameText = getParenthesizedText(consequent.arguments[0], context);
 			const isExpression = node.type === 'ConditionalExpression';
@@ -226,14 +232,20 @@ const create = context => {
 		/**
 		@param {import('eslint').Rule.RuleFixer} fixer
 		*/
-		function * fix(fixer) {
+		function * fix(fixer, {abort}) {
+			// The computed member access is rebuilt, a comment in it would be dropped
+			if (sourceCode.getCommentsInside(classListMethod).length > 0) {
+				abort();
+			}
+
 			const isNegative = conditionalExpression.consequent.value === 'remove';
 			const conditionNode = conditionalExpression.test;
 			const classListContainsCall = getClassListContainsCall(conditionNode, isNegative, callExpression);
 			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, context, isNegative);
 
 			if (conditionText) {
-				yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
+				// A parenthesized argument is only one argument while it keeps its parentheses, so the condition goes after the closing one
+				yield fixer.insertTextAfterRange(getParenthesizedRange(callExpression.arguments[0], context), `, ${conditionText}`);
 			}
 
 			yield replaceMemberExpressionProperty(fixer, classListMethod, context, '.toggle');
