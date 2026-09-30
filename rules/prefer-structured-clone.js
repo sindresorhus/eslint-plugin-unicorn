@@ -58,29 +58,32 @@ const create = context => {
 			data: {
 				description: 'JSON.parse(JSON.stringify(…))',
 			},
-			suggest: [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					* fix(fixer) {
-						yield fixer.replaceText(jsonParse.callee, 'structuredClone');
+			// The suggestion replaces and removes the two callees, so a comment in either would be lost
+			suggest: [jsonParse.callee, jsonStringify.callee].some(callee => sourceCode.getCommentsInside(callee).length > 0)
+				? []
+				: [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						* fix(fixer) {
+							yield fixer.replaceText(jsonParse.callee, 'structuredClone');
 
-						yield fixer.remove(jsonStringify.callee);
-						yield removeParentheses(jsonStringify.callee, fixer, context);
+							yield fixer.remove(jsonStringify.callee);
+							yield removeParentheses(jsonStringify.callee, fixer, context);
 
-						const {
-							openingParenthesisToken,
-							closingParenthesisToken,
-							trailingCommaToken,
-						} = getCallExpressionTokens(jsonStringify, context);
+							const {
+								openingParenthesisToken,
+								closingParenthesisToken,
+								trailingCommaToken,
+							} = getCallExpressionTokens(jsonStringify, context);
 
-						yield fixer.remove(openingParenthesisToken);
-						yield fixer.remove(closingParenthesisToken);
-						if (trailingCommaToken) {
-							yield fixer.remove(trailingCommaToken);
-						}
+							yield fixer.remove(openingParenthesisToken);
+							yield fixer.remove(closingParenthesisToken);
+							if (trailingCommaToken) {
+								yield fixer.remove(trailingCommaToken);
+							}
+						},
 					},
-				},
-			],
+				],
 		};
 	});
 
@@ -93,6 +96,7 @@ const create = context => {
 			return;
 		}
 
+		const {sourceCode} = context;
 		const {callee} = callExpression;
 		const matchedFunction = functions.find(nameOrPath => isNodeMatchesNameOrPath(callee, nameOrPath));
 
@@ -106,12 +110,15 @@ const create = context => {
 			data: {
 				description: `${matchedFunction.trim()}(…)`,
 			},
-			suggest: [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					fix: fixer => fixer.replaceText(callee, 'structuredClone'),
-				},
-			],
+			// The callee is replaced by a bare `structuredClone`, so a comment in the member expression would be lost
+			suggest: sourceCode.getCommentsInside(callee).length > 0
+				? []
+				: [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						fix: fixer => fixer.replaceText(callee, 'structuredClone'),
+					},
+				],
 		};
 	});
 };

@@ -45,6 +45,12 @@ test.snapshot({
 					);
 			}
 		`,
+		// A comment in a replaced or removed callee would be lost, so there is no suggestion
+		'const a = JSON /* keep */ .parse(JSON.stringify(foo));',
+		'JSON.parse(JSON./* keep */stringify(foo))',
+		// A comment outside the callees is kept
+		'JSON.parse(/* keep */ JSON.stringify(foo /* keep */))',
+		'JSON.parse(JSON.stringify /* keep */ (foo))',
 	],
 });
 
@@ -93,5 +99,9 @@ test.snapshot({
 			`,
 			options: [{functions: ['super.cloneDeep']}],
 		},
+		// The callee is replaced by a bare `structuredClone`, so a comment would be lost
+		'const b = _./* keep */cloneDeep(foo);',
+		'const c = _. /* keep */ cloneDeep(foo);',
+		'_.cloneDeep(/* keep */ foo)',
 	],
 });
