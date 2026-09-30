@@ -4,6 +4,7 @@ import {
 	isCallOrNewExpression,
 	isNullLiteral,
 } from './ast/index.js';
+import {getParenthesizedRange} from './utils/index.js';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -17,6 +18,22 @@ const messages = {
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
 const isCallOrNewArgument = node => isCallOrNewExpression(node.parent) && node.parent.arguments.includes(node);
+
+// The suggestion deletes everything after `node` up to the `null` and its parentheses, so it can only be offered when no comment sits in that range
+function getRemoveSuggestion(context, node, nullNode) {
+	const {sourceCode} = context;
+	const [, start] = sourceCode.getRange(node);
+	const [, end] = getParenthesizedRange(nullNode, context);
+
+	if (sourceCode.getCommentsInside({range: [start, end]}).length > 0) {
+		return;
+	}
+
+	return {
+		messageId: SUGGESTION_REMOVE_MESSAGE_ID,
+		fix: fixer => fixer.removeRange([start, end]),
+	};
+}
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -96,26 +113,23 @@ const create = context => {
 
 		if (parent.type === 'ReturnStatement' && parent.argument === node) {
 			problem.suggest = [
-				{
-					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					fix: fixer => fixer.remove(node),
-				},
+				getRemoveSuggestion(context, context.sourceCode.getFirstToken(parent), node),
 				useUndefinedSuggestion,
-			];
+			].filter(Boolean);
 			return problem;
 		}
 
-		if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
-			const {sourceCode} = context;
-			const [, start] = sourceCode.getRange(parent.id);
-			const [, end] = sourceCode.getRange(node);
+		// `const`, `using`, and `await using` declarations and destructuring patterns require an initializer
+		if (
+			parent.type === 'VariableDeclarator'
+			&& parent.init === node
+			&& parent.id.type === 'Identifier'
+			&& (parent.parent.kind === 'let' || parent.parent.kind === 'var')
+		) {
 			problem.suggest = [
-				{
-					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					fix: fixer => fixer.removeRange([start, end]),
-				},
+				getRemoveSuggestion(context, parent.id, node),
 				useUndefinedSuggestion,
-			];
+			].filter(Boolean);
 			return problem;
 		}
 

@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -147,5 +147,116 @@ test.snapshot({
 		// Not in right position
 		'foo.insertBefore(null, bar)',
 		'Object.create(bar, null)',
+	],
+});
+
+// `using` and `await using` declarations require an initializer, so the "remove" suggestion would produce a syntax error
+test.typescript({
+	valid: [],
+	invalid: [
+		{
+			code: 'using x = null;',
+			errors: [{
+				messageId: 'error',
+				suggestions: [{messageId: 'replace', output: 'using x = undefined;'}],
+			}],
+		},
+		{
+			code: 'async function f() { await using x = null; }',
+			errors: [{
+				messageId: 'error',
+				suggestions: [{messageId: 'replace', output: 'async function f() { await using x = undefined; }'}],
+			}],
+		},
+		{
+			code: 'for (using x = null; ; ) { break; }',
+			errors: [{
+				messageId: 'error',
+				suggestions: [{messageId: 'replace', output: 'for (using x = undefined; ; ) { break; }'}],
+			}],
+		},
+		{
+			code: 'let x = null;',
+			errors: [{
+				messageId: 'error',
+				suggestions: [
+					{messageId: 'remove', output: 'let x;'},
+					{messageId: 'replace', output: 'let x = undefined;'},
+				],
+			}],
+		},
+	],
+});
+
+// The "remove" suggestion deletes the text between the parameter and the `null`, so a comment in that range would be dropped
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'let x /* comment */ = null;',
+			errors: [{
+				messageId: 'error',
+				suggestions: [{messageId: 'replace', output: 'let x /* comment */ = undefined;'}],
+			}],
+		},
+		{
+			code: 'let x = /* comment */ null;',
+			errors: [{
+				messageId: 'error',
+				suggestions: [{messageId: 'replace', output: 'let x = /* comment */ undefined;'}],
+			}],
+		},
+		{
+			code: 'let x /* a */ = /* b */ null /* c */;',
+			errors: [{
+				messageId: 'error',
+				suggestions: [{messageId: 'replace', output: 'let x /* a */ = /* b */ undefined /* c */;'}],
+			}],
+		},
+		{
+			code: 'let {a} /* comment */ = null;',
+			errors: [{
+				messageId: 'error',
+				suggestions: [{messageId: 'replace', output: 'let {a} /* comment */ = undefined;'}],
+			}],
+		},
+	],
+});
+
+// The parentheses around the value are not part of its range, removing it must take them too
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'let foo = (null);',
+			errors: [{messageId: 'error', suggestions: [{messageId: 'remove', output: 'let foo;'}, {messageId: 'replace', output: 'let foo = (undefined);'}]}],
+		},
+		{
+			code: 'function f() { return (null); }',
+			errors: [{messageId: 'error', suggestions: [{messageId: 'remove', output: 'function f() { return; }'}, {messageId: 'replace', output: 'function f() { return (undefined); }'}]}],
+		},
+		// The remove suggestion deletes everything between `return` and the `null`, so a comment in that range rules it out
+		{
+			code: 'function f() { return (/* keep */ null); }',
+			errors: [{messageId: 'error', suggestions: [{messageId: 'replace', output: 'function f() { return (/* keep */ undefined); }'}]}],
+		},
+		{
+			code: 'let foo = ((null));',
+			errors: [{messageId: 'error', suggestions: [{messageId: 'remove', output: 'let foo;'}, {messageId: 'replace', output: 'let foo = ((undefined));'}]}],
+		},
+		// A comment inside the parentheses is still in the removed range
+		{
+			code: 'let foo = (/* keep */ null);',
+			errors: [{messageId: 'error', suggestions: [{messageId: 'replace', output: 'let foo = (/* keep */ undefined);'}]}],
+		},
+		// A destructuring pattern requires an initializer, so `null` cannot be removed
+		{
+			code: 'let {a} = null;',
+			errors: [{messageId: 'error', suggestions: [{messageId: 'replace', output: 'let {a} = undefined;'}]}],
+		},
+		{
+			code: 'let [a] = null;',
+			errors: [{messageId: 'error', suggestions: [{messageId: 'replace', output: 'let [a] = undefined;'}]}],
+		},
 	],
 });
