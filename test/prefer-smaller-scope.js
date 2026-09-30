@@ -652,5 +652,33 @@ testRule.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		// The parentheses around the assigned value must survive the fix
+		outdent`
+			function foo() {
+				let value;
+				if (condition) {
+					value = (getValue());
+					console.log(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				let value;
+				if (condition) {
+					value = (first, second);
+					console.log(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				let value;
+				if (condition) {
+					(value = ({foo: 1}));
+					console.log(value);
+				}
+			}
+		`,
 	],
 });

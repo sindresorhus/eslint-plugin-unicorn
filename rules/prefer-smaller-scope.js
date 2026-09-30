@@ -1,6 +1,6 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
 import {removeStatement} from './fix/index.js';
-import {unwrapTypeScriptExpression} from './utils/index.js';
+import {getParenthesizedRange, getParenthesizedText, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-smaller-scope';
 const messages = {
@@ -145,14 +145,16 @@ function getUninitializedDeclarationFix({
 		yield removeStatement(declaration, {sourceCode}, fixer);
 
 		const declarationText = `const ${name} = `;
+		// The parentheses are not part of the node range, they have to be kept explicitly
+		const {right} = assignmentExpression;
 
 		if (isParenthesizedAssignmentExpression(sourceCode, assignmentExpression)) {
-			yield fixer.replaceText(assignmentStatement, `${declarationText}${sourceCode.getText(assignmentExpression.right)};`);
+			yield fixer.replaceText(assignmentStatement, `${declarationText}${getParenthesizedText(right, {sourceCode})};`);
 			return;
 		}
 
 		const [assignmentStart] = sourceCode.getRange(assignmentExpression);
-		const [rightStart] = sourceCode.getRange(assignmentExpression.right);
+		const [rightStart] = getParenthesizedRange(right, {sourceCode});
 		yield fixer.replaceTextRange([assignmentStart, rightStart], declarationText);
 	};
 }
