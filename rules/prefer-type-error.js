@@ -59,19 +59,12 @@ const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
 		|| (isMemberExpression === false && typeCheckGlobalIdentifiers.has(node.name))
 	);
 
-const isLone = node => node.parent && node.parent.body && node.parent.body.length === 1;
-
-const isTypecheckingMemberExpression = (node, callExpression) => {
-	if (isTypecheckingIdentifier(node.property, callExpression, true)) {
-		return true;
-	}
-
-	if (node.object.type === 'MemberExpression') {
-		return isTypecheckingMemberExpression(node.object, callExpression);
-	}
-
-	return false;
-};
+const isTypecheckingMemberExpression = (node, callExpression) =>
+	isTypecheckingIdentifier(node.property, callExpression, true)
+	|| (
+		node.object.type === 'MemberExpression'
+		&& isTypecheckingMemberExpression(node.object, callExpression)
+	);
 
 const errorNameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
 const isErrorConstructor = node => {
@@ -79,11 +72,11 @@ const isErrorConstructor = node => {
 		return errorNameRegexp.test(node.name);
 	}
 
-	if (node.type === 'MemberExpression' && !node.optional && !node.computed && node.property.type === 'Identifier') {
-		return errorNameRegexp.test(node.property.name);
-	}
-
-	return false;
+	return node.type === 'MemberExpression'
+		&& !node.optional
+		&& !node.computed
+		&& node.property.type === 'Identifier'
+		&& errorNameRegexp.test(node.property.name);
 };
 
 const isTypeofExpression = node => node.type === 'UnaryExpression' && node.operator === 'typeof';
@@ -92,11 +85,11 @@ const isUndefinedString = node => isLiteral(node, 'undefined');
 // Comparing `typeof x` against `'undefined'` is an existence/environment check (e.g. `typeof window !== 'undefined'`), not a value type check.
 const isExistenceCheck = node => {
 	const {operator, left, right} = node;
-	if (operator !== '==' && operator !== '!=' && operator !== '===' && operator !== '!==') {
-		return false;
-	}
-
-	return (isTypeofExpression(left) && isUndefinedString(right)) || (isTypeofExpression(right) && isUndefinedString(left));
+	return ['==', '!=', '===', '!=='].includes(operator)
+		&& (
+			(isTypeofExpression(left) && isUndefinedString(right))
+			|| (isTypeofExpression(right) && isUndefinedString(left))
+		);
 };
 
 const isTypecheckingExpression = (node, callExpression) => {
@@ -155,11 +148,17 @@ const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpr
 */
 const create = context => {
 	context.on('ThrowStatement', node => {
+		// The `throw` must be the only statement of the `if` body, with or without braces
+		const consequent = node.parent.type === 'BlockStatement' && node.parent.body.length === 1
+			? node.parent
+			: node;
+		const ifStatement = consequent.parent;
+
 		if (!(
 			isNewExpression(node.argument, {name: 'Error'})
-			&& isLone(node)
-			&& node.parent.parent
-			&& isTypechecking(node.parent.parent)
+			&& isTypechecking(ifStatement)
+			// The `else` branch runs when the type check passed, so a `throw` there is not a type check failure
+			&& ifStatement.consequent === consequent
 		)) {
 			return;
 		}

@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -492,12 +492,31 @@ test({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		// Not a type check
+		'while (x) throw new Error();',
+		'if (x) foo(); else throw new Error();',
+		// The `else` branch runs when the type check passed
+		'if (isNaN(x)) { foo(); } else { throw new Error(); }',
+		'if (Array.isArray(x)) { foo(); } else { throw new Error(); }',
+		'if (isNaN(x)) foo(); else throw new Error();',
+		// Not the only statement of the body
+		'if (isNaN(x)) { foo(); throw new Error(); }',
+		'function foo() { throw new Error(); }',
+	],
 	invalid: [
 		outdent`
 			if (!isFinite(foo)) {
 				throw new Error();
 			}
 		`,
+		// A brace-less `if` body is a lone `throw` too
+		'if (Array.isArray(x)) throw new Error();',
+		'if (typeof x === "string") throw new Error()',
+		{
+			code: 'if (Array.isArray<string>(x)) throw new Error();',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'if (foo) {} else if (isNaN(x)) throw new Error();',
 	],
 });
