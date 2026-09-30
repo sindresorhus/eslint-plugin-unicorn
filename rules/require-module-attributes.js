@@ -44,10 +44,13 @@ const create = context => {
 			data: {
 				type: declaration.type === 'ImportDeclaration' ? 'import statement' : 'export statement',
 			},
+			// The removed tokens are the whole attribute clause, so a comment inside it would be left behind pointing at nothing
 			/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
-			fix: fixer => [withToken, closingBraceToken, openingBraceToken].map(token => fixer.remove(token)),
+			fix: sourceCode.commentsExistBetween(withToken, closingBraceToken)
+				? undefined
+				: fixer => [withToken, closingBraceToken, openingBraceToken].map(token => fixer.remove(token)),
 		};
 	});
 
@@ -95,14 +98,16 @@ const create = context => {
 			/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
-			fix: fixer => isProperty
-				? removeObjectProperty(fixer, nodeToRemove, context)
-				: [
-					// Comma token before
-					sourceCode.getTokenBefore(nodeToRemove, isCommaToken),
-					...sourceCode.getTokens(nodeToRemove),
-					...getParentheses(nodeToRemove, context),
-				].map(token => fixer.remove(token)),
+			fix: sourceCode.getCommentsInside(nodeToRemove).length > 0
+				? undefined
+				: fixer => isProperty
+					? removeObjectProperty(fixer, nodeToRemove, context)
+					: [
+						// Comma token before
+						sourceCode.getTokenBefore(nodeToRemove, isCommaToken),
+						...sourceCode.getTokens(nodeToRemove),
+						...getParentheses(nodeToRemove, context),
+					].map(token => fixer.remove(token)),
 		};
 	});
 };

@@ -46,3 +46,17 @@ test.snapshot({
 		'import("foo", {/* comment 1 */"with"/* comment 2 */:/* comment 3 */{/* comment 4 */}, }/* comment 5 */,)',
 	],
 });
+
+// A comment inside the removed attribute clause or options object prevents the fix
+test.snapshot({
+	valid: [],
+	invalid: [
+		'import foo from "foo" with {\n\t// why\n};',
+		'export {foo} from "foo" with {/* why */};',
+		'import("foo", {\n\t// why\n});',
+		'import("foo", {unknown: "unknown", with: {/* why */}});',
+		// A comment outside the removed tokens is kept
+		'import foo from "foo" /* why */ with {};',
+		'import("foo", {unknown: "unknown", /* why */ with: {}});',
+	],
+});
