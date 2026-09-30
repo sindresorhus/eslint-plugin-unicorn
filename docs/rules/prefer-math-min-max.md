@@ -48,3 +48,6 @@ height <= 50 ? 50 : height;
 // ✅
 Math.max(height, 50);
 ```
+
+> [!NOTE]
+> The comparison and `Math.min()`/`Math.max()` do not agree for every input. `a > b ? a : b` returns `b` when `a` is `NaN`, while `Math.max(a, b)` returns `NaN`. They also disagree on `-0` and `0`, which compare equal but have different signs. Neither difference is visible in ordinary code, and the rule can not tell from the source that the operands are never `NaN`.

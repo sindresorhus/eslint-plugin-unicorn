@@ -1,23 +1,18 @@
 /* eslint-disable complexity */
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isBigIntLiteral, isCallExpression, isNewExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
+import {getChildNodes, isBigInt} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-math-min-max';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Math.{{method}}()` to simplify ternary expressions.',
 };
 
-const isNumberTypeAnnotation = typeAnnotation => {
-	if (typeAnnotation.type === 'TSNumberKeyword') {
-		return true;
-	}
-
-	if (typeAnnotation.type === 'TSTypeAnnotation' && typeAnnotation.typeAnnotation.type === 'TSNumberKeyword') {
-		return true;
-	}
-
-	return typeAnnotation.type === 'TSTypeReference' && typeAnnotation.typeName.name === 'Number';
-};
+const isNumberTypeAnnotation = typeAnnotation =>
+	typeAnnotation.type === 'TSNumberKeyword'
+	|| (typeAnnotation.type === 'TSTypeAnnotation' && typeAnnotation.typeAnnotation.type === 'TSNumberKeyword')
+	|| (typeAnnotation.type === 'TSTypeReference' && typeAnnotation.typeName.name === 'Number');
 
 function unwrapNode(node) {
 	if (
@@ -32,6 +27,52 @@ function unwrapNode(node) {
 
 	return node;
 }
+
+// Any of these can run code or write, and the source runs it twice where the rewrite runs it once. A member access is left alone, reading a property off a plain object is the common case.
+const effectfulOperandTypes = new Set([
+	'AssignmentExpression',
+	'AwaitExpression',
+	'CallExpression',
+	'ImportExpression',
+	'NewExpression',
+	'TaggedTemplateExpression',
+	'UpdateExpression',
+	'YieldExpression',
+]);
+
+// A function or class body does not run where it is written, only the reference is created
+const lazilyEvaluatedTypes = new Set([
+	'ArrowFunctionExpression',
+	'ClassDeclaration',
+	'ClassExpression',
+	'FunctionDeclaration',
+	'FunctionExpression',
+]);
+
+const isEffectFreeOperand = node => {
+	node = unwrapNode(node);
+
+	if (effectfulOperandTypes.has(node.type)) {
+		return false;
+	}
+
+	if (node.type === 'TemplateLiteral') {
+		return node.expressions.length === 0;
+	}
+
+	if (lazilyEvaluatedTypes.has(node.type)) {
+		return true;
+	}
+
+	// A wrapper like a sequence, array or object evaluates its own operands, an effect hidden in one of them still runs twice in the source and once in the rewrite
+	for (const child of getChildNodes(node)) {
+		if (!isEffectFreeOperand(child)) {
+			return false;
+		}
+	}
+
+	return true;
+};
 
 function getTypeAnnotation(node) {
 	if (node.type === 'TSNonNullExpression') {
@@ -115,7 +156,8 @@ const create = context => {
 
 			// Find variable declaration
 			if (expressionNode.type === 'Identifier') {
-				const variable = context.sourceCode.getScope(expressionNode).variables.find(variable => variable.name === expressionNode.name);
+				// The declaration can live in any enclosing scope, `findVariable()` walks them all
+				const variable = findVariable(context.sourceCode.getScope(expressionNode), expressionNode);
 
 				for (const definition of variable?.defs ?? []) {
 					switch (definition.type) {
@@ -140,7 +182,13 @@ const create = context => {
 							function foo(a = 10) {}
 							```
 							*/
-							if (identifier.parent.type === 'AssignmentPattern' && identifier.parent.right.type === 'Literal' && typeof identifier.parent.right.value !== 'number') {
+							if (
+								identifier.parent.type === 'AssignmentPattern'
+								&& (
+									(identifier.parent.right.type === 'Literal' && typeof identifier.parent.right.value !== 'number')
+									|| isBigInt(identifier.parent.right, context)
+								)
+							) {
 								return;
 							}
 
@@ -179,6 +227,18 @@ const create = context => {
 							Capture the following statement
 
 							```js
+							var foo = BigInt(1)
+							var foo = -1n
+							```
+							*/
+							if (variableDeclarator.init && isBigInt(variableDeclarator.init, context)) {
+								return;
+							}
+
+							/**
+							Capture the following statement
+
+							```js
 							var foo = new Date()
 							```
 							*/
@@ -195,14 +255,24 @@ const create = context => {
 			}
 		}
 
-		return {
+		const problem = {
 			node: conditionalExpression,
 			messageId: MESSAGE_ID,
 			data: {method},
+		};
+
+		/*
+		The replacement is rebuilt from both operands, so a comment between them would be lost. The same operand is written on both sides of the comparison, so the source evaluates it twice and `Math.min()`/`Math.max()` only once. That is only the same when reading the operand has no effect.
+		*/
+		if (
+			context.sourceCode.getCommentsInside(conditionalExpression).length === 0
+			&& isEffectFreeOperand(left)
+			&& isEffectFreeOperand(right)
+		) {
 			/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
-			* fix(fixer) {
+			problem.fix = function * (fixer) {
 				const {sourceCode} = context;
 
 				yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
@@ -212,8 +282,10 @@ const create = context => {
 					.join(', ');
 
 				yield fixer.replaceText(conditionalExpression, `Math.${method}(${argumentsText})`);
-			},
-		};
+			};
+		}
+
+		return problem;
 	});
 };
 

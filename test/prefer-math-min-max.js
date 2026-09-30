@@ -25,6 +25,34 @@ test.snapshot({
 			const start = new Date();
 			var value = start > foo ? foo : start;
 		`,
+		// The declaration can be in an enclosing scope
+		outdent`
+			const start = new Date();
+			function foo() {
+				return start > foo ? foo : start;
+			}
+		`,
+		outdent`
+			const start = 'text';
+			function foo() {
+				return start > foo ? foo : start;
+			}
+		`,
+
+		// Ignore bigint
+		outdent`
+			const a = BigInt(1);
+			const value = a > 0 ? 0 : a;
+		`,
+		outdent`
+			const a = -1n;
+			const value = a > 0 ? 0 : a;
+		`,
+		outdent`
+			function foo(a = BigInt(1)) {
+				return a > 0 ? 0 : a;
+			}
+		`,
 
 		// Ignore when you know it is a string
 		outdent`
@@ -100,6 +128,38 @@ test.snapshot({
 		'export default+foo > 10 ? 10 : +foo',
 
 		'foo.length > bar.length ? bar.length : foo.length',
+	],
+});
+
+// Reported, but not fixed, the replacement is rebuilt from both operands
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const value = height > // keep\n\t50 ? 50 : height;',
+			errors: 1,
+		},
+		{
+			code: 'const value = height > /* keep */ 50 ? 50 : height;',
+			errors: 1,
+		},
+		{
+			code: 'const value = height > 50 /* keep */ ? 50 : height;',
+			errors: 1,
+		},
+		{
+			code: 'const value = height > 50 ? 50 /* keep */ : height;',
+			errors: 1,
+		},
+		{
+			code: 'const value = height > 50 ? /* keep */ 50 : height;',
+			errors: 1,
+		},
+		{
+			code: 'const value = height > 50 ? 50 : height;',
+			output: 'const value = Math.min(height, 50);',
+			errors: 1,
+		},
 	],
 });
 
@@ -227,5 +287,28 @@ test.snapshot({
 				return a! > b ? a! : b;
 			}
 		`,
+	],
+});
+
+// The same operand is written on both sides, so the source evaluates it twice and the rewrite only once
+test({
+	valid: [],
+	invalid: [
+		...[
+			'const a = f() > 0 ? f() : 0;',
+			// The effectful call hides inside a wrapper that evaluates its operands eagerly
+			'const a = (x++, y) > 0 ? 0 : (x++, y);',
+			'const a = (x = 1, y) > 0 ? 0 : (x = 1, y);',
+			'const a = (x || f()) > 0 ? 0 : (x || f());',
+			'const a = (x ? f() : g()) > 0 ? 0 : (x ? f() : g());',
+			'const a = [f()] > 0 ? 0 : [f()];',
+			'const a = ({a: f()}) > 0 ? 0 : ({a: f()});',
+		].map(code => ({code, errors: 1})),
+		// A wrapper without an effect still evaluates the same way
+		{
+			code: 'const a = (x, y) > 0 ? 0 : (x, y);',
+			output: 'const a = Math.min((x, y), 0);',
+			errors: 1,
+		},
 	],
 });
