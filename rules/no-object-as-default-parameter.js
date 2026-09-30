@@ -1,3 +1,4 @@
+import {unwrapTypeScriptExpression} from './utils/index.js';
 import {isFunction} from './ast/index.js';
 
 const MESSAGE_ID_IDENTIFIER = 'identifier';
@@ -12,16 +13,21 @@ const messages = {
 */
 const create = context => {
 	context.on('AssignmentPattern', node => {
+		// `x = {…} as const`, the wrappers have no runtime effect
+		const right = unwrapTypeScriptExpression(node.right);
+		// A TypeScript parameter property (`constructor(public x = {…})`) wraps the parameter
+		const parameter = node.parent.type === 'TSParameterProperty' ? node.parent : node;
+		const functionNode = parameter.parent;
 		if (!(
-			node.right.type === 'ObjectExpression'
-			&& node.right.properties.length > 0
-			&& isFunction(node.parent)
-			&& node.parent.params.includes(node)
+			right.type === 'ObjectExpression'
+			&& right.properties.length > 0
+			&& isFunction(functionNode)
+			&& functionNode.params.includes(parameter)
 		)) {
 			return;
 		}
 
-		const {left, right} = node;
+		const {left} = node;
 
 		if (left.type === 'Identifier') {
 			return {

@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -182,5 +182,29 @@ test.snapshot({
 		'const abc = (foo = {a: false}) => {};',
 		'function abc({a} = {a: 123}) {}',
 		'function abc([a] = {a: 123}) {}',
+	],
+});
+
+// TypeScript wrappers are erased at compile time, the object literal is what runs
+test({
+	valid: [
+		'function abc(foo = {} as Foo) {}',
+		'class A { constructor(public foo = {}) {} }',
+	].map(code => ({
+		code,
+		languageOptions: {parser: parsers.typescript},
+	})),
+	invalid: [
+		...[
+			'function abc(foo = {a: 123} as const) {}',
+			'function abc(foo = {a: 123} satisfies object) {}',
+			'function abc(foo = {a: 123}!) {}',
+			'class A { constructor(public foo = {a: 123}) {} }',
+			'class A { constructor(foo = {a: 123}) {} }',
+		].map(code => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		})),
 	],
 });
