@@ -7,7 +7,7 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import {
-	getNextNode,
+	getNextStatement,
 	getParenthesizedRange,
 	getParenthesizedText,
 	getVariableIdentifiers,
@@ -123,18 +123,20 @@ const getSingleForOfBinding = node => {
 		return {element: id};
 	}
 
-	if (
+	if (!(
 		id.type === 'ArrayPattern'
 		&& id.elements.length === 2
 		&& id.elements.every(element => element?.type === 'Identifier')
-	) {
-		const [index, element] = id.elements;
-
-		return {
-			index,
-			element,
-		};
+	)) {
+		return;
 	}
+
+	const [index, element] = id.elements;
+
+	return {
+		index,
+		element,
+	};
 };
 
 const getArrowBodyText = (node, context) => {
@@ -301,7 +303,7 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	const loop = getNextNode(declaration, context);
+	const loop = getNextStatement(declaration, context);
 	if (loop?.type !== 'ForOfStatement' || loop.await) {
 		return;
 	}
@@ -366,7 +368,11 @@ const getLoopProblem = (declaration, context) => {
 };
 
 const getMapArgumentsFix = (arrayFromCall, mapCall, context) => {
-	if (isParenthesized(arrayFromCall, context)) {
+	// The rewrite closes the `Array.from()` argument list and opens the `.map()` one, so it can not run when either call is wrapped in parentheses of its own. The `.map()` side is its callee, that is where the parentheses the fix removes sit.
+	if (
+		isParenthesized(arrayFromCall, context)
+		|| isParenthesized(mapCall.callee, context)
+	) {
 		return;
 	}
 

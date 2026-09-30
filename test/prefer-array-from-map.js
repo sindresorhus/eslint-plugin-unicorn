@@ -255,3 +255,29 @@ test.snapshot({
 		},
 	],
 });
+
+// An exported declaration is not a statement of its own, the loop is still its next sibling
+test.snapshot({
+	valid: [],
+	invalid: [
+		'export const result = []; for (const element of iterable) { result.push(element * 2); }',
+	],
+});
+
+// The rewrite edits the argument list of the `.map()` call, which its own parentheses wrap
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const foo = (Array.from(bar).map)(element => element.id);',
+		'const foo = ((Array.from(bar)).map)(element => element.id);',
+	],
+});
+
+// A declaration in a `for` head is held by the `for` statement rather than listed beside one, so the `for…of` that follows belongs to that statement. Pairing the two made the fix replace the whole `for` head, producing `for (const r = Array.from(…);` which does not parse.
+test.snapshot({
+	valid: [
+		'for (const r = []; 0;) {}\nfor (const x of [1, 2]) { r.push(x * 2) }\nconsole.log(r)',
+		'if (0) { for (const r = []; 0;) {} }\nfor (const x of [1]) { r.push(x * 2) }\nconsole.log(r)',
+	],
+	invalid: [],
+});
