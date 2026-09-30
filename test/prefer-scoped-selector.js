@@ -5,6 +5,15 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// `:scope` cannot match a `ShadowRoot` or `DocumentFragment` root
+		'element.shadowRoot.querySelectorAll(".a .b");',
+		'element.shadowRoot.querySelector(".a .b");',
+		'iframe.contentDocument.querySelector(".a .b");',
+		'document.createDocumentFragment().querySelector(".a .b");',
+		'element.createShadowRoot().querySelector(".a .b");',
+		{code: 'this.shadowRoot!.querySelector(".a .b");', languageOptions: {parser: parsers.typescript}},
+		{code: '(element.shadowRoot as ShadowRoot).querySelector(".a .b");', languageOptions: {parser: parsers.typescript}},
+		'element?.shadowRoot?.querySelector(".a .b");',
 		// Not `CallExpression`
 		'new element.querySelector(".outer .inner");',
 		// Not `MemberExpression`

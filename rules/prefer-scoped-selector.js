@@ -1,5 +1,5 @@
 import {getStaticStringValue, isMethodCall} from './ast/index.js';
-import {isNodeValueNotDomNode} from './utils/index.js';
+import {isNodeValueNotDomNode, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-scoped-selector/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-scoped-selector/suggestion';
@@ -16,6 +16,26 @@ const selectorMethods = [
 const isDocumentQuery = node =>
 	node.callee.object.type === 'Identifier'
 	&& node.callee.object.name === 'document';
+
+// `:scope` cannot match a `ShadowRoot` or `DocumentFragment` root, so prefixing the selector would make a working query match nothing. Matching is already limited to that subtree. A `contentDocument` is a document, like `document`.
+const isNonElementScopeQuery = node => {
+	const object = unwrapTypeScriptExpression(node.callee.object);
+
+	return (
+		(object.type === 'MemberExpression'
+			&& !object.computed
+			&& object.property.type === 'Identifier'
+			&& ['shadowRoot', 'contentDocument'].includes(object.property.name))
+		|| (
+			object.type === 'CallExpression'
+			&& isMethodCall(object, {
+				names: ['createDocumentFragment', 'createShadowRoot'],
+				optionalCall: false,
+				optionalMember: false,
+			})
+		)
+	);
+};
 
 const isGlobalDocumentQuery = node =>
 	node.callee.object.type === 'MemberExpression'
@@ -132,6 +152,7 @@ const create = context => {
 			})
 			|| isDocumentQuery(node)
 			|| isGlobalDocumentQuery(node)
+			|| isNonElementScopeQuery(node)
 			|| isNodeValueNotDomNode(node.callee.object)
 		) {
 			return;

@@ -35,6 +35,13 @@ element.querySelector('.a, b');
 document.querySelectorAll('.outer .inner');
 ```
 
+A query on a shadow root or document fragment is also left alone, because `:scope` cannot match a non-element root and would make the query match nothing.
+
+```js
+// ✅
+element.shadowRoot.querySelectorAll('.outer .inner');
+```
+
 ## Limitations
 
 The rule only checks selectors written as a string literal or a template literal without expressions. Dynamic selectors are ignored.
