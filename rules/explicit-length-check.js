@@ -11,6 +11,7 @@ import {
 	hasSameObjectShapePropertyCheck,
 	isKnownNonCollectionLengthOrSize,
 	isLengthOrSizeMemberExpression,
+	hasCommentInRange,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isLiteral} from './ast/index.js';
@@ -190,6 +191,49 @@ function isLengthGuardedByNonZeroCheck(lengthNode, context) {
 		&& isSameLengthNonZeroCheck(operand, lengthNode, context));
 }
 
+// `node` is replaced by a comparison like `foo.length > 0`. A comparison binds looser than the `!foo.length` or `Boolean(foo.length)` it replaces, so it needs parentheses wherever the replaced expression needed them.
+function needsParenthesesForComparison(node, context) {
+	if (isParenthesized(node, context)) {
+		return false;
+	}
+
+	const {parent} = node;
+
+	switch (parent.type) {
+		// `(foo.length > 0).x`
+		case 'MemberExpression': {
+			return parent.object === node;
+		}
+
+		// `(foo.length > 0)()`, `new (foo.length > 0)()`
+		case 'CallExpression':
+		case 'NewExpression': {
+			return parent.callee === node;
+		}
+
+		// `(foo.length > 0)\`x\``
+		case 'TaggedTemplateExpression': {
+			return parent.tag === node;
+		}
+
+		// `typeof (foo.length > 0)`, `await (foo.length > 0)`, `(foo.length > 0)!`
+		// `bar === (foo.length > 0)`, `bar + (foo.length > 0)`, `(foo.length > 0) ** 2`
+		case 'AwaitExpression':
+		case 'BinaryExpression':
+		case 'TSAsExpression':
+		case 'TSNonNullExpression':
+		case 'TSSatisfiesExpression':
+		case 'TSTypeAssertion':
+		case 'UnaryExpression': {
+			return true;
+		}
+
+		default: {
+			return false;
+		}
+	}
+}
+
 function create(context) {
 	const options = context.options[0];
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
@@ -201,14 +245,10 @@ function create(context) {
 			return;
 		}
 
-		let fixed = `${sourceCode.getText(lengthNode)} ${code}`;
-		if (
-			!isParenthesized(node, context)
-			&& node.type === 'UnaryExpression'
-			&& (node.parent.type === 'UnaryExpression' || node.parent.type === 'AwaitExpression')
-		) {
-			fixed = `(${fixed})`;
-		}
+		const comparison = `${sourceCode.getText(lengthNode)} ${code}`;
+		const fixed = needsParenthesesForComparison(node, context)
+			? `(${comparison})`
+			: comparison;
 
 		const fix = function * (fixer) {
 			yield fixer.replaceText(node, fixed);
@@ -220,6 +260,11 @@ function create(context) {
 			messageId: isZeroLengthCheck ? TYPE_ZERO : TYPE_NON_ZERO,
 			data: {code, property: lengthNode.property.name},
 		};
+
+		// The whole comparison is replaced and `fixed` is rebuilt from the length member alone, so a comment anywhere in it, including between the member and the operator, would be lost
+		if (hasCommentInRange(context, sourceCode.getRange(node))) {
+			return problem;
+		}
 
 		if (autoFix) {
 			problem.fix = fix;
@@ -270,27 +315,26 @@ function create(context) {
 			}
 		}
 
-		if (node) {
-			if (
-				(node === lengthNode && isLengthGuardedByNonZeroCheck(lengthNode, context))
-				|| hasSameObjectShapePropertyCheck({node, lengthOrSizeNode: lengthNode})
-			) {
-				return;
-			}
-
-			const isUnsafeNegationInBinaryExpression = node.type === 'UnaryExpression'
-				&& node.operator === '!'
-				&& node.parent.type === 'BinaryExpression'
-				&& node.parent.left === node;
-
-			return getProblem({
-				node,
-				isZeroLengthCheck,
-				lengthNode,
-				autoFix: isAutoFix && !isUnsafeNegationInBinaryExpression,
-				shouldSuggest: !isUnsafeNegationInBinaryExpression,
-			});
+		if (
+			!node
+			|| (node === lengthNode && isLengthGuardedByNonZeroCheck(lengthNode, context))
+			|| hasSameObjectShapePropertyCheck({node, lengthOrSizeNode: lengthNode})
+		) {
+			return;
 		}
+
+		const isUnsafeNegationInBinaryExpression = node.type === 'UnaryExpression'
+			&& node.operator === '!'
+			&& node.parent.type === 'BinaryExpression'
+			&& node.parent.left === node;
+
+		return getProblem({
+			node,
+			isZeroLengthCheck,
+			lengthNode,
+			autoFix: isAutoFix && !isUnsafeNegationInBinaryExpression,
+			shouldSuggest: !isUnsafeNegationInBinaryExpression,
+		});
 	});
 }
 

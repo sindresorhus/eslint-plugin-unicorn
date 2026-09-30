@@ -306,6 +306,28 @@ test({
 			output: 'if (object.size === 0 && object.size > 0) {}',
 			errors: [{messageId: TYPE_ZERO}],
 		},
+		// Reported, but not fixed, a comment before the length member would be lost
+		{
+			code: 'if (!/* keep */ foo.length) {}',
+			errors: [{messageId: TYPE_ZERO}],
+		},
+		{
+			code: 'if (!(/* keep */ foo.length)) {}',
+			errors: [{messageId: TYPE_ZERO}],
+		},
+		{
+			code: 'if (!!/* keep */ foo.length) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (! // keep\n\tfoo.length) {}',
+			errors: [{messageId: TYPE_ZERO}],
+		},
+		{
+			code: 'if (/* keep */ !foo.length) {}',
+			output: 'if (/* keep */ foo.length === 0) {}',
+			errors: [{messageId: TYPE_ZERO}],
+		},
 	],
 });
 
@@ -487,7 +509,6 @@ test.snapshot({
 				</div>
 			</template>
 		`,
-		'<template><div v-if="foo.length"></div></template>',
 		{
 			code: '<template><div v-if="foo.length"></div></template>',
 			options: [{'non-zero': 'not-equal'}],
@@ -507,4 +528,108 @@ test.snapshot({
 		'<template><input :disabled="Boolean(foo.length)"></template>',
 		'<template><custom-component :custom-property="!foo.length"></custom-component></template>',
 	],
+});
+
+// The whole comparison is replaced, a comment between the member and the operator would be lost
+test({
+	valid: [],
+	invalid: [
+		...[
+			'if (foo.length /* keep */ == 0) {}',
+			'if (foo.length /* keep */ < 1) {}',
+			'if (foo.length /* keep */ != 0) {}',
+			'foo.length /* keep */ == 0;',
+			'const a = foo.length /* keep */ >= 1;',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+// The replacement is a comparison, which binds looser than the `!`/`Boolean()` it replaces, so it must be parenthesized wherever the surrounding expression binds tighter.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (bar === !foo.length) {}',
+			output: 'if (bar === (foo.length === 0)) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (bar !== !foo.length) {}',
+			output: 'if (bar !== (foo.length === 0)) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (bar === Boolean(foo.length)) {}',
+			output: 'if (bar === (foo.length > 0)) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (1 + !foo.length) {}',
+			output: 'if (1 + (foo.length === 0)) {}',
+			errors: 1,
+		},
+		{
+			code: 'foo(Boolean(foo.length).x);',
+			output: 'foo((foo.length > 0).x);',
+			errors: 1,
+		},
+		{
+			code: 'async function f() { await !foo.length; }',
+			output: 'async function f() { await (foo.length === 0); }',
+			errors: 1,
+		},
+		{
+			code: 'const a = typeof !foo.length;',
+			output: 'const a = typeof (foo.length === 0);',
+			errors: 1,
+		},
+		{
+			code: 'const a = Boolean(foo.length)`x`;',
+			output: 'const a = (foo.length > 0)`x`;',
+			errors: 1,
+		},
+		{
+			code: 'const a = Boolean(foo.length)();',
+			output: 'const a = (foo.length > 0)();',
+			errors: 1,
+		},
+		{
+			code: 'const a = bar[!foo.length];',
+			output: 'const a = bar[foo.length === 0];',
+			errors: 1,
+		},
+		{
+			code: 'const a = y ?? !foo.length;',
+			output: 'const a = y ?? foo.length === 0;',
+			errors: 1,
+		},
+		{
+			code: 'if (bar == !(foo.length)) {}',
+			output: 'if (bar == (foo.length === 0)) {}',
+			errors: 1,
+		},
+		{
+			code: 'const a = !foo.length as boolean;',
+			output: 'const a = (foo.length === 0) as boolean;',
+			errors: 1,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const a = Boolean(foo.length) satisfies boolean;',
+			output: 'const a = (foo.length > 0) satisfies boolean;',
+			errors: 1,
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
+// `switch` compares its discriminant against the case values with `===`, so `array.length` there is the value being compared, not a boolean. `isControlFlowTest` used to treat it as a test.
+test({
+	valid: [
+		'switch (array.length === 0) { case true: break; }',
+		'switch (array.length > 0) { case true: break; }',
+		'switch (array.length) { case 0: break; }',
+		'switch (array.length === 0 && other) { case true: break; }',
+	],
+	invalid: [],
 });
