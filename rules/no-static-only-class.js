@@ -1,7 +1,8 @@
-import {isSemicolonToken} from '@eslint-community/eslint-utils';
+import {findVariable, isSemicolonToken} from '@eslint-community/eslint-utils';
 import getClassHeadLocation from './utils/get-class-head-location.js';
 import assertToken from './utils/assert-token.js';
 import {removeSpacesAfter} from './fix/index.js';
+import {needsSemicolon} from './utils/index.js';
 
 const MESSAGE_ID = 'no-static-only-class';
 const messages = {
@@ -9,6 +10,8 @@ const messages = {
 };
 
 const isEqualToken = ({type, value}) => type === 'Punctuator' && value === '=';
+// Keywords that only mean something inside a class, so they cannot survive the move to an object literal
+const classOnlyKeywords = ['this', 'super', 'new.target'];
 const isDeclarationOfExportDefaultDeclaration = node =>
 	node.type === 'ClassDeclaration'
 	&& node.parent.type === 'ExportDefaultDeclaration'
@@ -23,6 +26,7 @@ function isStaticMember(node) {
 		static: isStatic,
 		declare: isDeclare,
 		readonly: isReadonly,
+		override: isOverride,
 		accessibility,
 		decorators,
 		key,
@@ -40,6 +44,8 @@ function isStaticMember(node) {
 	// TypeScript class
 	return !(isDeclare
 		|| isReadonly
+		// An `override` member needs its base class, and an object literal has no `override` modifier
+		|| isOverride
 		|| accessibility !== undefined
 		|| (Array.isArray(decorators) && decorators.length > 0));
 }
@@ -81,6 +87,25 @@ function * switchClassMemberToObjectProperty(node, context, fixer) {
 	);
 }
 
+const referencesClassName = (value, id, context) => {
+	if (!id) {
+		return false;
+	}
+
+	const {sourceCode} = context;
+	const variable = findVariable(sourceCode.getScope(id), id);
+
+	if (!variable) {
+		return false;
+	}
+
+	const [start, end] = sourceCode.getRange(value);
+	return variable.references.some(({identifier}) => {
+		const [referenceStart, referenceEnd] = sourceCode.getRange(identifier);
+		return referenceStart >= start && referenceEnd <= end;
+	});
+};
+
 function switchClassToObject(node, context) {
 	const {
 		type,
@@ -111,13 +136,23 @@ function switchClassToObject(node, context) {
 	}
 
 	const {sourceCode} = context;
-	for (const node of body.body) {
+	for (const member of body.body) {
+		// A computed key is evaluated while the class is being created, where the class binding is initialized, but the `const` the class becomes is still in its temporal dead zone
+		if (referencesClassName(member.key, id, context)) {
+			return;
+		}
+
+		// This is a stupid way to check if the initializer of a `PropertyDefinition` uses `this`, `super` or `new.target`, which only exist in a class context
+		const valueText = member.value && sourceCode.getText(member.value);
+		const usesClassOnlyKeyword = Boolean(valueText) && classOnlyKeywords.some(keyword => valueText.includes(keyword));
+
 		if (
-			isPropertyDefinition(node)
+			isPropertyDefinition(member)
 			&& (
-				node.typeAnnotation
-				// This is a stupid way to check if `value` of `PropertyDefinition` uses `this`
-				|| (node.value && sourceCode.getText(node.value).includes('this'))
+				member.typeAnnotation
+				|| usesClassOnlyKeyword
+				// A static field initializer runs after the class binding is initialized, but the `const` the class becomes is still in its temporal dead zone while it runs
+				|| referencesClassName(member, id, context)
 			)
 		) {
 			return;
@@ -133,6 +168,9 @@ function switchClassToObject(node, context) {
 		});
 
 		if (isExportDefault || type === 'ClassExpression') {
+			// A concise arrow body is an `AssignmentExpression`, so a bare `{` there would be parsed as a block body: `() => class {}` has to become `() => ({})`, and `() => class {}.a` has to become `() => ({}).a`.
+			const isConciseArrowBody = sourceCode.getTokenBefore(classToken).value === '=>';
+
 			/*
 				There are comments after return, and `{` is not on same line
 
@@ -156,7 +194,7 @@ function switchClassToObject(node, context) {
 				const openingBraceToken = sourceCode.getFirstToken(body);
 				yield fixer.remove(openingBraceToken);
 			} else {
-				yield fixer.replaceText(classToken, '');
+				yield fixer.replaceText(classToken, isConciseArrowBody ? '(' : '');
 
 				/*
 						Avoid breaking case like
@@ -169,7 +207,18 @@ function switchClassToObject(node, context) {
 				yield removeSpacesAfter(classToken, context, fixer);
 			}
 
-			// There should not be ASI problem
+			if (isConciseArrowBody) {
+				yield fixer.insertTextAfter(body, ')');
+			}
+
+			// `export default {…}` is an expression, a following `(`, `[`, `` ` ``, `+`, `-` or `/` would continue it instead of starting a new statement.
+			if (isExportDefault) {
+				const lastToken = sourceCode.getLastToken(node);
+				const tokenAfter = sourceCode.getTokenAfter(lastToken);
+				if (needsSemicolon(lastToken, context, tokenAfter?.value ?? '')) {
+					yield fixer.insertTextAfter(lastToken, ';');
+				}
+			}
 		} else {
 			yield fixer.replaceText(classToken, 'const');
 			yield fixer.insertTextBefore(body, '= ');
