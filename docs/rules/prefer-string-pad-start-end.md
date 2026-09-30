@@ -64,3 +64,7 @@ const foo = (bar + '*'.repeat(10)).slice(0, 10);
 // 💡
 const foo = bar.padEnd(10, '*');
 ```
+
+## Scope and limitations
+
+`String#padStart()` and `String#padEnd()` never truncate, `String#slice()` does. The `slice()` suggestions above are only equivalent while the target is no longer than the padding width. For a longer target, `('*'.repeat(10) + bar).slice(-10)` keeps the last 10 characters while `bar.padStart(10, '*')` returns `bar` unchanged, so the suggestion changes the result. Check the length before accepting it when the value can exceed the width.
