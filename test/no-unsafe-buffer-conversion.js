@@ -65,6 +65,11 @@ test.snapshot({
 		typeAware('function foo(data: Uint8Array | {buffer: ArrayBuffer}) { Buffer.from(data.buffer); }'),
 		typeAware('function foo(data: {buffer: string; byteOffset: number; byteLength: number}) { Buffer.from(data.buffer); }'),
 		typeAware('interface Buffer {} function foo(data: Buffer & {buffer: ArrayBuffer}) { Buffer.from(data.buffer); }'),
+
+		// A TypeScript `import =` declaration binds the module object, not `Buffer`, and must not crash
+		{code: 'import Buffer = require(\'node:buffer\'); Buffer.from(data.buffer)', languageOptions: {parser: parsers.typescript}},
+		{code: 'import Buffer = require(\'other\'); Buffer.from(data.buffer)', languageOptions: {parser: parsers.typescript}},
+		{code: 'import B = Buffer; B.from(data.buffer)', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
 		'new Uint8Array(data.buffer)',

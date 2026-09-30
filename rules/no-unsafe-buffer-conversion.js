@@ -187,14 +187,12 @@ function getBufferViewTypeInfo(view, context) {
 function isImportedBuffer(identifier, context) {
 	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
 
-	return variable?.defs.some(definition => {
-		if (definition.type !== 'ImportBinding' || !bufferImportSources.has(definition.parent.source.value)) {
-			return false;
-		}
-
-		const {node} = definition;
-		return node.type === 'ImportSpecifier' && node.imported.name === 'Buffer';
-	}) ?? false;
+	// `import Buffer = require('node:buffer')` binds the module object, not `Buffer`, and has no `ImportDeclaration` source
+	return variable?.defs.some(definition =>
+		definition.type === 'ImportBinding'
+		&& definition.node.type === 'ImportSpecifier'
+		&& definition.node.imported.name === 'Buffer'
+		&& bufferImportSources.has(definition.parent.source.value)) ?? false;
 }
 
 function isBufferReference(node, context) {
