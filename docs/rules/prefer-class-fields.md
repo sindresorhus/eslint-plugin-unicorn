@@ -33,21 +33,6 @@ class Foo {
 
 ```js
 // ❌
-class MyError extends Error {
-	constructor(message: string) {
-		super(message);
-		this.name = 'MyError';
-	}
-}
-
-// ✅
-class MyError extends Error {
-	name = 'MyError'
-}
-```
-
-```js
-// ❌
 class Foo {
 	foo = 'foo';
 	constructor() {
@@ -75,3 +60,15 @@ class Foo {
 	#foo = 'bar';
 }
 ```
+
+```js
+// ✅
+class MyError extends Error {
+	constructor(message) {
+		super(message);
+		this.name = 'MyError';
+	}
+}
+```
+
+Only a constructor that starts with the assignment is checked. An assignment after `super()` is ignored, because the parent class could define a setter with the same name, and a class field would shadow it.

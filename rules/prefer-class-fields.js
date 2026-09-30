@@ -29,6 +29,9 @@ const removeFieldAssignment = (node, sourceCode, fixer) => {
 		: fixer.remove(node);
 };
 
+// `TSAbstractPropertyDefinition` is a declaration only field, it can not get an initializer
+const fieldTypes = new Set(['AccessorProperty', 'PropertyDefinition', 'TSAbstractPropertyDefinition']);
+
 /**
 @type {import('eslint').Rule.RuleModule['create']}
 */
@@ -65,17 +68,60 @@ const create = context => {
 		const propertyName = node.expression.left.property.name;
 		const propertyValue = node.expression.right.raw;
 		const propertyType = node.expression.left.property.type;
+		// `get 'bar'()` is the same accessor as `get bar()`
+		const isSameKey = key =>
+			(key.type === propertyType && key.name === propertyName)
+			|| (propertyType === 'Identifier' && key.type === 'Literal' && key.value === propertyName);
+
+		/*
+		TypeScript emits the assignment of a parameter property at the top of the constructor, after the class field initializers, so `constructor(private x) { this.x = 0; }` must not become a field, and a field named like a parameter property would be a duplicate declaration.
+		*/
+		if (constructor.value.params.some(parameter =>
+			parameter.type === 'TSParameterProperty'
+			// `private x = 1` is an `AssignmentPattern`
+			&& isSameKey(parameter.parameter.left ?? parameter.parameter))) {
+			return;
+		}
+
+		/*
+		A `get`/`set` accessor or a method defines the property on the prototype, a data field would shadow it. A private name is unique in the whole class, a `static` member with that name is already the declaration, so adding a field with it would be a duplicate.
+		*/
+		const hasConflictingMember = classBody.body.some(node =>
+			(node.type === 'MethodDefinition' || fieldTypes.has(node.type))
+			&& !node.computed
+			&& isSameKey(node.key)
+			&& (
+				(propertyType === 'PrivateIdentifier' && node.static)
+				|| (
+					node.type === 'MethodDefinition'
+					&& !node.static
+				)
+			),
+		);
 		const existingProperty = classBody.body.find(node =>
-			node.type === 'PropertyDefinition'
+			fieldTypes.has(node.type)
 			&& !node.computed
 			&& !node.static
-			&& node.key.type === propertyType
-			&& node.key.name === propertyName);
+			&& isSameKey(node.key));
 
 		const problem = {
 			node,
 			messageId: MESSAGE_ID_ERROR,
 		};
+
+		/*
+		An `abstract` or `declare` field has no initializer, and a definite assignment assertion can not have one either.
+		*/
+		if (
+			existingProperty
+			&& (
+				existingProperty.declare
+				|| existingProperty.definite
+				|| existingProperty.type === 'TSAbstractPropertyDefinition'
+			)
+		) {
+			return problem;
+		}
 
 		/**
 			@param {import('eslint').Rule.RuleFixer} fixer
@@ -120,6 +166,11 @@ const create = context => {
 			}
 
 			yield fixer.insertTextBefore(closingBrace, text);
+		}
+
+		// The assignment is rebuilt as a field, a comment inside it would be lost
+		if (hasConflictingMember || sourceCode.getCommentsInside(node).length > 0) {
+			return problem;
 		}
 
 		if (existingProperty?.value) {
