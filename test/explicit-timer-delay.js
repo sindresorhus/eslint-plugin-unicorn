@@ -297,5 +297,21 @@ test({
 			options: ['never'],
 			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
 		},
+		// Reported, but not fixed, a comment next to the delay would be lost
+		{
+			code: 'setTimeout(fn /* keep */, 0);',
+			options: ['never'],
+			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
+		},
+		{
+			code: 'setTimeout(fn, // keep\n\t0);',
+			options: ['never'],
+			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
+		},
+		{
+			code: 'setTimeout(() => {}, /* keep */ 0);',
+			options: ['never'],
+			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
+		},
 	],
 });

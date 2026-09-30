@@ -1,5 +1,5 @@
 import {isLiteral} from './ast/index.js';
-import {getParenthesizedRange} from './utils/index.js';
+import {getParenthesizedRange, hasCommentInRange} from './utils/index.js';
 
 const MODE_ALWAYS = 'always';
 const MODE_NEVER = 'never';
@@ -109,23 +109,29 @@ const create = context => {
 			};
 		}
 
-		if (mode === MODE_NEVER && arguments_.length === 2) {
-			const delayArgument = arguments_[1];
-
-			if (isZeroDelay(delayArgument)) {
-				return {
-					node: delayArgument,
-					messageId: MESSAGE_ID_REDUNDANT_DELAY,
-					data: {name},
-					fix(fixer) {
-						const [firstArgument] = arguments_;
-						const [, firstArgumentEnd] = getParenthesizedRange(firstArgument, context);
-						const [, delayArgumentEnd] = getParenthesizedRange(delayArgument, context);
-						return fixer.removeRange([firstArgumentEnd, delayArgumentEnd]);
-					},
-				};
-			}
+		const [firstArgument, delayArgument] = arguments_;
+		if (
+			mode !== MODE_NEVER
+			|| arguments_.length !== 2
+			|| !isZeroDelay(delayArgument)
+		) {
+			return;
 		}
+
+		const problem = {
+			node: delayArgument,
+			messageId: MESSAGE_ID_REDUNDANT_DELAY,
+			data: {name},
+		};
+
+		// The removed range spans the comma, so a comment next to the delay would be lost
+		const [, firstArgumentEnd] = getParenthesizedRange(firstArgument, context);
+		const [, delayArgumentEnd] = getParenthesizedRange(delayArgument, context);
+		if (!hasCommentInRange(context, [firstArgumentEnd, delayArgumentEnd])) {
+			problem.fix = fixer => fixer.removeRange([firstArgumentEnd, delayArgumentEnd]);
+		}
+
+		return problem;
 	});
 };
 
