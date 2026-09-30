@@ -49,6 +49,22 @@ array = array.toSpliced(1, 1);
 const removed = array.splice(1, 1);
 ```
 
+`toSpliced()` returns a dense array, while `splice()` keeps holes. A hole is normally invisible, so the suggestion is still offered for an array with holes, but the two are not identical then:
+
+```js
+let array = [1, 2, 3];
+array.length = 5;
+array.splice(1, 1);
+Object.hasOwn(array, 3); // false
+```
+
+```js
+let array = [1, 2, 3];
+array.length = 5;
+array = array.toSpliced(1, 1);
+Object.hasOwn(array, 3); // true
+```
+
 ```js
 // ✅ — array comes from elsewhere and may be shared, so it must be mutated in place
 let structures = getStructures();

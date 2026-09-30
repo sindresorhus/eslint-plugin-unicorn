@@ -44,6 +44,8 @@ function isFreshLocalArrayInit(variable) {
 		|| variable.scope.type === 'global'
 		|| definition.type !== 'Variable'
 		|| definition.node.id.type !== 'Identifier'
+		// An exported binding has references outside the scope, which observe the mutation
+		|| definition.parent.parent.type === 'ExportNamedDeclaration'
 		|| (definition.parent.kind !== 'let' && definition.parent.kind !== 'var')
 	) {
 		return false;
@@ -134,11 +136,8 @@ function hasTypeParameterOrTuple(type, checker) {
 		return true;
 	}
 
-	if (type.isUnion() || type.isIntersection()) {
-		return type.types.some(type => hasTypeParameterOrTuple(type, checker));
-	}
-
-	return false;
+	return (type.isUnion() || type.isIntersection())
+		&& type.types.some(type => hasTypeParameterOrTuple(type, checker));
 }
 
 function isTypeParameterOrTuple(node, context) {
@@ -163,11 +162,8 @@ function shouldSkipReceiver(node, variable, context) {
 
 	// A non-plain-array annotation (tuple, readonly array, alias, …) means the
 	// receiver may not be a reassignable plain array, so skip it.
-	if (typeAnnotation && !isPlainArrayTypeAnnotation(typeAnnotation)) {
-		return true;
-	}
-
-	return isTypeParameterOrTuple(node, context);
+	return (typeAnnotation && !isPlainArrayTypeAnnotation(typeAnnotation))
+		|| isTypeParameterOrTuple(node, context);
 }
 
 /**

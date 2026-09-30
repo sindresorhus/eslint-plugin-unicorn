@@ -19,6 +19,11 @@ test.snapshot({
 		'foo(array.splice(1, 1));',
 		'const array = []; array.splice(1, 1);',
 		'import array from "array"; array.splice(1, 1);',
+		// An exported binding has references outside the scope that observe the mutation
+		'export let a = [1, 2, 3];\na.splice(1, 1, 9);',
+		'export var a = [1, 2, 3];\na.splice(1, 1, 9);',
+		'export {a};\nlet a = [1, 2, 3];\na.splice(1, 1, 9);',
+		'let a = [1, 2, 3];\na.splice(1, 1, 9);\nexport default a;',
 		'array.splice(1, 1);',
 		'object.array.splice(1, 1);',
 		'array?.splice(1, 1);',
