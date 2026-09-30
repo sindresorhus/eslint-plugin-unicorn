@@ -205,11 +205,32 @@ function getSingleStatement(node) {
 	return node;
 }
 
+// In `if (condition && map.has(key))` the guard is the last `&&` operand, an earlier `has` guards nothing in the body. With `||` a truthy `map.has(key)` is not what admits the body, `condition` alone can, so that is not a guard.
+function getGuardTest({test}) {
+	while (test.type === 'LogicalExpression' && test.operator === '&&') {
+		test = test.right;
+	}
+
+	return test;
+}
+
 function getBranchNodes(node) {
 	if (node.type === 'ConditionalExpression') {
 		return [
 			node.consequent,
 			node.alternate,
+		];
+	}
+
+	// `map.has(a) && map.get(b)`, the guarded access is the other operand
+	if (node.type === 'LogicalExpression') {
+		return [node.right];
+	}
+
+	// `while (map.has(a)) { map.get(b) }`, the body is guarded by the test. A `do…while` body runs before the first test, so it is not guarded by it.
+	if (node.type === 'WhileStatement') {
+		return [
+			getSingleStatement(node.body),
 		];
 	}
 
@@ -240,11 +261,7 @@ function getMapAccessProblem(node, mapHasCall, context, reportedAccessKeys) {
 	const [hasKey] = mapHasCall.arguments;
 	const [accessKey] = node.arguments;
 
-	if (reportedAccessKeys.has(accessKey)) {
-		return;
-	}
-
-	if (!areDifferentKeys(hasKey, accessKey, context)) {
+	if (reportedAccessKeys.has(accessKey) || !areDifferentKeys(hasKey, accessKey, context)) {
 		return;
 	}
 
@@ -289,35 +306,28 @@ function isSameBinding(left, right, context) {
 	const leftVariable = findVariable(context.sourceCode.getScope(left), left);
 	const rightVariable = findVariable(context.sourceCode.getScope(right), right);
 
-	if (leftVariable || rightVariable) {
-		return leftVariable === rightVariable;
-	}
-
-	return left.name === right.name;
+	return leftVariable || rightVariable ? leftVariable === rightVariable : left.name === right.name;
 }
 
 function isMapReceiverWrite(node, mapHasCall, context) {
 	const mapHasObject = unwrapExpression(mapHasCall).callee.object;
-	const mapHasRoot = getRootIdentifier(unwrapExpression(mapHasCall).callee.object);
+	const mapHasRoot = getRootIdentifier(mapHasObject);
 
-	if (!mapHasRoot) {
-		return false;
-	}
+	// A `this.x` receiver has no root identifier, only the direct receiver comparison can match it
+	const isRootRewrite = candidate => Boolean(mapHasRoot) && patternContainsSameBinding(candidate, mapHasRoot, context);
 
 	if (node.type === 'VariableDeclaration') {
-		return node.declarations.some(declaration => declaration.init && patternContainsSameBinding(declaration.id, mapHasRoot, context));
+		return node.declarations.some(declaration => declaration.init && isRootRewrite(declaration.id));
 	}
 
 	if (node.type === 'AssignmentExpression') {
 		const left = unwrapExpression(node.left);
-		return isSameMapReceiver(mapHasObject, left, context)
-			|| patternContainsSameBinding(left, mapHasRoot, context);
+		return isSameMapReceiver(mapHasObject, left, context) || isRootRewrite(left);
 	}
 
 	if (node.type === 'UpdateExpression') {
 		const argument = unwrapExpression(node.argument);
-		return isSameMapReceiver(mapHasObject, argument, context)
-			|| (argument.type === 'Identifier' && isSameBinding(argument, mapHasRoot, context));
+		return isSameMapReceiver(mapHasObject, argument, context) || isRootRewrite(argument);
 	}
 
 	if (
@@ -325,8 +335,7 @@ function isMapReceiverWrite(node, mapHasCall, context) {
 		&& node.left.type !== 'VariableDeclaration'
 	) {
 		const left = unwrapExpression(node.left);
-		return isSameMapReceiver(mapHasObject, left, context)
-			|| patternContainsSameBinding(left, mapHasRoot, context);
+		return isSameMapReceiver(mapHasObject, left, context) || isRootRewrite(left);
 	}
 
 	return false;
@@ -471,8 +480,13 @@ function getMapAccessProblems(node, mapHasCall, context, reportedAccessKeys) {
 const create = context => {
 	const reportedAccessKeys = new WeakSet();
 
-	context.on(['ConditionalExpression', 'IfStatement'], (/** @type {ESTree.ConditionalExpression | ESTree.IfStatement} */ node) => {
-		const mapHasCall = getMapHasCall(node.test);
+	const branchTypes = ['ConditionalExpression', 'IfStatement', 'WhileStatement', 'LogicalExpression'];
+
+	context.on(branchTypes, (/** @type {ESTree.ConditionalExpression | ESTree.IfStatement | ESTree.WhileStatement | ESTree.LogicalExpression} */ node) => {
+		// `map.has(a) && map.get(b)` / `map.has(a) || map.get(b)`. The access has to come second, otherwise nothing is "checked before" it.
+		const mapHasCall = node.type === 'LogicalExpression'
+			? getMapHasCall(node.left)
+			: getMapHasCall(getGuardTest(node));
 
 		if (!mapHasCall) {
 			return;

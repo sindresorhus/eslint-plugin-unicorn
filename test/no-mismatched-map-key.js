@@ -5,6 +5,19 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// The access has to come second, otherwise nothing is checked before it
+		'const value = map.get(otherKey) && map.has(key);',
+		'const value = map.get(otherKey) || map.has(key);',
+		// A `has` that is not the last operand of the test guards nothing
+		'if (map.has(key) && condition) { map.get(anotherKey); }',
+		// A `do…while` body runs before the first test, `||` admits the body on its own
+		'do { map.get(anotherKey); } while (map.has(key));',
+		'if (condition || map.has(key)) { map.get(anotherKey); }',
+		// A branch that reassigns the checked receiver is ignored, `this.x` has no root identifier
+		'class A { f() { if (this.map.has(key)) { (this.map = other, this.map.get(anotherKey)); } } }',
+		'class A { f() { if (this.map.has(key)) { for (this.map of maps) { this.map.get(anotherKey); } } } }',
+		'const value = map.has(key) && map.get(key);',
+		'if (map.has(key)) { (map++, map.get(anotherKey)); }',
 		// Known non-Map receiver (type information)
 		{
 			code: 'function f(cache: {has(key: string): boolean; get(key: string): number}) { if (cache.has("a")) { return cache.get("b"); } }',
@@ -150,5 +163,14 @@ test.snapshot({
 			code: 'if (map.has(key as string)) { map.get(anotherKey as string); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A `&&` guard whose last operand is the check, and loop tests
+		'if (condition && map.has(key)) { map.get(anotherKey); }',
+		'while (map.has(key)) { map.get(anotherKey); }',
+		'while (!map.has(key)) { map.set(anotherKey, value); }',
+		'while (map.has(key)) { const x = map.get(anotherKey); }',
+		// `map.has(a) && map.get(b)` is the same mistake in a different shape
+		'const value = map.has(key) && map.get(otherKey);',
+		'if (!map.has(key) && map.get(otherKey)) {}',
+		'const value = map.has(key) || map.get(otherKey);',
 	],
 });
