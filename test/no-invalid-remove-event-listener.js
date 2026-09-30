@@ -59,3 +59,22 @@ test.snapshot({
 		'el.removeEventListener(() => {}, () => {}, () => {})',
 	],
 });
+
+// `this.handler['bind'](this)` is the same call as `this.handler.bind(this)`
+test({
+	valid: [
+		'el.removeEventListener(\'click\', this.handler[\'other\'](this));',
+		'el.removeEventListener(\'click\', this.handler[bind](this));',
+		'el.removeEventListener(\'click\', this.handler?.[\'bind\'](this));',
+	],
+	invalid: [
+		{
+			code: 'el.removeEventListener(\'click\', this.handler[\'bind\'](this));',
+			errors: 1,
+		},
+		{
+			code: 'el.removeEventListener(\'click\', this.handler[`bind`](this));',
+			errors: 1,
+		},
+	],
+});

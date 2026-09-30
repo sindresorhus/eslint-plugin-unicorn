@@ -1,4 +1,4 @@
-import {getFunctionHeadLocation} from '@eslint-community/eslint-utils';
+import {getFunctionHeadLocation, getPropertyName} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'no-invalid-remove-event-listener';
@@ -18,15 +18,6 @@ const create = context => {
 				optionalCall: false,
 			})
 			&& callExpression.arguments[0].type !== 'SpreadElement'
-			&& (
-				callExpression.arguments[1].type === 'FunctionExpression'
-				|| callExpression.arguments[1].type === 'ArrowFunctionExpression'
-				|| isMethodCall(callExpression.arguments[1], {
-					method: 'bind',
-					optionalCall: false,
-					optionalMember: false,
-				})
-			)
 		)) {
 			return;
 		}
@@ -40,10 +31,19 @@ const create = context => {
 			};
 		}
 
-		return {
-			node: listener.callee.property,
-			messageId: MESSAGE_ID,
-		};
+		// `this.handler['bind'](this)` is the same call as `this.handler.bind(this)`
+		if (
+			listener.type === 'CallExpression'
+			&& !listener.optional
+			&& listener.callee.type === 'MemberExpression'
+			&& !listener.callee.optional
+			&& getPropertyName(listener.callee) === 'bind'
+		) {
+			return {
+				node: listener.callee.property,
+				messageId: MESSAGE_ID,
+			};
+		}
 	});
 };
 
