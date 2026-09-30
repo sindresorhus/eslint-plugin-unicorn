@@ -222,6 +222,14 @@ test.snapshot({
 		'new Map({...iterable})',
 		'new Uint8Array(...iterable)',
 		'new Uint8Array(before, [...iterable])',
+		// A `TypedArray` constructor also takes a primitive, an array-like, or an `ArrayBuffer`, so the spread is not redundant there: `new Uint8Array([...'ab'])` has a length of 2, `new Uint8Array('ab')` 0
+		'new Uint8Array([...iterable])',
+		'new Float64Array([...iterable])',
+		'new Int32Array([...iterable])',
+		'new BigInt64Array([...iterable])',
+		'new Uint8Array([...iterable], 0)',
+		'const typed = new BigUint64Array([...iterable], byteOffset, length)',
+		'const typed = new BigUint64Array([...iterable], ...args)',
 
 		'Promise.notMatchedMethod([...iterable])',
 		'NotPromise.all([...iterable])',
@@ -270,8 +278,6 @@ test.snapshot({
 		'const weakMap = new WeakMap([...iterable])',
 		'const set = new Set([...iterable])',
 		'const weakSet = new WeakSet([...iterable])',
-		'const typed = new BigUint64Array([...iterable], byteOffset, length)',
-		'const typed = new BigUint64Array([...iterable], ...args)',
 		'const promise = Promise.all([...iterable])',
 		'const promise = Promise.allSettled([...iterable])',
 		'const promise = Promise.any([...iterable])',
@@ -284,7 +290,7 @@ test.snapshot({
 
 		// Trailing comma
 		'const map = new Map([...iterable,])',
-		'for (const foo of [...iterable]);',
+		'for (const foo of [...iterable,]);',
 		'const map = new Map([...iterable,],)',
 
 		// Parentheses
@@ -408,6 +414,33 @@ test.typescript({
 		{
 			code: 'for (const foo of[...iterable2]);',
 			output: 'for (const foo of iterable2);',
+			errors: 1,
+		},
+	],
+});
+
+// Removing the brackets drops the array-literal grouping, a low-precedence spread argument needs its own parentheses
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const n = [...await Promise.all(x)].length;',
+			output: 'const n = (await Promise.all(x)).length;',
+			errors: 1,
+		},
+		{
+			code: 'const n = [...await Promise.all(x)][0];',
+			output: 'const n = (await Promise.all(x))[0];',
+			errors: 1,
+		},
+		{
+			code: 'const n = [...await Promise.all(x)].map(f);',
+			output: 'const n = (await Promise.all(x)).map(f);',
+			errors: 1,
+		},
+		{
+			code: 'const n = [...await Promise.all(x)]?.length;',
+			output: 'const n = (await Promise.all(x))?.length;',
 			errors: 1,
 		},
 	],

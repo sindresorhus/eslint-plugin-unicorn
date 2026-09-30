@@ -26,11 +26,12 @@ Removing unnecessary spread avoids redundant copying and conversion, and makes i
   - `WeakMap` constructor
   - `Set` constructor
   - `WeakSet` constructor
-  - `TypedArray` constructor
   - `Array.from(…)`
   - `TypedArray.from(…)`
   - `Promise.{all,allSettled,any,race}(…)`
   - `Object.fromEntries(…)`
+
+  A `TypedArray` constructor is not included, since it also accepts a primitive, an array-like, or an `ArrayBuffer`. For example, `new Uint8Array([...'ab'])` has a length of 2, but `new Uint8Array('ab')` has a length of 0.
 
 - `for…of` loop can iterate over any iterable object not just arrays, so it's unnecessary to convert the iterable to an array.
 

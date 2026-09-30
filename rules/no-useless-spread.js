@@ -7,6 +7,8 @@ import {
 	isParenthesized,
 	isOnSameLine,
 	getParenthesizedText,
+	isStrongPrecedenceNode,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
 	isNewExpression,
@@ -108,6 +110,16 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
 	//  ^
 	yield fixer.remove(openingBracketToken);
 
+	// Removing the brackets drops the array-literal grouping, so a low-precedence spread argument such as `await x` or `a || b` needs its own parentheses.
+	const {argument} = arrayExpression.elements[0];
+	const shouldAddParentheses
+		= !isParenthesized(argument, context)
+			&& !isStrongPrecedenceNode(argument)
+			&& !isStrongPrecedenceNode(unwrapTypeScriptExpression(argument));
+	if (shouldAddParentheses) {
+		yield fixer.insertTextAfter(openingBracketToken, '(');
+	}
+
 	// `[...value]`
 	//   ^^^
 	yield fixer.remove(spreadToken);
@@ -120,6 +132,10 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
 	// `[...value]`
 	//           ^
 	yield fixer.remove(closingBracketToken);
+
+	if (shouldAddParentheses) {
+		yield fixer.insertTextBefore(closingBracketToken, ')');
+	}
 
 	// `[...value,]`
 	//           ^
@@ -446,8 +462,8 @@ const create = context => {
 			|| (parent.type === 'YieldExpression' && parent.delegate && parent.argument === arrayExpression)
 			|| (
 				(
+					// Not a `TypedArray` constructor. It also takes a primitive, an array-like, or an `ArrayBuffer`, whatever the other arguments are, so `new Uint8Array([...'ab'])` has a length of 2 where `new Uint8Array('ab')` has a length of 0 and the spread is not redundant.
 					isNewExpression(parent, {names: collectionConstructors, argumentsLength: 1})
-					|| isNewExpression(parent, {names: typedArray, minimumArguments: 1})
 					|| isMethodCall(parent, {
 						object: 'Promise',
 						methods: ['all', 'allSettled', 'any', 'race'],
