@@ -92,11 +92,7 @@ const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope
 		}
 
 		// Be conservative: writes from other variable scopes may run before this read via calls/closures.
-		if (reference.from.variableScope !== memberScope.variableScope) {
-			return true;
-		}
-
-		return referenceStart <= memberStart;
+		return reference.from.variableScope !== memberScope.variableScope || referenceStart <= memberStart;
 	});
 };
 
@@ -142,6 +138,56 @@ const isDeclarationBeforeMemberExpression = (declaration, memberExpressionNode, 
 	return declarationEnd < memberStart;
 };
 
+const getEnclosingCall = node => {
+	let current = node;
+	while (current.parent) {
+		const {parent} = current;
+		if (
+			(parent.type === 'CallExpression' && parent.callee === current)
+			|| (parent.type === 'NewExpression' && parent.callee === current)
+			|| (parent.type === 'TaggedTemplateExpression' && parent.tag === current)
+		) {
+			return parent;
+		}
+
+		// `foo.bar()` is called through the member expression
+		if (parent.type === 'MemberExpression' && parent.object === current) {
+			current = parent;
+			continue;
+		}
+
+		return;
+	}
+};
+
+// A destructured value is a snapshot, so a call between the declaration and the read could have mutated the object. Only a call in the same variable scope as the declaration counts, a call in a nested function runs elsewhere.
+const hasCallBetween = (declaration, memberExpressionNode, sourceCode) => {
+	const declarationScope = sourceCode.getScope(declaration);
+
+	return sourceCode.getTokensBetween(declaration, memberExpressionNode)
+		.some(token => {
+			if (token.type !== 'Identifier') {
+				return false;
+			}
+
+			const node = sourceCode.getNodeByRangeIndex(sourceCode.getRange(token)[0]);
+			if (node.type !== 'Identifier') {
+				return false;
+			}
+
+			const call = getEnclosingCall(node);
+			// A block is its own scope but runs in the same tick, so comparing the variable scope is what decides whether the call can run before the read. This is the same comparison `isMemberExpressionReassigned` makes above.
+			if (!call || sourceCode.getScope(call).variableScope !== declarationScope.variableScope) {
+				return false;
+			}
+
+			// The read is an argument of this call, so the call runs after it
+			const [memberStart] = sourceCode.getRange(memberExpressionNode);
+			const [callStart, callEnd] = sourceCode.getRange(call);
+			return memberStart < callStart || memberStart > callEnd;
+		});
+};
+
 const isMatchingDeclaration = ({
 	declaration,
 	memberExpressionNode,
@@ -171,22 +217,23 @@ const isMatchingDeclaration = ({
 		return false;
 	}
 
-	if (isRootVariableReassigned(declaration, memberExpressionNode, memberScope, sourceCode)) {
+	if (
+		// Property is destructured outside the current scope
+		!isChildInParentScope(memberScope, declaration.scope)
+		|| isRootVariableReassigned(declaration, memberExpressionNode, memberScope, sourceCode)
+		|| isMemberExpressionReassigned({
+			declaration,
+			memberExpressionNode,
+			memberScope,
+			memberExpressionWrites,
+			sourceCode,
+		})
+	) {
 		return false;
 	}
 
-	if (isMemberExpressionReassigned({
-		declaration,
-		memberExpressionNode,
-		memberScope,
-		memberExpressionWrites,
-		sourceCode,
-	})) {
-		return false;
-	}
-
-	// Property is destructured outside the current scope
-	return isChildInParentScope(memberScope, declaration.scope);
+	// Walking the tokens in between is the most expensive check, so it runs last
+	return !hasCallBetween(declaration.object, memberExpressionNode, sourceCode);
 };
 
 const isMatchingInExpression = (node, memberExpression, sourceCode) => {
@@ -415,35 +462,32 @@ const create = context => {
 		let destructuredMember;
 
 		for (const declaration of matchingDeclarations.toReversed()) {
-			if (!isMatchingDeclaration({
-				declaration,
-				memberExpressionNode: node,
-				memberScope,
-				memberRootIdentifier,
-				memberRootVariable,
-				memberThisScopeBoundary,
-				memberExpressionWrites,
-				sourceCode,
-			})) {
-				continue;
-			}
-
 			const destructuredProperties = declaration.objectPattern.properties.filter(property =>
 				isIdentifierProperty(property)
 				&& property.value.type === 'Identifier');
 
-			destructuredMember = getAvailableDestructuredMember(destructuredProperties, member, memberScope, sourceCode);
+			// Finding the destructured member is cheap, so it runs before the expensive declaration checks
+			const availableMember = getAvailableDestructuredMember(destructuredProperties, member, memberScope, sourceCode);
 
-			if (destructuredMember) {
+			if (
+				availableMember
+				&& isMatchingDeclaration({
+					declaration,
+					memberExpressionNode: node,
+					memberScope,
+					memberRootIdentifier,
+					memberRootVariable,
+					memberThisScopeBoundary,
+					memberExpressionWrites,
+					sourceCode,
+				})
+			) {
+				destructuredMember = availableMember;
 				break;
 			}
 		}
 
-		if (!destructuredMember) {
-			return;
-		}
-
-		if (isInTypeGuardedBranch(node, sourceCode)) {
+		if (!destructuredMember || isInTypeGuardedBranch(node, sourceCode)) {
 			return;
 		}
 
@@ -453,6 +497,11 @@ const create = context => {
 				node,
 				messageId: MESSAGE_ID,
 			};
+		}
+
+		// The suggestion replaces the whole member expression with the bare binding, a comment inside it would be dropped.
+		if (sourceCode.getCommentsInside(node).length > 0) {
+			return {node, messageId: MESSAGE_ID};
 		}
 
 		const expression = sourceCode.getText(node);

@@ -65,3 +65,12 @@ console.log(a, foo.b());
 const {a} = foo.bar;
 console.log(foo.bar.a);
 ```
+
+A destructured value is a snapshot. A direct call such as `update(foo)` or `foo.update()` between the destructuring and the property access could have changed the object, so that access is not reported. This is best-effort: a call in a nested function, or a method call on `this`, is not taken into account.
+
+```js
+// ✅
+const {a} = foo;
+update(foo);
+console.log(foo.a);
+```

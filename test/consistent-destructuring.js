@@ -1039,3 +1039,66 @@ test.typescript({
 		}),
 	],
 });
+
+// A destructured value is a snapshot, a call in between could have mutated the object
+test({
+	valid: [
+		'const {a} = state;\nrender(state);\nconsole.log(state.a);',
+		'const {a} = state;\nrender(state);\nrender(state.a);',
+		'const {a} = state;\nnew Renderer(state);\nconsole.log(state.a);',
+		'const {a} = state;\ntag`x`;\nconsole.log(state.a);',
+		'const {a} = state;\nrender(state);\nconsole.log(a);',
+	],
+	invalid: [
+		{
+			code: 'const {a} = state;\nconsole.log(state.a);',
+			errors: 1,
+		},
+	],
+});
+
+// The suggestion replaces the whole member expression, a comment inside it would be dropped
+test({
+	valid: [],
+	invalid: [
+		'const {bar} = foo;\nconsole.log(foo\n\t// keep\n\t.bar);',
+		'const {bar} = foo;\nconsole.log(foo /* keep */.bar);',
+	].map(code => ({code, errors: [{messageId: 'consistentDestructuring', suggestions: []}]})),
+});
+
+// A comment after the member expression is kept by the suggestion
+test({
+	valid: [],
+	invalid: [
+		invalidTestCase({
+			code: 'const {bar} = foo;\nconsole.log(foo.bar /* keep */);',
+			suggestions: ['const {bar} = foo;\nconsole.log(bar /* keep */);'],
+		}),
+	],
+});
+
+// A call inside a block is in a different scope but runs in the same tick, so it can still run before the read and mutate the object: `mutate(o)` then `o.a` gives 2, the destructured `a` gives 1
+const mutatePrefix = 'function mutate(object) { object.a = 2; } const o = {a: 1}; const {a} = o; ';
+test({
+	valid: [
+		`${mutatePrefix}if (c) { mutate(o); } console.log(o.a);`,
+		`${mutatePrefix}while (c) { mutate(o); } console.log(o.a);`,
+		`${mutatePrefix}for (const x of y) { mutate(o); } console.log(o.a);`,
+		`${mutatePrefix}try { mutate(o); } catch {} console.log(o.a);`,
+		`${mutatePrefix}switch (c) { case 1: mutate(o); } console.log(o.a);`,
+		`${mutatePrefix}{ mutate(o); } console.log(o.a);`,
+		`${mutatePrefix}mutate(o); console.log(o.a);`,
+	],
+	invalid: [
+		// A read beside a destructured binding is still reported with a block around the read
+		{
+			code: 'const {a} = o; if (c) { console.log(o.a); }',
+			errors: 1,
+		},
+		// A call in a nested function does not run before the read
+		{
+			code: 'const {a} = o; const f = () => mutate(o); console.log(o.a);',
+			errors: 1,
+		},
+	],
+});
