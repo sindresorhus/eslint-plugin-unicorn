@@ -6,6 +6,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// A binding with the same name that is not an `fs` import is not Node's `fs`
+		'import {readFileSync} from "other";\nJSON.parse(readFileSync(file));',
+		'function readFileSync() {}\nJSON.parse(readFileSync(file));',
+		'import {readFile} from "node:fs/promises";\nfunction parse(readFile) {\n\treturn JSON.parse(readFile(file));\n}',
+		'import {existsSync} from "node:fs";\nJSON.parse(existsSync(file));',
 		'JSON.parse(await fs.readFile(file, "utf8"));',
 		'JSON.parse(await fs.readFile(file, "utf8",));',
 		'JSON.parse(await fs.readFile(file, "UTF-8"));',
@@ -119,8 +124,16 @@ JSON.parse(await fs.readFile(file, options));`,
 		`,
 	],
 	invalid: [
+		// A named import is the same call
+		'import {readFileSync} from "node:fs";\nJSON.parse(readFileSync(file));',
+		'import {readFile} from "node:fs/promises";\nJSON.parse(await readFile(file));',
+		'import {readFile} from "fs";\nJSON.parse(await readFile(file));',
+		'import { readFileSync as read } from "node:fs";\nJSON.parse(read(file));',
 		'JSON.parse(await fs.readFile(file));',
 		'JSON.parse(await fs.readFile(file,));',
+		// A parenthesized argument must not turn into a sequence expression
+		'JSON.parse(await fs.readFile((file)));',
+		'JSON.parse(await fs.readFile(((file))));',
 		'JSON.parse(await fs.readFile(file, null));',
 		'JSON.parse(await fs.readFile(file, undefined));',
 		'JSON.parse(await fs.readFile(file, {encoding: null}));',
@@ -208,6 +221,8 @@ JSON.parse(await fs.readFile(file, options));`,
 			const buffer = await NOT_A_FS_MODULE.readFile(file);
 			JSON.parse(buffer);
 		`,
+		// The options object is replaced by a literal, a comment inside it would be lost
+		'JSON.parse(await fs.readFile(file, {/* keep */ encoding: null}));',
 	],
 });
 
@@ -388,5 +403,6 @@ test.snapshot({
 			const string = await NOT_A_FS_MODULE.readFile(file, "utf8");
 			JSON.parse(string);
 		`,
+		'import {readFileSync} from "node:fs";\nJSON.parse(readFileSync(file, "utf8"));',
 	].map(code => bufferCode(code)),
 });

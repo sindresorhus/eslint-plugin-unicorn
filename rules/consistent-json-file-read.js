@@ -1,7 +1,7 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {removeArgument} from './fix/index.js';
-import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import {getParentheses, getStaticValueIfNoSideEffects} from './utils/index.js';
 
 const MESSAGE_ID_STRING = 'consistent-json-file-read/string';
 const MESSAGE_ID_BUFFER = 'consistent-json-file-read/buffer';
@@ -181,15 +181,43 @@ function isBufferEncoding(node, scope, sourceCode) {
 		&& (value.encoding === undefined || value.encoding === null));
 }
 
+const fsImportSources = new Set(['fs', 'node:fs', 'fs/promises', 'node:fs/promises']);
+
+// `import {readFileSync} from 'node:fs'` is the same call as `fs.readFileSync(…)`
+const getNamedReadFileImport = (node, scope) => {
+	if (node?.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(scope, node);
+	for (const definition of variable?.defs ?? []) {
+		if (
+			definition.type === 'ImportBinding'
+			&& fsImportSources.has(definition.parent.source.value)
+			&& definition.node.type === 'ImportSpecifier'
+		) {
+			return definition.node.imported.name;
+		}
+	}
+};
+
 function isJsonReadFileCall(node, scope) {
 	if (
 		!(node
 			&& node.type === 'CallExpression'
 			&& !node.optional
 			&& (node.arguments.length === 1 || node.arguments.length === 2)
-			&& node.arguments.every(node => node.type !== 'SpreadElement')
-			&& node.callee.type === 'MemberExpression') || node.callee.optional
+			&& node.arguments.every(node => node.type !== 'SpreadElement'))
 	) {
+		return false;
+	}
+
+	const namedImport = getNamedReadFileImport(node.callee, scope);
+	if (namedImport) {
+		return namedImport === 'readFile' || namedImport === 'readFileSync';
+	}
+
+	if (node.callee.type !== 'MemberExpression' || node.callee.optional) {
 		return false;
 	}
 
@@ -200,13 +228,12 @@ function isJsonReadFileCall(node, scope) {
 function addUtf8Encoding(fixer, callExpression, context) {
 	const {sourceCode} = context;
 	const [fileNode] = callExpression.arguments;
-	const tokenAfterFile = sourceCode.getTokenAfter(fileNode);
+	// Insert after the parentheses around the argument, otherwise `'utf8'` would land inside them and turn them into a sequence expression
+	const parentheses = getParentheses(fileNode, context);
+	const lastToken = parentheses.at(-1) ?? sourceCode.getLastToken(fileNode);
+	const tokenAfter = sourceCode.getTokenAfter(lastToken);
 
-	if (tokenAfterFile.value === ',') {
-		return fixer.insertTextAfter(tokenAfterFile, ' \'utf8\'');
-	}
-
-	return fixer.insertTextAfter(fileNode, ', \'utf8\'');
+	return tokenAfter.value === ',' ? fixer.insertTextAfter(tokenAfter, ' \'utf8\'') : fixer.insertTextAfter(lastToken, ', \'utf8\'');
 }
 
 /**
@@ -255,7 +282,10 @@ const create = context => {
 			return {
 				node: optionsNode,
 				messageId: MESSAGE_ID_STRING,
-				fix: fixer => fixer.replaceText(optionsNode, '\'utf8\''),
+				// The options object is replaced by a literal, a comment inside it would be lost
+				...(sourceCode.getCommentsInside(optionsNode).length === 0 && {
+					fix: fixer => fixer.replaceText(optionsNode, '\'utf8\''),
+				}),
 			};
 		}
 
