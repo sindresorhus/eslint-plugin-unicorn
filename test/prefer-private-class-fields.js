@@ -60,7 +60,7 @@ test.snapshot({
 			}
 		`,
 
-		// Optional chaining on \`this\`
+		// Optional chaining on \`this\`, TypeScript rejects \`this?.#bar\`, so it is reported without a fix
 		outdent`
 			class Foo {
 				_bar = 1;
@@ -888,6 +888,16 @@ test.snapshot({
 				baz() {
 					const {...rest} = this as Foo;
 					return rest;
+				}
+			}
+		`,
+
+		// Report-only: TypeScript rejects \`this?.#bar\`
+		outdent`
+			class Foo {
+				_bar = 1;
+				baz() {
+					return this?._bar;
 				}
 			}
 		`,

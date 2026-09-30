@@ -277,6 +277,8 @@ const getMemberAccessState = ({access, name, member, classBody, candidatesByClas
 	if (
 		!isThisExpression(access.object)
 		|| isDeleteExpression(access)
+		// TypeScript rejects `this?.#foo` ("An optional chain cannot contain private identifiers"), so the optional form has to keep the property name
+		|| access.optional
 	) {
 		return memberAccessState.blocked;
 	}
