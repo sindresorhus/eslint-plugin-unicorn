@@ -1,6 +1,6 @@
 import {isRegExp} from 'node:util/types';
 import {findVariable} from '@eslint-community/eslint-utils';
-import {getAvailableVariableName, upperFirst} from './utils/index.js';
+import {getAvailableVariableName, matchesAnyRegExp, upperFirst} from './utils/index.js';
 import {renameVariable} from './fix/index.js';
 import {isMethodCall} from './ast/index.js';
 
@@ -39,7 +39,7 @@ const create = context => {
 	const ignore = options.ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'));
 	const isNameAllowed = name =>
 		name === expectedName
-		|| ignore.some(regexp => regexp.test(name))
+		|| matchesAnyRegExp(name, ignore)
 		|| name.endsWith(expectedName)
 		|| name.endsWith(upperFirst(expectedName));
 
@@ -78,6 +78,13 @@ const create = context => {
 			variable.scope,
 			...variable.references.map(({from}) => from),
 		];
+
+		// The catch parameter gets its own scope, so the block it is used in is only reached through its references. An unused parameter has none, and `error` would then be picked even when the body declares it.
+		const {body} = node.parent;
+		if (body.type === 'BlockStatement') {
+			scopes.push(context.sourceCode.getScope(body));
+		}
+
 		const fixedName = getAvailableVariableName(expectedName, scopes);
 
 		const problem = {

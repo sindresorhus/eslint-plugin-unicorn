@@ -285,6 +285,15 @@ test({
 			code: 'promise.catch(unicorn => {})',
 			options: [{ignore: ['unicorn']}],
 		},
+		{
+			// A `g` flag makes `RegExp#test()` stateful, every name must still be ignored
+			code: outdent`
+				try {} catch (skipThisNameCheck) {}
+				try {} catch (skipThisNameCheck) {}
+				try {} catch (skipThisNameCheck) {}
+			`,
+			options: [{ignore: [/^skip/g]}],
+		},
 	],
 
 	invalid: [
@@ -863,6 +872,34 @@ test({
 			`,
 			errors: [generateError('e', 'error_')],
 		}),
+		// The catch parameter gets its own scope, an unused one still has to avoid the block's bindings
+		...[
+			'const error = 1;',
+			'let error;',
+			'class error {}',
+			'function error() {}',
+		].map(statement => ({
+			code: outdent`
+				try {
+				} catch (e) {
+					${statement}
+					throw new Error('x');
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (error_) {
+					${statement}
+					throw new Error('x');
+				}
+			`,
+			errors: [generateError('e', 'error_')],
+		})),
+		{
+			code: 'try {} catch (e) { console.log(1); }',
+			output: 'try {} catch (error) { console.log(1); }',
+			errors: [generateError('e', 'error')],
+		},
 	],
 });
 
