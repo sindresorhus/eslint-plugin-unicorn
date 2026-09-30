@@ -89,9 +89,18 @@ function getFix(callExpression, replacement, context) {
 		return fixer => fixer.replaceText(callExpression, `${objectText}.length = 0`);
 	}
 
+	// `array.splice(array.length, 0, element)` reads the length before the element is evaluated. The `push` replacement drops that read, so a call that mutates the receiver in the element would now run before the append rather than before the length read.
+	if (
+		replacement.messageId === MESSAGE_ID_PUSH
+		&& replacement.argumentsToKeep.some(node => hasSideEffect(node, context.sourceCode))
+	) {
+		return;
+	}
+
 	return fixer => {
+		// A sequence expression has to keep its parentheses, without them it would merge into the new argument list and change the arity
 		const argumentsText = replacement.argumentsToKeep
-			.map(node => context.sourceCode.getText(node))
+			.map(node => getParenthesizedText(node, context))
 			.join(', ');
 
 		return fixer.replaceText(callExpression, `${objectText}.${replacement.method}(${argumentsText})`);

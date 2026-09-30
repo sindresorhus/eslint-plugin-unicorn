@@ -75,6 +75,11 @@ test.snapshot({
 		'getArray().splice(index, 0);',
 		'array.splice(getIndex(), 0);',
 		'if (condition) array.splice(index, 0);',
+		// A sequence expression discards the value of every element but the last one
+		'array.splice(0), f();',
+		'array.splice(0, array.length), f();',
+		'f(), array.splice(0);',
+		'f(), array.splice(0), g();',
 	],
 });
 
@@ -104,5 +109,36 @@ test.snapshot({
 		// A TypeScript wrapper around `.length` itself does not hide the argument
 		'array.splice(0, array.length as number);',
 		'array.splice((array.length as number) - 1, 1);',
+	],
+});
+
+// A sequence expression has to keep its parentheses, without them it would change the arity
+test({
+	valid: [],
+	invalid: [
+		...[
+			['a.splice(0, 0, (b, c))', 'a.unshift((b, c))'],
+			['a.splice(a.length, 0, (b, c))', 'a.push((b, c))'],
+			['a.splice(0, 0, x, (b, c))', 'a.unshift(x, (b, c))'],
+			['a.splice(0, 0, x)', 'a.unshift(x)'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	],
+});
+
+// `a.splice(a.length, 0, element)` reads the length before the element is evaluated, and the `push` replacement drops that read, so a call that mutates the receiver now runs before the append instead of before the length read.
+test({
+	valid: [],
+	invalid: [
+		...[
+			'const array = [1, 2, 3]; function f() { array.push(9); return 7; } array.splice(array.length, 0, f());',
+			'const array = [1, 2, 3]; function f() { array.unshift(9); return 7; } array.splice(array.length, 0, f());',
+			'const array = [1, 2, 3]; array.splice(array.length, 0, foo());',
+		].map(code => ({code, errors: 1})),
+		...[
+			['const array = [1, 2, 3]; array.splice(array.length, 0, 7);', 'const array = [1, 2, 3]; array.push(7);'],
+			['const array = [1, 2, 3]; array.splice(0, 0, 7);', 'const array = [1, 2, 3]; array.unshift(7);'],
+			// `unshift` replaces a static `0` index, there is no length read to drop
+			['const array = [1, 2, 3]; array.splice(0, 0, foo());', 'const array = [1, 2, 3]; array.unshift(foo());'],
+		].map(([code, output]) => ({code, output, errors: 1})),
 	],
 });
