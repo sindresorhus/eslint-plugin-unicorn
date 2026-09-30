@@ -17,15 +17,12 @@ const yamlCharactersToEscape = /[\u{7f}-\u{9f}\u{2028}\u{2029}\u{fffe}\u{ffff}]/
 
 const targetNodeTypes = ['Literal', 'TemplateElement', 'TOMLValue', 'String', 'Url', 'YAMLScalar'];
 
-const ignoredIdentifier = new Set([
+const ignoredTags = new Set([
 	'gql',
 	'html',
 	'sql',
-	'svg',
-]);
-
-const ignoredMemberExpressionObject = new Set([
 	'styled',
+	'svg',
 ]);
 
 const isIgnoredTag = node => {
@@ -35,21 +32,13 @@ const isIgnoredTag = node => {
 
 	const {tag} = node.parent.parent;
 
-	if (tag.type === 'Identifier' && ignoredIdentifier.has(tag.name)) {
-		return true;
+	// `styled.div`, `styled(Button)`, `styled.div.attrs({})`, `styled(Component).attrs({})`
+	let root = tag;
+	while (root.type === 'CallExpression' || (root.type === 'MemberExpression' && !root.computed)) {
+		root = root.type === 'CallExpression' ? root.callee : root.object;
 	}
 
-	if (tag.type === 'MemberExpression') {
-		const {object} = tag;
-		if (
-			object.type === 'Identifier'
-			&& ignoredMemberExpressionObject.has(object.name)
-		) {
-			return true;
-		}
-	}
-
-	return false;
+	return root.type === 'Identifier' && ignoredTags.has(root.name);
 };
 
 function getReplacements(patterns) {
@@ -242,6 +231,9 @@ const schema = [
 				uniqueItems: true,
 				items: {
 					type: 'string',
+					// Same constraint as `template-indent` and `isolated-functions`, which crash on a blank selector, so the three options cannot drift apart
+					minLength: 1,
+					pattern: /\S/.source,
 				},
 				description: 'AST selectors for string nodes to check.',
 			},

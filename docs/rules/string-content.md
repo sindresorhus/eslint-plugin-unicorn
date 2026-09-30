@@ -19,7 +19,9 @@ This rule ignores the following tagged template literals as they're known to con
 - ``html`…` ``
 - ``sql`…` ``
 - ``svg`…` ``
-- ``styled.*`…` ``
+- ``styled`…` ``
+
+A property access or call on one of these tags is ignored too, like ``styled.div`…` ``, ``styled(Button)`…` ``, and ``styled.div.attrs({})`…` ``.
 
 **This rule has no effect by default. You need to set [`patterns`](#patterns) to check string content.**
 

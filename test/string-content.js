@@ -1,7 +1,10 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import plugin from '../index.js';
 import {getTester, parsers, languages} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const SUGGESTION_MESSAGE_ID = 'replace';
 
@@ -44,7 +47,7 @@ const createSuggestionError = (match, suggest, output) => [
 	},
 ];
 
-test({
+ruleTest({
 	testerOptions: {
 		languageOptions: {
 			parserOptions: {
@@ -80,6 +83,21 @@ test({
 				\`;
 			`,
 			outdent`
+				const foo = styled(Button)\`
+					background: url('no')
+				\`;
+			`,
+			outdent`
+				const foo = styled.div.attrs({})\`
+					background: url('no')
+				\`;
+			`,
+			outdent`
+				const foo = styled(Button).attrs({})\`
+					background: url('no')
+				\`;
+			`,
+			outdent`
 				const foo = html\`
 					<div class='test'>no</div>
 				\`;
@@ -94,6 +112,8 @@ test({
 					<svg xmlns="http://www.w3.org/2000/svg"><text>no</text></svg>
 				\`;
 			`,
+			'const foo = styled`no`;',
+			'const foo = sql.unsafe`no`;',
 			/* eslint-enable no-template-curly-in-string */
 		].map(code => ({
 			code,
@@ -110,6 +130,13 @@ test({
 		{
 			code: 'const foo = \'no\'',
 			output: 'const foo = \'yes\'',
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes'),
+		},
+		// Only the root of the tag is checked, `foo.styled` is not the `styled` tag
+		{
+			code: 'const foo = foo.styled`no`;',
+			output: 'const foo = foo.styled`yes`;',
 			options: [{patterns: noToYesPattern}],
 			errors: createError('no', 'yes'),
 		},
@@ -480,7 +507,7 @@ test({
 	],
 });
 
-test({
+ruleTest({
 	testerOptions: {
 		language: languages.toml.language,
 		plugins: languages.toml.plugins,
@@ -583,7 +610,7 @@ test({
 
 for (const languageName of ['json', 'jsonc', 'json5']) {
 	const {language, plugins} = languages[languageName];
-	test({
+	ruleTest({
 		testerOptions: {language, plugins},
 		valid: [
 			'"no"',
@@ -611,12 +638,12 @@ for (const languageName of ['json', 'jsonc', 'json5']) {
 	});
 }
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [],
 	invalid: [{code: String.raw`{'\u006eo': 'no'}`, language: languages.json5, options: [{patterns: noToYesPattern}]}],
 });
 
-test({
+ruleTest({
 	testerOptions: {language: languages.json5.language, plugins: languages.json5.plugins},
 	valid: [],
 	invalid: [{
@@ -627,7 +654,7 @@ test({
 	}],
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'a { content: "yes"; font-family: no; } /* no */',
 		'.no { --no: no; }',
@@ -646,7 +673,7 @@ test.snapshot({
 	].map(testCase => ({language: languages.css, options: [{patterns: noToYesPattern}], ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 });
 
-test({
+ruleTest({
 	testerOptions: {language: languages.css.language, plugins: languages.css.plugins},
 	valid: [],
 	invalid: [true, false].flatMap(fix => ['\u0000', '\uD800'].map(suggest => ({
@@ -657,7 +684,7 @@ test({
 	}))),
 });
 
-test({
+ruleTest({
 	testerOptions: {language: languages.css.language, plugins: languages.css.plugins},
 	valid: [
 		{code: 'a { --message: "no"; --image: url(no); }', options: [{patterns: noToYesPattern}]},
@@ -670,7 +697,7 @@ test({
 	})),
 });
 
-test({
+ruleTest({
 	testerOptions: {language: languages.yaml.language, plugins: languages.yaml.plugins},
 	valid: [
 		'value: |\n  no\n',
@@ -715,4 +742,21 @@ test({
 			errors: createError('no', '\uD800'),
 		},
 	],
+});
+
+// Same constraint as `template-indent` and `isolated-functions`, which crash on a blank selector.
+test('an empty `selectors` entry is rejected by the schema', t => {
+	const linter = new Linter();
+
+	for (const selector of ['', ' ']) {
+		const error = t.throws(() =>
+			linter.verify('const a = "teh";', {
+				files: ['**'],
+				plugins: {unicorn: plugin},
+				rules: {'unicorn/string-content': ['error', {selectors: [selector]}]},
+			}, 'index.js'),
+		);
+
+		t.regex(error.message, /should be string|should match pattern|should NOT be shorter/u, `selector ${JSON.stringify(selector)}`);
+	}
 });
