@@ -1644,3 +1644,41 @@ test('reports one problem per comment', t => {
 	t.true(result.fixed);
 	t.is(result.output, output);
 });
+
+// A stray quote must not mask the following lines
+test('a stray quote does not mask the rest of the comment', t => {
+	const code = '/**\n * Set the margin to 2".\n * The json payload follows.\n */';
+	const messages = verifyJavaScript(code);
+
+	t.is(messages.length, 1);
+	t.is(messages[0].line, 3);
+	t.is(verifyAndFixJavaScript(code).output, '/**\n * Set the margin to 2".\n * The JSON payload follows.\n */');
+});
+
+test('a stray quote after inline code does not mask the rest of the comment', t => {
+	const code = '/*\n * Use `code` and the 2" rule.\n * The json payload follows.\n */';
+	const messages = verifyJavaScript(code);
+
+	t.is(messages.length, 1);
+	t.is(messages[0].line, 3);
+});
+
+test('a stray quote only masks from the quote onwards', t => {
+	const messages = verifyJavaScript('/**\n * The json payload follows to the 2".\n */');
+
+	t.is(messages.length, 1);
+	t.is(messages[0].line, 2);
+	t.deepEqual(verifyJavaScript('/**\n * Set the margin to 2".\n */'), []);
+});
+
+test('a stray backtick does not mask the rest of the comment', t => {
+	const code = '/*\n * Press the ` key.\n * The json payload follows.\n */';
+	const messages = verifyJavaScript(code);
+
+	t.is(messages.length, 1);
+	t.is(messages[0].line, 3);
+});
+
+test('a quote closed on a later line still masks the lines in between', t => {
+	t.deepEqual(verifyJavaScript('/**\n * Say "hello\n * json world".\n */'), []);
+});

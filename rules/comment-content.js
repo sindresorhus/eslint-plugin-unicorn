@@ -227,11 +227,7 @@ function hasRequiredText({requiredText, caseSensitive}, commentValue, lowercaseC
 		return true;
 	}
 
-	if (caseSensitive) {
-		return commentValue.includes(requiredText);
-	}
-
-	return lowercaseCommentValue === undefined || lowercaseCommentValue.includes(requiredText);
+	return caseSensitive ? commentValue.includes(requiredText) : lowercaseCommentValue === undefined || lowercaseCommentValue.includes(requiredText);
 }
 
 function prepareReplacements({extendDefaultReplacements = true, replacements = {}} = {}) {
@@ -336,11 +332,7 @@ function getRuleComments(context) {
 	const comments = (commentsFromHelper.length > 0 ? commentsFromHelper : context.sourceCode.comments ?? [])
 		.map(comment => normalizeComment(comment, context));
 
-	if (comments.length > 0 || !shouldUseRawCommentFallback(context)) {
-		return comments;
-	}
-
-	return getMarkdownHtmlComments(context.sourceCode);
+	return comments.length > 0 || !shouldUseRawCommentFallback(context) ? comments : getMarkdownHtmlComments(context.sourceCode);
 }
 
 function getCommentValueStart(comment, sourceCode) {
@@ -624,11 +616,7 @@ function getBacktickRunSize(text, index) {
 
 function getClosingBacktickIndex(characters, text, start, size) {
 	for (let index = start + size; index < text.length; index++) {
-		if (characters[index] === maskCharacter) {
-			continue;
-		}
-
-		if (text[index] !== '`') {
+		if (characters[index] === maskCharacter || text[index] !== '`') {
 			continue;
 		}
 
@@ -665,30 +653,21 @@ function maskInlineCodeAndQuotedStrings(characters, text) {
 		}
 
 		const character = text[index];
+		let end;
 
 		if (character === '`') {
-			const size = getBacktickRunSize(text, index);
-			const end = getClosingBacktickIndex(characters, text, index, size) ?? text.length;
-
-			maskRange(characters, index, end);
-			index = end - 1;
+			end = getClosingBacktickIndex(characters, text, index, getBacktickRunSize(text, index));
+		} else if (character === '"' || (character === '\'' && !isIdentifierLikeCharacter(text[index - 1]))) {
+			end = getClosingQuoteIndex(characters, text, index, character);
+		} else {
 			continue;
 		}
 
-		if (character === '"') {
-			const end = getClosingQuoteIndex(characters, text, index, character) ?? text.length;
+		// A quote with no partner is a stray one, not the start of a quoted string. Masking to the end of the text would hide every following line, so mask to the end of the line instead.
+		end ??= getLineEndIndex(text, index);
 
-			maskRange(characters, index, end);
-			index = end - 1;
-			continue;
-		}
-
-		if (character === '\'' && !isIdentifierLikeCharacter(text[index - 1])) {
-			const end = getClosingQuoteIndex(characters, text, index, character) ?? text.length;
-
-			maskRange(characters, index, end);
-			index = end - 1;
-		}
+		maskRange(characters, index, end);
+		index = end - 1;
 	}
 }
 
@@ -728,11 +707,7 @@ function getPathTextAfterIndex(commentValue, index) {
 function isSlashPairProse(text) {
 	const parts = text.replace(/[!.?]$/v, '').split('/');
 
-	if (parts.length !== 2) {
-		return false;
-	}
-
-	return parts.every(part => part.length <= maxAcronymTermLength && defaultReplacementTermPattern.test(part));
+	return parts.length === 2 && parts.every(part => part.length <= maxAcronymTermLength && defaultReplacementTermPattern.test(part));
 }
 
 function getPackageSpecifierBase(text) {
@@ -883,20 +858,12 @@ function getBracketContinuationOpeningDepth(line) {
 	line = cleanCommentLine(line);
 	line = removeMarkdownInlineLinks(line);
 
-	if (!bareCallLinePattern.test(line) && !memberCallLinePattern.test(line)) {
-		return 0;
-	}
-
-	return Math.max(0, getBracketDepthDelta(line));
+	return !bareCallLinePattern.test(line) && !memberCallLinePattern.test(line) ? 0 : Math.max(0, getBracketDepthDelta(line));
 }
 
 // Advance the running bracket depth for one line. A line counts as code if depth is already open (a continuation line) or it looks like code on its own; otherwise depth resets to zero.
 function getNextBracketDepth(depth, line) {
-	if (depth > 0) {
-		return Math.max(0, depth + getBracketDepthDelta(line));
-	}
-
-	return getBracketContinuationOpeningDepth(line);
+	return depth > 0 ? Math.max(0, depth + getBracketDepthDelta(line)) : getBracketContinuationOpeningDepth(line);
 }
 
 function maskIgnoredLines(characters, text) {
@@ -1133,11 +1100,7 @@ function getReplacementProblem(comment, sourceCode, replacements, checkUniformCa
 				continue;
 			}
 
-			if (match[0] === replacement.replacement) {
-				continue;
-			}
-
-			if (match[0].includes(maskCharacter)) {
+			if (match[0] === replacement.replacement || match[0].includes(maskCharacter)) {
 				continue;
 			}
 
