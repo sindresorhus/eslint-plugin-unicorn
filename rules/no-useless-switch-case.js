@@ -1,4 +1,5 @@
-import {isEmptyNode, isNullLiteral, isUndefined} from './ast/index.js';
+import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {isEmptyNode, isNullLiteral, isUndefinedValue} from './ast/index.js';
 import {isTypeScriptFile} from './utils/index.js';
 import getSwitchCaseHeadLocation from './utils/get-switch-case-head-location.js';
 
@@ -10,7 +11,7 @@ const messages = {
 };
 
 const isEmptySwitchCase = node => node.consequent.every(node => isEmptyNode(node));
-const isNullishSwitchCase = node => isUndefined(node.test) || isNullLiteral(node.test);
+const isNullishSwitchCase = node => isUndefinedValue(node.test) || isNullLiteral(node.test);
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -36,11 +37,18 @@ const create = context => {
 				continue;
 			}
 
-			yield {
+			const problem = {
 				node,
 				loc: getSwitchCaseHeadLocation(node, context),
 				messageId: MESSAGE_ID_ERROR,
-				suggest: [
+			};
+
+			// `switch` evaluates every case test it reaches, so removing a case whose test has a side effect would drop that side effect. The suggestion removes the whole case, so a comment in it would be dropped too.
+			if (
+				!hasSideEffect(node.test, context.sourceCode)
+				&& context.sourceCode.getCommentsInside(node).length === 0
+			) {
+				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
 						/**
@@ -48,8 +56,10 @@ const create = context => {
 						*/
 						fix: fixer => fixer.remove(node),
 					},
-				],
-			};
+				];
+			}
+
+			yield problem;
 		}
 	});
 };
