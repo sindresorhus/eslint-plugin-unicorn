@@ -94,3 +94,22 @@ test.snapshot({
 		},
 	],
 });
+
+// Writing to `[...set].length` writes to a throwaway array, not to the `Set`
+test({
+	valid: [
+		'const set = new Set();\n[...set].length = 1;',
+		'const set = new Set();\n[...set].length++;',
+		'const set = new Set();\nfor ([...set].length of values) {}',
+		'const set = new Set();\n[[...set].length] = values;',
+		'const set = new Set();\n({value: Array.from(set).length} = object);',
+		'const set = new Set();\ndelete [...set].length;',
+	],
+	invalid: [
+		{
+			code: 'const set = new Set();\nconsole.log([...set].length);',
+			output: 'const set = new Set();\nconsole.log(set.size);',
+			errors: 1,
+		},
+	],
+});

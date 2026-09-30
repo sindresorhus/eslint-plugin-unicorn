@@ -1,6 +1,6 @@
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
-import {isSet, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
+import {isLeftHandSide, isSet, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
@@ -73,6 +73,8 @@ const create = context => {
 				property: 'length',
 				optional: false,
 			})
+			// `[...set].length = 1` writes to a throwaway array, `set.size = 1` writes to the `Set`
+			|| isLeftHandSide(node)
 		) {
 			return;
 		}
