@@ -17,6 +17,7 @@ import {
 	functionTypes,
 } from './ast/index.js';
 import {
+	hasCommentInRange,
 	needsSemicolon,
 	shouldAddParenthesesToExpressionStatementExpression,
 	shouldAddParenthesesToMemberExpressionObject,
@@ -93,6 +94,8 @@ function getFixFunction(callExpression, functionInfo, context) {
 	const isOptionalObject = callExpression.callee.optional;
 	const ancestor = stripChainExpression(callExpression).parent;
 	const objectText = sourceCode.getText(iterableObject);
+	// A loop body that starts with `class`/`function`/`{` would be parsed as a declaration or a block
+	const shouldParenthesizeBody = callback.body.type !== 'BlockStatement' && shouldAddParenthesesToExpressionStatementExpression(callback.body, context);
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
@@ -120,6 +123,10 @@ function getFixFunction(callExpression, functionInfo, context) {
 		}
 
 		text += ') ';
+
+		if (shouldParenthesizeBody) {
+			text += '(';
+		}
 
 		return text;
 	};
@@ -149,9 +156,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const nextToken = sourceCode.getTokenAfter(returnToken);
 		let textBefore = '';
 		let textAfter = '';
-		const shouldAddParentheses
-			= !isParenthesized(returnStatement.argument, context)
-				&& shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
+		const shouldAddParentheses = shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument, context);
 		if (shouldAddParentheses) {
 			textBefore = `(${textBefore}`;
 			textAfter += ')';
@@ -184,13 +189,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		}
 	}
 
-	const shouldRemoveExpressionStatementLastToken = token => {
-		if (!isSemicolonToken(token)) {
-			return false;
-		}
-
-		return callback.body.type === 'BlockStatement';
-	};
+	const shouldRemoveExpressionStatementLastToken = token => isSemicolonToken(token) ? callback.body.type === 'BlockStatement' : false;
 
 	function * removeCallbackParentheses(fixer) {
 		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
@@ -202,7 +201,13 @@ function getFixFunction(callExpression, functionInfo, context) {
 		}
 	}
 
-	return function * (fixer) {
+	return function * (fixer, {abort}) {
+		// The loop head is rebuilt from scratch, a comment in it would be dropped
+		// (`foo.forEach(/* comment */ element => …)`)
+		if (hasCommentInRange(context, getForOfLoopHeadRange())) {
+			abort();
+		}
+
 		// `(( foo.forEach(bar => bar) ))`
 		yield removeParentheses(callExpression, fixer, context);
 
@@ -238,6 +243,11 @@ function getFixFunction(callExpression, functionInfo, context) {
 		// foo.forEach(bar => {})
 		//                      ^
 		yield fixer.remove(lastToken);
+
+		// Close the parentheses added around a `class`/`function` loop body
+		if (shouldParenthesizeBody) {
+			yield fixer.insertTextAfter(lastToken, ')');
+		}
 
 		for (const returnStatement of returnStatements) {
 			yield replaceReturnStatement(returnStatement, fixer);
@@ -392,11 +402,7 @@ function isFixable(callExpression, {scope, functionInfo, sourceCode}) {
 
 	// Check `ReturnStatement`s in `callback`
 	const {returnStatements} = functionInfo.get(callback);
-	if (returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))) {
-		return false;
-	}
-
-	return !isFunctionSelfUsedInside(callback, sourceCode.getScope(callback));
+	return returnStatements.every(returnStatement => !isReturnStatementInContinueAbleNodes(returnStatement, callback)) && !isFunctionSelfUsedInside(callback, sourceCode.getScope(callback));
 }
 
 const ignoredObjects = [

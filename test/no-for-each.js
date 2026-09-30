@@ -998,5 +998,147 @@ test({
 			`,
 			errors: 1,
 		},
+
+		// A comment in the replaced loop head is preserved by not fixing
+		{
+			code: 'foo.forEach(/* comment */ element => bar(element));',
+			errors: 1,
+		},
+		{
+			code: 'foo.forEach(element => /* comment */ bar(element));',
+			errors: 1,
+		},
+		{
+			code: 'foo.forEach(\n// comment\nelement => bar(element));',
+			errors: 1,
+		},
+		{
+			code: 'const array = []; array.forEach(element => {/* comment */ bar(element);});',
+			output: 'const array = []; for (const element of array) {/* comment */ bar(element);}',
+			errors: 1,
+		},
+		// A `class`/`function` expression is a declaration when it starts a statement
+		{
+			code: 'const array = []; array.forEach(element => {if (foo) return class {}; bar(element);});',
+			output: 'const array = []; for (const element of array) {if (foo)  { (class {}); continue; } bar(element);}',
+			errors: 1,
+		},
+		{
+			code: 'const array = []; array.forEach(element => {if (foo) return function () {}; bar(element);});',
+			output: 'const array = []; for (const element of array) {if (foo)  { (function () {}); continue; } bar(element);}',
+			errors: 1,
+		},
+		{
+			code: 'const array = []; array.forEach(element => {if (foo) return async function * () {}; bar(element);});',
+			output: 'const array = []; for (const element of array) {if (foo)  { (async function * () {}); continue; } bar(element);}',
+			errors: 1,
+		},
+		{
+			code: 'const array = []; array.forEach(element => {if (foo) return class extends Bar {}; bar(element);});',
+			output: 'const array = []; for (const element of array) {if (foo)  { (class extends Bar {}); continue; } bar(element);}',
+			errors: 1,
+		},
+	],
+});
+
+// A `class`/`function` expression cannot start a statement, the loop body needs parentheses
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => function () {});',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (function () {});',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => class {});',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (class {});',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => async function * () {});',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (async function * () {});',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => bar(x));',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) bar(x);',
+			errors: 1,
+		},
+		// Anything built on the left-most `class`/`function` expression still starts a statement
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => class {}.foo);',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (class {}.foo);',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => function () {}.name);',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (function () {}.name);',
+			errors: 1,
+		},
+		// A tagged template is built on its tag, so the `class` still starts the statement
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => class {}`t`);',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (class {}`t`);',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => function () {}`t`);',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (function () {}`t`);',
+			errors: 1,
+		},
+		// Any expression whose left-most token is `class`/`function`/`{` starts a statement with it
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => function () {} || bar);',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (function () {} || bar);',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => class {}.foo = 1);',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (class {}.foo = 1);',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => async function () {}.name);',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (async function () {}.name);',
+			errors: 1,
+		},
+		// An already parenthesized loop body keeps its parentheses
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => ({bar: x}));',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) ({bar: x});',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => (class {}));',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (class {});',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => (function () {}).call(x));',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) (function () {}).call(x);',
+			errors: 1,
+		},
+		// A returned value that becomes an expression statement
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => {if (x) return function () {}.call(x); bar(x);});',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) {if (x)  { (function () {}.call(x)); continue; } bar(x);}',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => {if (x) return {x}.x; bar(x);});',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) {if (x)  { ({x}.x); continue; } bar(x);}',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => {bar(x); return class {} ? 1 : 2;});',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) {bar(x);  (class {} ? 1 : 2); continue;}',
+			errors: 1,
+		},
+		{
+			code: 'const foo = [1, 2, 3];\nfoo.forEach(x => {bar(x); return (class {}).name;});',
+			output: 'const foo = [1, 2, 3];\nfor (const x of foo) {bar(x);  (class {}).name; continue;}',
+			errors: 1,
+		},
 	],
 });
