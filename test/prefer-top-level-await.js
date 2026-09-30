@@ -335,6 +335,27 @@ test.snapshot({
 			code: 'const foo = async () => {}; (foo() as Promise<void>);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// `await` is a unary expression, which is not allowed as the left operand of `**`
+		outdent`
+			const foo = async () => {};
+			foo() ** 2;
+		`,
+		{
+			code: 'const foo = async () => {}; foo()! ** 2;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const foo = async () => {}; foo?.() ** 2;',
+		'const foo = async () => {}; (foo()) ** 2;',
+		// `await foo().bar` awaits `.bar`, not the promise, so there is no suggestion
+		'const foo = async () => {}; foo().bar;',
+		'const foo = async () => {}; foo()[0] ** 2;',
+		'const foo = async () => {}; foo()();',
+		'const foo = async () => {}; foo()?.bar;',
+		{
+			code: 'const foo = async () => {}; foo()!.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const foo = async () => {}; (foo()).bar;',
 	],
 });
 

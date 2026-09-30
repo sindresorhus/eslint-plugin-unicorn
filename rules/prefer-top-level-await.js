@@ -1,6 +1,11 @@
 import {findVariable, getFunctionHeadLocation} from '@eslint-community/eslint-utils';
 import {isFunction, isMemberExpression, isMethodCall} from './ast/index.js';
-import {isCallExpressionValueDiscardedWithVoid, isLogicalExpression, isTypeScriptExpressionWrapper} from './utils/index.js';
+import {
+	isCallExpressionValueDiscardedWithVoid,
+	isLogicalExpression,
+	isParenthesized,
+	isTypeScriptExpressionWrapper,
+} from './utils/index.js';
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -198,6 +203,26 @@ const isInPromiseMethods = node => {
 	&& arrayExpression.parent.arguments[0] === arrayExpression;
 };
 
+const isAsyncIifeCallee = callee =>
+	(callee.type === 'FunctionExpression' || callee.type === 'ArrowFunctionExpression')
+	&& callee.async
+	&& !callee.generator;
+
+// `await` is a unary expression, which the grammar forbids as the left operand of `**`
+const isLeftOperandOfExponentiation = (node, context) =>
+	node.parent.type === 'BinaryExpression'
+	&& node.parent.operator === '**'
+	&& node.parent.left === node
+	&& !isParenthesized(node, context);
+
+const isChainObject = (node, context) =>
+	!isParenthesized(node, context)
+	&& (
+		(node.parent.type === 'MemberExpression' && node.parent.object === node)
+		|| (node.parent.type === 'CallExpression' && node.parent.callee === node)
+		|| (node.parent.type === 'TaggedTemplateExpression' && node.parent.tag === node)
+	);
+
 const shouldIgnoreCallExpression = node =>
 	!isTopLevelCallExpression(node)
 	|| isCallExpressionValueDiscardedWithVoid(node)
@@ -245,11 +270,7 @@ function create(context) {
 		const {sourceCode} = context;
 
 		// IIFE
-		if (
-			(node.callee.type === 'FunctionExpression' || node.callee.type === 'ArrowFunctionExpression')
-			&& node.callee.async
-			&& !node.callee.generator
-		) {
+		if (isAsyncIifeCallee(node.callee)) {
 			return {
 				node,
 				loc: getFunctionHeadLocation(node.callee, sourceCode),
@@ -285,14 +306,27 @@ function create(context) {
 			return;
 		}
 
-		return {
+		// `foo()!` and `foo?.()` are still the left operand of `**`
+		const expression = getOutermostTransparentExpression(node);
+		const problem = {
 			node,
 			messageId: ERROR_IDENTIFIER,
 			data: {name: node.callee.name},
+		};
+
+		// `await foo().bar` would await `.bar`, not the promise
+		if (isChainObject(expression, context)) {
+			return problem;
+		}
+
+		return {
+			...problem,
 			suggest: [
 				{
 					messageId: SUGGESTION_ADD_AWAIT,
-					fix: fixer => fixer.insertTextBefore(node, 'await '),
+					fix: isLeftOperandOfExponentiation(expression, context)
+						? fixer => fixer.replaceText(expression, `(await ${sourceCode.getText(expression)})`)
+						: fixer => fixer.insertTextBefore(node, 'await '),
 				},
 			],
 		};
