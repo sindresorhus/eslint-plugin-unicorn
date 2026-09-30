@@ -1,5 +1,6 @@
 import {
 	shouldAddParenthesesToMemberExpressionObject,
+	isKnownNonIndexedCollection,
 	isParenthesized,
 	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
@@ -115,7 +116,13 @@ const create = context => {
 		) {
 			const [element] = nonNullElements;
 
-			if (element.type !== 'AssignmentPattern') {
+			// The pattern is replaced by the variable alone, so a comment inside the pattern and the type annotation on it would be lost. Destructuring reads through the iterator protocol while `[…]` and `.slice(…)` read by index, so the rewrite needs an indexable source.
+			if (
+				element.type !== 'AssignmentPattern'
+				&& !node.typeAnnotation
+				&& !isKnownNonIndexedCollection(parent.init, context)
+				&& sourceCode.getCommentsInside(node).length === 0
+			) {
 				problem.fix = function * (fixer) {
 					const index = elements.indexOf(element);
 					const isSlice = element.type === 'RestElement';

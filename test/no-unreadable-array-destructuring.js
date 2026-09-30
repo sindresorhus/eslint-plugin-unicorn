@@ -117,3 +117,32 @@ test.snapshot({
 		},
 	],
 });
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		// The pattern is replaced by the variable alone, so a comment and a type annotation would be lost
+		...[
+			'const [, , foo]: [string, string, number] = array;',
+			'const [, , foo]: Array<string> = array;',
+			'let [, , foo]: string[] = array;',
+			'const [, , foo] = array;',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		'const [,/* keep */, foo] = parts;',
+		// Destructuring reads through the iterator protocol, `[…]` and `.slice(…)` read by index, so the rewrite is withheld when the initializer is known not to be indexable
+		'const [, , third] = new Set([1, 2, 3]);',
+		'const [, , third] = new Map([[1, 1]]);',
+		'const [, , ...rest] = "abc";',
+		'const [, , third] = "abc";',
+		'const [, , third] = `abc`;',
+		'const [, , third] = new WeakSet();',
+		'const [, , third] = function () {};',
+		// These are indexable
+		'const [, , third] = [1, 2, 3];',
+		'const [, , third] = new Array(3);',
+		'const [, , third] = new Uint8Array(3);',
+		'const [, , third] = new Float64Array(3);',
+		'const [, , third] = getArray();',
+		'const [, , third] = document.querySelectorAll(\'a\');',
+	],
+});
