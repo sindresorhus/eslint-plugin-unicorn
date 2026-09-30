@@ -163,11 +163,15 @@ const foo = array.flatMap(callback);
 const foo = array.flatMap(element => callback(element));
 ```
 
-```js
-// ❌
-array.forEach(someFunction({foo: 'bar'}));
+A call expression is left alone. Hoisting it into a binding would change how many times it runs, so the rewrite is a manual edit rather than something the rule can offer:
 
-// ✅
+```js
+// ✅ Not reported
+array.forEach(someFunction({foo: 'bar'}));
+```
+
+```js
+// A manual rewrite, if you want the call to happen once
 const callback = someFunction({foo: 'bar'});
 
 array.forEach(element => {

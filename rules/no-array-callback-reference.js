@@ -1,6 +1,6 @@
 import identifierRegex from 'identifier-regex';
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isMethodCall, isUndefined} from './ast/index.js';
+import {isFunction, isMethodCall, isUndefined} from './ast/index.js';
 import {
 	isNodeMatches,
 	isNodeValueNotFunction,
@@ -267,6 +267,44 @@ function getSuggestionParameters(callExpression, callback, parameters) {
 	return suggestionParameters.map(parameter => parameter === callback.name ? `${parameter}_` : parameter);
 }
 
+// Every suggestion forwards the same argument names to a different depth, and forwarding fewer arguments than the callback declares hands it `undefined` where it expected a value. So the depth has to start at the parameter count of the declaration, when there is one to read.
+function getDeclaration(callback, context) {
+	if (callback.type === 'Identifier') {
+		const [definition] = findVariable(context.sourceCode.getScope(callback), callback)?.defs ?? [];
+		if (definition?.type === 'FunctionName') {
+			return definition.node;
+		}
+
+		return definition?.type === 'Variable' ? definition.node.init : undefined;
+	}
+
+	if (callback.type !== 'MemberExpression' || callback.computed || callback.property.type !== 'Identifier') {
+		return;
+	}
+
+	// `object.method`, where `object` is bound to an object literal in the same scope
+	const objectExpression = getConstVariableInitializer(callback.object, context, new Set());
+	if (objectExpression?.type !== 'ObjectExpression') {
+		return;
+	}
+
+	return objectExpression.properties.find(property =>
+		property.type === 'Property'
+		&& !property.computed
+		&& property.key.type === 'Identifier'
+		&& property.key.name === callback.property.name)?.value;
+}
+
+function getDeclaredParameterCount(callback, context) {
+	const declaration = getDeclaration(callback, context);
+	if (!declaration || !isFunction(declaration)) {
+		return;
+	}
+
+	// A rest parameter collects however many arguments it is given, so it needs all of them
+	return declaration.params.at(-1)?.type === 'RestElement' ? Infinity : declaration.params.length;
+}
+
 function getProblem(context, node, callExpression, options) {
 	const {type} = node;
 
@@ -289,7 +327,12 @@ function getProblem(context, node, callExpression, options) {
 
 	const {minParameters, returnsUndefined} = options;
 	const parameters = getSuggestionParameters(callExpression, node, options.parameters);
-	for (let parameterLength = minParameters; parameterLength <= parameters.length; parameterLength++) {
+
+	// A callback that declares more parameters than the method supplies still only receives what the method passes, so the depth is capped by the method rather than by the declaration.
+	const declaredParameterCount = getDeclaredParameterCount(node, context) ?? minParameters;
+	const shallowestParameterLength = Math.min(Math.max(minParameters, declaredParameterCount), parameters.length);
+
+	for (let parameterLength = shallowestParameterLength; parameterLength <= parameters.length; parameterLength++) {
 		const suggestionParameters = parameters.slice(0, parameterLength).join(', ');
 
 		const suggest = {

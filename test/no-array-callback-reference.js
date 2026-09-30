@@ -181,6 +181,9 @@ test({
 		// Exclude await expressions
 		...simpleMethods.map(method => `(async () => await foo.${method}(bar))()`),
 		'foo.map(function (a) {}.bind(bar))',
+		// A call expression is ignored, since hoisting it into a binding changes how many times it runs
+		'foo.forEach(someFunction({foo: \'bar\'}))',
+		'foo.forEach(someFunction.bind(null))',
 
 		// #813
 		outdent`
@@ -730,10 +733,6 @@ test({
 			suggestions: [
 				outdent`
 					const fn = (x, y) => x + y;
-					[1, 2, 3].map((element) => fn(element));
-				`,
-				outdent`
-					const fn = (x, y) => x + y;
 					[1, 2, 3].map((element, index) => fn(element, index));
 				`,
 				outdent`
@@ -1129,6 +1128,161 @@ test.typescript({
 					}
 					foo.filter(condition ? isString : (element, index, array) => isObject(element, index, array));
 				`,
+			],
+		}),
+	],
+});
+
+// Every suggestion forwards the same argument names to a different depth, and forwarding fewer arguments than the callback declares hands it `undefined` where it expected a value. So the shortest suggestion has to start at the parameter count of the declaration, when there is one.
+test({
+	valid: [],
+	invalid: [
+		invalidTestCase({
+			code: 'const callback = (element, index) => element + index; array.map(callback);',
+			method: 'map',
+			name: 'callback',
+			suggestions: [
+				'const callback = (element, index) => element + index; array.map((element, index) => callback(element, index));',
+				'const callback = (element, index) => element + index; array.map((element, index, array) => callback(element, index, array));',
+			],
+		}),
+		// A rest parameter collects however many arguments it is given, so all of them are needed
+		invalidTestCase({
+			code: 'const callback = (...args) => args; array.map(callback);',
+			method: 'map',
+			name: 'callback',
+			suggestions: [
+				'const callback = (...args) => args; array.map((element, index, array) => callback(element, index, array));',
+			],
+		}),
+		invalidTestCase({
+			code: 'function callback(element, index) { return element + index; } array.filter(callback);',
+			method: 'filter',
+			name: 'callback',
+			suggestions: [
+				'function callback(element, index) { return element + index; } array.filter((element, index) => callback(element, index));',
+				'function callback(element, index) { return element + index; } array.filter((element, index, array) => callback(element, index, array));',
+			],
+		}),
+		invalidTestCase({
+			code: 'const callback = (element, index, array) => element; array.forEach(callback);',
+			method: 'forEach',
+			name: 'callback',
+			suggestions: [
+				'const callback = (element, index, array) => element; array.forEach((element, index, array) => { callback(element, index, array); });',
+			],
+		}),
+		// `reduce` supplies an accumulator, so its suggestions already start at two
+		invalidTestCase({
+			code: 'const callback = (accumulator, element, index) => accumulator; array.reduce(callback);',
+			method: 'reduce',
+			name: 'callback',
+			suggestions: [
+				'const callback = (accumulator, element, index) => accumulator; array.reduce((accumulator, element, index) => callback(accumulator, element, index));',
+				'const callback = (accumulator, element, index) => accumulator; array.reduce((accumulator, element, index, array) => callback(accumulator, element, index, array));',
+			],
+		}),
+		// A callback that declares more parameters than the method supplies still only gets the arguments the method passes, so the longest suggestion is the short one
+		invalidTestCase({
+			code: 'const callback = (a, b, c, d, e) => a; array.map(callback);',
+			method: 'map',
+			name: 'callback',
+			suggestions: [
+				'const callback = (a, b, c, d, e) => a; array.map((element, index, array) => callback(element, index, array));',
+			],
+		}),
+	],
+});
+
+// Without a declaration in scope the count is unknown, so every depth stays on offer.
+test({
+	valid: [],
+	invalid: [
+		invalidTestCase({
+			code: 'array.map(callback);',
+			method: 'map',
+			name: 'callback',
+			suggestions: [
+				'array.map((element) => callback(element));',
+				'array.map((element, index) => callback(element, index));',
+				'array.map((element, index, array) => callback(element, index, array));',
+			],
+		}),
+		invalidTestCase({
+			code: 'const callback = element => element * 2; array.map(callback);',
+			method: 'map',
+			name: 'callback',
+			suggestions: [
+				'const callback = element => element * 2; array.map((element) => callback(element));',
+				'const callback = element => element * 2; array.map((element, index) => callback(element, index));',
+				'const callback = element => element * 2; array.map((element, index, array) => callback(element, index, array));',
+			],
+		}),
+		// A parameter of an enclosing function has no declaration to read
+		invalidTestCase({
+			code: 'function run(callback) { array.map(callback); }',
+			method: 'map',
+			name: 'callback',
+			suggestions: [
+				'function run(callback) { array.map((element) => callback(element)); }',
+				'function run(callback) { array.map((element, index) => callback(element, index)); }',
+				'function run(callback) { array.map((element, index, array) => callback(element, index, array)); }',
+			],
+		}),
+	],
+});
+
+// The declaration can also be reached through a property of a locally bound object literal.
+test({
+	valid: [],
+	invalid: [
+		invalidTestCase({
+			code: 'const object = {method(element, index) { return element; }}; array.map(object.method);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'const object = {method(element, index) { return element; }}; array.map((element, index) => object.method(element, index));',
+				'const object = {method(element, index) { return element; }}; array.map((element, index, array) => object.method(element, index, array));',
+			],
+		}),
+		invalidTestCase({
+			code: 'const object = {method(element) { return element; }}; array.map(object.method);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'const object = {method(element) { return element; }}; array.map((element) => object.method(element));',
+				'const object = {method(element) { return element; }}; array.map((element, index) => object.method(element, index));',
+				'const object = {method(element) { return element; }}; array.map((element, index, array) => object.method(element, index, array));',
+			],
+		}),
+		// A rest parameter collects however many arguments it is given
+		invalidTestCase({
+			code: 'const object = {method(...args) { return args; }}; array.map(object.method);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'const object = {method(...args) { return args; }}; array.map((element, index, array) => object.method(element, index, array));',
+			],
+		}),
+		// An arrow function property
+		invalidTestCase({
+			code: 'const object = {method: (element, index) => element}; array.map(object.method);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'const object = {method: (element, index) => element}; array.map((element, index) => object.method(element, index));',
+				'const object = {method: (element, index) => element}; array.map((element, index, array) => object.method(element, index, array));',
+			],
+		}),
+		// Not an object literal in scope, so every depth stays on offer
+		invalidTestCase({
+			code: 'array.map(object.method);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'array.map((element) => object.method(element));',
+				'array.map((element, index) => object.method(element, index));',
+				'array.map((element, index, array) => object.method(element, index, array));',
 			],
 		}),
 	],
