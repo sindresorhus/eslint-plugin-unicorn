@@ -9,6 +9,36 @@ const messages = {
 };
 
 /**
+Removing the whole binding pattern would also drop the expressions it evaluates while destructuring, like the call in `catch ({[getKey()]: error})`.
+
+@param {import('estree').Pattern} node
+@returns {boolean}
+*/
+const hasDestructuringSideEffect = node => {
+	switch (node.type) {
+		case 'Property': {
+			return node.computed || hasDestructuringSideEffect(node.value);
+		}
+
+		case 'ObjectPattern': {
+			return node.properties.some(property => hasDestructuringSideEffect(property));
+		}
+
+		case 'ArrayPattern': {
+			return node.elements.some(element => element && hasDestructuringSideEffect(element));
+		}
+
+		case 'RestElement': {
+			return hasDestructuringSideEffect(node.argument);
+		}
+
+		default: {
+			return false;
+		}
+	}
+};
+
+/**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
@@ -21,7 +51,10 @@ const create = context => {
 		const {sourceCode} = context;
 		const variables = sourceCode.getDeclaredVariables(node.parent);
 
-		if (variables.some(variable => variable.references.length > 0)) {
+		if (
+			variables.some(variable => variable.references.length > 0)
+			|| hasDestructuringSideEffect(node)
+		) {
 			return;
 		}
 

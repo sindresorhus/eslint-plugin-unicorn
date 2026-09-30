@@ -176,6 +176,11 @@ test.snapshot({
 		'try {} catch ({cause: {message}}) {alert(message)}',
 		// Not sure about this case
 		'try {} catch({nonExistsProperty = thisWillExecute()}) {}',
+		'try {} catch ({[getKey()]: unused}) {}',
+		'try {} catch ({a: {[getKey()]: unused}}) {}',
+		'try {} catch ([unused = thisWillExecute()]) {}',
+		'try {} catch ([...{[getKey()]: unused}]) {}',
+		'try {} catch ({a: {[getKey()]: unused} = {}}) {}',
 	],
 	invalid: [
 		'try {} catch ({}) {}',
