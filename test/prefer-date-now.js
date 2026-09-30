@@ -108,3 +108,35 @@ test.snapshot({
 		'function foo(){return-new Date}',
 	],
 });
+
+// Reported, but not fixed, the replacement is a plain call
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const x = new Date /* keep */ ().getTime();',
+			errors: 1,
+		},
+		{
+			code: 'const y = 1 - new /* keep */ Date();',
+			errors: 1,
+		},
+		{
+			code: 'const z = new Date()./* keep */getTime();',
+			errors: 1,
+		},
+		{
+			code: 'const w = new Date().getTime /* keep */ ();',
+			errors: 1,
+		},
+		{
+			code: 'const v = Number(new /* keep */ Date());',
+			errors: 1,
+		},
+		{
+			code: 'const t = new Date().valueOf();',
+			output: 'const t = Date.now();',
+			errors: 1,
+		},
+	],
+});

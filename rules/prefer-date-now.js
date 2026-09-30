@@ -12,10 +12,15 @@ const messages = {
 
 const isNewDate = node => isNewExpression(node, {name: 'Date', argumentsLength: 0});
 
-const getProblem = (node, problem, context) => ({
+const getProblem = (node, context, problem) => ({
 	node,
 	messageId: MESSAGE_ID_DEFAULT,
-	* fix(fixer) {
+	* fix(fixer, {abort}) {
+		// The replacement is a plain call, so a comment in the replaced range would be lost
+		if (context.sourceCode.getCommentsInside(node).length > 0) {
+			abort();
+		}
+
 		yield fixer.replaceText(node, 'Date.now()');
 
 		if (node.type === 'UnaryExpression') {
@@ -41,7 +46,7 @@ const create = context => {
 			&& isNewDate(callExpression.callee.object)
 		) {
 			const method = callExpression.callee.property;
-			return getProblem(callExpression, {
+			return getProblem(callExpression, context, {
 				node: method,
 				messageId: MESSAGE_ID_METHOD,
 				data: {method: method.name},
@@ -59,12 +64,12 @@ const create = context => {
 		) {
 			const {name} = callExpression.callee;
 			if (name === 'Number') {
-				return getProblem(callExpression, {
+				return getProblem(callExpression, context, {
 					messageId: MESSAGE_ID_NUMBER,
 				});
 			}
 
-			return getProblem(callExpression.arguments[0]);
+			return getProblem(callExpression.arguments[0], context);
 		}
 	});
 
@@ -80,7 +85,6 @@ const create = context => {
 		if (isNewDate(unaryExpression.argument)) {
 			return getProblem(
 				unaryExpression.operator === '-' ? unaryExpression.argument : unaryExpression,
-				{},
 				context,
 			);
 		}
@@ -98,7 +102,7 @@ const create = context => {
 		}
 
 		if (isNewDate(assignmentExpression.right)) {
-			return getProblem(assignmentExpression.right);
+			return getProblem(assignmentExpression.right, context);
 		}
 	});
 
@@ -115,7 +119,7 @@ const create = context => {
 
 		for (const node of [binaryExpression.left, binaryExpression.right]) {
 			if (isNewDate(node)) {
-				yield getProblem(node);
+				yield getProblem(node, context);
 			}
 		}
 	});
