@@ -302,14 +302,13 @@ const getTrackedMethodName = (node, context) =>
 		: undefined;
 
 // Supported discarded-value boundary:
-// - direct unused expressions handled by `isValueNotUsable()`
+// - direct unused expressions handled by `isValueNotUsable()`, including every element but the last of a comma expression
 // - `await foo.map()` when the awaited expression is itself directly discarded
 // - TypeScript assertion wrappers around that same direct discard site
 // - direct `for` init/update expressions like `for (foo.map(); ; )` and `for (; ; foo.map())`
 //
 // Unsupported on purpose:
 // - comparison wrappers, including Yoda comparisons, are intentionally left out
-// - comma-expression wrappers
 // - logical wrappers like `condition && foo.map()`
 // - conditional wrappers like `condition ? foo.map() : other()`
 // - any other parent-expression pattern not listed above

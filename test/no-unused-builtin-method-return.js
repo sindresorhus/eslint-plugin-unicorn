@@ -174,20 +174,6 @@ test.snapshot({
 			condition ? values.find(value => value > 0) : other();
 		`,
 		outdent`
-			const values = [];
-			values.map(value => value * 2), sideEffect();
-		`,
-		outdent`
-			function run(array, value) {
-				return array.map(fn), value;
-			}
-		`,
-		outdent`
-			if ((array.map(fn), condition)) {
-				foo();
-			}
-		`,
-		outdent`
 			for (; condition; sideEffect(), values.map(fn)) {
 				foo();
 			}
@@ -282,6 +268,21 @@ test.snapshot({
 		'expect.custom(value).includes(expected);',
 		'function Symbol(value) { return value; } Symbol([]).slice(1);',
 		'const method = "map"; array[method](fn);',
+		// A sequence expression discards the value of every element but the last one
+		outdent`
+			const values = [];
+			values.map(value => value * 2), sideEffect();
+		`,
+		outdent`
+			function run(array, value) {
+				return array.map(fn), value;
+			}
+		`,
+		outdent`
+			if ((array.map(fn), condition)) {
+				foo();
+			}
+		`,
 	],
 });
 
