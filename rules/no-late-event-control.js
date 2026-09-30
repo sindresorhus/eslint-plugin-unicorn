@@ -1,5 +1,4 @@
-import {findVariable} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
+import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {
 	createLateEventHandlerTracker,
 	eventParameterNamePattern,
@@ -14,11 +13,11 @@ import {
 const MESSAGE_ID_AFTER_SUSPENSION = 'after-suspension';
 const MESSAGE_ID_IN_GENERATOR = 'in-generator';
 const MESSAGE_ID_IN_NESTED_FUNCTION = 'in-nested-function';
-const eventControlMethodNames = [
+const eventControlMethodNames = new Set([
 	'preventDefault',
 	'stopImmediatePropagation',
 	'stopPropagation',
-];
+]);
 const messages = {
 	[MESSAGE_ID_AFTER_SUSPENSION]: '`{{name}}.{{method}}()` has no effect after the handler suspends. Call it before `await` or `yield` while the event is still being dispatched.',
 	[MESSAGE_ID_IN_GENERATOR]: '`{{name}}.{{method}}()` is not called during event dispatch inside a generator function. Use a normal function handler instead.',
@@ -26,23 +25,23 @@ const messages = {
 };
 
 const getEventControlCall = node => {
-	if (!isMethodCall(node, {
-		methods: eventControlMethodNames,
-		computed: false,
-	})) {
+	const {callee} = node;
+	if (callee.type !== 'MemberExpression') {
 		return;
 	}
 
-	const {callee} = node;
+	// `event['preventDefault']()` and `` event[`preventDefault`]() `` are the same call
+	const method = getPropertyName(callee);
+	if (!eventControlMethodNames.has(method)) {
+		return;
+	}
+
 	const event = unwrapTypeScriptExpression(callee.object);
 	if (event.type !== 'Identifier') {
 		return;
 	}
 
-	return {
-		event,
-		method: callee.property.name,
-	};
+	return {event, method};
 };
 
 /**

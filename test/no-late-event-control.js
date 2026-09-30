@@ -44,8 +44,8 @@ test.snapshot({
 		'async function handler() { const event = getEvent(); await somePromise; event.preventDefault(); }',
 		// Different method
 		'async event => { await somePromise; event.composedPath(); }',
-		// Computed access is not matched
-		'async event => { await somePromise; event["preventDefault"](); }',
+		// A dynamic computed key is not matched
+		'async event => { await somePromise; event[method](); }',
 		// Aliased method is not matched
 		'async event => { const method = event.preventDefault; await somePromise; method(); }',
 		// Destructured method is not matched
@@ -273,3 +273,17 @@ test.snapshot({
 		'import type {ToggleEvent} from "react"; async function handleClick(value: ToggleEvent) { await load(); value.preventDefault(); }',
 	],
 });
+
+// `event['preventDefault']()` and `` event[`preventDefault`]() `` are the same call
+test({
+	valid: [],
+	invalid: [
+		...[
+			'async event => { await somePromise; event["preventDefault"](); }',
+			'async event => { await somePromise; event[`preventDefault`](); }',
+			'async event => { await somePromise; event[\'stopPropagation\'](); }',
+			'async event => { await somePromise; event?.["preventDefault"](); }',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
