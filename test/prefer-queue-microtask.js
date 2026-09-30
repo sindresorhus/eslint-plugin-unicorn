@@ -125,3 +125,28 @@ test.snapshot({
 		},
 	],
 });
+
+// `setTimeout()`/`setImmediate()` bind `this` to the timer, `queueMicrotask()` does not
+test({
+	valid: [],
+	invalid: [
+		...[
+			['setTimeout(function () { this.x; }, 0);', {checkSetTimeout: true}],
+			['setImmediate(function () { this.x; });', {checkSetImmediate: true}],
+			// An arrow inside the callback reads the callback's `this`
+			['setTimeout(function () { return () => this.x; }, 0);', {checkSetTimeout: true}],
+		].map(([code, options]) => ({code, options: [options], errors: 1})),
+		// An arrow keeps the surrounding `this`, so it is interchangeable
+		...[
+			['setTimeout(() => { this.x; }, 0);', {checkSetTimeout: true}],
+			['setTimeout(function () { x; }, 0);', {checkSetTimeout: true}],
+			// A nested function has its own `this`
+			['setTimeout(function () { function inner() { return this; } }, 0);', {checkSetTimeout: true}],
+		].map(([code, options]) => ({
+			code,
+			options: [options],
+			output: code.replace('setTimeout', 'queueMicrotask').replace(', 0)', ')'),
+			errors: 1,
+		})),
+	],
+});

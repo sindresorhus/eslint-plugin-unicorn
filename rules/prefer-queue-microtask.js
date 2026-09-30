@@ -1,6 +1,7 @@
 import {isMemberExpression} from './ast/index.js';
 import {
 	hasCommentInRange,
+	isNodeContainsLexicalThis,
 	isNodeValueNotFunction,
 	isGlobalIdentifier,
 	isValueNotUsable,
@@ -69,8 +70,15 @@ const getSecondArgumentRemovalRange = (callExpression, context) => {
 	return range;
 };
 
+// `setTimeout()`/`setImmediate()` call the callback with the timer as `this`, `queueMicrotask()` calls it with `this === undefined`, so a callback that reads `this` is not interchangeable.
+const hasThisBoundCallback = (node, context) => {
+	const callback = node.arguments[0];
+	return callback.type === 'FunctionExpression'
+		&& isNodeContainsLexicalThis(callback.body, context.sourceCode.visitorKeys);
+};
+
 const getSetTimeoutFix = (node, context) => {
-	if (node.arguments.length !== 2) {
+	if (node.arguments.length !== 2 || hasThisBoundCallback(node, context)) {
 		return;
 	}
 
@@ -85,8 +93,8 @@ const getSetTimeoutFix = (node, context) => {
 	};
 };
 
-const getGlobalCallFix = node => {
-	if (node.arguments.length !== 1) {
+const getGlobalCallFix = (node, context) => {
+	if (node.arguments.length !== 1 || hasThisBoundCallback(node, context)) {
 		return;
 	}
 
@@ -134,7 +142,7 @@ const create = context => {
 				node: node.callee,
 				messageId: MESSAGE_ID,
 				data: {name: 'setImmediate()'},
-				fix: getGlobalCallFix(node),
+				fix: getGlobalCallFix(node, context),
 			};
 		}
 

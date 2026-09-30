@@ -44,7 +44,7 @@ Default: `false`
 
 Check `setImmediate(callback)`.
 
-Only calls whose timer handle is unused and whose callback is not obviously non-callable are checked. Used timer handles are ignored because `queueMicrotask()` cannot preserve them. Calls with extra arguments are reported without a fix.
+Only calls whose timer handle is unused and whose callback is not obviously non-callable are checked. Used timer handles are ignored because `queueMicrotask()` cannot preserve them. Calls with extra arguments, or with a `function` callback that uses `this`, are reported without a fix. The timer calls the callback with the timer as `this`, but `queueMicrotask()` calls it with `this` as `undefined`.
 
 ```js
 /* eslint unicorn/prefer-queue-microtask: ["error", {"checkSetImmediate": true}] */
@@ -63,7 +63,7 @@ Default: `false`
 
 Check `setTimeout(callback, 0)`.
 
-Only calls whose timer handle is unused and whose callback is not obviously non-callable are checked. Used timer handles are ignored because `queueMicrotask()` cannot preserve them. Calls with extra arguments or comments on the delay argument are reported without a fix.
+Only calls whose timer handle is unused and whose callback is not obviously non-callable are checked. Used timer handles are ignored because `queueMicrotask()` cannot preserve them. Calls with extra arguments, comments on the delay argument, or a `function` callback that uses `this` are reported without a fix.
 
 ```js
 /* eslint unicorn/prefer-queue-microtask: ["error", {"checkSetTimeout": true}] */
