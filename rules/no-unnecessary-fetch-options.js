@@ -231,6 +231,17 @@ function getPropertyLineRemovalRange(property, context) {
 	];
 }
 
+// A property that shares its line with the previous one is preceded by the whitespace that separated them, which would be left behind as trailing whitespace when the property is removed up to the end of the line.
+function getSpacesStartBefore(index, context) {
+	const {text} = context.sourceCode;
+
+	while (index > 0 && /[^\S\n\r]/u.test(text[index - 1])) {
+		index--;
+	}
+
+	return index;
+}
+
 function getPropertyInlineRemovalRange(property, context) {
 	const {sourceCode} = context;
 	const location = sourceCode.getLoc(property);
@@ -275,15 +286,11 @@ function getPropertyInlineRemovalRange(property, context) {
 		return;
 	}
 
+	const [start] = sourceCode.getRange(property);
 	const tokenAfterComma = sourceCode.getTokenAfter(nextToken);
-	const end = tokenAfterComma && sourceCode.getLoc(tokenAfterComma).start.line === location.end.line
-		? sourceCode.getRange(tokenAfterComma)[0]
-		: sourceCode.getRange(nextToken)[1];
-
-	return [
-		sourceCode.getRange(property)[0],
-		end,
-	];
+	return tokenAfterComma && sourceCode.getLoc(tokenAfterComma).start.line === location.end.line
+		? [start, sourceCode.getRange(tokenAfterComma)[0]]
+		: [getSpacesStartBefore(start, context), sourceCode.getRange(nextToken)[1]];
 }
 
 const isStaticUndefined = (node, context) => {

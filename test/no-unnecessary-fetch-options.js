@@ -210,6 +210,32 @@ test({
 			output: 'fetch("/", {method}); const method = "GET";',
 			errors: 2,
 		},
+		{
+			code: outdent`
+				fetch('/', {
+					mode: 'no-cors', method: 'GET',
+					body: 'payload',
+				});
+			`,
+			output: outdent`
+				fetch('/', {
+					mode: 'no-cors',
+					body: 'payload',
+				});
+			`,
+			errors: 1,
+		},
+		// The whitespace before the property is kept when a property follows on the same line
+		{
+			code: 'fetch(\'/\', { method: \'GET\', body })',
+			output: 'fetch(\'/\', { body })',
+			errors: 1,
+		},
+		{
+			code: 'fetch(\'/\', {mode: \'no-cors\', method: \'GET\', body})',
+			output: 'fetch(\'/\', {mode: \'no-cors\', body})',
+			errors: 1,
+		},
 	],
 });
 
