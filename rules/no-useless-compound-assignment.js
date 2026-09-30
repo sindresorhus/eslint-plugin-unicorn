@@ -48,16 +48,15 @@ const create = context => {
 			value: node.right.raw,
 		};
 
-		// A comment inside the assignment can't be preserved when removing or replacing it,
-		// so report without a suggestion in that case.
-		if (sourceCode.getCommentsInside(node).length > 0) {
-			return {node, messageId: MESSAGE_ID_ERROR, data};
-		}
-
 		const {parent} = node;
 		const isRemovableStatement
 			= parent.type === 'ExpressionStatement'
 				&& ['Program', 'BlockStatement', 'StaticBlock', 'SwitchCase'].includes(parent.parent.type);
+
+		// A comment inside the removed or replaced code can't be preserved, so report without a suggestion in that case. When the whole statement is removed, that includes a trailing comment before the `;`.
+		if (sourceCode.getCommentsInside(isRemovableStatement ? parent : node).length > 0) {
+			return {node, messageId: MESSAGE_ID_ERROR, data};
+		}
 
 		if (isRemovableStatement) {
 			return {

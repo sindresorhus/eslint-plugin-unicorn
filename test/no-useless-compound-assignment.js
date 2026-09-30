@@ -104,5 +104,13 @@ test.snapshot({
 
 		// TypeScript: a plain numeric literal on the right is still flagged
 		{code: 'x += 0;', languageOptions: {parser: parsers.typescript}},
+		// A trailing comment sits inside the statement that gets removed, so there is no suggestion
+		'function f() {\n\tx *= 1/* keep */;\n\ty();\n}',
+		'x += 0/* keep */;',
+		'function f() {\n\tx += 0 /* keep */;\n}',
+		// Only the assignment is replaced, so the trailing comment is kept
+		'if (a) x += 0 /* keep */;',
+		'function f() {\n\tx += 0; // keep\n}',
 	],
 });
+
