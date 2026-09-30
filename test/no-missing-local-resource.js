@@ -140,6 +140,9 @@ test.snapshot({
 		cssCase(String.raw`@\69mport url("./missing.css");`),
 		cssCase('.icon { background: url("./assets/logo&#46;svg"); }'),
 		cssCase(String.raw`.icon { background: url("./assets/LOG\4F.svg"); }`),
+		// A `&` that does not start a character reference is a literal, it must not swallow the rest of the URL
+		htmlCase('<img srcset="./a.png?x=1&b=2 1x, ./b.png 2x">'),
+		htmlCase('<img srcset="./a.png?x=1&b=2&#32;1x, ./b.png 2x">'),
 	],
 });
 
