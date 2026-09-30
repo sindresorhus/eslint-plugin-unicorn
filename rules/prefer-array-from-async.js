@@ -5,7 +5,7 @@ import {
 } from './ast/index.js';
 import {
 	containsSuspensionPoint,
-	getNextNode,
+	getNextStatement,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	getVariableIdentifiers,
@@ -79,11 +79,7 @@ const getSingleForOfBinding = node => {
 	}
 
 	const [{id, init}] = node.left.declarations;
-	if (init) {
-		return;
-	}
-
-	if (id.type !== 'Identifier') {
+	if (init || id.type !== 'Identifier') {
 		return;
 	}
 
@@ -300,7 +296,7 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	const loop = getNextNode(declaration, context);
+	const loop = getNextStatement(declaration, context);
 	if (loop?.type !== 'ForOfStatement') {
 		return;
 	}
@@ -322,17 +318,15 @@ const getLoopProblem = (declaration, context) => {
 	if (
 		binding.name === arrayName
 		|| referencesVariable(variable, loop.right, context)
+		|| !isMethodCall(expression, {
+			method: 'push',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+			computed: false,
+		})
+		|| !isIdentifierNamed(expression.callee.object, arrayName)
 	) {
-		return;
-	}
-
-	if (!isMethodCall(expression, {
-		method: 'push',
-		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
-		computed: false,
-	}) || !isIdentifierNamed(expression.callee.object, arrayName)) {
 		return;
 	}
 

@@ -492,3 +492,20 @@ test.snapshot({
 		'let length; const result = []; for await (const element of iterable) { result.push(await ({length} = element)); }',
 	],
 });
+
+// An exported declaration is not a statement of its own, the loop is still its next sibling
+test.snapshot({
+	valid: [],
+	invalid: [
+		'export const result = []; for await (const element of iterable) { result.push(await element); }',
+	],
+});
+
+// A declaration in a `for` head is held by the `for` statement rather than listed beside one, so the `for…of` that follows belongs to that statement. Pairing the two made the fix replace the whole `for` head, producing `for (const r = Array.from(…);` which does not parse.
+test.snapshot({
+	valid: [
+		'for (const r = []; 0;) {}\nfor await (const x of [1]) { r.push(x) }\nconsole.log(r)',
+		'if (0) { for (const r = []; 0;) {} }\nfor await (const x of [1]) { r.push(x) }\nconsole.log(r)',
+	],
+	invalid: [],
+});
