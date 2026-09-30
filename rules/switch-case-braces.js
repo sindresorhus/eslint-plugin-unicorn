@@ -1,6 +1,11 @@
 import {isColonToken} from '@eslint-community/eslint-utils';
 import getSwitchCaseHeadLocation from './utils/get-switch-case-head-location.js';
-import {getIndentString, getLastTrailingCommentOnSameLine, getLinebreak} from './utils/index.js';
+import {
+	getIndentString,
+	getLastTrailingCommentOnSameLine,
+	getLinebreak,
+	isOnSameLine,
+} from './utils/index.js';
 import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 
 const MESSAGE_ID_EMPTY_CLAUSE = 'switch-case-braces/empty';
@@ -46,7 +51,8 @@ function getLastBlockBodyToken(blockStatement, context) {
 
 	if (
 		lastComment
-		&& sourceCode.getRange(lastComment)[0] > sourceCode.getRange(lastBodyToken)[1]
+		// `>=`, a comment right after the `{` of an empty block starts where the brace ends
+		&& sourceCode.getRange(lastComment)[0] >= sourceCode.getRange(lastBodyToken)[1]
 	) {
 		return lastComment;
 	}
@@ -66,6 +72,17 @@ function * removeBraces(fixer, node, context, abort) {
 	yield replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, context);
 
 	const lastBlockToken = getLastBlockBodyToken(blockStatement, context);
+
+	// The removed range takes the line break with it, so a `//` comment would swallow whatever follows the closing brace on the same line.
+	const tokenAfterClosingBrace = sourceCode.getTokenAfter(closingBraceToken);
+	if (
+		lastBlockToken.type === 'Line'
+		&& tokenAfterClosingBrace
+		&& isOnSameLine(closingBraceToken, tokenAfterClosingBrace, context)
+	) {
+		return abort();
+	}
+
 	yield fixer.removeRange([sourceCode.getRange(lastBlockToken)[1], sourceCode.getRange(closingBraceToken)[1]]);
 }
 

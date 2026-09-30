@@ -589,3 +589,56 @@ test({
 		},
 	],
 });
+
+// Reported, but not fixed, a `//` comment would swallow the following code
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'switch (a) {\n\tcase 1: {\n\t\tfoo(); // c\n\t}}',
+			options: ['avoid'],
+			errors: 1,
+		},
+		{
+			code: 'switch (a) {\n\tcase 1: {\n\t\tfoo(); // c\n\t} case 2: bar();\n}',
+			options: ['avoid'],
+			errors: 1,
+		},
+		{
+			code: 'switch (a) {\n\tcase 1: {\n\t\tfoo(); // c\n\t}}',
+			options: ['single-statement'],
+			errors: 1,
+		},
+		{
+			code: 'switch (a) {\n\tcase 1: {\n\t\tfoo(); /* c */\n\t}}',
+			output: 'switch (a) {\n\tcase 1:\n\t\tfoo(); /* c */}',
+			options: ['avoid'],
+			errors: 1,
+		},
+	],
+});
+
+// A comment inside a removed empty block is kept
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'switch(foo){\n\tcase 1: {/* keep */\n\t}\n\tcase 2: {\n\t}\n}',
+			output: 'switch(foo){\n\tcase 1:/* keep */\n\tcase 2:\n}',
+			options: ['avoid'],
+			errors: 2,
+		},
+		{
+			code: 'switch(foo){\n\tcase 1: {\n\t\t// keep\n\t}\n\tdefault: {\n\t\tdoSomething();\n\t}\n}',
+			output: 'switch(foo){\n\tcase 1:\n\t\t// keep\n\tdefault:\n\t\tdoSomething();\n}',
+			options: ['avoid'],
+			errors: 2,
+		},
+		{
+			code: 'switch(foo){\n\tcase 1: {\n\t}\n\tdefault: {\n\t\tdoSomething();\n\t}\n}',
+			output: 'switch(foo){\n\tcase 1:\n\tdefault:\n\t\tdoSomething();\n}',
+			options: ['avoid'],
+			errors: 2,
+		},
+	],
+});
