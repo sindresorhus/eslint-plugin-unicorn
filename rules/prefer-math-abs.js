@@ -9,8 +9,10 @@ import {fixSpaceAroundKeyword} from './fix/index.js';
 import {getParenthesizedText, isSameReference} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-math-abs';
+const MESSAGE_ID_SUGGESTION = 'prefer-math-abs/suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Math.abs()` to simplify this expression.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace with `Math.abs()`.',
 };
 
 const operators = new Set(['>', '>=', '<', '<=']);
@@ -52,6 +54,7 @@ function unwrapTypeScriptExpression(node) {
 	if (
 		[
 			'TSAsExpression',
+			'TSSatisfiesExpression',
 			'TSTypeAssertion',
 			'TSNonNullExpression',
 		].includes(node.type)
@@ -67,7 +70,7 @@ function getTypeAnnotation(node) {
 		return getTypeAnnotation(node.expression);
 	}
 
-	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+	if (['TSAsExpression', 'TSSatisfiesExpression', 'TSTypeAssertion'].includes(node.type)) {
 		return node.typeAnnotation;
 	}
 }
@@ -253,8 +256,11 @@ function createProblem(node, context, fix) {
 		messageId: MESSAGE_ID,
 	};
 
+	// `Math.abs()` coerces its argument and normalizes `-0` to `+0`, where the ternary returns the operand untouched, so the rewrite can change the value. That makes it a suggestion only.
 	if (fix && !hasCommentsInside(node, context)) {
-		problem.fix = fix;
+		problem.suggest = [
+			{messageId: MESSAGE_ID_SUGGESTION, fix},
+		];
 	}
 
 	return problem;
@@ -397,7 +403,7 @@ const config = {
 			description: 'Prefer `Math.abs()` over manual absolute value expressions and symmetric range checks.',
 			recommended: 'unopinionated',
 		},
-		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

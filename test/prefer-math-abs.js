@@ -119,6 +119,11 @@ test.snapshot({
 			const value: 1n = 1n;
 			value < 0 ? -value : value;
 		`,
+		outdent`
+			function foo(value) {
+				return (value satisfies bigint) < 0 ? -(value satisfies bigint) : (value satisfies bigint);
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -126,5 +131,31 @@ test.snapshot({
 				return value < 0 ? -value : value;
 			}
 		`,
+		outdent`
+			function foo(value) {
+				return (value satisfies number) < 0 ? -(value satisfies number) : (value satisfies number);
+			}
+		`,
+	],
+});
+
+// `Math.abs()` normalizes `-0` to `+0` and coerces, the ternary does neither
+test({
+	valid: [],
+	invalid: [
+		...[
+			['const a = b < 0 ? -b : b;', 'const a = Math.abs(b);'],
+			['const a = b <= 0 ? -b : b;', 'const a = Math.abs(b);'],
+			['const a = b > 0 ? b : -b;', 'const a = Math.abs(b);'],
+			['const a = b >= 0 ? b : -b;', 'const a = Math.abs(b);'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{
+				messageId: 'prefer-math-abs',
+				suggestions: [
+					{messageId: 'prefer-math-abs/suggestion', output},
+				],
+			}],
+		})),
 	],
 });

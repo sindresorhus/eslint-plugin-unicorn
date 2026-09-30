@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -38,3 +38,7 @@ if (number > MAXIMUM || number < -MAXIMUM) {
 if (Math.abs(number) > MAXIMUM) {
 }
 ```
+
+## Scope and limitations
+
+The rewrite is offered as a suggestion rather than an autofix. `Math.abs()` coerces its argument and normalizes `-0` to `+0`, where `number < 0 ? -number : number` returns the operand untouched. For `number = -0` the ternary yields `-0` and `Math.abs(number)` yields `0`, which `Object.is()`, `1 / value` and `Math.sign()` can tell apart. The same applies to a non-numeric operand, where the ternary returns it as is and `Math.abs()` returns a number.
