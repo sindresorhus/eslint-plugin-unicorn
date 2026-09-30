@@ -95,3 +95,46 @@ test.snapshot({
 		'Math.sqrt((( a ** 2 )) + (( b ** 2 + c ** 2 )) + (( d )) * (( d )) + (( e )) ** (( 2 )))',
 	],
 });
+
+// A comment inside the replaced range must not be dropped
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Math.log(/* keep */ x) * Math.LOG10E;',
+			errors: 1,
+		},
+		{
+			code: 'Math.log(x) // keep\n\t* Math.LOG10E;',
+			errors: 1,
+		},
+		{
+			code: 'Math.log(x) / Math.LN10;',
+			output: 'Math.log10(x);',
+			errors: 1,
+		},
+		{
+			code: 'Math.log(x) / /* keep */ Math.LN10;',
+			errors: 1,
+		},
+		{
+			code: 'Math.sqrt(a ** /* keep */ 2);',
+			errors: 1,
+		},
+		{
+			code: 'Math.sqrt(a ** // keep\n\t2);',
+			errors: 1,
+		},
+		// A comment inside the argument is kept by the replacement
+		{
+			code: 'Math.log(x /* keep */ + 1) * Math.LOG10E;',
+			output: 'Math.log10(x /* keep */ + 1);',
+			errors: 1,
+		},
+		{
+			code: 'Math.log((/* keep */ x)) / Math.LN2;',
+			output: 'Math.log2((/* keep */ x));',
+			errors: 1,
+		},
+	],
+});

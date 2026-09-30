@@ -1,4 +1,10 @@
-import {getParenthesizedText, getParenthesizedRange, isSameReference} from './utils/index.js';
+import {
+	getParenthesizedText,
+	getParenthesizedRange,
+	hasCommentInRange,
+	isSameReference,
+	wouldRemoveComments,
+} from './utils/index.js';
 import {isLiteral, isMethodCall} from './ast/index.js';
 import {replaceNodeOrTokenAndSpacesBefore, removeParentheses} from './fix/index.js';
 
@@ -58,7 +64,10 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 				replacement,
 				description,
 			},
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
+			// The replacement is built from the argument alone, so a comment elsewhere in the expression would be lost
+			fix: wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
+				? undefined
+				: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
 		};
 	};
 }
@@ -91,7 +100,10 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 		return {
 			...message,
 			node,
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
+			// The replacement is built from the argument alone, so a comment elsewhere in the expression would be lost
+			fix: wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
+				? undefined
+				: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
 		};
 	};
 }
@@ -151,7 +163,7 @@ const create = context => {
 				replacement: `Math.${replacementMethod}(…)`,
 				description: 'Math.sqrt(…)',
 			},
-			* fix(fixer) {
+			* fix(fixer, {abort}) {
 				const {sourceCode} = context;
 
 				// `Math.sqrt` -> `Math.{hypot,abs}`
@@ -168,10 +180,13 @@ const create = context => {
 				// `x ** 2` => `x`
 				// `x * a` => `x`
 				for (const expression of expressions) {
-					yield fixer.removeRange([
-						getParenthesizedRange(expression.left, context)[1],
-						sourceCode.getRange(expression)[1],
-					]);
+					// The removed range holds the operator and its right operand, so a comment there would be lost
+					const [start, end] = [getParenthesizedRange(expression.left, context)[1], sourceCode.getRange(expression)[1]];
+					if (hasCommentInRange(context, [start, end])) {
+						return abort();
+					}
+
+					yield fixer.removeRange([start, end]);
 				}
 			},
 		};
