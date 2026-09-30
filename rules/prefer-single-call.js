@@ -56,6 +56,7 @@ function getMergePlan(firstCall, secondCall, keepSecondCall) {
 }
 
 function shouldUseSuggestionForMerge(firstCall, secondCall, checkArrayReceiver, context) {
+	// Merging evaluates the second call's arguments before the first mutation. For an array receiver, requiring static arguments also covers an argument that reads the array, like `array.length`.
 	return checkArrayReceiver
 		? [...firstCall.arguments, ...secondCall.arguments].some(argument => getStaticValueIfNoSideEffects(argument, context) === undefined)
 		: secondCall.arguments.some(argument => hasSideEffect(argument, context.sourceCode));

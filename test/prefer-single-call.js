@@ -708,10 +708,6 @@ test.snapshot({
 			foo.classList.add("bar");
 		`,
 		outdent`
-			foo.classList.add("foo");
-			foo.classList.add?.("bar");
-		`,
-		outdent`
 			foo.classList?.remove("foo");
 			foo.classList.remove("bar");
 		`,
@@ -1033,6 +1029,30 @@ test({
 				a[x].push(1);
 				a[x].push(2);
 			`,
+			errors: 1,
+		},
+	],
+});
+
+// Merging evaluates the second call's arguments before the first mutation, so an argument that reads the receiver is only a suggestion
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const result = [];\nresult.push("a");\nresult.push(result.length);',
+			errors: 1,
+		},
+		{
+			code: 'const result = [];\nresult.push("a");\nresult.push(String(result));',
+			errors: 1,
+		},
+		{
+			code: 'const result = [];\nresult.unshift("a");\nresult.unshift(result.length);',
+			errors: 1,
+		},
+		{
+			code: 'const result = [];\nresult.push("a");\nresult.push(1);',
+			output: 'const result = [];\nresult.push("a", 1);',
 			errors: 1,
 		},
 	],

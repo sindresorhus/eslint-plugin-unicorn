@@ -98,7 +98,7 @@ Example:
 ```
 
 ```js
-/* eslint unicorn/prefer-single-call: ["error", {"ignore": ["readable"]}] */
+/* eslint unicorn/prefer-single-call: ["error", {"ignore": ["readable.push"]}] */
 import {Readable} from 'node:stream';
 
 const readable = new Readable();
