@@ -24,12 +24,6 @@ const object = pairs.reduce(
 
 // ❌
 const object = pairs.reduce(
-	(object, [key, value]) => ({...object, [key]: value}),
-	Object.create(null)
-);
-
-// ❌
-const object = pairs.reduce(
 	(object, [key, value]) => Object.assign(object, {[key]: value}),
 	{}
 );
@@ -45,6 +39,16 @@ const object = _.fromPairs(pairs);
 
 // ✅
 const object = Object.fromEntries(pairs);
+```
+
+A null-prototype accumulator is not reported, because `Object.fromEntries()` always creates an object with `Object.prototype`.
+
+```js
+// ✅
+const object = pairs.reduce(
+	(object, [key, value]) => ({...object, [key]: value}),
+	Object.create(null)
+);
 ```
 
 ## Options

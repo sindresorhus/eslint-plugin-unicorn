@@ -1,13 +1,16 @@
 import {isCommaToken, isArrowToken, isClosingParenToken} from '@eslint-community/eslint-utils';
-import {isMethodCall, isNullLiteral, isEmptyObjectExpression} from './ast/index.js';
+import {isMethodCall, isEmptyObjectExpression} from './ast/index.js';
 import {removeStatement, removeParentheses} from './fix/index.js';
 import {
 	getNextNode,
 	getParentheses,
+	getParenthesizedRange,
 	getParenthesizedText,
+	hasCommentInRange,
 	getVariableIdentifiers,
 	isNodeMatchesNameOrPath,
 	isSameIdentifier,
+	needsSemicolon,
 } from './utils/index.js';
 import {isCallExpression} from './ast/call-or-new-expression.js';
 
@@ -20,21 +23,6 @@ const messages = {
 	[MESSAGE_ID_LOOP]: 'Prefer `Object.fromEntries()` over a `for-of` loop.',
 };
 
-const isEmptyObject = node =>
-	// `{}`
-	isEmptyObjectExpression(node)
-	// `Object.create(null)`
-	|| (
-		isMethodCall(node, {
-			object: 'Object',
-			method: 'create',
-			argumentsLength: 1,
-			optionalCall: false,
-			optionalMember: false,
-		})
-		&& isNullLiteral(node.arguments[0])
-	);
-
 const isArrowFunctionCallback = node =>
 	node.type === 'ArrowFunctionExpression'
 	&& !node.async
@@ -45,6 +33,10 @@ const isProperty = node =>
 	node.type === 'Property'
 	&& node.kind === 'init'
 	&& !node.method;
+
+// A non-computed `__proto__: value` (or `'__proto__': value`) in an object literal sets the prototype, while `Object.fromEntries()` creates an own property.
+const isPrototypeProperty = node =>
+	isProperty(node) && !node.computed && (node.key.name ?? node.key.value) === '__proto__';
 
 const isBlockWithOneExpressionStatement = node =>
 	node.type === 'BlockStatement'
@@ -111,7 +103,8 @@ const isArrayReduceWithEmptyObject = node =>
 		optionalCall: false,
 		optionalMember: false,
 	})
-	&& isEmptyObject(node.arguments[1]);
+	// Only `{}`, `Object.fromEntries()` always creates an object with `Object.prototype`, so a null-prototype accumulator like `Object.create(null)` cannot be replaced by it
+	&& isEmptyObjectExpression(node.arguments[1]);
 
 const fixableArrayReduceCases = [
 	{
@@ -129,6 +122,7 @@ const fixableArrayReduceCases = [
 			&& callExpression.arguments[0].body.arguments[1].type === 'ObjectExpression'
 			&& callExpression.arguments[0].body.arguments[1].properties.length === 1
 			&& isProperty(callExpression.arguments[0].body.arguments[1].properties[0])
+			&& !isPrototypeProperty(callExpression.arguments[0].body.arguments[1].properties[0])
 			&& isSameIdentifier(callExpression.arguments[0].params[0], callExpression.arguments[0].body.arguments[0]),
 		getProperty: callback => callback.body.arguments[1].properties[0],
 	},
@@ -141,6 +135,7 @@ const fixableArrayReduceCases = [
 			&& callExpression.arguments[0].body.properties.length === 2
 			&& callExpression.arguments[0].body.properties[0].type === 'SpreadElement'
 			&& isProperty(callExpression.arguments[0].body.properties[1])
+			&& !isPrototypeProperty(callExpression.arguments[0].body.properties[1])
 			&& isSameIdentifier(callExpression.arguments[0].params[0], callExpression.arguments[0].body.properties[0].argument),
 		getProperty: callback => callback.body.properties[1],
 	},
@@ -154,15 +149,12 @@ const lodashFromPairsFunctions = [
 
 function fixReduceAssignOrSpread({context, callExpression, property}) {
 	const {sourceCode} = context;
-	const removeInitObject = fixer => {
+	// The initial value, with its parentheses and the comma before it
+	const getInitObjectRange = () => {
 		const initObject = callExpression.arguments[1];
-		const parentheses = getParentheses(initObject, context);
-		const firstToken = parentheses[0] || initObject;
-		const lastToken = parentheses.at(-1) || initObject;
-		const startToken = sourceCode.getTokenBefore(firstToken);
-		const [start] = sourceCode.getRange(startToken);
-		const [, end] = sourceCode.getRange(lastToken);
-		return fixer.removeRange([start, end]);
+		const [, end] = getParenthesizedRange(initObject, context);
+		const [commaStart] = sourceCode.getRange(sourceCode.getTokenBefore(getParentheses(initObject, context)[0] ?? initObject));
+		return [commaStart, end];
 	};
 
 	function * removeFirstParameter(fixer) {
@@ -170,8 +162,10 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 		const [firstParameter] = parameters;
 		const tokenAfter = sourceCode.getTokenAfter(firstParameter);
 
+		// Remove the comma and the gap after it, so `fn(a, b)` becomes `fn(b)` rather than `fn( b)`
 		if (isCommaToken(tokenAfter)) {
-			yield fixer.remove(tokenAfter);
+			const [start] = sourceCode.getRange(sourceCode.getTokenAfter(tokenAfter));
+			yield fixer.removeRange([sourceCode.getRange(tokenAfter)[0], start]);
 		}
 
 		let shouldAddParentheses = false;
@@ -212,6 +206,12 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 			return abort();
 		}
 
+		// The initial value is removed along with the comma before it, which would drop a comment placed between them.
+		const initObjectRange = getInitObjectRange();
+		if (hasCommentInRange(context, initObjectRange)) {
+			return abort();
+		}
+
 		// Wrap `array.reduce()` with `Object.fromEntries()`
 		yield fixer.insertTextBefore(callExpression, 'Object.fromEntries(');
 		yield fixer.insertTextAfter(callExpression, ')');
@@ -220,7 +220,7 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 		yield fixer.replaceText(callExpression.callee.property, 'map');
 
 		// Remove empty object
-		yield removeInitObject(fixer);
+		yield fixer.removeRange(initObjectRange);
 
 		// Remove the first parameter
 		yield removeFirstParameter(fixer);
@@ -252,7 +252,8 @@ const getForOfLoopProblem = (declaration, context) => {
 		declaration.declarations.length !== 1
 		|| declaration.declarations[0].id.type !== 'Identifier'
 		|| !declaration.declarations[0].init
-		|| !isEmptyObject(declaration.declarations[0].init)
+		// Only `{}`, see `isArrayReduceWithEmptyObject`
+		|| !isEmptyObjectExpression(declaration.declarations[0].init)
 	) {
 		return;
 	}
@@ -266,11 +267,7 @@ const getForOfLoopProblem = (declaration, context) => {
 	}
 
 	const loopLeft = getForOfPairPattern(loop.left);
-	if (!loopLeft) {
-		return;
-	}
-
-	if (loopLeft.elements.some(element => isSameIdentifier(element, id))) {
+	if (!loopLeft || loopLeft.elements.some(element => isSameIdentifier(element, id))) {
 		return;
 	}
 
@@ -296,6 +293,15 @@ const getForOfLoopProblem = (declaration, context) => {
 		* fix(fixer, {abort}) {
 			if (!hasNoCommentsInLoopFixRange(declaration, loop, context)) {
 				return abort();
+			}
+
+			// The `for…of` statement disappears, so the declaration becomes an expression statement the next statement could continue
+			const tokenAfter = context.sourceCode.getTokenAfter(loop);
+			if (
+				tokenAfter
+				&& needsSemicolon(context.sourceCode.getLastToken(declaration), context, tokenAfter.value)
+			) {
+				yield fixer.insertTextAfter(declaration, ';');
 			}
 
 			yield fixer.replaceText(init, `Object.fromEntries(${getParenthesizedText(loop.right, context)})`);

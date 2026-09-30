@@ -6,6 +6,21 @@ const {test} = getTester(import.meta);
 // Fixable `Array#reduce()`
 test.snapshot({
 	valid: [
+		// `Object.fromEntries()` always creates an object with `Object.prototype`, a null-prototype accumulator is not equivalent
+		'pairs.reduce(object => ({...object, key}), Object.create(null));',
+		'pairs.reduce(object => ({...object, key}), Object.create(null),);',
+		'pairs.reduce(object => ({...object, key}), (( Object.create(null) )),);',
+		outdent`
+			let object = Object.create(null);
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		// `__proto__: value` in an object literal sets the prototype, `Object.fromEntries()` creates an own property, so the rewrite is not equivalent
+		'pairs.reduce(object => ({...object, __proto__: value}), {});',
+		'pairs.reduce(object => Object.assign(object, {__proto__: value}), {});',
+		'pairs.reduce(object => ({...object, "__proto__": value}), {});',
+		'pairs.reduce(object => Object.assign(object, {\'__proto__\': value}), {});',
 		'pairs.reduce(object => ({...object, key}));',
 		'pairs.reduce(object => ({...object, key}), {}, extraArgument);',
 		'pairs.reduce({}, object => ({...object, key}));',
@@ -16,7 +31,6 @@ test.snapshot({
 		'pairs.notReduce(object => ({...object, key}), {});',
 		'pairs.reduce(object => ({...object, key}), {notEmpty});',
 		'pairs.reduce(object => ({...object, key}), []);',
-		'pairs.reduce(object => ({...object, key}), {}, extraArgument);',
 		'pairs.reduce(...[(object => ({...object, key}))], {});',
 		'pairs.reduce(object => ({...object, key}), ...[{}]);',
 		// `Object.create(null)`
@@ -191,12 +205,8 @@ test.snapshot({
 		'pairs.reduce(object => ({...object, key}), {},);',
 		// Object has trailing comma
 		'pairs.reduce(object => ({...object, key,}), {});',
-		// `Object.create(null)`
-		'pairs.reduce(object => ({...object, key}), Object.create(null));',
-		'pairs.reduce(object => ({...object, key}), Object.create(null),);',
 		// Parenthesized initial value
 		'pairs.reduce(object => ({...object, key}), (( {} )));',
-		'pairs.reduce(object => ({...object, key}), (( Object.create(null) )),);',
 		// Parenthesized callback
 		'pairs.reduce( (( object => ({...object, key}) )) , {});',
 		'pairs.reduce( (( (object) => ({...object, key}) )) , {});',
@@ -223,7 +233,7 @@ test.snapshot({
 							)
 						))
 					)),
-					Object.create(((null)),)
+					({})
 				)
 			));
 		`,
@@ -317,11 +327,56 @@ test.snapshot({
 			}
 			console.log(object);
 		`,
+		// The removed `for…of` leaves the declaration as an expression statement the next statement could continue
 		outdent`
-			let object = Object.create(null);
+			const object = {}
 			for (const [key, value] of pairs) {
 				object[key] = value;
 			}
+			[1].forEach(foo);
+		`,
+		outdent`
+			const object = {}
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+			(foo)();
+		`,
+		outdent`
+			const object = {}
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+			\`foo\`;
+		`,
+		outdent`
+			const object = {}
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+			+foo;
+		`,
+		outdent`
+			const object = {}
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+			/foo/.test(bar);
+		`,
+		outdent`
+			const object = {}
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+			foo();
+		`,
+		// The declaration is already terminated, so no semicolon is needed
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+			[1].forEach(foo);
 		`,
 	],
 });
@@ -369,6 +424,39 @@ test.snapshot({
 		{
 			code: 'utils.object.foo(pairs)',
 			options: [{functions: ['utils.object.foo']}],
+		},
+	],
+});
+
+// `__proto__: value` in an object literal sets the prototype, `Object.fromEntries()` creates an own property
+test({
+	valid: [],
+	invalid: [
+		// The computed spelling is an ordinary own property
+		{
+			code: 'pairs.reduce(object => ({...object, [\'__proto__\']: value}), {});',
+			output: 'Object.fromEntries(pairs.map(() => [\'__proto__\', value]));',
+			errors: 1,
+		},
+		// A comment between the comma and the initial value would be dropped
+		{
+			code: 'pairs.reduce(object => ({...object, key}),/* keep */ {});',
+			errors: 1,
+		},
+		{
+			code: 'pairs.reduce(object => ({...object, key}), /* keep */ {});',
+			errors: 1,
+		},
+		// The removed parameter and the gap after the comma go together
+		{
+			code: 'const object = pairs.reduce((object, [key, value]) => ({...object, [key]: value}), {});',
+			output: 'const object = Object.fromEntries(pairs.map(([key, value]) => [key, value]));',
+			errors: 1,
+		},
+		{
+			code: 'const object = pairs.reduce((object, element, index, array) => ({...object, [key]: value}), {});',
+			output: 'const object = Object.fromEntries(pairs.map((element, index, array) => [key, value]));',
+			errors: 1,
 		},
 	],
 });
