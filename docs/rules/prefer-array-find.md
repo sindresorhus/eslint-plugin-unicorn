@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -63,3 +63,7 @@ const item = array.filter(x => isUnicorn(x)).at(-1);
 // ✅
 const item = array.filter(x => isUnicorn(x)).pop();
 ```
+
+## Caveats
+
+A destructuring default (`const [foo = bar] = array.filter(baz)`) is reported but not fixed or suggested. A destructuring default only applies to `undefined`, while `??` also applies to `null` and `||` to every falsy value, so no replacement operator preserves the found element.

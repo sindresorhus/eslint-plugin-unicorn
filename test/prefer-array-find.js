@@ -13,9 +13,6 @@ const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
 
-const SUGGESTION_NULLISH_COALESCING_OPERATOR = 'suggest-nullish-coalescing-operator';
-const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
-
 // `[0]`
 test({
 	valid: [
@@ -56,6 +53,13 @@ test({
 		'array.filter(foo)[0]--',
 		'delete array.filter(foo)[0]',
 		'[array.filter(foo)[0] = 1] = []',
+		// Writing to the first element of the result is not reading from it
+		'const foo = array.filter(Boolean); foo[0] = 1;',
+		'const foo = array.filter(Boolean); foo[0]++;',
+		'const foo = array.filter(Boolean); delete foo[0];',
+		'const foo = array.filter(Boolean); for (foo[0] of x) {}',
+		'const foo = array.filter(Boolean); ({x: foo[0]} = o);',
+		'let foo = array.filter(Boolean); foo[0] += 1;',
 	],
 	invalid: [
 		// A typed array shares `Array#filter()` and `Array#find()`
@@ -153,16 +157,6 @@ test({
 					)
 					// comment 3
 					.shift()
-					// comment 4
-					;
-			`,
-			output: outdent`
-				const item = array
-					// comment 1
-					.find(
-						// comment 2
-						x => x === '🦄'
-					)
 					// comment 4
 					;
 			`,
@@ -294,118 +288,33 @@ test({
 					// comment 5
 					;
 			`,
-			output: outdent`
-				const item
-					// comment 2
-					= array
-					// comment 3
-					.find(
-						// comment 4
-						x => x === '🦄'
-					)
-					// comment 5
-					;
-			`,
 			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
-		// Suggestions
+		// A destructuring default only applies to `undefined`, no operator preserves that
 		{
 			code: 'const [foo = baz] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_DECLARATION,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? baz',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || baz',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
-		// Default value is parenthesized
 		{
 			code: 'const [foo = (bar)] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_DECLARATION,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (bar)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || (bar)',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		// Default value has lower precedence
 		{
 			code: 'const [foo = a ? b : c] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_DECLARATION,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (a ? b : c)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || (a ? b : c)',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'const [foo = a ?? b] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_DECLARATION,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (a ?? b)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || (a ?? b)',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'const [foo = a || b] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_DECLARATION,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (a || b)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || (a || b)',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'const [foo = a && b] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_DECLARATION,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (a && b)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || a && b',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 	],
 });
@@ -502,101 +411,29 @@ test({
 		// Suggestions
 		{
 			code: '[foo = baz] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'foo = array.find(bar) ?? baz',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'foo = array.find(bar) || baz',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: '[{foo} = baz] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: '({foo} = array.find(bar) ?? baz)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: '({foo} = array.find(bar) || baz)',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: ';([{foo} = baz] = array.filter(bar))',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: ';({foo} = array.find(bar) ?? baz)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: ';({foo} = array.find(bar) || baz)',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		// Default value is parenthesized
 		{
 			code: '[foo = (bar)] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'foo = array.find(bar) ?? (bar)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'foo = array.find(bar) || (bar)',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		// Default value has lower precedence
 		{
 			code: '[foo = a ? b : c] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'foo = array.find(bar) ?? (a ? b : c)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'foo = array.find(bar) || (a ? b : c)',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: '[foo = a || b] = array.filter(bar)',
-			errors: [{
-				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-				suggestions: [
-					{
-						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'foo = array.find(bar) ?? (a || b)',
-					},
-					{
-						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'foo = array.find(bar) || (a || b)',
-					},
-				],
-			}],
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 	],
 });
@@ -1033,16 +870,6 @@ test({
 					// comment 4
 					;
 			`,
-			output: outdent`
-				const item = array
-					// comment 1
-					.findLast(
-						// comment 2
-						x => x === '🦄'
-					)
-					// comment 4
-					;
-			`,
 			errors: [{messageId: ERROR_POP}],
 		},
 	],
@@ -1123,16 +950,6 @@ test({
 						// comment 4
 						-1
 						// comment 5
-					)
-					// comment 6
-					;
-			`,
-			output: outdent`
-				const item = array
-					// comment 1
-					.findLast(
-						// comment 2
-						x => x === '🦄'
 					)
 					// comment 6
 					;
@@ -1416,17 +1233,132 @@ test({
 					// comment 6
 					;
 			`,
-			output: outdent`
-				const item = array
-					// comment 1
-					.find(
-						// comment 2
-						x => x === '🦄'
-					)
-					// comment 6
-					;
-			`,
 			errors: [{messageId: ERROR_AT_ZERO}],
+		},
+	],
+});
+
+// Reported, but not fixed, the replaced range would drop the comment
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const [/* keep */ a] = b.filter(c);',
+			errors: 1,
+		},
+		{
+			code: '[/* keep */ a] = b.filter(c);',
+			errors: 1,
+		},
+		{
+			code: 'const a = b.filter(c)[/* keep */ 0];',
+			errors: 1,
+		},
+		{
+			code: 'const a = b.filter(c) /* keep */.shift();',
+			errors: 1,
+		},
+		{
+			code: 'const a = b.filter(c) /* keep */.at(0);',
+			errors: 1,
+		},
+		{
+			code: 'const a = b.filter(c) /* keep */.pop();',
+			errors: 1,
+		},
+		{
+			code: 'const a = b.filter(c) /* keep */.at(-1);',
+			errors: 1,
+		},
+	],
+});
+
+// The pattern's type annotation describes the whole array, it cannot be carried over
+test({
+	valid: [],
+	invalid: [
+		...[
+			'const [{id}]: {id: number}[] = foo.filter(x => x.id > 0);',
+			'const [a]: [string] = foo.filter(Boolean);',
+			'let [a]: [string, string] = foo.filter(Boolean);',
+		].map(code => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		})),
+		{
+			code: 'const [{id}] = foo.filter(x => x.id > 0);',
+			languageOptions: {parser: parsers.typescript},
+			output: 'const {id} = foo.find(x => x.id > 0);',
+			errors: 1,
+		},
+	],
+});
+
+// The annotation describes the whole array, and `find()` returns one element or `undefined`, so carrying it over produces a type error: `Type 'string | undefined' is not assignable to type 'string[]'.`
+test({
+	valid: [
+		...[
+			'const items: string[] = list.filter(fn); console.log(items[0]);',
+			'let items: string[] = list.filter(fn); console.log(items[0]);',
+			'const items: ReadonlyArray<string> = list.filter(fn); console.log(items[0]);',
+			'const items: string[] = list.filter(fn); const [first] = items;',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	],
+	invalid: [
+		{
+			code: 'const items = list.filter(fn); console.log(items[0]);',
+			output: 'const item = list.find(fn); console.log(item);',
+			errors: [{messageId: ERROR_DECLARATION}],
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const items = list.filter(fn); const [first] = items;',
+			output: 'const item = list.find(fn); const first = item;',
+			errors: [{messageId: ERROR_DECLARATION}],
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
+// A comment inside the `.filter(…)` call is kept, so it does not block the fix
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const a = b.filter(x => /* keep */ x)[0];',
+			output: 'const a = b.find(x => /* keep */ x);',
+			errors: [{messageId: ERROR_ZERO_INDEX}],
+		},
+		{
+			code: 'const a = b.filter(x => /* keep */ x).shift();',
+			output: 'const a = b.find(x => /* keep */ x);',
+			errors: [{messageId: ERROR_SHIFT}],
+		},
+		{
+			code: 'const a = b.filter(x => /* keep */ x).at(0);',
+			output: 'const a = b.find(x => /* keep */ x);',
+			errors: [{messageId: ERROR_AT_ZERO}],
+		},
+		{
+			code: 'const a = b.filter(x => /* keep */ x).pop();',
+			output: 'const a = b.findLast(x => /* keep */ x);',
+			errors: [{messageId: ERROR_POP}],
+		},
+		{
+			code: 'const a = b.filter(x => /* keep */ x).at(-1);',
+			output: 'const a = b.findLast(x => /* keep */ x);',
+			errors: [{messageId: ERROR_AT_MINUS_ONE}],
+		},
+		{
+			code: 'const a = b./* keep */filter(c)[0];',
+			output: 'const a = b./* keep */find(c);',
+			errors: [{messageId: ERROR_ZERO_INDEX}],
+		},
+		{
+			code: 'const a = (b.filter(c) /* keep */)[0];',
+			output: 'const a = (b.find(c) /* keep */);',
+			errors: [{messageId: ERROR_ZERO_INDEX}],
 		},
 	],
 });

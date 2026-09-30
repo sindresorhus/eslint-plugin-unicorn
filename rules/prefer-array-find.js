@@ -26,8 +26,6 @@ const ERROR_SLICE_MINUS_ONE = 'error-slice-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
-const SUGGESTION_NULLISH_COALESCING_OPERATOR = 'suggest-nullish-coalescing-operator';
-const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 const messages = {
 	[ERROR_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
 	[ERROR_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
@@ -39,8 +37,6 @@ const messages = {
 	[ERROR_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
 	// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
 	[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
-	[SUGGESTION_NULLISH_COALESCING_OPERATOR]: 'Replace `.filter(…)` with `.find(…) ?? …`.',
-	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.',
 };
 
 // `array.filter(…)`, ignoring receivers known to be neither an array nor a typed array
@@ -84,25 +80,6 @@ const assignmentNeedParenthesize = (node, sourceCode) => {
 	return type === 'ObjectExpression' || type === 'ObjectPattern';
 };
 
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
-const hasLowerPrecedence = (node, operator) => (
-	(node.type === 'LogicalExpression' && (
-		node.operator === operator
-		// https://tc39.es/proposal-nullish-coalescing/ says
-		// `??` has lower precedence than `||`
-		// But MDN says
-		// `??` has higher precedence than `||`
-		|| (operator === '||' && node.operator === '??')
-		|| (operator === '??' && (node.operator === '||' || node.operator === '&&'))
-	))
-	|| node.type === 'ConditionalExpression'
-	// Lower than `assignment`, should already parenthesized
-	/* c8 ignore next */
-	|| node.type === 'AssignmentExpression'
-	|| node.type === 'YieldExpression'
-	|| node.type === 'SequenceExpression'
-);
-
 const getDestructuringLeftAndRight = node => {
 	/* c8 ignore next 3 */
 	if (!node) {
@@ -113,68 +90,76 @@ const getDestructuringLeftAndRight = node => {
 		return node;
 	}
 
-	if (node.type === 'VariableDeclarator') {
-		return {left: node.id, right: node.init};
-	}
-
-	return {};
+	return node.type === 'VariableDeclarator' ? {left: node.id, right: node.init} : {};
 };
 
-function * fixDestructuring(node, sourceCode, fixer) {
+// Everything after the `.filter(…)` call is removed, so a comment there would be lost
+const hasCommentAfterFilterCall = (filterCall, node, context) => hasCommentInRange(context, [
+	getParenthesizedRange(filterCall, context)[1],
+	context.sourceCode.getRange(node)[1],
+]);
+
+// `array.filter(…).shift()`, `array.filter(…).at(0)`, `array.filter(…).pop()`, `array.filter(…).at(-1)`
+const getTrailingCallProblem = (node, messageId, replacementMethod, context) => {
+	const filterCall = node.callee.object;
+	const problem = {
+		node: filterCall.callee.property,
+		messageId,
+	};
+
+	if (!hasCommentAfterFilterCall(filterCall, node, context)) {
+		problem.fix = fixer => [
+			fixer.replaceText(filterCall.callee.property, replacementMethod),
+			...removeMethodCall(fixer, node, context),
+		];
+	}
+
+	return problem;
+};
+
+function * fixDestructuring(node, fixer, context, {abort}) {
+	const {sourceCode} = context;
 	const {left} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
+
+	// `leftText` is rebuilt from the element alone, so a comment inside the pattern would be lost
+	if (hasCommentInRange(context, sourceCode.getRange(left))) {
+		return abort();
+	}
+
+	// The pattern's type annotation describes the whole array, it cannot be carried over to a single binding
+	if (left.typeAnnotation) {
+		return abort();
+	}
 
 	const leftText = sourceCode.getText(element.type === 'AssignmentPattern' ? element.left : element);
 	yield fixer.replaceText(left, leftText);
 
 	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
-	if (assignmentNeedParenthesize(node, sourceCode)) {
-		yield fixer.insertTextBefore(node, '(');
-		yield fixer.insertTextAfter(node, ')');
+	if (!assignmentNeedParenthesize(node, sourceCode)) {
+		return;
 	}
+
+	yield fixer.insertTextBefore(node, '(');
+	yield fixer.insertTextAfter(node, ')');
 }
 
 const hasDefaultValue = node => getDestructuringLeftAndRight(node).left.elements[0].type === 'AssignmentPattern';
 
-const fixDestructuringDefaultValue = (node, sourceCode, fixer, operator) => {
-	const {left, right} = getDestructuringLeftAndRight(node);
-	const [element] = left.elements;
-	const defaultValue = element.right;
-	let defaultValueText = sourceCode.getText(defaultValue);
-
-	if (isParenthesized(defaultValue, sourceCode) || hasLowerPrecedence(defaultValue, operator)) {
-		defaultValueText = `(${defaultValueText})`;
-	}
-
-	return fixer.insertTextAfter(right, ` ${operator} ${defaultValueText}`);
-};
-
-const fixDestructuringAndReplaceFilter = (sourceCode, node) => {
+const fixDestructuringAndReplaceFilter = (node, context) => {
 	const {property} = getDestructuringLeftAndRight(node).right.callee;
 
-	let suggest;
-	let fix;
-
+	// A destructuring default only applies to `undefined`, while `??` also applies to `null` and `||` to every falsy value, so there is no replacement operator for the found element.
 	if (hasDefaultValue(node)) {
-		suggest = [
-			{operator: '??', messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR},
-			{operator: '||', messageId: SUGGESTION_LOGICAL_OR_OPERATOR},
-		].map(({messageId, operator}) => ({
-			messageId,
-			* fix(fixer) {
-				yield fixer.replaceText(property, 'find');
-				yield fixDestructuringDefaultValue(node, sourceCode, fixer, operator);
-				yield fixDestructuring(node, sourceCode, fixer);
-			},
-		}));
-	} else {
-		fix = function * (fixer) {
-			yield fixer.replaceText(property, 'find');
-			yield fixDestructuring(node, sourceCode, fixer);
-		};
+		return {};
 	}
 
-	return {fix, suggest};
+	const fix = function * (fixer, {abort}) {
+		yield fixer.replaceText(property, 'find');
+		yield fixDestructuring(node, fixer, context, {abort});
+	};
+
+	return {fix};
 };
 
 const isAccessingZeroIndex = node =>
@@ -182,7 +167,9 @@ const isAccessingZeroIndex = node =>
 	&& node.parent.computed === true
 	&& node.parent.object === node
 	&& node.parent.property.type === 'Literal'
-	&& node.parent.property.raw === '0';
+	&& node.parent.property.raw === '0'
+	// Writing to the first element is not the same as reading from it
+	&& !isLeftHandSide(node.parent);
 
 const isDestructuringFirstElement = node => {
 	const {left, right} = getDestructuringLeftAndRight(node.parent);
@@ -213,14 +200,19 @@ const create = context => {
 			return;
 		}
 
-		return {
+		const problem = {
 			node: node.object.callee.property,
 			messageId: ERROR_ZERO_INDEX,
-			fix: fixer => [
+		};
+
+		if (!hasCommentAfterFilterCall(node.object, node, context)) {
+			problem.fix = fixer => [
 				fixer.replaceText(node.object.callee.property, 'find'),
 				removeMemberExpressionProperty(fixer, node, context),
-			],
-		};
+			];
+		}
+
+		return problem;
 	});
 
 	// `array.filter().shift()`
@@ -238,14 +230,7 @@ const create = context => {
 			return;
 		}
 
-		return {
-			node: node.callee.object.callee.property,
-			messageId: ERROR_SHIFT,
-			fix: fixer => [
-				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, context),
-			],
-		};
+		return getTrailingCallProblem(node, ERROR_SHIFT, 'find', context);
 	});
 
 	// `const [foo] = array.filter()`
@@ -263,7 +248,7 @@ const create = context => {
 		return {
 			node: node.init.callee.property,
 			messageId: ERROR_DESTRUCTURING_DECLARATION,
-			...fixDestructuringAndReplaceFilter(sourceCode, node),
+			...fixDestructuringAndReplaceFilter(node, context),
 		};
 	});
 
@@ -282,7 +267,7 @@ const create = context => {
 		return {
 			node: node.right.callee.property,
 			messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-			...fixDestructuringAndReplaceFilter(sourceCode, node),
+			...fixDestructuringAndReplaceFilter(node, context),
 		};
 	});
 
@@ -290,6 +275,8 @@ const create = context => {
 	context.on('VariableDeclarator', node => {
 		if (!(
 			node.id.type === 'Identifier'
+			// The annotation describes the whole array, and `find()` returns one element or `undefined`, so it cannot be carried over
+			&& !node.id.typeAnnotation
 			&& isArrayFilterCall(node.init, context, {optionalMember: false})
 			&& node.parent.type === 'VariableDeclaration'
 			&& node.parent.declarations.includes(node)
@@ -328,8 +315,13 @@ const create = context => {
 		};
 
 		// `const [foo = bar] = baz` is not fixable
-		if (destructuringNodes.every(node => !hasDefaultValue(node))) {
-			problem.fix = function * (fixer) {
+		// The replaced ranges hold the index or the pattern, so a comment inside one would be lost
+		const removedNodes = [...zeroIndexNodes, ...destructuringNodes];
+		if (
+			destructuringNodes.every(node => !hasDefaultValue(node))
+			&& removedNodes.every(node => !hasCommentInRange(context, sourceCode.getRange(node)))
+		) {
+			problem.fix = function * (fixer, {abort}) {
 				yield fixer.replaceText(node.init.callee.property, 'find');
 
 				const singularName = singular(node.id.name);
@@ -347,7 +339,7 @@ const create = context => {
 				}
 
 				for (const node of destructuringNodes) {
-					yield fixDestructuring(node, sourceCode, fixer);
+					yield fixDestructuring(node, fixer, context, {abort});
 				}
 			};
 		}
@@ -372,14 +364,7 @@ const create = context => {
 			return;
 		}
 
-		return {
-			node: node.callee.object.callee.property,
-			messageId: ERROR_AT_ZERO,
-			fix: fixer => [
-				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, context),
-			],
-		};
+		return getTrailingCallProblem(node, ERROR_AT_ZERO, 'find', context);
 	});
 
 	if (!checkFromLast) {
@@ -401,14 +386,7 @@ const create = context => {
 			return;
 		}
 
-		return {
-			node: node.callee.object.callee.property,
-			messageId: ERROR_POP,
-			fix: fixer => [
-				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, context),
-			],
-		};
+		return getTrailingCallProblem(node, ERROR_POP, 'findLast', context);
 	});
 
 	// `array.filter().at(-1)`
@@ -427,14 +405,7 @@ const create = context => {
 			return;
 		}
 
-		return {
-			node: node.callee.object.callee.property,
-			messageId: ERROR_AT_MINUS_ONE,
-			fix: fixer => [
-				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, context),
-			],
-		};
+		return getTrailingCallProblem(node, ERROR_AT_MINUS_ONE, 'findLast', context);
 	});
 
 	// `array.filter().slice(-1)[0]`
@@ -457,10 +428,7 @@ const create = context => {
 			node: filterCall.callee.property,
 			messageId: ERROR_SLICE_MINUS_ONE,
 			* fix(fixer, {abort}) {
-				if (hasCommentInRange(context, [
-					getParenthesizedRange(filterCall, context)[1],
-					sourceCode.getRange(node)[1],
-				])) {
+				if (hasCommentAfterFilterCall(filterCall, node, context)) {
 					return abort();
 				}
 
@@ -495,10 +463,7 @@ const create = context => {
 			node: filterCall.callee.property,
 			messageId: ERROR_SLICE_MINUS_ONE,
 			* fix(fixer, {abort}) {
-				if (hasCommentInRange(context, [
-					getParenthesizedRange(filterCall, context)[1],
-					sourceCode.getRange(node)[1],
-				])) {
+				if (hasCommentAfterFilterCall(filterCall, node, context)) {
 					return abort();
 				}
 
@@ -537,7 +502,6 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
-		hasSuggestions: true,
 		schema,
 		defaultOptions: [{checkFromLast: true}],
 		messages,
