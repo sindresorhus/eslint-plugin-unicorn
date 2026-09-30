@@ -1,7 +1,8 @@
-import {switchNewExpressionToCallExpression} from './fix/index.js';
+import {hasSideEffect, isCommaToken} from '@eslint-community/eslint-utils';
+import {removeArgument, switchNewExpressionToCallExpression} from './fix/index.js';
 import isNumber from './utils/is-number.js';
 import {isNewExpression} from './ast/index.js';
-import {getStaticValueForControlFlow} from './utils/index.js';
+import {getStaticValueForControlFlow, hasCommentInRange} from './utils/index.js';
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -13,21 +14,27 @@ const messages = {
 };
 
 const inferMethod = (bufferArguments, context) => {
-	if (bufferArguments.length !== 1) {
+	const [firstArgument] = bufferArguments;
+
+	if (firstArgument === undefined) {
 		return 'from';
 	}
 
-	const [firstArgument] = bufferArguments;
 	if (firstArgument.type === 'SpreadElement') {
 		return;
 	}
 
-	if (firstArgument.type === 'ArrayExpression' || firstArgument.type === 'TemplateLiteral') {
+	// `new Buffer(size)` is the only form that takes a leading number, `Buffer.from()` would throw on it. The legacy constructor dispatches on the first argument alone and silently ignores the rest, so any extra argument has to be dropped to keep `Buffer.alloc(size)` equivalent.
+	if (isNumber(firstArgument, context)) {
+		return 'alloc';
+	}
+
+	if (bufferArguments.length !== 1) {
 		return 'from';
 	}
 
-	if (isNumber(firstArgument, context)) {
-		return 'alloc';
+	if (firstArgument.type === 'ArrayExpression' || firstArgument.type === 'TemplateLiteral') {
+		return 'from';
 	}
 
 	const staticResult = getStaticValueForControlFlow(firstArgument, context);
@@ -42,8 +49,32 @@ const inferMethod = (bufferArguments, context) => {
 	}
 };
 
+/**
+`new Buffer(size, fill)` ignores `fill`, so the fix drops it. Dropping it must not drop a side effect, or move a comment that documents it onto the size.
+*/
+function canRemoveIgnoredArguments(node, context) {
+	const [sizeArgument, ...ignoredArguments] = node.arguments;
+	if (ignoredArguments.length === 0) {
+		return true;
+	}
+
+	const {sourceCode} = context;
+	const [commaStart] = sourceCode.getRange(sourceCode.getTokenAfter(sizeArgument, isCommaToken));
+	const [, end] = sourceCode.getRange(node);
+
+	return !hasCommentInRange(context, [commaStart, end])
+		&& ignoredArguments.every(argument => !hasSideEffect(argument, sourceCode));
+}
+
 function fix(node, context, method) {
 	return function * (fixer) {
+		// `new Buffer(size, fill)` ignores `fill`, `Buffer.alloc(size, fill)` would honour it
+		if (method === 'alloc') {
+			for (const argument of node.arguments.slice(1).toReversed()) {
+				yield removeArgument(fixer, argument, context);
+			}
+		}
+
 		yield fixer.insertTextAfter(node.callee, `.${method}`);
 		yield switchNewExpressionToCallExpression(node, context, fixer);
 	};
@@ -60,23 +91,23 @@ const create = context => {
 
 		const method = inferMethod(node.arguments, context);
 
-		if (method) {
+		if (!method) {
 			return {
 				node,
-				messageId: ERROR,
-				data: {method},
-				fix: fix(node, context, method),
+				messageId: ERROR_UNKNOWN,
+				suggest: ['from', 'alloc'].map(replacement => ({
+					messageId: SUGGESTION,
+					data: {replacement},
+					fix: fix(node, context, replacement),
+				})),
 			};
 		}
 
 		return {
 			node,
-			messageId: ERROR_UNKNOWN,
-			suggest: ['from', 'alloc'].map(replacement => ({
-				messageId: SUGGESTION,
-				data: {replacement},
-				fix: fix(node, context, replacement),
-			})),
+			messageId: ERROR,
+			data: {method},
+			...((method !== 'alloc' || canRemoveIgnoredArguments(node, context)) && {fix: fix(node, context, method)}),
 		};
 	});
 };

@@ -119,9 +119,38 @@ test.snapshot({
 			}
 		`,
 
+		// The legacy constructor ignores every argument after the size
+		// https://nodejs.org/api/buffer.html#buffer_new_buffer_size
+		'const buffer = new Buffer(10, 0);',
+		outdent`
+			const size = 10;
+			const buffer = new Buffer(size, 0);
+		`,
+		'const buffer = new Buffer(10, 0, "hex");',
+		{
+			code: 'const buffer = new Buffer(size, fill);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const buffer = new Buffer(10, 0x62);',
+		'const buffer = new Buffer(10, 0x62, "hex");',
+		'const buffer = new Buffer(10, fill);',
+		'const buffer = new Buffer(10, 65, "utf8");',
+
 		// Misc
 		'const buffer = new /* comment */ Buffer()',
 		'const buffer = new /* comment */ Buffer',
+
+		// Dropping an ignored argument must not move a comment onto the size, or drop a side effect
+		'const buffer = new Buffer(10, /* fill byte */ 0xff);',
+		outdent`
+			const buffer = new Buffer(10, // fill byte
+				0xff);
+		`,
+		'const buffer = new Buffer(10, 0xff /* fill byte */);',
+		'const buffer = new Buffer(10, 0xff, /* encoding */ "hex");',
+		'const buffer = new Buffer(10 /* size */, 0xff);',
+		'const buffer = new Buffer(10, getFill());',
+		'const buffer = new Buffer((10), (0));',
 	],
 });
 
