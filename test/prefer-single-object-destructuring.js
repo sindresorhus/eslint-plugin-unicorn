@@ -178,3 +178,18 @@ test.snapshot({
 		`,
 	],
 });
+
+// Merging would put the same key in one pattern twice, which is valid but reads like a mistake
+test({
+	valid: [
+		'const source = x;\nconst {a} = source;\nconst {a: b} = source;\nconsole.log(a, b);',
+		'const source = x;\nconst {a: b} = source;\nconst {a: c} = source;\nconsole.log(b, c);',
+	],
+	invalid: [
+		{
+			code: 'const source = x;\nconst {a} = source;\nconst {b: c} = source;\nconsole.log(a, c);',
+			output: 'const source = x;\nconst {a, b: c} = source;\nconsole.log(a, c);',
+			errors: 1,
+		},
+	],
+});

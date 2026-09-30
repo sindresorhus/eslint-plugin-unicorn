@@ -1,4 +1,4 @@
-import {findVariable, isCommentToken} from '@eslint-community/eslint-utils';
+import {findVariable, getPropertyName, isCommentToken} from '@eslint-community/eslint-utils';
 
 const MESSAGE_ID = 'prefer-single-object-destructuring';
 const messages = {
@@ -19,6 +19,12 @@ const isSimpleObjectPattern = node =>
 		property.type === 'Property'
 		&& !property.computed
 		&& property.value.type === 'Identifier');
+
+// Merging would put the same key in one pattern twice, which is valid but reads like a mistake
+const hasDuplicateKey = (firstPattern, secondPattern) => {
+	const keys = new Set(firstPattern.properties.map(property => getPropertyName(property)));
+	return secondPattern.properties.some(property => keys.has(getPropertyName(property)));
+};
 
 const isConstVariableReference = (sourceCode, node) => {
 	const variable = findVariable(sourceCode.getScope(node), node);
@@ -74,6 +80,10 @@ const getProblem = (sourceCode, firstNode, secondNode) => {
 		&& first.source === second.source
 		&& sourceCode.getCommentsInside(first.node).length === 0
 		&& sourceCode.getCommentsInside(second.node).length === 0) || hasCommentsBetween(sourceCode, first.node, second.node)) {
+		return;
+	}
+
+	if (hasDuplicateKey(first.declarator.id, second.declarator.id)) {
 		return;
 	}
 
