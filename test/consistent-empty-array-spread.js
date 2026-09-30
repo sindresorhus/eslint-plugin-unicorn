@@ -63,3 +63,22 @@ test.snapshot({
 		'[...(foo ? "" : [])]',
 	],
 });
+
+// Reported, but not fixed, a comment inside the empty array would be lost
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const a = [...(x ? [/* keep me */] : "abc")];',
+			errors: 1,
+		},
+		{
+			code: 'const a = [...(x ? [ // keep me\n] : "abc")];',
+			errors: 1,
+		},
+		{
+			code: 'const a = [...(x ? "abc" : [/* keep me */])];',
+			errors: 1,
+		},
+	],
+});

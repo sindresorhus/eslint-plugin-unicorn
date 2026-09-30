@@ -46,8 +46,9 @@ function createProblem({
 	anotherNodeDescription,
 	replacementDescription,
 	replacementCode,
+	context,
 }) {
-	return {
+	const problem = {
 		node: problemNode,
 		messageId: MESSAGE_ID,
 		data: {
@@ -55,8 +56,14 @@ function createProblem({
 			anotherNodePosition,
 			anotherNodeDescription,
 		},
-		fix: fixer => fixer.replaceText(problemNode, replacementCode),
 	};
+
+	// The replacement is a plain string, so a comment inside the empty array would be lost
+	if (context.sourceCode.getCommentsInside(problemNode).length === 0) {
+		problem.fix = fixer => fixer.replaceText(problemNode, replacementCode);
+	}
+
+	return problem;
 }
 
 function getProblem(conditionalExpression, context) {
@@ -74,6 +81,7 @@ function getProblem(conditionalExpression, context) {
 		if (oneSidePredicate(consequent, context) && anotherSidePredicate(alternate, context)) {
 			return createProblem({
 				...problemCase,
+				context,
 				problemNode: consequent,
 				anotherNodePosition: 'alternate',
 			});
@@ -82,6 +90,7 @@ function getProblem(conditionalExpression, context) {
 		if (oneSidePredicate(alternate, context) && anotherSidePredicate(consequent, context)) {
 			return createProblem({
 				...problemCase,
+				context,
 				problemNode: alternate,
 				anotherNodePosition: 'consequent',
 			});
