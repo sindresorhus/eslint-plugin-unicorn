@@ -1,5 +1,8 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import stripIndent from 'strip-indent';
+import plugin from '../index.js';
 import {getTester} from './utils/test.js';
 
 /**
@@ -11,7 +14,7 @@ const fixInput = text => stripIndent(text)
 	.replaceAll('•', ' ')
 	.replaceAll('→→', '\t');
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const errors = [
 	{
@@ -19,7 +22,7 @@ const errors = [
 	},
 ];
 
-test({
+ruleTest({
 	/**
 	@type {import('eslint').RuleTester.InvalidTestCase[]}
 	*/
@@ -839,7 +842,7 @@ const INVALID_SNAPSHOT = `\`
       three
       \`
 `;
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		`expect(foo)[toMatchInlineSnapshot](${INVALID_SNAPSHOT})`,
 		`expect(foo).toMatchInlineSnapshot?.(${INVALID_SNAPSHOT})`,
@@ -865,4 +868,35 @@ test.snapshot({
 	invalid: [
 		`expect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
 	],
+});
+
+// ESLint reports an unusable AST selector as a syntax error naming the selector and the position. An empty or whitespace-only selector skips that check and dies on `undefined` instead, so the schema has to reject it before the rule ever registers a listener.
+test('an empty `selectors` entry is rejected by the schema', t => {
+	const linter = new Linter();
+
+	for (const ruleName of ['template-indent', 'isolated-functions']) {
+		for (const selector of ['', ' ', '\t']) {
+			const error = t.throws(() =>
+				linter.verify('const a = 1;', {
+					files: ['**'],
+					plugins: {unicorn: plugin},
+					rules: {[`unicorn/${ruleName}`]: ['error', {selectors: [selector]}]},
+				}, 'index.js'),
+			);
+
+			t.regex(error.message, /should be string|should match pattern|should NOT be shorter/u, `${ruleName} with ${JSON.stringify(selector)}`);
+			t.notRegex(error.message, /reading 'type'/u, `${ruleName} with ${JSON.stringify(selector)} must not be a TypeError`);
+		}
+
+		// A selector ESLint cannot parse is still reported by ESLint itself
+		const error = t.throws(() =>
+			linter.verify('const a = 1;', {
+				files: ['**'],
+				plugins: {unicorn: plugin},
+				rules: {[`unicorn/${ruleName}`]: ['error', {selectors: ['[']}]},
+			}, 'index.js'),
+		);
+
+		t.regex(error.message, /Syntax error in selector/u, `${ruleName} with an unparsable selector`);
+	}
 });
