@@ -1040,11 +1040,9 @@ const joinAllowedCounts = counts => {
 		return formattedCounts[0];
 	}
 
-	if (formattedCounts.length === 2) {
-		return `${formattedCounts[0]} or ${formattedCounts[1]}`;
-	}
-
-	return `${formattedCounts.slice(0, -1).join(', ')}, or ${formattedCounts.at(-1)}`;
+	return formattedCounts.length === 2
+		? `${formattedCounts[0]} or ${formattedCounts[1]}`
+		: `${formattedCounts.slice(0, -1).join(', ')}, or ${formattedCounts.at(-1)}`;
 };
 
 const normalizeArgumentCount = value => {
@@ -1092,11 +1090,9 @@ const getConfiguredExpectedText = expectedArgumentCount => {
 		return `at most ${formatArgumentCount(maximum)}`;
 	}
 
-	if (maximum === Infinity) {
-		return `at least ${formatArgumentCount(minimum)}`;
-	}
-
-	return `between ${minimum} and ${formatArgumentCount(maximum)}`;
+	return maximum === Infinity
+		? `at least ${formatArgumentCount(minimum)}`
+		: `between ${minimum} and ${formatArgumentCount(maximum)}`;
 };
 
 const hasSpreadArgument = callArguments =>
@@ -1136,10 +1132,12 @@ const getCalleeRawPath = node => {
 		return {parts, root: node};
 	}
 
-	if (node.type === 'ThisExpression') {
-		parts.unshift('this');
-		return {parts, root: node};
+	if (node.type !== 'ThisExpression') {
+		return;
 	}
+
+	parts.unshift('this');
+	return {parts, root: node};
 };
 
 const stripGlobalObjectNames = parts => {

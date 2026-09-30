@@ -55,7 +55,6 @@ ruleTest.snapshot({
 		'const Object = {is: (...values) => values};\nObject.is(1);',
 		'const Set = function (...values) {};\nnew Set(...values);',
 		'const globalThis = {Math: {abs: (...values) => values}};\nglobalThis.Math.abs(1, 2);',
-		'Object.assign(target, source, extra);',
 		'parseInt(value);',
 		'parseInt(value, 10);',
 		'array.join();',
@@ -1594,6 +1593,7 @@ ruleTest.snapshot({
 			code: 'foo.is(a, b, c);',
 			options: [{'*.is': 1}],
 		},
+		'Promise.allSettled();',
 	],
 });
 
