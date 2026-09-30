@@ -60,6 +60,13 @@ ruleTest.snapshot({
 		'class Parser {parse(value) { return value; }}',
 		'class Parser {parse = value => value;}',
 		'const {parse = value => value} = object;',
+		// A destructuring default has no role a function declaration could take
+		{code: 'const {parse = function () {}} = object;', options: [{default: 'declaration'}]},
+		{code: 'const {parse = () => {}} = object;', options: [{default: 'arrow-function'}]},
+		{code: 'const {parse = function named() {}} = object;', options: [{default: 'declaration'}]},
+		{code: 'function f({parse = function () {}}) {}', options: [{default: 'declaration'}]},
+		// A parameter default is an `AssignmentPattern` too
+		{code: 'function f(parse = function () {}) {}', options: [{default: 'declaration'}]},
 		{
 			code: 'const object = {get parse() { return value; }, set parse(value) {}};',
 			options: [{objectProperties: 'method'}],

@@ -289,6 +289,8 @@ const create = context => {
 			(isDefaultExport(node) && !node.id && options.defaultExport === undefined)
 			|| isAccessorProperty(node)
 			|| isClassElementValue(node)
+			// A destructuring or parameter default, `const {parse = function () {}} = object`, has no role a function declaration could take, so no style applies
+			|| node.parent.type === 'AssignmentPattern'
 			|| isIife(node)
 			|| node.decorators?.length > 0
 			|| !node.body
