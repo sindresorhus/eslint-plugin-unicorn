@@ -105,3 +105,47 @@ test.snapshot({
 		`,
 	],
 });
+
+test.typescript({
+	valid: [
+		// A `let` binding is still not a `const` under `@typescript-eslint/parser`
+		outdent`
+			let blob = new Blob();
+			const file: File = new File([blob], "image.jpg");
+			URL.createObjectURL(file);
+		`,
+		outdent`
+			const blob = new Blob();
+			let file: File = new File([blob], "image.jpg");
+			URL.createObjectURL(file);
+		`,
+	],
+	invalid: [
+		{
+			code: outdent`
+				const blob = new Blob();
+				const file: File = new File([blob], "image.jpg");
+				URL.createObjectURL(file);
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const blob = new Blob();
+				const formData = new FormData();
+				const file: File = new File([blob], "image.jpg");
+				formData.append("file", file);
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const blob = new Blob();
+				const formData = new FormData();
+				const file: File = new File([blob], "image.jpg");
+				formData.set("file", file);
+			`,
+			errors: 1,
+		},
+	],
+});

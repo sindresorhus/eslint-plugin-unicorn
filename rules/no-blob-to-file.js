@@ -51,7 +51,8 @@ function getConstIdentifierDeclaration(node, context) {
 
 	if (
 		definition?.type === 'Variable'
-		&& definition.kind === 'const'
+		// `definition.kind` is undefined under `@typescript-eslint/parser`, but `definition.parent` is the `VariableDeclaration` under both parsers
+		&& definition.parent.kind === 'const'
 		&& declaration?.type === 'VariableDeclarator'
 	) {
 		return declaration;
