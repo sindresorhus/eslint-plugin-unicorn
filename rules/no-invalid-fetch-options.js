@@ -1,23 +1,25 @@
+import {getPropertyName} from '@eslint-community/eslint-utils';
 import {
 	isCallExpression,
 	isNewExpression,
 	isUndefined,
 	isNullLiteral,
 } from './ast/index.js';
-import {getStaticValueForControlFlow} from './utils/index.js';
+import {getStaticValueForControlFlow, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-invalid-fetch-options';
 const messages = {
 	[MESSAGE_ID_ERROR]: '"body" is not allowed when method is "{{method}}".',
 };
 
+// `'method'`, `['method']` and `[`method`]` are the same property
 const isObjectPropertyWithName = (node, name) =>
 	node.type === 'Property'
-	&& !node.computed
-	&& node.key.type === 'Identifier'
-	&& node.key.name === name;
+	&& getPropertyName(node) === name;
 
 function getFetchOptionsProblem(context, node) {
+	// `as`, `satisfies` and `!` are erased at compile time, the object literal is what runs
+	node = unwrapTypeScriptExpression(node);
 	if (node.type !== 'ObjectExpression') {
 		return;
 	}
@@ -37,13 +39,15 @@ function getFetchOptionsProblem(context, node) {
 		return;
 	}
 
-	const methodProperty = properties.findLast(property => isObjectPropertyWithName(property, 'method'));
-	// If `method` is omitted but there is a `SpreadElement`, we just ignore the case
-	if (!methodProperty) {
-		if (properties.some(node => node.type === 'SpreadElement')) {
-			return;
-		}
+	// A later `method` overwrites an earlier one, so the last one is the effective method
+	const methodIndex = properties.findLastIndex(property => isObjectPropertyWithName(property, 'method'));
+	const methodProperty = properties[methodIndex];
+	// A `SpreadElement` after `method` can replace it, so the method is not known. One before it cannot, a later own property wins.
+	if (properties.some((node, index) => node.type === 'SpreadElement' && index > methodIndex)) {
+		return;
+	}
 
+	if (!methodProperty) {
 		return {
 			node: bodyProperty.key,
 			messageId: MESSAGE_ID_ERROR,

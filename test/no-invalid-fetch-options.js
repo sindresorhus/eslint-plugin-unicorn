@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -67,6 +67,19 @@ test.snapshot({
 		'const modes = new Set(["foo"]); modes.clear(); new Request(url, {method: modes.size ? "HEAD" : "POST", body});',
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); fetch(url, {method: object.value ? "GET" : "POST", body});',
 		'fetch(url, {method: (sideEffect(), "GET"), body});',
+		// A quoted or computed key is the same property
+		outdent`
+			fetch(url, {
+				'method': 'POST',
+				body: 'x',
+			});
+		`,
+		outdent`
+			fetch(url, {
+				['method']: 'POST',
+				body: 'x',
+			});
+		`,
 	],
 	invalid: [
 		'fetch(url, {body})',
@@ -110,5 +123,54 @@ test.snapshot({
 				method: 'HEAD',
 			});
 		`,
+		// A quoted or computed key is the same property
+		'fetch(url, {[\'method\']: \'GET\', \'body\': \'x\'})',
+		'fetch(url, {[\'body\']: \'x\'})',
+		// A spread before `method` cannot replace it, a later own property wins
+		'fetch(url, {...options, method: "GET", body: "x"})',
+	],
+});
+
+// A `SpreadElement` after `method` can replace it, so the method is not known
+test({
+	valid: [
+		'fetch(url, {method: "GET", ...{method: "POST"}, body: "x"});',
+		'fetch(url, {method: "GET", ...options, body: "x"});',
+	],
+	invalid: [],
+});
+
+// `as`, `satisfies` and `!` are erased at compile time
+test({
+	valid: [],
+	invalid: [
+		...[
+			'fetch(url, {method: "GET", body: "x"} as RequestInit);',
+			'fetch(url, {method: "GET", body: "x"} satisfies RequestInit);',
+			'fetch(url, {method: "GET", body: "x"}!);',
+			'new Request(url, {method: "GET", body: "x"} as RequestInit);',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: 1})),
+	],
+});
+
+// `'method'`, `['method']` and `[`method`]` are the same property
+test({
+	valid: [
+		'fetch(url, {body: "x", [`method`]: "POST"});',
+		'new Request(url, {body: "x", [`method`]: "POST"});',
+	],
+	invalid: [
+		{
+			code: 'fetch(url, {[`body`]: "x", method: "GET"});',
+			errors: 1,
+		},
+		{
+			code: 'fetch(url, {body: "x", [`method`]: "GET"});',
+			errors: 1,
+		},
+		{
+			code: 'fetch(url, {[`body`]: "x", [`method`]: "GET"});',
+			errors: 1,
+		},
 	],
 });
