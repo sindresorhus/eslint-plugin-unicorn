@@ -16,18 +16,25 @@ Iterator helpers are lazy. Calling `toArray()` before helper methods like `map()
 
 ```js
 // ❌
-const result = iterator.toArray().map(fn);
+const result = iterator.toArray().map(element => element * 2);
 
 // ✅
-const result = iterator.map(fn).toArray();
+const result = iterator.map(element => element * 2).toArray();
 ```
 
 ```js
 // ❌
-const result = iterator.toArray().filter(fn);
+const result = iterator.toArray().filter(element => element > 1);
 
 // ✅
-const result = iterator.filter(fn).toArray();
+const result = iterator.filter(element => element > 1).toArray();
+```
+
+A named callback is not reported. `Array` callbacks receive the element, the index and the array, while `Iterator` callbacks receive only the element, so a callback that reads the third argument would stop working. A callback declared with one or two parameters is safe and is reported:
+
+```js
+// ✅ Not reported, its parameter list is not visible here
+const result = iterator.toArray().map(callback);
 ```
 
 Cases are reported as suggestions instead of autofixes because moving `toArray()` changes when callbacks run: `Array` methods run after the iterator has been exhausted, while `Iterator` helpers run lazily as the result is consumed. `Array` callbacks also receive an extra `array` argument that `Iterator` callbacks do not.
@@ -36,10 +43,31 @@ Cases are reported as suggestions instead of autofixes because moving `toArray()
 
 ```js
 // ❌
-const result = iterator.toArray().flatMap(fn);
+const result = iterator.toArray().flatMap(element => [element, element]);
 
 // ✅
-const result = iterator.flatMap(fn).toArray();
+const result = iterator.flatMap(element => [element, element]).toArray();
+```
+
+`toArray()` is also a common user-defined method name, so a receiver that is known not to be an `Iterator` is left alone. That covers a `const` bound to an object, an array, a literal, or an instance of a class declared in the same file:
+
+```js
+// ✅
+class Vector {
+	toArray() {
+		return [1, 2, 3];
+	}
+}
+
+const vector = new Vector();
+const result = vector.toArray().map(element => element * 2);
+```
+
+A bare call is not resolved, because `map.values()` is a call too, so a user-defined `toArray()` on a call result is still reported:
+
+```js
+// ❌
+const result = makeVector().toArray().map(element => element * 2);
 ```
 
 This rule only handles direct lazy helper equivalents. It intentionally does not convert `Array#slice()` to `Iterator#take()` or `Iterator#drop()`.

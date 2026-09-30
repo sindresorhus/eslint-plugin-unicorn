@@ -2,7 +2,9 @@ import {
 	getCallExpressionArgumentsText,
 	getCallExpressionTokens,
 	getParenthesizedText,
+	isParenthesized,
 } from './utils/index.js';
+import {isKnownNonIterator} from './shared/iterator-helpers.js';
 import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-iterator-to-array-at-end';
@@ -24,13 +26,23 @@ const isToArrayCall = node => isMethodCall(node, {
 	optionalMember: false,
 });
 
-const hasArrayParameter = node => (
-	node.type === 'ArrowFunctionExpression'
-	|| node.type === 'FunctionExpression'
-) && (
-	node.params.length > 2
-	|| node.params.some(parameter => parameter.type === 'RestElement')
-);
+// Array callbacks receive the `array` as a 3rd parameter, Iterator callbacks do not pass it
+const canObserveArrayArgument = (node, context) => {
+	// A callback that is not inline is opaque here, its parameter list is not visible, so it may read the third argument the rewrite would turn from an array into an iterator. This matches what `no-useless-iterator-to-array` does for the same shape.
+	if (node?.type !== 'ArrowFunctionExpression' && node?.type !== 'FunctionExpression') {
+		return true;
+	}
+
+	return (
+		node.params.length > 2
+		|| node.params.some(parameter => parameter.type === 'RestElement')
+		// A `FunctionExpression` also exposes the passed arguments
+		|| (
+			node.type === 'FunctionExpression'
+			&& context.sourceCode.getTokens(node).some(token => token.type === 'Identifier' && token.value === 'arguments')
+		)
+	);
+};
 
 const getReplacementText = (toArrayCall, methodCall, context, openingParenthesisToken) => {
 	const {sourceCode} = context;
@@ -46,6 +58,12 @@ const getReplacementText = (toArrayCall, methodCall, context, openingParenthesis
 
 const getFix = (toArrayCall, methodCall, context) => {
 	const {sourceCode} = context;
+
+	// The replacement text is rebuilt around the member access, so parentheses around it would be left behind without the code they wrapped
+	if (isParenthesized(methodCall.callee, context)) {
+		return;
+	}
+
 	const {
 		openingParenthesisToken,
 		closingParenthesisToken,
@@ -77,7 +95,9 @@ const create = context => {
 				optionalMember: false,
 			})
 			|| !isToArrayCall(node.callee.object)
-			|| hasArrayParameter(node.arguments[0])
+			// `node.callee.object` is the `toArray()` call, its own receiver is what matters
+			|| isKnownNonIterator(node.callee.object.callee.object, context)
+			|| canObserveArrayArgument(node.arguments[0], context)
 		) {
 			return;
 		}
