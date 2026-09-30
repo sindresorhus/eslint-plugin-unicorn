@@ -100,3 +100,20 @@ test.snapshot({
 		typeAware('class ValidationError extends Error {} const errors: ValidationError[] = [new ValidationError("Invalid name.")]; if (errors.length > 0) { throw new Error("Failed."); }'),
 	],
 });
+
+// `errors!.length` and `(errors as Error[]).length` are the same read
+test({
+	valid: [],
+	invalid: [
+		...[
+			'errors!.length > 0',
+			'(errors as Error[]).length > 0',
+			'errors.length as number > 0',
+		].map(condition => ({
+			code: `function f(errors: Error[]) {\n\tif (${condition}) {\n\t\tthrow new Error('Failed.');\n\t}\n}`,
+			output: `function f(errors: Error[]) {\n\tif (${condition}) {\n\t\tthrow new AggregateError(errors, 'Failed.');\n\t}\n}`,
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		})),
+	],
+});

@@ -294,15 +294,22 @@ function getLengthObject(node, context) {
 			property: 'length',
 			optional: false,
 		})
-		&& node.object.type === 'Identifier'
-		&& isErrorCollectionName(node.object.name)
-		&& isArray(node.object, context)
-		&& hasErrorCollectionEvidence(node.object, context)
 	)) {
 		return;
 	}
 
-	return node.object;
+	// `errors!.length` and `(errors as Error[]).length`, the wrappers have no runtime effect
+	const object = unwrapExpression(node.object);
+	if (
+		object.type !== 'Identifier'
+		|| !isErrorCollectionName(object.name)
+		|| !isArray(object, context)
+		|| !hasErrorCollectionEvidence(object, context)
+	) {
+		return;
+	}
+
+	return object;
 }
 
 const isNumberLiteral = (node, value) =>
