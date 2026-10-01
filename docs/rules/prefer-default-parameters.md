@@ -1,6 +1,6 @@
 # prefer-default-parameters
 
-📝 Prefer default parameters over reassignment.
+📝 Prefer default parameters and destructuring defaults over reassignment and fallback expressions.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -11,9 +11,37 @@
 
 Instead of reassigning a function parameter, default parameters should be used. This includes the `||=` and `??=` logical assignment operators. The `foo = foo || 123` statement evaluates to `123` when `foo` is falsy, possibly leading to confusing behavior, whereas default parameters only apply when passed an `undefined` value. This rule only reports reassignments to literal values.
 
-You should disable this rule if you want your functions to deal with `null` and other falsy values the same way as `undefined`. Default parameters are exclusively applied [when `undefined` is received.](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters#passing_undefined_vs._other_falsy_values). However, we recommend [moving away from `null`](https://github.com/sindresorhus/meta/discussions/7).
+The rule also prefers defaults for parameters and destructured variables when every read uses the same operator (`??` or `||`) and literal fallback (excluding regular expressions), and the variable is never reassigned. Plain parameters must be last. Local declarations must use `const` or `let` and must not be exported.
+
+You should disable this rule if you want your functions to deal with `null` and other falsy values the same way as `undefined`. Default parameters are exclusively applied [when `undefined` is received](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters#passing_undefined_vs._other_falsy_values). Destructuring defaults behave the same way, so the rule offers suggestions instead of autofixes. However, we recommend [moving away from `null`](https://github.com/sindresorhus/meta/discussions/7).
 
 ## Examples
+
+```js
+// ❌
+const fn = a => a ?? 3;
+
+// ✅
+const fn = (a = 3) => a;
+```
+
+```js
+// ❌
+const fn = ({a}) => a ?? 3;
+
+// ✅
+const fn = ({a = 3}) => a;
+```
+
+```js
+// ❌
+const [a] = arr;
+console.log(a ?? 3);
+
+// ✅
+const [a = 3] = arr;
+console.log(a);
+```
 
 ```js
 // ❌

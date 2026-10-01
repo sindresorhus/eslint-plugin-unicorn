@@ -77,6 +77,17 @@ const config = [
 	},
 	{
 		files: [
+			'rules/consistent-boolean-name.js',
+			'rules/no-loop-iterable-mutation.js',
+			'rules/prefer-math-constants.js',
+		],
+		rules: {
+			// Internal fallback expressions intentionally handle null and other falsy values.
+			'unicorn/prefer-default-parameters': 'off',
+		},
+	},
+	{
+		files: [
 			'rules/utils/global-reference-tracker.js',
 		],
 		rules: {

@@ -3,6 +3,9 @@ import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
+const MESSAGE_ID_PARAMETER_FALLBACK = 'preferDefaultParameterOverFallback';
+const MESSAGE_ID_DESTRUCTURING_FALLBACK = 'preferDestructuringDefaultOverFallback';
+const MESSAGE_ID_SUGGEST_DECLARATION = 'moveDefaultToDeclaration';
 
 const getDefaultAssignment = (left, right, operator = '=') => {
 	if (!left || !right || left.type !== 'Identifier') {
@@ -100,9 +103,8 @@ const needsParentheses = (sourceCode, function_) => {
 
 	const [parameter] = function_.params;
 	const before = sourceCode.getTokenBefore(parameter);
-	const after = sourceCode.getTokenAfter(parameter);
 
-	return !after || !before || before.value !== '(' || after.value !== ')';
+	return !before || before.value !== '(';
 };
 
 /**
@@ -137,6 +139,87 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 const create = context => {
 	const {sourceCode} = context;
 	const functionStack = [];
+	const reportedVariables = new Set();
+
+	const getDefaultReadProblem = (variable, node) => {
+		const [definition] = variable.defs;
+		if (
+			variable.defs.length !== 1
+			|| definition.node !== node
+			|| (definition.type !== 'Parameter' && definition.type !== 'Variable')
+			|| (definition.type === 'Variable' && (node.parent.kind === 'var' || node.parent.parent.type === 'ExportNamedDeclaration'))
+			|| reportedVariables.has(variable)
+		) {
+			return;
+		}
+
+		const binding = definition.name;
+		const isDestructuring = binding.parent.type === 'ArrayPattern'
+			|| (binding.parent.type === 'Property' && binding.parent.parent.type === 'ObjectPattern');
+
+		if (
+			!isDestructuring
+			&& (
+				definition.type !== 'Parameter'
+				|| node.params.at(-1) !== binding
+				|| (node.body.type === 'BlockStatement' && node.body.body.some(statement => statement.directive === 'use strict'))
+			)
+		) {
+			return;
+		}
+
+		const references = variable.references.filter(reference => !reference.init);
+		if (references.length === 0 || references.some(reference => !reference.isReadOnly())) {
+			return;
+		}
+
+		const expressions = references.map(reference => reference.identifier.parent);
+		const [firstExpression] = expressions;
+		if (expressions.some((expression, index) =>
+			expression.type !== 'LogicalExpression'
+			|| (expression.operator !== '??' && expression.operator !== '||')
+			|| expression.left !== references[index].identifier
+			|| expression.right.type !== 'Literal'
+			|| expression.right.regex
+			|| expression.operator !== firstExpression.operator
+			|| !Object.is(expression.right.value, firstExpression.right.value),
+		)) {
+			return;
+		}
+
+		return {
+			node: binding,
+			messageId: isDestructuring ? MESSAGE_ID_DESTRUCTURING_FALLBACK : MESSAGE_ID_PARAMETER_FALLBACK,
+			suggest: [{
+				messageId: MESSAGE_ID_SUGGEST_DECLARATION,
+				* fix(fixer, {abort}) {
+					if (
+						sourceCode.getCommentsInside(binding).length > 0
+						|| expressions.some(expression => sourceCode.getCommentsInside(expression).length > 0)
+					) {
+						return abort();
+					}
+
+					const typeAnnotationText = binding.typeAnnotation ? sourceCode.getText(binding.typeAnnotation) : '';
+					let replacement = `${binding.name}${typeAnnotationText} = ${sourceCode.getText(firstExpression.right)}`;
+					if (!isDestructuring && needsParentheses(sourceCode, node)) {
+						replacement = `(${replacement})`;
+					}
+
+					yield fixer.replaceText(binding, replacement);
+					for (const expression of expressions) {
+						yield fixer.replaceText(expression, sourceCode.getText(expression.left));
+					}
+				},
+			}],
+		};
+	};
+
+	function * getDefaultReadProblems(node) {
+		for (const variable of sourceCode.getDeclaredVariables(node)) {
+			yield getDefaultReadProblem(variable, node);
+		}
+	}
 
 	const getDefaultParameterProblem = (node, left, right, operator) => {
 		const currentFunction = functionStack.at(-1);
@@ -203,6 +286,7 @@ const create = context => {
 		const replacement = needsParentheses(sourceCode, currentFunction)
 			? `(${parameterText} = ${defaultValueText})`
 			: `${parameterText} = ${defaultValueText}`;
+		reportedVariables.add(variable);
 
 		return {
 			node,
@@ -228,9 +312,12 @@ const create = context => {
 		functionStack.push(node);
 	});
 
-	context.onExit(functionTypes, () => {
+	context.onExit(functionTypes, function * (node) {
 		functionStack.pop();
+		yield * getDefaultReadProblems(node);
 	});
+
+	context.onExit('VariableDeclarator', getDefaultReadProblems);
 
 	context.on('AssignmentExpression', node => {
 		if (node.parent.type === 'ExpressionStatement' && node.parent.expression === node) {
@@ -253,13 +340,16 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer default parameters over reassignment.',
+			description: 'Prefer default parameters and destructuring defaults over reassignment and fallback expressions.',
 			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
 			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.',
+			[MESSAGE_ID_PARAMETER_FALLBACK]: 'Prefer a default parameter over fallback expressions.',
+			[MESSAGE_ID_DESTRUCTURING_FALLBACK]: 'Prefer a destructuring default over fallback expressions.',
+			[MESSAGE_ID_SUGGEST_DECLARATION]: 'Move the default value to the declaration.',
 		},
 		languages: [
 			'js/js',
