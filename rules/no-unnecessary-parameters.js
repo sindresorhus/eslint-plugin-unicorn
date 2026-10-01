@@ -103,7 +103,7 @@ function getValue(node, context) {
 		return;
 	}
 
-	if (variable.defs.length !== 1 || variable.defs[0].type === 'ImportBinding' || variable.defs[0].kind === 'var') {
+	if (variable.defs.length !== 1 || variable.defs[0].kind === 'var' || !['Variable', 'FunctionName', 'ClassName', 'Parameter', 'CatchClause'].includes(variable.defs[0].type)) {
 		return;
 	}
 
@@ -324,6 +324,7 @@ function getLocalDefault(parameter, target, arguments_, context) {
 		!defaultNode
 		|| defaultNode.type !== 'Identifier'
 		|| parameter.propertyName !== undefined
+		|| reserved.has(parameter.identifier.name)
 		|| node.async
 		|| node.generator
 		|| node.params.at(-1) !== parameter.node
@@ -393,7 +394,8 @@ function canInlineValue(parameter, result, context) {
 	}
 
 	if (value.kind !== 'binding') {
-		return true;
+		// Legacy literals from non-strict scopes can become invalid in strict code.
+		return !value.node || sourceCode.getScope(value.node).isStrict || parameter.variable.references.every(reference => !sourceCode.getScope(reference.identifier).isStrict);
 	}
 
 	if (value.variable.defs.length === 0 || reserved.has(value.variable.name)) {
@@ -425,7 +427,7 @@ function canInlineValue(parameter, result, context) {
 
 	for (const reference of parameter.variable.references) {
 		const resolved = findVariable(sourceCode.getScope(reference.identifier), value.variable.name);
-		if (isRuntimeReference(reference) && resolved !== value.variable && resolved !== parameter.variable) {
+		if (resolved !== value.variable && resolved !== parameter.variable) {
 			return false;
 		}
 	}
@@ -584,7 +586,9 @@ function addVariableTarget(variable, scope, targets) {
 
 	const target = getTarget(targets, node);
 	target.variables.push(variable);
-	if (scope.type === 'global' || hasWrites(variable) || isExportedDefinition(definition) || definition.node.decorators?.length || node.parent.decorators?.length) {
+	// Non-strict block declarations can have outer aliases missing from scope references.
+	if (scope.type === 'global' || hasWrites(variable) || isExportedDefinition(definition) || definition.node.decorators?.length || node.parent.decorators?.length
+		|| (node.type === 'FunctionDeclaration' && !scope.isStrict && scope !== scope.variableScope)) {
 		target.excluded = true;
 	}
 

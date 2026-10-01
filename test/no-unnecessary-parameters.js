@@ -588,3 +588,86 @@ test('keeps delete operations on TypeScript-wrapped parameter references', t => 
 		t.is(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
 	}
 });
+
+test('keeps literals in their original strictness context', t => {
+	for (const literal of ['010', '08', '-010', '+010', String.raw`"\1"`, String.raw`"\8"`]) {
+		for (const [declaration, call, suffix] of [
+			['function format(value) { "use strict"; return value; }', 'format', ''],
+			['class Point { constructor(value) { this.value = value; } }', 'new Point', '.value'],
+			['function format(value) { return function read() { "use strict"; return value; }; }', 'format', '()'],
+			['function format(value) { return class Inner { static value = value; }; }', 'format', '.value'],
+		]) {
+			const code = `function outer() { ${declaration} return [${call}(${literal})${suffix}, ${call}(${literal})${suffix}]; } outer();`;
+			const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+			t.false(result.fixed);
+			t.is(result.output, code);
+			t.is(result.messages.length, 1);
+			t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+			t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+		}
+	}
+});
+
+test('keeps reserved parameter names out of local default declarations', t => {
+	for (const body of ['return let;', 'let++; return let;']) {
+		const code = `function outer() { function format(first, let = first) { ${body} } return [format(1), format(2)]; } outer();`;
+		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), body.startsWith('let++') ? '[2,3]' : '[1,2]');
+	}
+});
+
+test('ignores TypeScript bindings initialized by enum and namespace declarations', t => {
+	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
+	for (const declaration of ['enum Options { value }', 'namespace Options { export const value = 1; }']) {
+		for (const calls of [
+			`const callbacks = [format(Options), format(Options)]; ${declaration}`,
+			`const callbacks = [format(Options)]; ${declaration} callbacks.push(format(Options));`,
+		]) {
+			const code = `function format(value) { return () => value; } ${calls} callbacks.map(callback => callback());`;
+			const result = linter.verifyAndFix(code, typescriptConfig);
+			t.false(result.fixed);
+			t.is(result.output, code);
+			t.deepEqual(result.messages, []);
+		}
+	}
+});
+
+test('ignores sloppy block declarations with implicit outer aliases', t => {
+	for (const block of [
+		'{ function format(value) { return value; } results = [format(1), format(1)]; }',
+		'if (true) { function format(value) { return value; } results = [format(1), format(1)]; }',
+		'switch (1) { case 1: function format(value) { return value; } results = [format(1), format(1)]; }',
+	]) {
+		const code = `function outer() { let results; ${block} results.push(format(2)); return results; } outer();`;
+		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.deepEqual(result.messages, []);
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1,2]');
+	}
+});
+
+test('still fixes strict block declarations and sloppy block function expressions', t => {
+	for (const [declaration, directive] of [
+		['function format(value) { return value; }', '"use strict";'],
+		['const format = value => value;', ''],
+	]) {
+		const code = `function outer() { ${directive} { ${declaration} return [format(1), format(1)]; } } outer();`;
+		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+		t.true(result.fixed);
+		t.deepEqual(result.messages, []);
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	}
+});
+
+test('still fixes parameters receiving a stable catch binding', t => {
+	const code = 'try { throw 1; } catch (limit) { const format = value => value; [format(limit), format(limit)]; }';
+	const result = linter.verifyAndFix(code, config);
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+});
