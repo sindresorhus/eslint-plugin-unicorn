@@ -29,7 +29,12 @@ const vueWithTypeScriptParser = code => ({
 });
 
 test({
-	valid: [],
+	valid: [
+		typescript('const value: string & any = [1, 2]; const output = [0].flatMap(() => [value]);'),
+		typescript('type Unchecked = any; declare const value: number & Unchecked; array.flatMap(() => [value]);'),
+		typescript('declare const value: string | (number & any); array.flatMap(() => [value]);'),
+		typeAware('const value: string & any = [1, 2]; const output = [0].flatMap(() => [value]);'),
+	],
 	invalid: [
 		{
 			code: '[].flatMap(() => Math.random() ? [1] : [2, 3]);',
