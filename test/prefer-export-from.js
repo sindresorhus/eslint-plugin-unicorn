@@ -107,10 +107,6 @@ test.snapshot({
 		`,
 		outdent`
 			import defaultExport from 'foo';
-			export const variable = defaultExport;
-		`,
-		outdent`
-			import defaultExport from 'foo';
 			defaultExport.bar = 1;
 			export {defaultExport as named};
 			export {defaultExport as default};
@@ -715,6 +711,44 @@ test({
 			code: 'import * as namespace from "foo";\r\nexport {namespace};\r\n',
 			output: '\r\n\r\n\r\nexport * as namespace from "foo";',
 			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		// A comment in the removed import or export would be dropped
+		{
+			code: 'import {a} from "foo";\nexport {/* c1 */ a /* c2 */};',
+			errors: 1,
+		},
+		{
+			code: 'import {a /* c */} from "foo";\nexport {a};',
+			errors: 1,
+		},
+		{
+			// A comment outside both declarations is kept
+			code: 'import {a} from "foo";\n// c\nexport {a};',
+			output: '\n// c\n\nexport {a} from "foo";',
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		// A comment in the export declaration would be dropped
+		{
+			code: 'import {a, b} from "foo";\nexport {/* c */ a /* c */};\nuse(b);',
+			errors: 1,
+		},
+		// The suggestion would drop the comment too
+		{
+			code: 'import {a, b} from "foo";\nexport {/* c */ a};',
+			options: [{checkUsedVariables: false}],
+			errors: [{messageId: 'error', suggestions: []}],
 		},
 	],
 });

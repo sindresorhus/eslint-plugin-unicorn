@@ -358,23 +358,31 @@ function create(context) {
 							exported: exported.text,
 						},
 					};
-					const fix = getFixFunction({
-						context,
-						imported,
-						exported,
-						exportDeclarations,
-						program,
-					});
+					// The fix removes the import and export declarations, a comment in them would be dropped
+					const exportDeclaration = exported.node.type === 'ExportSpecifier'
+						? exported.node.parent
+						: exported.node;
+					const wouldRemoveComment = [imported.declaration, exportDeclaration]
+						.some(node => sourceCode.getCommentsInside(node).length > 0);
+					const fix = wouldRemoveComment
+						? undefined
+						: getFixFunction({
+							context,
+							imported,
+							exported,
+							exportDeclarations,
+							program,
+						});
 
-					if (shouldUseSuggestion) {
+					if (!shouldUseSuggestion) {
+						problem.fix = fix;
+					} else if (fix) {
 						problem.suggest = [
 							{
 								messageId: MESSAGE_ID_SUGGESTION,
 								fix,
 							},
 						];
-					} else {
-						problem.fix = fix;
 					}
 
 					yield problem;
