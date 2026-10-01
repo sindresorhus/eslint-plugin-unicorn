@@ -46,6 +46,14 @@ test.snapshot({
 		// Not direct iterable accepting usage.
 		'const values = [...foo, ...bar]',
 		'function foo() { return [...foo, ...bar] }',
+
+		// `Iterator.concat()` requires every argument to be an object. Spreading a string primitive works, passing the string itself throws.
+		'const a = "ae", b = "xy"; new Set([...a, ...b]);',
+		'new Set([..."ae", ..."xy"]);',
+		'new Set([...`ae`, ...`xy`]);',
+		'Array.from([...a, ...b]); const a = "ae", b = "xy";',
+		// One string among the spreads is enough
+		'new Set([...a, ...b]); const a = "ae", b = [1];',
 	],
 	invalid: [
 		// Constructors that accept iterables.
@@ -99,5 +107,9 @@ test.snapshot({
 		'new Set([/* comment */ ...foo, ...bar])',
 		'const a = new Set(); const b = new Set(); new Set([/* comment */ ...a, ...b])',
 		'Promise.all([/* comment */ ...foo, ...bar])',
+
+		// A spread that is not a string is still reported
+		'const a = [1], b = [2]; new Set([...a, ...b]);',
+		'Array.from([...[1], ...[2]]);',
 	],
 });

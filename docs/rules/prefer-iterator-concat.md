@@ -42,3 +42,10 @@ new Set([first, ...rest]);
 `for…of` and `yield*` cases are reported as suggestions instead of autofixes because replacing the array literal can change when later iterables are consumed.
 
 `Promise.{all,allSettled,any,race}(…)` cases are also reported as suggestions instead of autofixes because replacing the array literal can change a synchronous throw during array creation into an asynchronous rejection.
+
+A spread of a string is ignored. Spreading a string works, but `Iterator.concat()` throws for a string primitive.
+
+```js
+// ✅
+const letters = new Set([...'abc', ...'xyz']);
+```
