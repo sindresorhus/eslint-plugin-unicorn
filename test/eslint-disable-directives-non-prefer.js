@@ -60,6 +60,40 @@ for (const [name, ordinaryComment, directive] of [
 	});
 }
 
+test('no-empty-file handles adjacent Markdown comments', t => {
+	const linter = new Linter();
+	const ruleId = 'unicorn/no-empty-file';
+	const config = {
+		files: ['**/*.md'],
+		language: languages.markdown.language,
+		plugins: {...languages.markdown.plugins, unicorn},
+		linterOptions: {reportUnusedDisableDirectives: 'error'},
+	};
+	const verifyOptions = {filename: 'file.md'};
+	for (const separator of ['', ' ', '\n']) {
+		for (const allowComments of [false, true]) {
+			const ruleConfig = {...config, rules: {[ruleId]: ['error', {allowComments}]}};
+			const ordinaryComments = `<!-- First. -->${separator}<!-- Second. -->`;
+			const ordinaryMessages = linter.verify(ordinaryComments, ruleConfig, verifyOptions);
+			t.deepEqual(ordinaryMessages.map(message => message.ruleId), allowComments ? [] : [ruleId]);
+			const directives = `<!-- eslint-disable ${ruleId} -- Explanation. -->${separator}<!-- eslint-enable ${ruleId} -->`;
+			t.deepEqual(linter.verify(directives, ruleConfig, verifyOptions), []);
+			const suppressedMessages = linter.getSuppressedMessages();
+			t.is(suppressedMessages.length, 1);
+			t.is(suppressedMessages[0].ruleId, ruleId);
+			const unrelatedDirectives = directives.replaceAll(ruleId, 'no-alert');
+			const unrelatedMessages = linter.verify(unrelatedDirectives, {...ruleConfig, linterOptions: {reportUnusedDisableDirectives: 'off'}}, verifyOptions);
+			t.deepEqual(unrelatedMessages.map(message => message.ruleId), [ruleId]);
+			t.is(linter.getSuppressedMessages().length, 0);
+			const mixedComments = `<!-- eslint-disable ${ruleId} -->${separator}<!-- Explanation. -->`;
+			t.deepEqual(linter.verify(mixedComments, {...ruleConfig, linterOptions: {reportUnusedDisableDirectives: 'off'}}, verifyOptions), []);
+			t.is(linter.getSuppressedMessages().length, allowComments ? 0 : 1);
+			t.deepEqual(linter.verify(`${ordinaryComments} text`, ruleConfig, verifyOptions), []);
+			t.deepEqual(linter.verify(`${ordinaryComments}<div></div>`, ruleConfig, verifyOptions), []);
+		}
+	}
+});
+
 for (const [ruleName, template] of [
 	['no-blob-to-file', 'const blob = new Blob();\n@ const file = new File([blob], "x");\nURL.createObjectURL(file);'],
 	['default-export-style', 'function f() {}\n@ export default f;'],

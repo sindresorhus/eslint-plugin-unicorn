@@ -162,16 +162,33 @@ const create = context => {
 		return getProblem(context, node);
 	});
 
-	// Markdown file parsed by `@eslint/markdown`. Top-level content is in `children`; HTML comments appear as `html` nodes.
+	// Markdown file parsed by `@eslint/markdown`. Top-level content is in `children`; adjacent HTML comments may share an `html` node.
 	context.on('root', node => {
-		const isHtmlComment = child =>
-			child.type === 'html' && /^<!--(?:(?!-->)[\s\S])*-->$/.test(child.value.trim());
+		const comments = [];
+		for (const child of node.children) {
+			if (child.type !== 'html') {
+				return;
+			}
 
-		if (node.children.some(child => !isHtmlComment(child))) {
-			return;
+			const commentParts = child.value.split('-->');
+			if (commentParts.pop().trim() !== '') {
+				return;
+			}
+
+			let [offset] = context.sourceCode.getRange(child);
+			for (const part of commentParts) {
+				const trimmedPart = part.trimStart();
+				if (!trimmedPart.startsWith('<!--')) {
+					return;
+				}
+
+				const end = offset + part.length + 3;
+				comments.push({range: [offset + part.length - trimmedPart.length, end]});
+				offset = end;
+			}
 		}
 
-		if (allowComments && hasAllowedComments(context, node.children)) {
+		if (allowComments && hasAllowedComments(context, comments)) {
 			return;
 		}
 
