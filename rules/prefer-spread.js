@@ -5,6 +5,7 @@ import {
 	hasSideEffect,
 } from '@eslint-community/eslint-utils';
 import {
+	getConstVariableInitializer,
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -101,10 +102,43 @@ Check if node is a TypedArray/ArrayBuffer construction (new Uint8Array(...)).
 @returns {boolean}
 */
 function isTypedArrayConstruction(node) {
+	if (node.type === 'CallExpression' && !node.optional) {
+		// `Uint8Array.from(…)` / `Uint8Array.of(…)`
+		return (
+			node.callee.type === 'MemberExpression'
+			&& !node.callee.computed
+			&& !node.callee.optional
+			&& node.callee.object.type === 'Identifier'
+			&& typedArrayConstructors.has(node.callee.object.name)
+			&& (node.callee.property.name === 'from' || node.callee.property.name === 'of')
+		);
+	}
+
 	return (
 		node.type === 'NewExpression'
 		&& node.callee.type === 'Identifier'
 		&& typedArrayConstructors.has(node.callee.name)
+	);
+}
+
+// `ArrayBuffer` and `DataView` are array-like but not iterable, `Array.from()` accepts them
+const nonIterableConstructors = new Set([
+	'ArrayBuffer',
+	'SharedArrayBuffer',
+	'DataView',
+]);
+
+/**
+Check if node is a construction of something that cannot be spread (new ArrayBuffer(...)).
+
+@param {import('estree').Node} node
+@returns {boolean}
+*/
+function isNonIterableConstruction(node) {
+	return (
+		node.type === 'NewExpression'
+		&& node.callee.type === 'Identifier'
+		&& nonIterableConstructors.has(node.callee.name)
 	);
 }
 
@@ -121,13 +155,7 @@ const isPreferIteratorConcatArrayLiteral = node =>
 	&& node.elements.length >= 2
 	&& node.elements.every(element => element?.type === 'SpreadElement')
 	&& node.elements.every(element => !isToArrayCall(element.argument));
-const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
-	if (isEmptyArrayExpression(node)) {
-		return false;
-	}
-
-	return isCommaToken(sourceCode.getLastToken(node, 1));
-};
+const isArrayLiteralHasTrailingComma = (node, sourceCode) => !isEmptyArrayExpression(node) && isCommaToken(sourceCode.getLastToken(node, 1));
 
 const isStaticString = (node, context) => {
 	const staticValue = getStaticValueIfNoSideEffects(node, context);
@@ -181,11 +209,7 @@ function fixConcat(node, context, fixableArguments) {
 		let text = nonEmptyArguments
 			.map(({node, isArrayLiteral, isSpreadable, testArgument}) => {
 				if (isArrayLiteral) {
-					if (isArrayLiteralOuterCommentsPreservable(node, context)) {
-						return `...${getParenthesizedText(node, context)}`;
-					}
-
-					return getArrayLiteralElementsText(node, node === lastArgument.node);
+					return isArrayLiteralOuterCommentsPreservable(node, context) ? `...${getParenthesizedText(node, context)}` : getArrayLiteralElementsText(node, node === lastArgument.node);
 				}
 
 				let text = getParenthesizedText(node, context);
@@ -272,11 +296,7 @@ function fixConcat(node, context, fixableArguments) {
 }
 
 const getConcatArgumentSpreadable = (node, context) => {
-	if (node.type === 'SpreadElement') {
-		return;
-	}
-
-	if (isArrayConstructorWithOneArgument(node, context)) {
+	if (node.type === 'SpreadElement' || isArrayConstructorWithOneArgument(node, context)) {
 		return;
 	}
 
@@ -720,6 +740,9 @@ function isKnownNonArrayCall(node, context) {
 }
 
 function isKnownNonArrayConstruction(node, context) {
+	// A receiver written as a variable is as non-array as the expression it was bound to. Only one level is resolved, as `const a = a` would otherwise never end.
+	node = getConstVariableInitializer(node, context) ?? node;
+
 	if (
 		node.type !== 'NewExpression'
 		|| node.callee.type !== 'Identifier'
@@ -824,11 +847,7 @@ function hasWriteBeforeNode(startNode, endNode, context) {
 		}
 
 		const [nodeStart, nodeEnd] = sourceCode.getRange(node);
-		if (nodeEnd <= start || nodeStart >= end) {
-			return false;
-		}
-
-		if (isFunction(node)) {
+		if (nodeEnd <= start || nodeStart >= end || isFunction(node)) {
 			return false;
 		}
 
@@ -912,11 +931,7 @@ function isNotArrayByArrayIsArrayTest(node, context) {
 			? ancestor.consequent
 			: ancestor.alternate;
 
-		if (!nonArrayBranch || !isDescendantOf(node, nonArrayBranch)) {
-			continue;
-		}
-
-		if (hasWriteBeforeNode(nonArrayBranch, node, context)) {
+		if (!nonArrayBranch || !isDescendantOf(node, nonArrayBranch) || hasWriteBeforeNode(nonArrayBranch, node, context)) {
 			continue;
 		}
 
@@ -933,6 +948,8 @@ function isNotArray(node, context) {
 		node.type === 'TemplateLiteral'
 		|| node.type === 'Literal'
 		|| node.type === 'BinaryExpression'
+		// `super` is not a value, `[...super]` does not parse
+		|| node.type === 'Super'
 		|| isClassName(node)
 		// `foo.join(…)`
 		|| isMethodNamed(node, 'join')
@@ -973,11 +990,7 @@ function getConcatReceiverArrayState(node, context) {
 	}
 
 	const annotationState = getReceiverAnnotationArrayState(node, context);
-	if (annotationState !== undefined) {
-		return annotationState;
-	}
-
-	return getSyntacticReceiverArrayState(unwrapReceiverReference(node), context);
+	return annotationState === undefined ? getSyntacticReceiverArrayState(unwrapReceiverReference(node), context) : annotationState;
 }
 
 const getEmptyArrayDeclaration = node => {
@@ -1286,6 +1299,10 @@ const create = context => {
 			// Allow `Array.from({length})`
 			&& node.arguments[0].type !== 'ObjectExpression'
 			&& !getArrayRangeLength(node.arguments[0], context)
+			// `Array.from(5)` is `[]` but `[...5]` throws, only a string is a known iterable
+			&& !(node.arguments[0].type === 'Literal' && typeof node.arguments[0].value !== 'string')
+			// `Array.from(new ArrayBuffer(8))` is `[]` but `[…new ArrayBuffer(8)]` throws
+			&& !isNonIterableConstruction(node.arguments[0])
 			&& !isPreferIteratorConcatArrayLiteral(node.arguments[0])
 		)) {
 			return;
@@ -1309,11 +1326,7 @@ const create = context => {
 			method: 'concat',
 			optionalCall: false,
 			optionalMember: false,
-		})) {
-			return;
-		}
-
-		if (isArrayConcatInLoopCall(node, context)) {
+		}) || isArrayConcatInLoopCall(node, context)) {
 			return;
 		}
 
@@ -1354,15 +1367,7 @@ const create = context => {
 		}
 
 		const [firstArgument, ...restArguments] = node.arguments;
-		if (firstArgument.type === 'SpreadElement') {
-			return problem;
-		}
-
-		if (!isReceiverSafeToSpread) {
-			return problem;
-		}
-
-		if (isArrayConstructorWithOneArgument(firstArgument, context)) {
+		if (firstArgument.type === 'SpreadElement' || !isReceiverSafeToSpread || isArrayConstructorWithOneArgument(firstArgument, context)) {
 			return problem;
 		}
 
@@ -1433,11 +1438,12 @@ const create = context => {
 			return;
 		}
 
-		if (isNodeMatches(node.callee.object, ignoredSliceCallee)) {
-			return;
-		}
-
-		if (isNotArray(node.callee.object, context)) {
+		// `.slice()` only exists on an array, so a receiver known not to be one cannot be sliced
+		if (
+			isNodeMatches(node.callee.object, ignoredSliceCallee)
+			|| isNotArray(node.callee.object, context)
+			|| isKnownNonArrayConstruction(node.callee.object, context)
+		) {
 			return;
 		}
 
@@ -1466,7 +1472,14 @@ const create = context => {
 			argumentsLength: 0,
 			optionalCall: false,
 			optionalMember: false,
-		}) || node.callee.object.type === 'ArrayExpression' || hasUnparenthesizedOptionalChainElement(node.callee.object, context)) {
+		}) || (
+			node.callee.object.type === 'ArrayExpression'
+			// Same hazard as `Array#slice()` above
+			|| isTypedArrayConstruction(node.callee.object)
+			|| isNodeMatches(node.callee.object, ignoredSliceCallee)
+			|| isNotArray(node.callee.object, context)
+			|| isKnownNonArrayConstruction(node.callee.object, context)
+		) || hasUnparenthesizedOptionalChainElement(node.callee.object, context)) {
 			return;
 		}
 

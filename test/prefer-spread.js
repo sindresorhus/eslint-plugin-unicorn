@@ -296,6 +296,10 @@ ruleTest.snapshot({
 		'Array.from(set, () => {}, thisArg).reduce(() => {});',
 		// FirstArgument is `ObjectExpression`
 		'Array.from({length: 10});',
+		// Not iterable, so `[...value]` throws where `Array.from(value)` does not
+		'Array.from(new ArrayBuffer(8));',
+		'Array.from(new SharedArrayBuffer(8));',
+		'Array.from(new DataView(new ArrayBuffer(8)));',
 		// `prefer-array-from-range` handles range arrays.
 		'Array.from(Array(length).keys());',
 		'Array.from(new Array(length).keys());',
@@ -749,9 +753,7 @@ ruleTest.snapshot({
 		// Semicolon
 		'if (test) foo.concat(1)',
 		'if (test) {} else foo.concat(1)',
-		'if (test) {} else foo.concat(1)',
 		'for (;;) foo.concat(1)',
-		'for (a in b) foo.concat(1)',
 		'for (a in b) foo.concat(1)',
 		'for (const a of b) foo.concat(1)',
 		'while (test) foo.concat(1)',
@@ -998,6 +1000,10 @@ ruleTest.snapshot({
 		'array.toSpliced(0, array.length)',
 		'array.toSpliced(0, 0)',
 		'array.notToSpliced()',
+		// A string has no `toSpliced()`, so spreading it would turn a `TypeError` into an array
+		'"".toSpliced()',
+		'"abc".toSpliced()',
+		'`abc`.toSpliced()',
 		// Why would someone write these
 		'[...foo].toSpliced()',
 		'[foo].toSpliced()',
@@ -1019,9 +1025,6 @@ ruleTest.snapshot({
 			bar()
 			foo.toSpliced()
 		`,
-		// `{String,TypedArray}#toSpliced` are wrongly detected
-		'"".toSpliced()',
-		'new Uint8Array([10, 20, 30, 40, 50]).toSpliced()',
 		// Comments inside should prevent autofix
 		'array.toSpliced(/* comment */)',
 	],
@@ -1070,4 +1073,79 @@ ruleTest.snapshot({
 		},
 	],
 	invalid: [],
+});
+
+// Spreading a typed array converts it to a plain array
+ruleTest({
+	valid: [
+		'new Uint8Array([10, 20, 30, 40, 50]).toSpliced()',
+		'new Uint8Array(3).toSpliced()',
+		'Uint8Array.from([1, 2, 3]).slice()',
+		'Uint8Array.of(1, 2).slice()',
+		'Float64Array.from([1]).slice()',
+		'new Uint8Array(3).slice()',
+	],
+	invalid: [
+		{
+			code: 'items.toSpliced()',
+			output: '[...items]',
+			errors: 1,
+		},
+	],
+});
+
+// `Array.from()` accepts a non-iterable, spreading one throws
+ruleTest({
+	valid: [
+		'const a = Array.from(5);',
+		'const a = Array.from(null);',
+		'const a = Array.from(true);',
+		'const a = Array.from(1n);',
+	],
+	invalid: [
+		{
+			code: 'const a = Array.from(\'abc\');',
+			output: 'const a = [...\'abc\'];',
+			errors: 1,
+		},
+	],
+});
+
+// `.slice()` and `.toSpliced()` only exist on an array, so a receiver known not to be one must not be spread
+ruleTest({
+	valid: [
+		// `super` is not a value, `[...super]` does not parse
+		'class A extends Array { b() { return super.slice(); } }',
+		'class A extends Array { b() { return super.concat(1); } }',
+		'class A extends Array { b() { return super.toSpliced(); } }',
+		'class A { b() { return super.slice(); } }',
+		'new Set([1, 2]).slice();',
+		'const set = new Set([1, 2]); set.slice();',
+		'const map = new Map(); map.slice();',
+		'const set = new Set([1, 2]); set.toSpliced();',
+		'const set = new Set([1, 2]); set.concat(1);',
+	],
+	invalid: [
+		{
+			code: 'const array = [1, 2]; array.slice();',
+			output: 'const array = [1, 2]; [...array];',
+			errors: 1,
+		},
+		{
+			code: 'const array = [1, 2]; array.toSpliced();',
+			output: 'const array = [1, 2]; [...array];',
+			errors: 1,
+		},
+		// A `const` initialized with itself must not be resolved forever
+		{
+			code: 'const a = a; a.slice();',
+			output: 'const a = a; [...a];',
+			errors: 1,
+		},
+		{
+			code: 'const a = b, b = a; a.slice();',
+			output: 'const a = b, b = a; [...a];',
+			errors: 1,
+		},
+	],
 });

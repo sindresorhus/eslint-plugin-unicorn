@@ -18,6 +18,14 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 	This rule adds on to the built-in [prefer-spread](https://eslint.org/docs/rules/prefer-spread) rule, which only flags uses of `.apply()`. Does not enforce for `TypedArray.from()`.
 	Multi-spread array literals like `Array.from([...foo, ...bar])` are handled by [`prefer-iterator-concat`](./prefer-iterator-concat.md).
 
+	`Array.from()` also accepts an array-like, which the spread operator does not, so the argument has to be iterable for the rewrite to work. A number, a boolean, a `new ArrayBuffer(…)` and a `new DataView(…)` are already skipped, and a value behind an identifier cannot be checked:
+
+	```js
+	const arrayLike = {0: 'a', length: 1};
+	Array.from(arrayLike); // ['a']
+	[...arrayLike]; // TypeError: arrayLike is not iterable
+	```
+
 - `Array#concat(…)`
 
 	Concat an `Array` with one or more `Array`s or `Array` elements.
