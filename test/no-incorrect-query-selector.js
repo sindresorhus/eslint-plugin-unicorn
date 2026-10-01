@@ -137,3 +137,46 @@ test.snapshot({
 		'const element = document.querySelector(".item"); element === undefined;',
 	],
 });
+
+// The whole test expression is replaced by the text of the checked node, so a comment in the test outside that node would be deleted, and one right after the test would end up after the new condition. A comment inside the checked node is kept, and a comment in the body is not affected.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (document.querySelectorAll(/* c */ a)) {}',
+			output: 'if (document.querySelectorAll(/* c */ a).length > 0) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (!/* c */ document.querySelectorAll(a)) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (document.querySelectorAll(a) /* c */) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (document.querySelectorAll(a) // c\n) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (document.querySelectorAll(a)) {\n\t// c\n\tfoo();\n}',
+			output: 'if (document.querySelectorAll(a).length > 0) {\n\t// c\n\tfoo();\n}',
+			errors: 1,
+		},
+		{
+			code: 'const elements = document.querySelectorAll(a);\nif (!elements) {\n\t// c\n}',
+			output: 'const elements = document.querySelectorAll(a);\nif (elements.length === 0) {\n\t// c\n}',
+			errors: 1,
+		},
+		{
+			code: 'const elements = document.querySelectorAll(a);\nif (!(/* c */ elements)) {}',
+			errors: 1,
+		},
+		{
+			code: 'const elements = document.querySelectorAll(a);\nif ((/* c */ elements)) {}',
+			output: 'const elements = document.querySelectorAll(a);\nif ((/* c */ elements.length > 0)) {}',
+			errors: 1,
+		},
+	],
+});

@@ -7,6 +7,7 @@ import {
 	isControlFlowTest,
 	isLeftHandSide,
 	isNodeValueNotDomNode,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {
 	isLiteral,
@@ -98,18 +99,6 @@ const hasCommentsInAccess = (node, querySelectorAllCall, sourceCode, context) =>
 	});
 };
 
-const hasCommentsBetween = (outerNode, innerNode, sourceCode) => {
-	const [outerStart, outerEnd] = sourceCode.getRange(outerNode);
-	const [innerStart, innerEnd] = sourceCode.getRange(innerNode);
-
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= outerStart
-			&& commentEnd <= outerEnd
-			&& (commentEnd <= innerStart || commentStart >= innerEnd);
-	});
-};
-
 const isSimpleIdSelector = selector => /^#[\-A-Z_a-z][\w\-]*$/v.test(selector);
 
 const getCallFromIdentifier = (node, sourceCode, isCall) => {
@@ -135,13 +124,8 @@ const getCallFromIdentifier = (node, sourceCode, isCall) => {
 	return definition.node.init;
 };
 
-const getQuerySelectorAllCallForLengthCheck = (node, sourceCode) => {
-	if (isQuerySelectorAllCall(node)) {
-		return node;
-	}
-
-	return getCallFromIdentifier(node, sourceCode, isQuerySelectorAllCall);
-};
+const getQuerySelectorAllCallForLengthCheck = (node, sourceCode) =>
+	isQuerySelectorAllCall(node) ? node : getCallFromIdentifier(node, sourceCode, isQuerySelectorAllCall);
 
 // Parent types from which `getBooleanAncestor` can climb or `isControlFlowTest` can be true. Any other parent means the identifier is not a control-flow test.
 const controlFlowTestParentTypes = new Set([
@@ -177,7 +161,8 @@ const getLengthCheckProblem = (node, context) => {
 	return {
 		node,
 		messageId: MESSAGE_ID_LENGTH_CHECK,
-		fix: hasCommentsBetween(booleanAncestor, node, sourceCode)
+		// The whole ancestor is replaced by the text of `node`, so a comment elsewhere in it would be deleted, and one right after it would end up after the new condition instead of after the call it documents
+		fix: wouldRemoveComments(context, booleanAncestor, [node]) || sourceCode.getCommentsAfter(booleanAncestor).length > 0
 			? undefined
 			: fixer => fixer.replaceText(booleanAncestor, `${text}.length ${isNegative ? '=== 0' : '> 0'}`),
 	};
@@ -298,16 +283,18 @@ const create = context => {
 		}
 
 		if (
-			isQuerySelectorAllCall(node)
-			&& !isQuerySelectorAllCallPartOfFirstElementAccess(node)
+			!isQuerySelectorAllCall(node)
+			|| isQuerySelectorAllCallPartOfFirstElementAccess(node)
 		) {
-			const selector = getStaticStringValue(node.arguments[0]);
-			if (isSimpleIdSelector(selector)) {
-				return {
-					node: node.callee.property,
-					messageId: MESSAGE_ID_ID_SELECTOR,
-				};
-			}
+			return;
+		}
+
+		const selector = getStaticStringValue(node.arguments[0]);
+		if (isSimpleIdSelector(selector)) {
+			return {
+				node: node.callee.property,
+				messageId: MESSAGE_ID_ID_SELECTOR,
+			};
 		}
 	});
 
