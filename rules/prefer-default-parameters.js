@@ -147,6 +147,7 @@ const create = context => {
 			variable.defs.length !== 1
 			|| definition.node !== node
 			|| (definition.type !== 'Parameter' && definition.type !== 'Variable')
+			|| (definition.type === 'Variable' && (node.parent.kind === 'var' || node.parent.parent.type === 'ExportNamedDeclaration'))
 			|| reportedVariables.has(variable)
 		) {
 			return;

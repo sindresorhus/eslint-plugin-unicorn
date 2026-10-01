@@ -37,14 +37,24 @@ test.snapshot({
 		'const [a = 1] = arr; console.log(a ?? 3);',
 		'const {...a} = options; console.log(a ?? 3);',
 		'var [a] = arr; var a; console.log(a ?? 3);',
+		'var [a] = arr; console.log(a ?? 3);',
+		'console.log(a ?? 3); var [a] = [undefined];',
+		'if (false) { var {a} = options; } console.log(a ?? 3);',
+		'for (var [a] of []) {} console.log(a ?? 3);',
 		'const fn = a => { { const a = 1; console.log(a ?? 3); } return a; };',
 		'const {a} = options; export {a}; console.log(a ?? 3);',
+		'export const {a} = options; console.log(a ?? 3);',
+		'export let [a] = arr; console.log(a ?? 3);',
 		{
 			code: 'function fn(a, a) { return a ?? 3; }',
 			languageOptions: {sourceType: 'script'},
 		},
 		{
 			code: 'const fn = (a: number | undefined) => (a as number) ?? 3;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'class Class { constructor(public a?: number) { console.log(a ?? 3); } }',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
@@ -139,6 +149,7 @@ test.snapshot({
 			code: 'const fn = <Value,>(a: number | undefined) => <span>{a ?? 3}</span>;',
 			languageOptions: {parser: parsers.typescript, parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
+		'const fn = a => a ?? (3 /* Keep comment. */);',
 	],
 });
 

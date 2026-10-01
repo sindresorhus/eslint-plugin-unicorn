@@ -36,8 +36,6 @@ const config = [
 			'unicorn/escape-case': 'off',
 			'unicorn/prefer-unicode-code-point-escapes': 'off',
 			'unicorn/prefer-short-escape-sequences': 'off',
-			// Internal fallback expressions intentionally handle null and other falsy values.
-			'unicorn/prefer-default-parameters': 'off',
 			// Buggy
 			'unicorn/custom-error-definition': 'off',
 			'unicorn/consistent-function-scoping': 'off',
@@ -75,6 +73,17 @@ const config = [
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',
+		},
+	},
+	{
+		files: [
+			'rules/consistent-boolean-name.js',
+			'rules/no-loop-iterable-mutation.js',
+			'rules/prefer-math-constants.js',
+		],
+		rules: {
+			// Internal fallback expressions intentionally handle null and other falsy values.
+			'unicorn/prefer-default-parameters': 'off',
 		},
 	},
 	{
