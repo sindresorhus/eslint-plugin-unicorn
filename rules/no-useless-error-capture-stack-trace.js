@@ -77,11 +77,12 @@ const create = context => {
 		thisScopeStack.pop();
 	});
 
-	context.on(['FunctionDeclaration', 'FunctionExpression'], functionNode => {
+	// An arrow function keeps the constructor's `this`, but it can run long after the constructor returned, and the call then re-captures the stack instead of being a redundant repeat
+	context.on(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'], functionNode => {
 		thisScopeStack.push(functionNode);
 	});
 
-	context.onExit(['FunctionDeclaration', 'FunctionExpression'], () => {
+	context.onExit(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'], () => {
 		thisScopeStack.pop();
 	});
 
@@ -123,6 +124,8 @@ const create = context => {
 		if (
 			maybeExpressionStatement.type === 'ExpressionStatement'
 			&& maybeExpressionStatement.parent.type === 'BlockStatement'
+			// The whole statement is removed, so a comment inside it would be lost
+			&& context.sourceCode.getCommentsInside(maybeExpressionStatement).length === 0
 		) {
 			problem.fix = fixer => fixer.remove(maybeExpressionStatement);
 		}

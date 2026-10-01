@@ -99,6 +99,38 @@ test.snapshot({
 				}
 			}
 		`,
+		// The call runs after the constructor returned, so it does re-capture the stack
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					setTimeout(() => Error.captureStackTrace(this, MyError))
+				}
+			}
+		`,
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					const foo = () => Error.captureStackTrace(this, MyError)
+				}
+			}
+		`,
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					const foo = () => {
+						Error.captureStackTrace(this, MyError)
+					}
+				}
+			}
+		`,
+		// An immediately invoked arrow function runs in the constructor, but it is ignored like any other arrow function
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					(async () => Error.captureStackTrace(this, MyError))()
+				}
+			}
+		`,
 	],
 	invalid: [
 		...[
@@ -125,23 +157,7 @@ test.snapshot({
 		outdent`
 			class MyError extends Error {
 				constructor() {
-					const foo = () => {
-						Error.captureStackTrace(this, MyError)
-					}
-				}
-			}
-		`,
-		outdent`
-			class MyError extends Error {
-				constructor() {
 					if (a) Error.captureStackTrace(this, MyError)
-				}
-			}
-		`,
-		outdent`
-			class MyError extends Error {
-				constructor() {
-					const x = () => Error.captureStackTrace(this, MyError)
 				}
 			}
 		`,
@@ -191,4 +207,38 @@ test.snapshot({
 		`,
 	],
 	invalid: [],
+});
+
+// The whole statement is removed, so a comment inside it would be lost
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				class MyError extends Error {
+					constructor() {
+						Error.captureStackTrace(/* keep */ this, MyError)
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				class MyError extends Error {
+					constructor() {
+						Error.captureStackTrace(this, MyError) // keep
+					}
+				}
+			`,
+			output: outdent`
+				class MyError extends Error {
+					constructor() {
+						 // keep
+					}
+				}
+			`,
+			errors: 1,
+		},
+	],
 });
