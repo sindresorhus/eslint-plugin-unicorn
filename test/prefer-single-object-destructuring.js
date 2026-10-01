@@ -298,6 +298,17 @@ testRule({
 			output: 'function useFoo() {\r\n  const {bar} = getFoo({\r\n    bar: 1,\r\n  });\r\n}',
 			errors: [{messageId: 'prefer-direct-object-destructuring'}],
 		},
+		{
+			code: 'const foo = ((getFoo() as Foo) satisfies Foo)!; const {bar} = foo;',
+			output: 'const {bar} = ((getFoo() as Foo) satisfies Foo)!;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-direct-object-destructuring'}],
+		},
+		{
+			code: 'const foo = getFoo();\nconst {bar} = foo; // trailing\nconsume(bar);',
+			output: 'const {bar} = getFoo(); // trailing\nconsume(bar);',
+			errors: [{messageId: 'prefer-direct-object-destructuring'}],
+		},
 	],
 });
 
@@ -308,6 +319,16 @@ test('merges destructurings and inlines their source across fix passes', t => {
 	t.true(result.fixed);
 	t.deepEqual(result.messages, []);
 	t.is(result.output, 'const {bar, baz} = getFoo();');
+	t.false(linter.verifyAndFix(result.output, ruleConfig).fixed);
+});
+
+test('inlines chained source aliases across fix passes', t => {
+	const linter = new Linter();
+	const result = linter.verifyAndFix('const original = getFoo();\nconst source = original;\nconst {bar} = source;', ruleConfig);
+
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, 'const {bar} = getFoo();');
 	t.false(linter.verifyAndFix(result.output, ruleConfig).fixed);
 });
 
