@@ -8,7 +8,6 @@ import {
 	getLineIndent,
 	getParenthesizedRange,
 	hasCommentInRange,
-	isParenthesized,
 	isShorthandPropertyValue,
 	isTypeScriptFile,
 	needsSemicolon,
@@ -290,7 +289,7 @@ function getParameterValue(parameter, arguments_, context) {
 function getParameterRemoval(parameter, context) {
 	const {sourceCode} = context;
 	const functionNode = parameter.node.parent;
-	if (functionNode.type === 'ArrowFunctionExpression' && functionNode.params.length === 1 && !isParenthesized(parameter.node, context)) {
+	if (functionNode.type === 'ArrowFunctionExpression' && functionNode.params.length === 1 && sourceCode.getTokenAfter(parameter.node).value === '=>') {
 		return {removalRange: sourceCode.getRange(parameter.node), replacement: '()'};
 	}
 

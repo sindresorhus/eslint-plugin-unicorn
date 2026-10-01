@@ -971,3 +971,19 @@ test('requires manual fixes for TypeScript filenames without parser services', t
 		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 	}
 });
+
+test('preserves arrow parameter parentheses and trailing commas', async t => {
+	const results = [];
+	for (const parameter of ['value', '(value)', '(value,)', '(value = 1,)', 'async value', 'async (value,)', 'async (value = 1,)']) {
+		const code = `const format = ${parameter} => value; [format(1,), format(1,)];`;
+		const result = linter.verifyAndFix(code, config);
+		t.true(result.fixed);
+		t.deepEqual(result.messages, []);
+		t.is(result.output, `const format = ${parameter.startsWith('async') ? 'async ' : ''}() => 1; [format(), format()];`);
+		results.push(Promise.all(vm.runInNewContext(result.output)));
+	}
+
+	for (const values of await Promise.all(results)) {
+		t.is(JSON.stringify(values), '[1,1]');
+	}
+});
