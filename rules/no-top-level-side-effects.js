@@ -85,6 +85,25 @@ const create = context => {
 			messageId: MESSAGE_ID,
 		};
 	});
+
+	// `export default init()` runs at module evaluation time just like a bare expression does
+	context.on('ExportDefaultDeclaration', node => {
+		const {declaration} = node;
+		if (
+			!shouldCheck
+			|| (declaration.type === 'FunctionDeclaration' || declaration.type === 'ClassDeclaration')
+			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
+			|| isAllowedAssignment(declaration)
+			|| !hasTopLevelSideEffect(declaration, sourceCode)
+		) {
+			return;
+		}
+
+		return {
+			node: declaration,
+			messageId: MESSAGE_ID,
+		};
+	});
 };
 
 /**

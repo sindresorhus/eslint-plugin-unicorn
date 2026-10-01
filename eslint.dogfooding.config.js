@@ -86,6 +86,15 @@ const config = [
 	},
 	{
 		files: [
+			'test/integration/projects.js',
+		],
+		rules: {
+			// The project list is built when the module is loaded.
+			'unicorn/no-top-level-side-effects': 'off',
+		},
+	},
+	{
+		files: [
 			'test/package.js',
 			'test/unit/boolean.js',
 		],

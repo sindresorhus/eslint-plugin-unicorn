@@ -208,3 +208,26 @@ test.snapshot({
 		typescriptCode('export {}; (tag`value`) as string;'),
 	],
 });
+
+// `export default init()` runs at module evaluation time just like a bare expression
+test({
+	valid: [
+		'export default {};',
+		'export default function () {};',
+		'export default class {};',
+		'const x = 1;\nexport default x;',
+		// The assignment exception applies to a default-exported assignment too
+		'export default value = init();',
+		// A class declaration is a declaration, even with a side-effecting `extends`
+		'export default class extends init() {}',
+	],
+	invalid: [
+		...[
+			'export default init();',
+			'export default new App();',
+			'export default (function () { init(); })();',
+			'export default (class extends init() {});',
+			'export default init`value`;',
+		].map(code => ({code, errors: 1})),
+	],
+});
