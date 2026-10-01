@@ -251,3 +251,37 @@ test.snapshot({
 		].map(code => ({code, languageOptions: {parser: parsers.vue}})),
 	],
 });
+
+// A comment on an operand would be relocated by the fix
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (value /* not an array */ instanceof Array) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (value /* callable */ instanceof Function) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (value /* not a number */ instanceof Number) {}',
+			errors: [{messageId: 'no-instanceof-builtins', suggestions: []}],
+		},
+		{
+			code: 'if (value instanceof /* not an array */ Array) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (value instanceof Array) {}',
+			output: 'if (Array.isArray(value)) {}',
+			errors: 1,
+		},
+		// A comment outside the expression stays where it is
+		{
+			code: 'if (/* not empty */ value instanceof Array) {}',
+			output: 'if (/* not empty */ Array.isArray(value)) {}',
+			errors: 1,
+		},
+	],
+});
