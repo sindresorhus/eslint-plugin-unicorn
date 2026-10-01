@@ -206,10 +206,8 @@ function getDeleteArgumentIdentifier(loop, iterable) {
 		return getIdentifierFromPattern(binding);
 	}
 
-	if (
-		iterable.method === 'direct'
-		&& iterable.collectionKind !== 'map'
-	) {
+	if (iterable.method === 'direct' || iterable.method === 'entries') {
+		// `for (const entry of map)` binds the whole `[key, value]` pair, and `map.delete(entry)` looks up an array that is not a key, so it removes nothing
 		return getIdentifierFromPattern(binding) ?? getFirstElementIdentifier(binding);
 	}
 
@@ -350,6 +348,46 @@ function isCurrentAddOrSetCall(callExpression, loopInformation, method, context)
 	);
 }
 
+// Whether a `case` body has a statement matching `predicate`, also inside a plain block
+function hasCaseStatement(statements, predicate) {
+	return statements.some(statement => statement.type === 'BlockStatement'
+		? hasCaseStatement(statement.body, predicate)
+		: predicate(statement));
+}
+
+const loopExitStatementTypes = new Set([
+	'ContinueStatement',
+	'ReturnStatement',
+	'ThrowStatement',
+]);
+
+// Whether a `case` body leaves the loop. A bare `break` only leaves the switch, so the code after the switch still runs, but `continue`, `return` and `throw` all skip it.
+function caseLeavesLoop(switchCase) {
+	return hasCaseStatement(switchCase.consequent, statement => loopExitStatementTypes.has(statement.type));
+}
+
+// Whether a `case` body leaves the switch.
+function caseBreaksSwitch(switchCase) {
+	return hasCaseStatement(switchCase.consequent, statement => statement.type === 'BreakStatement' && !statement.label);
+}
+
+// After a `case` that deletes, the code keeps running until it leaves the loop. A `case` without a `break` falls through into the following ones, so a later `continue` skips the code after the switch just the same.
+function isFollowedByLoopExit(cases, index) {
+	for (const switchCase of cases.slice(index)) {
+		// A loop exit skips the code after the switch
+		if (caseLeavesLoop(switchCase)) {
+			return true;
+		}
+
+		// A `break` only leaves the switch, the code after it still runs
+		if (caseBreaksSwitch(switchCase)) {
+			return false;
+		}
+	}
+
+	return false;
+}
+
 function hasDirectCurrentDeleteStatement(statement, loopInformation, context) {
 	const callExpression = getSimpleCallStatement(statement);
 
@@ -372,6 +410,14 @@ function hasDirectCurrentDeleteStatement(statement, loopInformation, context) {
 				&& !loopInformation.branchAlwaysExits(statement.alternate)
 				&& hasDirectCurrentDeleteStatement(statement.alternate, loopInformation, context)
 			)
+		);
+	}
+
+	// A `case` that deletes and is not followed by a loop exit runs into the code after the switch
+	if (statement.type === 'SwitchStatement') {
+		return statement.cases.some((switchCase, index) =>
+			!isFollowedByLoopExit(statement.cases, index)
+			&& switchCase.consequent.some(child => hasDirectCurrentDeleteStatement(child, loopInformation, context)),
 		);
 	}
 

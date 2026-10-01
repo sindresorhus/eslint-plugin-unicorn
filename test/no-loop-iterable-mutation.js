@@ -335,7 +335,25 @@ test.snapshot({
 				map.delete(key);
 			}
 		`,
+		// `entry` is the whole `[key, value]` pair, so `map.delete(entry)` looks up an array that is not a key and removes nothing, whichever way the pair is bound
 		outdent`
+			for (const entry of map) {
+				map.delete(entry);
+			}
+		`,
+		{
+			code: outdent`
+				const map: Map<string, number> = new Map();
+				for (const entry of map) {
+					map.delete(entry);
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		outdent`
+			const map = new Map();
 			for (const entry of map) {
 				map.delete(entry);
 			}
@@ -365,17 +383,6 @@ test.snapshot({
 					case 'delete':
 						set.delete(value);
 						continue;
-				}
-
-				set.add(value);
-			}
-		`,
-		outdent`
-			for (const value of set) {
-				switch (kind) {
-					case 'delete':
-						set.delete(value);
-						break;
 				}
 
 				set.add(value);
@@ -634,23 +641,6 @@ test.snapshot({
 				map.set(otherKey, value);
 			}
 		`,
-		{
-			code: outdent`
-				const map: Map<string, number> = new Map();
-				for (const entry of map) {
-					map.delete(entry);
-				}
-			`,
-			languageOptions: {
-				parser: parsers.typescript,
-			},
-		},
-		outdent`
-			const map = new Map();
-			for (const entry of map) {
-				map.delete(entry);
-			}
-		`,
 		outdent`
 			const map = new Map();
 			for (const entry of map) {
@@ -789,4 +779,89 @@ test.snapshot({
 			},
 		},
 	],
+});
+
+// A `break` only leaves the switch, the code after it still runs
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				for (const value of set) {
+					switch (kind) {
+						case 'delete':
+							set.delete(value);
+							break;
+					}
+
+					set.add(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				for (const value of set) {
+					switch (kind) {
+						case 'delete': {
+							set.delete(value);
+							break;
+						}
+					}
+
+					set.add(value);
+				}
+			`,
+			errors: 1,
+		},
+		// Falls through to a later `case` that breaks, so the code after the switch still runs
+		{
+			code: outdent`
+				for (const value of set) {
+					switch (kind) {
+						case 'delete':
+							set.delete(value);
+						case 'other':
+							break;
+					}
+
+					set.add(value);
+				}
+			`,
+			errors: 1,
+		},
+		// The last `case` has no `break`, the switch is left and the code after it runs
+		{
+			code: outdent`
+				for (const value of set) {
+					switch (kind) {
+						case 'delete':
+							set.delete(value);
+					}
+
+					set.add(value);
+				}
+			`,
+			errors: 1,
+		},
+	],
+});
+
+// A `case` that deletes and falls through into a loop exit never reaches the code after the switch
+test({
+	valid: [
+		'for (const value of set) {\n\tswitch (kind) {\n\t\tcase \'delete\':\n\t\t\tset.delete(value);\n\t\t\tcontinue;\n\t}\n\tset.add(value);\n}',
+		'for (const value of set) {\n\tswitch (kind) {\n\t\tcase \'delete\':\n\t\t\tset.delete(value);\n\t\tcase \'other\':\n\t\t\tcontinue;\n\t}\n\tset.add(value);\n}',
+	],
+	invalid: [],
+});
+
+// A whole `[key, value]` entry is never a key, so deleting by it removes nothing, also with `.entries()`
+test({
+	valid: [
+		'const map = new Map(); for (const entry of map.entries()) { map.delete(entry); }',
+		'const set = new Set(); for (const entry of set.entries()) { set.delete(entry); }',
+		'const map = new Map(); for (const [key, value] of map) { map.delete(key); }',
+	],
+	invalid: [],
 });
