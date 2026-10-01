@@ -9,9 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-A parameter can become unnecessary when every call passes the same value, or when every call uses its default. Removing it makes the function's actual dependencies clearer and avoids repeating arguments at each call site.
-
-This rule checks functions whose callers can be determined within the current file.
+This rule reports parameters that receive the same value or always use their default at every known call within the file. Removing them clarifies the function's dependencies and avoids repeating arguments.
 
 ## Examples
 
@@ -99,7 +97,7 @@ print('Finished');
 print('Done');
 ```
 
-The rule also reports defaults that depend on earlier parameters. A fix is available for a final parameter with a simple earlier-parameter default when moving it into the body preserves its scope and evaluation timing. This transformation requires a body without comments to preserve their placement.
+Defaults referring to earlier parameters are reported too. When safe, a final default becomes a local variable:
 
 ```js
 // ❌
@@ -140,7 +138,7 @@ run({path: 'first'});
 run({path: 'second'});
 ```
 
-Global bindings, including configured readonly globals, are reported, but not automatically replaced because their values may change outside the file or through the global object.
+Global bindings are reported but require manual changes because their values may change outside the file.
 
 ```js
 // ❌
@@ -177,22 +175,16 @@ Set this to `1` to check functions called only once.
 
 ## Supported patterns
 
-- Local function declarations, function expressions, and arrow functions assigned directly to stable bindings.
+- Local functions, arrow functions, and explicit constructors.
 - Instance and static `#private` methods, including those in exported classes.
-- Explicit constructors of local, non-exported classes, and local constructor functions called with `new`.
-- Direct recursion that forwards the same, unwritten parameter. Other recursive arguments must agree with the value received at external calls.
-- Primitive literals, signed numbers and BigInts, template strings without substitutions, `undefined`, `void 0`, and accessible stable identifier bindings. Literal spelling does not matter, but `0` and `-0` are different values.
-- Shallow object-destructured properties with static keys, including renaming, defaults, and an object rest property. Arguments must be unambiguous object literals; an outer parameter default of `{}` is supported.
-- Omitted parameters, including parameters without a default. Complex defaults are reported when every call omits the argument or passes `undefined`, without evaluating the default.
+- Primitive literals, `undefined`, `void 0`, stable identifier bindings, and omitted or default arguments.
+- Direct recursion forwarding an unchanged parameter.
+- Shallow object destructuring with static keys, renaming, defaults, and rest. Arguments must be object literals; an outer default of `{}` is supported.
 
 ## Scope and limitations
 
-The rule cannot prove all callers are known when a function is exported, reassigned, aliased, passed as a callback, or used as a value. Those functions are ignored. Public methods, TypeScript `private` methods, decorated functions or parameters, constructors of decorated classes, overload declarations, inherited constructors, and top-level script bindings are also ignored.
+Functions with unknown callers are ignored, including exported functions, aliases, callbacks, and public methods. Decorated declarations, inherited constructors, top-level script bindings, and functions using their own `arguments` are also ignored. Files containing direct `eval`, `with`, or non-strict block function declarations are skipped.
 
-The rule does not follow imported live bindings, `var` bindings, TypeScript enum, namespace, or ambient declaration bindings, reassigned bindings, object variables supplied to destructured parameters, nested destructuring, or mutual recursion. Stable object bindings supplied to positional parameters are supported. Object spreads, dynamic keys, duplicate keys, accessors, and prototype-dependent properties are unsupported. Spread arguments are ignored when they make a parameter's position uncertain.
+Imported, reassigned, and `var` bindings, nested destructuring, and mutual recursion are not analyzed. Object spreads, dynamic or duplicate keys, accessors, and prototype-dependent properties are unsupported. Spread arguments are skipped when they obscure a parameter's position.
 
-Functions using their own `arguments` binding are ignored, including parameter bindings and `var` redeclarations. Files containing direct `eval`, `with`, or function declarations in non-strict blocks are ignored because their effects on bindings cannot be determined from scope references. TypeScript syntax is supported without type information; TypeScript `this` parameters and parameter-property slots are left unchanged. Files with a TypeScript extension or parsed by a TypeScript parser require manual changes because removing parameters or inlining values can invalidate inferred types and asserted call signatures.
-
-Autofixes update the declaration, references, and all callers together. They preserve object shorthand keys and leave an empty object pattern when the final destructured property is removed. At most one parameter or property per function is fixed in each lint pass, so repeated passes can remove multiple unnecessary parameters.
-
-Some reports require manual changes, including global bindings, unsafe parameter writes, complex defaults, defaults referring to outer bindings, dependencies between parameter initializers, and unsafe initialization order or conflicting scopes. Binding arguments from another function body require manual changes when initialization timing cannot be established. Arguments that reference outer parameters, catch bindings, or variables and classes declared in switch cases require manual changes because their initialization order is not analyzed. Non-strict outer parameters can also change through a mapped `arguments` object. Binding names with restricted or context-dependent syntax, such as `arguments`, `await`, and `yield`, are not inlined. Reserved parameter names are left for manual changes when moving a default into the body. Literals from non-strict scopes are not copied into strict scopes because legacy syntax can become invalid. Parameters used as JSX tag names or shorthand `__proto__` properties are not inlined because replacing them can change semantics or produce invalid syntax. Parameters used as the operand of `delete` are not inlined, including through TypeScript assertions. A concise arrow default is left for manual changes when rewriting its body would overlap argument removals within that body. A fix is also omitted when it would remove or relocate a comment. Reflection through instance constructors or function source text is unsupported.
+Autofixes update the declaration, references, and all callers together. Files with a TypeScript extension or parser require manual changes to avoid invalidating types. Global bindings, complex defaults, and cases where a fix could change scope, evaluation timing, syntax, or comment placement also require manual changes. Reflection through instance constructors or function source text is unsupported.
