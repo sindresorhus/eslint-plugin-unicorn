@@ -19,8 +19,6 @@ To preserve TypeScript control-flow narrowing, the rule ignores non-literal `ret
 
 Guards with ordinary comments before either guard, inside them, or between them are ignored. Comments can describe distinct exit reasons, and combining the guards would obscure that separation.
 
-ESLint disable and enable directives do not prevent reporting. Fixes are omitted when the affected range contains directives.
-
 ## Examples
 
 ```js

@@ -72,6 +72,4 @@ Negated membership checks are also supported: `[...set].every(value => !otherSet
 
 Callbacks must be synchronous arrow functions with one identifier parameter and a direct `otherSet.has(value)` or `!otherSet.has(value)` expression body. Patterns with ordinary comments, optional chaining, or computed method access are ignored. These autofixes assume ordinary built-in Set behavior.
 
-ESLint disable and enable directives do not prevent reporting. Fixes and suggestions are omitted when the affected range contains directives.
-
 For both filter and predicate callbacks, evaluating the Set used for membership checks must not have side effects or depend on the callback parameter.

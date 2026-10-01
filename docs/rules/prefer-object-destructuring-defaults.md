@@ -17,8 +17,6 @@ This rule uses suggestions because the two forms are not fully equivalent. For e
 
 This rule intentionally reports only simple variable declarations. It does not report `Object.assign()`, destructuring assignment expressions, computed properties, rest properties, or declarations with ordinary comments.
 
-ESLint disable and enable directives do not prevent reporting. Suggestions are omitted when the affected range contains directives.
-
 ## Examples
 
 ```js

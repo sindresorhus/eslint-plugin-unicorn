@@ -142,5 +142,3 @@ export default Foo;
 ## Limitations
 
 This rule intentionally ignores named exports, re-exports, CommonJS, anonymous defaults, non-adjacent declaration/export pairs, ordinary comments between declarations and exports, imported identifiers, values, objects, arrays, function expressions, `let`/`var` functions, multiple variable declarators, generators, later reassigned bindings, and TypeScript-specific syntax.
-
-ESLint disable and enable directives do not prevent reporting. Fixes and suggestions are omitted when the affected range contains directives.
