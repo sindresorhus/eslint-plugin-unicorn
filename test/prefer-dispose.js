@@ -506,7 +506,7 @@ test({
 					suggestions: [
 						{
 							messageId: 'prefer-dispose/suggestion',
-							output: 'function run() {\r\n\t{\r\nusing resource = open();\r\n\t\r\n\t\tuse(resource);\r\n\t\r\n}\r\n}\r\n',
+							output: 'function run() {\r\n\t{\r\n\t\tusing resource = open();\r\n\r\n\t\tuse(resource);\r\n\t}\r\n}\r\n',
 						},
 					],
 				},
@@ -520,7 +520,99 @@ test({
 					suggestions: [
 						{
 							messageId: 'prefer-dispose/suggestion',
-							output: '{\r\nusing foo = open();\r\ntry {\r\n\tuse(foo);\r\n} catch (error) {\r\n\thandle(error);\r\n}\r\n}\r\n',
+							output: '{\r\n\tusing foo = open();\r\n\ttry {\r\n\t\tuse(foo);\r\n\t} catch (error) {\r\n\t\thandle(error);\r\n\t}\r\n}\r\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
+// The generated block's closing brace lines up with the `try` statement
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run() {\n\tconst resource = open();\n\ttry {\n\t\tuse(resource);\n\t} finally {\n\t\tresource.close();\n\t}\n}\n',
+			errors: [
+				{
+					messageId: 'prefer-dispose/error',
+					suggestions: [
+						{
+							messageId: 'prefer-dispose/suggestion',
+							output: 'function run() {\n\t{\n\t\tusing resource = open();\n\n\t\tuse(resource);\n\t}\n}\n',
+						},
+					],
+				},
+			],
+		},
+		// The `using` keyword is indented one level inside the generated block
+		{
+			code: 'function run() {\n\tconst a = open();\n\tconst b = open();\n\ttry {\n\t\tuse(a, b);\n\t} finally {\n\t\tb.close();\n\t\ta.close();\n\t}\n}\n',
+			errors: [
+				{
+					messageId: 'prefer-dispose/error',
+					suggestions: [
+						{
+							messageId: 'prefer-dispose/suggestion',
+							output: 'function run() {\n\t{\n\t\tusing a = open();\n\t\tusing b = open();\n\n\t\tuse(a, b);\n\t}\n}\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
+// Re-indenting would change the content of a multi-line template literal, so the kept text stays as it is
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run() {\n\tconst resource = open();\n\ttry {\n\t\tlog(`a\n\tb`);\n\t} catch {\n\t} finally {\n\t\tresource.close();\n\t}\n}\n',
+			errors: [
+				{
+					messageId: 'prefer-dispose/error',
+					suggestions: [
+						{
+							messageId: 'prefer-dispose/suggestion',
+							output: 'function run() {\n\t{\n\t\tusing resource = open();\n\ttry {\n\t\tlog(`a\n\tb`);\n\t} catch {\n\t}\n\t}\n}\n',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'const resource = open();\ntry {\n\tlog(`a\n\t\n\tb`);\n} finally {\n\tresource.close();\n}\n',
+			errors: [
+				{
+					messageId: 'prefer-dispose/error',
+					suggestions: [
+						{
+							messageId: 'prefer-dispose/suggestion',
+							output: '{\n\tusing resource = open();\n\n\tlog(`a\n\t\n\tb`);\n}\n',
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
+// A body that trails the `{` on the same line takes the new block's indentation, also when later lines follow
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const foo = open();\ntry { use(foo);\n\tbar();\n} finally {\n\tfoo.close();\n}\n',
+			errors: [
+				{
+					messageId: 'prefer-dispose/error',
+					suggestions: [
+						{
+							messageId: 'prefer-dispose/suggestion',
+							output: '{\n\tusing foo = open();\n\n\tuse(foo);\n\tbar();\n}\n',
 						},
 					],
 				},

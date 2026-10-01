@@ -1,6 +1,11 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isCallExpression, isFunction} from './ast/index.js';
-import {getLinebreak} from './utils/index.js';
+import {
+	getIndentUnit,
+	getLinebreak,
+	getLineIndent,
+	reindentText,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-dispose/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-dispose/suggestion';
@@ -165,11 +170,8 @@ function areResourcesConvertible(resources, tryStatement, sourceCode, parserServ
 	if (
 		expectedStartIndex < 0
 		|| resources.some(({declaration}, index) => body[expectedStartIndex + index] !== declaration)
+		|| disposalOrder.some((declaration, index) => declaration !== resources.at(-1 - index).declaration)
 	) {
-		return false;
-	}
-
-	if (disposalOrder.some((declaration, index) => declaration !== resources.at(-1 - index).declaration)) {
 		return false;
 	}
 
@@ -258,28 +260,73 @@ function hasShadowingConflict(tryStatement, resources, sourceCode) {
 function * fixTryStatement(fixer, tryStatement, resources, context) {
 	const {sourceCode} = context;
 	const linebreak = getLinebreak(context);
+	// The new block wraps the `try`, so its closing brace lines up with the `try` statement
+	const blockIndent = getLineIndent(tryStatement, context);
 	// Turn each declaration into `using`/`await using`, opening a new block before the first one.
+	// The declarations end up inside the new block, so they move one indentation level in. Only the first one starts a new line, so it also carries that line's indentation itself.
+	const indentUnit = getIndentUnit(context);
 	for (const [index, {declaration, isAwaited}] of resources.entries()) {
 		const keywordToken = sourceCode.getFirstToken(declaration);
 		const keyword = isAwaited ? 'await using' : 'using';
-		yield fixer.replaceText(keywordToken, index === 0 ? `{${linebreak}${keyword}` : keyword);
+		const text = index === 0
+			? `{${linebreak}${getLineIndent(declaration, context)}${indentUnit}${keyword}`
+			: `${indentUnit}${keyword}`;
+		yield fixer.replaceText(keywordToken, text);
 	}
 
-	const [, tryStatementEnd] = sourceCode.getRange(tryStatement);
+	// Everything the fix keeps moves one level in with the declarations, so the kept text is re-indented, which also drops the lines that end up holding nothing but whitespace.
+	const bodyIndent = `${blockIndent}${indentUnit}`;
+	const [tryStart, tryStatementEnd] = sourceCode.getRange(tryStatement);
+	// The replacement starts at the beginning of the `try` line, so the indentation that line carries is part of what is rewritten. It belongs to a line whose content has just moved. Only when the `try` is the first thing on its line, otherwise that line has other content.
+	const lineStart = sourceCode.getIndexFromLoc({
+		line: sourceCode.getLoc(tryStatement).start.line,
+		column: 0,
+	});
+	const replaceStart = sourceCode.text.slice(lineStart, tryStart).trim() === '' ? lineStart : tryStart;
+	// Re-indenting would change the content of a multi-line template literal, the text is kept as it is then
+	const hasMultilineTemplate = sourceCode.getTokens(tryStatement).some(token => {
+		const {start, end} = sourceCode.getLoc(token);
+		return token.type === 'Template' && start.line !== end.line;
+	});
+	const reindent = (text, sourceIndent, targetIndent) => hasMultilineTemplate ? text : reindentText(text, sourceIndent, targetIndent);
 
 	if (tryStatement.handler) {
 		// Keep `try { … } catch (…) { … }`, drop only the `finally`, and close the new block.
 		const [, handlerEnd] = sourceCode.getRange(tryStatement.handler);
-		yield fixer.replaceTextRange([handlerEnd, tryStatementEnd], `${linebreak}}`);
+		// `reindentText` leaves the first line alone, so a line break is put in front to make the `try` line one of the lines it moves, and taken off again afterwards.
+		const kept = reindent(
+			`${linebreak}${sourceCode.text.slice(replaceStart, handlerEnd)}`,
+			blockIndent,
+			bodyIndent,
+		).slice(linebreak.length).trimEnd();
+
+		yield fixer.replaceTextRange([replaceStart, tryStatementEnd], `${kept}${linebreak}${blockIndent}}`);
 		return;
 	}
 
 	// No `catch`: unwrap the `try` block into the new block.
-	const tryToken = sourceCode.getFirstToken(tryStatement);
 	const tryBlockOpen = sourceCode.getFirstToken(tryStatement.block);
 	const tryBlockClose = sourceCode.getLastToken(tryStatement.block);
-	yield fixer.removeRange([sourceCode.getRange(tryToken)[0], sourceCode.getRange(tryBlockOpen)[1]]);
-	yield fixer.replaceTextRange([sourceCode.getRange(tryBlockClose)[0], tryStatementEnd], `${linebreak}}`);
+	const [, tryBlockOpenEnd] = sourceCode.getRange(tryBlockOpen);
+	const [tryBlockCloseStart] = sourceCode.getRange(tryBlockClose);
+	/*
+	Unwrapping the `try` block and wrapping the declarations in a new one cancel out, so the body keeps its indentation. Passing the same indent on both sides only drops the lines that are left with nothing but whitespace. The leading line breaks go, the first line's indentation stays.
+	*/
+	const rawBody = reindent(
+		sourceCode.text.slice(tryBlockOpenEnd, tryBlockCloseStart),
+		bodyIndent,
+		bodyIndent,
+	);
+
+	// A body that starts on its own line is already indented for the new block, so only the line breaks go. One that trails the `{` on the same line takes the new block's indentation.
+	const body = /^[\n\r\u{2028}\u{2029}]/u.test(rawBody)
+		? rawBody.replace(/^(?:\r\n|[\n\r\u{2028}\u{2029}])+/u, '').trimEnd()
+		: `${bodyIndent}${rawBody.replace(/^[^\S\n\r\u{2028}\u{2029}]+/u, '').trimEnd()}`;
+
+	yield fixer.replaceTextRange(
+		[replaceStart, tryStatementEnd],
+		body ? `${linebreak}${body}${linebreak}${blockIndent}}` : `${linebreak}${blockIndent}}`,
+	);
 }
 
 /**
@@ -306,11 +353,10 @@ const create = context => {
 			...sourceCode.getCommentsInside(tryStatement.block),
 			...(tryStatement.handler ? sourceCode.getCommentsInside(tryStatement.handler) : []),
 		]);
-		if (sourceCode.getCommentsInside(tryStatement).some(comment => !preservedComments.has(comment))) {
-			return problem;
-		}
-
-		if (hasShadowingConflict(tryStatement, resources, sourceCode)) {
+		if (
+			sourceCode.getCommentsInside(tryStatement).some(comment => !preservedComments.has(comment))
+			|| hasShadowingConflict(tryStatement, resources, sourceCode)
+		) {
 			return problem;
 		}
 
