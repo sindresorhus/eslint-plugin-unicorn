@@ -91,7 +91,6 @@ test.snapshot({
 		'a = foo.raw`ab`',
 		'a = String.foo`ab`',
 		'a = String.raw`a\\b`',
-		'a = String.raw`a\\b`',
 		'a = String.raw`a\\b${foo}cd`',
 		'a = String.raw`ab${foo}c\\nd`',
 		outdent`
@@ -179,6 +178,11 @@ test({
 	],
 	invalid: [
 		{
+			// A comment inside the tag is preserved by not fixing
+			code: 'String /* keep */ .raw`abc`;',
+			errors: [{messageId: 'unnecessary-string-raw'}],
+		},
+		{
 			code: outdent`
 				function* foo() {
 					yield String.raw
@@ -227,6 +231,7 @@ const keyTestsComputedIsValid = [
 	`abstract class C { abstract accessor '${TEST_STRING}' }`,
 	// Interface members key
 	`interface I { '${TEST_STRING}' }`,
+	`interface I { '${TEST_STRING}'(): void }`,
 ];
 const toComputed = code => code.replace(`'${TEST_STRING}'`, () => `['${TEST_STRING}']`);
 test.snapshot({
@@ -283,5 +288,32 @@ test.snapshot({
 		...keyTestsComputedIsInvalid.map(code => toComputed(code)),
 		`expect('${TEST_STRING}').toMatchInlineSnapshot("")`,
 		`expect(\`${TEST_STRING}\`).toMatchInlineSnapshot(\`\`)`,
+	],
+});
+
+// A line break, including a bare `\r`, is not allowed in a string literal, and `\u2028` and `\u2029` are only allowed since ES2019, so these keep the template literal
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'a = String.raw`ab\rd`;',
+			output: 'a = `ab\rd`;',
+			errors: 1,
+		},
+		{
+			code: 'a = String.raw`ab\nd`;',
+			output: 'a = `ab\nd`;',
+			errors: 1,
+		},
+		{
+			code: 'a = String.raw`ab\u2028d`;',
+			output: 'a = `ab\u2028d`;',
+			errors: 1,
+		},
+		{
+			code: 'a = String.raw`abc`;',
+			output: 'a = \'abc\';',
+			errors: 1,
+		},
 	],
 });

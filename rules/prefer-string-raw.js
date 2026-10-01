@@ -49,6 +49,7 @@ function isStringRawRestricted(node) {
 				'TSAbstractMethodDefinition',
 				'TSAbstractAccessorProperty',
 				'TSPropertySignature',
+				'TSMethodSignature',
 			].includes(type)
 			&& parent.key === node
 		)
@@ -175,14 +176,20 @@ const create = context => {
 		}
 
 		const rawQuasi = sourceCode.getText(quasi);
-		const suggestion = quasi.expressions.length > 0 || /\r?\n/.test(rawQuasi)
+		// A line break, including a bare `\r`, is not allowed in a string literal. `\u2028` and `\u2029` are only allowed in one since ES2019, so they are kept in the template literal too.
+		const suggestion = quasi.expressions.length > 0 || /[\n\r\u{2028}\u{2029}]/u.test(rawQuasi)
 			? rawQuasi
 			: `'${rawQuasi.slice(1, -1).replaceAll('\'', () => String.raw`\'`)}'`;
 
 		return {
 			node: tag,
 			messageId: MESSAGE_ID_UNNECESSARY_STRING_RAW,
-			* fix(fixer) {
+			* fix(fixer, {abort}) {
+				// The tag is removed as a whole, a comment inside it would be dropped
+				if (sourceCode.getCommentsInside(tag).length > 0) {
+					abort();
+				}
+
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				if (needsSemicolon(tokenBefore, context, suggestion)) {
 					yield fixer.insertTextBefore(node, ';');
