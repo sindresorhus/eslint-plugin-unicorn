@@ -52,6 +52,8 @@ const [,,...rest] = parts;
 const rest = parts.slice(2);
 ```
 
+The rest element is not fixed when the value is known not to be an `Array` (for example, a typed array, where `.slice()` returns a typed array). An unknown value, like a `NodeList` from `querySelectorAll()`, is assumed to be an array, even though a `NodeList` has no `slice()`.
+
 ```js
 // ❌
 [object.property] = parts;

@@ -1,5 +1,6 @@
 import {
 	shouldAddParenthesesToMemberExpressionObject,
+	isKnownNonArray,
 	isKnownNonIndexedCollection,
 	isParenthesized,
 	isTypeScriptExpressionWrapper,
@@ -115,17 +116,18 @@ const create = context => {
 			&& nonNullElements.length === 1
 		) {
 			const [element] = nonNullElements;
+			const isSlice = element.type === 'RestElement';
 
-			// The pattern is replaced by the variable alone, so a comment inside the pattern and the type annotation on it would be lost. Destructuring reads through the iterator protocol while `[…]` and `.slice(…)` read by index, so the rewrite needs an indexable source.
+			// The pattern is replaced by the variable alone, so a comment inside the pattern and the type annotation on it would be lost. Destructuring reads through the iterator protocol while `[…]` and `.slice(…)` read by index, so the rewrite needs an indexable source. A rest element always creates an `Array`, but `.slice()` on a typed array returns a typed array.
 			if (
 				element.type !== 'AssignmentPattern'
 				&& !node.typeAnnotation
 				&& !isKnownNonIndexedCollection(parent.init, context)
+				&& !(isSlice && isKnownNonArray(parent.init, context))
 				&& sourceCode.getCommentsInside(node).length === 0
 			) {
 				problem.fix = function * (fixer) {
 					const index = elements.indexOf(element);
-					const isSlice = element.type === 'RestElement';
 					const variable = isSlice ? element.argument : element;
 
 					yield fixer.replaceText(node, sourceCode.getText(variable));

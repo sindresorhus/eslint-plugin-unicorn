@@ -146,3 +146,25 @@ test.snapshot({
 		'const [, , third] = document.querySelectorAll(\'a\');',
 	],
 });
+
+// `.slice()` on a typed array returns a typed array, not an `Array`, so the rest element is not fixed
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const [, , ...rest] = new Uint8Array(4);',
+			errors: 1,
+		},
+		{
+			code: 'declare const bytes: Float64Array; const [, , ...rest] = bytes;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		// Indexing a typed array reads the same element
+		{
+			code: 'const [, , third] = new Uint8Array(4);',
+			output: 'const third = new Uint8Array(4)[2];',
+			errors: 1,
+		},
+	],
+});
