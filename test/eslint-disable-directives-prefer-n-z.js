@@ -1,6 +1,9 @@
 import {testDisableDirectives} from './utils/test-disable-directives.js';
 
 const cases = [
+	['prefer-single-object-destructuring', 'const source = @ getSource(); const {a} = source;'],
+	['prefer-single-object-destructuring', 'const source = getSource(); @ const {a} = source;'],
+	['prefer-single-object-destructuring', 'const source = getSource(); const {@ a} = source;'],
 	['prefer-single-object-destructuring', 'const source = {}; const {@ a} = source; const {b} = source;'],
 	['prefer-single-object-destructuring', 'const source = {}; const {a} = source; const {@ b} = source;'],
 	['prefer-set-methods', 'const a = new Set(); const b = new Set(); new Set(@ [...a].filter(value => b.has(value)));'],

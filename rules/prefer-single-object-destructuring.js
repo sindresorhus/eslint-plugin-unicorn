@@ -1,4 +1,4 @@
-import {findVariable, getPropertyName, isCommentToken} from '@eslint-community/eslint-utils';
+import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {getCommentSafeProblem, getParenthesizedText, hasNonDirectiveComment, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-single-object-destructuring';
@@ -21,10 +21,6 @@ const supportedInlineInitializerTypes = new Set([
 const isSupportedDeclarationKind = kind =>
 	kind === 'const'
 	|| kind === 'let';
-
-const hasCommentsBetween = (sourceCode, firstNode, secondNode) =>
-	sourceCode.getTokensBetween(firstNode, secondNode, {includeComments: true})
-		.some(token => isCommentToken(token));
 
 const isSimpleObjectPattern = node =>
 	node.properties.length > 0
@@ -83,7 +79,8 @@ const getSupportedDeclaration = (sourceCode, node) => {
 	};
 };
 
-const getInlineProblem = (sourceCode, firstNode, secondNode) => {
+const getInlineProblem = (context, firstNode, secondNode) => {
+	const {sourceCode} = context;
 	if (!(
 		firstNode.type === 'VariableDeclaration'
 		&& firstNode.kind === 'const'
@@ -104,12 +101,14 @@ const getInlineProblem = (sourceCode, firstNode, secondNode) => {
 	}
 
 	const variable = findVariable(sourceCode.getScope(second.declarator.init), second.declarator.init);
+	const replacementRange = [
+		sourceCode.getRange(firstNode)[0],
+		sourceCode.getRange(secondNode)[1],
+	];
 	if (
 		variable.defs[0].node !== declarator
 		|| variable.references.some(reference => !reference.init && reference.identifier !== second.declarator.init)
-		|| sourceCode.getCommentsInside(firstNode).length > 0
-		|| sourceCode.getCommentsInside(secondNode).length > 0
-		|| hasCommentsBetween(sourceCode, firstNode, secondNode)
+		|| hasNonDirectiveComment(context, replacementRange)
 	) {
 		return;
 	}
@@ -120,17 +119,14 @@ const getInlineProblem = (sourceCode, firstNode, secondNode) => {
 		return;
 	}
 
-	const replacement = `${secondNode.kind} ${sourceCode.getText(second.declarator.id)} = ${getParenthesizedText(declarator.init, {sourceCode})};`;
+	const replacement = `${secondNode.kind} ${sourceCode.getText(second.declarator.id)} = ${getParenthesizedText(declarator.init, context)};`;
 
-	return {
+	return getCommentSafeProblem(context, {
 		node: declarator.id,
 		messageId: MESSAGE_ID_INLINE,
 		data: {source: declarator.id.name},
-		fix: fixer => fixer.replaceTextRange(
-			[sourceCode.getRange(firstNode)[0], sourceCode.getRange(secondNode)[1]],
-			replacement,
-		),
-	};
+		fix: fixer => fixer.replaceTextRange(replacementRange, replacement),
+	}, replacementRange);
 };
 
 const getMergeProblem = (context, firstNode, secondNode) => {
@@ -178,7 +174,7 @@ function * getStatementListProblems(context, statements) {
 		}
 
 		const firstNode = statements[index - 1];
-		const problem = getInlineProblem(context.sourceCode, firstNode, secondNode) ?? getMergeProblem(context, firstNode, secondNode);
+		const problem = getInlineProblem(context, firstNode, secondNode) ?? getMergeProblem(context, firstNode, secondNode);
 
 		if (problem) {
 			yield problem;
