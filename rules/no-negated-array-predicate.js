@@ -6,6 +6,7 @@ import {
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToUnaryExpressionArgument,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
 	addParenthesesToReturnOrThrowExpression,
@@ -87,7 +88,8 @@ const create = context => {
 			return;
 		}
 
-		const {argument: callExpression} = unaryExpression;
+		// `!foo.every(…)!` puts the `!` inside the non-null assertion
+		const callExpression = unwrapTypeScriptExpression(unaryExpression.argument);
 		const tokenStore = getTokenStore(context, unaryExpression);
 		const bangToken = tokenStore.getFirstToken(unaryExpression);
 		if (!bangToken) {

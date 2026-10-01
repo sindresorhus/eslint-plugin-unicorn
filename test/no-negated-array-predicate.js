@@ -135,3 +135,28 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		// TypeScript: the `!` is inside the non-null assertion
+		{
+			code: 'const a = !foo.every(x => x.b)!;',
+			output: 'const a = foo.some(x => !x.b)!;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'const a = !foo.some(x => x.b)!;',
+			output: 'const a = foo.every(x => !x.b)!;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'const a = !(foo.every(x => x.b) as boolean);',
+			output: 'const a = (foo.some(x => !x.b) as boolean);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
