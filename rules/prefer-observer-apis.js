@@ -68,11 +68,7 @@ const isKnownNonDomType = (type, checker, program) => {
 		return true;
 	}
 
-	if (type.isUnion()) {
-		return type.types.every(type => isKnownNonDomType(type, checker, program));
-	}
-
-	if (type.isIntersection()) {
+	if (type.isUnion() || type.isIntersection()) {
 		return type.types.every(type => isKnownNonDomType(type, checker, program));
 	}
 
@@ -82,20 +78,9 @@ const isKnownNonDomType = (type, checker, program) => {
 	}
 
 	const symbol = getTypeSymbol(type);
-	if (!symbol) {
-		return false;
-	}
-
-	const baseTypes = getBaseTypes(type, checker);
-	if (baseTypes.some(type => !isKnownNonDomType(type, checker, program))) {
-		return false;
-	}
-
-	if (!isDefaultLibrarySymbol(symbol, program)) {
-		return true;
-	}
-
-	return !isDomTypeName(symbol.getName());
+	return Boolean(symbol)
+		&& getBaseTypes(type, checker).every(type => isKnownNonDomType(type, checker, program))
+		&& (!isDefaultLibrarySymbol(symbol, program) || !isDomTypeName(symbol.getName()));
 };
 
 const isKnownDefaultLibraryType = (type, checker, program, typeNames) => {
@@ -286,7 +271,30 @@ const isNonElementLayoutObject = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
 	return isGlobalObject(node, context)
 		|| isGlobalDocument(node, context)
-		|| isGlobalVisualViewport(node, context);
+		|| isGlobalVisualViewport(node, context)
+		// An inline literal is never a DOM element, whatever its property names are
+		|| node.type === 'ObjectExpression'
+		|| node.type === 'ArrayExpression'
+		|| node.type === 'Literal'
+		// A `const` binding of a plain object is not a DOM element, whatever its property names are
+		|| isConstNonDomObject(node, context);
+};
+
+// A `const` binding of a plain object literal is not a DOM element, whatever its property names
+const isConstNonDomObject = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	if (!variable || variable.defs.length !== 1) {
+		return false;
+	}
+
+	const [definition] = variable.defs;
+	return definition.type === 'Variable'
+		&& definition.parent.kind === 'const'
+		&& definition.node.init?.type === 'ObjectExpression';
 };
 
 const isElementLayoutPropertyRead = (memberExpression, context) =>

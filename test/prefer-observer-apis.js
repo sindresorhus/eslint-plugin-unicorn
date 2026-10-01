@@ -349,3 +349,75 @@ test.snapshot({
 		`),
 	],
 });
+
+// A `const` binding of a plain object literal is not a DOM element
+test.snapshot({
+	valid: [
+		outdent`
+			const config = {};
+			window.addEventListener('resize', () => {
+				const {clientWidth} = config;
+				console.log(clientWidth);
+			});
+		`,
+		outdent`
+			const config = {};
+			window.addEventListener('resize', () => {
+				console.log(config.clientWidth);
+			});
+		`,
+		outdent`
+			const config = {};
+			window.addEventListener('resize', () => {
+				const {offsetHeight} = config;
+				console.log(offsetHeight);
+			});
+		`,
+		outdent`
+			const shape = {getBoundingClientRect() {}};
+			window.addEventListener('resize', () => {
+				console.log(shape.getBoundingClientRect());
+			});
+		`,
+	],
+	invalid: [
+		outdent`
+			window.addEventListener('resize', () => {
+				const {clientWidth} = element;
+				console.log(clientWidth);
+			});
+		`,
+		outdent`
+			window.addEventListener('resize', () => {
+				console.log(element.clientWidth);
+			});
+		`,
+	],
+});
+
+// An inline literal is never a DOM element, whatever its property names are
+test({
+	valid: [
+		...[
+			'const {offsetWidth} = {offsetWidth: 100};\nconsole.log(offsetWidth);',
+			'console.log([1, 2].offsetWidth);',
+			'console.log(\'abc\'.offsetWidth);',
+			'console.log((1).offsetWidth);',
+		].map(statement => `window.addEventListener('resize', () => {\n\t${statement}\n});`),
+	],
+	invalid: [],
+});
+
+// Only a `const` binding is trusted, a `let` binding can be reassigned to an element
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			let config = {};
+			window.addEventListener('resize', () => {
+				console.log(config.clientWidth);
+			});
+		`,
+	],
+});
+
