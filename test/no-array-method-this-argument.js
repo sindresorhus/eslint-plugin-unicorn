@@ -159,6 +159,20 @@ test.snapshot({
 		},
 		// The same, resolved through type information instead of the annotation
 		typeAware('declare function getBytes(): Int8Array; getBytes().map(value => value, thisArgument);'),
+		// Evaluating these is observable: the tag is called, and `in` and `instanceof` throw on a nullish operand
+		'array.map(() => {}, tag`a`)',
+		'array.map(() => {}, key in object)',
+		'array.map(() => {}, {} instanceof Constructor)',
+		// Only an identifier, a literal, or `this` is autofixed, anything else is a suggestion
+		'array.map(() => {}, 1 + 2)',
+		// Nested code that runs or throws
+		'array.map(() => {}, !(key in object))',
+		'array.map(() => {}, [tag`a`])',
+		'array.map(() => {}, (key in object) || 1)',
+		'Array.from(iterableOrArrayLike, () => {}, !(key in object))',
+		// Simple `thisArg`
+		'array.map(() => {}, this)',
+		'array.map(() => {}, null)',
 	],
 });
 
@@ -212,5 +226,7 @@ test.snapshot({
 		'array.map(callback.bind(foo), thisArgument)',
 		'Array.from(iterableOrArrayLike, callback.bind(foo), thisArgument)',
 		'Array.fromAsync(iterableOrArrayLike, callback.bind(foo), thisArgument)',
+		// Side effect
+		'array.map(function () { return this.x; }, sideEffect())',
 	],
 });

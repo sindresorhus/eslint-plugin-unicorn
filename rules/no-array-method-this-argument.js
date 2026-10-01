@@ -1,4 +1,3 @@
-import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getArgumentRemovalRange,
 	removeArgument,
@@ -111,6 +110,9 @@ function useBoundFunction(callbackNode, thisArgumentNode, context, removeThisArg
 	};
 }
 
+// Removing the `thisArg` also removes its evaluation, so it is only autofixed when it is this simple. Anything else, like a call, a getter, a tagged template, or `key in object` nested anywhere in it, is only a suggestion.
+const isSimpleThisArgument = node => ['Identifier', 'Literal', 'ThisExpression'].includes(node.type);
+
 function getProblem({
 	context,
 	callExpression,
@@ -129,22 +131,15 @@ function getProblem({
 	const removeThisArgumentFix = removeThisArgument(thisArgumentNode, context);
 	const isArrowCallback = callbackNode.type === 'ArrowFunctionExpression';
 	if (isArrowCallback) {
-		const thisArgumentHasSideEffect = hasSideEffect(
-			thisArgumentNode,
-			context.sourceCode,
-			{considerGetters: true},
-		);
-		if (thisArgumentHasSideEffect) {
-			if (removeThisArgumentFix) {
-				problem.suggest = [
-					{
-						messageId: SUGGESTION_REMOVE,
-						fix: removeThisArgumentFix,
-					},
-				];
-			}
-		} else if (removeThisArgumentFix) {
+		if (isSimpleThisArgument(thisArgumentNode)) {
 			problem.fix = removeThisArgumentFix;
+		} else if (removeThisArgumentFix) {
+			problem.suggest = [
+				{
+					messageId: SUGGESTION_REMOVE,
+					fix: removeThisArgumentFix,
+				},
+			];
 		}
 
 		return problem;
@@ -152,6 +147,7 @@ function getProblem({
 
 	const suggestions = [];
 	if (removeThisArgumentFix) {
+		// A non-arrow callback needs the `thisArg`, so removing it is only a suggestion, like the arrow function case above
 		suggestions.push({
 			messageId: SUGGESTION_REMOVE,
 			fix: removeThisArgumentFix,

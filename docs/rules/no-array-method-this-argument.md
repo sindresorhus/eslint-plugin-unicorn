@@ -29,7 +29,7 @@ This rule checks the following array methods that accept `thisArg`:
 - [`Array#map()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/map)
 - [`Array#some()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/some)
 
-This rule is fixable when the callback is an arrow function, the `thisArg` argument has no side effect, and the fix can be applied without removing comments.
+This rule is fixable when the callback is an arrow function, the `thisArg` argument is an identifier, a literal, or `this`, and the fix can be applied without removing comments. Any other `thisArg` with an arrow callback can be removed with a suggestion, since evaluating it could run code or throw.
 
 A receiver known not to be an array, such as a `Set` or a custom type that declares a same-named method, is ignored. Unknown receivers are still reported. A typed array is reported, since it takes the same `thisArg` parameter.
 
