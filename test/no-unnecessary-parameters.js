@@ -530,8 +530,10 @@ test('does not introduce a strict directive after stripping TypeScript wrappers'
 	for (const expression of ['value as string', 'value satisfies string', 'value!', '(value as string)!']) {
 		const code = `function outer() { function format(value) { ${expression}; return this === undefined; } return [format("use strict"), format("use strict")]; } outer();`;
 		const result = linter.verifyAndFix(code, typescriptConfig);
-		t.true(result.fixed);
-		t.deepEqual(result.messages, []);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 		const javascript = stripTypeScriptTypes(result.output);
 		t.is(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
 	}
@@ -810,13 +812,14 @@ test('keeps argument reads before body effects in catch binding initializers', t
 	t.is(vm.runInNewContext(result.output), 0);
 });
 
-test('preserves TypeScript assertions when moving earlier-parameter defaults', t => {
+test('reports TypeScript earlier-parameter defaults without changing assertions', t => {
 	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
 	const code = 'function format(first = 1 as string | number, second = first as number) { return second.toFixed(); } [format(1), format(2)];';
 	const result = linter.verifyAndFix(code, typescriptConfig);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.regex(result.output, /const second = first as number;/);
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.is(result.messages.length, 1);
+	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 	const javascript = stripTypeScriptTypes(result.output);
 	t.is(JSON.stringify(vm.runInNewContext(javascript)), '["1","2"]');
 });
@@ -890,5 +893,81 @@ test('ignores callers redirected by sloppy block function declarations', t => {
 		t.deepEqual(result.messages, []);
 		t.is(JSON.stringify(vm.runInNewContext(code)), '[1,2]');
 		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
+	}
+});
+
+test('resolves private calls in class heritage using the enclosing class', t => {
+	for (const declaration of ['class Inner', 'const Inner = class']) {
+		const code = outdent`
+			class Outer {
+				#format(value) { return class { static value = value; }; }
+				run() {
+					const first = this.#format(1);
+					const second = this.#format(1);
+					${declaration} extends this.#format(2) {
+						#format(value) { return value; }
+						run() { return [this.#format(3), this.#format(4)]; }
+					}
+					return [first.value, second.value, Inner.value];
+				}
+			}
+			new Outer().run();
+		`;
+		const result = linter.verifyAndFix(code, config);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.deepEqual(result.messages, []);
+		t.is(JSON.stringify(vm.runInNewContext(code)), '[1,1,2]');
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1,2]');
+		const matchingCode = code.replace('extends this.#format(2)', 'extends this.#format(1)');
+		const matchingResult = linter.verifyAndFix(matchingCode, config);
+		t.true(matchingResult.fixed);
+		t.deepEqual(matchingResult.messages, []);
+		t.regex(matchingResult.output, /extends this\.#format\(\)/);
+		t.is(JSON.stringify(vm.runInNewContext(matchingCode)), '[1,1,1]');
+		t.is(JSON.stringify(vm.runInNewContext(matchingResult.output)), '[1,1,1]');
+	}
+});
+
+test('reports TypeScript parameters without changing inferred or asserted types', t => {
+	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
+	for (const code of [
+		'function format(value = 1 as string | number) { return typeof value === "number" ? value.toFixed() : value.toUpperCase(); } [format(1), format(1)];',
+		'function format(value) { return value; } [(format as (value: number) => number)(1), (format as (value: number) => number)(1)];',
+		'function format({value}) { return value; } [format({value: 1} satisfies {value: number}), format({value: 1} satisfies {value: number})];',
+		outdent`
+			function format(first = 0, second = first) { return second; }
+			[
+				(format as (first: number, second: number | undefined) => number)(1, undefined),
+				(format as (first: number, second: number | undefined) => number)(2, undefined),
+			];
+		`,
+	]) {
+		const result = linter.verifyAndFix(code, typescriptConfig);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		const javascript = stripTypeScriptTypes(result.output);
+		const originalJavascript = stripTypeScriptTypes(code);
+		t.is(JSON.stringify(vm.runInNewContext(javascript)), JSON.stringify(vm.runInNewContext(originalJavascript)));
+	}
+});
+
+test('requires manual fixes for TypeScript filenames without parser services', t => {
+	const code = 'function format(value) { return value; } [format(1), format(1)];';
+	for (const extension of ['ts', 'mts', 'cts', 'tsx', 'js']) {
+		const result = linter.verifyAndFix(code, {...config, files: ['**/*.{js,ts,mts,cts,tsx}']}, {filename: `input.${extension}`});
+		if (extension === 'js') {
+			t.true(result.fixed);
+			t.deepEqual(result.messages, []);
+		} else {
+			t.false(result.fixed);
+			t.is(result.output, code);
+			t.is(result.messages.length, 1);
+			t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		}
+
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 	}
 });

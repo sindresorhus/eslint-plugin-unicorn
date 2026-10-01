@@ -10,6 +10,7 @@ import {
 	hasCommentInRange,
 	isParenthesized,
 	isShorthandPropertyValue,
+	isTypeScriptFile,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	unwrapTypeScriptExpression,
@@ -311,18 +312,6 @@ function getParameterRemoval(parameter, context) {
 	return {removalRange: [start, end], replacement: ''};
 }
 
-function hasTypedSignature(target) {
-	const {node} = target;
-	return Boolean(
-		target.hasTypeUses
-		|| node.returnType
-		|| node.typeParameters
-		|| node.params.some(parameter => parameter.typeAnnotation || parameter.left?.typeAnnotation || parameter.type === 'TSParameterProperty')
-		|| target.variables.some(variable => variable.defs.some(definition =>
-			definition.type === 'Variable' && (definition.node.id.typeAnnotation || (definition.node.init !== node && definition.node.init.type !== 'ClassExpression')))),
-	);
-}
-
 function getLocalDefault(parameter, target, arguments_, context) {
 	const defaultNode = unwrapTypeScriptExpression(parameter.defaultNode);
 	const {node} = target;
@@ -445,7 +434,13 @@ function canInlineValue(parameter, result, context) {
 function getFix(parameter, result, target, context) {
 	const {sourceCode} = context;
 	const {value, messageId, arguments_} = result;
-	if (hasTypedSignature(target) || parameter.variable.defs.length !== 1 || parameter.variable.references.some(reference => !isRuntimeReference(reference))) {
+	// Changing signatures or inferred values can introduce TypeScript errors without changing runtime behavior.
+	if (
+		isTypeScriptFile(context.filename)
+		|| sourceCode.parserServices.esTreeNodeToTSNodeMap
+		|| parameter.variable.defs.length !== 1
+		|| parameter.variable.references.some(reference => !isRuntimeReference(reference))
+	) {
 		return;
 	}
 
@@ -556,11 +551,11 @@ function isExportedDefinition(definition) {
 
 function getPrivateMethodFunction(member) {
 	for (let ancestor = member.parent; ancestor; ancestor = ancestor.parent) {
-		if (ancestor.type !== 'ClassDeclaration' && ancestor.type !== 'ClassExpression') {
+		if (ancestor.type !== 'ClassBody') {
 			continue;
 		}
 
-		const definition = ancestor.body.body.find(element => element.key?.type === 'PrivateIdentifier' && element.key.name === member.property.name);
+		const definition = ancestor.body.find(element => element.key?.type === 'PrivateIdentifier' && element.key.name === member.property.name);
 		if (definition) {
 			return definition.type === 'MethodDefinition' && definition.kind === 'method' ? definition.value : undefined;
 		}
@@ -571,10 +566,8 @@ function getTarget(targets, node) {
 	if (!targets.has(node)) {
 		targets.set(node, {
 			node,
-			variables: [],
 			calls: new Set(),
 			excluded: false,
-			hasTypeUses: false,
 		});
 	}
 
@@ -593,7 +586,6 @@ function addVariableTarget(variable, scope, targets) {
 	}
 
 	const target = getTarget(targets, node);
-	target.variables.push(variable);
 	if (scope.type === 'global' || hasWrites(variable) || isExportedDefinition(definition) || definition.node.decorators?.length || node.parent.decorators?.length) {
 		target.excluded = true;
 	}
@@ -604,7 +596,6 @@ function addVariableTarget(variable, scope, targets) {
 		}
 
 		if (!isRuntimeReference(reference)) {
-			target.hasTypeUses = true;
 			continue;
 		}
 
