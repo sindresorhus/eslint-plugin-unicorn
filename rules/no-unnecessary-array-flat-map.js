@@ -16,11 +16,13 @@ import {createTypeCheckers, target, unknown} from './utils/type-helpers.js';
 const MESSAGE_ID = 'no-unnecessary-array-flat-map';
 const SUGGESTION_ID_FILTER_MAP = 'no-unnecessary-array-flat-map/filter-map-suggestion';
 const MESSAGE_ID_ARRAY_WRAPPER = 'no-unnecessary-array-flat-map/array-wrapper';
+const SUGGESTION_ID_ARRAY_WRAPPER = 'no-unnecessary-array-flat-map/array-wrapper-suggestion';
 
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.{{method}}(…)` over `.flatMap(…)` for this single-item array callback.',
 	[SUGGESTION_ID_FILTER_MAP]: 'Replace `.flatMap(…)` with `.filter(…).map(…)`.',
 	[MESSAGE_ID_ARRAY_WRAPPER]: 'Wrapping this value in an array is unnecessary.',
+	[SUGGESTION_ID_ARRAY_WRAPPER]: 'Remove the array wrapper.',
 };
 
 const nonArrayExpressionTypes = new Set([
@@ -361,25 +363,28 @@ function getArrayWrapperProblem(node, context, isTypeScript) {
 		return;
 	}
 
+	const fix = function * (fixer, {abort}) {
+		const {sourceCode} = context;
+		if (wouldRemoveComments(context, node, [getParenthesizedRange(element, context)])) {
+			return abort();
+		}
+
+		let replacement = node.parent.type === 'ArrowFunctionExpression' && !isParenthesized(node, context)
+			? getArrowBodyText(element, context)
+			: getParenthesizedText(element, context);
+		const previousToken = sourceCode.getTokenBefore(node);
+		if (previousToken?.value === 'return' && sourceCode.getRange(previousToken)[1] === sourceCode.getRange(node)[0]) {
+			replacement = ` ${replacement}`;
+		}
+
+		yield fixer.replaceText(node, replacement);
+	};
+
+	// Removing a wrapper can narrow TypeScript's inferred element type.
 	return {
 		node,
 		messageId: MESSAGE_ID_ARRAY_WRAPPER,
-		* fix(fixer, {abort}) {
-			const {sourceCode} = context;
-			if (wouldRemoveComments(context, node, [getParenthesizedRange(element, context)])) {
-				return abort();
-			}
-
-			let replacement = node.parent.type === 'ArrowFunctionExpression' && !isParenthesized(node, context)
-				? getArrowBodyText(element, context)
-				: getParenthesizedText(element, context);
-			const previousToken = sourceCode.getTokenBefore(node);
-			if (previousToken?.value === 'return' && sourceCode.getRange(previousToken)[1] === sourceCode.getRange(node)[0]) {
-				replacement = ` ${replacement}`;
-			}
-
-			yield fixer.replaceText(node, replacement);
-		},
+		...(isTypeScript ? {suggest: [{messageId: SUGGESTION_ID_ARRAY_WRAPPER, fix}]} : {fix}),
 	};
 }
 

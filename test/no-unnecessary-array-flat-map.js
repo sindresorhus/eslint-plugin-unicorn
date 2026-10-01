@@ -39,19 +39,39 @@ test({
 	],
 	invalid: [
 		{
+			...typescript('declare const condition: boolean; const output = [0].flatMap(() => condition ? [1] : []); output.push(2);'),
+			errors: [{
+				messageId: 'no-unnecessary-array-flat-map/array-wrapper',
+				suggestions: [{
+					messageId: 'no-unnecessary-array-flat-map/array-wrapper-suggestion',
+					output: 'declare const condition: boolean; const output = [0].flatMap(() => condition ? 1 : []); output.push(2);',
+				}],
+			}],
+		},
+		{
 			code: '[].flatMap(() => Math.random() ? [1] : [2, 3]);',
 			output: '[].flatMap(() => Math.random() ? 1 : [2, 3]);',
 			errors: [{messageId: 'no-unnecessary-array-flat-map/array-wrapper'}],
 		},
 		{
 			...typescript('declare const value: string; [].flatMap(function () { if (Math.random()) { return [value]; } return [2, 3]; });'),
-			output: 'declare const value: string; [].flatMap(function () { if (Math.random()) { return value; } return [2, 3]; });',
-			errors: [{messageId: 'no-unnecessary-array-flat-map/array-wrapper'}],
+			errors: [{
+				messageId: 'no-unnecessary-array-flat-map/array-wrapper',
+				suggestions: [{
+					messageId: 'no-unnecessary-array-flat-map/array-wrapper-suggestion',
+					output: 'declare const value: string; [].flatMap(function () { if (Math.random()) { return value; } return [2, 3]; });',
+				}],
+			}],
 		},
 		{
 			...typescript('declare const value: string & {brand: true}; array.flatMap(() => [value]);'),
-			output: 'declare const value: string & {brand: true}; array.flatMap(() => value);',
-			errors: [{messageId: 'no-unnecessary-array-flat-map/array-wrapper'}],
+			errors: [{
+				messageId: 'no-unnecessary-array-flat-map/array-wrapper',
+				suggestions: [{
+					messageId: 'no-unnecessary-array-flat-map/array-wrapper-suggestion',
+					output: 'declare const value: string & {brand: true}; array.flatMap(() => value);',
+				}],
+			}],
 		},
 	],
 });
@@ -316,5 +336,7 @@ test.snapshot({
 		typeAware('declare const array: (string | number)[]; array.flatMap(value => condition ? [value] : [1, 2]);'),
 		typeAware('declare const array: {type?: string}[]; array.flatMap(value => value.type ? [value.type] : []);'),
 		vueWithTypeScriptParser('<script setup lang="ts">declare const value: string; array.flatMap(() => condition ? [value] : ["a", "b"]);</script>'),
+		typescript('const value = "a"; declare const condition: boolean; const output = [0].flatMap(() => { if (condition) { return [value]; } return []; }); output.push("b");'),
+		typeAware('declare const condition: boolean; const output = [0].flatMap(() => condition ? [1] : []); output.push(2);'),
 	],
 });

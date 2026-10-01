@@ -15,7 +15,7 @@ Method replacements only check simple arrow callbacks.
 
 The rule also removes `[item]` wrappers from inline callbacks, including conditional and block-body returns, when syntax, primitive TypeScript annotations, or optional type information establish that `item` is not an array. Async callbacks, generators, and callbacks with explicit return types are ignored.
 
-In TypeScript files, including Vue SFC `<script>` blocks with `lang="ts"` or `lang="tsx"`, conditional callbacks like `value ? [value] : []` are not rewritten to `.filter()` or `.filter().map()` because that can lose TypeScript control-flow narrowing and change the inferred type. Wrapper removal preserves this narrowing. Direct one-item callbacks like `value => [value.id]` are still reported.
+In TypeScript files, including Vue SFC `<script>` blocks with `lang="ts"` or `lang="tsx"`, conditional callbacks like `value ? [value] : []` are not rewritten to `.filter()` or `.filter().map()` because that can lose TypeScript control-flow narrowing and change the inferred type. Wrapper removal is suggested because it can narrow the inferred element type. Direct one-item callbacks like `value => [value.id]` are still reported.
 
 ## Examples
 
