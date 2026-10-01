@@ -67,11 +67,7 @@ const getStatementTokens = (node, sourceCode) => {
 	const tokens = sourceCode.getTokens(node);
 	const lastToken = tokens.at(-1);
 
-	if (lastToken?.type === 'Punctuator' && lastToken.value === ';') {
-		return tokens.slice(0, -1);
-	}
-
-	return tokens;
+	return lastToken?.type === 'Punctuator' && lastToken.value === ';' ? tokens.slice(0, -1) : tokens;
 };
 
 const isSameStatement = (left, right, sourceCode) => {
@@ -203,48 +199,37 @@ function hasCommentHazard(ifStatement, blocks, options, context) {
 	});
 }
 
-// A trailing statement cannot safely cross a branch-local lexical declaration it references, or a resource declaration whose disposal boundary would move before the tail.
-function hasTailBranchLocalHazard(block, trailing, context) {
+// A shared statement cannot safely cross a branch-local lexical declaration it references, and a trailing one cannot cross a resource declaration whose disposal boundary would move before it. A block scope only holds lexical declarations, `var` is function-scoped.
+function hasBranchLocalHazard(block, {leading, trailing, isStart}, context) {
 	const {sourceCode} = context;
 	const {body} = block;
-	const [tailStart] = sourceCode.getRange(body[body.length - trailing]);
-	const [blockStart, blockEnd] = sourceCode.getRange(block);
+	const [sharedStart] = sourceCode.getRange(isStart ? body[0] : body[body.length - trailing]);
+	const [, sharedEnd] = sourceCode.getRange(isStart ? body[leading - 1] : body.at(-1));
+	const isInShared = node => {
+		const [start] = sourceCode.getRange(node);
+		return start >= sharedStart && start <= sharedEnd;
+	};
+
+	// Without block scopes (ES5), the branch has no scope of its own and no lexical declarations
 	const scope = sourceCode.getScope(block);
-
-	for (const variable of scope.variables) {
-		const [definition] = variable.defs;
-
-		if (
-			!definition
-			// `var` is function-scoped, so it stays in scope when moved out of the block.
-			|| (definition.parent?.type === 'VariableDeclaration' && definition.parent.kind === 'var')
-		) {
-			continue;
-		}
-
-		const [definitionStart] = sourceCode.getRange(definition.name);
-
-		// Only declarations made inside this branch, before the shared tail, are a hazard.
-		if (definitionStart <= blockStart || definitionStart >= tailStart) {
-			continue;
-		}
-
-		if (
-			definition.parent?.type === 'VariableDeclaration'
-			&& resourceDeclarationKinds.has(definition.parent.kind)
-		) {
-			return true;
-		}
-
-		for (const reference of variable.references) {
-			const [referenceStart] = sourceCode.getRange(reference.identifier);
-			if (referenceStart >= tailStart && referenceStart <= blockEnd) {
-				return true;
-			}
-		}
+	if (scope.block !== block) {
+		return false;
 	}
 
-	return false;
+	return scope.variables.some(variable => {
+		const [definition] = variable.defs;
+
+		// Only declarations made inside this branch, outside the shared statements, are a hazard
+		if (isInShared(definition.name)) {
+			return false;
+		}
+
+		const isTrailingResourceDeclaration = !isStart
+			&& definition.parent?.type === 'VariableDeclaration'
+			&& resourceDeclarationKinds.has(definition.parent.kind);
+
+		return isTrailingResourceDeclaration || variable.references.some(reference => isInShared(reference.identifier));
+	});
 }
 
 // Re-indent statement text from the branch body's indentation to the `if` statement's indentation.
@@ -309,7 +294,7 @@ function getDirectionProblem({ifStatement, blocks, leading, trailing, isStart}, 
 	const valid = reportedStatements.every(statement => !hasDirectBlockScopedDeclaration(statement))
 		&& isInStatementList(ifStatement)
 		&& !hasCommentHazard(ifStatement, blocks, {leading, trailing, isStart}, context)
-		&& (isStart || blocks.every(block => !hasTailBranchLocalHazard(block, trailing, context)));
+		&& blocks.every(block => !hasBranchLocalHazard(block, {leading, trailing, isStart}, context));
 
 	const problem = {
 		loc: {

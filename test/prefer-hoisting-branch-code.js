@@ -297,6 +297,9 @@ test.snapshot({
 		'if (a) { doA(); if (x) { bar(); } } else { doB(); if (x) { bar(); } }',
 		// Shared leading `throw` (suggestion only — the condition might have side effects)
 		'function f() { if (a) { throw new Error("x"); doA(); } else { throw new Error("x"); doB(); } }',
+		// A leading statement cannot cross a branch-local declaration it references
+		'if (a) { void f; first(); function f() {} } else { void f; second(); function f() {} }',
+		'if (a) { void c; first(); const c = 1; } else { void c; second(); const c = 2; }',
 	],
 });
 
@@ -364,6 +367,19 @@ test({
 				}
 			`,
 			errors: 1,
+		},
+	],
+});
+
+// Without block scopes (ES5), the branch is not a scope, so there is no branch-local declaration
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (a) { var x = 1; last(); } else { var y = 2; last(); }',
+			output: 'if (a) { var x = 1; } else { var y = 2; }\nlast();',
+			errors: 1,
+			languageOptions: {ecmaVersion: 5, sourceType: 'script'},
 		},
 	],
 });
