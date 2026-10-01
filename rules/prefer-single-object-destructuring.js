@@ -1,8 +1,11 @@
 import {findVariable, getPropertyName, isCommentToken} from '@eslint-community/eslint-utils';
+import {getParenthesizedText, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-single-object-destructuring';
+const MESSAGE_ID_INLINE = 'prefer-direct-object-destructuring';
 const messages = {
 	[MESSAGE_ID]: 'Prefer a single object destructuring declaration from `{{source}}`.',
+	[MESSAGE_ID_INLINE]: 'Prefer destructuring directly from the initializer of `{{source}}`.',
 };
 
 const isSupportedDeclarationKind = kind =>
@@ -70,6 +73,60 @@ const getSupportedDeclaration = (sourceCode, node) => {
 	};
 };
 
+const getInlineProblem = (sourceCode, firstNode, secondNode) => {
+	if (!(
+		firstNode.type === 'VariableDeclaration'
+		&& firstNode.kind === 'const'
+		&& !firstNode.declare
+		&& firstNode.declarations.length === 1
+	)) {
+		return;
+	}
+
+	const [declarator] = firstNode.declarations;
+	if (declarator.id.type !== 'Identifier' || declarator.id.typeAnnotation || !declarator.init) {
+		return;
+	}
+
+	const second = getSupportedDeclaration(sourceCode, secondNode);
+	if (!second) {
+		return;
+	}
+
+	const variable = findVariable(sourceCode.getScope(second.declarator.init), second.declarator.init);
+	if (
+		variable.defs[0].node !== declarator
+		|| variable.references.some(reference => !(reference.init || reference.identifier === second.declarator.init))
+		|| sourceCode.getCommentsInside(firstNode).length > 0
+		|| sourceCode.getCommentsInside(secondNode).length > 0
+		|| hasCommentsBetween(sourceCode, firstNode, secondNode)
+	) {
+		return;
+	}
+
+	// Removing the binding would change the inferred name of an anonymous function or class.
+	const initializer = unwrapTypeScriptExpression(declarator.init);
+	if (
+		initializer.type === 'ArrowFunctionExpression'
+		|| initializer.type === 'TSInstantiationExpression'
+		|| ((initializer.type === 'FunctionExpression' || initializer.type === 'ClassExpression') && !initializer.id)
+	) {
+		return;
+	}
+
+	const replacement = `${secondNode.kind} ${sourceCode.getText(second.declarator.id)} = ${getParenthesizedText(declarator.init, {sourceCode})};`;
+
+	return {
+		node: declarator.id,
+		messageId: MESSAGE_ID_INLINE,
+		data: {source: declarator.id.name},
+		fix: fixer => fixer.replaceTextRange(
+			[sourceCode.getRange(firstNode)[0], sourceCode.getRange(secondNode)[1]],
+			replacement,
+		),
+	};
+};
+
 const getProblem = (sourceCode, firstNode, secondNode) => {
 	const first = getSupportedDeclaration(sourceCode, firstNode);
 	const second = getSupportedDeclaration(sourceCode, secondNode);
@@ -114,7 +171,8 @@ function * getStatementListProblems(sourceCode, statements) {
 			continue;
 		}
 
-		const problem = getProblem(sourceCode, statements[index - 1], secondNode);
+		const firstNode = statements[index - 1];
+		const problem = getInlineProblem(sourceCode, firstNode, secondNode) ?? getProblem(sourceCode, firstNode, secondNode);
 
 		if (problem) {
 			yield problem;

@@ -1,9 +1,12 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: testRule} = getTester(import.meta);
 
-test.snapshot({
+testRule.snapshot({
 	valid: [
 		'const {bar, baz} = foo;',
 		outdent`
@@ -180,7 +183,7 @@ test.snapshot({
 });
 
 // Merging would put the same key in one pattern twice, which is valid but reads like a mistake
-test({
+testRule({
 	valid: [
 		'const source = x;\nconst {a} = source;\nconst {a: b} = source;\nconsole.log(a, b);',
 		'const source = x;\nconst {a: b} = source;\nconst {a: c} = source;\nconsole.log(b, c);',
@@ -192,4 +195,102 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+testRule.snapshot({
+	valid: [
+		'const foo = getFoo(); const {bar} = foo; consume(foo);',
+		'const foo = getFoo(); const {bar} = foo; foo = other;',
+		'const foo = getFoo(); const {bar} = foo; function useFoo() { return foo; }',
+		'const foo = getFoo(); const {bar} = foo; export {foo};',
+		'export const foo = getFoo(); const {bar} = foo;',
+		'const foo = getFoo(); export const {bar} = foo;',
+		'const foo = getFoo(); consume(); const {bar} = foo;',
+		'const foo = getFoo(), other = getOther(); const {bar} = foo;',
+		'const foo = getFoo(); const {bar} = foo, other = getOther();',
+		'let foo = getFoo(); const {bar} = foo;',
+		'var foo = getFoo(); const {bar} = foo;',
+		'const foo = getFoo(); var {bar} = foo;',
+		'const foo = getFoo(); const {bar} = other;',
+		'const foo = getFoo(); const {} = foo;',
+		'const foo = getFoo(); const {bar, ...rest} = foo;',
+		'const foo = getFoo(); const {bar: {baz}} = foo;',
+		'const foo = getFoo(); const {bar = 1} = foo;',
+		'const foo = getFoo(); const {[key]: bar} = foo;',
+		'const foo = /* comment */ getFoo(); const {bar} = foo;',
+		'const foo = getFoo(); /* comment */ const {bar} = foo;',
+		'const foo = getFoo(); const {/* comment */ bar} = foo;',
+		'const foo = () => {}; const {name} = foo;',
+		'const foo = (function () {}); const {name} = foo;',
+		'const foo = class {}; const {name} = foo;',
+		'const foo = getFoo(() => foo); const {bar} = foo;',
+		...[
+			'const foo: Foo = getFoo(); const {bar} = foo;',
+			'const foo = getFoo(); const {bar}: Foo = foo;',
+			'declare const foo: Foo; const {bar} = foo;',
+			'const foo = getFoo(); const {bar} = foo; type Foo = typeof foo;',
+			'const foo = (() => {}) as Foo; const {name} = foo;',
+			'const foo = (function () {}) satisfies Foo; const {name} = foo;',
+			'const foo = (class {})!; const {name} = foo;',
+			'const foo = <Foo>(() => {}); const {name} = foo;',
+			'const foo = (function<T>() {})<number>; const {name} = foo;',
+			'const foo = (class<T> {})<number>; const {name} = foo;',
+			'const foo = (<T>() => {})<number>; const {name} = foo;',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	],
+	invalid: [
+		'const foo = getFoo();\nconst {bar, baz} = foo;',
+		'const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo;',
+		'const foo = getFoo(); const {bar: renamed} = foo;',
+		'const foo = getFoo(); let {bar} = foo; bar = other;',
+		'const foo = ((getFoo())); const {bar} = (foo);',
+		'const foo = (first, second); const {bar} = foo;',
+		'const foo = getFoo()?.bar; const {baz} = foo;',
+		'const foo = function named() {}; const {name} = foo;',
+		'const foo = class Named {}; const {name} = foo;',
+		'function useFoo() { const foo = getFoo(); const {bar} = foo; return bar; }',
+		'{ const foo = getFoo(); const {bar} = foo; }',
+		'class Foo { static { const foo = getFoo(); const {bar} = foo; } }',
+		'switch (value) { case 1: const foo = getFoo(); const {bar} = foo; }',
+		outdent`
+			const foo = getFoo({
+				bar: 1,
+			});
+			const {
+				bar,
+			} = foo;
+		`,
+		...[
+			'const foo = getFoo() as Foo; const {bar} = foo;',
+			'const foo = <Foo>getFoo(); const {bar} = foo;',
+			'const foo = getFoo()!; const {bar} = foo;',
+			'const foo = getFoo() satisfies Foo; const {bar} = foo;',
+			'const foo = getFoo<Foo>(); const {bar} = foo;',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	],
+});
+
+testRule({
+	valid: [],
+	invalid: [
+		{
+			code: 'function useFoo() {\r\n  const foo = getFoo({\r\n    bar: 1,\r\n  });\r\n  const {bar} = foo;\r\n}',
+			output: 'function useFoo() {\r\n  const {bar} = getFoo({\r\n    bar: 1,\r\n  });\r\n}',
+			errors: [{messageId: 'prefer-direct-object-destructuring'}],
+		},
+	],
+});
+
+test('merges destructurings and inlines their source across fix passes', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-single-object-destructuring': 'error'},
+	};
+	const result = linter.verifyAndFix('const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo;', config);
+
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, 'const {bar, baz} = getFoo();');
+	t.false(linter.verifyAndFix(result.output, config).fixed);
 });
