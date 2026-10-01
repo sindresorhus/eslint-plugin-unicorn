@@ -205,3 +205,60 @@ test.snapshot({
 		`,
 	],
 });
+
+// The expression is rebuilt as the call argument, so a comment in it would be lost
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const foo = ~~(/* keep */ 1 + 2 / 3.4);',
+			errors: [{messageId: 'error-bitwise-not', suggestions: []}],
+		},
+		{
+			code: 'const foo = /* keep */ ~ /* drop */ ~ 3.4;',
+			errors: [{messageId: 'error-bitwise-not', suggestions: []}],
+		},
+		{
+			code: 'const foo = x /* keep */ << 0;',
+			errors: [{messageId: 'error-bitwise', suggestions: []}],
+		},
+		{
+			code: 'const foo = ~~(1 + 2 / 3.4);',
+			errors: [
+				{
+					messageId: 'error-bitwise-not',
+					suggestions: [
+						{messageId: 'suggestion-bitwise-not', output: 'const foo = Math.trunc(1 + 2 / 3.4);'},
+					],
+				},
+			],
+		},
+		// `~~` wraps through `ToInt32` where `Math.trunc` does not
+		{
+			code: 'const foo = ~~(2 ** 32);',
+			errors: [
+				{
+					messageId: 'error-bitwise-not',
+					suggestions: [
+						{messageId: 'suggestion-bitwise-not', output: 'const foo = Math.trunc(2 ** 32);'},
+					],
+				},
+			],
+		},
+		{
+			code: 'const foo = x << 0;',
+			errors: [
+				{
+					messageId: 'error-bitwise',
+					suggestions: [
+						{messageId: 'suggestion-bitwise', output: 'const foo = Math.trunc(x);'},
+					],
+				},
+			],
+		},
+		{
+			code: 'foo |= /* keep */ 0;',
+			errors: [{messageId: 'error-bitwise', suggestions: []}],
+		},
+	],
+});

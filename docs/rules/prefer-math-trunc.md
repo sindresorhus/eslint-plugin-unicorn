@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -22,7 +22,7 @@ It prevents the use of the following patterns:
 
 These patterns help truncate numbers but they are not clear and do not work in some cases. For example, `parseInt(String(x), 10)` can produce unexpected results for very large or very small numbers that stringify to exponential notation.
 
-This rule is automatically fixable for most bitwise patterns, unless the left-hand side in assignment has a side effect. The `x | 0` and `parseInt(String(x), 10)` patterns only offer a suggestion because they are not exactly equivalent to `Math.trunc(x)`.
+None of these patterns is exactly equivalent to `Math.trunc(x)`, so the rule only offers suggestions. The bitwise patterns convert the value to a 32-bit integer, so they wrap values outside that range and turn `NaN` into `0` (`~~(2 ** 32)` is `0`, while `Math.trunc(2 ** 32)` is `4294967296`). There is no suggestion for an assignment whose left-hand side has a side effect, or when a comment would be lost.
 
 ## Examples
 

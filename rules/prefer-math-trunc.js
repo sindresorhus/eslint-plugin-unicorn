@@ -7,12 +7,14 @@ const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';
 const ERROR_PARSE_INT = 'error-parse-int';
 const SUGGESTION_BITWISE = 'suggestion-bitwise';
+const SUGGESTION_BITWISE_NOT = 'suggestion-bitwise-not';
 const SUGGESTION_PARSE_INT = 'suggestion-parse-int';
 const messages = {
 	[ERROR_BITWISE]: 'Use `Math.trunc` instead of `{{operator}} {{value}}`.',
 	[ERROR_BITWISE_NOT]: 'Use `Math.trunc` instead of `~~`.',
 	[ERROR_PARSE_INT]: 'Use `Math.trunc` instead of `{{name}}(String(...), 10)`.',
 	[SUGGESTION_BITWISE]: 'Replace `{{operator}} {{value}}` with `Math.trunc`.',
+	[SUGGESTION_BITWISE_NOT]: 'Replace `~~` with `Math.trunc`.',
 	[SUGGESTION_PARSE_INT]: 'Replace `{{name}}(String(...), 10)` with `Math.trunc`.',
 };
 
@@ -143,7 +145,11 @@ const create = context => {
 			},
 		};
 
-		if (!isAssignment || !hasSideEffect(left, sourceCode)) {
+		// The expression is rebuilt as the call argument, so a comment in it would be lost
+		if (
+			(!isAssignment || !hasSideEffect(left, sourceCode))
+			&& sourceCode.getCommentsInside(node).length === 0
+		) {
 			const fix = function * (fixer) {
 				const fixed = mathTruncFunctionCall(left);
 				if (isAssignment) {
@@ -156,16 +162,13 @@ const create = context => {
 				}
 			};
 
-			if (operator === '|') {
-				problem.suggest = [
-					{
-						messageId: SUGGESTION_BITWISE,
-						fix,
-					},
-				];
-			} else {
-				problem.fix = fix;
-			}
+			// Every one of these coerces through `ToInt32`, which wraps where `Math.trunc` does not
+			problem.suggest = [
+				{
+					messageId: SUGGESTION_BITWISE,
+					fix,
+				},
+			];
 		}
 
 		return problem;
@@ -174,19 +177,32 @@ const create = context => {
 	// Unary Expression Selector: Inner-most 2 bitwise NOT
 	context.on('UnaryExpression', node => {
 		if (
-			isBitwiseNot(node)
-			&& isBitwiseNot(node.argument)
-			&& !isBitwiseNot(node.argument.argument)
+			!isBitwiseNot(node)
+			|| !isBitwiseNot(node.argument)
+			|| isBitwiseNot(node.argument.argument)
 		) {
-			return {
-				node,
-				messageId: ERROR_BITWISE_NOT,
-				* fix(fixer) {
-					yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
-					yield fixSpaceAroundKeyword(fixer, node, context);
-				},
-			};
+			return;
 		}
+
+		const problem = {
+			node,
+			messageId: ERROR_BITWISE_NOT,
+		};
+
+		// `~~` coerces through `ToInt32` exactly like the other bitwise forms, it wraps where `Math.trunc` does not, so it can only be a suggestion. The whole double negation is replaced, so a comment inside it would be lost.
+		if (sourceCode.getCommentsInside(node).length === 0) {
+			problem.suggest = [
+				{
+					messageId: SUGGESTION_BITWISE_NOT,
+					* fix(fixer) {
+						yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
+				},
+			];
+		}
+
+		return problem;
 	});
 };
 
@@ -201,7 +217,6 @@ const config = {
 			description: 'Prefer `Math.trunc()` for truncating numbers.',
 			recommended: 'unopinionated',
 		},
-		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 		languages: [
