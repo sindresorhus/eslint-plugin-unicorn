@@ -34,18 +34,16 @@ const getActualImportDeclarationStyles = importDeclaration => {
 			continue;
 		}
 
-		if (specifier.type === 'ImportSpecifier') {
-			if (specifier.importKind === 'type') {
-				continue;
-			}
-
-			if (specifier.imported.type === 'Identifier' && specifier.imported.name === 'default') {
-				styles.add('default');
-				continue;
-			}
-
-			styles.add('named');
+		if (specifier.type !== 'ImportSpecifier' || specifier.importKind === 'type') {
+			continue;
 		}
+
+		if (specifier.imported.type === 'Identifier' && specifier.imported.name === 'default') {
+			styles.add('default');
+			continue;
+		}
+
+		styles.add('named');
 	}
 
 	return [...styles];
@@ -280,47 +278,46 @@ const create = context => {
 		});
 	}
 
-	if (checkRequire) {
-		context.on('CallExpression', node => {
-			if (!(
-				isCallExpression(node, {
-					name: 'require',
-					argumentsLength: 1,
-					optional: false,
-				})
-				&& (node.parent.type === 'ExpressionStatement' && node.parent.expression === node)
-			)) {
-				return;
-			}
-
-			const moduleName = getStringIfConstant(node.arguments[0], sourceCode.getScope(node.arguments[0]));
-			const actualImportStyles = ['unassigned'];
-
-			report(node, moduleName, actualImportStyles, true);
-		});
-
-		context.on('VariableDeclarator', node => {
-			if (!(
-				node.init?.type === 'CallExpression'
-				&& node.init.callee.type === 'Identifier'
-				&& node.init.callee.name === 'require'
-			)) {
-				return;
-			}
-
-			const moduleNameNode = node.init.arguments[0];
-			const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
-
-			if (!moduleName) {
-				return;
-			}
-
-			const assignmentTargetNode = node.id;
-			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
-
-			report(node, moduleName, actualImportStyles, true);
-		});
+	if (!checkRequire) {
+		return;
 	}
+
+	context.on('CallExpression', node => {
+		if (!(
+			isCallExpression(node, {
+				name: 'require',
+				argumentsLength: 1,
+				optional: false,
+			})
+			&& (node.parent.type === 'ExpressionStatement' && node.parent.expression === node)
+		)) {
+			return;
+		}
+
+		const moduleName = getStringIfConstant(node.arguments[0], sourceCode.getScope(node.arguments[0]));
+		const actualImportStyles = ['unassigned'];
+
+		report(node, moduleName, actualImportStyles, true);
+	});
+
+	context.on('VariableDeclarator', node => {
+		// `require()` with no argument has no module name to read
+		if (!isCallExpression(node.init, {name: 'require', minimumArguments: 1})) {
+			return;
+		}
+
+		const moduleNameNode = node.init.arguments[0];
+		const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
+
+		if (!moduleName) {
+			return;
+		}
+
+		const assignmentTargetNode = node.id;
+		const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
+
+		report(node, moduleName, actualImportStyles, true);
+	});
 };
 
 const schema = {

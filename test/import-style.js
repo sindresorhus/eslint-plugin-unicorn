@@ -968,3 +968,24 @@ test.snapshot({
 		},
 	],
 });
+
+// `require()` with no argument has no module name to read
+test({
+	valid: [
+		'require();',
+		'const a = require();',
+		'const {a} = require();',
+		'const [a] = require();',
+		'export const a = require();',
+	],
+	invalid: [
+		{
+			code: 'require("chalk");',
+			errors: 1,
+		},
+		{
+			code: 'const {red} = require("chalk");',
+			errors: 1,
+		},
+	],
+});
