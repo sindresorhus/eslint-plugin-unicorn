@@ -11,11 +11,11 @@
 
 [`Array#flatMap()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap) is useful when one input item can become multiple output items. When a callback only returns `[item]` or `condition ? [item] : []`, `.map()`, `.filter()`, or `.filter().map()` is clearer.
 
-For method replacements, this rule checks simple arrow callbacks that return either a one-item array or `condition ? [item] : []`.
+Method replacements only check simple arrow callbacks.
 
-The rule also disallows unnecessary one-item array wrappers in inline callbacks, including conditional expressions and return statements in block bodies. When the item is known not to be an array, it can be returned directly while keeping `.flatMap()`. Non-array values are recognized from expression syntax, primitive TypeScript annotations, and type information when available. Unknown values, broad structural types, and callbacks with explicit return types are ignored for wrapper removal. Async callbacks, generator callbacks, and referenced callbacks are also ignored.
+The rule also removes `[item]` wrappers from inline callbacks, including conditional and block-body returns, when syntax, primitive TypeScript annotations, or optional type information establish that `item` is not an array. Async callbacks, generators, and callbacks with explicit return types are ignored.
 
-In TypeScript files, including Vue SFC `<script>` blocks with `lang="ts"` or `lang="tsx"`, conditional callbacks like `value ? [value] : []` are not rewritten to `.filter()` or `.filter().map()` because that can lose TypeScript control-flow narrowing and change the inferred type. Safe wrapper removal keeps the callback intact and preserves this narrowing. Direct one-item callbacks like `value => [value.id]` are still reported.
+In TypeScript files, including Vue SFC `<script>` blocks with `lang="ts"` or `lang="tsx"`, conditional callbacks like `value ? [value] : []` are not rewritten to `.filter()` or `.filter().map()` because that can lose TypeScript control-flow narrowing and change the inferred type. Wrapper removal preserves this narrowing. Direct one-item callbacks like `value => [value.id]` are still reported.
 
 ## Examples
 
@@ -73,22 +73,10 @@ const values = array.flatMap(() => Math.random() ? 1 : [2, 3]);
 declare const value: string;
 
 // ❌
-const values = array.flatMap(function () {
-	if (condition) {
-		return [value];
-	}
-
-	return ['other', 'values'];
-});
+array.flatMap(() => condition ? [value] : []);
 
 // ✅
-const values = array.flatMap(function () {
-	if (condition) {
-		return value;
-	}
-
-	return ['other', 'values'];
-});
+array.flatMap(() => condition ? value : []);
 ```
 
 ## Related rules
