@@ -14,6 +14,7 @@ const config = [
 		'eslint-plugin/require-meta-default-options',
 		'@stylistic/max-len',
 		'internal/prefer-context-on',
+		'ava/no-ignored-test-files',
 	]),
 	{
 		linterOptions: {

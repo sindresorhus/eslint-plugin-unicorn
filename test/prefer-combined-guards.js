@@ -817,8 +817,9 @@ test('fixes preserve statements before the exit and evaluation order', t => {
 
 test('directives between guards do not prevent reporting', t => {
 	const code = 'function foo() { if (a) { return; }\n// eslint-disable-next-line no-console\nif (b) { return; } }';
+	const linter = new Linter();
 	for (const options of [{}, {checkCompoundConditions: true}]) {
-		const result = new Linter().verifyAndFix(code, {
+		const result = linter.verifyAndFix(code, {
 			plugins: {unicorn: plugin},
 			rules: {'unicorn/prefer-combined-guards': ['error', options]},
 			linterOptions: {reportUnusedDisableDirectives: 'off'},
