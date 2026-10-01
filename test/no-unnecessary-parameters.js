@@ -351,6 +351,15 @@ test('preserves statement boundaries before a parenthesized numeric receiver', t
 	t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 });
 
+test('parenthesizes negative literals on the left of exponentiation', t => {
+	const code = 'function square(value) { return value ** 2; } [square(-2), square(-2)];';
+	const result = linter.verifyAndFix(code, config);
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, 'function square() { return (-2) ** 2; } [square(), square()];');
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[4,4]');
+});
+
 test('preserves rest arguments when removing a middle parameter', t => {
 	const code = 'function format(first, unit, ...rest) { return [first, unit, rest]; } [format(1, "px", 2), format(3, "px", 4, 5)];';
 	const result = linter.verifyAndFix(code, config);
@@ -401,6 +410,21 @@ test('skips own arguments in named function expressions and their arrows', t => 
 		t.deepEqual(result.messages, []);
 		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 	}
+});
+
+test('fixes arrows using an enclosing function arguments object', t => {
+	const code = outdent`
+		function outer(input) {
+			const format = value => [value, arguments[0]];
+			return [format(1), format(1)];
+		}
+		[outer(2), outer(3)];
+	`;
+	const result = linter.verifyAndFix(code, config);
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.regex(result.output, /const format = \(\) => \[1, arguments\[0\]\]/);
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[[[1,2],[1,2]],[[1,3],[1,3]]]');
 });
 
 test('avoids overlapping edits while expanding a recursive concise arrow', t => {
