@@ -183,8 +183,6 @@ Set this to `1` to check functions called only once.
 
 ## Scope and limitations
 
-Functions with unknown callers are ignored, including exported functions, aliases, callbacks, and public methods. Decorated declarations, inherited constructors, top-level script bindings, and functions using their own `arguments` are also ignored. Files containing direct `eval`, `with`, or non-strict block function declarations are skipped.
+Functions with unknown callers, public methods, and functions using their own `arguments` are ignored. Ambiguous arguments and nested destructuring are skipped. Files with direct `eval`, `with`, or non-strict block function declarations are skipped.
 
-Argument values from imported, reassigned, or `var` bindings are not analyzed. Nested destructuring and mutual recursion are not analyzed either. Object spreads, dynamic or duplicate keys, accessors, and prototype-dependent properties are unsupported. Spread arguments are skipped when they obscure a parameter's position.
-
-Autofixes update the declaration, references, and all callers together. Files with a TypeScript extension or parser require manual changes to avoid invalidating types. Global bindings, complex defaults, and cases where a fix could change scope, evaluation timing, syntax, or comment placement also require manual changes. Reflection through instance constructors or function source text is unsupported.
+Autofixes update declarations and callers together. Files with a TypeScript extension or parser require manual changes, as do global bindings, complex defaults, and fixes that could change scope, evaluation timing, syntax, or comments. Reflection through instance constructors or function source text is unsupported.
