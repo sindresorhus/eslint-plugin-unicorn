@@ -313,6 +313,8 @@ ruleTester.snapshot({
 for (const [options, code, output] of [
 	[[], 'if (!(!a && !b && !c)) {}', 'if (a || b || c) {}'],
 	[[{negatedConditions: 'expand'}], 'if (!(a && (b || c))) {}', 'if (!a || (!b && !c)) {}'],
+	[[{negatedConditions: 'expand'}], 'const a = true;\nfoo()\n!(!(a) && b && c)', 'const a = true;\nfoo()\n;(a) || !b || !c'],
+	[[{negatedConditions: 'expand'}], 'foo()\n!(!(a === b) && c && d)', 'foo()\n;(a === b) || !c || !d'],
 ]) {
 	test(`applies repeated fixes until no nested simplifications remain: ${code}`, t => {
 		const linter = new Linter({configType: 'flat'});
