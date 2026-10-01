@@ -2,7 +2,6 @@ import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
-const noAutofixOutput = /./.exec('');
 
 test.snapshot({
 	valid: [
@@ -30,12 +29,12 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'const array = new Array(1)',
-		// This is actually `[]`, but we fix to `Array.from({length: zero})`
+		// This is actually `[]`, but a length is not fixed
 		outdent`
 			const zero = 0;
 			const array = new Array(zero);
 		`,
-		// Use shorthand
+		// A variable named `length`
 		outdent`
 			const length = 1;
 			const array = new Array(length);
@@ -128,18 +127,51 @@ test({
 	invalid: [
 		{
 			code: 'const object = {}; Object.defineProperty(object, "length", {get() { return "foo"; }}); new Array(object.length);',
-			output: noAutofixOutput,
-			errors: [{messageId: 'error', suggestions: 2}],
+			errors: [{messageId: 'error'}],
 		},
 		{
 			code: 'const array = []; new Array(1 + array.length);',
-			output: noAutofixOutput,
-			errors: [{messageId: 'error', suggestions: 2}],
+			errors: [{messageId: 'error'}],
 		},
 		{
 			code: 'const alias = condition; var condition = true; new Array(alias ? "x" : 1);',
-			output: noAutofixOutput,
-			errors: [{messageId: 'error', suggestions: 2}],
+			errors: [{messageId: 'error'}],
 		},
+
+		// A number is a length, and there is no dense spelling of a holey array, so it is reported without a fix or suggestion. This includes a length that makes `new Array()` throw.
+		...[
+			'new Array(1.5)',
+			'new Array(-1)',
+			'new Array(1 / 2)',
+			'const size = 3; new Array(size / 2);',
+			'const size = 3; new Array(size * 2);',
+			'new Array(-0)',
+			'new Array(2.5 * 2)',
+			'new Array(Infinity)',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'error'}],
+		})),
+		...[
+			'new Array(0xff)',
+			'new Array(1e2)',
+			'new Array(0b1)',
+			'new Array(1_0)',
+		].map(code => ({
+			code: `const array = ${code};`,
+			errors: 1,
+		})),
+		// A comment inside the call is not dropped by the fix or the suggestion
+		...[
+			'new Array(/* the size */ 3);',
+			'new /* c */ Array(1);',
+			'new Array(1 /* c */);',
+			'new Array(/* c */ "x");',
+			'new /* c */ Array("x");',
+			'new Array(/* c */ ...foo);',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'error', suggestions: []}],
+		})),
 	],
 });

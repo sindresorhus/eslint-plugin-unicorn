@@ -13,7 +13,7 @@ The ESLint built-in rule [`no-array-constructor`](https://eslint.org/docs/rules/
 
 When using the `Array` constructor with one argument, it's not clear whether the argument is meant to be the length of the array or the only element.
 
-This rule is fixable if the value type of the argument is known.
+This rule is fixable if the argument is known not to be a number. A spread argument gets a suggestion instead.
 
 ## Examples
 
@@ -21,10 +21,14 @@ This rule is fixable if the value type of the argument is known.
 // ❌
 const length = 10;
 const array = new Array(length);
+```
 
-// ✅
-const length = 10;
-const array = Array.from({length});
+A length has no equivalent rewrite, so this is reported without a fix. `new Array(length)` creates `length` holes, and `Array.from({length})` creates `length` `undefined` values instead, which is observable wherever a hole is skipped or counted:
+
+```js
+const array = new Array(3);
+array.filter(() => true).length; // 0
+Array.from({length: 3}).filter(() => true).length; // 3
 ```
 
 ```js
