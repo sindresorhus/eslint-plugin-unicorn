@@ -8,6 +8,7 @@ import {
 } from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
+	getChildNodes,
 	getAncestor,
 	getNextNode,
 	getParenthesizedText,
@@ -69,29 +70,8 @@ const isGroupingCallback = node =>
 	&& hasUniqueParameterNames(node.params);
 
 function isNodeMatchedInside(node, predicate) {
-	if (predicate(node)) {
-		return true;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(node => node?.type && isNodeMatchedInside(node, predicate))) {
-				return true;
-			}
-
-			continue;
-		}
-
-		if (value?.type && isNodeMatchedInside(value, predicate)) {
-			return true;
-		}
-	}
-
-	return false;
+	return predicate(node)
+		|| [...getChildNodes(node)].some(node => isNodeMatchedInside(node, predicate));
 }
 
 const referencesIdentifier = (node, identifier) =>
@@ -490,14 +470,14 @@ function getGroupByMethod(initialValue) {
 	}
 }
 
-const hasObjectGroupByBindingConflict = (method, declaration, context) =>
-	method === 'Object.groupBy'
-	&& declaration
-	&& context.sourceCode.getDeclaredVariables(declaration).some(variable => variable.name === 'Object');
+// The fix writes `Object.groupBy()`/`Map.groupBy()` into the declaration, a binding with that name declared there would be a different call
+const hasGroupByBindingConflict = (method, declaration, context) =>
+	declaration
+	&& context.sourceCode.getDeclaredVariables(declaration).some(variable => method.startsWith(`${variable.name}.`));
 
 function getGroupByMethodForBinding(initialValue, declaration, context) {
 	const method = getGroupByMethod(initialValue);
-	return hasObjectGroupByBindingConflict(method, declaration, context) ? undefined : method;
+	return method && !hasGroupByBindingConflict(method, declaration, context) ? method : undefined;
 }
 
 const hasTypeArguments = node => Boolean(node.typeArguments || node.typeParameters);
@@ -573,13 +553,8 @@ function getGroupByProblem(callExpression, context) {
 	}
 
 	const variableDeclarator = getAncestor(callExpression, 'VariableDeclarator');
-	const declaration = variableDeclarator?.parent;
-	const method = getGroupByMethodForBinding(initialValue, declaration, context);
-	if (!method) {
-		return;
-	}
-
-	if (!isReturnAccumulatorStatement(callback.body.body.at(-1), callbackParts.accumulator)) {
+	const method = getGroupByMethodForBinding(initialValue, variableDeclarator?.parent, context);
+	if (!method || !isReturnAccumulatorStatement(callback.body.body.at(-1), callbackParts.accumulator)) {
 		return;
 	}
 

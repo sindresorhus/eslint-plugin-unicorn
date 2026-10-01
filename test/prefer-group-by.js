@@ -154,6 +154,8 @@ test.snapshot({
 			code: 'function f(items: Int8Array) { items.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {}); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// Array holes are unsupported: only a sparse receiver written inline is skipped, not one bound to a variable
+		'const array = [1, , 3]; const result = array.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {});',
 	],
 });
 
@@ -161,6 +163,9 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		'const Object = {}; for (const item of items) {(Object[item.type] ??= []).push(item);}',
+		// The fix writes `Map.groupBy()` into the declaration of a binding with that name
+		'const Map = new Map(); for (const item of items) {const group = Map.get(item.type) ?? []; group.push(item); Map.set(item.type, group);}',
+		'const Map = items.reduce((groups, item) => {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group); return groups;}, new Map());',
 		'const groups = {}; for (const item of item) {(groups[item.type] ??= []).push(item);}',
 		'const groups = {}; for (const item of items.filter(() => item.active)) {(groups[item.type] ??= []).push(item);}',
 		'const groups = new Map(); for (const item of items) {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [,]);}}',
