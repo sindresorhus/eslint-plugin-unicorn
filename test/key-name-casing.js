@@ -38,6 +38,10 @@ test.snapshot({
 		{code: '{userName: 1}', language: languages.json5},
 		{code: 'userName: bad-name\n123: value\ntrue: value\n? [bad-key, OtherKey]\n: value', language: languages.yaml},
 		{code: 'defaults: &defaults {userName: 1}\nconfig: {<<: *defaults, otherKey: 2}', language: languages.yaml},
+		// A tagged, anchored, or alias key is not a plain `YAMLScalar`, so it is skipped
+		{code: '&anchor bad-key: value', language: languages.yaml},
+		{code: '!!str bad-key: value', language: languages.yaml},
+		{code: 'a: &anchor bad-key\n*anchor : value', language: languages.yaml},
 		{code: 'userName = "bad-name"\n[nested.otherKey]\nvalue = {innerKey = 1}', language: languages.toml},
 		{code: '[nested."other.key"]\nvalue = 1', language: languages.toml, options: [{ignore: [String.raw`\.`]}]},
 	],
