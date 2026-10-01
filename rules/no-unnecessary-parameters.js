@@ -353,7 +353,7 @@ function getLocalDefault(parameter, target, arguments_, context) {
 		return;
 	}
 
-	return `${hasWrites(parameter.variable) ? 'let' : 'const'} ${parameter.identifier.name} = ${defaultNode.name};`;
+	return `${hasWrites(parameter.variable) ? 'let' : 'const'} ${parameter.identifier.name} = ${context.sourceCode.getText(parameter.defaultNode)};`;
 }
 
 function getReplacementText(identifier, value, context) {
@@ -414,8 +414,8 @@ function canInlineValue(parameter, result, context) {
 	}
 
 	const definition = value.variable.defs[0];
-	// Non-strict parameter bindings can change through their mapped arguments object.
-	if (definition.type === 'Parameter' && !value.variable.scope.isStrict) {
+	// Parameter and catch bindings may be uninitialized, and parameters can change through a mapped arguments object.
+	if (['Parameter', 'CatchClause'].includes(definition.type)) {
 		return false;
 	}
 
@@ -423,11 +423,12 @@ function canInlineValue(parameter, result, context) {
 		return false;
 	}
 
+	// A declaration in another switch case may not have been initialized.
 	if ((definition.type === 'Variable' || definition.type === 'ClassName')
-		&& arguments_.some(argument => argument.node && (
+		&& (value.variable.scope.type === 'switch' || arguments_.some(argument => argument.node && (
 			sourceCode.getScope(argument.node).variableScope !== value.variable.scope.variableScope
 			|| sourceCode.getRange(definition.node)[1] > sourceCode.getRange(argument.node)[0]
-		))) {
+		)))) {
 		return false;
 	}
 

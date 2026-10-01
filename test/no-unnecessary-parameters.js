@@ -664,11 +664,13 @@ test('still fixes strict block declarations and sloppy block function expression
 	}
 });
 
-test('still fixes parameters receiving a stable catch binding', t => {
+test('reports stable catch bindings without inlining', t => {
 	const code = 'try { throw 1; } catch (limit) { const format = value => value; [format(limit), format(limit)]; }';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.is(result.messages.length, 1);
+	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
 
@@ -737,4 +739,84 @@ test('ignores ambient declaration bindings', t => {
 		const javascript = stripTypeScriptTypes(result.output);
 		t.is(JSON.stringify(vm.runInNewContext(javascript, {callback: () => 1})), '[1,1]');
 	}
+});
+
+test('keeps argument reads before body effects for uninitialized switch bindings', t => {
+	for (const declaration of ['const limit = 1;', 'let limit = 1;', 'class limit {}']) {
+		const code = outdent`
+			let count = 0;
+			switch (1) {
+				case 0:
+					${declaration}
+					break;
+				case 1:
+					const format = value => { count++; return value; };
+					try { format(limit); } catch {}
+					try { format(limit); } catch {}
+			}
+			count;
+		`;
+		const result = linter.verifyAndFix(code, config);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.is(vm.runInNewContext(result.output), 0);
+	}
+});
+
+test('still fixes hoisted function bindings from other switch cases', t => {
+	const code = 'switch (1) { case 0: function limit() { return 1; } break; case 1: const format = value => value(); [format(limit), format(limit)]; }';
+	const result = linter.verifyAndFix(code, config);
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+});
+
+test('keeps argument reads before body effects in outer parameter initializers', t => {
+	const code = outdent`
+		let count = 0;
+		function outer(first = (() => {
+			const format = value => { count++; return value; };
+			try { format(second); } catch {}
+			try { format(second); } catch {}
+		})(), second) {}
+		outer();
+		count;
+	`;
+	const result = linter.verifyAndFix(code, config);
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.is(result.messages.length, 1);
+	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.is(vm.runInNewContext(result.output), 0);
+});
+
+test('keeps argument reads before body effects in catch binding initializers', t => {
+	const code = outdent`
+		let count = 0;
+		try { throw {}; } catch ({first = (() => {
+			const format = value => { count++; return value; };
+			try { format(second); } catch {}
+			try { format(second); } catch {}
+		})(), second}) {}
+		count;
+	`;
+	const result = linter.verifyAndFix(code, config);
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.is(result.messages.length, 1);
+	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.is(vm.runInNewContext(result.output), 0);
+});
+
+test('preserves TypeScript assertions when moving earlier-parameter defaults', t => {
+	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
+	const code = 'function format(first = 1 as string | number, second = first as number) { return second.toFixed(); } [format(1), format(2)];';
+	const result = linter.verifyAndFix(code, typescriptConfig);
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.regex(result.output, /const second = first as number;/);
+	const javascript = stripTypeScriptTypes(result.output);
+	t.is(JSON.stringify(vm.runInNewContext(javascript)), '["1","2"]');
 });
