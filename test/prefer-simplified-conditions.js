@@ -249,6 +249,8 @@ ruleTester.snapshot({
 		'!(min <= value && value <= max)',
 		'!(a?.b && foo?.())',
 		'!((a ?? b) && c)',
+		'!(a && b) ?? c',
+		'c ?? !(a || b)',
 		'!(a && (b ? c : d))',
 		'!(a && (b = c))',
 		'!(a && (b, c))',
@@ -293,6 +295,17 @@ ruleTester.snapshot({
 });
 
 ruleTester.snapshot({
+	valid: [],
+	invalid: [
+		{
+			code: 'declare const a: boolean; const value = !(!a && b);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('declare const flags: {a: boolean}; const value = !(!flags.a || b);'),
+	].map(testCase => ({...testCase, options: [{negatedConditions: 'expand'}]})),
+});
+
+ruleTester.snapshot({
 	valid: ['!(a && b)', '!(a || b)'].map(code => ({code, options: [{negatedConditions: 'simplify'}]})),
 	invalid: [],
 });
@@ -334,7 +347,17 @@ test('expanded conditions preserve values and evaluation order', t => {
 	};
 	const values = [undefined, false, true, 0, 1, NaN, '', 'text'];
 
-	for (const expression of ['!(a() && b())', '!(a() || b())', '!(!a() && b())', '!(!a() || b())', '!(a() <= b() && b() <= 10)']) {
+	for (const expression of [
+		'!(a() && b())',
+		'!(a() || b())',
+		'!(!a() && b())',
+		'!(!a() || b())',
+		'!(a() && !b())',
+		'!(a() || !b())',
+		'!(a() && (b() || a()))',
+		'!(a() || (b() && a()))',
+		'!(a() <= b() && b() <= 10)',
+	]) {
 		const code = `const result = ${expression}; result;`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
 		t.true(fixed);
@@ -374,9 +397,14 @@ test('expanded conditions settle with related rules enabled', t => {
 		},
 	};
 
-	for (const code of ['if (!(a === b && c === d)) { foo(); } else { bar(); }', 'const result = !(a && b) ? c : d;', 'function foo() { if (a && b) { bar(); baz(); qux(); } }']) {
+	for (const [code, expectedOutput] of [
+		['if (!(a === b && c === d)) { foo(); } else { bar(); }', 'if ((a !== b || c !== d)) { foo(); } else { bar(); }'],
+		['const result = !(a && b) ? c : d;', 'const result = !a || !b ? c : d;'],
+		['function foo() { if (a && b) { bar(); baz(); qux(); } }', 'function foo() { if (!a || !b) {\n\treturn;\n}\n\nbar(); baz(); qux(); }'],
+	]) {
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
 		t.true(fixed);
+		t.is(output, expectedOutput);
 		t.deepEqual(messages, []);
 		t.false(linter.verifyAndFix(output, config).fixed);
 	}
