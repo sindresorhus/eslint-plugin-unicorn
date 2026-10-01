@@ -20,6 +20,9 @@ test.snapshot({
 		'array?.reverse()',
 		'if (true) array.reverse()',
 		'reversed = array.reverse(extraArgument)',
+		// A lone array hole is not a spread element
+		'[,].reverse()',
+		'[, ,].reverse()',
 	],
 	invalid: [
 		'reversed = [...array].reverse()',
@@ -45,5 +48,11 @@ test.snapshot({
 		'reversed = [...a ? b : c].reverse()',
 		'reversed = [...(a + b)].reverse()',
 		'reversed = [...new Set(array)].reverse()',
+		// The unwrap is not offered when a comment inside the array literal would be lost
+		'reversed = [...a/* keep */].reverse()',
+		'reversed = [/* keep */ ...a].reverse()',
+		// A comment inside the argument is kept by the unwrap
+		'reversed = [...a /* keep */ .b].reverse()',
+		'[...array,].reverse()',
 	],
 });

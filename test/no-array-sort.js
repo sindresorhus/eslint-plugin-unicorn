@@ -36,6 +36,9 @@ test.snapshot({
 			code: 'collection.sort({field: 1})',
 			options: FORBID_EXPRESSION_OPTIONS,
 		},
+		// A lone array hole is not a spread element
+		'[,].sort()',
+		'[, ,].sort()',
 	],
 	invalid: [
 		'sorted = [...array].sort()',
@@ -62,5 +65,14 @@ test.snapshot({
 		'sorted = [...(0, array)].sort()',
 		// Spread argument is a low-precedence expression and needs parentheses when unwrapped
 		'sorted = [...a + b].sort()',
+		// The unwrap is not offered when a comment inside the array literal would be lost
+		'sorted = [.../* keep */ a].sort()',
+		'sorted = [/* keep */ ...a].sort()',
+		'sorted = [\n\t// keep\n\t...a,\n].sort()',
+		'sorted = [...a/* keep */].sort()',
+		// A comment inside the argument is kept
+		'sorted = [...foo(/* keep */)].sort()',
+		// A receiver that is not an array literal has no `elements` to inspect
+		'const x = a\n\t// keep\n\t.slice()\n\t.sort();',
 	],
 });
