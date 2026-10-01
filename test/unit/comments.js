@@ -3,6 +3,7 @@ import {Linter} from 'eslint';
 import {
 	getCommentSafeProblem,
 	getLastTrailingCommentOnSameLine,
+	hasCommentInRange,
 	hasNonDirectiveComment,
 	isEslintDisableOrEnableDirective,
 	wouldRemoveComments,
@@ -51,6 +52,7 @@ for (const [comment, isOrdinary] of [
 			t.is(hasNonDirectiveComment(context, node), isOrdinary);
 			t.is(hasNonDirectiveComment(context, context.sourceCode.getRange(node)), isOrdinary);
 			t.is(wouldRemoveComments(context, node), comment !== '');
+			t.is(hasCommentInRange(context, context.sourceCode.getRange(node)), comment !== '');
 
 			const fix = () => {};
 			const suggest = [{messageId: 'suggestion', fix}];
@@ -74,8 +76,25 @@ test('comment helpers ignore comments outside the affected range', t => {
 	const result = inspectComments('/* Before. */ foo(); /* After. */', (context, node) => ({
 		ordinary: hasNonDirectiveComment(context, node),
 		removed: wouldRemoveComments(context, node),
+		inRange: hasCommentInRange(context, context.sourceCode.getRange(node)),
 	}));
-	t.deepEqual(result, {ordinary: false, removed: false});
+	t.deepEqual(result, {ordinary: false, removed: false, inRange: false});
+});
+
+test('range comment checks require the whole comment to be inside the range', t => {
+	inspectComments('foo(/* Explanation. */ value);', (context, node) => {
+		const [comment] = context.sourceCode.getCommentsInside(node);
+		const [start, end] = context.sourceCode.getRange(comment);
+		for (const [range, expected] of [
+			[[start, end], true],
+			[[start + 1, end], false],
+			[[start, end - 1], false],
+			[[start, start], false],
+		]) {
+			t.is(hasCommentInRange(context, range), expected);
+			t.is(wouldRemoveComments(context, range), expected);
+		}
+	});
 });
 
 test('comment helpers retain fixes for comments in preserved nodes and ranges', t => {

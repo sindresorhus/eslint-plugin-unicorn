@@ -86,13 +86,7 @@ Check whether any comment falls entirely within the given range.
 @param {Array<number>} range
 @returns {boolean}
 */
-const hasCommentInRange = (context, [start, end]) => {
-	const {sourceCode} = context;
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
-};
+const hasCommentInRange = (context, range) => wouldRemoveComments(context, range);
 
 export {
 	getLastTrailingCommentOnSameLine,
