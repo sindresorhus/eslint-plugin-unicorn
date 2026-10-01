@@ -1,6 +1,7 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {isEmptyArrayExpression, isMethodCall} from './ast/index.js';
+import {isEmptyArrayExpression, isFunction, isMethodCall} from './ast/index.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	isKnownNonIndexedCollection,
 	isParenthesized,
@@ -10,14 +11,52 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 	wouldRemoveComments,
 } from './utils/index.js';
+import {createTypeCheckers, target, unknown} from './utils/type-helpers.js';
 
 const MESSAGE_ID = 'no-unnecessary-array-flat-map';
 const SUGGESTION_ID_FILTER_MAP = 'no-unnecessary-array-flat-map/filter-map-suggestion';
+const MESSAGE_ID_ARRAY_WRAPPER = 'no-unnecessary-array-flat-map/array-wrapper';
 
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.{{method}}(…)` over `.flatMap(…)` for this single-item array callback.',
 	[SUGGESTION_ID_FILTER_MAP]: 'Replace `.flatMap(…)` with `.filter(…).map(…)`.',
+	[MESSAGE_ID_ARRAY_WRAPPER]: 'Wrapping this value in an array is unnecessary.',
 };
+
+const nonArrayExpressionTypes = new Set([
+	'Literal',
+	'ObjectExpression',
+	'FunctionExpression',
+	'ArrowFunctionExpression',
+	'ClassExpression',
+	'TemplateLiteral',
+	'UnaryExpression',
+	'BinaryExpression',
+	'UpdateExpression',
+]);
+
+const primitiveTypeAnnotations = new Set([
+	'TSBigIntKeyword',
+	'TSBooleanKeyword',
+	'TSNullKeyword',
+	'TSNumberKeyword',
+	'TSStringKeyword',
+	'TSSymbolKeyword',
+	'TSUndefinedKeyword',
+	'TSLiteralType',
+]);
+
+const primitiveTypeNames = new Set(['bigint', 'boolean', 'number', 'string', 'symbol']);
+
+const {isTarget: isNonArrayValue} = createTypeCheckers({
+	checkClassHeritage: false,
+	allowNullishInMixedUnion: true,
+	targetTypeNames: new Set(),
+	isTargetNode: node => nonArrayExpressionTypes.has(node.type),
+	isTargetTypeAnnotation: node => primitiveTypeAnnotations.has(node?.type),
+	isTargetType: type => type.isLiteral?.() || primitiveTypeNames.has(type.intrinsicName),
+	getStaticType: value => value === null || typeof value !== 'object' ? target : unknown,
+});
 
 const arrowBodyNeedsParenthesesTypes = new Set([
 	'ObjectExpression',
@@ -241,7 +280,7 @@ function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callba
 		: problem;
 }
 
-function getProblem(flatMapCallExpression, context, isTypeScript) {
+function isFlatMapCall(flatMapCallExpression, context) {
 	if (
 		!isMethodCall(flatMapCallExpression, {
 			method: 'flatMap',
@@ -252,17 +291,15 @@ function getProblem(flatMapCallExpression, context, isTypeScript) {
 		})
 		|| isKnownNonIndexedCollection(flatMapCallExpression.callee.object, context)
 	) {
-		return;
+		return false;
 	}
 
 	const filterCallExpression = flatMapCallExpression.callee.object;
-	if (
-		isFilterCallExpression(filterCallExpression)
-		&& isKnownNonIndexedCollection(filterCallExpression.callee.object, context)
-	) {
-		return;
-	}
+	return !(isFilterCallExpression(filterCallExpression)
+		&& isKnownNonIndexedCollection(filterCallExpression.callee.object, context));
+}
 
+function getProblem(flatMapCallExpression, context, isTypeScript) {
 	const [callback] = flatMapCallExpression.arguments;
 	if (!isSimpleSingleParameterArrowCallback(callback)) {
 		return;
@@ -288,12 +325,73 @@ function getProblem(flatMapCallExpression, context, isTypeScript) {
 	return getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context);
 }
 
+function getArrayWrapperProblem(node, context, isTypeScript) {
+	const element = getSingleArrayElement(node);
+	if (!element) {
+		return;
+	}
+
+	let returnedExpression = node;
+	while (
+		returnedExpression.parent.type === 'ConditionalExpression'
+		&& returnedExpression.parent.test !== returnedExpression
+	) {
+		returnedExpression = returnedExpression.parent;
+	}
+
+	let callback = returnedExpression.parent;
+	if (callback.type === 'ReturnStatement') {
+		while (callback && !isFunction(callback)) {
+			callback = callback.parent;
+		}
+	}
+
+	if (
+		!callback
+		|| !isFunction(callback)
+		|| callback.async
+		|| callback.generator
+		|| callback.returnType
+		|| callback.parent.type !== 'CallExpression'
+		|| callback.parent.arguments[0] !== callback
+		|| !isFlatMapCall(callback.parent, context)
+		|| getProblem(callback.parent, context, isTypeScript)
+		|| !isNonArrayValue(element, context)
+	) {
+		return;
+	}
+
+	return {
+		node,
+		messageId: MESSAGE_ID_ARRAY_WRAPPER,
+		* fix(fixer, {abort}) {
+			const {sourceCode} = context;
+			if (wouldRemoveComments(context, node, [getParenthesizedRange(element, context)])) {
+				return abort();
+			}
+
+			let replacement = node.parent.type === 'ArrowFunctionExpression' && !isParenthesized(node, context)
+				? getArrowBodyText(element, context)
+				: getParenthesizedText(element, context);
+			const previousToken = sourceCode.getTokenBefore(node);
+			if (previousToken?.value === 'return' && sourceCode.getRange(previousToken)[1] === sourceCode.getRange(node)[0]) {
+				replacement = ` ${replacement}`;
+			}
+
+			yield fixer.replaceText(node, replacement);
+		},
+	};
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
 	const isTypeScript = isTypeScriptFile(context.physicalFilename) || isTypeScriptVueSfc(context.sourceCode);
-	context.on('CallExpression', callExpression => getProblem(callExpression, context, isTypeScript));
+	context.on('CallExpression', callExpression =>
+		isFlatMapCall(callExpression, context) ? getProblem(callExpression, context, isTypeScript) : undefined,
+	);
+	context.on('ArrayExpression', node => getArrayWrapperProblem(node, context, isTypeScript));
 };
 
 /**
@@ -304,7 +402,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `Array#flatMap()` callbacks that only wrap a single item.',
+			description: 'Disallow unnecessary use of `Array#flatMap()`.',
 			recommended: true,
 		},
 		fixable: 'code',
