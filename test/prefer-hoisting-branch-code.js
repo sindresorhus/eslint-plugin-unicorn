@@ -302,6 +302,7 @@ test.snapshot({
 		'if (a) { void c; first(); const c = 1; } else { void c; second(); const c = 2; }',
 		// A multi-line template literal in the hoisted code cannot be reindented without changing its value
 		'if (a) {\n\tbar();\n\tfoo(`x\n\ty`);\n} else {\n\tbaz();\n\tfoo(`x\n\ty`);\n}',
+		'if (a) {\n\t`x\n\ty`;\n\tbar();\n} else {\n\t`x\n\ty`;\n\tbaz();\n}',
 	],
 });
 
