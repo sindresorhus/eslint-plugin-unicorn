@@ -150,6 +150,7 @@ testRule.snapshot({
 		'function format({"unit": unit}) { return unit; } format({unit: "px"}); format({"unit": "px"});',
 		'function format({["unit"]: unit}) { return unit; } format({["unit"]: "px"}); format({unit: "px"});',
 		'function format({[1]: value}) { return value; } format({[1]: 2}); format({"1": 2});',
+		'function format(__proto__) { return {value: __proto__}; } format(1); format(1);',
 		'function format(value, other) { return value + other; } format(1, ...items); format(1, 2);',
 		'function format(value /* keep */) { return value; } format(1); format(1);',
 		'function format(value) { return value; } format(/* keep */ 1); format(1);',
@@ -161,6 +162,7 @@ testRule.snapshot({
 		{code: 'function format(value) { return value; } format(1); format(1); format(1);', options: [{minimumCallCount: 3}]},
 		{code: 'function outer() { function format(value) { return value; } format(1); format(1); }', languageOptions: {sourceType: 'script'}},
 		{code: 'function outer(limit) { "use strict"; function format(value) { return () => value; } format(limit); format(limit); } outer(1);', languageOptions: {sourceType: 'script'}},
+		{code: 'function outer() { function format(value) { return delete value; } format(1); format(1); } outer();', languageOptions: {sourceType: 'script'}},
 		outdent`
 			function format(first, second = first) {
 				'use custom directive';
@@ -196,6 +198,7 @@ testRule.snapshot({
 		'class Point { constructor(value: number) { this.value = value; } } let point: Point; new Point(1); new Point(1);',
 		'function format(value) { return value; } type Signature = typeof format; format(1); format(1);',
 		'function format(value) { <string>value; return value; } format("use strict"); format("use strict");',
+		{code: 'function outer() { function format(value) { return delete (<number>value); } format(1); format(1); } outer();', languageOptions: {sourceType: 'script'}},
 	],
 });
 
@@ -529,6 +532,58 @@ test('does not introduce a strict directive after stripping TypeScript wrappers'
 		const result = linter.verifyAndFix(code, typescriptConfig);
 		t.true(result.fixed);
 		t.deepEqual(result.messages, []);
+		const javascript = stripTypeScriptTypes(result.output);
+		t.is(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
+	}
+});
+
+test('keeps shorthand prototype keys as own properties', t => {
+	for (const code of [
+		'function format(__proto__) { return {__proto__}; } [format(1), format(1)];',
+		'const options = {}; function format(__proto__) { return {__proto__}; } [format(options), format(options)];',
+		'function format({value: __proto__}) { return {__proto__}; } [format({value: 1}), format({value: 1})];',
+	]) {
+		const result = linter.verifyAndFix(code, config);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	}
+});
+
+test('does not expose an implicit arguments object after removing a parameter', t => {
+	for (const [parameter, argument] of [['arguments', 'arguments'], ['{value: arguments}', '{value: arguments}']]) {
+		const code = `function outer() { const arguments = 1; function format(${parameter}) { return arguments; } return [format(${argument}), format(${argument})]; } outer();`;
+		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	}
+});
+
+test('does not inline binding names with context-dependent syntax', t => {
+	for (const code of [
+		'function outer() { const await = 1; async function format(value) { return value; } format(await); format(await); } outer();',
+		'function outer() { const yield = 1; function * format(value) { return value; } format(yield); format(yield); } outer();',
+		'function outer() { function package() {} function format(value) { "use strict"; return value; } format(package); format(package); } outer();',
+	]) {
+		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	}
+});
+
+test('keeps delete operations on TypeScript-wrapped parameter references', t => {
+	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation, sourceType: 'script'}};
+	for (const expression of ['value as any', 'value satisfies number', 'value!', '(value as any)!']) {
+		const code = `function outer() { function format(value) { return delete (${expression}); } return [format(1), format(1)]; } outer();`;
+		const result = linter.verifyAndFix(code, typescriptConfig);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
 		const javascript = stripTypeScriptTypes(result.output);
 		t.is(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
 	}

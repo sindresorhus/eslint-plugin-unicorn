@@ -1,4 +1,5 @@
 import {findVariable, isCommaToken} from '@eslint-community/eslint-utils';
+import reservedIdentifiers from 'reserved-identifiers';
 import {isFunction} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty, replaceReferenceIdentifier} from './fix/index.js';
 import {
@@ -8,6 +9,7 @@ import {
 	getParenthesizedRange,
 	hasCommentInRange,
 	isParenthesized,
+	isShorthandPropertyValue,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	unwrapTypeScriptExpression,
@@ -19,6 +21,8 @@ const messages = {
 	'always-default': 'Parameter `{{name}}` always receives its default value.',
 	'always-undefined': 'Parameter `{{name}}` is always `undefined`.',
 };
+
+const reserved = reservedIdentifiers();
 
 const isInside = (node, parent, context) => {
 	const {sourceCode} = context;
@@ -111,11 +115,16 @@ const isSameValue = (first, second) => first?.kind === second?.kind && (
 	first.kind === 'binding' ? first.variable === second.variable : Object.is(first.value, second.value)
 );
 
-function getCall(node) {
+function getOuterExpression(node) {
 	while (isTypeScriptExpressionWrapper(node.parent) || node.parent.type === 'TSInstantiationExpression') {
 		node = node.parent;
 	}
 
+	return node;
+}
+
+function getCall(node) {
+	node = getOuterExpression(node);
 	const {parent} = node;
 	if ((parent.type === 'CallExpression' || parent.type === 'NewExpression') && parent.callee === node) {
 		return parent;
@@ -341,10 +350,7 @@ function getLocalDefault(parameter, target, arguments_, context) {
 }
 
 function getReplacementText(identifier, value, context) {
-	let expression = identifier;
-	while (isTypeScriptExpressionWrapper(expression.parent)) {
-		expression = expression.parent;
-	}
+	const expression = getOuterExpression(identifier);
 
 	let text;
 	if (isUndefined(value)) {
@@ -381,7 +387,8 @@ function getReplacementText(identifier, value, context) {
 function canInlineValue(parameter, result, context) {
 	const {sourceCode} = context;
 	const {value, arguments_} = result;
-	if (!value || hasWrites(parameter.variable) || parameter.variable.references.some(reference => reference.identifier.type === 'JSXIdentifier')) {
+	if (!value || hasWrites(parameter.variable) || parameter.variable.references.some(({identifier}) =>
+		identifier.type === 'JSXIdentifier' || (identifier.name === '__proto__' && isShorthandPropertyValue(identifier)))) {
 		return false;
 	}
 
@@ -389,7 +396,7 @@ function canInlineValue(parameter, result, context) {
 		return true;
 	}
 
-	if (value.variable.defs.length === 0 || value.variable.name === 'eval') {
+	if (value.variable.defs.length === 0 || reserved.has(value.variable.name)) {
 		return false;
 	}
 
@@ -457,7 +464,10 @@ function getFix(parameter, result, target, context) {
 		return;
 	}
 
-	if (!localDefault && parameter.variable.references.some(reference => reference.identifier.parent.type === 'UnaryExpression' && reference.identifier.parent.operator === 'delete')) {
+	if (!localDefault && parameter.variable.references.some(reference => {
+		const {parent} = getOuterExpression(reference.identifier);
+		return parent.type === 'UnaryExpression' && parent.operator === 'delete';
+	})) {
 		return;
 	}
 
