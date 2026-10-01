@@ -94,7 +94,7 @@ array.includes(true);
 
 ```js
 // ✅
-foo.indexOf('foo') !== -1;
+foo.indexOf('foo') !== -n;
 ```
 
 ```js
@@ -143,4 +143,11 @@ foo.some(x => {
 	const bar = getBar();
 	return x === bar;
 });
+```
+
+```js
+// ✅
+// `indexOf()` compares with `===` and never finds `NaN`, while `includes()` does
+array.indexOf(Number.NaN) !== -1;
+array.some(x => x === Number.NaN);
 ```

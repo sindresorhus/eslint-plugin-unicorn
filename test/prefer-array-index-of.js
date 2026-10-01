@@ -18,3 +18,20 @@ const lastIndexOfOverFindLastIndexFixtures = createSimpleArraySearchRuleTestFixt
 
 test.snapshot(lastIndexOfOverFindLastIndexFixtures.snapshot);
 test.typescript(lastIndexOfOverFindLastIndexFixtures.typescript);
+
+// Unlike `some()` and `includes()`, both sides use `===`, so a `NaN` search value finds nothing either way
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'foo.findIndex(element => element === NaN);',
+			output: 'foo.indexOf(NaN);',
+			errors: 1,
+		},
+		{
+			code: 'foo.findLastIndex(element => element === NaN);',
+			output: 'foo.lastIndexOf(NaN);',
+			errors: 1,
+		},
+	],
+});

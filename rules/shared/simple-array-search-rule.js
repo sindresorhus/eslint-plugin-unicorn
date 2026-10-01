@@ -1,4 +1,4 @@
-import {hasSideEffect, findVariable} from '@eslint-community/eslint-utils';
+import {hasSideEffect, findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall} from '../ast/index.js';
 import {
 	isSameIdentifier,
@@ -9,8 +9,9 @@ import {
 
 const booleanLiteralTypeNames = new Set(['false', 'true']);
 
+// `argument` is `null` for a bare `return;`
 const isSimpleCompare = (node, compareNode) =>
-	node.type === 'BinaryExpression'
+	node?.type === 'BinaryExpression'
 	&& node.operator === '==='
 	&& (
 		isSameIdentifier(node.left, compareNode)
@@ -37,6 +38,8 @@ const isSimpleCompareCallbackFunction = node =>
 		&& isSimpleCompare(node.body.body[0].argument, node.params[0])
 	);
 const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
+// `NaN`, `Number.NaN`, `0 / 0`, but not a binding that happens to be named `NaN`
+const isNaNValue = (node, context) => Number.isNaN(getStaticValue(node, context.sourceCode.getScope(node))?.value);
 
 function getSingleReturnExpression(node) {
 	if (
@@ -158,6 +161,11 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 				return;
 			}
 
+			// `some(element => element === NaN)` is always `false`, while `.includes(NaN)` compares with SameValueZero and does find it. The `findIndex()` replacements use `===` on both sides, so `NaN` is fine for those.
+			if (method === 'some' && isNaNValue(searchValueNode, context)) {
+				return;
+			}
+
 			const callbackScope = scopeManager.acquire(callback);
 			if (
 				// Can't use scopeManager in Vue.js template
@@ -177,7 +185,12 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 				suggest: [],
 			};
 
-			const fix = function * (fixer) {
+			const fix = function * (fixer, {abort}) {
+				// The callback is replaced by the search value, so a comment inside it would be lost
+				if (sourceCode.getCommentsInside(callback).length > 0) {
+					abort();
+				}
+
 				let text = sourceCode.getText(searchValueNode);
 				if (isParenthesized(searchValueNode, context) && !isParenthesized(callback, context)) {
 					text = `(${text})`;

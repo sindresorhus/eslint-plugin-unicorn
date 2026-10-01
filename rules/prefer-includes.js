@@ -1,3 +1,4 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	checkVueTemplate,
 	isMethodNamed,
@@ -14,7 +15,10 @@ const messages = {
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
 const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name);
 const isLiteralZero = node => isLiteral(node, 0);
-const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
+// `NaN`, `Number.NaN`, `0 / 0`, but not a binding that happens to be named `NaN`
+// Same check as in `shared/simple-array-search-rule.js`
+const isNaNValue = (node, context) => Number.isNaN(getStaticValue(node, context.sourceCode.getScope(node))?.value);
+const isNegativeResult = node => ['===', '==', '<', '<='].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
 	const {sourceCode} = context;
@@ -34,16 +38,18 @@ const getProblem = (context, node, target, argumentsNodes) => {
 
 	const argumentsSource = argumentsNodes.map(argument => sourceCode.getText(argument));
 
+	const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
+
 	return {
 		node: memberExpressionNode.property,
 		messageId: MESSAGE_ID,
 		data: {
 			method: node.left.callee.property.name,
 		},
-		fix(fixer) {
-			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
-			return fixer.replaceText(node, replacement);
-		},
+		// The whole comparison is replaced, a comment in it would be dropped
+		fix: sourceCode.getCommentsInside(node).length > 0
+			? undefined
+			: fixer => fixer.replaceText(node, replacement),
 	};
 };
 
@@ -79,6 +85,11 @@ const create = context => {
 			return;
 		}
 
+		// `indexOf()` compares with `===` and never finds `NaN`, while `.includes()` uses SameValueZero
+		if (argumentsNodes.length > 0 && isNaNValue(argumentsNodes[0], context)) {
+			return;
+		}
+
 		// `lastIndexOf(value, fromIndex)` searches backward from `fromIndex`, while `.includes(value, fromIndex)`
 		// searches forward, so they're only equivalent when no `fromIndex` is passed.
 		if (isMethodNamed(left, 'lastIndexOf') && argumentsNodes.length > 1) {
@@ -86,7 +97,8 @@ const create = context => {
 		}
 
 		if (
-			(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right))
+			// `indexOf()` only returns `-1` or a non-negative index, so `<= -1` is `=== -1` too
+			(['!==', '!=', '>', '===', '==', '<='].includes(operator) && isNegativeOne(right))
 			|| (['>=', '<'].includes(operator) && isLiteralZero(right))
 		) {
 			return getProblem(

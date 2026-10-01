@@ -41,6 +41,11 @@ function snapshotTests({method, replacement}) {
 			`foo.${method}(async function(x) {return x === 1})`,
 
 			// Test `callback` body
+			// Bare `return`, the `ReturnStatement#argument` is `null`
+			`foo.${method}(x => {return;})`,
+			`foo.${method}(function (x) {return;})`,
+			`foo.${method}((x = 1) => {return;})`,
+			`foo.${method}(() => {return;})`,
 			// Not only `return`
 			`foo.${method}(({x}) => {noop();return x === 1})`,
 			// Not `return`
