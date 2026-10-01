@@ -13,6 +13,61 @@ test.before(t => {
 
 ruleTest.snapshot({
 	valid: [
+		'new Proxy({}, {get: (...args) => Reflect.get(...args)});',
+		// Spreads can provide any number of arguments, including zero.
+		'Reflect.get(...args);',
+		'Reflect.get(target, ...args);',
+		'Reflect.get(target, key, receiver, ...args);',
+		'Reflect.get(...args, target, key, receiver);',
+		'Reflect.get(target, ...args, key, receiver);',
+		'Reflect.get(...first, ...second);',
+		'Reflect?.get?.(target, key, receiver, ...args);',
+		'Float16Array.from(...values);',
+		'new Set(...values);',
+		'new Set(value, ...values);',
+		'new Map(...values);',
+		'new Uint8Array(...values);',
+		'new Proxy(...args);',
+		'Object.assign(...sources);',
+		'Math.random(...args);',
+		// Literal spreads are not expanded.
+		'Math.random(...[1]);',
+		{
+			code: '(Reflect.get as typeof Reflect.get)(...(args as [object, PropertyKey, object, unknown]));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo(...values);',
+			options: [{foo: {min: 1}}],
+		},
+		{
+			code: 'foo(...values);',
+			options: [{foo: 2}],
+		},
+		{
+			code: 'foo(1, 2, ...values);',
+			options: [{foo: 2}],
+		},
+		{
+			code: 'foo(1, 2, ...values);',
+			options: [{foo: [3, 1]}],
+		},
+		{
+			code: 'foo(1, 2, 3, ...values);',
+			options: [{foo: [3, 1]}],
+		},
+		{
+			code: 'foo.bar(1, 2, ...values);',
+			options: [{'*.bar': {min: 1, max: 2}}],
+		},
+		{
+			code: 'new Foo(...values);',
+			options: [{'new Foo': {max: 1}}],
+		},
+		{
+			code: 'new Foo(value, ...values);',
+			options: [{'new Foo': {max: 1}}],
+		},
 		'function foo(a, b) {}\nfoo(1, 2);',
 		'function foo(a, b = 1) {}\nfoo(1);',
 		'function foo(a, {b} = {}) {}\nfoo(1);',
@@ -36,9 +91,10 @@ ruleTest.snapshot({
 		'const foo = (a, b) => {};\nfoo?.(1);',
 		'(function (a, b) {})(1);',
 
-		// Calls with spread arguments are ignored.
+		// Calls to inferred local functions with spread arguments are ignored.
 		'function foo(a, b) {}\nfoo(1, ...rest);',
 		'function foo(a, b) {}\nfoo(...rest);',
+		'function foo(a, b) {}\nfoo(1, 2, 3, ...rest);',
 
 		// Unsupported targets.
 		'foo(1);',
@@ -53,7 +109,7 @@ ruleTest.snapshot({
 		'import foo from "foo";\nfoo(1);',
 		'const Math = {abs: (...values) => values};\nMath.abs(1, 2);',
 		'const Object = {is: (...values) => values};\nObject.is(1);',
-		'const Set = function (...values) {};\nnew Set(...values);',
+		'const Set = function (...values) {};\nnew Set(value, extra, ...values);',
 		'const globalThis = {Math: {abs: (...values) => values}};\nglobalThis.Math.abs(1, 2);',
 		'parseInt(value);',
 		'parseInt(value, 10);',
@@ -1155,7 +1211,7 @@ ruleTest.snapshot({
 		'JSON.rawJSON(text, extra);',
 		'Map.groupBy(items);',
 		'Object.assign();',
-		'Object.assign(...sources);',
+		'Object.is(left, right, ...values, extra);',
 		'Symbol.for();',
 		'Symbol.keyFor(symbol, extra);',
 		'URL.canParse();',
@@ -1279,14 +1335,14 @@ ruleTest.snapshot({
 		'RegExp(pattern, flags, extra);',
 		'Int8Array.from();',
 		'Uint8Array.from(arrayLike, mapFunction, thisArgument, extra);',
-		'Float16Array.from(...values);',
+		'Float16Array.from(arrayLike, mapFunction, thisArgument, extra, ...values);',
 		'new Set(value, extra);',
 		'new globalThis.Set(value, extra);',
 		'new globalThis.globalThis.Set(value, extra);',
 		'new (globalThis?.Set)(value, extra);',
 		'new (globalThis?.Intl.DateTimeFormat)(locale, options, extra);',
-		'new Set(...values);',
-		'new Map(...values);',
+		'new Set(value, extra, ...values);',
+		'new Map(value, extra, ...values);',
 		'new AggregateError();',
 		'new AggregateError(errors, message, options, extra);',
 		'new Animation(effect, timeline, extra);',
@@ -1311,7 +1367,7 @@ ruleTest.snapshot({
 		'new URL(input, base, extra);',
 		'new URLSearchParams(value, extra);',
 		'new Int8Array(buffer, byteOffset, length, extra);',
-		'new Uint8Array(...values);',
+		'new Uint8Array(buffer, byteOffset, length, extra, ...values);',
 		'new BigUint64Array(buffer, byteOffset, length, extra);',
 		'WebAssembly.compile();',
 		'WebAssembly.compile(bytes, compileOptions, extra);',
@@ -1539,8 +1595,8 @@ ruleTest.snapshot({
 			options: [{foo: [1, 2]}],
 		},
 		{
-			code: 'foo(...values);',
-			options: [{foo: {min: 1}}],
+			code: 'foo(1, 2, 3, ...values);',
+			options: [{foo: {min: 1, max: 2}}],
 		},
 		{
 			code: 'foo.bar();',
@@ -1579,7 +1635,7 @@ ruleTest.snapshot({
 			options: [{'new Set': 0}],
 		},
 		{
-			code: 'new Foo(...values);',
+			code: 'new Foo(value, extra, ...values);',
 			options: [{'new Foo': {max: 1}}],
 		},
 		{
@@ -1594,6 +1650,29 @@ ruleTest.snapshot({
 			options: [{'*.is': 1}],
 		},
 		'Promise.allSettled();',
+		// Explicit arguments already exceed the maximum, regardless of the spreads.
+		'Reflect.get(target, key, receiver, extra, ...args);',
+		'Reflect.get(...args, target, key, receiver, extra);',
+		'Reflect.get(target, ...args, key, receiver, extra);',
+		'Reflect.get(target, ...first, key, ...second, receiver, extra);',
+		'Reflect?.get?.(target, key, receiver, extra, ...args);',
+		'Math.random(seed, ...args);',
+		{
+			code: '(Reflect.get as typeof Reflect.get)(target, key, receiver, extra, ...(args as [unknown]));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo(1, 2, 3, ...values);',
+			options: [{foo: 2}],
+		},
+		{
+			code: 'foo(1, 2, 3, 4, ...values);',
+			options: [{foo: [3, 1]}],
+		},
+		{
+			code: 'foo.bar(1, ...values, 2, 3);',
+			options: [{'*.bar': {min: 1, max: 2}}],
+		},
 	],
 });
 
