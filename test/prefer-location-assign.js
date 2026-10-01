@@ -51,6 +51,8 @@ ruleTest.snapshot({
 		'const target = globalThis.location; target.href = url;',
 		'const result = location.href = url;',
 		'location.href += hash;',
+		'location.href = (a, b);',
+		'location.href = (a, (b, c));',
 		outdent`
 			location.href = /* comment */ url;
 		`,

@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isMemberExpression} from './ast/index.js';
-import {isValueNotUsable} from './utils/index.js';
+import {getParenthesizedText, isValueNotUsable} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -17,11 +17,7 @@ const hasComments = (node, sourceCode) =>
 const getStaticPropertyName = memberExpression => {
 	const {property} = memberExpression;
 
-	if (!memberExpression.computed && property.type === 'Identifier') {
-		return property.name;
-	}
-
-	return getStaticStringValue(property);
+	return !memberExpression.computed && property.type === 'Identifier' ? property.name : getStaticStringValue(property);
 };
 
 const isIdentifierNamed = (node, name) =>
@@ -104,7 +100,7 @@ const getProblem = (node, context) => {
 
 	problem.fix = fixer => fixer.replaceText(
 		assignmentExpression,
-		`${sourceCode.getText(node.object)}.assign(${sourceCode.getText(assignmentExpression.right)})`,
+		`${sourceCode.getText(node.object)}.assign(${getParenthesizedText(assignmentExpression.right, context)})`,
 	);
 
 	return problem;
