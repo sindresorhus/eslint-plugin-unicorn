@@ -2,7 +2,7 @@
 
 📝 Disallow parameters that receive the same value at every call.
 
-🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -11,7 +11,7 @@
 
 A parameter can become unnecessary when every call passes the same value, or when every call uses its default. Removing it makes the function's actual dependencies clearer and avoids repeating arguments at each call site.
 
-This rule checks functions whose callers can be determined within the current file. It is disabled by default because keeping a parameter can be useful for documenting an interface or anticipating other callers.
+This rule checks functions whose callers can be determined within the current file.
 
 ## Examples
 

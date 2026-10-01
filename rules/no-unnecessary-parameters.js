@@ -712,7 +712,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow parameters that receive the same value at every call.',
-			recommended: false,
+			recommended: true,
 		},
 		fixable: 'code',
 		schema: [{
