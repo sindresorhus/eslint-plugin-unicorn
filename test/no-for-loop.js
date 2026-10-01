@@ -1544,3 +1544,236 @@ test.snapshot({
 		`,
 	],
 });
+
+// A comment between the header clauses is destroyed by the fix, so it must block it
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (let i = 0; i < array.length /* c */; i++) {\n\tvar foo = array[i];\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0 /* c */; i < array.length; i++) {\n\tvar foo = array[i];\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (\n\tlet i = 0;\n\ti < array.length;\n\t// c\n\ti++\n) {\n\tvar foo = array[i];\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0, n = array.length; i < n /* c */; i++) {\n\tvar foo = array[i];\n}',
+			errors: 1,
+		},
+	],
+});
+
+// The element declarators are removed or rewritten, a comment would be lost
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (var j = 0; j < xs.length; j++) {\n\tvar x = xs[j], /* c */ y = ys[j];\n\tconsole.log(j, x, y);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < xs.length; i++) {\n\tconst x = /* c */ xs[i];\n\tconsole.log(i, x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < xs.length; i++) {\n\tconst x = xs[i] /* c */;\n\tconsole.log(i, x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < xs.length; i++) {\n\tconst /* c */ x = xs[i];\n\tconsole.log(i, x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < xs.length; i++) {\n\tvar /* c */ x = xs[i];\n\tconsole.log(i, x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < xs.length; i++) {\n\tconst x = xs[i]; /* c */\n\tconsole.log(x);\n}',
+			output: 'for (const x of xs) {\n\t /* c */\n\tconsole.log(x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < xs.length; i++) {\n\tconst x = xs[i];\n\tconsole.log(i, x);\n}',
+			output: 'for (const [i, x] of xs.entries()) {\n\tconsole.log(i, x);\n}',
+			errors: 1,
+		},
+	],
+});
+
+// `arr[i]` is a write when it is an assignment or destructuring target
+test({
+	valid: [
+		'const arr = [1, 2];\nconst other = [9];\nfor (let i = 0; i < arr.length; i++) {\n\t[arr[i]] = other;\n\tlog(arr[i]);\n}',
+		'const arr = [1, 2];\nconst other = [9];\nfor (let i = 0; i < arr.length; i++) {\n\t({x: arr[i]} = other);\n\tlog(arr[i]);\n}',
+		'const arr = [1, 2];\nconst other = [9];\nfor (let i = 0; i < arr.length; i++) {\n\t[[arr[i]]] = other;\n\tlog(arr[i]);\n}',
+		'const arr = [1, 2];\nconst other = [9];\nfor (let i = 0; i < arr.length; i++) {\n\t[...arr[i]] = other;\n\tlog(arr[i]);\n}',
+		'const arr = [1, 2];\nfor (let i = 0; i < arr.length; i++) {\n\tconst [a] = arr;\n\tlog(arr[i]);\n}',
+	],
+	invalid: [
+		{
+			code: 'const arr = [1, 2];\nfor (let i = 0; i < arr.length; i++) {\n\tlog(arr[i]);\n}',
+			output: 'const arr = [1, 2];\nfor (const element of arr) {\n\tlog(element);\n}',
+			errors: 1,
+		},
+	],
+});
+
+// A declaration kind does not matter, a known no-entries collection has no `.entries()`
+test({
+	valid: [],
+	invalid: [
+		// Every method that returns an `HTMLCollection`
+		...[
+			['let', 'document.getElementsByClassName(\'visible\')', 'visibleItems'],
+			['let', 'document.getElementsByTagName(\'a\')', 'links'],
+			['let', 'document.getElementsByTagNameNS(\'*\', \'a\')', 'links'],
+		].map(([kind, call, name]) => ({
+			code: outdent`
+				${kind} ${name} = ${call};
+				for (let index = 0; index < ${name}.length; index++) {
+					console.log(index, ${name}[index]);
+				}
+			`,
+			languageOptions: {globals: {document: 'readonly'}},
+			errors: 1,
+		})),
+		{
+			code: outdent`
+				var visibleItems = document.getElementsByClassName('visible');
+				for (let index = 0; index < visibleItems.length; index++) {
+					console.log(index, visibleItems[index]);
+				}
+			`,
+			languageOptions: {globals: {document: 'readonly'}},
+			errors: 1,
+		},
+	],
+});
+
+// The parentheses around the update are not part of its range, the new head must cover them
+test.snapshot({
+	valid: [],
+	invalid: [
+		'for (let index = 0; index < array.length; (index++)) { const element = array[index]; console.log(index, element); }',
+		'for (let index = 0; index < array.length; (index)++) { const element = array[index]; console.log(index, element); }',
+	],
+});
+
+// The element name must resolve to the loop head binding at every rewritten reference
+test({
+	valid: [],
+	invalid: [
+		// A second element declarator in another block would become `const element = element`
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\t{ const element = arr[i]; log(element); }\n\t{ const element = arr[i]; log(element); }\n}',
+			errors: 1,
+		},
+		// A nested block declares the element name, the loop head would shadow the outer `element`
+		{
+			code: 'function f(element) {\n\tfor (let i = 0; i < arr.length; i++) {\n\t\tlog(element);\n\t\t{ const element = arr[i]; log(element); }\n\t}\n}',
+			errors: 1,
+		},
+		// A nested block declares the element name, a rewritten reference would resolve to it
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\t{ const x = 1; log(arr[i]); }\n\tconst x = arr[i];\n}',
+			errors: 1,
+		},
+		// More than one element declarator in the same scope
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tconst x = arr[i], y = arr[i];\n\tlog(x, y);\n}',
+			output: 'for (const x of arr) {\n\tconst y = x;\n\tlog(x, y);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tconst x = arr[i];\n\tconst y = arr[i];\n\tlog(i, x, y);\n}',
+			output: 'for (const [i, x] of arr.entries()) {\n\tconst y = x;\n\tlog(i, x, y);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tconst {a} = arr[i], {b} = arr[i];\n\tlog(a, b);\n}',
+			output: 'for (const element of arr) {\n\tconst {a} = element, {b} = element;\n\tlog(a, b);\n}',
+			errors: 1,
+		},
+	],
+});
+
+// A rewritten `array[index]` would lose its comment
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tlog(arr[/* c */ i]);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tconst x = arr[i];\n\tlog(x, arr[i /* c */]);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tconst [a] = arr[/* c */ i];\n\tlog(a, arr[i]);\n}',
+			errors: 1,
+		},
+		// A comment next to a kept declarator is not lost
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tconst x = arr[i], y = 1 /* c */;\n\tlog(x, y);\n}',
+			output: 'for (const x of arr) {\n\tconst y = 1 /* c */;\n\tlog(x, y);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tconst [a] = arr[i], /* c */ b = 1;\n\tlog(a, b, arr[i]);\n}',
+			output: 'for (const element of arr) {\n\tconst [a] = element, /* c */ b = 1;\n\tlog(a, b, element);\n}',
+			errors: 1,
+		},
+	],
+});
+
+// A `NodeList` has `.entries()`
+test({
+	valid: [],
+	invalid: [
+		...[
+			'document.querySelectorAll(\'a\')',
+			'document.getElementsByName(\'name\')',
+		].map(call => ({
+			code: outdent`
+				const links = ${call};
+				for (let index = 0; index < links.length; index++) {
+					console.log(index, links[index]);
+				}
+			`,
+			output: outdent`
+				const links = ${call};
+				for (const [index, link] of links.entries()) {
+					console.log(index, link);
+				}
+			`,
+			languageOptions: {globals: {document: 'readonly'}},
+			errors: 1,
+		})),
+	],
+});
+
+// A reassigned element would change what a rewritten `array[index]` reads
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tlet x = arr[i];\n\tx = 2;\n\tlog(arr[i]);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tlet x = arr[i];\n\tx++;\n\tconst y = arr[i];\n\tlog(x, y);\n}',
+			errors: 1,
+		},
+		{
+			code: 'for (let i = 0; i < arr.length; i++) {\n\tlet x = arr[i];\n\tx = 2;\n\tlog(x);\n}',
+			output: 'for (let x of arr) {\n\tx = 2;\n\tlog(x);\n}',
+			errors: 1,
+		},
+	],
+});

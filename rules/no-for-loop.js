@@ -14,6 +14,8 @@ import {
 	isNullishType,
 	isUnknownType,
 	hasPotentiallyMutableMemberAccess,
+	hasCommentInRange,
+	getParenthesizedRange,
 } from './utils/index.js';
 import {
 	isCallExpression,
@@ -39,6 +41,7 @@ const noEntriesTypeNames = new Set([
 	'HTMLSelectElement',
 	'String',
 ]);
+// These return an `HTMLCollection`, which has no `.entries()`. A `NodeList` (`querySelectorAll()`, `getElementsByName()`) has one.
 const noEntriesDomCollectionMethods = new Set([
 	'getElementsByClassName',
 	'getElementsByTagName',
@@ -80,11 +83,7 @@ const combineUnionEntriesSupport = entriesSupports => {
 		return entriesSupported;
 	}
 
-	if (entriesSupports.includes(entriesUnsupported)) {
-		return entriesUnsupported;
-	}
-
-	return entriesUnknown;
+	return entriesSupports.includes(entriesUnsupported) ? entriesUnsupported : entriesUnknown;
 };
 
 const combineIntersectionEntriesSupport = entriesSupports => {
@@ -92,11 +91,7 @@ const combineIntersectionEntriesSupport = entriesSupports => {
 		return entriesSupported;
 	}
 
-	if (entriesSupports.every(entriesSupport => entriesSupport === entriesUnsupported)) {
-		return entriesUnsupported;
-	}
-
-	return entriesUnknown;
+	return entriesSupports.every(entriesSupport => entriesSupport === entriesUnsupported) ? entriesUnsupported : entriesUnknown;
 };
 
 const getTypeName = typeName => {
@@ -104,10 +99,16 @@ const getTypeName = typeName => {
 		return typeName.name;
 	}
 
-	if (typeName.type === 'TSQualifiedName') {
-		const left = getTypeName(typeName.left);
-		return left ? `${left}.${typeName.right.name}` : undefined;
+	if (typeName.type !== 'TSQualifiedName') {
+		return;
 	}
+
+	const left = getTypeName(typeName.left);
+	if (!left) {
+		return;
+	}
+
+	return `${left}.${typeName.right.name}`;
 };
 
 const getTypeReferenceEntriesSupport = (node, scope, visitedTypeReferenceNames) => {
@@ -294,7 +295,7 @@ const getEntriesSupportFromTypeInformation = (node, context) => {
 	}
 };
 
-const isNoEntriesDomCollectionCall = (node, context) =>
+const isNoEntriesDomCollection = (node, context) =>
 	isCallExpression(node, {
 		optional: false,
 	})
@@ -324,10 +325,10 @@ const getEntriesSupportFromVariable = (node, context, visitedVariables) => {
 	const entriesSupportFromAnnotation = getTypeAnnotationEntriesSupport(definition.name.typeAnnotation, definitionScope);
 	let entriesSupport = entriesSupportFromAnnotation;
 
+	// The declaration kind does not matter, a known no-entries collection has no `.entries()`
 	if (
 		entriesSupport === entriesUnknown
 		&& definition.type === 'Variable'
-		&& definition.parent.kind === 'const'
 		&& definition.node.id === definition.name
 		&& definition.node.init
 	) {
@@ -371,7 +372,7 @@ function getEntriesSupportFromSyntax(node, context, visitedVariables) {
 		}
 
 		default: {
-			return isNoEntriesDomCollectionCall(node, context) ? entriesUnsupported : entriesUnknown;
+			return isNoEntriesDomCollection(node, context) ? entriesUnsupported : entriesUnknown;
 		}
 	}
 }
@@ -382,11 +383,7 @@ function getEntriesSupport(node, context, visitedVariables = new Set()) {
 	}
 
 	const entriesSupportFromTypeInformation = getEntriesSupportFromTypeInformation(node, context);
-	if (entriesSupportFromTypeInformation !== entriesUnknown) {
-		return entriesSupportFromTypeInformation;
-	}
-
-	return getEntriesSupportFromSyntax(node, context, visitedVariables);
+	return entriesSupportFromTypeInformation === entriesUnknown ? getEntriesSupportFromSyntax(node, context, visitedVariables) : entriesSupportFromTypeInformation;
 }
 
 const getLoopInfoFromSingleDeclarator = forStatement => {
@@ -395,11 +392,8 @@ const getLoopInfoFromSingleDeclarator = forStatement => {
 	if (
 		!variableDeclaration
 		|| variableDeclaration.type !== 'VariableDeclaration'
+		|| variableDeclaration.declarations.length !== 1
 	) {
-		return;
-	}
-
-	if (variableDeclaration.declarations.length !== 1) {
 		return;
 	}
 
@@ -567,16 +561,56 @@ const isSequenceUpdateExpressionIncrementingIndexAndReadingCachedLength = (updat
 	);
 };
 
+// `[arr[i]]`, `{key: arr[i]}`, and `[...arr[i]]` pass the write through to `arr[i]`
+const isDestructuringElement = node => {
+	const {parent} = node;
+	switch (parent.type) {
+		case 'ArrayExpression':
+		case 'ArrayPattern': {
+			return parent.elements.includes(node);
+		}
+
+		case 'ObjectExpression':
+		case 'ObjectPattern': {
+			return parent.properties.includes(node);
+		}
+
+		case 'Property': {
+			return parent.value === node;
+		}
+
+		case 'RestElement': {
+			return parent.argument === node;
+		}
+
+		default: {
+			return false;
+		}
+	}
+};
+
+const writeTargetParentTypes = new Set([
+	'AssignmentExpression',
+	'AssignmentPattern',
+	'ForOfStatement',
+	'ForInStatement',
+]);
+
+// `arr[i]` is a write when it is an assignment target, a destructuring target inside one, or the left of a `for…of`/`for…in` head
+const isWriteTarget = node => {
+	let current = node;
+	while (isDestructuringElement(current)) {
+		current = current.parent;
+	}
+
+	const {parent} = current;
+	return writeTargetParentTypes.has(parent.type) && parent.left === current;
+};
+
 const isMemberExpressionChanged = node =>
-	(
-		node.parent.type === 'AssignmentExpression'
-		&& node.parent.left === node
-	)
-	|| node.parent.type === 'UpdateExpression'
-	|| (
-		node.parent.type === 'UnaryExpression'
-		&& node.parent.operator === 'delete'
-	);
+	node.parent.type === 'UpdateExpression'
+	|| (node.parent.type === 'UnaryExpression' && node.parent.operator === 'delete')
+	|| isWriteTarget(node);
 
 const isOnlyArrayOfIndexVariableRead = (arrayReferences, arrayVariable, indexVariable) => arrayReferences.every(reference => {
 	const node = reference.identifier.parent;
@@ -587,12 +621,9 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, arrayVariable, indexVar
 
 	const referencedArrayVariable = getVariableByName(reference.identifier.name, reference.from);
 
-	if (referencedArrayVariable !== arrayVariable) {
-		return false;
-	}
-
 	if (
-		!node.computed
+		referencedArrayVariable !== arrayVariable
+		|| !node.computed
 		|| node.property.type !== 'Identifier'
 		|| getVariableByName(node.property.name, reference.from) !== indexVariable
 	) {
@@ -670,12 +701,16 @@ const isCachedLengthVariableWrittenInsideLoopOutsideTest = (forStatement, cached
 		&& !nodeContains(forStatement.test, reference.identifier)
 		&& reference.isWrite());
 
-const hasCommentsInsideLoopHeader = (forStatement, sourceCode) =>
-	[
-		forStatement.init,
-		forStatement.test,
-		forStatement.update,
-	].some(node => node && sourceCode.getCommentsInside(node).length > 0);
+// The whole `for (…)` header is replaced, so a comment between the clauses is destroyed too
+const hasCommentsInsideLoopHeader = (forStatement, context) => {
+	const {sourceCode} = context;
+	const openingParenthesisToken = sourceCode.getTokenAfter(sourceCode.getFirstToken(forStatement));
+	const closingParenthesisToken = sourceCode.getTokenBefore(forStatement.body);
+	const [start] = sourceCode.getRange(openingParenthesisToken);
+	const [, end] = sourceCode.getRange(closingParenthesisToken);
+
+	return hasCommentInRange(context, [start, end]);
+};
 
 const canRemoveCachedLengthVariable = ({
 	forStatement,
@@ -695,9 +730,14 @@ const canRemoveCachedLengthVariable = ({
 	);
 };
 
+// `let element = array[index]; element = 1; use(array[index])` would read the reassigned value after the rewrite
+const isElementReassignedWhileArrayIsRead = ({elementNode, elementVariable, arrayReferences}) =>
+	arrayReferences.length > 1
+	&& Boolean(elementVariable?.references.some(reference => reference.isWrite() && reference.identifier !== elementNode.id));
+
 const shouldFixProblem = ({
 	forStatement,
-	sourceCode,
+	context,
 	forScope,
 	indexVariable,
 	elementNode,
@@ -707,9 +747,13 @@ const shouldFixProblem = ({
 	isStandardUpdateExpression,
 	entriesSupport,
 	shouldGenerateIndex,
+	isElementNameShadowed,
+	arrayReferences,
 }) =>
 	isStandardUpdateExpression
-	&& !hasCommentsInsideLoopHeader(forStatement, sourceCode)
+	&& !isElementNameShadowed
+	&& !isElementReassignedWhileArrayIsRead({elementNode, elementVariable, arrayReferences})
+	&& !hasCommentsInsideLoopHeader(forStatement, context)
 	&& !someVariablesLeakOutOfTheLoop(forStatement, [indexVariable, elementVariable, cachedLengthVariable].filter(Boolean), forScope)
 	&& canRemoveCachedLengthVariable({
 		forStatement,
@@ -725,11 +769,7 @@ const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope, arr
 	const referencesOtherThanArrayAccess = inBodyReferences.filter(reference => {
 		const node = reference.identifier.parent;
 
-		if (node.type !== 'MemberExpression') {
-			return true;
-		}
-
-		return node.object.name !== arrayIdentifierName;
+		return node.type !== 'MemberExpression' || node.object.name !== arrayIdentifierName;
 	});
 
 	return referencesOtherThanArrayAccess.length > 0;
@@ -829,21 +869,16 @@ const create = context => {
 		const arrayIdentifierName = arrayIdentifier.name;
 		const indexVariable = getVariableByName(indexIdentifierName, bodyScope);
 
-		if (!indexVariable) {
-			return;
-		}
-
-		if (isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope)) {
+		if (!indexVariable || isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope)) {
 			return;
 		}
 
 		const arrayReferences = getReferencesInChildScopes(bodyScope, arrayIdentifierName);
 
-		if (arrayReferences.length === 0) {
-			return;
-		}
-
-		if (!isOnlyArrayOfIndexVariableRead(arrayReferences, arrayVariable, indexVariable)) {
+		if (
+			arrayReferences.length === 0
+			|| !isOnlyArrayOfIndexVariableRead(arrayReferences, arrayVariable, indexVariable)
+		) {
 			return;
 		}
 
@@ -878,12 +913,17 @@ const create = context => {
 		const elementIdentifierName = elementNode?.id.name;
 		const elementVariable = elementIdentifierName && getVariableByName(elementIdentifierName, bodyScope);
 
+		// A nested block can already declare the element name, and the loop head would shadow it, or a rewritten `array[index]` would resolve to it (`{ const element = array[index]; }` in two blocks would become `const element = element`)
+		const isElementNameShadowed = Boolean(elementIdentifierName)
+			&& getScopes(bodyScope)
+				.some(scope => scope !== bodyScope && getVariableByName(elementIdentifierName, scope) !== elementVariable);
+
 		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 		const entriesSupport = shouldGenerateIndex ? getEntriesSupport(arrayIdentifier, context) : entriesUnknown;
 
 		const shouldFix = shouldFixProblem({
 			forStatement: node,
-			sourceCode,
+			context,
 			forScope,
 			indexVariable,
 			elementNode,
@@ -893,10 +933,12 @@ const create = context => {
 			isStandardUpdateExpression,
 			entriesSupport,
 			shouldGenerateIndex,
+			isElementNameShadowed,
+			arrayReferences,
 		});
 
 		if (shouldFix) {
-			problem.fix = function * (fixer) {
+			problem.fix = function * (fixer, {abort}) {
 				const element = elementIdentifierName
 					|| getAvailableVariableName(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
 
@@ -926,21 +968,40 @@ const create = context => {
 
 				const replacement = parts.join('');
 				const [start] = sourceCode.getRange(node.init);
-				const [, end] = sourceCode.getRange(node.update);
+				// The parentheses around the update are not part of its range, they would be left dangling after the new `for…of` head
+				const [, end] = getParenthesizedRange(node.update, context);
 
 				yield fixer.replaceTextRange([start, end], replacement);
 
 				for (const reference of arrayReferences) {
-					if (reference !== elementReference) {
-						yield fixer.replaceText(reference.identifier.parent, element);
+					if (reference === elementReference) {
+						continue;
 					}
+
+					// `array[/* comment */ index]` is replaced as a whole
+					if (sourceCode.getCommentsInside(reference.identifier.parent).length > 0) {
+						return abort();
+					}
+
+					yield fixer.replaceText(reference.identifier.parent, element);
 				}
 
-				if (elementNode) {
-					yield isRemoveDeclaration
-						? fixer.removeRange(getRemovalRange(elementNode, sourceCode))
-						: fixer.replaceText(elementNode.init, element);
+				if (!elementNode) {
+					return;
 				}
+
+				// The element declaration is removed or its `array[index]` initializer is rewritten, a comment inside the rewritten range would be lost. The removal range also covers the `var`/`let`/`const` keyword and the trailing semicolon.
+				const rewrittenRange = isRemoveDeclaration
+					? getRemovalRange(elementNode, sourceCode)
+					: sourceCode.getRange(elementNode.init);
+
+				if (hasCommentInRange(context, rewrittenRange)) {
+					return abort();
+				}
+
+				yield isRemoveDeclaration
+					? fixer.removeRange(rewrittenRange)
+					: fixer.replaceText(elementNode.init, element);
 			};
 		}
 
