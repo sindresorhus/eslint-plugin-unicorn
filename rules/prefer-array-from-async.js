@@ -5,7 +5,9 @@ import {
 } from './ast/index.js';
 import {
 	containsSuspensionPoint,
+	getCommentSafeProblem,
 	getNextStatement,
+	hasNonDirectiveComment,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	getVariableIdentifiers,
@@ -13,7 +15,6 @@ import {
 	isTemplateLiteralType,
 	isUniqueSymbolType,
 	unwrapTypeScriptExpression,
-	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-array-from-async';
@@ -359,7 +360,7 @@ const getLoopProblem = (declaration, context) => {
 		sourceCode.getRange(declaration)[0],
 		sourceCode.getRange(loop)[1],
 	];
-	if (wouldRemoveComments(context, replaceRange)) {
+	if (hasNonDirectiveComment(context, replaceRange)) {
 		return;
 	}
 
@@ -382,7 +383,7 @@ const getLoopProblem = (declaration, context) => {
 		problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION, fix}];
 	}
 
-	return problem;
+	return getCommentSafeProblem(context, problem, replaceRange);
 };
 
 /**

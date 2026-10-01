@@ -11,7 +11,9 @@
 
 Use concise bodies when the expression fits on one line and an explicit `return` when it spans multiple lines. A line break between `=>` and a single-line expression is ignored.
 
-Only blocks with a single `return` and a single-line argument are converted. Blocks with other statements, bare returns, multiline return expressions, or comments are ignored.
+Only blocks with a single `return` and a single-line argument are converted. Blocks with other statements, bare returns, multiline return expressions, or ordinary comments are ignored.
+
+ESLint disable and enable directives do not prevent reporting. Fixes are omitted when the affected range contains directives.
 
 Fixes are omitted when reindenting could change string, template literal, or JSX text, or when removing the block could change how the following token is parsed.
 

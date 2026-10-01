@@ -1,4 +1,4 @@
-import {hasUnsafeArrowConversionReference} from './utils/index.js';
+import {getCommentSafeProblem, hasNonDirectiveComment, hasUnsafeArrowConversionReference} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-short-arrow-method';
 const MODE_ALWAYS = 'always';
@@ -76,10 +76,7 @@ const getFix = (property, returnStatement, context) => {
 	const {sourceCode} = context;
 	const functionNode = property.value;
 
-	if (
-		sourceCode.getCommentsInside(property).length > 0
-		|| functionNode.typeParameters
-	) {
+	if (functionNode.typeParameters) {
 		return;
 	}
 
@@ -106,25 +103,27 @@ const getConvertibleReturnStatement = (property, sourceCode) => {
 const create = context => {
 	const {sourceCode} = context;
 	const mode = context.options[0];
-	const objectCanBeAutofixedCache = new WeakMap();
+	const objectCanBeReportedCache = new WeakMap();
 
-	const canAutofixProperty = property => {
+	const canReportProperty = property => {
 		const returnStatement = getConvertibleReturnStatement(property, sourceCode);
-		return Boolean(returnStatement && getFix(property, returnStatement, context));
+		return Boolean(returnStatement
+			&& !hasNonDirectiveComment(context, property)
+			&& getFix(property, returnStatement, context));
 	};
 
-	const canAutofixAllShorthandInitMethods = objectExpression => {
-		const cachedResult = objectCanBeAutofixedCache.get(objectExpression);
+	const canReportAllShorthandInitMethods = objectExpression => {
+		const cachedResult = objectCanBeReportedCache.get(objectExpression);
 
 		if (cachedResult !== undefined) {
 			return cachedResult;
 		}
 
 		const result = objectExpression.properties.every(property =>
-			!isShorthandInitMethod(property) || canAutofixProperty(property),
+			!isShorthandInitMethod(property) || canReportProperty(property),
 		);
 
-		objectCanBeAutofixedCache.set(objectExpression, result);
+		objectCanBeReportedCache.set(objectExpression, result);
 
 		return result;
 	};
@@ -137,25 +136,24 @@ const create = context => {
 
 		if (
 			mode === MODE_CONSISTENT_AS_NEEDED
-			&& !canAutofixAllShorthandInitMethods(property.parent)
+			&& !canReportAllShorthandInitMethods(property.parent)
 		) {
 			return;
 		}
 
-		const problem = {
+		let problem = {
 			node: property,
 			messageId: MESSAGE_ID,
+			fix: getFix(property, returnStatement, context),
 		};
-		const fix = getFix(property, returnStatement, context);
-
-		if (!fix) {
-			return problem;
+		const affectedProperties = mode === MODE_CONSISTENT_AS_NEEDED
+			? property.parent.properties.filter(property => isShorthandInitMethod(property))
+			: [property];
+		for (const affectedProperty of affectedProperties) {
+			problem = getCommentSafeProblem(context, problem, affectedProperty);
 		}
 
-		return {
-			...problem,
-			fix,
-		};
+		return problem;
 	});
 };
 

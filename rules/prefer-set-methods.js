@@ -8,6 +8,8 @@ import {
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedText,
+	getCommentSafeProblem,
+	hasNonDirectiveComment,
 	isBuiltinSet,
 	isGlobalIdentifier,
 	isParenthesized,
@@ -154,7 +156,7 @@ const getUnionReplacement = (arrayExpression, context) => {
 const getUnionProblem = (node, context) => {
 	if (
 		!isGlobalSetConstructor(node, context)
-		|| context.sourceCode.getCommentsInside(node).length > 0
+		|| hasNonDirectiveComment(context, node)
 	) {
 		return;
 	}
@@ -164,11 +166,11 @@ const getUnionProblem = (node, context) => {
 		return;
 	}
 
-	return {
+	return getCommentSafeProblem(context, {
 		node,
 		messageId: MESSAGE_ID_UNION,
 		fix: fixer => fixer.replaceText(node, addSemicolonIfNeeded(node, getUnionReplacement(argument, context), context)),
-	};
+	});
 };
 
 const getSingleSpreadSetArgument = (node, context) => {
@@ -275,7 +277,7 @@ const getSetOperationReplacement = (filterCall, context) => {
 
 const getSetOperationProblem = (node, replacementNode, context) => {
 	if (
-		context.sourceCode.getCommentsInside(replacementNode).length > 0
+		hasNonDirectiveComment(context, replacementNode)
 		|| isMemberObjectAfterTransparentWrappers(node)
 		|| (node === replacementNode && isTypeScriptExpressionWrapper(node.parent))
 	) {
@@ -287,7 +289,7 @@ const getSetOperationProblem = (node, replacementNode, context) => {
 		return;
 	}
 
-	return {
+	return getCommentSafeProblem(context, {
 		node: replacementNode,
 		messageId: operation.messageId,
 		suggest: [
@@ -299,11 +301,11 @@ const getSetOperationProblem = (node, replacementNode, context) => {
 				},
 			},
 		],
-	};
+	});
 };
 
 const getSetPredicateProblem = (node, {set, otherSet, method, negated}, context) => {
-	if (context.sourceCode.getCommentsInside(node).length > 0) {
+	if (hasNonDirectiveComment(context, node)) {
 		return;
 	}
 
@@ -328,14 +330,14 @@ const getSetPredicateProblem = (node, {set, otherSet, method, negated}, context)
 		}
 	}
 
-	return {
+	return getCommentSafeProblem(context, {
 		node,
 		messageId: method === 'isSubsetOf' ? MESSAGE_ID_SUBSET : MESSAGE_ID_DISJOINT,
 		* fix(fixer) {
 			yield fixer.replaceText(node, addSemicolonIfNeeded(node, replacement, context));
 			yield fixSpaceAroundKeyword(fixer, node, context);
 		},
-	};
+	});
 };
 
 const getArrayPredicateProblem = (node, context) => {

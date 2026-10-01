@@ -19,6 +19,18 @@ test.snapshot({
 		'!array.some(element => { if (foo) { return true; } return test(element); });',
 		'!array.some(element => test(/* comment */ element));',
 		'! /* comment */ array.some(element => test(element));',
+		{
+			code: '<template>{{ ! /* comment */ array.some(element => test(element)) }}</template>',
+			languageOptions: {parser: parsers.vue},
+		},
+		{
+			code: '<template><div :class="!array.some(element => !/* comment */element)" /></template>',
+			languageOptions: {parser: parsers.vue},
+		},
+		{
+			code: '<template>{{ !array.every(element => test(/* comment */ element)) }}</template>',
+			languageOptions: {parser: parsers.vue},
+		},
 		'!array.some(async element => test(element));',
 		'!array.some(function * (element) { return test(element); });',
 		outdent`

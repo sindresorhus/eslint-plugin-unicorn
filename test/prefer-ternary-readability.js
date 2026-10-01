@@ -23,6 +23,71 @@ const errorsWithSuggestion = output => [
 
 const onlySingleLineOptions = ['only-single-line'];
 
+for (const [name, code] of [
+	['next-line disable', 'let value = a;\n// eslint-disable-next-line unicorn/prefer-ternary\nif (test) { value = b; }\nvalue = c;'],
+	['next-line disable with explanation', 'let value = a;\n// eslint-disable-next-line unicorn/prefer-ternary -- Keep the branches readable.\nif (test) { value = b; }'],
+	['next-line disable for all rules', 'let value = a;\n// eslint-disable-next-line\nif (test) { value = b; }'],
+	['same-line disable', 'let value = a;\nif (test) { // eslint-disable-line unicorn/prefer-ternary\nvalue = b;\n}'],
+	['block disable with explanation', 'let value = a;\n/* eslint-disable unicorn/prefer-ternary -- Keep branches. */\nif (test) { value = b; }\n/* eslint-enable unicorn/prefer-ternary */'],
+	['if/else disable', 'if (test) { // eslint-disable-line unicorn/prefer-ternary\nvalue = a;\n} else { value = b; }'],
+	['flat return disable', 'function foo() {\nif (test) { // eslint-disable-line unicorn/prefer-ternary\nreturn a;\n}\nreturn b;\n}'],
+]) {
+	test(`honors ${name} without reporting an unused directive`, t => {
+		const linter = new Linter();
+		const config = {
+			plugins: {unicorn},
+			rules: {'unicorn/prefer-ternary': 'error'},
+			linterOptions: {reportUnusedDisableDirectives: 'error'},
+		};
+		t.deepEqual(linter.verify(code, config), []);
+
+		const suppressedMessages = linter.getSuppressedMessages();
+		t.is(suppressedMessages.length, 1);
+		t.is(suppressedMessages[0].ruleId, 'unicorn/prefer-ternary');
+		t.is(suppressedMessages[0].fix, undefined);
+		t.is(suppressedMessages[0].suggestions, undefined);
+
+		const result = linter.verifyAndFix(code, config);
+		t.deepEqual(result.messages, []);
+		t.false(result.fixed);
+		t.is(result.output, code);
+	});
+}
+
+for (const [name, code] of [
+	['declaration and if', '/* eslint-disable no-alert */\nalert(a);\nlet value = a;\n/* eslint-enable no-alert */\nif (test) { value = b; }'],
+	['unrelated disable', 'let value = a;\n// eslint-disable-next-line no-alert\nif (test) { value = alert(b); }'],
+	['if/else', '/* eslint-disable no-alert */\nalert(a);\nif (test) {\n/* eslint-enable no-alert */\nvalue = a;\n} else { value = b; }'],
+	['flat returns', '/* eslint-disable no-alert */\nalert(a);\nfunction foo() {\nif (test) { return a; }\n/* eslint-enable no-alert */\nreturn b;\n}'],
+	['trailing return directive', '/* eslint-disable no-alert */\nalert(a);\nfunction foo() {\nif (test) { return a; }\nreturn b; /* eslint-enable no-alert */\n}'],
+]) {
+	test(`reports ${name} with unrelated directives without changing comments`, t => {
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn},
+			rules: {'unicorn/prefer-ternary': 'error', 'no-alert': 'error'},
+			linterOptions: {reportUnusedDisableDirectives: 'error'},
+		});
+
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/prefer-ternary');
+		t.is(result.messages[0].fix, undefined);
+		t.is(result.messages[0].suggestions, undefined);
+		t.false(result.fixed);
+		t.is(result.output, code);
+	});
+}
+
+testRule({
+	valid: [
+		'let value = a;\n/* eslint-enable no-alert */\n// explanation\nif (test) { value = b; }',
+		'if (test) {\n/* eslint-enable no-alert */\nvalue = /* explanation */ a;\n} else { value = b; }',
+		'function foo() {\nif (test) { return a; }\n/* eslint-enable no-alert */\n// explanation\nreturn b;\n}',
+		'function foo() {\nif (test) { return a; }\nreturn b; /* explanation */ /* eslint-enable no-alert */\n}',
+	],
+	invalid: [],
+});
+
 // Embedded ternaries should not become nested when merging expressions.
 testRule({
 	valid: [

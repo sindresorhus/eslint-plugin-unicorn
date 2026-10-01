@@ -5,9 +5,10 @@ import {
 } from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
-	hasCommentInRange,
+	getCommentSafeProblem,
 	getLastTrailingCommentOnSameLine,
 	getReferences,
+	hasNonDirectiveComment,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 
@@ -142,11 +143,6 @@ const getDoWhileTailRange = (node, sourceCode) => [
 	sourceCode.getRange(node)[1],
 ];
 
-const getLoopBodyHeadRange = (loop, firstStatement, sourceCode) => [
-	sourceCode.getRange(loop.body)[0],
-	sourceCode.getRange(firstStatement)[0],
-];
-
 function * fixLoop(fixer, {
 	loop,
 	firstStatement,
@@ -177,17 +173,10 @@ const create = context => {
 		'ForStatement',
 		'WhileStatement',
 	], node => {
-		const loopSyntaxCommentRanges = [
-			getLoopHeadRange(node, sourceCode),
-			...(node.type === 'DoWhileStatement' ? [getDoWhileTailRange(node, sourceCode)] : []),
-		];
-
 		if (
 			!isInfiniteLoop(node)
 			|| node.body.type !== 'BlockStatement'
 			|| isLabeledStatementBody(node)
-			|| loopSyntaxCommentRanges.some(range => hasCommentInRange(context, range))
-			|| (node.type === 'DoWhileStatement' && getLastTrailingCommentOnSameLine(context, node))
 		) {
 			return;
 		}
@@ -197,9 +186,6 @@ const create = context => {
 			!firstStatement
 			|| firstStatement.type !== 'IfStatement'
 			|| firstStatement.alternate
-			|| hasCommentInRange(context, getLoopBodyHeadRange(node, firstStatement, sourceCode))
-			|| sourceCode.getCommentsInside(firstStatement).length > 0
-			|| getLastTrailingCommentOnSameLine(context, firstStatement)
 		) {
 			return;
 		}
@@ -212,7 +198,21 @@ const create = context => {
 			return;
 		}
 
-		return {
+		const firstStatementTrailingComment = getLastTrailingCommentOnSameLine(context, firstStatement);
+		const loopTrailingComment = node.type === 'DoWhileStatement' && getLastTrailingCommentOnSameLine(context, node);
+		const commentRange = [
+			sourceCode.getRange(node)[0],
+			sourceCode.getRange(loopTrailingComment || node)[1],
+		];
+		const preservedBodyRange = [
+			sourceCode.getRange(firstStatementTrailingComment ?? firstStatement)[1],
+			sourceCode.getRange(node.body)[1],
+		];
+		if (hasNonDirectiveComment(context, commentRange, [preservedBodyRange])) {
+			return;
+		}
+
+		return getCommentSafeProblem(context, {
 			node: firstStatement,
 			messageId: MESSAGE_ID,
 			/**
@@ -231,7 +231,7 @@ const create = context => {
 					yield fix;
 				}
 			},
-		};
+		}, commentRange, [preservedBodyRange]);
 	});
 };
 

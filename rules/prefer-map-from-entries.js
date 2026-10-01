@@ -1,10 +1,11 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	escapeString,
+	getCommentSafeProblem,
 	getParenthesizedText,
+	hasNonDirectiveComment,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
-	wouldRemoveComments,
 } from './utils/index.js';
 import {containsOptionalChain} from './utils/comparison.js';
 import {
@@ -53,7 +54,7 @@ function isObjectFromEntriesCall(node, context) {
 	})
 	&& !node.typeArguments
 	&& !node.typeParameters
-	&& !wouldRemoveComments(context, node.callee)
+	&& !hasNonDirectiveComment(context, node.callee)
 	&& isGlobalNameAvailable('Object', node, context)
 	&& isGlobalNameAvailable('Map', node, context)
 	&& isKnownStringKeyEntries(node.arguments[0], context);
@@ -247,7 +248,7 @@ function getObjectMethodCall(identifier, context) {
 			optionalMember: false,
 		})
 		|| !isGlobalNameAvailable('Object', parent, context)
-		|| wouldRemoveComments(context, parent)
+		|| hasNonDirectiveComment(context, parent)
 	) {
 		return;
 	}
@@ -298,7 +299,7 @@ function getAssignmentOperation(memberExpression, identifier, key, context) {
 	if (
 		assignmentExpression.operator !== '='
 		|| !isStandaloneExpression(assignmentExpression)
-		|| wouldRemoveComments(context, assignmentExpression)
+		|| hasNonDirectiveComment(context, assignmentExpression)
 	) {
 		return;
 	}
@@ -314,7 +315,7 @@ function getDeleteOperation(memberExpression, identifier, key, context) {
 	const unaryExpression = memberExpression.parent;
 	if (
 		!isStandaloneExpression(unaryExpression)
-		|| wouldRemoveComments(context, unaryExpression)
+		|| hasNonDirectiveComment(context, unaryExpression)
 	) {
 		return;
 	}
@@ -341,7 +342,7 @@ function getMemberExpressionOperation(identifier, context) {
 		|| isWithinNewExpressionCallee(parent)
 		|| containsOptionalChain(parent)
 		|| isWithinChainExpression(parent)
-		|| wouldRemoveComments(context, parent)
+		|| hasNonDirectiveComment(context, parent)
 	) {
 		return;
 	}
@@ -454,7 +455,7 @@ const create = context => {
 			return;
 		}
 
-		return {
+		let problem = getCommentSafeProblem(context, {
 			node: node.init,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
@@ -464,7 +465,13 @@ const create = context => {
 					yield fixer.replaceText(operation.node, operation.getReplacement());
 				}
 			},
-		};
+		}, node.init.callee);
+
+		for (const operation of operations) {
+			problem = getCommentSafeProblem(context, problem, operation.node);
+		}
+
+		return problem;
 	});
 };
 

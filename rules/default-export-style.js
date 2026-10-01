@@ -1,6 +1,8 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getComments,
+	getCommentSafeProblem,
+	hasNonDirectiveComment,
 	getParenthesizedText,
 	hasUnsafeArrowConversionReference,
 	getLinebreak,
@@ -61,14 +63,11 @@ const getKind = node => {
 
 const getOptionKey = kind => kind === KIND_CLASS ? 'classes' : 'functions';
 
-const hasCommentsBetween = (context, left, right) => {
+const hasNonDirectiveCommentBetween = (context, left, right) => {
 	const [, start] = context.sourceCode.getRange(left);
 	const [end] = context.sourceCode.getRange(right);
 
-	return getComments(context).some(comment => {
-		const [commentStart, commentEnd] = context.sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
+	return hasNonDirectiveComment(context, [start, end]);
 };
 
 const hasTrailingComment = (context, node) => {
@@ -322,7 +321,7 @@ const reportSeparateDeclaration = ({
 }) => {
 	if (
 		expectedStyle === STYLE_IGNORE
-		|| hasCommentsBetween(context, declaration, exportDeclaration)
+		|| hasNonDirectiveCommentBetween(context, declaration, exportDeclaration)
 		|| isBindingReassigned(scope, exportDeclaration.declaration)
 	) {
 		return;
@@ -539,7 +538,7 @@ const create = context => {
 			});
 
 			if (problem) {
-				return problem;
+				return getCommentSafeProblem(context, problem, [context.sourceCode.getRange(statement)[1], context.sourceCode.getRange(nextStatement)[1]]);
 			}
 		}
 	});

@@ -164,7 +164,6 @@ testRule({
 		'function foo() { if (a /* Condition. */) { return; } if (b) { return; } }',
 		'function foo() { if (a) { return; } if (b /* Condition. */) { return; } }',
 		'function foo() { if (a) { return; } // First guard.\nif (b) { return; } }',
-		'function foo() { if (a) { return; }\n// eslint-disable-next-line no-console\nif (b) { return; } }',
 		'if (a) { process.exit(/* Exit code. */ 1); } if (b) { process.exit(/* Exit code. */ 1); }',
 	].flatMap(code => [
 		{code},
@@ -813,5 +812,21 @@ test('fixes preserve statements before the exit and evaluation order', t => {
 				}
 			}
 		}
+	}
+});
+
+test('directives between guards do not prevent reporting', t => {
+	const code = 'function foo() { if (a) { return; }\n// eslint-disable-next-line no-console\nif (b) { return; } }';
+	for (const options of [{}, {checkCompoundConditions: true}]) {
+		const result = new Linter().verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/prefer-combined-guards': ['error', options]},
+			linterOptions: {reportUnusedDisableDirectives: 'off'},
+		});
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/prefer-combined-guards');
+		t.is(result.messages[0].fix, undefined);
+		t.false(result.fixed);
+		t.is(result.output, code);
 	}
 });

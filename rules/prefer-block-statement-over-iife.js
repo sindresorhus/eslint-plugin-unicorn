@@ -1,6 +1,6 @@
 import {isSemicolonToken} from '@eslint-community/eslint-utils';
 import {isDirective, isFunction} from './ast/index.js';
-import {wouldRemoveComments} from './utils/index.js';
+import {getCommentSafeProblem, hasNonDirectiveComment} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -83,7 +83,7 @@ const getReplacementRange = (expressionStatement, sourceCode) => {
 };
 
 const hasWrapperComment = (expressionStatement, body, context) =>
-	wouldRemoveComments(context, getReplacementRange(expressionStatement, context.sourceCode), [body]);
+	hasNonDirectiveComment(context, getReplacementRange(expressionStatement, context.sourceCode), [body]);
 
 const getFix = (expressionStatement, body, context) => fixer =>
 	fixer.replaceTextRange(
@@ -132,11 +132,11 @@ const create = context => {
 			return;
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node: expression,
 			messageId: MESSAGE_ID,
 			fix: getFix(expressionStatement, callee.body, context),
-		};
+		}, getReplacementRange(expressionStatement, sourceCode), [callee.body]);
 	});
 };
 

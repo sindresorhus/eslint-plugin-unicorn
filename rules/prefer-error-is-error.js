@@ -1,5 +1,5 @@
 import {isMemberExpression, isMethodCall} from './ast/index.js';
-import {isTypeImportSpecifier} from './utils/index.js';
+import {getCommentSafeProblem, hasNonDirectiveComment, isTypeImportSpecifier} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-error-is-error';
 const messages = {
@@ -29,11 +29,6 @@ function isValueShadowed(node, name, context) {
 
 	return false;
 }
-
-const isGlobalError = (node, context) =>
-	node.type === 'Identifier'
-	&& node.name === 'Error'
-	&& !isValueShadowed(node, 'Error', context);
 
 const isGlobalObject = (node, context) =>
 	node.type === 'Identifier'
@@ -102,9 +97,6 @@ const getErrorTagComparison = (node, context) => {
 	}
 };
 
-const hasComments = (node, sourceCode) =>
-	sourceCode.getCommentsInside(node).length > 0;
-
 const getArgumentText = (node, sourceCode) => {
 	const text = sourceCode.getText(node);
 	return node.type === 'SequenceExpression' ? `(${text})` : text;
@@ -121,34 +113,22 @@ const createFix = ({node, argument, negate}, context) =>
 */
 const create = context => {
 	context.on('BinaryExpression', node => {
-		if (hasComments(node, context.sourceCode)) {
-			return;
-		}
-
-		if (
+		const argument = (
 			node.operator === 'instanceof'
-			&& isGlobalError(node.right, context)
-		) {
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				fix: createFix({
-					node,
-					argument: node.left,
-					negate: false,
-				}, context),
-			};
-		}
-
-		const argument = getErrorTagComparison(node, context);
+			&& node.right.type === 'Identifier'
+			&& node.right.name === 'Error'
+		)
+			? node.left
+			: getErrorTagComparison(node, context);
 		if (
 			!argument
 			|| isValueShadowed(node, 'Error', context)
+			|| hasNonDirectiveComment(context, node)
 		) {
 			return;
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node,
 			messageId: MESSAGE_ID,
 			fix: createFix({
@@ -156,7 +136,7 @@ const create = context => {
 				argument,
 				negate: node.operator === '!==' || node.operator === '!=',
 			}, context),
-		};
+		});
 	});
 };
 

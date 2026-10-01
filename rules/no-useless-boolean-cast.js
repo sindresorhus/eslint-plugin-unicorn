@@ -1,5 +1,7 @@
 import {isFunction, isMethodCall} from './ast/index.js';
 import {
+	getCommentSafeProblem,
+	hasNonDirectiveComment,
 	hasOptionalChainElement,
 	isGlobalBooleanCall,
 	isNullishType,
@@ -120,7 +122,7 @@ const create = context => {
 		const booleanCall = getReturnedExpression(callback);
 		if (
 			!isGlobalBooleanCall(booleanCall, context)
-			|| sourceCode.getCommentsInside(booleanCall).length > 0
+			|| hasNonDirectiveComment(context, booleanCall)
 		) {
 			return;
 		}
@@ -138,7 +140,7 @@ const create = context => {
 			return;
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node: booleanCall,
 			messageId: MESSAGE_ID,
 			data: {method: node.callee.property.name},
@@ -155,7 +157,7 @@ const create = context => {
 
 				return fixer.replaceText(booleanCall, replacement);
 			},
-		};
+		});
 	});
 };
 

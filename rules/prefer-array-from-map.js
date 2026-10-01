@@ -7,7 +7,9 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import {
+	getCommentSafeProblem,
 	getNextStatement,
+	hasNonDirectiveComment,
 	getParenthesizedRange,
 	getParenthesizedText,
 	getVariableIdentifiers,
@@ -353,18 +355,18 @@ const getLoopProblem = (declaration, context) => {
 		sourceCode.getRange(declaration)[0],
 		sourceCode.getRange(loop)[1],
 	];
-	if (wouldRemoveComments(context, replaceRange)) {
+	if (hasNonDirectiveComment(context, replaceRange)) {
 		return;
 	}
 
-	return {
+	return getCommentSafeProblem(context, {
 		node: loop,
 		messageId: MESSAGE_ID_ERROR,
 		fix: fixer => fixer.replaceTextRange(
 			replaceRange,
 			`${declaration.kind} ${getVariableTargetText(declarator, context)} = ${replacement};`,
 		),
-	};
+	}, replaceRange);
 };
 
 const getMapArgumentsFix = (arrayFromCall, mapCall, context) => {

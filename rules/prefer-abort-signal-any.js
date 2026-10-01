@@ -12,9 +12,10 @@ import {
 import {removeStatement} from './fix/index.js';
 import {
 	getBaseTypes,
+	getCommentSafeProblem,
 	getLastTrailingCommentOnSameLine,
 	getTypeSymbol,
-	hasCommentInRange,
+	hasNonDirectiveComment,
 	isArray,
 	isDefaultLibrarySymbol,
 	isGlobalIdentifier,
@@ -84,10 +85,7 @@ const hasCommentBetween = (context, leftNode, rightNode) => {
 	const [, leftEnd] = sourceCode.getRange(leftNode);
 	const [rightStart] = sourceCode.getRange(rightNode);
 
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= leftEnd && commentEnd <= rightStart;
-	});
+	return hasNonDirectiveComment(context, [leftEnd, rightStart]);
 };
 
 const getExpressionParentIgnoringTypeScriptWrappers = node => {
@@ -146,7 +144,7 @@ const getSignalMember = (identifier, context) => {
 		|| isForLoopLeftSide(parent)
 		|| isReasonSensitiveRead(parent, context)
 		|| isSignalAlias(parent)
-		|| hasCommentInRange(context, context.sourceCode.getRange(parent))
+		|| hasNonDirectiveComment(context, parent)
 	) {
 		return;
 	}
@@ -1096,8 +1094,8 @@ const getAbortEventListenerCall = statement => {
 };
 
 const isStatementCommentFree = (statement, context) =>
-	!hasCommentInRange(context, context.sourceCode.getRange(statement))
-	&& !getLastTrailingCommentOnSameLine(context, statement);
+	!hasNonDirectiveComment(context, statement)
+	&& !getLastTrailingCommentOnSameLine(context, statement, {ignoreDirectives: true});
 
 const getDirectBridge = (declaration, controllerName, context) => {
 	const bridgeStatements = [];
@@ -1304,10 +1302,10 @@ const createProblem = (declarator, context) => {
 		|| id.type !== 'Identifier'
 		|| !isGlobalAbortControllerConstructor(init, context)
 		|| !isGlobalNameAvailable('AbortSignal', id, context)
-		|| hasCommentInRange(context, sourceCode.getRange(init))
+		|| hasNonDirectiveComment(context, init)
 		|| (
 			id.typeAnnotation
-			&& hasCommentInRange(context, sourceCode.getRange(id.typeAnnotation))
+			&& hasNonDirectiveComment(context, id.typeAnnotation)
 		)
 	) {
 		return;
@@ -1336,7 +1334,10 @@ const createProblem = (declarator, context) => {
 
 	const replacementName = getReplacementName(id.name, variable, signalMembers, context);
 
-	return {
+	const lastStatement = bridge.statements.at(-1);
+	const lastTrailingComment = getLastTrailingCommentOnSameLine(context, lastStatement);
+	const range = [sourceCode.getRange(declaration)[1], sourceCode.getRange(lastStatement)[1]];
+	let problem = getCommentSafeProblem(context, {
 		node: id,
 		messageId: MESSAGE_ID,
 		suggest: [
@@ -1362,7 +1363,13 @@ const createProblem = (declarator, context) => {
 				},
 			},
 		],
-	};
+	}, range);
+	const affectedNodes = [init, id.typeAnnotation, lastTrailingComment, ...signalMembers].filter(Boolean);
+	for (const affectedNode of affectedNodes) {
+		problem = getCommentSafeProblem(context, problem, affectedNode);
+	}
+
+	return problem;
 };
 
 /**

@@ -5,7 +5,8 @@ import {
 	isBooleanLiteral,
 } from './ast/index.js';
 import {
-	hasCommentInRange,
+	getCommentSafeProblem,
+	hasNonDirectiveComment,
 	isGlobalIdentifier,
 	isSameIdentifier,
 	unwrapTypeScriptExpression,
@@ -214,16 +215,16 @@ const createReturnProblem = (tryStatement, newUrlExpression, context) => {
 	}
 
 	const tryStatementRange = context.sourceCode.getRange(tryStatement);
-	if (hasCommentInRange(context, tryStatementRange)) {
+	if (hasNonDirectiveComment(context, tryStatementRange)) {
 		return;
 	}
 
 	const replacement = `return ${getUrlCanParseText(newUrlExpression, !tryValue, context)};`;
-	return {
+	return getCommentSafeProblem(context, {
 		node: tryStatement,
 		messageId: MESSAGE_ID,
 		fix: fixer => fixer.replaceText(tryStatement, replacement),
-	};
+	});
 };
 
 const createAssignmentProblem = (tryStatement, newUrlExpression, context) => {
@@ -244,17 +245,17 @@ const createAssignmentProblem = (tryStatement, newUrlExpression, context) => {
 	const canParseText = getUrlCanParseText(newUrlExpression, !tryAssignment.right.value, context);
 	const replacementRange = context.sourceCode.getRange(tryStatement);
 
-	if (hasCommentInRange(context, replacementRange)) {
+	if (hasNonDirectiveComment(context, replacementRange)) {
 		return;
 	}
 
 	const replacement = `${tryAssignment.left.name} = ${canParseText};`;
 
-	return {
+	return getCommentSafeProblem(context, {
 		node: tryStatement,
 		messageId: MESSAGE_ID,
 		fix: fixer => fixer.replaceTextRange(replacementRange, replacement),
-	};
+	});
 };
 
 const createProblem = (tryStatement, context) => {

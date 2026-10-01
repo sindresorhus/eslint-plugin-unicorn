@@ -11,6 +11,8 @@ When calling [`Array#flat(depth)`](https://developer.mozilla.org/en-US/docs/Web/
 
 A bare depth number does not explain why that particular nesting depth is required, so naming or commenting it preserves intent for readers.
 
+ESLint disable and enable directives are not treated as explanations and do not prevent reporting.
+
 ## Examples
 
 ```js

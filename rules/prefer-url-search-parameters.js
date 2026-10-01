@@ -6,13 +6,14 @@ import {
 } from './ast/index.js';
 import {
 	getParenthesizedRange,
+	getCommentSafeProblem,
 	getStaticValueIfNoSideEffects,
 	isKnownNonString,
 	isSameIdentifier,
 	isTypeImportSpecifier,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
-	wouldRemoveComments,
+	hasNonDirectiveComment,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-url-search-parameters/error';
@@ -217,7 +218,7 @@ const getPreservedWrapperRanges = (node, argument, context) => {
 const getSuggestion = ({node, replacement, preservedNodes}, context) => {
 	if (
 		!isUrlSearchParametersAvailable(node, context)
-		|| wouldRemoveComments(context, node, preservedNodes)
+		|| hasNonDirectiveComment(context, node, preservedNodes)
 	) {
 		return;
 	}
@@ -241,11 +242,11 @@ const createProblem = ({node, query, replacement, preservedNodes = [query]}, con
 		return;
 	}
 
-	return {
+	return getCommentSafeProblem(context, {
 		node,
 		messageId: MESSAGE_ID_ERROR,
 		suggest,
-	};
+	}, node, preservedNodes);
 };
 
 const isObjectFromEntriesCall = (node, context) =>

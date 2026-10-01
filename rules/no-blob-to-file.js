@@ -1,6 +1,11 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isMethodCall, isNewExpression} from './ast/index.js';
-import {getLastTrailingCommentOnSameLine, getVariableIdentifiers} from './utils/index.js';
+import {
+	getCommentSafeProblem,
+	hasNonDirectiveComment,
+	getLastTrailingCommentOnSameLine,
+	getVariableIdentifiers,
+} from './utils/index.js';
 import {removeStatement} from './fix/index.js';
 
 const MESSAGE_ID = 'no-blob-to-file';
@@ -89,14 +94,14 @@ function isBlobIdentifier(node, beforeNode, context) {
 	&& isGlobalIdentifier(initializer.callee, context);
 }
 
-function hasComments(node, context) {
+function getCommentCheckRange(node, context) {
 	const {sourceCode} = context;
+	const leadingComment = sourceCode.getCommentsBefore(node).find(comment =>
+		sourceCode.getLoc(comment).end.line === sourceCode.getLoc(node).start.line
+		|| sourceCode.getLoc(comment).end.line === sourceCode.getLoc(node).start.line - 1);
+	const trailingComment = getLastTrailingCommentOnSameLine(context, node);
 
-	return sourceCode.getCommentsInside(node).length > 0
-		|| sourceCode.getCommentsBefore(node).some(comment =>
-			sourceCode.getLoc(comment).end.line === sourceCode.getLoc(node).start.line
-			|| sourceCode.getLoc(comment).end.line === sourceCode.getLoc(node).start.line - 1)
-		|| getLastTrailingCommentOnSameLine(context, node);
+	return [sourceCode.getRange(leadingComment ?? node)[0], sourceCode.getRange(trailingComment ?? node)[1]];
 }
 
 function getBlobIdentifier(newFileExpression, context) {
@@ -205,10 +210,11 @@ function getProblem(node, context) {
 	}
 
 	const fileNameNode = getFileNameNode(init);
+	const commentCheckRange = getCommentCheckRange(node.parent, context);
 
 	if (
 		!isSameBindingAtUse(blobIdentifier, reference, context)
-		|| hasComments(node.parent, context)
+		|| hasNonDirectiveComment(context, commentCheckRange)
 		|| (
 			supportedCall.kind === 'formData'
 			&& supportedCall.call.arguments.length === 2
@@ -218,7 +224,7 @@ function getProblem(node, context) {
 		return;
 	}
 
-	return {
+	return getCommentSafeProblem(context, {
 		node: init,
 		messageId: MESSAGE_ID,
 		suggest: [
@@ -237,7 +243,7 @@ function getProblem(node, context) {
 				},
 			},
 		],
-	};
+	}, commentCheckRange);
 }
 
 /**

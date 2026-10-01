@@ -1,5 +1,7 @@
 import {
+	getCommentSafeProblem,
 	getParenthesizedText,
+	hasNonDirectiveComment,
 	hasOptionalChainElement,
 	isKnownNonIndexedCollection,
 	isNodeMatches,
@@ -177,7 +179,7 @@ const create = context => {
 		}
 
 		const {sourceCode} = context;
-		if (sourceCode.getCommentsInside(flatMapCallExpression).length > 0) {
+		if (hasNonDirectiveComment(context, flatMapCallExpression)) {
 			return;
 		}
 
@@ -202,7 +204,7 @@ const create = context => {
 		const predicateText = getConditionalTestText(filterCallback.body, context);
 		const mappedText = sourceCode.getText(flatMapCallback.body);
 
-		return {
+		return getCommentSafeProblem(context, {
 			node: flatMapCallExpression.callee.property,
 			messageId: MESSAGE_ID_FILTER_FLAT_MAP,
 			suggest: [
@@ -214,7 +216,7 @@ const create = context => {
 					),
 				},
 			],
-		};
+		}, flatMapCallExpression);
 	});
 };
 

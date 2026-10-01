@@ -1,5 +1,5 @@
 import {findVariable, getPropertyName, isCommentToken} from '@eslint-community/eslint-utils';
-import {getParenthesizedText, unwrapTypeScriptExpression} from './utils/index.js';
+import {getCommentSafeProblem, getParenthesizedText, hasNonDirectiveComment, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-single-object-destructuring';
 const MESSAGE_ID_INLINE = 'prefer-direct-object-destructuring';
@@ -133,20 +133,26 @@ const getInlineProblem = (sourceCode, firstNode, secondNode) => {
 	};
 };
 
-const getMergeProblem = (sourceCode, firstNode, secondNode) => {
+const getMergeProblem = (context, firstNode, secondNode) => {
+	const {sourceCode} = context;
 	const first = getSupportedDeclaration(sourceCode, firstNode);
 	const second = getSupportedDeclaration(sourceCode, secondNode);
 
 	if (!(first
 		&& second
 		&& first.node.kind === second.node.kind
-		&& first.source === second.source
-		&& sourceCode.getCommentsInside(first.node).length === 0
-		&& sourceCode.getCommentsInside(second.node).length === 0) || hasCommentsBetween(sourceCode, first.node, second.node)) {
+		&& first.source === second.source)) {
 		return;
 	}
 
-	if (hasDuplicateKey(first.declarator.id, second.declarator.id)) {
+	const replacementRange = [
+		sourceCode.getRange(first.node)[0],
+		sourceCode.getRange(second.node)[1],
+	];
+	if (
+		hasDuplicateKey(first.declarator.id, second.declarator.id)
+		|| hasNonDirectiveComment(context, replacementRange)
+	) {
 		return;
 	}
 
@@ -155,30 +161,24 @@ const getMergeProblem = (sourceCode, firstNode, secondNode) => {
 
 	const replacement = `${first.node.kind} {${getPropertiesText(first.declarator.id)}, ${getPropertiesText(second.declarator.id)}} = ${first.source};`;
 
-	return {
+	return getCommentSafeProblem(context, {
 		node: second.node,
 		messageId: MESSAGE_ID,
 		data: {
 			source: first.source,
 		},
-		fix: fixer => fixer.replaceTextRange(
-			[
-				sourceCode.getRange(first.node)[0],
-				sourceCode.getRange(second.node)[1],
-			],
-			replacement,
-		),
-	};
+		fix: fixer => fixer.replaceTextRange(replacementRange, replacement),
+	}, replacementRange);
 };
 
-function * getStatementListProblems(sourceCode, statements) {
+function * getStatementListProblems(context, statements) {
 	for (const [index, secondNode] of statements.entries()) {
 		if (index === 0) {
 			continue;
 		}
 
 		const firstNode = statements[index - 1];
-		const problem = getInlineProblem(sourceCode, firstNode, secondNode) ?? getMergeProblem(sourceCode, firstNode, secondNode);
+		const problem = getInlineProblem(context.sourceCode, firstNode, secondNode) ?? getMergeProblem(context, firstNode, secondNode);
 
 		if (problem) {
 			yield problem;
@@ -190,11 +190,9 @@ function * getStatementListProblems(sourceCode, statements) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
-
-	context.on('Program', node => getStatementListProblems(sourceCode, node.body));
-	context.on(['BlockStatement', 'StaticBlock'], node => getStatementListProblems(sourceCode, node.body));
-	context.on('SwitchCase', node => getStatementListProblems(sourceCode, node.consequent));
+	context.on('Program', node => getStatementListProblems(context, node.body));
+	context.on(['BlockStatement', 'StaticBlock'], node => getStatementListProblems(context, node.body));
+	context.on('SwitchCase', node => getStatementListProblems(context, node.consequent));
 };
 
 /**

@@ -10,7 +10,8 @@ import {
 	getPreviousNode,
 	getNextNode,
 	getLastTrailingCommentOnSameLine,
-	hasCommentInRange,
+	hasNonDirectiveComment,
+	getCommentSafeProblem,
 } from './utils/index.js';
 
 const messageId = 'prefer-ternary';
@@ -228,15 +229,17 @@ const create = context => {
 			return;
 		}
 
-		// Preserve commented decisions as statements, without reporting.
-		if (hasCommentInRange(context, [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]])) {
+		// Preserve ordinary commented decisions as statements, without reporting.
+		// Inspect comments entirely within the affected statement range.
+		const commentRange = [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]];
+		if (hasNonDirectiveComment(context, commentRange)) {
 			return;
 		}
 
+		// Report directives so ESLint can suppress the violation, without changing comments.
 		const hasOtherWrites = variable.references.some(reference => !reference.init && reference.isWrite() && !isReferenceInsideNode(reference, node));
-		const keyword = hasOtherWrites ? 'let' : 'const';
 
-		return {
+		return getCommentSafeProblem(context, {
 			node,
 			messageId,
 			suggest: [
@@ -250,6 +253,7 @@ const create = context => {
 						const ternary = `${testText} ? ${consequentText} : ${alternateText}`;
 
 						const letToken = sourceCode.getFirstToken(previousNode);
+						const keyword = hasOtherWrites ? 'let' : 'const';
 						yield fixer.replaceText(letToken, keyword);
 
 						yield fixer.replaceTextRange(getParenthesizedRange(declarator.init, context), ternary);
@@ -262,7 +266,7 @@ const create = context => {
 					},
 				},
 			],
-		};
+		}, commentRange);
 	}
 
 	function getIfBranchesProblem(node, alternateNode = node.alternate) {
@@ -296,15 +300,18 @@ const create = context => {
 			? [sourceCode.getRange(node)[0], sourceCode.getRange(alternateNode)[1]]
 			: sourceCode.getRange(node);
 
-		// Preserve commented decisions as statements, without reporting.
-		if (
-			hasCommentInRange(context, replacementRange)
-			|| (isFlatReturn && getLastTrailingCommentOnSameLine(context, alternateNode))
-		) {
+		const trailingComment = isFlatReturn && getLastTrailingCommentOnSameLine(context, alternateNode);
+		const commentRange = trailingComment
+			? [replacementRange[0], sourceCode.getRange(trailingComment)[1]]
+			: replacementRange;
+
+		// Preserve ordinary commented decisions as statements, without reporting.
+		if (hasNonDirectiveComment(context, commentRange)) {
 			return;
 		}
 
-		return {
+		// Report directives so ESLint can suppress the violation, without changing comments.
+		return getCommentSafeProblem(context, {
 			node,
 			messageId,
 			* fix(fixer) {
@@ -323,7 +330,7 @@ const create = context => {
 
 				yield fixer.replaceTextRange(replacementRange, fixed);
 			},
-		};
+		}, commentRange);
 	}
 
 	context.on('IfStatement', node => {

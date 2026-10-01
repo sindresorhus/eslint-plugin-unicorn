@@ -11,7 +11,9 @@
 
 When a constant infinite loop immediately checks a condition and breaks, the loop condition is split across two places. Put the condition in the `while` statement so the loop's continuation condition is visible where readers expect it.
 
-The rule only reports simple top-of-loop guards in `while (true)`, `for (;;)`, `for (; true;)`, and `do ... while (true)` loops. Loops with labels, additional `break` statements targeting the same loop, or comments around the removable guard or loop syntax are ignored.
+The rule only reports simple top-of-loop guards in `while (true)`, `for (;;)`, `for (; true;)`, and `do ... while (true)` loops. Loops with labels, additional `break` statements targeting the same loop, or ordinary comments around the removable guard or loop syntax are ignored.
+
+ESLint disable and enable directives do not prevent reporting. Fixes are omitted when the affected range contains directives.
 
 ## Examples
 
