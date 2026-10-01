@@ -8,39 +8,46 @@ const messages = {
 
 const isClass = node => node?.type === 'ClassDeclaration' || node?.type === 'ClassExpression';
 
-const getClass = (node, sourceCode, visitedVariables = new Set()) => {
-	if (isClass(node)) {
-		return node.declare || node.decorators?.length > 0 ? undefined : node;
-	}
+// A `const a1 = a0;` alias chain is walked iteratively, a long enough one would overflow the stack otherwise
+const getClass = (node, sourceCode) => {
+	const visitedVariables = new Set();
+	let current = node;
 
-	if (node?.type !== 'Identifier') {
-		return;
-	}
+	for (;;) {
+		if (isClass(current)) {
+			return current.declare || current.decorators?.length > 0 ? undefined : current;
+		}
 
-	const variable = findVariable(sourceCode.getScope(node), node);
-	if (!variable || variable.defs.length !== 1 || visitedVariables.has(variable)) {
-		return;
-	}
+		if (current?.type !== 'Identifier') {
+			return;
+		}
 
-	const [definition] = variable.defs;
-	if (variable.references.some(reference => reference.isWrite() && !reference.init)) {
-		return;
-	}
+		const variable = findVariable(sourceCode.getScope(current), current);
+		if (!variable || variable.defs.length !== 1 || visitedVariables.has(variable)) {
+			return;
+		}
 
-	if (definition.type === 'ClassName') {
-		return getClass(definition.node, sourceCode, visitedVariables);
-	}
+		const [definition] = variable.defs;
+		if (variable.references.some(reference => reference.isWrite() && !reference.init)) {
+			return;
+		}
 
-	if (
-		definition.type !== 'Variable'
-		|| definition.parent.kind !== 'const'
-		|| definition.node.id !== definition.name
-	) {
-		return;
-	}
+		if (definition.type === 'ClassName') {
+			current = definition.node;
+			continue;
+		}
 
-	visitedVariables.add(variable);
-	return getClass(definition.node.init, sourceCode, visitedVariables);
+		if (
+			definition.type !== 'Variable'
+			|| definition.parent.kind !== 'const'
+			|| definition.node.id !== definition.name
+		) {
+			return;
+		}
+
+		visitedVariables.add(variable);
+		current = definition.node.init;
+	}
 };
 
 const getMemberName = (member, sourceCode) => {
@@ -63,21 +70,13 @@ const getMemberName = (member, sourceCode) => {
 		return;
 	}
 
-	if (value && ['object', 'function'].includes(typeof value)) {
-		return UNKNOWN_NAME;
-	}
-
-	return String(value);
+	return value && ['object', 'function'].includes(typeof value) ? UNKNOWN_NAME : String(value);
 };
 
 const isRuntimeMember = member => !member.declare && ['MethodDefinition', 'PropertyDefinition', 'AccessorProperty'].includes(member.type);
 const isDefaultClassProperty = (name, isStatic) => isStatic ? ['name', 'length'].includes(name) : name === 'constructor';
 
 const getMemberDescriptorKind = (member, name, sourceCode) => {
-	if (member.decorators?.length > 0) {
-		return 'unknown';
-	}
-
 	if (member.type === 'MethodDefinition' && !member.value.body) {
 		return;
 	}
@@ -89,6 +88,11 @@ const getMemberDescriptorKind = (member, name, sourceCode) => {
 
 	if (memberName !== name) {
 		return;
+	}
+
+	// A decorator can change the descriptor kind, but only the member it is attached to
+	if (member.decorators?.length > 0) {
+		return 'unknown';
 	}
 
 	if (member.type === 'AccessorProperty') {

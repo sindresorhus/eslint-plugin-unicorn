@@ -94,3 +94,29 @@ test.snapshot({
 		'class Base { get value() { return 1; } } class Middle extends Base { declare value: number; } class Child extends Middle { set value(value: number) {} }',
 	],
 });
+
+// A decorator on an unrelated member does not make the accessor kind unknown
+test({
+	valid: [],
+	invalid: [
+		...[
+			'class Base { @dec unrelated() {} get value() { return 1; } } class Child extends Base { set value(v) {} }',
+			'class Base { @dec unrelated() {} set value(v) {} } class Child extends Base { get value() { return 1; } }',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: 1})),
+	],
+});
+
+// A long `const a1 = a0;` alias chain must not overflow the stack
+test({
+	valid: [],
+	invalid: [
+		{
+			code: [
+				'const a0 = class { get value() { return 1; } };',
+				...Array.from({length: 20_000}, (_, index) => `const a${index + 1} = a${index};`),
+				'class Final extends a20000 { set value(v) {} }',
+			].join('\n'),
+			errors: 1,
+		},
+	],
+});
