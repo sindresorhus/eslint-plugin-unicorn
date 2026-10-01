@@ -270,3 +270,45 @@ test({
 		},
 	],
 });
+
+// A shorthand property has a separate node for its key and its value at the same position, it must be reported once
+test({
+	valid: [],
+	invalid: [
+		...[
+			'const o = {newFoo};',
+			'f({newFoo});',
+			'() => ({newFoo});',
+			'[{newFoo}];',
+			'const o = {newFoo, newBar};',
+		].map(code => ({code, errors: code.includes('newBar') ? 2 : 1})),
+	],
+});
+
+// A destructured binding is a variable, `checkProperties` only governs the property name
+test({
+	valid: [
+		...[
+			'const {newFoo} = object;',
+			'const {newFoo = 1} = object;',
+			'function foo({newBar}) {}',
+			'function foo({newBar = 1}) {}',
+		].map(code => ({code, options: [{checkProperties: false}]})),
+	],
+	invalid: [
+		// A renamed binding creates a new local variable, that is not a property
+		...[
+			'const {newFoo: newBar} = object;',
+			'const {newFoo: newBar = 1} = object;',
+			'({newFoo: newBar} = object);',
+			'({newFoo: newBar = 1} = object);',
+			'const {[newFoo]: bar} = object;',
+		].map(code => ({code, options: [{checkProperties: false}], errors: 1})),
+		// With the option on, the same-name binding is checked as a property, and reported once
+		...[
+			'const {newFoo} = object;',
+			'const {newFoo = 1} = object;',
+			'function foo({newBar}) {}',
+		].map(code => ({code, options: [{checkProperties: true}], errors: 1})),
+	],
+});

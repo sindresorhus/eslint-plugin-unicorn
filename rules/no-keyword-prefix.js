@@ -1,5 +1,3 @@
-import isShorthandPropertyAssignmentPatternLeft from './utils/is-shorthand-property-assignment-pattern-left.js';
-
 const MESSAGE_ID = 'noKeywordPrefix';
 const messages = {
 	[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.',
@@ -72,34 +70,30 @@ function reportMemberExpression(report, node, options) {
 	}
 }
 
-function reportObjectPatternAndShouldSkipPropertyCheck(report, node, options) {
-	const {name, parent} = node;
+function reportObjectPatternAndShouldSkipPropertyCheck(report, node, options, property) {
+	const {name} = node;
 	const keyword = findKeywordPrefix(name, options);
 
-	/* c8 ignore next 3 */
-	if (parent.shorthand && parent.value.left && Boolean(keyword)) {
+	if (Boolean(keyword) && property.computed) {
 		report(node, keyword);
 	}
 
-	if (Boolean(keyword) && parent.computed) {
-		report(node, keyword);
-	}
-
-	// Prevent checking right hand side of destructured object
-	if (parent.key === node && parent.value !== node) {
+	// The property name, only the binding is checked here
+	if (property.key === node) {
 		return true;
 	}
 
-	const isAssignmentKeyEqualsValue = parent.key.name === parent.value.name;
+	// A same-name binding, like `{newFoo}`, is checked as a property
+	if (property.key.name === name) {
+		return false;
+	}
 
-	const valueIsInvalid = parent.value.name && Boolean(keyword);
-
-	// Ignore destructuring if the option is set, unless a new identifier is created
-	if (valueIsInvalid && !isAssignmentKeyEqualsValue) {
+	// A renamed binding declares a new local variable, that is not a property
+	if (keyword) {
 		report(node, keyword);
 	}
 
-	return false;
+	return true;
 }
 
 // Core logic copied from:
@@ -107,16 +101,17 @@ function reportObjectPatternAndShouldSkipPropertyCheck(report, node, options) {
 const create = context => {
 	const options = prepareOptions(context.options[0]);
 
-	// Contains reported nodes to avoid reporting twice on destructuring with shorthand notation
-	const reported = [];
+	// Reported start positions, a shorthand property has a separate node for its key and its value at the same position, and both would otherwise be reported
+	const reported = new Set();
 	const ALLOWED_PARENT_TYPES = new Set(['CallExpression', 'NewExpression']);
 
 	function report(node, keyword) {
-		if (reported.includes(node)) {
+		const [start] = context.sourceCode.getRange(node);
+		if (reported.has(start)) {
 			return;
 		}
 
-		reported.push(node);
+		reported.add(start);
 		context.report({
 			node,
 			messageId: MESSAGE_ID,
@@ -138,8 +133,10 @@ const create = context => {
 			parent.type === 'Property'
 			|| parent.type === 'AssignmentPattern'
 		) {
-			if (parent.parent.type === 'ObjectPattern') {
-				const shouldSkipPropertyCheck = reportObjectPatternAndShouldSkipPropertyCheck(report, node, options);
+			// `const {newFoo = 1} = object` puts the binding in an `AssignmentPattern` inside the shorthand `Property`. Its right hand side is the default value, a plain reference.
+			const property = parent.type === 'AssignmentPattern' && parent.left === node ? parent.parent : parent;
+			if (property.type === 'Property' && property.parent.type === 'ObjectPattern') {
+				const shouldSkipPropertyCheck = reportObjectPatternAndShouldSkipPropertyCheck(report, node, options, property);
 				if (shouldSkipPropertyCheck) {
 					return;
 				}
@@ -156,7 +153,6 @@ const create = context => {
 				Boolean(keyword)
 				&& !ALLOWED_PARENT_TYPES.has(effectiveParent.type)
 				&& parent.right !== node
-				&& !isShorthandPropertyAssignmentPatternLeft(node)
 			) {
 				report(node, keyword);
 			}
