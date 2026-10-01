@@ -96,9 +96,11 @@ function fixRequireCall(node, context) {
 
 	// `const foo = require("foo")`
 	// `const {foo} = require("foo")`
-	if (
+	if (!(
 		parent.type === 'VariableDeclarator'
 		&& parent.init === requireCall
+		// `const foo: Foo = require("foo")` has no `import` form that keeps the annotation
+		&& !parent.id.typeAnnotation
 		&& (
 			parent.id.type === 'Identifier'
 			|| (
@@ -115,63 +117,67 @@ function fixRequireCall(node, context) {
 		&& parent.parent.declarations.length === 1
 		&& parent.parent.declarations[0] === parent
 		&& parent.parent.parent.type === 'Program'
-	) {
-		const declarator = parent;
-		const declaration = declarator.parent;
-		const {id} = declarator;
-
-		return function * (fixer) {
-			const {sourceCode} = context;
-			const constToken = sourceCode.getFirstToken(declaration);
-			assertToken(constToken, {
-				expected: {type: 'Keyword', value: 'const'},
-				ruleId: 'prefer-module',
-			});
-			yield fixer.replaceText(constToken, 'import');
-
-			const equalToken = sourceCode.getTokenAfter(id);
-			assertToken(equalToken, {
-				expected: {type: 'Punctuator', value: '='},
-				ruleId: 'prefer-module',
-			});
-			yield removeSpacesAfter(id, context, fixer);
-			yield removeSpacesAfter(equalToken, context, fixer);
-			yield fixer.replaceText(equalToken, ' from ');
-
-			yield fixer.remove(callee);
-
-			const {
-				openingParenthesisToken,
-				closingParenthesisToken,
-			} = getCallExpressionTokens(requireCall, context);
-			yield fixer.remove(openingParenthesisToken);
-			yield fixer.remove(closingParenthesisToken);
-
-			for (const node of [callee, requireCall, source]) {
-				yield removeParentheses(node, fixer, context);
-			}
-
-			if (id.type === 'Identifier') {
-				return;
-			}
-
-			const {properties} = id;
-
-			for (const property of properties) {
-				const {key, shorthand} = property;
-				if (!shorthand) {
-					const commaToken = sourceCode.getTokenAfter(key);
-					assertToken(commaToken, {
-						expected: {type: 'Punctuator', value: ':'},
-						ruleId: 'prefer-module',
-					});
-					yield removeSpacesAfter(key, context, fixer);
-					yield removeSpacesAfter(commaToken, context, fixer);
-					yield fixer.replaceText(commaToken, ' as ');
-				}
-			}
-		};
+	)) {
+		return;
 	}
+
+	const declarator = parent;
+	const declaration = declarator.parent;
+	const {id} = declarator;
+
+	return function * (fixer) {
+		const {sourceCode} = context;
+		const constToken = sourceCode.getFirstToken(declaration);
+		assertToken(constToken, {
+			expected: {type: 'Keyword', value: 'const'},
+			ruleId: 'prefer-module',
+		});
+		yield fixer.replaceText(constToken, 'import');
+
+		const equalToken = sourceCode.getTokenAfter(id);
+		assertToken(equalToken, {
+			expected: {type: 'Punctuator', value: '='},
+			ruleId: 'prefer-module',
+		});
+		yield removeSpacesAfter(id, context, fixer);
+		yield removeSpacesAfter(equalToken, context, fixer);
+		yield fixer.replaceText(equalToken, ' from ');
+
+		yield fixer.remove(callee);
+
+		const {
+			openingParenthesisToken,
+			closingParenthesisToken,
+		} = getCallExpressionTokens(requireCall, context);
+		yield fixer.remove(openingParenthesisToken);
+		yield fixer.remove(closingParenthesisToken);
+
+		for (const node of [callee, requireCall, source]) {
+			yield removeParentheses(node, fixer, context);
+		}
+
+		if (id.type === 'Identifier') {
+			return;
+		}
+
+		const {properties} = id;
+
+		for (const property of properties) {
+			const {key, shorthand} = property;
+			if (shorthand) {
+				continue;
+			}
+
+			const commaToken = sourceCode.getTokenAfter(key);
+			assertToken(commaToken, {
+				expected: {type: 'Punctuator', value: ':'},
+				ruleId: 'prefer-module',
+			});
+			yield removeSpacesAfter(key, context, fixer);
+			yield removeSpacesAfter(commaToken, context, fixer);
+			yield fixer.replaceText(commaToken, ' as ');
+		}
+	};
 }
 
 const isTopLevelAssignment = node =>
@@ -221,8 +227,14 @@ function fixDefaultExport(node, context) {
 }
 
 function fixNamedExport(node, context) {
+	const assignmentExpression = node.parent.parent;
+
+	// The whole assignment is replaced, so a comment anywhere in it would be lost. The default export path edits in place and keeps its comments, so it does not need this.
+	if (context.sourceCode.getCommentsInside(assignmentExpression).length > 0) {
+		return;
+	}
+
 	return function * (fixer) {
-		const assignmentExpression = node.parent.parent;
 		const exported = node.parent.property.name;
 		const local = assignmentExpression.right.name;
 		yield fixer.replaceText(assignmentExpression, `export {${local} as ${exported}}`);

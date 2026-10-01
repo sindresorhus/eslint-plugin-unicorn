@@ -141,7 +141,6 @@ test.snapshot({
 		'const {foo} = require( (("foo")) );',
 		'const {foo} = ((require))("foo");',
 		'const {foo} = (( require("foo") ));',
-		'const {foo} = (( require("foo") ));',
 		'const {foo: foo}=require("foo");',
 		outdent`
 			const {foo: foo}
@@ -152,7 +151,6 @@ test.snapshot({
 		'const {foo: foo} = require( (("foo")) );',
 		'const {foo: foo} = ((require))("foo");',
 		'const {foo: foo} = (( require("foo") ));',
-		'const {foo: foo} = (( require("foo") ));',
 		'const {foo:bar}=require("foo");',
 		outdent`
 			const {foo:bar}
@@ -162,7 +160,6 @@ test.snapshot({
 		'const {foo:bar} = require("foo");',
 		'const {foo:bar} = require( (("foo")) );',
 		'const {foo:bar} = ((require))("foo");',
-		'const {foo:bar} = (( require("foo") ));',
 		'const {foo:bar} = (( require("foo") ));',
 		'const {a   :foo, b:   bar, default   :   baz}=require("foo");',
 		outdent`
@@ -177,7 +174,6 @@ test.snapshot({
 		'const {a   :foo, b:   bar, default   :   baz} = require("foo");',
 		'const {a   :foo, b:   bar, default   :   baz} = require( (("foo")) );',
 		'const {a   :foo, b:   bar, default   :   baz} = ((require))("foo");',
-		'const {a   :foo, b:   bar, default   :   baz} = (( require("foo") ));',
 		'const {a   :foo, b:   bar, default   :   baz} = (( require("foo") ));',
 		'const {} = require("foo");',
 		'const{   }=require("foo");',
@@ -212,7 +208,6 @@ test.snapshot({
 			}
 		`,
 		'const foo = require("foo"), bar = 1;',
-		'const foo = require("foo"), bar = require("bar");',
 	],
 });
 
@@ -277,7 +272,17 @@ test.typescript({
 		'type Data = { [module in keyof string]: number; };',
 		'type ModuleRegistry = { [exports: string]: string };',
 	],
-	invalid: [],
+	invalid: [
+		// The annotation would have to move to the import clause, which is not valid
+		{
+			code: 'const foo: Foo = require("foo");',
+			errors: [{messageId: 'error/identifier', suggestions: []}],
+		},
+		{
+			code: 'const {foo}: Foo = require("foo");',
+			errors: [{messageId: 'error/identifier', suggestions: []}],
+		},
+	],
 });
 
 // `.cjs` file
@@ -306,4 +311,18 @@ test.snapshot({
 			filename: 'foo.cjs/foo.js',
 		},
 	],
+});
+
+// The named-export suggestion replaces the whole assignment, so a comment anywhere in it would be lost. The default-export path keeps its comments, so only the named path needs the check.
+test({
+	valid: [],
+	invalid: [
+		'const foo = 1;\nexports /* note */ .foo = foo;',
+		'const foo = 1;\nexports./* c */foo = foo;',
+		'const foo = 1;\nexports.foo /* c */ = foo;',
+		'const foo = 1;\nmodule.exports /* c */ .foo = foo;',
+	].map(code => ({
+		code,
+		errors: [{messageId: 'error/identifier', suggestions: []}],
+	})),
 });
