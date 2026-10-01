@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMemberExpression} from './ast/index.js';
+import {isKnownNonEvent} from './utils/index.js';
 import {
 	createLateEventHandlerTracker,
 	eventParameterNamePattern,
@@ -24,17 +25,18 @@ const create = context => {
 		if (
 			node.object.type !== 'Identifier'
 			|| !isMemberExpression(node, {property: 'currentTarget'})
+			|| !eventParameterNamePattern.test(node.object.name)
 		) {
-			return;
-		}
-
-		if (!eventParameterNamePattern.test(node.object.name)) {
 			return;
 		}
 
 		const variable = findVariable(sourceCode.getScope(node.object), node.object);
 		const definition = variable?.defs.find(({type}) => type === 'Parameter');
-		if (!definition) {
+		if (
+			!definition
+			// A parameter that is known not to be an event, e.g. `function f(event: number)`
+			|| isKnownNonEvent(node.object, context)
+		) {
 			return;
 		}
 

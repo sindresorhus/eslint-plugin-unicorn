@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -217,5 +217,23 @@ test.snapshot({
 				});
 			};
 		`,
+	],
+});
+
+// A parameter that is known not to be an event
+test({
+	valid: [
+		...[
+			'async function f(event: number) {\n\tawait y();\n\tevent.currentTarget;\n}',
+			'async function f(event: string) {\n\tawait y();\n\tevent.currentTarget;\n}',
+			'async function f(event: number[]) {\n\tawait y();\n\tevent.currentTarget;\n}',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	],
+	invalid: [
+		{
+			code: 'async function f(event: Event) {\n\tawait y();\n\tevent.currentTarget;\n}',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
 	],
 });
