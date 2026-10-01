@@ -2,6 +2,7 @@ import {isMethodCall, isMemberExpression} from './ast/index.js';
 import {
 	getParenthesizedRange,
 	getIndentString,
+	hasCommentInRange,
 	hasMultilineToken,
 	isSameReference,
 	isLogicalExpression,
@@ -190,6 +191,11 @@ const create = context => {
 					} else {
 						range[0] = leftRange[1];
 						range[1] = rightRange[1];
+					}
+
+					// The removed range holds the length check and the operator, so a comment there would be lost
+					if (hasCommentInRange(context, range)) {
+						return;
 					}
 
 					return fixer.removeRange(range);

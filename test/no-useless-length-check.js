@@ -452,3 +452,30 @@ test({
 		},
 	],
 });
+
+// The removed range holds the length check and the operator, so a comment there would be lost
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (array.length !== 0 && /* keep */ array.some(Boolean) && foo) {}',
+			errors: [{messageId: 'non-zero'}],
+		},
+		{
+			code: 'if (array.length !== 0 && array.some(Boolean) && foo) {}',
+			output: 'if (array.some(Boolean) && foo) {}',
+			errors: [{messageId: 'non-zero'}],
+		},
+		// The length check on the right side
+		{
+			code: 'if (array.some(Boolean) /* keep */ && array.length !== 0) {}',
+			errors: [{messageId: 'non-zero'}],
+		},
+		// A comment outside the removed range is kept
+		{
+			code: 'if (/* keep */ array.length !== 0 && array.some(Boolean)) {}',
+			output: 'if (/* keep */ array.some(Boolean)) {}',
+			errors: [{messageId: 'non-zero'}],
+		},
+	],
+});
