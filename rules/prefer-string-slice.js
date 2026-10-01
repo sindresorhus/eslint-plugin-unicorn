@@ -1,13 +1,34 @@
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getParenthesizedText,
 	getParenthesizedRange,
+	getPrecedence,
 	getStaticValueIfNoSideEffects,
 	isKnownNonString,
+	isParenthesized,
 	isSameReference,
+	PRECEDENCE_ADDITION,
 } from './utils/index.js';
 import {replaceArgument} from './fix/index.js';
 import {isNumericLiteral, isStringLiteral, isMethodCall} from './ast/index.js';
 import {getSubstringSingleCharacterIndex} from './shared/substring.js';
+
+/*
+`substring()`/`substr()` read a missing or `undefined` end as "the whole string" and a `null` end as `0`, and `Math.max(0, undefined)` is `NaN`, so the replacement has to turn only `undefined` into `Infinity`. `??` cannot be used, it coalesces `null` as well and would turn `""` into the whole string. The end is read twice, so this returns `undefined` for an end that has a side effect and the caller withholds the fix.
+*/
+const getCoalescedEndText = (node, context) => {
+	if (hasSideEffect(node, context.sourceCode)) {
+		return;
+	}
+
+	let text = getParenthesizedText(node, context);
+	// The operand of an `===` needs parentheses for anything that binds looser than it, which is everything below addition: a logical, nullish or comparison expression. Extra parentheses are valid, so the bound is deliberately low. The conditional expression is a real operand of `Math.max()`, so only this operand needs them.
+	if (!isParenthesized(node, context) && (node.type === 'LogicalExpression' || getPrecedence(node) < PRECEDENCE_ADDITION)) {
+		text = `(${text})`;
+	}
+
+	return `${text} === undefined ? Infinity : ${text}`;
+};
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -22,7 +43,12 @@ const getNumericValue = node => {
 	}
 
 	if (node.type === 'UnaryExpression' && node.operator === '-') {
-		return -getNumericValue(node.argument);
+		const argumentValue = getNumericValue(node.argument);
+		if (argumentValue === undefined) {
+			return;
+		}
+
+		return -argumentValue;
 	}
 };
 
@@ -49,6 +75,18 @@ const hasCommentsInsideRange = (sourceCode, range) => sourceCode.getAllComments(
 	const commentRange = sourceCode.getRange(comment);
 	return commentRange[0] >= range[0] && commentRange[1] <= range[1];
 });
+
+const hasCommentInsideParentheses = (node, context) =>
+	hasCommentsInsideRange(context.sourceCode, getParenthesizedRange(node, context));
+
+// `replaceArgument()` also replaces the parentheses around the argument, so a comment inside them would be dropped.
+const getArgumentReplacement = (fixer, node, text, context, abort) => {
+	if (hasCommentInsideParentheses(node, context)) {
+		abort();
+	}
+
+	return replaceArgument(fixer, node, text, context);
+};
 
 const getArgumentRangeWithLeadingComments = (node, context) => {
 	const [start, end] = getParenthesizedRange(node, context);
@@ -83,10 +121,8 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	const {sourceCode} = context;
 	const firstArgumentStaticResult = getStaticValueIfNoSideEffects(firstArgument, context);
-	const secondArgumentRange = getParenthesizedRange(secondArgument, context);
-	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, context);
+	const replaceSecondArgument = text => getArgumentReplacement(fixer, secondArgument, text, context, abort);
 
 	if (firstArgumentStaticResult?.value === 0) {
 		const negativeIndex = getNegativeIndex(secondArgument, node.callee.object, context);
@@ -105,13 +141,18 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 			return;
 		}
 
-		yield fixer.insertTextBeforeRange(secondArgumentRange, 'Math.max(0, ');
-		yield fixer.insertTextAfterRange(secondArgumentRange, ')');
+		const endText = getCoalescedEndText(secondArgument, context);
+		if (!endText) {
+			return abort();
+		}
+
+		yield fixer.replaceTextRange(getParenthesizedRange(secondArgument, context), `Math.max(0, ${endText})`);
 		return;
 	}
 
 	if (argumentNodes.every(node => isNumericLiteral(node))) {
-		yield replaceSecondArgument(String(firstArgument.value + secondArgument.value));
+		// `substr()` runs `ToInteger` on each argument before adding them
+		yield replaceSecondArgument(String(Math.trunc(firstArgument.value) + Math.trunc(secondArgument.value)));
 		return;
 	}
 
@@ -122,7 +163,7 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	const [firstArgument, secondArgument] = node.arguments;
 
 	const firstNumber = firstArgument ? getNumericValue(firstArgument) : undefined;
-	const replaceFirstArgument = text => replaceArgument(fixer, firstArgument, text, context);
+	const replaceFirstArgument = text => getArgumentReplacement(fixer, firstArgument, text, context, abort);
 
 	if (!secondArgument) {
 		if (isLengthProperty(firstArgument)) {
@@ -141,7 +182,7 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	}
 
 	const secondNumber = getNumericValue(secondArgument);
-	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, context);
+	const replaceSecondArgument = text => getArgumentReplacement(fixer, secondArgument, text, context, abort);
 
 	if (firstNumber !== undefined && secondNumber !== undefined) {
 		const argumentsValue = [Math.max(0, firstNumber), Math.max(0, secondNumber)];
@@ -161,10 +202,18 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	}
 
 	if (firstNumber === 0 || secondNumber === 0) {
-		const firstArgumentText = getParenthesizedText(firstArgument, context);
-		const secondArgumentText = getParenthesizedText(secondArgument, context);
+		/*
+		When the arguments are swapped the literal `0` was the `substring()` end and the moved argument was the start, where `undefined` means `0`, not "to the end", so it is used as is and read only once.
+		*/
+		const endText = secondNumber === 0
+			? getParenthesizedText(firstArgument, context)
+			: getCoalescedEndText(secondArgument, context);
+		if (!endText) {
+			return abort();
+		}
+
 		yield replaceFirstArgument('0');
-		yield replaceSecondArgument(`Math.max(0, ${firstNumber === 0 ? secondArgumentText : firstArgumentText})`);
+		yield replaceSecondArgument(`Math.max(0, ${endText})`);
 		return;
 	}
 
