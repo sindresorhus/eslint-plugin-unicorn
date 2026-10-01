@@ -314,5 +314,31 @@ test.snapshot({
 		'(new Error() as Error).stack = stack',
 		'Object.assign(new Error() as Error, {name})',
 		'Object.assign(new AggregateError([], "message") satisfies AggregateError, {errors})',
+
+		// `++` and `--` write the property as well
+		'const error = new Error(); error.name++;',
+		'const error = new Error(); ++error.name;',
+		'const error = new Error(); error.name--;',
+	],
+});
+
+// A reassignment inside a nested function may run before the outer value is read
+test({
+	valid: [
+		...[
+			'let error = new Error(\'a\');\nfunction setup() {\n\terror = {};\n}\nerror.name = name;',
+			'let error = new Error(\'a\');\nfunction setup() {\n\terror = null;\n}\nerror.name = name;',
+			'let error = new Error(\'a\');\nconst setup = () => error = {};\nerror.name = name;',
+			// A reassignment inside an expression makes the value unknown too
+			'let error = new Error(\'a\');\nfoo(error = {});\nerror.name = name;',
+			'let error = new Error(\'a\');\ncondition && (error = {});\nerror.name = name;',
+			'let error = new Error(\'a\');\nconst other = error = {};\nerror.name = name;',
+		].map(code => ({code})),
+	],
+	invalid: [
+		// Reassigning to another built-in error keeps it a built-in error
+		...[
+			'let error = new Error(\'a\');\nfunction setup() {\n\terror = new TypeError();\n}\nerror.name = name;',
+		].map(code => ({code, errors: 1})),
 	],
 });

@@ -151,7 +151,8 @@ const updateExistingKnownErrorVariable = (knownErrorVariableFrames, variable, co
 				return true;
 			}
 
-			if (!isCrossesFunctionBoundary) {
+			// A reassignment inside a nested function may run before the outer value is read, and `constructorName` being `undefined` means the value stops being a built-in error either way, so the outer knowledge no longer holds.
+			if (!isCrossesFunctionBoundary || constructorName === undefined) {
 				frame.knownErrorVariables.set(variable, undefined);
 			}
 
@@ -211,43 +212,12 @@ const isDirectChildOfCurrentFrame = node => {
 	);
 };
 
-const bracelessBodyParentTypes = new Set([
-	'DoWhileStatement',
-	'ForInStatement',
-	'ForOfStatement',
-	'ForStatement',
-	'WhileStatement',
-]);
-
-const getAssignmentTrackingMode = assignmentExpression => {
+// Only a plain statement at the frame level always runs before the code that follows it
+const isUnconditionalAssignment = assignmentExpression => {
 	const {parent} = assignmentExpression;
 
-	if (parent.type === 'ForStatement' && parent.init === assignmentExpression) {
-		return 'normal';
-	}
-
-	if (parent.type !== 'ExpressionStatement') {
-		return;
-	}
-
-	if (isDirectChildOfCurrentFrame(parent)) {
-		return 'normal';
-	}
-
-	const statement = parent.parent;
-	if (
-		statement.type === 'IfStatement'
-		&& (statement.consequent === parent || statement.alternate === parent)
-	) {
-		return 'conditional';
-	}
-
-	if (
-		bracelessBodyParentTypes.has(statement.type)
-		&& statement.body === parent
-	) {
-		return 'conditional';
-	}
+	return (parent.type === 'ForStatement' && parent.init === assignmentExpression)
+		|| (parent.type === 'ExpressionStatement' && isDirectChildOfCurrentFrame(parent));
 };
 
 const getErrorConstructorName = (node, context) => {
@@ -331,11 +301,16 @@ function * getObjectAssignProblems(callExpression, context, knownErrorVariables)
 }
 
 const getDirectAssignmentProblem = (assignmentExpression, context, knownErrorVariables) => {
-	if (!isMemberExpression(assignmentExpression.left, {optional: false})) {
+	// `error.name++` writes the property as well
+	const target = assignmentExpression.type === 'UpdateExpression'
+		? assignmentExpression.argument
+		: assignmentExpression.left;
+
+	if (!isMemberExpression(target, {optional: false})) {
 		return;
 	}
 
-	const {left: memberExpression} = assignmentExpression;
+	const memberExpression = target;
 	const constructorName = getKnownErrorConstructorName(memberExpression.object, context, knownErrorVariables);
 	if (!constructorName) {
 		return;
@@ -348,11 +323,6 @@ const getDirectAssignmentProblem = (assignmentExpression, context, knownErrorVar
 };
 
 const updateKnownErrorVariable = (assignmentExpression, context, knownErrorVariables) => {
-	const trackingMode = getAssignmentTrackingMode(assignmentExpression);
-	if (!trackingMode) {
-		return;
-	}
-
 	const {left} = assignmentExpression;
 	if (left.type !== 'Identifier') {
 		return;
@@ -363,7 +333,8 @@ const updateKnownErrorVariable = (assignmentExpression, context, knownErrorVaria
 		return;
 	}
 
-	const constructorName = trackingMode === 'normal' && assignmentExpression.operator === '='
+	// Any other write, like a conditional one or one inside an expression, makes the value unknown
+	const constructorName = assignmentExpression.operator === '=' && isUnconditionalAssignment(assignmentExpression)
 		? getErrorConstructorName(assignmentExpression.right, context)
 		: undefined;
 
@@ -412,9 +383,12 @@ const create = context => {
 		setKnownErrorVariableFromDeclaration(knownErrorVariables, variable, constructorName ?? undefined);
 	});
 
-	context.on('AssignmentExpression', node => {
+	context.on(['AssignmentExpression', 'UpdateExpression'], node => {
 		const problem = getDirectAssignmentProblem(node, context, knownErrorVariables);
-		updateKnownErrorVariable(node, context, knownErrorVariables);
+
+		if (node.type === 'AssignmentExpression') {
+			updateKnownErrorVariable(node, context, knownErrorVariables);
+		}
 
 		return problem;
 	});
