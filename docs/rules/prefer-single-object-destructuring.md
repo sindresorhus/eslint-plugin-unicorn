@@ -13,7 +13,7 @@ Prefer one object destructuring declaration when consecutive declarations read f
 
 When merging destructurings, this rule only reports adjacent declarations with the same declaration kind and the same identifier source. The source identifier must resolve to a local `const` binding, so mutable or unresolved sources are ignored. More complex patterns are ignored by design.
 
-The rule also inlines a local `const` used only by the next `const` or `let` destructuring. Inlining skips comments, type annotations, anonymous functions/classes, and TypeScript instantiation expressions.
+The rule also inlines a local `const` used only by the next `const` or `let` destructuring when its initializer is an identifier, property access, call, constructor call, tagged template, or `await` expression. Inlining skips comments and type annotations.
 
 ## Examples
 
@@ -24,7 +24,8 @@ const {bar} = foo;
 const {baz} = foo;
 
 // ✅
-const {bar, baz} = {};
+const foo = {};
+const {bar, baz} = foo;
 ```
 
 ```js

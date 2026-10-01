@@ -1,3 +1,4 @@
+import {runInNewContext} from 'node:vm';
 import test from 'ava';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
@@ -5,6 +6,10 @@ import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: testRule} = getTester(import.meta);
+const ruleConfig = {
+	plugins: {unicorn},
+	rules: {'unicorn/prefer-single-object-destructuring': 'error'},
+};
 
 testRule.snapshot({
 	valid: [
@@ -211,7 +216,8 @@ testRule.snapshot({
 		'let foo = getFoo(); const {bar} = foo;',
 		'var foo = getFoo(); const {bar} = foo;',
 		'const foo = getFoo(); var {bar} = foo;',
-		'const foo = getFoo(); const {bar} = other;',
+		'const other = getOther(); const foo = getFoo(); const {bar} = other;',
+		'consume(foo); const foo = getFoo(); const {bar} = foo;',
 		'const foo = getFoo(); const {} = foo;',
 		'const foo = getFoo(); const {bar, ...rest} = foo;',
 		'const foo = getFoo(); const {bar: {baz}} = foo;',
@@ -223,6 +229,12 @@ testRule.snapshot({
 		'const foo = () => {}; const {name} = foo;',
 		'const foo = (function () {}); const {name} = foo;',
 		'const foo = class {}; const {name} = foo;',
+		'const foo = function named() {}; const {name} = foo;',
+		'const foo = class Named {}; const {name} = foo;',
+		'const foo = {bar: 1, baz: 2}; const {bar} = foo;',
+		'const foo = condition ? first : second; const {bar} = foo;',
+		'const foo = (first, second); const {bar} = foo;',
+		'const foo = first || second; const {bar} = foo;',
 		'const foo = getFoo(() => foo); const {bar} = foo;',
 		...[
 			'const foo: Foo = getFoo(); const {bar} = foo;',
@@ -236,6 +248,11 @@ testRule.snapshot({
 			'const foo = (function<T>() {})<number>; const {name} = foo;',
 			'const foo = (class<T> {})<number>; const {name} = foo;',
 			'const foo = (<T>() => {})<number>; const {name} = foo;',
+			'const foo = ((() => {}) as unknown as Foo)!; const {name} = foo;',
+			'const foo = {bar: 1, baz: 2}; const {bar} = foo;',
+			'const foo = {bar: 1, baz: 2} as const; const {bar} = foo;',
+			'const foo = condition ? {bar: 1, baz: 2} : {bar: 2, baz: 3}; const {bar} = foo;',
+			'const foo = (other, {bar: 1, baz: 2}); const {bar} = foo;',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	],
 	invalid: [
@@ -244,10 +261,13 @@ testRule.snapshot({
 		'const foo = getFoo(); const {bar: renamed} = foo;',
 		'const foo = getFoo(); let {bar} = foo; bar = other;',
 		'const foo = ((getFoo())); const {bar} = (foo);',
-		'const foo = (first, second); const {bar} = foo;',
 		'const foo = getFoo()?.bar; const {baz} = foo;',
-		'const foo = function named() {}; const {name} = foo;',
-		'const foo = class Named {}; const {name} = foo;',
+		'const foo = source; const {bar} = foo;',
+		'const foo = source.bar; const {baz} = foo;',
+		'const foo = new Foo(); const {bar} = foo;',
+		'const foo = getFoo`value`; const {bar} = foo;',
+		'const foo = await getFoo(); const {bar} = foo;',
+		'const foo = getFoo(); const {bar} = foo; function other(foo) { return foo; }',
 		'function useFoo() { const foo = getFoo(); const {bar} = foo; return bar; }',
 		'{ const foo = getFoo(); const {bar} = foo; }',
 		'class Foo { static { const foo = getFoo(); const {bar} = foo; } }',
@@ -283,14 +303,48 @@ testRule({
 
 test('merges destructurings and inlines their source across fix passes', t => {
 	const linter = new Linter();
-	const config = {
-		plugins: {unicorn},
-		rules: {'unicorn/prefer-single-object-destructuring': 'error'},
-	};
-	const result = linter.verifyAndFix('const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo;', config);
+	const result = linter.verifyAndFix('const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo;', ruleConfig);
 
 	t.true(result.fixed);
 	t.deepEqual(result.messages, []);
 	t.is(result.output, 'const {bar, baz} = getFoo();');
-	t.false(linter.verifyAndFix(result.output, config).fixed);
+	t.false(linter.verifyAndFix(result.output, ruleConfig).fixed);
+});
+
+test('keeps a source with additional reads when merging destructurings', t => {
+	const linter = new Linter();
+	const result = linter.verifyAndFix('const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo;\nconsume(foo);', ruleConfig);
+
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, 'const foo = getFoo();\nconst {bar, baz} = foo;\nconsume(foo);');
+});
+
+for (const declarationKind of ['const', 'let']) {
+	test(`merges three ${declarationKind} destructurings and inlines their source`, t => {
+		const linter = new Linter();
+		const result = linter.verifyAndFix(`const foo = getFoo();\n${declarationKind} {bar} = foo;\n${declarationKind} {baz} = foo;\n${declarationKind} {qux} = foo;`, ruleConfig);
+
+		t.true(result.fixed);
+		t.deepEqual(result.messages, []);
+		t.is(result.output, `${declarationKind} {bar, baz, qux} = getFoo();`);
+		t.false(linter.verifyAndFix(result.output, ruleConfig).fixed);
+	});
+}
+
+test('inlining evaluates the initializer once and preserves mutable bindings', t => {
+	const linter = new Linter();
+	const result = linter.verifyAndFix('const foo = getFoo(); let {bar} = foo; bar++; bar;', ruleConfig);
+	let calls = 0;
+	const value = runInNewContext(result.output, {
+		getFoo() {
+			calls++;
+			return {bar: 1};
+		},
+	});
+
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.is(value, 2);
+	t.is(calls, 1);
 });

@@ -8,6 +8,16 @@ const messages = {
 	[MESSAGE_ID_INLINE]: 'Prefer destructuring directly from the initializer of `{{source}}`.',
 };
 
+const supportedInlineInitializerTypes = new Set([
+	'Identifier',
+	'MemberExpression',
+	'ChainExpression',
+	'CallExpression',
+	'NewExpression',
+	'TaggedTemplateExpression',
+	'AwaitExpression',
+]);
+
 const isSupportedDeclarationKind = kind =>
 	kind === 'const'
 	|| kind === 'let';
@@ -96,7 +106,7 @@ const getInlineProblem = (sourceCode, firstNode, secondNode) => {
 	const variable = findVariable(sourceCode.getScope(second.declarator.init), second.declarator.init);
 	if (
 		variable.defs[0].node !== declarator
-		|| variable.references.some(reference => !(reference.init || reference.identifier === second.declarator.init))
+		|| variable.references.some(reference => !reference.init && reference.identifier !== second.declarator.init)
 		|| sourceCode.getCommentsInside(firstNode).length > 0
 		|| sourceCode.getCommentsInside(secondNode).length > 0
 		|| hasCommentsBetween(sourceCode, firstNode, secondNode)
@@ -104,13 +114,9 @@ const getInlineProblem = (sourceCode, firstNode, secondNode) => {
 		return;
 	}
 
-	// Removing the binding would change the inferred name of an anonymous function or class.
+	// Limit inlining to expressions that preserve contextual typing and inferred function/class names.
 	const initializer = unwrapTypeScriptExpression(declarator.init);
-	if (
-		initializer.type === 'ArrowFunctionExpression'
-		|| initializer.type === 'TSInstantiationExpression'
-		|| ((initializer.type === 'FunctionExpression' || initializer.type === 'ClassExpression') && !initializer.id)
-	) {
+	if (!supportedInlineInitializerTypes.has(initializer.type)) {
 		return;
 	}
 
@@ -127,7 +133,7 @@ const getInlineProblem = (sourceCode, firstNode, secondNode) => {
 	};
 };
 
-const getProblem = (sourceCode, firstNode, secondNode) => {
+const getMergeProblem = (sourceCode, firstNode, secondNode) => {
 	const first = getSupportedDeclaration(sourceCode, firstNode);
 	const second = getSupportedDeclaration(sourceCode, secondNode);
 
@@ -172,7 +178,7 @@ function * getStatementListProblems(sourceCode, statements) {
 		}
 
 		const firstNode = statements[index - 1];
-		const problem = getInlineProblem(sourceCode, firstNode, secondNode) ?? getProblem(sourceCode, firstNode, secondNode);
+		const problem = getInlineProblem(sourceCode, firstNode, secondNode) ?? getMergeProblem(sourceCode, firstNode, secondNode);
 
 		if (problem) {
 			yield problem;
