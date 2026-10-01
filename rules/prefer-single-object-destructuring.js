@@ -1,5 +1,10 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {getCommentSafeProblem, getParenthesizedText, hasNonDirectiveComment, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	getCommentSafeProblem,
+	getParenthesizedText,
+	hasNonDirectiveComment,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-single-object-destructuring';
 const MESSAGE_ID_INLINE = 'prefer-direct-object-destructuring';
