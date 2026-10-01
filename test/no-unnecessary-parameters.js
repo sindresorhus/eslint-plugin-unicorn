@@ -1,4 +1,5 @@
 import vm from 'node:vm';
+import {stripTypeScriptTypes} from 'node:module';
 import test from 'ava';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
@@ -54,6 +55,7 @@ testRule.snapshot({
 		'function format({value}) { return value; } format(options); format(options);',
 		'function format({value}) { return value; } format({value: 1, ...other}); format({value: 1});',
 		'function format({value}) { return value; } format({value: 1, value: 1}); format({value: 1});',
+		'function format({1: value}) { return value; } format({1: 1, "1": 1}); format({1: 1});',
 		'function format({value}) { return value; } format({get value() { return 1; }}); format({value: 1});',
 		'function format({value}) { return value; } format({[key]: 1}); format({value: 1});',
 		'function format({value}) { return value; } format({__proto__: other, value: 1}); format({value: 1});',
@@ -97,6 +99,7 @@ testRule.snapshot({
 		'function * format(first, second = first) { yield first + second; } format(1); format(2);',
 		'function format(value) { value++; return value; } format(1); format(1);',
 		'const limit = 10; function format(value) { return value; } format(limit); format(limit);',
+		'const options = {}; function format(value) { return value; } format(options); format(options);',
 		'let limit = 10; function format(value) { return value; } format(limit); format(limit);',
 		'const value = 1; function format(value) { return value; } format(value); format(value);',
 		'function outer(limit) { function format(value) { return value; } format(limit); format(limit); }',
@@ -108,6 +111,7 @@ testRule.snapshot({
 		'function format(value) { return value.toString(); } format(1); format(1);',
 		'function format(value) { return -value; } format(-1); format(-1);',
 		{code: 'const format = value => <span>{value}</span>; format(1); format(1);', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
+		{code: 'function render(First, Component = First) { return <Component />; } render(FirstComponent); render(SecondComponent);', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
 		'function format(value) { function other() { return arguments[0]; } return value; } format(1); format(1);',
 		'class Point { constructor(x, y, z) { this.point = [x, y, z]; } } new Point(1, 2, 0); new Point(3, 4, 0);',
 		'function Point(x, y, z) { this.point = [x, y, z]; } new Point(1, 2, 0); new Point(3, 4, 0);',
@@ -144,6 +148,8 @@ testRule.snapshot({
 		'function format({value, ...rest}) { return [value, rest]; } format({value: 1, other: 2}); format({value: 1, other: 3});',
 		'function format({value = 1} = {}) { return value; } format(); format({});',
 		'function format({"unit": unit}) { return unit; } format({unit: "px"}); format({"unit": "px"});',
+		'function format({["unit"]: unit}) { return unit; } format({["unit"]: "px"}); format({unit: "px"});',
+		'function format({[1]: value}) { return value; } format({[1]: 2}); format({"1": 2});',
 		'function format(value, other) { return value + other; } format(1, ...items); format(1, 2);',
 		'function format(value /* keep */) { return value; } format(1); format(1);',
 		'function format(value) { return value; } format(/* keep */ 1); format(1);',
@@ -154,6 +160,7 @@ testRule.snapshot({
 		{code: 'function format(value) { return value; } format(1);', options: [{minimumCallCount: 1}]},
 		{code: 'function format(value) { return value; } format(1); format(1); format(1);', options: [{minimumCallCount: 3}]},
 		{code: 'function outer() { function format(value) { return value; } format(1); format(1); }', languageOptions: {sourceType: 'script'}},
+		{code: 'function outer(limit) { "use strict"; function format(value) { return () => value; } format(limit); format(limit); } outer(1);', languageOptions: {sourceType: 'script'}},
 		outdent`
 			function format(first, second = first) {
 				'use custom directive';
@@ -188,6 +195,7 @@ testRule.snapshot({
 		'class Formatter { #format(value: number, unit: string) { return value + unit; } run() { this.#format(1, "px"); this.#format(2, "px"); } }',
 		'class Point { constructor(value: number) { this.value = value; } } let point: Point; new Point(1); new Point(1);',
 		'function format(value) { return value; } type Signature = typeof format; format(1); format(1);',
+		'function format(value) { <string>value; return value; } format("use strict"); format("use strict");',
 	],
 });
 
@@ -447,5 +455,81 @@ test('keeps omitted defaults in parameter scope before the body runs', t => {
 		t.false(result.fixed);
 		t.is(result.messages.length, 1);
 		t.is(vm.runInNewContext(result.output), 0);
+	}
+});
+
+test('keeps JSX tag parameters intact', t => {
+	const jsxConfig = {...config, languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}};
+	for (const code of [
+		'function render(Component) { return <Component />; } render("a"); render("a");',
+		'function render(Component) { return <Component.Member></Component.Member>; } render("a"); render("a");',
+		'const component = () => null; function render(Component) { return <Component />; } render(component); render(component);',
+	]) {
+		const result = linter.verifyAndFix(code, jsxConfig);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	}
+});
+
+test('keeps binding snapshots in callers with independent execution timing', t => {
+	const code = outdent`
+		let count = 0;
+		function format(value) {
+			count++;
+			return value;
+		}
+		try { invoke(); } catch {}
+		const limit = 1;
+		function invoke() {
+			format(limit);
+			format(limit);
+		}
+		count;
+	`;
+	const result = linter.verifyAndFix(code, config);
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.is(result.messages.length, 1);
+	t.is(vm.runInNewContext(result.output), 0);
+});
+
+test('keeps outer parameter snapshots when arguments can mutate the binding', t => {
+	const code = outdent`
+		function outer(limit) {
+			function format(value) {
+				return () => value;
+			}
+			const callbacks = [format(limit), format(limit)];
+			arguments[0] = 2;
+			return callbacks.map(callback => callback());
+		}
+		outer(1);
+	`;
+	const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.is(result.messages.length, 1);
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+});
+
+test('preserves an earlier-parameter snapshot before its source is mutated', t => {
+	const code = 'function format(first, second = first) { first++; return [first, second]; } [format(1), format(2)];';
+	const result = linter.verifyAndFix(code, config);
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[[2,1],[3,2]]');
+});
+
+test('does not introduce a strict directive after stripping TypeScript wrappers', t => {
+	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation, sourceType: 'script'}};
+	for (const expression of ['value as string', 'value satisfies string', 'value!', '(value as string)!']) {
+		const code = `function outer() { function format(value) { ${expression}; return this === undefined; } return [format("use strict"), format("use strict")]; } outer();`;
+		const result = linter.verifyAndFix(code, typescriptConfig);
+		t.true(result.fixed);
+		t.deepEqual(result.messages, []);
+		const javascript = stripTypeScriptTypes(result.output);
+		t.is(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
 	}
 });

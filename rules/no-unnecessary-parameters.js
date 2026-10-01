@@ -341,6 +341,11 @@ function getLocalDefault(parameter, target, arguments_, context) {
 }
 
 function getReplacementText(identifier, value, context) {
+	let expression = identifier;
+	while (isTypeScriptExpressionWrapper(expression.parent)) {
+		expression = expression.parent;
+	}
+
 	let text;
 	if (isUndefined(value)) {
 		text = '(void 0)';
@@ -352,21 +357,18 @@ function getReplacementText(identifier, value, context) {
 		value.kind === 'primitive'
 		&& value.node
 		&& ((value.node.type === 'UnaryExpression' && !isUndefined(value))
-			|| (identifier.parent.type === 'MemberExpression' && identifier.parent.object === identifier && shouldAddParenthesesToMemberExpressionObject(value.node, context))
-			|| (identifier.parent.type === 'NewExpression' && identifier.parent.callee === identifier)
-			|| (identifier.parent.type === 'ExpressionStatement' && typeof value.value === 'string'))
+			|| (expression.parent.type === 'MemberExpression' && expression.parent.object === expression && shouldAddParenthesesToMemberExpressionObject(value.node, context))
+			|| (expression.parent.type === 'NewExpression' && expression.parent.callee === expression)
+			|| (expression.parent.type === 'ExpressionStatement' && typeof value.value === 'string'))
 	) {
 		text = `(${text})`;
 	}
 
 	const {sourceCode} = context;
-	let statement = identifier;
-	while (statement.parent && statement.parent.type !== 'ExpressionStatement') {
-		statement = statement.parent;
-	}
+	const statement = sourceCode.getAncestors(identifier).findLast(ancestor => ancestor.type === 'ExpressionStatement');
 
 	if (
-		statement.parent?.type === 'ExpressionStatement'
+		statement
 		&& sourceCode.getRange(sourceCode.getFirstToken(statement))[0] === sourceCode.getRange(identifier)[0]
 		&& needsSemicolon(sourceCode.getTokenBefore(identifier), context, text)
 	) {
@@ -376,10 +378,10 @@ function getReplacementText(identifier, value, context) {
 	return text;
 }
 
-function canInlineValue(parameter, result, target, context) {
+function canInlineValue(parameter, result, context) {
 	const {sourceCode} = context;
 	const {value, arguments_} = result;
-	if (!value || hasWrites(parameter.variable)) {
+	if (!value || hasWrites(parameter.variable) || parameter.variable.references.some(reference => reference.identifier.type === 'JSXIdentifier')) {
 		return false;
 	}
 
@@ -397,12 +399,20 @@ function canInlineValue(parameter, result, target, context) {
 	}
 
 	const definition = value.variable.defs[0];
+	// Non-strict parameter bindings can change through their mapped arguments object.
+	if (definition.type === 'Parameter' && !value.variable.scope.isStrict) {
+		return false;
+	}
+
 	if (definition.type === 'Variable' && !definition.node.init) {
 		return false;
 	}
 
 	if ((definition.type === 'Variable' || definition.type === 'ClassName')
-		&& arguments_.some(argument => argument.node && sourceCode.getRange(definition.node)[1] > sourceCode.getRange(argument.node)[0])) {
+		&& arguments_.some(argument => argument.node && (
+			sourceCode.getScope(argument.node).variableScope !== value.variable.scope.variableScope
+			|| sourceCode.getRange(definition.node)[1] > sourceCode.getRange(argument.node)[0]
+		))) {
 		return false;
 	}
 
@@ -431,7 +441,7 @@ function getFix(parameter, result, target, context) {
 	}
 
 	const localDefault = messageId === 'always-default' ? getLocalDefault(parameter, target, arguments_, context) : undefined;
-	if (!localDefault && !canInlineValue(parameter, result, target, context)) {
+	if (!localDefault && !canInlineValue(parameter, result, context)) {
 		return;
 	}
 
