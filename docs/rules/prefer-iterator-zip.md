@@ -44,6 +44,8 @@ Single-input bounds, callbacks, property chains, optional indexing, offsets, mut
 
 ## Suggestions
 
+`Iterator.zip()` is a newer part of the Iterator proposal than the rest, and no engine ships it yet. Node 26 has `Iterator.from`, `Iterator.concat` and the eleven prototype helpers, but `Iterator.zip` is `undefined`, so a suggestion will throw `TypeError: Iterator.zip is not a function` until it lands. Check the runtime supports it before accepting one.
+
 Conversions are editor suggestions because they can change when values are read. `Iterator.zip()` reads each row before the body and initializes every iterator up front, while `&&` can skip later `.length` reads. Review suggestions when calls or aliases can mutate inputs. Custom iteration behavior and shadowed built-ins are unsupported.
 
 Suggestions create unique element names and preserve the body and its declarations. If a replacement would remove or relocate a comment, the rule reports without a suggestion.
