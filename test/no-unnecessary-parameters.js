@@ -820,3 +820,22 @@ test('preserves TypeScript assertions when moving earlier-parameter defaults', t
 	const javascript = stripTypeScriptTypes(result.output);
 	t.is(JSON.stringify(vm.runInNewContext(javascript)), '["1","2"]');
 });
+
+test('keeps snapshots of script bindings mutated through the global object', t => {
+	const code = outdent`
+		function limit() { return 1; }
+		function outer() {
+			function format(value) { return () => value; }
+			const callbacks = [format(limit), format(limit)];
+			globalThis.limit = () => 2;
+			return callbacks.map(get => get()());
+		}
+		outer();
+	`;
+	const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.is(result.messages.length, 1);
+	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+});

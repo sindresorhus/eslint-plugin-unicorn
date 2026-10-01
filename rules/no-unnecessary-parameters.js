@@ -404,7 +404,7 @@ function canInlineValue(parameter, result, context) {
 		return !value.node || sourceCode.getScope(value.node).isStrict || parameter.variable.references.every(reference => !sourceCode.getScope(reference.identifier).isStrict);
 	}
 
-	if (value.variable.defs.length === 0 || reserved.has(value.variable.name)) {
+	if (value.variable.scope.type === 'global' || reserved.has(value.variable.name)) {
 		return false;
 	}
 
