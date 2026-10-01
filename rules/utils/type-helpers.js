@@ -84,6 +84,11 @@ const combineUnionTypes = (types, options) => {
 const combineIntersectionTypes = types => {
 	types = types.map(normalizeType);
 
+	// An unknown member can be `any`, which overrides the other intersection members.
+	if (types.includes(unknown)) {
+		return unknown;
+	}
+
 	if (types.includes(target)) {
 		return target;
 	}

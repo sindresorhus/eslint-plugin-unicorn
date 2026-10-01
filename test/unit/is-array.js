@@ -205,3 +205,25 @@ test('a union is only known when every member is', t => {
 	t.true(neither.isKnownNonArray);
 	t.true(neither.isKnownNonIndexedCollection);
 });
+
+test('intersections with unknown members do not establish an array type', t => {
+	for (const code of [
+		'function foo(receiver: string[] & any) { receiver.method(); }',
+		'type Unchecked = any; function foo(receiver: string[] & Unchecked) { receiver.method(); }',
+		'function foo(receiver: string[] & Unresolved) { receiver.method(); }',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+
+		t.false(verdicts.isArray, `Unexpected verdict for: ${code}`);
+		t.false(verdicts.isKnownNonArray, `Unexpected verdict for: ${code}`);
+		t.false(verdicts.isKnownNonIndexedCollection, `Unexpected verdict for: ${code}`);
+	}
+});
+
+test('intersections with known structural brands preserve array types', t => {
+	const verdicts = getReceiverVerdicts('function foo(receiver: string[] & {brand: true}) { receiver.method(); }');
+
+	t.true(verdicts.isArray);
+	t.false(verdicts.isKnownNonArray);
+	t.false(verdicts.isKnownNonIndexedCollection);
+});

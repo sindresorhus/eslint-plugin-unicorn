@@ -273,4 +273,4 @@ export default [
 			project = normalizeProject(project);
 			return {...project, group: project.group ?? index};
 		})
-		: [{...normalizeProject(projectOrProjects), group: index}]);
+		: {...normalizeProject(projectOrProjects), group: index});
