@@ -57,6 +57,10 @@ test.snapshot({
 			code: 'class Class { constructor(public a?: number) { console.log(a ?? 3); } }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'const fn = (a: bigint | undefined) => [a ?? 3n, a ?? 4n];',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'const fn = a => [a ?? 3, a ?? 3];',
@@ -150,6 +154,11 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript, parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
 		'const fn = a => a ?? (3 /* Keep comment. */);',
+		'const fn = async a => a ?? 3;',
+		{
+			code: 'const fn = (a: bigint | undefined) => [a ?? 3n, a ?? 0x3n];',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
