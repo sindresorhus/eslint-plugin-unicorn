@@ -36,6 +36,8 @@ const config = [
 			'unicorn/escape-case': 'off',
 			'unicorn/prefer-unicode-code-point-escapes': 'off',
 			'unicorn/prefer-short-escape-sequences': 'off',
+			// Internal fallback expressions intentionally handle null and other falsy values.
+			'unicorn/prefer-default-parameters': 'off',
 			// Buggy
 			'unicorn/custom-error-definition': 'off',
 			'unicorn/consistent-function-scoping': 'off',

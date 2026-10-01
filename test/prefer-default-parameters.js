@@ -3,6 +3,172 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test.snapshot({
+	valid: [
+		'const fn = a => [a, a ?? 3];',
+		'const fn = a => [a ?? 3, a ?? 4];',
+		'const fn = a => [a ?? 3, a || 3];',
+		'const fn = a => [a ?? 3, a ?? "3"];',
+		'const fn = a => 3 ?? a;',
+		'const fn = a => a && 3;',
+		'const fn = a => a?.value ?? 3;',
+		'const fn = a => a ?? getDefault();',
+		'const fn = a => a ?? DEFAULT;',
+		'const fn = a => a ?? {};',
+		'const fn = a => a ?? /pattern/;',
+		'const fn = a => a ?? -3;',
+		'const fn = a => 3;',
+		'const fn = (a = 1) => a ?? 3;',
+		'const fn = ({a = 1}) => a ?? 3;',
+		'const fn = ([a = 1]) => a ?? 3;',
+		'const fn = (a, b) => a ?? 3;',
+		'const fn = (...a) => a ?? 3;',
+		'const fn = ({...a}) => a ?? 3;',
+		'const fn = ([...a]) => a ?? 3;',
+		'const fn = a => { a = undefined; return a ?? 3; };',
+		'const fn = a => { a++; return a ?? 3; };',
+		'const fn = a => { function reset() { a = undefined; } return a ?? 3; };',
+		'const fn = a => { function read() { return a; } return a ?? 3; };',
+		'const fn = a => { var a; return a ?? 3; };',
+		'function fn(a) { "use strict"; return a ?? 3; }',
+		'const a = undefined; console.log(a ?? 3);',
+		'const {a} = options; console.log(a, a ?? 3);',
+		'let [a] = arr; a = undefined; console.log(a ?? 3);',
+		'const [a = 1] = arr; console.log(a ?? 3);',
+		'const {...a} = options; console.log(a ?? 3);',
+		'var [a] = arr; var a; console.log(a ?? 3);',
+		'const fn = a => { { const a = 1; console.log(a ?? 3); } return a; };',
+		'const {a} = options; export {a}; console.log(a ?? 3);',
+		{
+			code: 'function fn(a, a) { return a ?? 3; }',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: 'const fn = (a: number | undefined) => (a as number) ?? 3;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		'const fn = a => [a ?? 3, a ?? 3];',
+		'const fn = a => [a || 3, a || 3];',
+		'const fn = a => [a ?? 3, a ?? 0x3];',
+		'const fn = a => [a ?? 3n, a ?? 0x3n];',
+		String.raw`const fn = a => [a ?? "default", a ?? "\u0064efault"];`,
+		'const fn = a => a || false;',
+		'const fn = a => a ?? null;',
+		'const fn = (b, a) => a ?? 3;',
+		'const fn = (a,) => a ?? 3;',
+		'const fn = (a) => (a) ?? (3);',
+		'const fn = a => ((a ?? 3));',
+		'const fn = a => ({[a ?? 3]: a ?? 3});',
+		'const fn = a => { function read() { return a ?? 3; } return a ?? 3; };',
+		'const fn = a => { { const a = 1; console.log(a ?? 4); } return a ?? 3; };',
+		'const fn = a => b => a ?? 3;',
+		'const fn = function(a) { return a ?? 3; };',
+		'async function fn(a) { return a ?? 3; }',
+		'function * fn(a) { yield a ?? 3; }',
+		'const object = { fn(a) { return a ?? 3; } };',
+		'class Class { fn(a) { return a ?? 3; } }',
+		'const fn = ({a}, b) => a ?? 3;',
+		'const fn = ([a]) => a ?? 3;',
+		'const fn = ({property: a}) => a ?? 3;',
+		'const fn = ({nested: {a}}) => a ?? 3;',
+		'const fn = ([[a]]) => a ?? 3;',
+		'const fn = ({a} = {}) => a ?? 3;',
+		'const fn = ({a, b = a ?? 3}) => b;',
+		'const fn = ({a, b}) => [a ?? 3, b || 4];',
+		'const {property: a} = options; console.log(a ?? 3);',
+		'const {nested: [a]} = options; console.log(a ?? 3);',
+		'const [a] = arr; console.log(a ?? 3, a ?? 3);',
+		'let {a} = options; console.log(a ?? 3);',
+		'for (const [a] of arrays) { console.log(a ?? 3); }',
+		'const {a} = options; const fn = () => a ?? 3;',
+		'const {a} = options, [b] = arr; console.log(a ?? 3, b ?? 4);',
+		'const fn = (a /* Keep comment. */) => (/* Keep comment. */ a ?? 3);',
+		'const fn = ({a /* Keep comment. */}) => a ?? 3;',
+		'const fn = a => a /* Keep comment. */ ?? 3;',
+		'const fn = a => a ?? /* Keep comment. */ 3;',
+		'const fn = a => [a ?? 3, a ?? /* Keep comment. */ 3];',
+		'const [a] = arr; console.log(a ?? // Keep comment.\n3);',
+		'function fn(a) {\r\n  return a ?? 3;\r\n}',
+		outdent`
+			function abc(foo) {
+				const {bar} = foo || 123;
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				const bar = foo || 'bar', keep = sideEffect();
+			}
+		`,
+		outdent`
+			function abc(bar, foo) {
+				var bar = foo || 'bar';
+			}
+		`,
+		outdent`
+			function abc({bar}, foo) {
+				var bar = foo || 'bar';
+			}
+		`,
+		{
+			code: 'const fn = (a?: number) => a ?? 3;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const fn = (a?: number,) => a ?? 3;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const fn = (a: number | undefined) => a ?? 3;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const fn = ({a}: {a?: number}) => a ?? 3;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const [a]: [number?] = arr; console.log(a ?? 3);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const fn = (a /* Keep comment. */: number | undefined) => a ?? 3;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const fn = <Value,>(a: number | undefined) => <span>{a ?? 3}</span>;',
+			languageOptions: {parser: parsers.typescript, parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const fn = a => a ?? 3;',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = (a = 3) => a;'}],
+			}],
+		},
+		{
+			code: 'const fn = ({ a }) => a ?? 3;',
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = ({ a = 3 }) => a;'}],
+			}],
+		},
+		{
+			code: 'const [a] = arr; console.log(a ?? 3);',
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const [a = 3] = arr; console.log(a);'}],
+			}],
+		},
+	],
+});
+
 const invalidTestCase = ({code, suggestions}) => {
 	if (!suggestions) {
 		return {
@@ -48,11 +214,6 @@ test({
 		outdent`
 			function abc(foo) {
 				foo = foo || {bar};
-			}
-		`,
-		outdent`
-			function abc(foo) {
-				const {bar} = foo || 123;
 			}
 		`,
 		outdent`
@@ -122,21 +283,6 @@ test({
 			function abc(foo) {
 				'use strict';
 				foo ??= 'bar';
-			}
-		`,
-		outdent`
-			function abc(foo) {
-				const bar = foo || 'bar', keep = sideEffect();
-			}
-		`,
-		outdent`
-			function abc(bar, foo) {
-				var bar = foo || 'bar';
-			}
-		`,
-		outdent`
-			function abc({bar}, foo) {
-				var bar = foo || 'bar';
 			}
 		`,
 		outdent`
@@ -654,6 +800,10 @@ test({
 		invalidTestCase({
 			code: 'const abc = function(foo) { foo = foo || \'bar\';}',
 			suggestions: ['const abc = function(foo = \'bar\') { }'],
+		}),
+		invalidTestCase({
+			code: 'const abc = (foo,) => { foo ??= 3; };',
+			suggestions: ['const abc = (foo = 3,) => { };'],
 		}),
 		invalidTestCase({
 			code: outdent`
