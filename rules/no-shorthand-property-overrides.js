@@ -11,6 +11,7 @@ const messages = {
 const create = context => {
 	context.on('Block', function * (block) {
 		const declarations = new Map();
+		const importantDeclarations = new Set();
 
 		for (const declaration of block.children) {
 			if (declaration.type !== 'Declaration') {
@@ -23,6 +24,10 @@ const create = context => {
 			const longhandProperties = shorthandToLonghandProperties.get(unprefixedProperty);
 
 			declarations.set(property, declaration.property);
+			// A later normal declaration of the same property does not beat an `!important` one
+			if (declaration.important) {
+				importantDeclarations.add(property);
+			}
 
 			if (!longhandProperties) {
 				continue;
@@ -31,7 +36,11 @@ const create = context => {
 			for (const longhand of longhandProperties) {
 				const original = declarations.get(vendorPrefix + longhand);
 
-				if (original) {
+				// An `!important` declaration beats any normal one, whatever the source order is, so a normal shorthand does not override an `!important` longhand
+				if (
+					original
+					&& (declaration.important || !importantDeclarations.has(vendorPrefix + longhand))
+				) {
 					yield {
 						node: declaration,
 						messageId: MESSAGE_ID,

@@ -40,3 +40,19 @@ test.snapshot({
 		'a { padding-top: 10px; padding-left: 20px; padding: 30px; }',
 	].map(code => ({code, language: languages.css})),
 });
+
+// An `!important` declaration beats any normal one, whatever the source order is
+test.snapshot({
+	valid: [
+		'a { padding-left: 10px !important; padding: 20px; }',
+		'a { padding-left: 10px !important; padding: 20px; padding-top: 30px; }',
+		'a { padding: 20px; padding-left: 10px !important; }',
+		'a { padding: 20px; padding-left: 10px !important; padding-top: 30px; }',
+		'a { padding-inline-start: 10px !important; padding: 20px; }',
+		// A later normal longhand does not beat the earlier `!important` one
+		'a { padding-left: 10px !important; padding-left: 5px; padding: 20px; }',
+	].map(code => ({code, language: languages.css})),
+	invalid: [
+		'a { padding-left: 10px !important; padding: 20px !important; }',
+	].map(code => ({code, language: languages.css})),
+});

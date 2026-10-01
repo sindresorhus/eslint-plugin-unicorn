@@ -11,6 +11,8 @@ CSS shorthands reset every related longhand that they omit. Placing a shorthand 
 
 This rule checks declarations only within the same block. It supports matching vendor-prefixed properties and intentionally ignores CSS-escaped property names.
 
+A normal shorthand after an `!important` longhand is not reported, because the `!important` declaration wins whatever the source order is.
+
 ## Examples
 
 ```css
