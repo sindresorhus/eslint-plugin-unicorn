@@ -33,7 +33,7 @@ ruleTest.snapshot({
 		// Literal spreads are not expanded.
 		'Math.random(...[1]);',
 		{
-			code: '(Reflect.get as typeof Reflect.get)(...(args as [object, PropertyKey]));',
+			code: '(Reflect.get as typeof Reflect.get)(...(args as [object, PropertyKey, object, unknown]));',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -1658,7 +1658,7 @@ ruleTest.snapshot({
 		'Reflect?.get?.(target, key, receiver, extra, ...args);',
 		'Math.random(seed, ...args);',
 		{
-			code: '(Reflect.get as typeof Reflect.get)(target, key, receiver, extra, ...(args as []));',
+			code: '(Reflect.get as typeof Reflect.get)(target, key, receiver, extra, ...(args as [unknown]));',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
