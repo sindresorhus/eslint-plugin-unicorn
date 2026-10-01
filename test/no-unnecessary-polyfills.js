@@ -348,3 +348,66 @@ test({
 		},
 	],
 });
+
+// Core-js ships real `.js` files, so the extension is optional
+test({
+	valid: [
+		{
+			code: 'import "core-js/modules/es.array.flat.jsx";',
+			options: [{targets: 'chrome 100'}],
+		},
+		{
+			code: 'import "core-js/modules/es.array.flat.js";',
+			options: [{targets: 'chrome 60'}],
+		},
+	],
+	invalid: [
+		{
+			code: 'import "core-js/modules/es.array.flat.js"',
+			options: [{targets: 'chrome 100'}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'import "core-js/full/array/flat.js"',
+			options: [{targets: 'chrome 100'}],
+			errors: 1,
+		},
+		{
+			code: 'require("core-js-pure/modules/es.array.flat.js")',
+			options: [{targets: 'chrome 100'}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'import "core-js/full/array/to-reversed.js"',
+			options: [{targets: {node: '25'}}],
+			errors: [{message: 'All polyfilled features imported from `core-js/full/array/to-reversed.js` are available as built-ins. Use the built-ins instead.'}],
+		},
+	],
+});
+
+// An `esnext.*` feature is unavailable when its `es.*` counterpart is
+test({
+	valid: [
+		...[
+			'import "core-js/modules/esnext.map.get-or-insert";',
+			'import "core-js/modules/esnext.array.to-reversed";',
+			'import "core-js/modules/esnext.symbol.dispose";',
+			'import "core-js/full/array/to-reversed";',
+			// A multi-feature module that lists only the `esnext.*` features
+			'import "core-js/proposals/array-buffer-base64";',
+		].map(code => ({code, options: [{targets: {node: '18'}}]})),
+	],
+	invalid: [
+		// The feature really is available on this target
+		{
+			code: 'import "core-js/modules/esnext.array.to-reversed";',
+			options: [{targets: {node: '25'}}],
+			errors: 1,
+		},
+		{
+			code: 'import "core-js/modules/es.array.to-reversed";',
+			options: [{targets: {node: '25'}}],
+			errors: 1,
+		},
+	],
+});

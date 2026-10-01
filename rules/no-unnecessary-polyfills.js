@@ -45,11 +45,7 @@ const stripPolyfillPrefix = value => {
 		return value.slice('polyfill-'.length);
 	}
 
-	if (value.startsWith('mdn-polyfills/')) {
-		return value.slice('mdn-polyfills/'.length);
-	}
-
-	return value;
+	return value.startsWith('mdn-polyfills/') ? value.slice('mdn-polyfills/'.length) : value;
 };
 
 function addPolyfillToken(tokens, value) {
@@ -245,10 +241,12 @@ export const getBestMatchingPolyfill = (polyfillCandidates, importedModule) => {
 
 		// Prefer the broad constructor/module feature over narrower follow-up features like `es.symbol.description`.
 		const segments = polyfill.feature.split('.').length;
-		if (segments < bestMatchSegments) {
-			bestMatch = polyfill;
-			bestMatchSegments = segments;
+		if (!(segments < bestMatchSegments)) {
+			continue;
 		}
+
+		bestMatch = polyfill;
+		bestMatchSegments = segments;
 	}
 
 	return bestMatch;
@@ -258,11 +256,7 @@ function getTargets(options, dirname) {
 	const browserslistOptions = {path: dirname, env: 'production'};
 	try {
 		if (options?.targets) {
-			if (typeof options.targets === 'string' || Array.isArray(options.targets)) {
-				return browserslist(options.targets, browserslistOptions);
-			}
-
-			return options.targets;
+			return typeof options.targets === 'string' || Array.isArray(options.targets) ? browserslist(options.targets, browserslistOptions) : options.targets;
 		}
 
 		const browserslistConfig = browserslist.loadConfig(browserslistOptions);
@@ -306,12 +300,10 @@ function create(context) {
 		return;
 	}
 
-	// When core-js graduates a feature from `esnext` to `es`, the entries list both (e.g. `['es.regexp.escape', 'esnext.regexp.escape']`),
-	// but `coreJsCompat` only includes the `es` version in its unavailable list, making the `esnext` version appear "available".
-	// To avoid false positives, treat `esnext.*` features as unavailable when their `es.*` counterpart is already in the list.
+	// When core-js graduates a feature from `esnext` to `es`, the entries list both (e.g. `['es.regexp.escape', 'esnext.regexp.escape']`), but `coreJsCompat` only includes the `es` version in its unavailable list, making the `esnext` version appear "available". To avoid false positives, treat `esnext.*` features as unavailable when their `es.*` counterpart is unavailable. This also covers single-feature `esnext.*` modules, which do not list the `es.*` counterpart themselves.
 	const areFeaturesAvailable = features => features.every(feature =>
 		!unavailableFeatureSet.has(feature)
-		|| (feature.startsWith('esnext.') && features.includes(feature.replace('esnext.', 'es.'))));
+		&& !(feature.startsWith('esnext.') && unavailableFeatureSet.has(feature.replace('esnext.', 'es.'))));
 
 	context.on('Literal', node => {
 		if (
@@ -328,24 +320,25 @@ function create(context) {
 			return;
 		}
 
-		const coreJsModuleFeatures = coreJsEntries[importedModule.replace('core-js-pure', 'core-js')];
+		// Core-js ships real `.js` files, so the extension is optional
+		const coreJsModuleFeatures = coreJsEntries[importedModule.replace('core-js-pure', 'core-js').replace(/\.js$/u, '')];
 
 		if (coreJsModuleFeatures) {
-			if (coreJsModuleFeatures.length > 1) {
-				if (areFeaturesAvailable(coreJsModuleFeatures)) {
-					return {
-						node,
-						messageId: MESSAGE_ID_CORE_JS,
-						data: {
-							coreJsModule: importedModule,
-						},
-					};
-				}
-			} else if (!unavailableFeatureSet.has(coreJsModuleFeatures[0])) {
-				return {node, messageId: MESSAGE_ID_POLYFILL};
+			if (!areFeaturesAvailable(coreJsModuleFeatures)) {
+				return;
 			}
 
-			return;
+			if (coreJsModuleFeatures.length > 1) {
+				return {
+					node,
+					messageId: MESSAGE_ID_CORE_JS,
+					data: {
+						coreJsModule: importedModule,
+					},
+				};
+			}
+
+			return {node, messageId: MESSAGE_ID_POLYFILL};
 		}
 
 		const normalizedImportedModule = importedModule.toLowerCase();
