@@ -45,7 +45,9 @@ export {default as isIdentifierName} from './is-identifier-name.js';
 export {default as getComments} from './get-comments.js';
 export {
 	getLastTrailingCommentOnSameLine,
+	getCommentSafeProblem,
 	hasCommentInRange,
+	hasNonDirectiveComment,
 	wouldRemoveComments,
 } from './comments.js';
 export {

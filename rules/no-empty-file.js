@@ -1,5 +1,5 @@
 import {isEmptyNode, isDirective} from './ast/index.js';
-import {getComments} from './utils/index.js';
+import {getComments, isEslintDisableOrEnableDirective} from './utils/index.js';
 
 const MESSAGE_ID = 'no-empty-file';
 const messages = {
@@ -33,6 +33,15 @@ const isTripleSlashDirective = node =>
 const hasTripleSlashDirectives = comments =>
 	comments.some(currentNode => isTripleSlashDirective(currentNode));
 
+const hasAllowedComments = (context, comments = getComments(context)) =>
+	comments.some(comment => !isEslintDisableOrEnableDirective(context, comment));
+
+// Report at ESLint's first directive so disables apply consistently across languages, including after leading whitespace.
+const getProblem = (context, node) => ({
+	node: context.sourceCode.getDisableDirectives().directives[0]?.node ?? node,
+	messageId: MESSAGE_ID,
+});
+
 const hasYamlContent = document => {
 	const {content} = document;
 	return content !== null && (content.type !== 'YAMLWithMeta' || content.value !== null);
@@ -43,16 +52,11 @@ const getYamlProblem = (context, node, allowComments) => {
 		return;
 	}
 
-	const comments = getComments(context);
-
-	if (allowComments && comments.length > 0 && node.tokens.length === 0) {
+	if (allowComments && hasAllowedComments(context) && node.tokens.length === 0) {
 		return;
 	}
 
-	return {
-		node,
-		messageId: MESSAGE_ID,
-	};
+	return getProblem(context, node);
 };
 
 /**
@@ -88,14 +92,11 @@ const create = context => {
 				return;
 			}
 
-			if (allowComments && children.some(child => child.type === 'Comment')) {
+			if (allowComments && hasAllowedComments(context)) {
 				return;
 			}
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-			};
+			return getProblem(context, node);
 		}
 
 		if (node.body.some(node => !isEmpty(node))) {
@@ -120,17 +121,14 @@ const create = context => {
 
 		if (
 			allowComments
-			&& comments.length > 0
+			&& hasAllowedComments(context)
 			&& comments.every(comment => isRegularComment(comment))
 			&& sourceCode.ast.tokens.length === 0
 		) {
 			return;
 		}
 
-		return {
-			node,
-			messageId: MESSAGE_ID,
-		};
+		return getProblem(context, node);
 	});
 
 	// CSS file parsed by `@eslint/css`. Top-level rules and at-rules are in `children`; comments are on `sourceCode.comments`.
@@ -139,19 +137,14 @@ const create = context => {
 			return;
 		}
 
-		const comments = getComments(context);
-
-		if (allowComments && comments.length > 0) {
+		if (allowComments && hasAllowedComments(context)) {
 			return;
 		}
 
-		return {
-			node,
-			messageId: MESSAGE_ID,
-		};
+		return getProblem(context, node);
 	});
 
-	// JSON file parsed by `@eslint/json`. The `body` is null when no value is present (comment-only jsonc/json5).
+	// JSON file parsed by `@eslint/json`. Empty or comment-only files normally fail parsing before rules run.
 	// Skip the `Document` nested inside HTML's `Program` root — that is not a JSON document.
 	context.on('Document', node => {
 		if (node.parent?.type === 'Program') {
@@ -162,35 +155,44 @@ const create = context => {
 			return;
 		}
 
-		const comments = getComments(context);
-
-		if (allowComments && comments.length > 0) {
+		if (allowComments && hasAllowedComments(context)) {
 			return;
 		}
 
-		return {
-			node,
-			messageId: MESSAGE_ID,
-		};
+		return getProblem(context, node);
 	});
 
-	// Markdown file parsed by `@eslint/markdown`. Top-level content is in `children`; HTML comments appear as `html` nodes.
+	// Markdown file parsed by `@eslint/markdown`. Top-level content is in `children`; adjacent HTML comments may share an `html` node.
 	context.on('root', node => {
-		const isHtmlComment = child =>
-			child.type === 'html' && /^<!--(?:(?!-->)[\s\S])*-->$/.test(child.value.trim());
+		const comments = [];
+		for (const child of node.children) {
+			if (child.type !== 'html') {
+				return;
+			}
 
-		if (node.children.some(child => !isHtmlComment(child))) {
+			const commentParts = child.value.split('-->');
+			if (commentParts.pop().trim() !== '') {
+				return;
+			}
+
+			let [offset] = context.sourceCode.getRange(child);
+			for (const part of commentParts) {
+				const trimmedPart = part.trimStart();
+				if (!trimmedPart.startsWith('<!--')) {
+					return;
+				}
+
+				const end = offset + part.length + 3;
+				comments.push({range: [offset + part.length - trimmedPart.length, end]});
+				offset = end;
+			}
+		}
+
+		if (allowComments && hasAllowedComments(context, comments)) {
 			return;
 		}
 
-		if (allowComments && node.children.length > 0) {
-			return;
-		}
-
-		return {
-			node,
-			messageId: MESSAGE_ID,
-		};
+		return getProblem(context, node);
 	});
 };
 

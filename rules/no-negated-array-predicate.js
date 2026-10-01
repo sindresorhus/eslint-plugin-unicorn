@@ -1,6 +1,8 @@
 import {
 	checkVueTemplate,
+	getCommentSafeProblem,
 	getTokenStore,
+	isEslintDisableOrEnableDirective,
 	isKnownNonIndexedCollection,
 	isOnSameLine,
 	isParenthesized,
@@ -97,7 +99,8 @@ const create = context => {
 		}
 
 		const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
-		if (tokenStore.getTokenAfter(bangToken, {includeComments: true}) !== tokenAfterBang) {
+		const afterBangRange = [sourceCode.getRange(bangToken)[1], sourceCode.getRange(tokenAfterBang)[0]];
+		if (tokenStore.getTokensBetween(bangToken, tokenAfterBang, {includeComments: true}).some(comment => !isEslintDisableOrEnableDirective(context, comment))) {
 			return;
 		}
 
@@ -123,7 +126,7 @@ const create = context => {
 		const returnedExpression = getReturnedExpression(callback);
 		if (
 			!returnedExpression
-			|| sourceCode.getCommentsInside(returnedExpression).length > 0
+			|| tokenStore.getCommentsInside(returnedExpression).some(comment => !isEslintDisableOrEnableDirective(context, comment))
 			// Resolving the receiver type is expensive, so it runs last
 			|| isKnownNonIndexedCollection(callExpression.callee.object, context)
 		) {
@@ -145,7 +148,7 @@ const create = context => {
 		const replacement = replacementMethod.get(method);
 		const {node: replacementPredicateNode, text: replacementPredicateText} = getReplacementPredicateText(returnedExpression, context);
 
-		return {
+		const problem = {
 			node: methodNode,
 			messageId: MESSAGE_ID,
 			data: {
@@ -184,6 +187,8 @@ const create = context => {
 				}
 			},
 		};
+
+		return getCommentSafeProblem(context, getCommentSafeProblem(context, problem, returnedExpression), afterBangRange);
 	});
 };
 

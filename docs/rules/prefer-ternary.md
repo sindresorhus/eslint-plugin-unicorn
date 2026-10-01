@@ -24,7 +24,7 @@ Additionally, branching statements can require a variable to use `let` or `var` 
 The rule skips:
 
 - Bare `return;` in either branch. Explicit `return undefined;` remains eligible.
-- Comments within or between merged statements, including trailing comments on a following `return`. Comments outside this range are allowed.
+- Ordinary comments within or between merged statements, including trailing comments on a following `return`. ESLint disable/enable directives do not prevent reporting, so ESLint can apply suppression, but no autofix or suggestion is offered when this range contains directives. Comments outside this range are allowed.
 - Conditions or merged values containing:
   - Ternaries, except inside expression-bodied callbacks.
   - Statement blocks or class bodies, even on one line.

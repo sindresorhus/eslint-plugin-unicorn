@@ -1,5 +1,7 @@
 import {
 	getParenthesizedText,
+	getCommentSafeProblem,
+	hasNonDirectiveComment,
 	isKnownNonIndexedCollection,
 	isParenthesized,
 	isSameReference,
@@ -159,7 +161,7 @@ const create = context => {
 			return;
 		}
 
-		if (context.sourceCode.getCommentsInside(logicalExpression).length > 0) {
+		if (hasNonDirectiveComment(context, logicalExpression)) {
 			return;
 		}
 
@@ -174,7 +176,7 @@ const create = context => {
 			return;
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node: logicalExpression,
 			messageId: MESSAGE_ID_ERROR,
 			data: {method},
@@ -188,7 +190,7 @@ const create = context => {
 					),
 				},
 			],
-		};
+		});
 	});
 };
 

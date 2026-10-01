@@ -2,6 +2,8 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 import {
 	controlFlowStatementTypes,
+	getCommentSafeProblem,
+	hasNonDirectiveComment,
 	getBooleanAncestor,
 	getParenthesizedRange,
 	isControlFlowTest,
@@ -89,14 +91,12 @@ const isQuerySelectorAllCallPartOfFirstElementAccess = node =>
 		&& isFirstQuerySelectorAllItemCall(node.parent.parent)
 	);
 
-const hasCommentsInAccess = (node, querySelectorAllCall, sourceCode, context) => {
+const getAccessRange = (node, querySelectorAllCall, context) => {
+	const {sourceCode} = context;
 	const [, start] = getParenthesizedRange(querySelectorAllCall, context);
 	const [, end] = sourceCode.getRange(node);
 
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
+	return [start, end];
 };
 
 const isSimpleIdSelector = selector => /^#[\-A-Z_a-z][\w\-]*$/v.test(selector);
@@ -256,11 +256,12 @@ const create = context => {
 		}
 
 		const querySelectorAllCall = node.object;
-		if (hasCommentsInAccess(node, querySelectorAllCall, sourceCode, context)) {
+		const accessRange = getAccessRange(node, querySelectorAllCall, context);
+		if (hasNonDirectiveComment(context, accessRange)) {
 			return;
 		}
 
-		return getFirstElementAccessProblem(node, querySelectorAllCall, context);
+		return getCommentSafeProblem(context, getFirstElementAccessProblem(node, querySelectorAllCall, context), accessRange);
 	});
 
 	context.on('CallExpression', node => {
@@ -270,11 +271,12 @@ const create = context => {
 			}
 
 			const querySelectorAllCall = node.callee.object;
-			if (hasCommentsInAccess(node, querySelectorAllCall, sourceCode, context)) {
+			const accessRange = getAccessRange(node, querySelectorAllCall, context);
+			if (hasNonDirectiveComment(context, accessRange)) {
 				return;
 			}
 
-			return getFirstElementAccessProblem(node, querySelectorAllCall, context);
+			return getCommentSafeProblem(context, getFirstElementAccessProblem(node, querySelectorAllCall, context), accessRange);
 		}
 
 		const lengthCheckProblem = getLengthCheckProblem(node, context);

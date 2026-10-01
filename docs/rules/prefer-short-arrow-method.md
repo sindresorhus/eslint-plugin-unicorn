@@ -71,7 +71,7 @@ const user = {
 };
 ```
 
-With the `'consistent-as-needed'` option, the rule only reports methods in an object literal when every regular method shorthand (`foo() {}`) in that object can be autofixed:
+With the `'consistent-as-needed'` option, the rule only reports methods in an object literal when every regular method shorthand (`foo() {}`) in that object is safely convertible:
 
 ```js
 /* eslint unicorn/prefer-short-arrow-method: ["error", "consistent-as-needed"] */
@@ -105,4 +105,4 @@ Default: `'always'`
 Available options:
 
 - `'always'` - Report every safely convertible simple-return object method.
-- `'consistent-as-needed'` - Report simple-return object methods only when all regular method shorthand properties in the same object can be autofixed.
+- `'consistent-as-needed'` - Report simple-return object methods only when all regular method shorthand properties in the same object are safely convertible.

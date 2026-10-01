@@ -1,4 +1,6 @@
 import {
+	getCommentSafeProblem,
+	hasNonDirectiveComment,
 	getIndentUnit,
 	getLineIndent,
 	getLinebreak,
@@ -64,8 +66,6 @@ const getReturnStatement = node => {
 
 	return returnStatement;
 };
-
-const hasCommentsInside = (node, sourceCode) => sourceCode.getCommentsInside(node).length > 0;
 
 const getArrowToken = (node, context) => {
 	const bodyRange = getParenthesizedRange(node.body, context);
@@ -157,10 +157,8 @@ const getImplicitReturnFix = (node, returnStatement, context) => {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
-
 	context.on('ArrowFunctionExpression', node => {
-		if (hasCommentsInside(node, sourceCode)) {
+		if (hasNonDirectiveComment(context, node)) {
 			return;
 		}
 
@@ -171,11 +169,11 @@ const create = context => {
 			}
 
 			const fix = getImplicitReturnFix(node, returnStatement, context);
-			return {
+			return getCommentSafeProblem(context, {
 				node,
 				messageId: MESSAGE_ID_IMPLICIT,
 				...(fix && {fix}),
-			};
+			});
 		}
 
 		if (!isMultiline(getParenthesizedText(node.body, context))) {
@@ -183,11 +181,11 @@ const create = context => {
 		}
 
 		const fix = getExplicitReturnFix(node, context);
-		return {
+		return getCommentSafeProblem(context, {
 			node,
 			messageId: MESSAGE_ID_EXPLICIT,
 			...(fix && {fix}),
-		};
+		});
 	});
 };
 

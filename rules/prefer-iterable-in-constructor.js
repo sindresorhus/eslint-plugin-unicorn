@@ -1,7 +1,9 @@
 import {isNewExpression, isMethodCall} from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
+	getCommentSafeProblem,
 	getNextNode,
+	hasNonDirectiveComment,
 	getParenthesizedText,
 	getVariableIdentifiers,
 	isSameIdentifier,
@@ -191,13 +193,6 @@ const getConstructorReplacementText = (newExpression, sourceNode, context) => {
 	return `${constructorText}(${sourceText})`;
 };
 
-const hasNoCommentsInRange = (context, range) =>
-	!context.sourceCode.getAllComments().some(comment => {
-		const [start, end] = context.sourceCode.getRange(comment);
-
-		return start >= range[0] && end <= range[1];
-	});
-
 const getFix = (problem, context) => {
 	const {
 		loop,
@@ -268,14 +263,12 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	if (!hasNoCommentsInRange(context, [
-		context.sourceCode.getRange(declaration)[0],
-		context.sourceCode.getRange(loop)[1],
-	])) {
+	const range = [context.sourceCode.getRange(declaration)[0], context.sourceCode.getRange(loop)[1]];
+	if (hasNonDirectiveComment(context, range)) {
 		return;
 	}
 
-	return {
+	return getCommentSafeProblem(context, {
 		node: loop,
 		messageId: MESSAGE_ID,
 		data: {
@@ -287,7 +280,7 @@ const getLoopProblem = (declaration, context) => {
 			newExpression,
 			sourceNode,
 		}, context),
-	};
+	}, range);
 };
 
 /**
@@ -310,13 +303,13 @@ const create = context => {
 		const objectEntriesCall = newExpression.arguments[0];
 		const [sourceNode] = objectEntriesCall.arguments;
 		if (
-			context.sourceCode.getCommentsInside(objectEntriesCall).length > 0
+			hasNonDirectiveComment(context, objectEntriesCall)
 			|| isDirectlyUnsafeSource('URLSearchParams', sourceNode)
 		) {
 			return;
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node: objectEntriesCall.callee,
 			messageId: MESSAGE_ID,
 			data: {
@@ -324,7 +317,7 @@ const create = context => {
 				source: context.sourceCode.getText(sourceNode),
 			},
 			fix: fixer => fixer.replaceText(objectEntriesCall, getParenthesizedText(sourceNode, context)),
-		};
+		}, objectEntriesCall);
 	});
 };
 

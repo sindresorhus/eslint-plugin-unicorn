@@ -7,19 +7,19 @@ import {
 	isNullLiteral,
 	isRegexLiteral,
 } from './ast/index.js';
-import {getStaticRegExp, getStaticValueIfNoSideEffects, hasPotentiallyMutableMemberAccess} from './utils/index.js';
+import {
+	getCommentSafeProblem,
+	getStaticRegExp,
+	getStaticValueIfNoSideEffects,
+	hasNonDirectiveComment,
+	hasPotentiallyMutableMemberAccess,
+} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID = 'prefer-string-match-all';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `String#matchAll()` over a `RegExp#exec()` loop.',
 };
-
-const hasCommentsInRange = (sourceCode, [start, end]) =>
-	sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
 
 const getAssignmentExpression = node => {
 	if (node.type === 'AssignmentExpression') {
@@ -315,17 +315,15 @@ const create = context => {
 			sourceCode.getRange(closingParenthesisToken)[1],
 		];
 
-		if (
-			hasCommentsInRange(sourceCode, declarationRange)
-			|| hasCommentsInRange(sourceCode, headerRange)
-		) {
+		const replacementRange = [declarationRange[0], headerRange[1]];
+		if (hasNonDirectiveComment(context, replacementRange)) {
 			return;
 		}
 
 		const regexpText = sourceCode.getText(regexpNode);
 		const stringText = sourceCode.getText(stringNode);
 
-		return {
+		return getCommentSafeProblem(context, {
 			node,
 			messageId: MESSAGE_ID,
 			/**
@@ -335,7 +333,7 @@ const create = context => {
 				yield fixer.removeRange(declarationRange);
 				yield fixer.replaceTextRange(headerRange, `for (const ${matchIdentifier.name} of ${stringText}.matchAll(${regexpText}))`);
 			},
-		};
+		}, replacementRange);
 	});
 };
 

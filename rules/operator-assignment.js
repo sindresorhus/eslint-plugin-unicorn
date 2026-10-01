@@ -1,4 +1,4 @@
-import {getBuiltinRule} from './utils/index.js';
+import {getBuiltinRule, getCommentSafeProblem, hasNonDirectiveComment} from './utils/index.js';
 
 const baseRule = getBuiltinRule('operator-assignment');
 
@@ -19,14 +19,8 @@ function getTemplateLiteralTailText(sourceCode, [start, end]) {
 	return `\`${sourceCode.text.slice(start, end)}`;
 }
 
-function hasCommentsOutsideRange(node, sourceCode, [rangeStart, rangeEnd]) {
-	return sourceCode.getCommentsInside(node).some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart < rangeStart || commentEnd > rangeEnd;
-	});
-}
-
-function getTemplateLiteralProblem(node, sourceCode) {
+function getTemplateLiteralProblem(node, context) {
+	const {sourceCode} = context;
 	if (
 		node.operator !== '='
 		|| node.left.type !== 'Identifier'
@@ -47,7 +41,7 @@ function getTemplateLiteralProblem(node, sourceCode) {
 	}
 
 	const templateLiteralTailRange = getTemplateLiteralTailRange(right, sourceCode);
-	if (hasCommentsOutsideRange(node, sourceCode, templateLiteralTailRange)) {
+	if (hasNonDirectiveComment(context, node, [templateLiteralTailRange])) {
 		return;
 	}
 
@@ -56,7 +50,7 @@ function getTemplateLiteralProblem(node, sourceCode) {
 		return;
 	}
 
-	return {
+	return getCommentSafeProblem(context, {
 		node,
 		messageId: 'replaced',
 		data: {
@@ -68,14 +62,13 @@ function getTemplateLiteralProblem(node, sourceCode) {
 				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(left)} += ${templateLiteralTailText}`),
 			},
 		],
-	};
+	}, node, [templateLiteralTailRange]);
 }
 
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
 	const {AssignmentExpression: onAssignmentExpression} = baseRule.create(context);
 	const shouldCheckTemplateLiterals = context.options[0] !== 'never';
 
@@ -86,7 +79,7 @@ const create = context => {
 			return;
 		}
 
-		return getTemplateLiteralProblem(node, sourceCode);
+		return getTemplateLiteralProblem(node, context);
 	});
 };
 

@@ -1,5 +1,10 @@
 import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
-import {getParenthesizedText, getReferences} from './utils/index.js';
+import {
+	getCommentSafeProblem,
+	getParenthesizedText,
+	getReferences,
+	hasNonDirectiveComment,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-object-destructuring-defaults';
 const MESSAGE_ID_SUGGESTION = 'prefer-object-destructuring-defaults/suggestion';
@@ -115,7 +120,7 @@ const create = context => {
 		if (!(
 			id.type === 'ObjectPattern'
 			&& init?.type === 'ObjectExpression'
-			&& context.sourceCode.getCommentsInside(node).length === 0
+			&& !hasNonDirectiveComment(context, node)
 		)) {
 			return;
 		}
@@ -142,7 +147,7 @@ const create = context => {
 			replacementProperties.push(getReplacementPatternPropertyText(patternProperty, defaultProperty, context));
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node,
 			messageId: MESSAGE_ID,
 			suggest: [
@@ -154,7 +159,7 @@ const create = context => {
 					),
 				},
 			],
-		};
+		});
 	});
 };
 

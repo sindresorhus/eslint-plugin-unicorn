@@ -1,7 +1,8 @@
 import {
+	getCommentSafeProblem,
 	getParenthesizedText,
 	getPreviousNode,
-	hasCommentInRange,
+	hasNonDirectiveComment,
 	isParenthesized,
 	isProcessExitCall,
 	isTypeScriptExpressionWrapper,
@@ -211,7 +212,9 @@ const create = context => {
 
 		const range = [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]];
 		// Comments can describe distinct exit reasons that combining guards would obscure.
-		if (sourceCode.getCommentsBefore(previousNode).length > 0 || hasCommentInRange(context, range)) {
+		const firstLeadingComment = sourceCode.getCommentsBefore(previousNode)[0];
+		const commentRange = [firstLeadingComment ? sourceCode.getRange(firstLeadingComment)[0] : range[0], range[1]];
+		if (hasNonDirectiveComment(context, commentRange)) {
 			return;
 		}
 
@@ -219,7 +222,7 @@ const create = context => {
 			return;
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
@@ -230,7 +233,7 @@ const create = context => {
 				const suffix = sourceCode.text.slice(sourceCode.getRange(closingParenthesis)[1], range[1]);
 				yield fixer.replaceTextRange(range, `if (${left} || ${right})${suffix}`);
 			},
-		};
+		}, commentRange);
 	});
 };
 

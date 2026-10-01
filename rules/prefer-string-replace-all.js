@@ -7,8 +7,10 @@ import {
 import {isRegExpEscapeReplaceCall} from './shared/regexp-escape.js';
 import {
 	escapeString,
+	getCommentSafeProblem,
 	getParenthesizedText,
 	getStaticRegExp,
+	hasNonDirectiveComment,
 	isKnownNonString,
 } from './utils/index.js';
 
@@ -262,7 +264,7 @@ const getSplitJoinReplacement = (node, context) => {
 			optionalCall: false,
 			optionalMember: false,
 		})
-		|| context.sourceCode.getCommentsInside(node).length > 0
+		|| hasNonDirectiveComment(context, node)
 	) {
 		return;
 	}
@@ -306,14 +308,14 @@ const create = context => {
 	context.on('CallExpression', node => {
 		const splitJoinReplacement = getSplitJoinReplacement(node, context);
 		if (splitJoinReplacement) {
-			return {
+			return getCommentSafeProblem(context, {
 				node: node.callee.property,
 				messageId: MESSAGE_ID_USE_REPLACE_ALL_OVER_SPLIT_JOIN,
 				/**
 				@param {import('eslint').Rule.RuleFixer} fixer
 				*/
 				fix: fixer => fixer.replaceText(node, splitJoinReplacement),
-			};
+			}, node);
 		}
 
 		if (!isMethodCall(node, {

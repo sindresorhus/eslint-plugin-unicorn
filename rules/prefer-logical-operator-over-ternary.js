@@ -7,9 +7,10 @@ import {
 } from './ast/index.js';
 import {
 	isParenthesized,
+	getCommentSafeProblem,
 	getParenthesizedText,
 	getMemberAccessOperatorRange,
-	hasCommentInRange,
+	hasNonDirectiveComment,
 	isSameReference,
 	isBoolean,
 	shouldAddParenthesesToLogicalExpressionChild,
@@ -278,7 +279,7 @@ function getOptionalChainText(memberExpression, context) {
 	const {sourceCode} = context;
 	const range = getMemberAccessOperatorRange(memberExpression, context);
 
-	if (hasCommentInRange(context, range)) {
+	if (hasNonDirectiveComment(context, range)) {
 		return;
 	}
 
@@ -445,7 +446,7 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 
 	if (
 		!nullishTest
-		|| context.sourceCode.getCommentsInside(conditionalExpression).length > 0
+		|| hasNonDirectiveComment(context, conditionalExpression)
 	) {
 		return;
 	}
@@ -498,7 +499,7 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 		return;
 	}
 
-	return {
+	return getCommentSafeProblem(context, {
 		node: conditionalExpression,
 		messageId: MESSAGE_ID_OPTIONAL_CHAIN_ERROR,
 		suggest: [
@@ -515,7 +516,7 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 				},
 			},
 		],
-	};
+	});
 }
 
 /**

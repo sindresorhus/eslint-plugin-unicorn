@@ -6,7 +6,9 @@ import {
 	isUndefined,
 } from './ast/index.js';
 import {
+	getCommentSafeProblem,
 	getParenthesizedText,
+	hasNonDirectiveComment,
 	getTypeSymbol,
 	isBooleanExpression,
 	isControlFlowTest,
@@ -888,7 +890,7 @@ const getProblem = (callExpression, context) => {
 
 	const comparison = getComparison(callExpression);
 	if (comparison) {
-		if (context.sourceCode.getCommentsInside(callExpression).length > 0) {
+		if (hasNonDirectiveComment(context, callExpression)) {
 			return;
 		}
 
@@ -897,26 +899,26 @@ const getProblem = (callExpression, context) => {
 			return;
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node: callExpression.callee.property,
 			messageId: MESSAGE_ID,
 			fix: getComparisonFix(callExpression, comparison, context),
-		};
+		}, callExpression);
 	}
 
 	if (
 		(isBooleanExpression(callExpression, context) || isControlFlowTest(callExpression))
 		&& isSafeBooleanMapCall(callExpression, context)
 	) {
-		if (context.sourceCode.getCommentsInside(callExpression).length > 0) {
+		if (hasNonDirectiveComment(context, callExpression)) {
 			return;
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node: callExpression.callee.property,
 			messageId: MESSAGE_ID,
 			fix: getBooleanFix(callExpression),
-		};
+		}, callExpression);
 	}
 };
 

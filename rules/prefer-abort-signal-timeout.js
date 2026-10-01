@@ -10,8 +10,9 @@ import {
 } from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
+	getCommentSafeProblem,
 	getLastTrailingCommentOnSameLine,
-	hasCommentInRange,
+	hasNonDirectiveComment,
 	hasPotentiallyMutableMemberAccess,
 	isGlobalIdentifier,
 	isLeftHandSide,
@@ -183,7 +184,7 @@ const getSignalMember = (identifier, context) => {
 		|| isForLoopLeftSide(parent)
 		|| isReasonSensitiveRead(parent, context)
 		|| isSignalAlias(parent)
-		|| hasCommentInRange(context, context.sourceCode.getRange(parent))
+		|| hasNonDirectiveComment(context, parent)
 	) {
 		return;
 	}
@@ -229,10 +230,7 @@ const hasCommentBetween = (context, leftNode, rightNode) => {
 	const [, leftEnd] = sourceCode.getRange(leftNode);
 	const [rightStart] = sourceCode.getRange(rightNode);
 
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= leftEnd && commentEnd <= rightStart;
-	});
+	return hasNonDirectiveComment(context, [leftEnd, rightStart]);
 };
 
 const isValidAbortSignalTimeoutDelay = (node, context) => {
@@ -301,10 +299,10 @@ const createProblem = (declarator, context) => {
 		|| id.type !== 'Identifier'
 		|| !isGlobalAbortControllerConstructor(init, context)
 		|| !isGlobalNameAvailable('AbortSignal', id, context)
-		|| hasCommentInRange(context, sourceCode.getRange(init))
+		|| hasNonDirectiveComment(context, init)
 		|| (
 			id.typeAnnotation
-			&& hasCommentInRange(context, sourceCode.getRange(id.typeAnnotation))
+			&& hasNonDirectiveComment(context, id.typeAnnotation)
 		)
 	) {
 		return;
@@ -315,8 +313,8 @@ const createProblem = (declarator, context) => {
 	if (
 		!timeoutCall
 		|| hasCommentBetween(context, declaration, timeoutStatement)
-		|| hasCommentInRange(context, sourceCode.getRange(timeoutStatement))
-		|| getLastTrailingCommentOnSameLine(context, timeoutStatement)
+		|| hasNonDirectiveComment(context, timeoutStatement)
+		|| getLastTrailingCommentOnSameLine(context, timeoutStatement, {ignoreDirectives: true})
 	) {
 		return;
 	}
@@ -349,7 +347,9 @@ const createProblem = (declarator, context) => {
 	const replacementName = getReplacementName(id.name, variable, signalMembers, context);
 	const timeoutText = `AbortSignal.timeout(${sourceCode.getText(delay)})`;
 
-	return {
+	const lastTrailingComment = getLastTrailingCommentOnSameLine(context, timeoutStatement);
+	const range = [sourceCode.getRange(declaration)[1], sourceCode.getRange(timeoutStatement)[1]];
+	let problem = getCommentSafeProblem(context, {
 		node: id,
 		messageId: MESSAGE_ID,
 		suggest: [
@@ -375,7 +375,13 @@ const createProblem = (declarator, context) => {
 				},
 			},
 		],
-	};
+	}, range);
+	const affectedNodes = [init, id.typeAnnotation, lastTrailingComment, ...signalMembers].filter(Boolean);
+	for (const affectedNode of affectedNodes) {
+		problem = getCommentSafeProblem(context, problem, affectedNode);
+	}
+
+	return problem;
 };
 
 /**
