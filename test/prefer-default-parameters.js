@@ -61,6 +61,7 @@ test.snapshot({
 			code: 'const fn = (a: bigint | undefined) => [a ?? 3n, a ?? 4n];',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'let {a, b = (a = 4)} = options; console.log(a ?? 3);',
 	],
 	invalid: [
 		'const fn = a => [a ?? 3, a ?? 3];',
@@ -159,6 +160,7 @@ test.snapshot({
 			code: 'const fn = (a: bigint | undefined) => [a ?? 3n, a ?? 0x3n];',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'const fn = ({[key]: a}) => a ?? 3;',
 	],
 });
 
