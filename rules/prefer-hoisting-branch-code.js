@@ -3,6 +3,7 @@ import {
 	getIndentString,
 	hasCommentInRange,
 	hasDirectBlockScopedDeclaration,
+	hasMultilineToken,
 	needsSemicolon,
 	reindentText,
 	getLinebreak,
@@ -291,7 +292,8 @@ function getDirectionProblem({ifStatement, blocks, leading, trailing, isStart}, 
 	const firstBody = blocks[0].body;
 	const reportedStatements = isStart ? firstBody.slice(0, leading) : firstBody.slice(firstBody.length - trailing);
 
-	const valid = reportedStatements.every(statement => !hasDirectBlockScopedDeclaration(statement))
+	// The hoisted code is reindented, which would change the content of a multi-line template literal.
+	const valid = reportedStatements.every(statement => !hasDirectBlockScopedDeclaration(statement) && !hasMultilineToken(statement, context))
 		&& isInStatementList(ifStatement)
 		&& !hasCommentHazard(ifStatement, blocks, {leading, trailing, isStart}, context)
 		&& blocks.every(block => !hasBranchLocalHazard(block, {leading, trailing, isStart}, context));

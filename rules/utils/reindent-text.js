@@ -3,7 +3,9 @@ const linePattern = /(?<linebreak>\r\n|[\n\r\u2028\u2029])(?<line>[^\n\r\u2028\u
 /**
 Move multi-line text from one indentation to another.
 
-The first line is kept as it is, because the text usually starts in the middle of a line. Every later line that starts with `sourceIndent` gets `targetIndent` in its place. A line that does not start with `sourceIndent`, like the inside of a template literal, is kept as it is. A line with only whitespace becomes empty. Line endings are kept.
+The first line is kept as it is, because the text usually starts in the middle of a line. Every later line that starts with `sourceIndent` gets `targetIndent` in its place. Other lines are kept as they are. A line with only whitespace becomes empty. Line endings are kept.
+
+It works on plain text, so it also changes lines inside a multi-line template literal or a line-continued string, which changes the value. A caller must withhold its fix when the text has a multi-line token (`hasMultilineToken`).
 
 Pass an empty `sourceIndent` to indent every later line by `targetIndent`.
 

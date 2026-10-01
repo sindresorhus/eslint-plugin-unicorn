@@ -300,6 +300,8 @@ test.snapshot({
 		// A leading statement cannot cross a branch-local declaration it references
 		'if (a) { void f; first(); function f() {} } else { void f; second(); function f() {} }',
 		'if (a) { void c; first(); const c = 1; } else { void c; second(); const c = 2; }',
+		// A multi-line template literal in the hoisted code cannot be reindented without changing its value
+		'if (a) {\n\tbar();\n\tfoo(`x\n\ty`);\n} else {\n\tbaz();\n\tfoo(`x\n\ty`);\n}',
 	],
 });
 
