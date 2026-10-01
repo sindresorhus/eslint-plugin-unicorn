@@ -565,6 +565,28 @@ test('preserves an earlier-parameter snapshot before its source is mutated', t =
 	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[[2,1],[3,2]]');
 });
 
+test('preserves default snapshots before super mutates an earlier parameter', t => {
+	const code = outdent`
+		class Base {
+			constructor(mutate) {
+				mutate();
+			}
+		}
+		class Point extends Base {
+			constructor(first, second = first) {
+				super(() => first++);
+				this.values = [first, second];
+			}
+		}
+		[new Point(1).values, new Point(2).values];
+	`;
+	const result = linter.verifyAndFix(code, config);
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.regex(result.output, /constructor\(first\) \{\s+const second = first;\s+super\(/);
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[[2,1],[3,2]]');
+});
+
 test('does not introduce a strict directive after stripping TypeScript wrappers', t => {
 	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation, sourceType: 'script'}};
 	for (const expression of ['value as string', 'value satisfies string', 'value!', '(value as string)!']) {
