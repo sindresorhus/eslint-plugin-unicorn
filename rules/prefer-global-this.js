@@ -196,6 +196,9 @@ const create = context => {
 		// A destructuring default (`({window = 1} = foo)`) creates two references for the same identifier
 		const identifiers = new Set(references.map(reference => reference.identifier));
 
+		// `window` is not writable in a browser while `globalThis` is, so replacing the target of a write would replace the global
+		const writtenIdentifiers = new Set(references.filter(reference => reference.isWrite()).map(reference => reference.identifier));
+
 		for (const identifier of identifiers) {
 			if (
 				// `typeof window`, `typeof self`, and `typeof global` are portable as-is; leave them untouched.
@@ -209,12 +212,17 @@ const create = context => {
 				continue;
 			}
 
-			yield {
+			const problem = {
 				node: identifier,
 				messageId: MESSAGE_ID_ERROR,
 				data: {replacement: 'globalThis', value: identifier.name},
-				fix: fixer => replaceReferenceIdentifier(identifier, 'globalThis', context, fixer),
 			};
+
+			if (!writtenIdentifiers.has(identifier)) {
+				problem.fix = fixer => replaceReferenceIdentifier(identifier, 'globalThis', context, fixer);
+			}
+
+			yield problem;
 		}
 	});
 };

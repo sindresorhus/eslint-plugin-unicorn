@@ -234,3 +234,23 @@ test.snapshot({
 		'self.self_did_not_declare_in_language_options',
 	],
 });
+
+// A write is reported but not fixed, `window` is not writable in a browser while `globalThis` is
+test({
+	valid: [],
+	invalid: [
+		...[
+			'window = 123;',
+			'self = 1;',
+			'window += 1;',
+			'[window] = foo;',
+			'({window} = foo);',
+			'for (global of foo);',
+		].map(code => ({code, errors: 1})),
+		{
+			code: 'window.foo = window;',
+			output: 'globalThis.foo = globalThis;',
+			errors: 2,
+		},
+	],
+});
