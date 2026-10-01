@@ -110,6 +110,8 @@ const weakMap = new WeakMap([
 ]);
 ```
 
+No fix or suggestion is offered when a comment would be lost, when the object literal or the `Object.assign()` source has a getter or setter, or for a `__proto__` key, since an object literal handles these differently from an assignment or `Object.assign()`.
+
 ## Options
 
 Type: `object`
@@ -149,6 +151,6 @@ const array = [1, 2, ...(enabled ? [3, 4] : [])];
 
 Conditions and mutation inputs that reference the initialized variable are ignored. Nested conditionals, `else if`, multiple statements per branch, mixed mutations, `||`, and `??` are not supported.
 
-Potential side effects in the condition or mutation inputs and `unshift()` on a nonempty array produce suggestions instead of automatic fixes. No fix or suggestion is offered when comments would move or disappear, or for statically named `__proto__` keys in property assignments or `Object.assign()` object-literal sources.
+Potential side effects in the condition or mutation inputs and `unshift()` on a nonempty array produce suggestions instead of automatic fixes. No fix or suggestion is offered when comments would move or disappear, for statically named `__proto__` keys in property assignments or `Object.assign()` object-literal sources, or when the object literal has a getter or setter.
 
 In TypeScript files or with the TypeScript parser, conditional mutations are reported without fixes or suggestions because the spread can lose contextual typing. Unconditional mutations retain their existing behavior.

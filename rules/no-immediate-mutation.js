@@ -12,11 +12,13 @@ import {
 } from './ast/index.js';
 import {
 	removeStatement,
-	removeArgument,
+	getArgumentRemovalRange,
 } from './fix/index.js';
 import {
 	getNextNode,
 	getCallExpressionArgumentsText,
+	getCallExpressionTokens,
+	getParenthesizedRange,
 	getParenthesizedText,
 	getVariableIdentifiers,
 	getNewExpressionTokens,
@@ -46,6 +48,31 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION_MAP]: 'Move the entry to the {{assignType}}.',
 	[MESSAGE_ID_SUGGESTION_CONDITIONAL]: 'Move the conditional mutation to the {{assignType}}.',
 };
+
+// The fix removes the mutation statement and only copies the given ranges into the literal, a comment inside the statement but outside those ranges would be lost.
+function hasCommentOutsideRanges(sourceCode, statement, ranges) {
+	return sourceCode.getCommentsInside(statement)
+		.some(comment => {
+			const [start, end] = sourceCode.getRange(comment);
+			return ranges.every(([rangeStart, rangeEnd]) => start < rangeStart || end > rangeEnd);
+		});
+}
+
+// The range of the arguments text that `getCallExpressionArgumentsText()` copies, without the trailing comma
+function getCallExpressionArgumentsRange(callExpression, context) {
+	const {sourceCode} = context;
+	const {
+		openingParenthesisToken,
+		closingParenthesisToken,
+		trailingCommaToken,
+	} = getCallExpressionTokens(callExpression, context);
+	const [, start] = sourceCode.getRange(openingParenthesisToken);
+	const [end] = sourceCode.getRange(trailingCommaToken ?? closingParenthesisToken);
+	return [start, end];
+}
+
+const hasCommentOutsideArguments = (callExpression, statement, context) =>
+	hasCommentOutsideRanges(context.sourceCode, statement, [getCallExpressionArgumentsRange(callExpression, context)]);
 
 const hasVariableInNodes = (variable, nodes, context) => {
 	const {sourceCode} = context;
@@ -141,13 +168,18 @@ function * appendElementsTextToSetConstructor({
 	yield * removeStatementAfterAssign(nextStatement, context, fixer);
 }
 
-function getObjectExpressionPropertiesText(objectExpression, context) {
+function getObjectExpressionPropertiesRange(objectExpression, context) {
 	const {sourceCode} = context;
 	const openingBraceToken = sourceCode.getFirstToken(objectExpression);
 	const [penultimateToken, closingBraceToken] = sourceCode.getLastTokens(objectExpression, 2);
 	const [, start] = sourceCode.getRange(openingBraceToken);
 	const [end] = sourceCode.getRange(isCommaToken(penultimateToken) ? penultimateToken : closingBraceToken);
-	return sourceCode.text.slice(start, end);
+	return [start, end];
+}
+
+function getObjectExpressionPropertiesText(objectExpression, context) {
+	const [start, end] = getObjectExpressionPropertiesRange(objectExpression, context);
+	return context.sourceCode.text.slice(start, end);
 }
 
 /**
@@ -221,6 +253,18 @@ const arrayMutationSettings = {
 			isPrepend,
 		});
 
+		// A prepend rewrites the array as `[…unshifted, …existing]`, so the existing elements are evaluated after the unshifted argument instead of before it. The suggestion would be the same edit, so there is nothing safe left to offer.
+		if (
+			(
+				isPrepend
+				&& information.valueNode.elements.some(element => element && hasSideEffect(element, sourceCode))
+			)
+			// Only the arguments text is moved into the literal, a comment anywhere else in the removed statement would be lost
+			|| hasCommentOutsideArguments(callExpression, information.nextStatement, context)
+		) {
+			return problem;
+		}
+
 		if (callExpression.arguments.some(element => hasSideEffect(element, sourceCode))) {
 			problem.suggest = [
 				{
@@ -265,6 +309,16 @@ const arrayMutationSettings = {
 	},
 };
 
+// A `__proto__` key sets the prototype in an object literal, but not as a computed key, not through `Object.assign()`, and not a second time (a syntax error), so it is never merged.
+const isPrototypeKey = (node, sourceCode) => getPropertyName(node, sourceCode.getScope(node)) === '__proto__';
+
+const hasPrototypeProperty = (objectExpression, sourceCode) =>
+	objectExpression.properties.some(property => property.type === 'Property' && isPrototypeKey(property, sourceCode));
+
+// An assignment and `Object.assign()` run a setter and read a getter, while a property merged into an object literal replaces the accessor, and a moved accessor stays one.
+const hasAccessorProperty = objectExpression =>
+	objectExpression.properties.some(property => property.type === 'Property' && property.kind !== 'init');
+
 // `Object` + `AssignmentExpression`
 /**
 @type {ViolationCase}
@@ -287,16 +341,9 @@ const objectWithAssignmentExpressionSettings = {
 		const value = assignmentExpression.right;
 		const memberExpression = assignmentExpression.left;
 		const {property} = memberExpression;
-		if (property.type === 'PrivateIdentifier') {
-			return;
-		}
-
 		if (
-			hasVariableInNodes(
-				variable,
-				memberExpression.computed ? [property, value] : [value],
-				context,
-			)
+			property.type === 'PrivateIdentifier'
+			|| hasVariableInNodes(variable, memberExpression.computed ? [property, value] : [value], context)
 		) {
 			return;
 		}
@@ -308,6 +355,7 @@ const objectWithAssignmentExpressionSettings = {
 			context,
 			assignType,
 			getFix,
+			valueNode: objectExpression,
 		} = information;
 		const {sourceCode} = context;
 		const {
@@ -327,6 +375,23 @@ const objectWithAssignmentExpressionSettings = {
 			messageId: MESSAGE_ID_ERROR,
 			data: {objectType: 'object'},
 		};
+		// Only the property and the value text is moved into the literal, a comment anywhere else in the removed statement would be lost
+		if (hasCommentOutsideRanges(
+			sourceCode,
+			information.nextStatement,
+			[property, value].map(node => getParenthesizedRange(node, context)),
+		)) {
+			return problem;
+		}
+
+		// Merging is the only edit this rule makes, so there is no safe alternative to offer
+		if (
+			isPrototypeKey(memberExpression, sourceCode)
+			|| hasAccessorProperty(objectExpression)
+		) {
+			return problem;
+		}
+
 		const fix = getFix(information, {
 			assignmentExpression,
 			memberExpression,
@@ -437,10 +502,30 @@ const objectWithObjectAssignSettings = {
 			messageId: MESSAGE_ID_ERROR,
 			data: {objectType: 'object'},
 		};
+		if (
+			hasAccessorProperty(information.valueNode)
+			|| (
+				firstValue.type === 'ObjectExpression'
+				&& (hasAccessorProperty(firstValue) || hasPrototypeProperty(firstValue, sourceCode))
+			)
+		) {
+			return problem;
+		}
+
 		const fix = getFix(information, {
 			callExpression,
 			firstValue,
 		});
+
+		// Only the source properties (or the spread argument) text is moved into the literal, a comment anywhere else in the removed statement would be lost
+		const copiedRanges = [
+			firstValue.type === 'ObjectExpression'
+				? getObjectExpressionPropertiesRange(firstValue, context)
+				: getParenthesizedRange(firstValue, context),
+		];
+		if (hasCommentOutsideRanges(sourceCode, information.nextStatement, copiedRanges)) {
+			return problem;
+		}
 
 		if (hasSideEffect(firstValue, sourceCode)) {
 			const description = firstValue.type === 'ObjectExpression'
@@ -471,21 +556,18 @@ const objectWithObjectAssignSettings = {
 			firstValue,
 		},
 	) => function * (fixer) {
-		let text;
-		if (firstValue.type === 'ObjectExpression') {
-			if (firstValue.properties.length > 0) {
-				text = getObjectExpressionPropertiesText(firstValue, context);
-			}
-		} else {
-			text = `...${getParenthesizedText(firstValue, context)}`;
-		}
+		// The copied text includes the comments inside it, like the ones in an empty object `{/* comment */}`
+		const text = firstValue.type === 'ObjectExpression'
+			? getObjectExpressionPropertiesText(firstValue, context)
+			: `...${getParenthesizedText(firstValue, context)}`;
 
-		if (text) {
+		if (text.trim() !== '') {
 			yield appendListTextToArrayExpressionOrObjectExpression(context, fixer, objectExpression, text);
 		}
 
 		if (callExpression.arguments.length !== 2) {
-			yield removeArgument(fixer, firstValue, context);
+			// The comments inside the argument are already copied into the literal, and any other comment in the statement prevents the fix
+			yield fixer.removeRange(getArgumentRemovalRange(firstValue, context));
 
 			return;
 		}
@@ -520,11 +602,7 @@ const setMutationSettings = {
 			argumentsLength: 1,
 			optionalMember: false,
 			optionalCall: false,
-		})) {
-			return;
-		}
-
-		if (hasVariableInNodes(variable, callExpression.arguments, context)) {
+		}) || hasVariableInNodes(variable, callExpression.arguments, context)) {
 			return;
 		}
 
@@ -549,6 +627,11 @@ const setMutationSettings = {
 			callExpression,
 			newExpression,
 		});
+
+		// Only the arguments text is moved into the constructor, a comment anywhere else in the removed statement would be lost
+		if (hasCommentOutsideArguments(callExpression, information.nextStatement, context)) {
+			return problem;
+		}
 
 		if (callExpression.arguments.some(element => hasSideEffect(element, sourceCode))) {
 			problem.suggest = [
@@ -605,11 +688,7 @@ const mapMutationSettings = {
 			method: 'set',
 			argumentsLength: 2,
 			optionalCall: false,
-		})) {
-			return;
-		}
-
-		if (hasVariableInNodes(variable, callExpression.arguments, context)) {
+		}) || hasVariableInNodes(variable, callExpression.arguments, context)) {
 			return;
 		}
 
@@ -634,6 +713,11 @@ const mapMutationSettings = {
 			callExpression,
 			newExpression,
 		});
+
+		// Only the arguments text is moved into the constructor, a comment anywhere else in the removed statement would be lost
+		if (hasCommentOutsideArguments(callExpression, information.nextStatement, context)) {
+			return problem;
+		}
 
 		if (callExpression.arguments.some(element => hasSideEffect(element, sourceCode))) {
 			problem.suggest = [
@@ -715,7 +799,7 @@ function getConditionalMutation(statement) {
 }
 
 function getConditionalBranch(node, information, caseSettings) {
-	const {context} = information;
+	const {context, valueNode} = information;
 	const problematicNode = caseSettings.getProblematicNode({
 		...information,
 		expression: node,
@@ -731,7 +815,8 @@ function getConditionalBranch(node, information, caseSettings) {
 		return {
 			text: `{${computed ? `[${propertyText}]` : propertyText}: ${getParenthesizedText(value, context)}}`,
 			inputs: computed ? [property, value] : [value],
-			canFix: getPropertyName(memberExpression, context.sourceCode.getScope(memberExpression)) !== '__proto__',
+			// The spread defines the property, it does not run a setter of the object literal
+			canFix: !isPrototypeKey(memberExpression, context.sourceCode) && !hasAccessorProperty(valueNode),
 		};
 	}
 
@@ -741,9 +826,9 @@ function getConditionalBranch(node, information, caseSettings) {
 		}
 
 		const source = problematicNode.arguments[1];
-		const hasStaticPrototypeProperty = source.type === 'ObjectExpression'
-			&& source.properties.some(property => property.type === 'Property' && getPropertyName(property, context.sourceCode.getScope(property)) === '__proto__');
-		return {text: getParenthesizedText(source, context), inputs: [source], canFix: !hasStaticPrototypeProperty};
+		const canFix = !hasAccessorProperty(valueNode)
+			&& (source.type !== 'ObjectExpression' || !hasPrototypeProperty(source, context.sourceCode));
+		return {text: getParenthesizedText(source, context), inputs: [source], canFix};
 	}
 
 	const argumentsText = getCallExpressionArgumentsText(context, problematicNode, /* includeTrailingComma */ false);

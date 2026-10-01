@@ -5,6 +5,7 @@ import plugin from '../index.js';
 import {getTester, parsers, normalizeTestCase} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+
 const checkConditionalsOptions = [{checkConditionals: true}];
 
 const conditionalMutationCode = outdent`
@@ -1258,4 +1259,240 @@ test('respects `checkConditionals` across autofix passes', t => {
 	t.true(checkConditionalsResult.fixed);
 	t.is(checkConditionalsResult.output.trimEnd(), 'const array = [ 1, ...((enabled) ? [2] : [])];');
 	t.deepEqual(checkConditionalsResult.messages, []);
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		// `Object.assign()` reads the getter, an accessor can not be moved as is
+		{
+			code: 'const a = {}; Object.assign(a, {get b() { return 1; }});\nuse(a);',
+			errors: 1,
+		},
+		{
+			code: 'const a = {}; Object.assign(a, {set b(value) {}});\nuse(a);',
+			errors: 1,
+		},
+		{
+			code: 'const a = {}; Object.assign(a, {b: 1});\nuse(a);',
+			output: 'const a = { b: 1}; \nuse(a);',
+			errors: 1,
+		},
+		// The same hazard for a direct assignment, which never went through the accessor check
+		{
+			code: 'const a = {get b() { return 1; }}; a.b = 2;\nuse(a);',
+			errors: 1,
+		},
+		{
+			code: 'const a = {set b(value) {}}; a.b = 2;\nuse(a);',
+			errors: 1,
+		},
+		// Any accessor keeps the object literal in place, a computed key could be its name
+		{
+			code: 'const a = {b: 1, get c() { return 2; }}; a.b = 2;\nuse(a);',
+			errors: 1,
+		},
+	],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		// A single accessor keeps the whole object literal in place
+		{
+			code: 'const a = {}; Object.assign(a, {b: 1, get c() { return 2; }});\nuse(a);',
+			errors: 1,
+		},
+	],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		// `__proto__` is only allowed once in an object literal, so the object keeps its own property
+		{
+			code: 'const object = {__proto__: prototype}; object.__proto__ = other;',
+			errors: 1,
+		},
+		{
+			code: 'const object = {__proto__: prototype}; object["__proto__"] = other;',
+			errors: 1,
+		},
+		{
+			code: 'const key = "__proto__", object = {__proto__: prototype}; object[key] = other;',
+			errors: 1,
+		},
+		// A `__proto__` key is never merged, even without an existing one
+		{
+			code: 'const object = {}; object.__proto__ = prototype;',
+			errors: 1,
+		},
+		// The same conflict through `Object.assign()`
+		{
+			code: 'const object = {__proto__: prototype}; Object.assign(object, {__proto__: other});',
+			errors: 1,
+		},
+		// `Object.assign()` does not copy the prototype that `__proto__` sets on the source
+		{
+			code: 'const object = {}; Object.assign(object, {__proto__: other});',
+			errors: 1,
+		},
+	],
+});
+
+// Merging is the only edit this rule has, and merging into a literal that already has `__proto__` is a syntax error, so there is nothing safe left to offer.
+test('`__proto__` is not offered as a suggestion when the object literal already has one', t => {
+	const linter = new Linter();
+	const code = 'const object = {__proto__: prototype}; object.__proto__ = other;';
+	const problem = linter.verify(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	}).find(problem => !problem.fatal);
+
+	t.truthy(problem);
+	t.is(problem.suggestions, undefined);
+});
+// The mutation call is merged into the literal, a comment inside it would be lost
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'const array = [];\narray.push(3, 4, /* keep */);',
+			errors: 1,
+		},
+		// A comment inside the copied arguments is moved along with them
+		{
+			code: 'const array = [];\narray.push(/* keep */ 3, 4);',
+			output: 'const array = [ /* keep */ 3, 4];',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nObject.assign(/* keep */ object, bar);',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nObject.assign(object, /* keep */ bar);',
+			errors: 1,
+		},
+		{
+			code: 'const array = [];\narray.push(3, 4);',
+			output: 'const array = [ 3, 4];',
+			errors: 1,
+		},
+		// A comment after the mutation call is inside the removed statement but outside the copied arguments
+		{
+			code: 'const array = [];\narray.push(3, 4) /* keep */;',
+			errors: 1,
+		},
+		{
+			code: 'const set = new Set();\nset.add(3) /* keep */;',
+			errors: 1,
+		},
+		{
+			code: 'const map = new Map();\nmap.set("bar", 2) /* keep */;',
+			errors: 1,
+		},
+		// A comment inside the removed `Object.assign()` statement but outside the moved properties
+		{
+			code: 'const object = {foo: 1};\nObject.assign(object, {bar: 2}) /* keep */;',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nObject.assign(object, {bar: 2, /* keep */});',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nObject.assign(object, /* keep */ {bar: 2});',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nObject.assign(/* keep */ object, {bar: 2});',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nObject.assign(object, bar /* keep */);',
+			errors: 1,
+		},
+		// A comment inside the removed assignment but outside the moved property and value
+		{
+			code: 'const object = {foo: 1};\nobject.bar = /* keep */ 2;',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nobject.bar = 2 /* keep */;',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nobject.bar /* keep */ = 2;',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nobject["bar"] = /* keep */ 2;',
+			errors: 1,
+		},
+		{
+			code: 'const object = {foo: 1};\nobject[/* keep */ "bar"] = 2;',
+			errors: 1,
+		},
+		// A comment inside the parenthesized value is moved along with it
+		{
+			code: 'const object = {foo: 1};\nobject.bar = (/* keep */ 2);',
+			output: 'const object = {foo: 1, bar: (/* keep */ 2),};',
+			errors: 1,
+		},
+	],
+});
+
+// A prepend moves the elements the array already has after the unshifted argument, so anything they evaluate has to run before it rather than after.
+test('A prepend with side effects in the existing elements is only suggested', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	};
+
+	for (const [code, hasEdit] of [
+		// The suggestion would be the same unsafe edit, so nothing is offered at all
+		['const array = [bump()]; array.unshift(value);\nuse(array);', false],
+		['const array = [1, 2]; array.unshift(value);\nuse(array);', true],
+		// A push leaves the existing elements where they are
+		['const array = [bump()]; array.push(value);\nuse(array);', true],
+	]) {
+		const problem = linter.verify(code, config).find(problem => !problem.fatal);
+
+		t.truthy(problem, `should report \`${code}\``);
+		t.is(Boolean(problem.fix) || Boolean(problem.suggestions?.length), hasEdit, `edit availability for \`${code}\``);
+	}
+});
+
+ruleTest.snapshot({
+	valid: [],
+	invalid: [
+		// A hole in the existing elements
+		'const array = [, 1];\narray.unshift(2);',
+		// A comment outside the copied arguments is kept out of the suggestion too
+		'const array = [1];\narray /* keep */ .push(foo());',
+		'const set = new Set();\nset /* keep */ .add(1);',
+		'const set = new Set();\nset.add(/* keep */ 1);',
+		'const map = new Map();\nmap /* keep */ .set(1, 2);',
+		'const map = new Map();\nmap.set(1, /* keep */ 2);',
+		// `object["__proto__"] = value` sets the prototype, but `{["__proto__"]: value}` defines an own property
+		'const object = {};\nobject["__proto__"] = prototype;',
+		// `Object.assign()` sets the prototype for a computed `__proto__` key of the source
+		'const object = {};\nObject.assign(object, {["__proto__"]: prototype});',
+		// `Object.assign()` runs a setter of the target, a property merged into the literal replaces it
+		'const object = {set a(value) {}};\nObject.assign(object, {a: 1});',
+		'const object = {set a(value) {}};\nObject.assign(object, source);',
+		// A computed key can be the name of an accessor
+		'const object = {get a() { return 1; }};\nobject[key] = 2;',
+		// The conditional spread defines the property, it does not run the setter
+		{code: 'const object = {set a(value) {}};\nif (enabled) { object.a = 1; }', options: checkConditionalsOptions},
+		{code: 'const object = {set a(value) {}};\nif (enabled) { Object.assign(object, source); }', options: checkConditionalsOptions},
+		// A comment in an empty source object is moved along with it
+		'const object = {foo: 1};\nObject.assign(object, {/* keep */});',
+		'const object = {foo: 1};\nObject.assign(object, {/* keep */}, bar);',
+		// A comment moved into the literal is not kept in the call too
+		'const object = {foo: 1};\nObject.assign(object, {bar: 2 /* keep */}, baz);',
+		'const object = {foo: 1};\nObject.assign(object, (/* keep */ bar), baz);',
+	],
 });
