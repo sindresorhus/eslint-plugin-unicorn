@@ -56,12 +56,11 @@ const create = context => {
 			},
 		},
 	});
-	const listeners = baseRule.create(fakeContext);
 	const {
 		Program: onProgram,
 		Identifier: onIdentifier,
 		PrivateIdentifier: onPrivateIdentifier,
-	} = listeners;
+	} = baseRule.create(fakeContext);
 
 	context.on('Program', node => onProgram(node));
 	context.on('Identifier', node => onIdentifier(node));

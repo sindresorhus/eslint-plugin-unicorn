@@ -87,8 +87,7 @@ const normalizeMimeType = token => {
 	}
 
 	try {
-		const mimeType = new MIMEType(token);
-		const {essence} = mimeType;
+		const {essence} = new MIMEType(token);
 		return {replacement: commonMimeTypeMistakes.get(essence) ?? essence};
 	} catch {
 		return {reason: 'MIME types must use valid `type/subtype` syntax.'};

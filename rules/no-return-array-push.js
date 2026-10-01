@@ -85,8 +85,7 @@ function getDirectReturnStatement(callExpression) {
 }
 
 function isReturnValueDiscarded(callExpression) {
-	const node = getCallExpressionResultNode(callExpression);
-	const {parent} = node;
+	const {parent} = getCallExpressionResultNode(callExpression);
 	return (
 		parent.type === 'ExpressionStatement'
 		// The `void` operator explicitly discards the return value.
