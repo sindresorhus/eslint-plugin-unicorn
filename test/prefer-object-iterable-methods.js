@@ -156,3 +156,25 @@ test.snapshot({
 		'Object.entries(object).every(([key /* Keep this. */]) => key);',
 	],
 });
+
+// `Object.entries()` reads every value and `Object.keys()` does not, so a getter is no longer invoked. Accessor side effects are unsupported, so it still autofixes.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Object.entries(object).map(([key, value]) => foo(key));',
+			output: 'Object.keys(object).map((key) => foo(key));',
+			errors: 1,
+		},
+		{
+			code: 'for (const [key, value] of Object.entries(object)) { foo(key); }',
+			output: 'for (const key of Object.keys(object)) { foo(key); }',
+			errors: 1,
+		},
+		{
+			code: 'Object.entries(object).map(([, value]) => foo(value));',
+			output: 'Object.values(object).map((value) => foo(value));',
+			errors: 1,
+		},
+	],
+});

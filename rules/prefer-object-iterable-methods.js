@@ -184,13 +184,10 @@ const isMutationTarget = node => {
 	);
 };
 
-const unwrapReference = node => {
-	if (node.type === 'ChainExpression' || typeCastTypes.has(node.type)) {
-		return unwrapReference(node.expression);
-	}
-
-	return node;
-};
+const unwrapReference = node =>
+	node.type === 'ChainExpression' || typeCastTypes.has(node.type)
+		? unwrapReference(node.expression)
+		: node;
 
 const isSameScopedReference = (left, right, context) => {
 	left = unwrapReference(left);
@@ -637,15 +634,12 @@ const create = context => {
 		}
 
 		const [callback] = node.arguments;
-		if (!isSupportedCallback(callback, methodInfo.bindingParameterIndex, {allowIndexParameter: isObjectEntriesMethodCall})) {
-			return;
-		}
-
-		if (hasCallbackArguments(callback, context)) {
-			return;
-		}
-
-		if (functionTypes.has(callback.body.type) || classTypes.has(callback.body.type)) {
+		if (
+			!isSupportedCallback(callback, methodInfo.bindingParameterIndex, {allowIndexParameter: isObjectEntriesMethodCall})
+			|| hasCallbackArguments(callback, context)
+			|| functionTypes.has(callback.body.type)
+			|| classTypes.has(callback.body.type)
+		) {
 			return;
 		}
 

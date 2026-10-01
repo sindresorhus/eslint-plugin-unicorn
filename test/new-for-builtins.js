@@ -425,5 +425,8 @@ test.snapshot({
 		'const foo = Date(/*comment*/);',
 		'const foo = globalThis/*comment*/.Date();',
 		'const foo = Date(bar);',
+		'const foo = Date(2020, 1);',
+		'const foo = Date(2020, 1, 2, 3);',
+		'const foo = Date(...arguments);',
 	],
 });

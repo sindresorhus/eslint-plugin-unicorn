@@ -33,6 +33,7 @@ function isNestedControlFlowStatement(node, sourceCode) {
 			return false;
 		}
 
+		// A loop that encloses the target is what makes this `break` or `continue` nested, whatever sits between the two, like a `switch`.
 		if (hasTargetNode && isLoop(ancestor)) {
 			return true;
 		}

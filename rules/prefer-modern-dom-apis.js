@@ -73,6 +73,7 @@ const getInsertAdjacentTextOrInsertAdjacentElementProblem = (context, node) => {
 	const content = sourceCode.getText(contentNode);
 	const reference = sourceCode.getText(node.callee.object);
 
+	// `insertAdjacentElement()` returns the inserted element, while `insertAdjacentText()` and the preferred methods return `undefined`
 	const fix = (
 		(method === 'insertAdjacentElement' && !isValueNotUsable(node))
 		|| wouldRemoveComments(context, node, [node.callee.object, contentNode])

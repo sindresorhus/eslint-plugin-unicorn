@@ -530,6 +530,27 @@ test({
 			`,
 			options: [{checkArrowFunctions: false}],
 		},
+		// `super` and `new.target` are lexical to the enclosing function, like `this`
+		outdent`
+			class A extends B {
+				m() {
+					return () => super.method();
+				}
+			}
+		`,
+		outdent`
+			function F() {
+				return () => new.target;
+			}
+		`,
+		outdent`
+			function F() {
+				return () => {
+					doFoo();
+					return new.target;
+				};
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -1132,6 +1153,39 @@ test({
 				}
 			`,
 			errors: [createError('arrow function')],
+		},
+		// Moving the function one level out, out of the loop, keeps the capture
+		{
+			code: outdent`
+				function processItems(items) {
+					const threshold = 10;
+					for (const item of items) {
+						function check() {
+							return threshold > 5;
+						}
+
+						use(check);
+					}
+				}
+			`,
+			errors: [createError('function \'check\'')],
+		},
+		{
+			code: outdent`
+				function processItems(items) {
+					for (const item of items) {
+						const threshold = 10;
+						while (item.pending) {
+							function check() {
+								return threshold > 5;
+							}
+
+							use(check);
+						}
+					}
+				}
+			`,
+			errors: [createError('function \'check\'')],
 		},
 	],
 });

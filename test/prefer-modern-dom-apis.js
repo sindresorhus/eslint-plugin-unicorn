@@ -42,6 +42,11 @@ test({
 		'while (node.firstChild) { node.firstChild["remove"](); }',
 		'while (node.firstChild) { node.removeChild(node.firstChild); }',
 		'while (node.firstChild) { const child = node.firstChild; child.remove(); }',
+		// A `Window` does not implement `ParentNode`, `window.replaceChildren` does not exist
+		'while (window.firstChild) { window.firstChild.remove(); }',
+		'while (self.firstChild) { self.firstChild.remove(); }',
+		'while (globalThis.firstChild) { globalThis.firstChild.remove(); }',
+
 		// The `replaceChildren` pattern only matches `while`, not `do…while` or `for`
 		'do { node.firstChild.remove(); } while (node.firstChild)',
 		'for (; node.firstChild;) { node.firstChild.remove(); }',
@@ -632,6 +637,12 @@ test({
 					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
 				},
 			],
+		},
+		{
+			// A local binding is not the global `window`
+			code: 'function f(window) { while (window.firstChild) { window.firstChild.remove(); } }',
+			output: 'function f(window) { window.replaceChildren(); }',
+			errors: 1,
 		},
 	],
 });

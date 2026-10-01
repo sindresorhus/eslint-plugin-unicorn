@@ -126,11 +126,7 @@ function isKnownStringExpression(node, context) {
 
 	if (isTypeScriptExpressionWrapper(node)) {
 		const type = getBufferType(node, context);
-		if (type === target || type === nonTarget) {
-			return false;
-		}
-
-		return isKnownStringExpression(node.expression, context);
+		return type !== target && type !== nonTarget && isKnownStringExpression(node.expression, context);
 	}
 
 	if (transparentExpressionTypes.has(node.type)) {
@@ -343,6 +339,7 @@ function getBase64OptionsProblem(node, context) {
 		outermostCall = call;
 	}
 
+	// `alphabet: 'base64url'` performs both substitutions in one step, a single one is not expressible
 	if (calls.length === 0 || transformations.has('+') !== transformations.has('/')) {
 		return;
 	}

@@ -126,5 +126,11 @@ test.snapshot({
 		},
 		'const string = `${\n\t/* comment */\n\t"value"\n}`;',
 		'const string = `before${\n\t/* comment */\n\t"middle"\n}after`;',
+		// `\u{…}` ends at its closing brace, so merging a following hex digit into it is safe
+		'const string = `\\u{41}${1}`;',
+		'const string = `\\u{41}${"b"}`;',
+		'const string = `\\u{1F600}${1}`;',
+		'const string = `before\\u{41}${1}after`;',
+		'const string = `\\u{41}${1}${value}`;',
 	],
 });

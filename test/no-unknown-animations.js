@@ -124,3 +124,18 @@ test.snapshot({
 		'@supports (animation-name: ignored) { a { animation-name: missing; } }',
 	].map(code => asCss(code)),
 });
+
+// A bare `auto` or `none` fills the `<single-animation-timeline>` slot first, `global` is not a timeline keyword
+test.snapshot({
+	valid: [
+		'a { animation: auto 1s; }',
+		'a { animation: none 1s; }',
+		'@keyframes global {} a { animation: global 1s; }',
+	].map(code => ({code, language: languages.css})),
+	invalid: [
+		'a { animation: fade 1s; }',
+		'a { animation: globalFade 1s; }',
+		'a { animation: global 1s; }',
+		'a { animation-name: auto; }',
+	].map(code => ({code, language: languages.css})),
+});

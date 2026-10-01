@@ -192,6 +192,17 @@ ruleTest.snapshot({
 				} while (items[key].pending);
 			}
 		`),
+		// A `switch` between the targeted loop and the outer loop still makes it nested
+		outdent`
+			for (const a of b) {
+				switch (a) {
+					case 1:
+						for (const c of d) {
+							break;
+						}
+				}
+			}
+		`,
 	],
 });
 

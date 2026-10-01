@@ -32,7 +32,7 @@ const isStaticStringIndex = node => {
 	return Number.isSafeInteger(index) && index >= 0 && String(index) === node.value;
 };
 
-// Whether `node` evaluates to a single character (or `''`/`undefined` when out of bounds).
+// Whether `node` evaluates to a single UTF-16 code unit (or `''`/`undefined` when out of bounds).
 const isSingleCharacterAccess = (node, context) => {
 	// `string.charAt(index)` — user-defined `charAt` methods can return any value, so the receiver must be a proven string.
 	if (

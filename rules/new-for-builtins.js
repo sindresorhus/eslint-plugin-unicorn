@@ -43,6 +43,7 @@ function enforceNewExpression(reference, context) {
 	} else if (name === 'Date') {
 		// `Date()` returns a string representation of the current date and time, exactly as `new Date().toString()` does.
 		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date#return_value
+		// It ignores its arguments, so `Date(2020, 1)` is also the current time. The arguments are still evaluated, so dropping them is only a suggestion.
 		function * fix(fixer) {
 			yield fixer.replaceText(node, 'String(new Date())');
 			yield fixSpaceAroundKeyword(fixer, node, context);

@@ -119,5 +119,11 @@ test.snapshot({
 			code: '(foo as string)[0] === "ab";',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A single UTF-16 code unit can never equal an astral character, which is two code units
+		'\'😀\'[0] === \'😀\'',
+		'\'😀\'.charAt(0) === \'😀\'',
+		'\'a😀\'.at(0) === \'a😀\'',
+		// `String#at()` returns a UTF-16 code unit too, not a whole code point
+		'\'😀\'.at(0) === \'😀\'',
 	],
 });

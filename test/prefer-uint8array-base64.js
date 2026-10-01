@@ -252,6 +252,10 @@ test({
 // Native encoding options.
 test.snapshot({
 	valid: [
+		// A single substitution is not what the `base64url` alphabet does
+		'bytes.toBase64().replaceAll(\'+\', \'-\')',
+		'bytes.toBase64().replaceAll(\'/\', \'_\')',
+		'bytes.toBase64().replaceAll(\'+\', \'-\').replaceAll(\'=\', \'\')',
 		'bytes.toBase64({omitPadding: true}).replaceAll(\'=\', \'\')',
 		'bytes.toBase64(options).replaceAll(\'=\', \'\')',
 		'bytes.toBase64(...options).replaceAll(\'=\', \'\')',
@@ -261,7 +265,6 @@ test.snapshot({
 		'bytes.toBase64().replaceAll?.(\'=\', \'\')',
 		'bytes.toBase64()?.replaceAll(\'=\', \'\')',
 		'bytes.toBase64()[\'replaceAll\'](\'=\', \'\')',
-		'bytes.toBase64().replaceAll(\'+\', \'-\')',
 		'bytes.toBase64().replaceAll(\'/\', \'_\').replaceAll(\'=\', \'\')',
 		'bytes.toBase64().replaceAll(\'=\', \'\').replaceAll(\'+\', \'-\')',
 		'bytes.toBase64().replaceAll(\'=\', \'\').replaceAll(\'=\', \'\')',

@@ -175,5 +175,8 @@ test.snapshot({
 			code: 'function foo(array: unknown[]) { return array.filter(value => value as boolean).flatMap(value => [value, value]); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// `(super)` is a syntax error, so the receiver cannot be parenthesized
+		'class ArraySubclass extends Array { method() { return super.filter(value => value).flatMap(value => [value, value.id]); } }',
+		'class ArraySubclass extends Array { method() { return super.map(value => [value]).flat(); } }',
 	],
 });

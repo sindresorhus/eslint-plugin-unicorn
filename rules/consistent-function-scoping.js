@@ -23,11 +23,7 @@ function checkReferences(scope, parentScopes, scopeManager) {
 		const [definition] = resolved.defs;
 
 		// Skip recursive function name
-		if (definition?.type === 'FunctionName' && resolved.name === definition.name.name) {
-			return false;
-		}
-
-		return isSameScopeAsAny(parentScopes, resolved.scope);
+		return !(definition?.type === 'FunctionName' && resolved.name === definition.name.name) && isSameScopeAsAny(parentScopes, resolved.scope);
 	});
 
 	const hitDefinitions = definitions => definitions.some(definition => {

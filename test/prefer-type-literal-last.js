@@ -2,8 +2,6 @@ import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
-const noAutofixOutput = /./.exec('');
-
 test.typescript({
 	valid: [
 		'type ElementUnion = Other | {foo: string};',
@@ -120,7 +118,6 @@ test.typescript({
 		},
 		{
 			code: 'type ElementUnion = {foo: string} /* comment */ | Other;',
-			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
@@ -129,12 +126,10 @@ test.typescript({
 					// comment
 					Other;
 			`,
-			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
 			code: 'type ElementUnion = /* comment */ {foo: string} | Other;',
-			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
@@ -144,12 +139,10 @@ test.typescript({
 		},
 		{
 			code: 'type ElementUnion = {foo: string} | Other /* comment */;',
-			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
 			code: 'type ElementUnion = {foo: string} | Other /* comment */',
-			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 	],

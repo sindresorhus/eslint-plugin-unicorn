@@ -211,3 +211,24 @@ test.snapshot({
 		{code: 'declare const x: string; x.toString()', languageOptions: {parser: parsers.typescript}},
 	],
 });
+
+// A user object can have a `length` that is not a number
+test({
+	valid: [
+		'const object = {length: "5"};\nconst a = Number(object.length);',
+		'const object = {length: "abc"};\nconst a = +object.length;',
+		'const object = {length: true};\nconst a = +object.length;',
+	],
+	invalid: [
+		{
+			code: 'const object = {length: 5};\nconst a = Number(object.length);',
+			output: 'const object = {length: 5};\nconst a = object.length;',
+			errors: 1,
+		},
+		{
+			code: 'const a = Number(foo.length);',
+			output: 'const a = foo.length;',
+			errors: 1,
+		},
+	],
+});
