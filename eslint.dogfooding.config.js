@@ -71,6 +71,8 @@ const config = [
 			'unicorn/no-barrel-files': 'off',
 			// This opt-in style is not applied to the existing codebase.
 			'unicorn/consistent-arrow-return-style': 'off',
+			// Internal helpers intentionally retain explicit dependencies and recursive default parameters.
+			'unicorn/no-unnecessary-parameters': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',

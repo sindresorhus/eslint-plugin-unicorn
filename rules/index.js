@@ -165,6 +165,7 @@ export {default as 'no-unnecessary-boolean-comparison'} from './no-unnecessary-b
 export {default as 'no-unnecessary-fetch-options'} from './no-unnecessary-fetch-options.js';
 export {default as 'no-unnecessary-global-this'} from './no-unnecessary-global-this.js';
 export {default as 'no-unnecessary-nested-ternary'} from './no-unnecessary-nested-ternary.js';
+export {default as 'no-unnecessary-parameters'} from './no-unnecessary-parameters.js';
 export {default as 'no-unnecessary-polyfills'} from './no-unnecessary-polyfills.js';
 export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.js';
 export {default as 'no-unnecessary-splice'} from './no-unnecessary-splice.js';
