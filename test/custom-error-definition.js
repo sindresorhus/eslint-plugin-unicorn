@@ -21,6 +21,23 @@ const invalidExportError = {
 
 const tests = {
 	valid: [
+		// `options` is already forwarded inline, so a dedicated parameter is not needed
+		outdent`
+			class FooError extends Error {
+				constructor(message) {
+					super('Fixed message', {cause: message});
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				name = 'FooError';
+				constructor(message, options) {
+					super(message, {cause: options.cause});
+				}
+			}
+		`,
 		'class Foo { }',
 		'class Foo extends Bar { }',
 		'class Foo extends Bar() { }',
@@ -420,7 +437,6 @@ const tests = {
 			output: outdent`
 				class FooError extends Error {
 					name = 'FooError';
-
 					static name = 'FooError';
 				}
 			`,
@@ -988,19 +1004,6 @@ const tests = {
 				missingOptionsParameterError,
 			],
 		},
-		{
-			code: outdent`
-				class FooError extends Error {
-					constructor(message) {
-						super('Fixed message', {cause: message});
-						this.name = 'FooError';
-					}
-				}
-			`,
-			errors: [
-				missingOptionsParameterError,
-			],
-		},
 		// The inline options object has more than just `cause`, so `options` should be a parameter
 		{
 			code: outdent`
@@ -1035,6 +1038,34 @@ const tests = {
 				class FooError extends Error {
 					constructor(cause) {
 						super(getMessage(), {cause});
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+		},
+		// The inline `cause` has nothing to do with the caller's `options`, so `options` is not forwarded
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super('Fixed message', {cause: new TypeError('other')});
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageArgumentToSuperError,
+			],
+		},
+		// Only `cause` is forwarded, the caller's `options` is dropped
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message) {
+						super(message, {cause});
 						this.name = 'FooError';
 					}
 				}
@@ -2231,4 +2262,113 @@ test('forwards options after fixing the message assignment in multiple passes', 
 
 	t.is(result.output, 'class FooError extends Error { constructor(status, message, options) { super(message, options); this.name = \'FooError\'; } }');
 	t.deepEqual(result.messages, []);
+});
+
+const fixCode = code => {
+	const linter = new Linter();
+	return linter.verifyAndFix(code, {
+		plugins: {
+			test: {
+				rules: {
+					'custom-error-definition': rule,
+				},
+			},
+		},
+		rules: {
+			'test/custom-error-definition': 'error',
+		},
+	});
+};
+
+test('inserts the name property with the line ending and indentation of the file', t => {
+	t.is(fixCode('class FooError extends Error {\r\n}').output, 'class FooError extends Error {\r\n\tname = \'FooError\';\r\n}');
+	t.is(fixCode('class FooError extends Error {\n}').output, 'class FooError extends Error {\n\tname = \'FooError\';\n}');
+	t.is(fixCode('class FooError extends Error {}').output, 'class FooError extends Error {\n\tname = \'FooError\';\n}');
+	t.is(
+		fixCode('class FooError extends Error {\n  bar() {}\n}').output,
+		'class FooError extends Error {\n  name = \'FooError\';\n  bar() {}\n}',
+	);
+});
+
+// A `globalThis` error base gets the options too
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				class MyError extends Error {
+					name = 'MyError';
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			output: outdent`
+				class MyError extends Error {
+					name = 'MyError';
+					constructor(message, options) {
+						super(message, options);
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				class MyError extends globalThis.Error {
+					name = 'MyError';
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			output: outdent`
+				class MyError extends globalThis.Error {
+					name = 'MyError';
+					constructor(message, options) {
+						super(message, options);
+					}
+				}
+			`,
+			errors: 1,
+		},
+	],
+});
+
+test('keeps the closing brace of an empty class body at the class indentation', t => {
+	t.is(fixCode('if (a) {\n\tclass FooError extends Error {}\n}').output, 'if (a) {\n\tclass FooError extends Error {\n\t\tname = \'FooError\';\n\t}\n}');
+});
+
+// `super()` forwards the `cause` of the `options` parameter
+ruleTest({
+	valid: [
+		'class FooError extends Error { name = \'FooError\'; constructor(message, options = {}) { super(message, {cause: options.cause}); } }',
+		'class FooError extends Error { name = \'FooError\'; constructor(message, options) { super(message, {cause: options?.cause}); } }',
+		// A fixed message with an inline cause needs no `options` parameter, even with more parameters
+		'class FooError extends Error { name = \'FooError\'; constructor(code, cause) { super(\'Fixed message\', {cause}); } }',
+	],
+	invalid: [
+		// The `options` object itself is not its `cause`
+		{
+			code: 'class FooError extends Error { name = \'FooError\'; constructor(message, options) { super(message, {cause: options}); } }',
+			errors: [passOptionsToSuperError],
+		},
+		{
+			code: 'class FooError extends Error { name = \'FooError\'; constructor(message, options) { super(message, {cause: other.cause}); } }',
+			errors: [passOptionsToSuperError],
+		},
+		// Forwarding the cause does not exempt the message
+		{
+			code: 'class FooError extends Error { name = \'FooError\'; constructor(message, options) { super(\'Fixed\', {cause: options.cause}); } }',
+			errors: [passMessageArgumentToSuperError],
+		},
+	],
+});
+
+ruleTest.typescript({
+	valid: [
+		'class FooError extends Error { name = \'FooError\'; constructor(message: string, options?: ErrorOptions) { super(message, {cause: options?.cause}); } }',
+		'class FooError extends Error { name = \'FooError\'; constructor(message: string, private readonly options: ErrorOptions) { super(message, {cause: options.cause}); } }',
+	],
+	invalid: [],
 });

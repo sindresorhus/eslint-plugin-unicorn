@@ -1,6 +1,9 @@
 import {getPropertyName, isCommentToken} from '@eslint-community/eslint-utils';
 import {
 	upperFirst,
+	getIndentUnit,
+	getLinebreak,
+	getLineIndent,
 	getParenthesizedText,
 	hasCommentInRange,
 	isNodeMatchesNameOrPath,
@@ -9,6 +12,7 @@ import {
 } from './utils/index.js';
 import {
 	getStaticStringValue,
+	isMemberExpression,
 	isUndefined,
 } from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
@@ -36,9 +40,19 @@ const errorBasesWithoutStandardOptions = new Set(['AggregateError', 'SuppressedE
 
 const getClassName = name => upperFirst(name).replace(/(?:error)?$/i, 'Error');
 
-const getNameProperty = className => `
-	name = '${className}';
-`;
+// The name property is inserted right after the class body `{`, so it follows the file's line ending and indentation
+const getNameProperty = (className, classNode, context) => {
+	const {sourceCode} = context;
+	const linebreak = getLinebreak(context);
+	// Match the indentation of the members that are already there, or one unit deeper than the class
+	const [firstMember] = classNode.body.body;
+	const indent = firstMember
+		? getLineIndent(firstMember, context)
+		: getLineIndent(classNode, context) + getIndentUnit(context);
+	// The text is inserted right after the class body `{`, the rest of the body keeps its own line break
+	const hasOwnLineBreak = sourceCode.text.startsWith(linebreak, sourceCode.getRange(classNode.body)[0] + 1);
+	return `${linebreak}${indent}name = '${className}';${hasOwnLineBreak ? '' : linebreak + getLineIndent(classNode, context)}`;
+};
 
 const getSuperClassName = superClass => {
 	if (superClass?.type === 'Identifier') {
@@ -189,20 +203,18 @@ const fixSuperOptionsArgument = (context, superCallExpression, messageArgumentTe
 		return fixer.insertTextAfter(openingParenthesis, `${messageArgumentText}, options`);
 	}
 
-	if (superArguments.length === 1) {
-		if (isParenthesized(superArguments[0], context)) {
-			return;
-		}
-
-		if (
-			messageArgumentText !== 'undefined'
-			&& isMissingOrUndefined(superArguments[0])
-		) {
-			return fixer.replaceText(superArguments[0], `${messageArgumentText}, options`);
-		}
-
-		return fixer.insertTextAfter(superArguments[0], ', options');
+	if (superArguments.length !== 1 || isParenthesized(superArguments[0], context)) {
+		return;
 	}
+
+	if (
+		messageArgumentText !== 'undefined'
+		&& isMissingOrUndefined(superArguments[0])
+	) {
+		return fixer.replaceText(superArguments[0], `${messageArgumentText}, options`);
+	}
+
+	return fixer.insertTextAfter(superArguments[0], ', options');
 };
 
 const fixMissingOptionsParameter = (context, constructor, superCallExpression, messageArgumentText) => function * (fixer) {
@@ -234,16 +246,14 @@ const fixSuperMessageArgument = (context, superCallExpression, messageArgumentTe
 		return fixer.insertTextAfter(openingParenthesis, `${messageArgumentText}, options`);
 	}
 
-	if (isMissingOrUndefined(superArguments[0])) {
-		if (isParenthesized(superArguments[0], context)) {
-			return;
-		}
-
-		return fixer.replaceText(
-			superArguments[0],
-			superArguments.length === 1 ? `${messageArgumentText}, options` : messageArgumentText,
-		);
+	if (!isMissingOrUndefined(superArguments[0]) || isParenthesized(superArguments[0], context)) {
+		return;
 	}
+
+	return fixer.replaceText(
+		superArguments[0],
+		superArguments.length === 1 ? `${messageArgumentText}, options` : messageArgumentText,
+	);
 };
 
 const isSameIdentifier = (node, identifier) => {
@@ -253,18 +263,34 @@ const isSameIdentifier = (node, identifier) => {
 };
 
 // Whether `super()` already forwards the error options inline, e.g. `super('Fixed message', {cause})`.
-const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) => {
-	if (shouldPassMessageToSuper) {
+const hasInlineErrorOptions = (superCallExpression, optionsParameter) => {
+	const [rawMessageArgument, rawOptionsArgument] = superCallExpression.arguments;
+	const optionsArgument = unwrapTypeScriptExpression(rawOptionsArgument);
+
+	if (
+		superCallExpression.arguments.length !== 2
+		|| optionsArgument.type !== 'ObjectExpression'
+		|| optionsArgument.properties.length !== 1
+		|| getPropertyName(optionsArgument.properties[0]) !== 'cause'
+	) {
 		return false;
 	}
 
-	const [messageArgument, rawOptionsArgument] = superCallExpression.arguments;
-	const optionsArgument = unwrapTypeScriptExpression(rawOptionsArgument);
-	return superCallExpression.arguments.length === 2
-		&& getStaticStringValue(unwrapTypeScriptExpression(messageArgument)) !== undefined
-		&& optionsArgument.type === 'ObjectExpression'
-		&& optionsArgument.properties.length === 1
-		&& getPropertyName(optionsArgument.properties[0]) === 'cause';
+	// A dedicated `options` parameter is only unneeded when `super()` already forwards its `cause`, an unrelated cause does not stand in for it.
+	if (optionsParameter) {
+		let causeNode = unwrapTypeScriptExpression(optionsArgument.properties[0].value);
+		if (causeNode.type === 'ChainExpression') {
+			causeNode = causeNode.expression;
+		}
+
+		return isMemberExpression(causeNode, {
+			property: 'cause',
+			object: getParameterIdentifier(optionsParameter).name,
+		});
+	}
+
+	// Without one, a fixed message plus an inline cause needs no parameter either
+	return getStaticStringValue(unwrapTypeScriptExpression(rawMessageArgument)) !== undefined;
 };
 
 const getErrorOptionsProblem = (context, constructor, superExpression, hasMessageAccessor) => {
@@ -299,16 +325,16 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		return;
 	}
 
-	const secondParameter = parameters[1];
+	// When `options` is already forwarded to `super()` (e.g. `super('Fixed message', {cause})` or `super(message, {cause: options.cause})`), a dedicated `options` parameter isn't needed, whether the constructor declares one or not. The message is still checked.
+	const hasInlineOptions = hasInlineErrorOptions(superCallExpression, optionsParameter);
+	if (hasInlineOptions && !optionsParameter) {
+		return;
+	}
+
 	const shouldPassMessageToSuper = !hasMessageAccessor && firstParameterIdentifier.name === 'message';
 	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
-
+	const secondParameter = parameters[1];
 	if (!secondParameter) {
-		// When `options` is already forwarded to `super()` (e.g. `super('Fixed message', {cause})`), a dedicated `options` parameter isn't needed.
-		if (hasInlineErrorOptions(superCallExpression, shouldPassMessageToSuper)) {
-			return;
-		}
-
 		return {
 			node: firstParameter,
 			messageId: MESSAGE_ID_MISSING_OPTIONS_PARAMETER,
@@ -334,18 +360,20 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 		};
 	}
 
-	if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
-		const problem = {
-			node: superCallExpression,
-			messageId: MESSAGE_ID_PASS_OPTIONS_TO_SUPER,
-		};
-
-		if (!isSameIdentifier(superCallExpression.arguments[0], getParameterIdentifier(optionsParameter))) {
-			problem.fix = fixSuperOptionsArgument(context, superCallExpression, messageArgumentText);
-		}
-
-		return problem;
+	if (hasInlineOptions || isOptionsIdentifier(superCallExpression.arguments[1])) {
+		return;
 	}
+
+	const problem = {
+		node: superCallExpression,
+		messageId: MESSAGE_ID_PASS_OPTIONS_TO_SUPER,
+	};
+
+	if (!isSameIdentifier(superCallExpression.arguments[0], getParameterIdentifier(optionsParameter))) {
+		problem.fix = fixSuperOptionsArgument(context, superCallExpression, messageArgumentText);
+	}
+
+	return problem;
 };
 
 function getInvalidErrorNameProblem(constructorBodyNode, constructorBody, errorDefinition) {
@@ -435,11 +463,7 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 					return;
 				}
 
-				if (hasCommentInRange(context, [start, end])) {
-					return;
-				}
-
-				if (hasCommentImmediatelyAfter(sourceCode, expression)) {
+				if (hasCommentInRange(context, [start, end]) || hasCommentImmediatelyAfter(sourceCode, expression)) {
 					return;
 				}
 
@@ -495,21 +519,19 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 		yield invalidNameProblem;
 	}
 
-	if (hasValidName && checkOptions && !hasConstructorBodyProblem) {
-		const errorOptionsProblem = getErrorOptionsProblem(context, constructor, superExpression, hasMessageAccessor);
+	if (!hasValidName || !checkOptions || hasConstructorBodyProblem) {
+		return;
+	}
 
-		if (errorOptionsProblem) {
-			yield errorOptionsProblem;
-		}
+	const errorOptionsProblem = getErrorOptionsProblem(context, constructor, superExpression, hasMessageAccessor);
+
+	if (errorOptionsProblem) {
+		yield errorOptionsProblem;
 	}
 }
 
 function * customErrorDefinition(context, node) {
-	if (!hasValidSuperClass(node)) {
-		return;
-	}
-
-	if (node.id === null) {
+	if (!hasValidSuperClass(node) || node.id === null) {
 		return;
 	}
 
@@ -552,13 +574,13 @@ function * customErrorDefinition(context, node) {
 				}
 
 				if (nameProperty) {
-					return fixer.replaceText(nameProperty, getNameProperty(name).trim());
+					return fixer.replaceText(nameProperty, getNameProperty(name, node, context).trim());
 				}
 
 				return fixer.insertTextAfterRange([
 					range[0],
 					range[0] + 1,
-				], getNameProperty(name));
+				], getNameProperty(name, node, context));
 			},
 		};
 
@@ -580,15 +602,7 @@ function * customErrorDefinition(context, node) {
 const customErrorExport = node => {
 	const maybeError = node.right;
 
-	if (maybeError.type !== 'ClassExpression') {
-		return;
-	}
-
-	if (!hasValidSuperClass(maybeError)) {
-		return;
-	}
-
-	if (!maybeError.id) {
+	if (maybeError.type !== 'ClassExpression' || !hasValidSuperClass(maybeError) || !maybeError.id) {
 		return;
 	}
 

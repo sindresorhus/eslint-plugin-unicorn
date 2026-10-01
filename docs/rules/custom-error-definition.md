@@ -11,7 +11,7 @@
 
 Enforces a consistent way of defining `Error` subclasses. It works with superclasses whose names match the rule's `*Error` naming pattern.
 
-For native error bases that accept `ErrorOptions` as their second argument, constructors with regular parameters must accept a non-rest `options` parameter in any position and pass it second to `super()`. Rest-only constructors are exempt from this check, and a single-parameter constructor with a fixed message can instead pass `{cause}` inline. `AggregateError` and `SuppressedError` use different signatures, and custom bases may too, so they are exempt.
+For native error bases that accept `ErrorOptions` as their second argument, constructors with regular parameters must accept a non-rest `options` parameter in any position and pass it second to `super()`. Rest-only constructors are exempt from this check. A constructor with a fixed message can instead pass `{cause}` inline, and a constructor with an `options` parameter can forward only its cause with `{cause: options.cause}`. `AggregateError` and `SuppressedError` use different signatures, and custom bases may too, so they are exempt.
 
 ```js
 class ApiError extends Error {
