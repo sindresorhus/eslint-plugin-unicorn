@@ -280,6 +280,22 @@ test('keeps a default that reads a parameter shadowed by a body variable', t => 
 	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
 });
 
+test('keeps parameter bindings redeclared in the body', t => {
+	for (const [code, expected] of [
+		['function format(value = 1) { var value; return value; } [format(), format()];', '[1,1]'],
+		['function format({value}) { var value; return value; } [format({value: 1}), format({value: 1})];', '[1,1]'],
+		['function format(first, second = first) { var second; return second; } [format(1), format(2)];', '[1,2]'],
+		['function format(first, second = first) { function second() { return 10; } return second(); } [format(1), format(2)];', '[10,10]'],
+	]) {
+		const result = linter.verifyAndFix(code, config);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), expected);
+	}
+});
+
 test('does not move fresh default values into a generator body', t => {
 	const code = 'let count = 0; function * format(value = ++count) { yield value; } const first = format(); const second = format(); [count, first.next().value, second.next().value];';
 	const result = linter.verifyAndFix(code, config);
