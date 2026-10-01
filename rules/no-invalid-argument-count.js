@@ -1103,9 +1103,7 @@ const getNonSpreadArgumentCount = callArguments =>
 
 const isConfiguredArgumentCountInvalid = (expectedArgumentCount, callArguments) => {
 	if (hasSpreadArgument(callArguments)) {
-		return Boolean(expectedArgumentCount.allowedCounts)
-			|| expectedArgumentCount.maximum !== Infinity
-			|| getNonSpreadArgumentCount(callArguments) < expectedArgumentCount.minimum;
+		return getNonSpreadArgumentCount(callArguments) > expectedArgumentCount.maximum;
 	}
 
 	return expectedArgumentCount.allowedCounts
@@ -1291,7 +1289,7 @@ const getConfiguredArgumentCountProblem = (expression, lookup, context) => {
 			data: {
 				expected: getConfiguredExpectedText(entry.expectedArgumentCount),
 				actual: hasSpreadArgument(expression.arguments)
-					? 'a spread argument'
+					? `at least ${formatArgumentCount(getNonSpreadArgumentCount(expression.arguments))}`
 					: formatArgumentCount(expression.arguments.length),
 			},
 		};
@@ -1311,7 +1309,7 @@ const create = context => {
 			return configuredArgumentCountProblem;
 		}
 
-		if (callExpression.arguments.some(argument => argument.type === 'SpreadElement')) {
+		if (hasSpreadArgument(callExpression.arguments)) {
 			return;
 		}
 

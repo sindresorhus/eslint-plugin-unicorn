@@ -126,20 +126,22 @@ context.drawImage(image, dx);
 context.drawImage(image, dx, dy);
 ```
 
-They also report spread arguments when the actual argument count cannot be proven valid:
+For calls with spread arguments, built-in and configured API patterns only report when the non-spread arguments already exceed the maximum allowed count. The spreads may supply zero or more arguments, so the rule does not report an unknown count or too few arguments:
 
 ```js
 // ❌
-new Set(...values);
+new Set(value, extra, ...values);
 ```
 
 ```js
 // ✅
-new Set(values);
+new Set(...values);
 ```
 
 ## Limitations
 
 For inferred local functions, this rule intentionally only checks local function declarations, `const` function expressions, `const` arrow functions, and direct IIFEs. Imported functions, member calls, constructors, dynamic/reassigned function variables, overloaded TypeScript declarations, and calls with spread arguments are ignored unless they match a configured API pattern.
+
+Spread argument contents are not analyzed, even for array literals or TypeScript tuples.
 
 Default built-in checks only apply when the built-in global is not shadowed.
