@@ -142,3 +142,12 @@ test.snapshot({
 		`),
 	],
 });
+
+// A tagged template invokes the tag, so the method is called
+test({
+	valid: [
+		'const t = string.trim`abc`;',
+		'const t = tag`abc`;',
+	],
+	invalid: [],
+});

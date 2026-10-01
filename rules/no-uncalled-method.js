@@ -190,12 +190,10 @@ const isPrototypeMethod = (node, context) => {
 const isCallee = node => {
 	node = getOutermostExpression(node);
 
+	// A tagged template invokes the tag too
 	return (
-		(
-			node.parent.type === 'CallExpression'
-			|| node.parent.type === 'NewExpression'
-		)
-		&& node.parent.callee === node
+		['CallExpression', 'NewExpression', 'TaggedTemplateExpression'].includes(node.parent.type)
+		&& (node.parent.callee ?? node.parent.tag) === node
 	);
 };
 
@@ -207,11 +205,7 @@ const isCallableReference = (node, context) => {
 	}
 
 	const method = getPropertyName(node.parent, context.sourceCode.getScope(node.parent));
-	if (!callableReferenceMethods.has(method)) {
-		return false;
-	}
-
-	return isCallee(node.parent);
+	return callableReferenceMethods.has(method) && isCallee(node.parent);
 };
 
 const isReflectApplyArgument = node => {
@@ -265,11 +259,7 @@ const create = context => {
 		}
 
 		const method = getPropertyName(node, sourceCode.getScope(node));
-		if (!method) {
-			return;
-		}
-
-		if (!shouldReport({
+		if (!method || !shouldReport({
 			receiver: node.object,
 			method,
 			context,
