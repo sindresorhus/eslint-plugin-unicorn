@@ -183,5 +183,41 @@ test.snapshot({
 			));
 			console.log(object.foo);
 		`,
+
+		// A keyword directly before the receiver must not merge into the identifier
+		outdent`
+			function f() {
+				const object = Object.fromEntries(Object.entries(source));
+				return(object).foo;
+			}
+		`,
+		outdent`
+			function f() {
+				const object = Object.fromEntries(Object.entries(source));
+				delete(object).foo;
+			}
+		`,
+		outdent`
+			function f() {
+				const object = Object.fromEntries(Object.entries(source));
+				(object).foo = 1;
+			}
+		`,
+		// The replacement starts with `(`, so it must not continue the previous line
+		outdent`
+			function f() {
+				const object = Object.fromEntries(Object.entries(source));
+				foo()
+				delete(object).foo
+			}
+		`,
+		// Parentheses around a call argument are not needed in the replacement, and would continue the previous line
+		outdent`
+			function f() {
+				const object = Object.fromEntries(Object.entries(source));
+				foo()
+				Object.hasOwn((object), 'foo') && bar();
+			}
+		`,
 	],
 });

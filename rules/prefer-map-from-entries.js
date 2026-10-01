@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	escapeString,
+	getParenthesizedText,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	wouldRemoveComments,
@@ -285,7 +286,7 @@ function getObjectMethodCall(identifier, context) {
 		node: parent,
 		fixRange: context.sourceCode.getRange(parent),
 		getReplacement() {
-			const replacement = `[...${identifier.name}.${name}()]`;
+			const replacement = `[...${getParenthesizedText(identifier, context)}.${name}()]`;
 			const semicolon = isFirstTokenOfExpressionStatement(parent, context) && needsSemicolon(context.sourceCode.getTokenBefore(parent), context, replacement) ? ';' : '';
 			return semicolon + replacement;
 		},
@@ -305,7 +306,7 @@ function getAssignmentOperation(memberExpression, identifier, key, context) {
 	return {
 		node: assignmentExpression,
 		fixRange: context.sourceCode.getRange(assignmentExpression),
-		getReplacement: () => `${identifier.name}.set(${key}, ${getCallArgumentText(assignmentExpression.right, context)})`,
+		getReplacement: () => `${getParenthesizedText(identifier, context)}.set(${key}, ${getCallArgumentText(assignmentExpression.right, context)})`,
 	};
 }
 
@@ -321,7 +322,11 @@ function getDeleteOperation(memberExpression, identifier, key, context) {
 	return {
 		node: unaryExpression,
 		fixRange: context.sourceCode.getRange(unaryExpression),
-		getReplacement: () => `${identifier.name}.delete(${key})`,
+		getReplacement() {
+			// `delete(object).foo` -> `(object).delete('foo')` starts with `(`
+			const replacement = `${getParenthesizedText(identifier, context)}.delete(${key})`;
+			return needsSemicolon(context.sourceCode.getTokenBefore(unaryExpression), context, replacement) ? `;${replacement}` : replacement;
+		},
 	};
 }
 
@@ -370,7 +375,7 @@ function getMemberExpressionOperation(identifier, context) {
 	return {
 		node: parent,
 		fixRange: context.sourceCode.getRange(parent),
-		getReplacement: () => `${identifier.name}.get(${key})`,
+		getReplacement: () => `${getParenthesizedText(identifier, context)}.get(${key})`,
 	};
 }
 
