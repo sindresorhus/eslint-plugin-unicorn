@@ -74,6 +74,28 @@ test.snapshot({
 		'array.toSpliced(-1, +0, element)',
 		'array.toSpliced(-1, -0, element)',
 		'array.toSpliced(-1, 0b0, element)',
+		// A bracket assignment does not run `ToInteger` on the index, so only a whole non-negative number or a canonical numeric string is the same element
+		'array.splice(1, 1, element)',
+		'array.splice(NaN, 1, element)',
+		'array.splice(1.5, 1, element)',
+		'array.splice(true, 1, element)',
+		'array.splice(null, 1, element)',
+		'array.splice(undefined, 1, element)',
+		'array.splice(\'1\', 1, element)',
+		'array.splice(\'0\', 1, element)',
+		'array.splice(\'1.5\', 1, element)',
+		'array.splice(\'abc\', 1, element)',
+		'array.splice(\'1x\', 1, element)',
+		'array.splice(\'\', 1, element)',
+		'array.splice(\'01\', 1, element)',
+		// A sequence expression keeps its parentheses
+		'array.splice(0, 1, (9, 8))',
+		'array.toSpliced(0, 1, (9, 8))',
+		'array.toSpliced((0, 1), 1, element)',
+		// The replacement reads the length, so an element that mutates the array would run after that read
+		'array.splice(-1, 0, array.pop())',
+		// `array[1e21]` is the property named `1e+21`, not an index
+		'array.splice(1e21, 1, element)',
 	],
 });
 
@@ -104,5 +126,8 @@ test.snapshot({
 		'array.toSpliced(-(1 satisfies number), 1, element)',
 		// A receiver that is known to be an array must still be reported
 		'function f(foo: unknown[]) { foo.splice(index, 1, element); }',
+		// A TypeScript wrapper does not make `null` or `undefined` an index
+		'array.splice(null as any, 1, element)',
+		'array.splice(undefined!, 1, element)',
 	],
 });

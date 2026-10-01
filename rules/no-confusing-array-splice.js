@@ -1,5 +1,11 @@
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
-import {getParenthesizedText, getStaticNumberValue, shouldSkipKnownNonArrayReceiver} from './utils/index.js';
+import {
+	getParenthesizedText,
+	getStaticNumberValue,
+	shouldSkipKnownNonArrayReceiver,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 import {isLengthOf} from './utils/comparison.js';
 
 const REPLACE_ONE_ELEMENT = 'replace-one-element';
@@ -14,6 +20,28 @@ const messages = {
 };
 
 const isNegativeStaticIndex = node => Math.trunc(getStaticNumberValue(node)) < 0;
+
+// `splice()` runs `ToInteger` on its index, a bracket assignment does not, so both replace the same element only when the index is a whole non-negative number.
+const isReplaceableIndex = node => {
+	node = unwrapTypeScriptExpression(node);
+	const value = getStaticNumberValue(node);
+	if (value !== undefined) {
+		return Number.isSafeInteger(value) && value >= 0;
+	}
+
+	// `splice()` coerces `NaN` to `0` and a numeric string to a number, `array[…]` does not
+	if (node.type === 'Identifier') {
+		// `array[undefined]` is the property named `undefined`, not index `0`
+		return node.name !== 'NaN' && node.name !== 'undefined';
+	}
+
+	if (node.type === 'Literal') {
+		// `array[true]` and `array[null]` are properties named `true` and `null`, and `array['01']` is not index `1`
+		return typeof node.value === 'string' && /^(?:0|[1-9]\d*)$/u.test(node.value);
+	}
+
+	return true;
+};
 
 function getNormalizedDeleteCountValue(node) {
 	const value = getStaticNumberValue(node);
@@ -59,8 +87,9 @@ function getSuggestion(callExpression, messageId, context) {
 	const [start, , element] = callExpression.arguments;
 	const method = property.name;
 	const objectText = getParenthesizedText(object, context);
-	const startText = sourceCode.getText(start);
-	const elementText = sourceCode.getText(element);
+	// A sequence expression has to keep its parentheses, it would otherwise merge into the new argument list or the assignment and change what runs
+	const startText = getParenthesizedText(start, context);
+	const elementText = getParenthesizedText(element, context);
 
 	if (messageId === REPLACE_ONE_ELEMENT) {
 		if (hasCommentsInside(callExpression, sourceCode)) {
@@ -84,7 +113,7 @@ function getSuggestion(callExpression, messageId, context) {
 		if (
 			callExpression.parent.type === 'ExpressionStatement'
 			&& isSimpleReceiver(object)
-			&& (getStaticNumberValue(start) ?? 0) >= 0
+			&& isReplaceableIndex(start)
 		) {
 			return {
 				messageId: SUGGESTION_REPLACE_ONE_ELEMENT,
@@ -99,6 +128,8 @@ function getSuggestion(callExpression, messageId, context) {
 		messageId === INSERT_AT_NEGATIVE_ONE
 		&& isSimpleReceiver(object)
 		&& !hasCommentsInside(start, sourceCode)
+		// The replacement reads the length, so an element that mutates the array would now run after that read instead of before it
+		&& !hasSideEffect(element, sourceCode)
 	) {
 		return {
 			messageId: SUGGESTION_INSERT_AT_NEGATIVE_ONE,
