@@ -144,7 +144,7 @@ const create = context => {
 		return getProblem(context, node);
 	});
 
-	// JSON file parsed by `@eslint/json`. The `body` is null when no value is present (comment-only jsonc/json5).
+	// JSON file parsed by `@eslint/json`. Empty or comment-only files normally fail parsing before rules run.
 	// Skip the `Document` nested inside HTML's `Program` root — that is not a JSON document.
 	context.on('Document', node => {
 		if (node.parent?.type === 'Program') {

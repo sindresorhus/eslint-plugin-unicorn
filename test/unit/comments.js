@@ -42,6 +42,9 @@ for (const [comment, isOrdinary] of [
 	['/* eslint-disable */ /* Explanation. */', true],
 	['/* eslint-env node */', true],
 	['/* eslint-disableish */', true],
+	['// eslint-disable\n', true],
+	['// eslint-enable\n', true],
+	['/* eslint-disable-line\n*/', true],
 ]) {
 	test(`comment helpers distinguish directives: ${comment || 'no comments'}`, t => {
 		inspectComments(`foo(${comment}value);`, (context, node) => {
