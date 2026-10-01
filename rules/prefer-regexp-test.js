@@ -19,6 +19,7 @@ import {
 	isString,
 	isUnknownType,
 	isGlobalBooleanCall,
+	needsSemicolon,
 	getStaticRegExp,
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableMemberAccess,
@@ -68,7 +69,10 @@ function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, cont
 		regexpText = `(${regexpText})`;
 	}
 
-	// The nodes that pass control-flow test checks or explicit boolean expressions cannot have an ASI problem.
+	// The replacement starts with `/`, which continues the previous expression when the receiver begins a line, so a semicolon has to go in front of it.
+	if (needsSemicolon(sourceCode.getTokenBefore(stringNode), context, regexpText)) {
+		yield fixer.insertTextBefore(stringNode, ';');
+	}
 
 	yield fixer.replaceText(stringNode, regexpText);
 }
@@ -195,11 +199,7 @@ const combineIntersectionTypes = types => {
 		return REGEXP;
 	}
 
-	if (typeSet.has(STRING)) {
-		return STRING;
-	}
-
-	return OTHER;
+	return typeSet.has(STRING) ? STRING : OTHER;
 };
 
 const nonTargetTypeAnnotations = new Set([
@@ -249,11 +249,7 @@ const getTypeFromTypeAnnotation = node => {
 				return REGEXP;
 			}
 
-			if (node.typeName.name === 'Array' || node.typeName.name === 'ReadonlyArray') {
-				return OTHER;
-			}
-
-			return UNKNOWN;
+			return node.typeName.name === 'Array' || node.typeName.name === 'ReadonlyArray' ? OTHER : UNKNOWN;
 		}
 
 		case 'TSUnionType': {
@@ -316,11 +312,7 @@ const getTypeFromTypeScriptType = (type, checker) => {
 	}
 
 	const symbolName = getTypeSymbol(type)?.getName();
-	if (symbolName === 'RegExp' || getBaseTypes(type, checker).some(type => getTypeFromTypeScriptType(type, checker) === REGEXP)) {
-		return REGEXP;
-	}
-
-	return OTHER;
+	return symbolName === 'RegExp' || getBaseTypes(type, checker).some(type => getTypeFromTypeScriptType(type, checker) === REGEXP) ? REGEXP : OTHER;
 };
 
 const getTypeFromVariable = (node, context, visitedVariables) => {
@@ -416,11 +408,7 @@ function getExpressionType(node, context, visitedVariables = new Set()) {
 		return staticType;
 	}
 
-	if (syntaxNonTargetTypes.has(node.type)) {
-		return OTHER;
-	}
-
-	return getTypeFromTypeInformation(node, context);
+	return syntaxNonTargetTypes.has(node.type) ? OTHER : getTypeFromTypeInformation(node, context);
 }
 
 const unwrapChainExpression = node => node.type === 'ChainExpression' ? node.expression : node;
@@ -620,11 +608,8 @@ const create = context => {
 		for (const {type, test, getNodes, fix} of cases) {
 			if (
 				(type === STRING_SEARCH) !== Boolean(searchCheck)
+				|| !test(node)
 			) {
-				continue;
-			}
-
-			if (!test(node)) {
 				continue;
 			}
 

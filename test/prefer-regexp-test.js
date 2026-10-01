@@ -1,12 +1,13 @@
 import {fileURLToPath} from 'node:url';
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 const fixtureDirectory = fileURLToPath(new URL('fixtures/prefer-regexp-test/', import.meta.url));
-const noAutofixOutput = /./.exec('');
-
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -226,7 +227,6 @@ ruleTest.snapshot({
 		'const re = /a/; if ((foo).match(re)) {}',
 		'const re = /a/; if ((foo).match((re))) {}',
 		'if (foo.match(/re/)) {}',
-		'const re = /a/; if (foo.match(re)) {}',
 		'const bar = {bar: /a/}; if (foo.match(bar.baz)) {}',
 		'if (foo.match(bar.baz())) {}',
 		'if (foo.match(new RegExp("re", "g"))) {}',
@@ -553,18 +553,82 @@ ruleTest({
 	invalid: [
 		{
 			code: 'const re = /a/y; if (foo.search(re) !== -1);',
-			output: noAutofixOutput,
 			errors: [{messageId: 'string-search', suggestions: 1}],
 		},
 		{
 			code: 'const re = new RegExp("a", "y"); if (foo.search(re) !== -1);',
-			output: noAutofixOutput,
 			errors: [{messageId: 'string-search', suggestions: 1}],
 		},
 		{
 			code: 'if (foo.search(new RegExp("a", "y")) !== -1);',
-			output: noAutofixOutput,
 			errors: [{messageId: 'string-search', suggestions: 1}],
 		},
 	],
+});
+
+// The replacement starts with `/`, so when the receiver begins a line the previous statement can swallow it and the file no longer parses.
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'a\nfoo.search(/b/) >= 0;',
+			output: 'a\n;/b/.test(foo);',
+			errors: [{messageId: 'string-search'}],
+		},
+		{
+			code: 'foo()\nfoo.search(/b/) > -1;',
+			output: 'foo()\n;/b/.test(foo);',
+			errors: [{messageId: 'string-search'}],
+		},
+		{
+			code: 'if (q) foo()\nfoo.match(/b/) ? 1 : 2;',
+			output: 'if (q) foo()\n;/b/.test(foo) ? 1 : 2;',
+			errors: [{messageId: 'string-match'}],
+		},
+		{
+			code: 'const re = /b/;\nfoo.search(re) >= 0;',
+			output: 'const re = /b/;\nre.test(foo);',
+			errors: [{messageId: 'string-search'}],
+		},
+	],
+});
+
+// `switch` compares its discriminant against the case values with `===`, so the value there is the element the regexp is tested against, not a boolean. Rewriting `foo.match(/b/)` to `/b/.test(foo)` there would make the case stop matching.
+ruleTest({
+	valid: [
+		// The element itself is what the case is compared against
+		'switch (foo.match(/b/)) { case null: break; }',
+		'switch (foo.search(/b/)) { case -1: break; }',
+		'switch (foo.match(/b/)) { case foo.match(/b/): break; }',
+	],
+	invalid: [
+		// A ternary turns the result into a boolean first, so that is what the case compares
+		{
+			code: 'switch (foo.match(/b/) ? 1 : 2) { case 1: break; }',
+			output: 'switch (/b/.test(foo) ? 1 : 2) { case 1: break; }',
+			errors: 1,
+		},
+	],
+});
+
+// The semicolon is only needed when the receiver can continue the previous line. These pin the negative side, and the CRLF case, since the replacement text is inserted verbatim.
+test('no redundant semicolon, and CRLF input', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-regexp-test': 'error'},
+	};
+
+	for (const [code, expected] of [
+		['a;\nfoo.search(/b/) >= 0;', 'a;\n/b/.test(foo);'],
+		['  foo.search(/b/) >= 0;', '  /b/.test(foo);'],
+		['a\r\nfoo.search(/b/) >= 0;', 'a\r\n;/b/.test(foo);'],
+		['const a = 1; foo.search(/b/) >= 0;', 'const a = 1; /b/.test(foo);'],
+		// An `if` body cannot be continued, so nothing needs to be separated there
+		['if (q) foo();\nfoo.search(/b/) >= 0;', 'if (q) foo();\n/b/.test(foo);'],
+	]) {
+		const result = linter.verifyAndFix(code, config, 'index.js');
+
+		t.is(result.output, expected, `output for \`${code}\``);
+	}
 });
