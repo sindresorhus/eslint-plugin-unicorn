@@ -30,6 +30,8 @@ const vueWithTypeScriptParser = code => ({
 
 test({
 	valid: [
+		'let value = 1; value = [1, 2]; array.flatMap(() => [value]);',
+		'const object = {value: 1}; object.value = [1, 2]; array.flatMap(() => [object.value]);',
 		typescript('const value: string & any = [1, 2]; const output = [0].flatMap(() => [value]);'),
 		typescript('type Unchecked = any; declare const value: number & Unchecked; array.flatMap(() => [value]);'),
 		typescript('declare const value: string | (number & any); array.flatMap(() => [value]);'),
@@ -44,6 +46,11 @@ test({
 		{
 			...typescript('declare const value: string; [].flatMap(function () { if (Math.random()) { return [value]; } return [2, 3]; });'),
 			output: 'declare const value: string; [].flatMap(function () { if (Math.random()) { return value; } return [2, 3]; });',
+			errors: [{messageId: 'no-unnecessary-array-flat-map/array-wrapper'}],
+		},
+		{
+			...typescript('declare const value: string & {brand: true}; array.flatMap(() => [value]);'),
+			output: 'declare const value: string & {brand: true}; array.flatMap(() => value);',
 			errors: [{messageId: 'no-unnecessary-array-flat-map/array-wrapper'}],
 		},
 	],
