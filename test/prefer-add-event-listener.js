@@ -1,11 +1,14 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import plugin from '../index.js';
+import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const excludeFooOptions = [{excludedPackages: ['foo']}];
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'foo.addEventListener(\'click\', () => {})',
 		'foo.removeEventListener(\'click\', onClick)',
@@ -171,12 +174,11 @@ test.snapshot({
 		'foo.onclick = `bar`',
 		'foo.onclick = {}',
 		'foo.onclick = []',
-		'foo.onclick = void 0',
 		'foo.onclick = new Handler()',
 	],
 });
 
-test.typescript({
+ruleTest.typescript({
 	valid: [],
 	invalid: [
 		{
@@ -185,4 +187,131 @@ test.typescript({
 			errors: 1,
 		},
 	],
+});
+
+// The whole assignment is rebuilt from two operands, so a comment in it would be lost
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: '(/* keep */ (foo)).onclick = ((0, listener))',
+			errors: 1,
+		},
+		{
+			code: 'foo.onclick = /* keep */ (0, listener)',
+			errors: 1,
+		},
+		{
+			code: 'foo.onclick = (0, listener)',
+			output: 'foo.addEventListener(\'click\', (0, listener))',
+			errors: 1,
+		},
+	],
+});
+
+// `as`, `satisfies` and `!` are erased at compile time, `null as never` still clears the handler
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			'element.onclick = null as never;',
+			'element.onclick = undefined as undefined;',
+			'element.onclick = null satisfies null;',
+			'element.onclick = (null as never)!;',
+		].map(code => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{message: 'Prefer `removeEventListener` over `onclick`.'}],
+		})),
+	],
+});
+
+// `void 0` is `undefined`, it clears the handler instead of adding one
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			'foo.onclick = void 0;',
+			'foo.onclick = (void 0);',
+		].map(code => ({
+			code,
+			errors: [{message: 'Prefer `removeEventListener` over `onclick`.'}],
+		})),
+	],
+});
+
+// Assigning an `on*` IDL attribute replaces the previous handler, so a second assignment to the same receiver and property no longer removes the listener the fix adds
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			'element.onclick = handler;\nelement.onclick = null;',
+			'element.onclick = handler;\nelement.onclick = other;',
+			'function foo() { element.onclick = handler; element.onclick = null; }',
+		].map(code => ({code, errors: 2})),
+		// A different property or receiver is a different attribute
+		{
+			code: 'element.onclick = handler;\nelement.onmouseover = null;',
+			output: 'element.addEventListener(\'click\', handler);\nelement.onmouseover = null;',
+			errors: 2,
+		},
+	],
+});
+
+// A nested block, like an `if` or a loop, is not the closest block the assignment sits in, but it still replaces the handler the fix added
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			'element.onclick = handler;\nif (foo) { element.onclick = other; }',
+			'element.onclick = handler;\nfor (;;) { element.onclick = other; }',
+			'element.onclick = handler;\nswitch (foo) { case 1: element.onclick = other; }',
+			'element.onclick = handler;\nconst foo = () => { element.onclick = other; };',
+			'element.onclick = handler;\nclass Foo { method() { element.onclick = other; } }',
+			'function foo() { element.onclick = handler; if (bar) { element.onclick = other; } }',
+			// Inside another assignment
+			'element.onclick = handler;\ncleanup = () => { element.onclick = null; };',
+			// Any assignment operator replaces the handler
+			'element.onclick = handler;\nelement.onclick ||= other;',
+		].map(code => ({code, errors: 2})),
+		// A chained assignment
+		{
+			code: 'element.onclick = handler;\nfoo.onclick = element.onclick = null;',
+			errors: 3,
+		},
+		// A different property or receiver is a different attribute, so it is still fixable
+		{
+			code: 'element.onclick = handler;\nif (foo) { element.onmouseover = other; }',
+			output: 'element.addEventListener(\'click\', handler);\nif (foo) { element.addEventListener(\'mouseover\', other); }',
+			errors: 2,
+		},
+	],
+});
+
+// Assigning an `on*` attribute replaces the previous handler, so a rewrite is only safe when nothing else assigns it. A handler that clears the attribute on its first run is the case that matters: the original stops firing after one click, the rewrite keeps the `addEventListener` listener and fires on every click.
+test('a handler that reassigns the same `on*` attribute is not autofixed', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-add-event-listener': 'error'},
+	};
+
+	for (const [code, isFixed] of [
+		['const el = getElement(); el.onclick = function () { el.onclick = null; };', false],
+		['const el = getElement(); el.onclick = function () { el.onclick = other; };', false],
+		['const el = getElement(); el.onclick = () => { if (x) { el.onclick = null; } };', false],
+		['const el = getElement(); el.onclick = () => { el.onclick = el.onclick; };', false],
+		// A handler that only reads the element is safe
+		['const el = getElement(); el.onclick = function () { use(el); };', true],
+		['const el = getElement(); el.onclick = handler;', true],
+		// A different property is a different handler
+		['const el = getElement(); el.onclick = function () { el.onkeydown = null; };', true],
+		// A sibling assignment was already caught before this fix
+		['const el = getElement(); el.onclick = null; el.onclick = handler;', false],
+	]) {
+		const problem = linter.verify(code, config).find(problem => !problem.fatal);
+
+		t.truthy(problem, `should report \`${code}\``);
+		t.is(Boolean(problem.fix), isFixed, `fix availability for \`${code}\``);
+	}
 });

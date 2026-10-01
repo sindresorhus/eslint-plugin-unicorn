@@ -1,6 +1,12 @@
-import {isParenthesized, isNodeValueNotFunction} from './utils/index.js';
+import {
+	getChildNodes,
+	isParenthesized,
+	isNodeValueNotFunction,
+	isSameReference,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 import eventTypes from './shared/dom-events.js';
-import {isUndefined, isNullLiteral, isStaticRequire} from './ast/index.js';
+import {isUndefinedValue, isNullLiteral, isStaticRequire} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
@@ -40,14 +46,38 @@ const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 		return false;
 	}
 
-	if (assignedExpression.body.type !== 'BlockStatement') {
-		return false;
-	}
-
-	return !nodeReturnsSomething.get(assignedExpression);
+	return assignedExpression.body.type === 'BlockStatement' && !nodeReturnsSomething.get(assignedExpression);
 };
 
-const isClearing = node => isUndefined(node) || isNullLiteral(node);
+// Whether the subtree contains another assignment of the same `on*` attribute, at any nesting depth. The handler being assigned is searched too, it runs on every event and can reassign the attribute just as effectively as a sibling statement can.
+function containsOtherAssignment(node, memberExpression, assignment) {
+	if (
+		node.type === 'AssignmentExpression'
+		&& node !== assignment
+		&& isSameReference(node.left, memberExpression)
+	) {
+		return true;
+	}
+
+	for (const child of getChildNodes(node)) {
+		if (containsOtherAssignment(child, memberExpression, assignment)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// Assigning an `on*` IDL attribute replaces the previous handler, so the rewrite is only safe when nothing else assigns the same receiver and property. Otherwise a later `on* = null` no longer removes the listener the fix added.
+const isAssignedMoreThanOnce = (node, memberExpression, context) =>
+	// The whole program is scanned, a nested block or function assigns the attribute just as effectively as a sibling statement does
+	context.sourceCode.ast.body.some(statement => containsOtherAssignment(statement, memberExpression, node));
+
+// `as`, `satisfies` and `!` are erased at compile time, `null as never` still clears the handler
+const isClearing = node => {
+	node = unwrapTypeScriptExpression(node);
+	return isUndefinedValue(node) || isNullLiteral(node);
+};
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -141,6 +171,9 @@ const create = context => {
 			&& node.parent.type === 'ExpressionStatement'
 			&& node.parent.expression === node
 			&& !isNodeValueNotFunction(assignedExpression)
+			// The whole assignment is rebuilt from two operands, so a comment in it would be lost
+			&& context.sourceCode.getCommentsInside(node).length === 0
+			&& !isAssignedMoreThanOnce(node, memberExpression, context)
 		) {
 			fix = fixer => fixCode(fixer, context, node, memberExpression);
 		}
