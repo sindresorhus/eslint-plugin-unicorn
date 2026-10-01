@@ -551,13 +551,13 @@ test('keeps shorthand prototype keys as own properties', t => {
 	}
 });
 
-test('does not expose an implicit arguments object after removing a parameter', t => {
+test('ignores explicit arguments parameter bindings', t => {
 	for (const [parameter, argument] of [['arguments', 'arguments'], ['{value: arguments}', '{value: arguments}']]) {
 		const code = `function outer() { const arguments = 1; function format(${parameter}) { return arguments; } return [format(${argument}), format(${argument})]; } outer();`;
 		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
 		t.false(result.fixed);
 		t.is(result.output, code);
-		t.is(result.messages.length, 1);
+		t.deepEqual(result.messages, []);
 		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 	}
 });
@@ -670,4 +670,71 @@ test('still fixes parameters receiving a stable catch binding', t => {
 	t.true(result.fixed);
 	t.deepEqual(result.messages, []);
 	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+});
+
+test('ignores decorated class expressions', t => {
+	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
+	for (const initializer of [
+		'@decorate class { constructor(value) { this.value = value; } }',
+		'(@decorate class { constructor(value) { this.value = value; } })',
+		'(@decorate class { constructor(value) { this.value = value; } }) as any',
+		'@decorate class Inner { constructor(value) { this.value = value; } }',
+	]) {
+		const code = `const Point = ${initializer}; new Point(1); new Point(1);`;
+		const result = linter.verifyAndFix(code, typescriptConfig);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.deepEqual(result.messages, []);
+	}
+});
+
+test('keeps comments in place when reporting earlier-parameter defaults', t => {
+	for (const body of [
+		'// opening comment\nreturn second;',
+		'"custom"; // directive comment\nreturn second;',
+		'/* body comment */ return second;',
+	]) {
+		const code = `function format(first, second = first) { ${body} } [format(1), format(2)];`;
+		const result = linter.verifyAndFix(code, config);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.is(result.messages.length, 1);
+		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
+	}
+});
+
+test('still fixes primitive references beside body comments', t => {
+	const code = 'function format(value) { /* keep */ return value; } [format(1), format(1)];';
+	const result = linter.verifyAndFix(code, config);
+	t.true(result.fixed);
+	t.deepEqual(result.messages, []);
+	t.is(result.output, 'function format() { /* keep */ return 1; } [format(), format()];');
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+});
+
+test('ignores own arguments objects with var redeclarations', t => {
+	for (const declaration of ['var arguments;', 'var arguments = arguments;']) {
+		for (const expression of ['arguments[0]', '(() => arguments[0])()']) {
+			const code = `function outer() { function format(value) { ${declaration} return ${expression}; } return [format(1), format(1)]; } outer();`;
+			const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+			t.false(result.fixed);
+			t.is(result.output, code);
+			t.deepEqual(result.messages, []);
+			t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+		}
+	}
+});
+
+test('ignores ambient declaration bindings', t => {
+	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
+	for (const declaration of ['declare function callback(): number;', 'declare class callback {}', 'declare const callback: () => number;', 'declare let callback: () => number;']) {
+		const code = `${declaration} function format(value) { return () => value; } const values = [format(callback), format(callback)]; globalThis.callback = () => 2; values.map(get => get()());`;
+		const result = linter.verifyAndFix(code, typescriptConfig);
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.deepEqual(result.messages, []);
+		const javascript = stripTypeScriptTypes(result.output);
+		t.is(JSON.stringify(vm.runInNewContext(javascript, {callback: () => 1})), '[1,1]');
+	}
 });

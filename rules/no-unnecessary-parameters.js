@@ -103,7 +103,13 @@ function getValue(node, context) {
 		return;
 	}
 
-	if (variable.defs.length !== 1 || variable.defs[0].kind === 'var' || !['Variable', 'FunctionName', 'ClassName', 'Parameter', 'CatchClause'].includes(variable.defs[0].type)) {
+	const [definition] = variable.defs;
+	if (variable.defs.length !== 1
+		|| definition.kind === 'var'
+		|| definition.node.declare
+		|| definition.parent?.declare
+		|| definition.node.type === 'TSDeclareFunction'
+		|| !['Variable', 'FunctionName', 'ClassName', 'Parameter', 'CatchClause'].includes(definition.type)) {
 		return;
 	}
 
@@ -460,6 +466,7 @@ function getFix(parameter, result, target, context) {
 		: [];
 	if (
 		hasCommentInRange(context, [sourceCode.getRange(target.node)[0], sourceCode.getRange(target.node.body)[0]])
+		|| (localDefault && sourceCode.getCommentsInside(target.node.body).length > 0)
 		|| [...target.calls].some(call => sourceCode.getCommentsInside(call).length > 0)
 		|| ranges.some(({removalRange}) => hasCommentInRange(context, removalRange))
 	) {
@@ -527,7 +534,7 @@ function getFunctionFromDefinition(definition) {
 			return initializer;
 		}
 
-		if (initializer?.type === 'ClassExpression') {
+		if (initializer?.type === 'ClassExpression' && !initializer.decorators?.length) {
 			return initializer.body.body.find(member => member.type === 'MethodDefinition' && member.kind === 'constructor')?.value;
 		}
 	}
@@ -672,7 +679,7 @@ const create = context => {
 			if (
 				target.excluded
 				|| node.params.some(parameter => parameter.decorators?.length > 0)
-				|| (argumentsVariable?.defs.length === 0 && argumentsVariable.references.length > 0)
+				|| argumentsVariable?.references.length > 0
 				|| [...target.calls].filter(call => !isInside(call, node, context)).length < context.options[0].minimumCallCount
 			) {
 				continue;
