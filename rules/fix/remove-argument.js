@@ -1,5 +1,10 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
-import {getParentheses, hasCommentInRange} from '../utils/index.js';
+import {
+	getComments,
+	getLinebreak,
+	getParentheses,
+	hasCommentInRange,
+} from '../utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -54,21 +59,38 @@ export default function removeArgument(fixer, node, context) {
 	const callOrNewExpression = node.parent;
 	const index = callOrNewExpression.arguments.indexOf(node);
 
-	if (
-		index === 0
-		&& callOrNewExpression.arguments.length > 1
-		&& hasCommentInRange(context, removalRange)
-	) {
+	if (hasCommentInRange(context, removalRange)) {
 		const {sourceCode} = context;
-		const parentheses = getParentheses(node, context);
-		const lastToken = parentheses.at(-1) || node;
-		const [, argumentEnd] = sourceCode.getRange(lastToken);
-		const commaToken = sourceCode.getTokenAfter(lastToken);
-		const [commaStart, commaEnd] = sourceCode.getRange(commaToken);
-		const rangeText = sourceCode.text.slice(...removalRange);
-		const replacement = rangeText.slice(argumentEnd - removalRange[0], commaStart - removalRange[0]) + rangeText.slice(commaEnd - removalRange[0]);
+		const comments = getComments(context).filter(comment => {
+			const [commentStart, commentEnd] = sourceCode.getRange(comment);
+			return commentStart >= removalRange[0] && commentEnd <= removalRange[1];
+		});
 
-		return fixer.replaceTextRange(removalRange, replacement);
+		// A line comment runs to the end of the line, it needs a line break after it
+		const getCommentText = comment => `${sourceCode.getText(comment)}${comment.type === 'Line' ? getLinebreak(context) : ''}`;
+
+		// Removing the first of several arguments swallows the comma that follows it, so the comments after the argument have to be spliced out of the middle of the range, and the comments inside the argument go before them. Every other position keeps the comments where they are, including the only argument of `fn(a /* comment */,)`.
+		if (index === 0 && callOrNewExpression.arguments.length > 1) {
+			const parentheses = getParentheses(node, context);
+			const lastToken = parentheses.at(-1) || node;
+			const [, argumentEnd] = sourceCode.getRange(lastToken);
+			const commaToken = sourceCode.getTokenAfter(lastToken);
+			const [commaStart, commaEnd] = sourceCode.getRange(commaToken);
+			const rangeText = sourceCode.text.slice(...removalRange);
+			const argumentCommentsText = comments
+				.filter(comment => sourceCode.getRange(comment)[1] <= argumentEnd)
+				.map(comment => getCommentText(comment))
+				.join(' ');
+			const replacement = argumentCommentsText + rangeText.slice(argumentEnd - removalRange[0], commaStart - removalRange[0]) + rangeText.slice(commaEnd - removalRange[0]);
+
+			return fixer.replaceTextRange(removalRange, replacement);
+		}
+
+		const text = comments
+			.map(comment => ` ${getCommentText(comment)}`)
+			.join('');
+
+		return fixer.replaceTextRange(removalRange, text);
 	}
 
 	return fixer.removeRange(removalRange);

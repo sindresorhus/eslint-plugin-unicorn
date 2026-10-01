@@ -84,6 +84,7 @@ export {
 	hasUnparenthesizedOptionalChainElement,
 } from './has-optional-chain-element.js';
 export {default as isFunctionSelfUsedInside} from './is-function-self-used-inside.js';
+export {default as isKnownNonIterable} from './is-known-non-iterable.js';
 export {
 	default as isArray,
 	isKnownBigIntTypedArray,
@@ -95,9 +96,11 @@ export {isRegExp, isKnownNonRegExp} from './is-reg-exp.js';
 export {default as isEvent, isKnownNonEvent} from './is-event.js';
 export {isSet, isKnownNonSet} from './is-set.js';
 export {isMap, isKnownNonMap} from './is-map.js';
+export {default as matchesAnyRegExp} from './matches-any-regexp.js';
 export {isWeakMap, isKnownNonWeakMap} from './is-weak-map.js';
 export {isWeakSet, isKnownNonWeakSet} from './is-weak-set.js';
 export {isKnownNonDomNode, isKnownNonKeyboardEvent} from './is-dom-node.js';
+export {default as isHtmlRcdataNode} from './is-html-rcdata-node.js';
 export {default as isLeftHandSide} from './is-left-hand-side.js';
 export {default as isLogicalExpression} from './is-logical-expression.js';
 export {default as isMethodNamed} from './is-method-named.js';
@@ -172,7 +175,7 @@ export {
 	isBuiltinSet,
 } from './builtin-collection-type.js';
 export {checkVueTemplate} from './rule.js';
-export {default as getPrecedence} from './get-precedence.js';
+export {default as getPrecedence, PRECEDENCE_ADDITION} from './get-precedence.js';
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
 export {default as shouldAddParenthesesToConditionalExpressionChild} from './should-add-parentheses-to-conditional-expression-child.js';
@@ -186,7 +189,8 @@ export {default as singular} from './singular.js';
 export {default as toLocation} from './to-location.js';
 export {default as trackBranchExits} from './track-branch-exits.js';
 export {default as getAncestor} from './get-ancestor.js';
-export {getPreviousNode, getNextNode} from './get-sibling-node.js';
+export {getPreviousNode, getNextNode, getNextStatement} from './get-sibling-node.js';
+export {default as getChildNodes} from './get-child-nodes.js';
 export * from './string-cases.js';
 export * from './numeric.js';
 export {default as getBuiltinRule} from './get-builtin-rule.js';

@@ -41,9 +41,9 @@ export const controlFlowStatementTypes = new Set([
 	'DoWhileStatement',
 	'ForStatement',
 ]);
+// `switch` is deliberately absent: it compares its discriminant against each case with `===`, so the value is the thing being compared rather than a truthiness test.
 const isDirectControlFlowTest = node =>
-	controlFlowStatementTypes.has(node.parent.type)
-	&& node.parent.test === node;
+	controlFlowStatementTypes.has(node.parent.type) && node.parent.test === node;
 const isDirectBooleanExpression = (node, context) =>
 	isLogicNot(node)
 	|| isLogicNotArgument(node)
@@ -62,11 +62,7 @@ export function isBooleanExpression(node, context) {
 		return true;
 	}
 
-	if (isLogicalExpression(node.parent)) {
-		return isBooleanExpression(node.parent, context);
-	}
-
-	return false;
+	return isLogicalExpression(node.parent) ? isBooleanExpression(node.parent, context) : false;
 }
 
 /**
@@ -80,11 +76,7 @@ export function isControlFlowTest(node) {
 		return true;
 	}
 
-	if (isLogicalExpression(node.parent)) {
-		return isControlFlowTest(node.parent);
-	}
-
-	return false;
+	return isLogicalExpression(node.parent) ? isControlFlowTest(node.parent) : false;
 }
 
 /**

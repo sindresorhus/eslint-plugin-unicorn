@@ -3,6 +3,7 @@ import isString from './is-string.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 import {createTypeCheckers, target, unknown} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
+import getConstVariableInitializer from './get-const-variable-initializer.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -120,12 +121,33 @@ const isNumberTypeAnnotation = node =>
 // `function foo(bar: number) {}`, `const foo: number = …`
 const hasNumberTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isNumberTypeAnnotation);
 
-const isLengthProperty = node =>
+// A user object can have a `length` that is not a number, `const {length} = {length: '5'}`
+const isConstObjectLength = (node, context) => {
+	if (node.object.type !== 'Identifier') {
+		return false;
+	}
+
+	const initializer = getConstVariableInitializer(node.object, context);
+	if (initializer?.type !== 'ObjectExpression') {
+		return false;
+	}
+
+	const property = initializer.properties.find(property =>
+		property.type === 'Property'
+		&& !property.computed
+		&& property.key.type === 'Identifier'
+		&& property.key.name === 'length');
+
+	return Boolean(property && property.value?.type === 'Literal' && typeof property.value.value !== 'number');
+};
+
+const isLengthProperty = (node, context) =>
 	node.type === 'MemberExpression'
 	&& !node.computed
 	&& !node.optional
 	&& node.property.type === 'Identifier'
-	&& node.property.name === 'length';
+	&& node.property.name === 'length'
+	&& !isConstObjectLength(node, context);
 
 // `+` and `>>>` operators are handled separately
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
@@ -141,7 +163,7 @@ export default function isNumber(node, context) {
 		|| isNumberProperty(node)
 		|| isNumberMethodCall(node)
 		|| isGlobalParseToNumberFunctionCall(node)
-		|| isLengthProperty(node)
+		|| isLengthProperty(node, context)
 	) {
 		return true;
 	}

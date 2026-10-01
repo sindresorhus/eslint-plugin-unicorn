@@ -16,14 +16,15 @@ export default function shouldAddParenthesesToMemberExpressionObject(node, conte
 	switch (node.type) {
 		// This is not a full list. Some other nodes like `FunctionDeclaration` don't need parentheses,
 		// but it's not possible to be in the place we are checking at this point.
+		// `FunctionExpression` is not in this list, `(function() {}).foo` needs parentheses.
 		case 'Identifier':
 		case 'MemberExpression':
 		case 'CallExpression':
 		case 'ChainExpression':
 		case 'TemplateLiteral':
 		case 'ThisExpression':
-		case 'ArrayExpression':
-		case 'FunctionExpression': {
+		case 'Super':
+		case 'ArrayExpression': {
 			return false;
 		}
 

@@ -6,6 +6,7 @@ import {
 	hasUnsafeArrowConversionReference,
 	isLengthOrSizeMemberExpression,
 	isTypeScriptExpressionWrapper,
+	matchesAnyRegExp,
 	unwrapTypeScriptExpression,
 } from '../../rules/utils/index.js';
 import {isLengthMinusOneOf, isLengthOf} from '../../rules/utils/comparison.js';
@@ -263,4 +264,16 @@ test('isLengthOf and isLengthMinusOneOf detect a `.length` access on a given obj
 	t.false(isLengthMinusOneOfCode('foo.method(foo.length + 1)'));
 	t.false(isLengthMinusOneOfCode('foo.method(bar.length - 1)'));
 	t.false(isLengthMinusOneOfCode('foo.method(foo.length)'));
+});
+
+test('matchesAnyRegExp ignores `lastIndex` but keeps the flags', t => {
+	const global = /a/g;
+	t.true(matchesAnyRegExp('a', [global]));
+	t.true(matchesAnyRegExp('a', [global]));
+	t.is(global.lastIndex, 0);
+
+	const sticky = Object.freeze(/todo/iy);
+	t.true(matchesAnyRegExp('TODO', [sticky]));
+	t.true(matchesAnyRegExp('TODO', [sticky]));
+	t.false(matchesAnyRegExp('xTODO', [sticky]));
 });

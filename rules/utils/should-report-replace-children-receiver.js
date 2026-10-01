@@ -4,6 +4,7 @@ import {
 	isUnknownType,
 } from './types.js';
 import {createTypeCheckers} from './type-helpers.js';
+import isGlobalIdentifier from './is-global-identifier.js';
 
 const hasZeroArgumentReplaceChildrenCallSignature = (type, checker) =>
 	checker.getTypeOfPropertyOfType(type, 'replaceChildren')
@@ -35,6 +36,13 @@ const isUnknownOrAllUnknownTypes = (type, checker) => {
 		: false;
 };
 
+// `window` and `self` are a `Window` in a browser, it does not implement `ParentNode`
+const windowGlobalNames = new Set(['globalThis', 'self', 'window']);
+const isWindowGlobal = (node, context) =>
+	node.type === 'Identifier'
+	&& windowGlobalNames.has(node.name)
+	&& isGlobalIdentifier(node, context);
+
 const receiverSyntaxOptions = {
 	allowNullishInMixedUnion: true,
 	treatMixedUnionAsNonTarget: true,
@@ -52,6 +60,9 @@ const nonParentNodeTypeNames = new Set([
 	'DocumentType',
 	'Node',
 	'Text',
+	// `Window` does not implement `ParentNode`
+	'Window',
+	'WindowProxy',
 ]);
 const nonInnerHtmlParentNodeTypeNames = new Set([
 	...nonParentNodeTypeNames,
@@ -74,6 +85,7 @@ const {
 		'ShadowRoot',
 	]),
 	nonTargetTypeNames: nonParentNodeTypeNames,
+	isNonTargetNode: isWindowGlobal,
 });
 const {
 	isKnownNonTarget: isKnownNonInnerHtmlReplaceChildrenReceiver,
@@ -86,6 +98,7 @@ const {
 		'ShadowRoot',
 	]),
 	nonTargetTypeNames: nonInnerHtmlParentNodeTypeNames,
+	isNonTargetNode: isWindowGlobal,
 });
 const {
 	isTarget: isHtmlTemplateElementFromSyntax,

@@ -44,6 +44,8 @@ const binaryOperatorPrecedence = {
 export const PRECEDENCE_UNARY = 16;
 // `CallExpression`, `ChainExpression`, `ImportExpression`.
 export const PRECEDENCE_CALL = 18;
+// `+`/`-`. An operand of an additive operator has to bind at least this tight to be used without parentheses.
+export const PRECEDENCE_ADDITION = 12;
 
 /**
 Get the operator precedence level of a given node. A higher number binds tighter.

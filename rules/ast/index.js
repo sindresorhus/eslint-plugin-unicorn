@@ -18,6 +18,7 @@ export {
 
 export {default as isArrowFunctionBody} from './is-arrow-function-body.js';
 export {default as isDirective} from './is-directive.js';
+export {default as isArgumentsObject} from './is-arguments-object.js';
 export {default as isEmptyNode} from './is-empty-node.js';
 export {default as isEmptyArrayExpression} from './is-empty-array-expression.js';
 export {default as isEmptyObjectExpression} from './is-empty-object-expression.js';
@@ -30,6 +31,6 @@ export {default as isNegativeOne} from './is-negative-one.js';
 export {default as isReferenceIdentifier} from './is-reference-identifier.js';
 export {default as isStaticRequire} from './is-static-require.js';
 export {default as isTaggedTemplateLiteral} from './is-tagged-template-literal.js';
-export {default as isUndefined} from './is-undefined.js';
+export {default as isUndefined, isUndefinedValue} from './is-undefined.js';
 export {default as functionTypes} from './function-types.js';
 export {default as loopTypes} from './loop-types.js';

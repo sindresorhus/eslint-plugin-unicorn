@@ -52,3 +52,85 @@ test('does not remove comments between first argument and next argument', t => {
 		'fn( /* keep */ b)',
 	);
 });
+
+test('does not remove comments inside the first argument', t => {
+	t.is(
+		fix('fn(a /* keep */ + b, c)').output,
+		'fn(/* keep */ c)',
+	);
+
+	t.is(
+		fix('fn((a /* one */) /* two */, b)').output,
+		'fn(/* one */ /* two */ b)',
+	);
+
+	t.is(
+		fix('fn(a // keep\n+ b, c)').output,
+		'fn(// keep\n c)',
+	);
+});
+
+const removeLastArgumentRule = {
+	meta: {
+		fixable: 'code',
+	},
+	create(context) {
+		return {
+			CallExpression(node) {
+				if (node.arguments.length < 2) {
+					return;
+				}
+
+				context.report({
+					node: node.arguments.at(-1),
+					message: 'Remove last argument.',
+					fix: fixer => removeArgument(fixer, node.arguments.at(-1), context),
+				});
+			},
+		};
+	},
+};
+
+const fixLast = code => {
+	const linter = new Linter();
+	return linter.verifyAndFix(code, {
+		languageOptions: DEFAULT_LANGUAGE_OPTIONS,
+		plugins: {
+			test: {
+				rules: {
+					'remove-last-argument': removeLastArgumentRule,
+				},
+			},
+		},
+		rules: {
+			'test/remove-last-argument': 'error',
+		},
+	});
+};
+
+test('does not remove comments between previous argument and last argument', t => {
+	t.is(
+		fixLast('fn(a, /* keep */ b)').output,
+		'fn(a /* keep */)',
+	);
+
+	t.is(
+		fixLast('fn(a /* keep */, b)').output,
+		'fn(a /* keep */)',
+	);
+
+	t.is(
+		fixLast('fn(a, /* one */ /* two */ b)').output,
+		'fn(a /* one */ /* two */)',
+	);
+
+	t.is(
+		fixLast('fn(a, // keep\nb)').output,
+		'fn(a // keep\n)',
+	);
+
+	t.is(
+		fixLast('fn(a, b)').output,
+		'fn(a)',
+	);
+});

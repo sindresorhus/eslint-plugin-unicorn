@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from '../ast/index.js';
 import {
+	getConstVariableInitializer,
 	isArray,
 	isTypeScriptExpressionWrapper,
 } from '../utils/index.js';
@@ -110,6 +111,57 @@ export const isLazyIteratorHelperCall = (node, context, visitedNodes) =>
 		computed: false,
 	})
 	&& isIteratorExpression(node.callee.object, context, visitedNodes);
+
+const nonIteratorNodeTypes = new Set([
+	'ObjectExpression',
+	'ArrayExpression',
+	'Literal',
+	'TemplateLiteral',
+	'FunctionExpression',
+	'ArrowFunctionExpression',
+	'ClassExpression',
+]);
+
+// A literal, a function, a class, or an instance of a local class, is not an `Iterator`
+const isKnownNonIteratorValue = (node, context) => {
+	node = unwrapExpression(node);
+
+	if (nonIteratorNodeTypes.has(node.type)) {
+		return true;
+	}
+
+	// `new Vec()` where `Vec` is a local class
+	return node.type === 'NewExpression'
+		&& node.callee.type === 'Identifier'
+		&& (findVariable(context.sourceCode.getScope(node.callee), node.callee)?.defs.some(definition => definition.type === 'ClassName') ?? false);
+};
+
+/**
+Check if a `.toArray()` receiver is known not to be an `Iterator`. `toArray()` is a very common user-defined method name, so such a receiver must not be treated as one.
+
+The receiver is a literal, a function, a class, or an instance of a local class, or a `const` binding initialized with one, or with a call that returns an array or a string.
+*/
+export const isKnownNonIterator = (node, context) => {
+	if (isKnownNonIteratorValue(node, context)) {
+		return true;
+	}
+
+	node = unwrapExpression(node);
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const initializer = getConstVariableInitializer(node, context);
+	return Boolean(initializer) && (
+		// `const vec = new Vec()` where `Vec` is a local class
+		isKnownNonIteratorValue(initializer, context)
+		|| isMethodCall(initializer, {
+			methods: ['toArray', 'slice', 'concat', 'split'],
+			optionalCall: false,
+			optionalMember: false,
+		})
+	);
+};
 
 // Only follow plain, unannotated const bindings and unchanged function declarations. Properties, destructuring, mutable bindings, and function return values are intentionally not inferred.
 const getImmutableValue = (node, context) => {

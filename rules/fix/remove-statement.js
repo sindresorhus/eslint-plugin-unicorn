@@ -28,17 +28,18 @@ export default function removeStatement(statement, context, fixer, preserveSemiC
 	if (isWhitespaceOnly(textBefore) && isWhitespaceOnly(textAfter)) {
 		end += textAfter.length;
 
-		if (start === 0) {
-			// At the start of the file there is no preceding newline to absorb, so take the trailing one instead.
-			const {text} = sourceCode;
+		// A line terminator can be a two-character `\r\n`, so it has to be measured instead of assumed
+		const {text} = sourceCode;
 
-			if (text[end] === '\r' && text[end + 1] === '\n') {
-				end += 2;
-			} else if (text[end] === '\n' || text[end] === '\r') {
-				end++;
-			}
+		// Absorb the own line, including its indentation
+		start = sourceCode.getIndexFromLoc({line: startLocation.line, column: 0});
+
+		if (start === 0) {
+			// On the first line there is no preceding line terminator to absorb, so take the trailing one instead, unless it is the end of the file.
+			end += text.startsWith('\r\n', end) ? 2 : Math.min(1, text.length - end);
 		} else {
-			start = Math.max(0, start - textBefore.length - 1);
+			// And the line terminator before it, a line always starts right after one
+			start -= text.startsWith('\r\n', start - 2) ? 2 : 1;
 		}
 	}
 

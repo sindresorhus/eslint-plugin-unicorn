@@ -400,6 +400,16 @@ export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
 	}
 
 	const propertyName = getPropertyName(memberExpression, context.sourceCode.getScope(memberExpression));
+
+	// A getter or setter written in the object literal itself is an accessor definition too, its value is whatever the accessor returns
+	if (definition.node.init.properties.some(property =>
+		property.type === 'Property'
+		&& ['get', 'set'].includes(property.kind)
+		&& getPropertyName(property, context.sourceCode.getScope(property)) === propertyName,
+	)) {
+		return true;
+	}
+
 	const nonInitializationReferences = variable.references.filter(reference => !reference.init);
 	const enclosingExecutionContext = getEnclosingExecutionContext(memberExpression);
 	let hasUnknownEffect = false;

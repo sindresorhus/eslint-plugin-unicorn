@@ -1,6 +1,7 @@
 const maskCharacter = '\u{FFFF}';
 const quoteCharacters = '"\'`';
-const jsdocTagPattern = /^\s*\*?\s*(?<tag>@[\d\p{Letter}][\d\p{Letter}\-]*!?)(?=\s|$)/v;
+// `\s*\*?\s*` used to backtrack quadratically over a long whitespace run that no tag follows
+const jsdocTagPattern = /^\s*(?:\*\s*)?(?<tag>@[\d\p{Letter}][\d\p{Letter}\-]*!?)(?=\s|$)/v;
 const jsdocTypeAndNameTagNames = new Set(['param', 'arg', 'argument', 'property', 'prop', 'typedef', 'callback', 'member', 'var', 'const', 'constant', 'class', 'constructor', 'module', 'namespace']);
 const jsdocStructuredTypeTagNames = new Set(['type', 'this', 'extends', 'augments', 'implements', 'satisfies', 'import', 'package', 'enum']);
 const jsdocTypeTagNames = new Set(['returns', 'return', 'throws', 'exception', 'yields', 'yield', 'private', 'protected', 'public']);

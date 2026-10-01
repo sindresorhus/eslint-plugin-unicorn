@@ -40,9 +40,10 @@ function getSrcsetCharacter(value, index) {
 	if (value[index + 1] === '#') {
 		end = getNumericCharacterReferenceEnd(value, index);
 	} else {
+		// A named character reference is `&` + letters and digits + `;`. Anything else is a literal `&` followed by text, taking the first `;` of a longer span would swallow the rest of the URL.
 		const possibleCharacterReference = value.slice(index, index + maximumNamedHtmlCharacterReferenceLength);
-		const semicolonIndex = possibleCharacterReference.indexOf(';');
-		end = semicolonIndex === -1 ? undefined : index + semicolonIndex + 1;
+		const match = /^&[\da-z]+;/i.exec(possibleCharacterReference);
+		end = match ? index + match[0].length : undefined;
 	}
 
 	if (end === undefined) {

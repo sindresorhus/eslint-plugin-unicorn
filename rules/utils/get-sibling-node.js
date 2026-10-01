@@ -36,3 +36,17 @@ export const getPreviousNode = (node, context) => getSiblingNode(node, context, 
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 */
 export const getNextNode = (node, context) => getSiblingNode(node, context, 1);
+
+/**
+Get the statement after a statement. An exported declaration counts as its `export` statement.
+
+A declaration held by another statement, like the one in a `for` head, has no statement after it, so this returns `undefined` for it instead of the statement after the one holding it.
+
+@param {ESTree.Node} node
+@param {ESLint.Rule.RuleContext} context
+*/
+export const getNextStatement = (node, context) => {
+	const {parent} = node;
+	const statement = parent.type.startsWith('Export') && parent.declaration === node ? parent : node;
+	return getNextNode(statement, context);
+};

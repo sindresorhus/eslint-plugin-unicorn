@@ -7,6 +7,10 @@ const isLeftHandSide = node =>
 	|| (node.parent.type === 'ArrayPattern' && node.parent.elements.includes(node))
 	|| (node.parent.type === 'RestElement' && node.parent.argument === node)
 	|| (
+		(node.parent.type === 'ForOfStatement' || node.parent.type === 'ForInStatement')
+		&& node.parent.left === node
+	)
+	|| (
 		node.parent.type === 'Property'
 		&& node.parent.value === node
 		&& node.parent.parent.type === 'ObjectPattern'
