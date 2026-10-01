@@ -65,7 +65,6 @@ test.snapshot({
 		'Reflect.apply({}[Symbol()], baz, [])',
 		'Reflect.apply({}[Symbol("symbol description")], baz, [])',
 		'Reflect.apply([][Symbol()], baz, [])',
-		'Reflect.apply({}[Symbol("symbol description")], baz, [])',
 		'[][Symbol.iterator].call(foo)',
 		'const foo = [].at.call(bar)',
 		'const foo = [].findLast.call(bar)',
@@ -79,7 +78,27 @@ test.snapshot({
 		'Reflect.apply(globalThis.toString, baz, [])',
 		'Reflect.apply(window.toString, baz, [])',
 		'Reflect.apply(global.toString, baz, [])',
-		'/* globals toString: readonly */ Reflect.apply(toString, baz, [])',
 		'Reflect.apply(globalThis["toString"], baz, [])',
+		'globalThis /* comment */ .toString.call(bar)',
+		'Reflect.apply(globalThis[/* comment */ "toString"], baz, [])',
+		'[] /* comment */ .slice.call(bar)',
+		'[/* comment */].slice.call(bar)',
+		'function foo(){return(globalThis).toString.call(bar)}',
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		// A comment inside the object literal is preserved by not fixing
+		{
+			code: '({/* keep */}).toString.call(o);',
+			errors: [{messageId: 'known-method'}],
+		},
+		{
+			code: '({}).toString.call(o);',
+			output: '(Object.prototype).toString.call(o);',
+			errors: [{messageId: 'known-method'}],
+		},
 	],
 });

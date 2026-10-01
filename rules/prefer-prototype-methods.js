@@ -96,24 +96,15 @@ function getProblem(callExpression, {context, globalReferences}) {
 		node: methodNode,
 		messageId: methodName ? 'known-method' : 'unknown-method',
 		data: {constructorName, methodName},
-		* fix(fixer) {
-			if (isGlobalReference) {
-				yield fixer.replaceText(methodNode, `${constructorName}.prototype.${methodName}`);
-				return;
+		* fix(fixer, {abort}) {
+			// The global reference, or the object literal, is replaced as a whole, a comment inside it would be dropped
+			const replacedNode = isGlobalReference ? methodNode : methodNode.object;
+			if (context.sourceCode.getCommentsInside(replacedNode).length > 0) {
+				abort();
 			}
 
-			if (isMemberExpression(methodNode)) {
-				const objectNode = methodNode.object;
-
-				yield fixer.replaceText(objectNode, `${constructorName}.prototype`);
-
-				if (
-					objectNode.type === 'ArrayExpression'
-					|| objectNode.type === 'ObjectExpression'
-				) {
-					yield fixSpaceAroundKeyword(fixer, callExpression, context);
-				}
-			}
+			yield fixer.replaceText(replacedNode, isGlobalReference ? `${constructorName}.prototype.${methodName}` : `${constructorName}.prototype`);
+			yield fixSpaceAroundKeyword(fixer, callExpression, context);
 		},
 	};
 }
