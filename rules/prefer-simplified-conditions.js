@@ -157,12 +157,16 @@ function getNegatedExpressionWeight(node, context, canUseTruthiness) {
 }
 
 function shouldApplyDeMorgan(node, context) {
+	if (context.options[0].negatedConditions === 'expand') {
+		return true;
+	}
+
 	const {argument} = node;
 	const canUseTruthiness = isControlFlowTest(node);
 
-	// Contract: De Morgan is only a simplification when it reduces explicit negation noise.
+	// Default contract: De Morgan is only a simplification when it reduces explicit negation noise.
 	// Plain expansions like `!(a && b)` -> `!a || !b` are often not clearer, especially for range checks like `!(min <= value && value <= max)`.
-	// Keep this narrower than `no-negated-comparison`, which is responsible for comparison-only negation rewrites.
+	// Keep the default narrower than `no-negated-comparison`, which is responsible for comparison-only negation rewrites.
 	const originalWeight = 1 + getNegationWeight(argument);
 	const replacementWeight = getNegatedExpressionWeight(argument.left, context, canUseTruthiness)
 		+ getNegatedExpressionWeight(argument.right, context, canUseTruthiness);
@@ -577,7 +581,19 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
-		schema: [],
+		schema: [
+			{
+				type: 'object',
+				additionalProperties: false,
+				properties: {
+					negatedConditions: {
+						enum: ['simplify', 'expand'],
+						description: 'Whether to expand negated logical conditions only when it reduces negations or regardless of negation count.',
+					},
+				},
+			},
+		],
+		defaultOptions: [{negatedConditions: 'simplify'}],
 		messages,
 		languages: [
 			'js/js',
