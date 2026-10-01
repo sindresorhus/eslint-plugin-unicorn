@@ -187,11 +187,11 @@ Set this to `1` to check functions called only once.
 
 ## Scope and limitations
 
-The rule cannot prove all callers are known when a function is exported, reassigned, aliased, passed as a callback, or used as a value. Those functions are ignored. Public methods, TypeScript `private` methods, decorated functions or parameters, constructors of decorated classes, overload declarations, inherited constructors, top-level script bindings, and non-strict block function declarations are also ignored.
+The rule cannot prove all callers are known when a function is exported, reassigned, aliased, passed as a callback, or used as a value. Those functions are ignored. Public methods, TypeScript `private` methods, decorated functions or parameters, constructors of decorated classes, overload declarations, inherited constructors, and top-level script bindings are also ignored.
 
 The rule does not follow imported live bindings, `var` bindings, TypeScript enum, namespace, or ambient declaration bindings, reassigned bindings, object variables supplied to destructured parameters, nested destructuring, or mutual recursion. Stable object bindings supplied to positional parameters are supported. Object spreads, dynamic keys, duplicate keys, accessors, and prototype-dependent properties are unsupported. Spread arguments are ignored when they make a parameter's position uncertain.
 
-Functions using their own `arguments` binding are ignored, including parameter bindings and `var` redeclarations. Files containing direct `eval` or `with` are ignored. TypeScript syntax is supported without type information; TypeScript `this` parameters and parameter-property slots are left unchanged.
+Functions using their own `arguments` binding are ignored, including parameter bindings and `var` redeclarations. Files containing direct `eval`, `with`, or function declarations in non-strict blocks are ignored because their effects on bindings cannot be determined from scope references. TypeScript syntax is supported without type information; TypeScript `this` parameters and parameter-property slots are left unchanged.
 
 Autofixes update the declaration, references, and all callers together. They preserve object shorthand keys and leave an empty object pattern when the final destructured property is removed. At most one parameter or property per function is fixed in each lint pass, so repeated passes can remove multiple unnecessary parameters.
 

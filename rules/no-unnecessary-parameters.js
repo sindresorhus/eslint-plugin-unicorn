@@ -461,7 +461,7 @@ function getFix(parameter, result, target, context) {
 		return;
 	}
 
-	const removals = arguments_.map(argument => argument.node).filter(Boolean);
+	const removals = arguments_.map(argument => argument.node).filter(node => node && !isInside(node, parameter.node, context));
 	const ranges = parameter.propertyName === undefined
 		? [getParameterRemoval(parameter, context), ...removals.map(node => ({removalRange: getArgumentRemovalRange(node, context), replacement: ''}))]
 		: [];
@@ -594,9 +594,7 @@ function addVariableTarget(variable, scope, targets) {
 
 	const target = getTarget(targets, node);
 	target.variables.push(variable);
-	// Non-strict block declarations can have outer aliases missing from scope references.
-	if (scope.type === 'global' || hasWrites(variable) || isExportedDefinition(definition) || definition.node.decorators?.length || node.parent.decorators?.length
-		|| (node.type === 'FunctionDeclaration' && !scope.isStrict && scope !== scope.variableScope)) {
+	if (scope.type === 'global' || hasWrites(variable) || isExportedDefinition(definition) || definition.node.decorators?.length || node.parent.decorators?.length) {
 		target.excluded = true;
 	}
 
@@ -655,6 +653,13 @@ const create = context => {
 
 	context.on('WithStatement', () => {
 		hasDynamicScope = true;
+	});
+	context.on('FunctionDeclaration', node => {
+		const scope = sourceCode.getScope(node.parent);
+		// Non-strict block declarations can have outer aliases missing from scope references.
+		if (!scope.isStrict && scope !== scope.variableScope) {
+			hasDynamicScope = true;
+		}
 	});
 	context.on('CallExpression', node => {
 		const callee = unwrapTypeScriptExpression(node.callee);

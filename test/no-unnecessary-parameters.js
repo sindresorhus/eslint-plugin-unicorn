@@ -839,3 +839,56 @@ test('keeps snapshots of script bindings mutated through the global object', t =
 	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
+
+test('fixes recursive calls inside removed defaults without overlapping edits', t => {
+	for (const code of [
+		'function format(value = format(1)) { return value; } [format(1), format(1)];',
+		'function format(value = format(value)) { return value; } [format(1), format(1)];',
+		'function format({value = format({value: 1})}) { return value; } [format({value: 1}), format({value: 1})];',
+	]) {
+		const result = linter.verifyAndFix(code, config);
+		t.true(result.fixed);
+		t.deepEqual(result.messages, []);
+		t.is(JSON.stringify(vm.runInNewContext(code)), '[1,1]');
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	}
+});
+
+test('keeps snapshots of function bindings reassigned by sloppy block declarations', t => {
+	const code = outdent`
+		function outer() {
+			function limit() { return 1; }
+			function format(value) { return () => value; }
+			const callbacks = [format(limit), format(limit)];
+			{ function limit() { return 2; } }
+			return callbacks.map(get => get()());
+		}
+		outer();
+	`;
+	const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(result.messages, []);
+	t.is(JSON.stringify(vm.runInNewContext(code)), '[1,1]');
+	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+});
+
+test('ignores callers redirected by sloppy block function declarations', t => {
+	for (const directive of ['', '"use strict";']) {
+		const code = outdent`
+			function outer() {
+				function format(value) { return value; }
+				const first = format(1);
+				{ function format(value) { ${directive} return value + 1; } }
+				return [first, format(1)];
+			}
+			outer();
+		`;
+		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+		t.false(result.fixed);
+		t.is(result.output, code);
+		t.deepEqual(result.messages, []);
+		t.is(JSON.stringify(vm.runInNewContext(code)), '[1,2]');
+		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
+	}
+});
