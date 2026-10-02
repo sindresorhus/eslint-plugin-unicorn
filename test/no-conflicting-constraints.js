@@ -85,6 +85,7 @@ ruleTest.snapshot({
 		...['color', 'color-index', 'monochrome', 'horizontal-viewport-segments', 'vertical-viewport-segments'].map(feature => `@media (${feature} > 10) and (${feature} < 5) {}`),
 		'@media (min-resolution: 2dppx) and (max-resolution: 1dppx) {}',
 		String.raw`@media (\a: 10px) and (min-width: 1000px) and (max-width: 500px) {}`,
+		'@import "layout.css" layer(theme) supports(display: grid) (width > 1000px) and (width < 500px);',
 	].map(code => ({code, language: languages.css})),
 });
 
@@ -200,6 +201,8 @@ ruleTest.snapshot({
 		'let type = "number"; <input type={type} min={10} max={5} />',
 		'<input type="number" min={minimum} max={5} />; const minimum = 10;',
 		'let minimum = 10; const bound = minimum; <input type="number" min={bound} max={5} />',
+		'const bounds = {min: 10}; bounds.min = 0; <input type="number" min={bounds.min} max={5} />',
+		'const bounds = {get min() { return 10; }}; <input type="number" min={bounds.min} max={5} />',
 	],
 	invalid: [
 		'<input type="range" min="10" max="5" />',
@@ -216,6 +219,9 @@ ruleTest.snapshot({
 		'<input type="number" min={/* keep */ 10} max={5} />',
 		...['text', 'search', 'url', 'tel', 'email', 'password'].map(type => `<input type="${type}" minLength={10} maxLength={5} />`),
 		...['10 as number', '10 satisfies number', '(10)!'].map(expression => ({code: `<input type="number" min={${expression}} max={5} />`, languageOptions: {parser: parsers.typescript}})),
+		'<input type="number" min={10} max={5} className={className} />',
+		{code: '<input type="number" min={(10 as number) + 5} max={5} />', languageOptions: {parser: parsers.typescript}},
+		{code: 'const minimum = 10 as number; <input type="number" min={minimum} max={5} />', languageOptions: {parser: parsers.typescript}},
 	],
 });
 

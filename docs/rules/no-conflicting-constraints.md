@@ -58,6 +58,8 @@ Time inputs intentionally support ranges crossing midnight and are ignored, as a
 
 HTML attribute values containing templates are ignored. Elements with templated attribute names are skipped entirely because templates can change the control's type or bounds.
 
+The HTML parser may absorb the rest of an opening tag after a slash in an unquoted attribute value. Quote values containing slashes so subsequent constraints can be checked.
+
 ### JSX and TSX
 
 Native `input` and `textarea` elements are checked using `minLength` and `maxLength`. Literal strings/numbers and safely evaluated static expressions are supported, including preceding constants.
