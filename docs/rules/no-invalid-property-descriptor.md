@@ -68,6 +68,18 @@ const descriptors = {property: descriptor};
 Object.create(prototype, descriptors);
 ```
 
+TypeScript's `PropertyDescriptor` type allows combining accessor and data fields. This rule reports the following descriptor even though it passes TypeScript's type checking:
+
+```ts
+// ❌
+const descriptor = {
+	get: () => 1,
+	writable: false,
+} satisfies PropertyDescriptor;
+
+Object.defineProperty({}, 'property', descriptor);
+```
+
 ## Suggestions
 
 The rule provides a suggestion to rename `writeable` to `writable` when the descriptor has no `writable`, `get`, or `set` field. Shorthand values and comments are preserved. There is no autofix because changing descriptor fields can change runtime behavior.

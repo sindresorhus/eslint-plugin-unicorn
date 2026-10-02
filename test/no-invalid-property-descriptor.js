@@ -184,6 +184,13 @@ test({
 		code: 'const descriptor = {get: 1}; Object.defineProperty(object, "first", descriptor); Object.defineProperty(object, "second", descriptor);',
 		errors: [{messageId: 'non-callable-accessor', column: 26}],
 	}, {
+		code: 'const descriptor = {get: 1}; const descriptors = {property: descriptor}; Object.defineProperty(object, "first", descriptor); Reflect.defineProperty(object, "second", descriptor); Object.defineProperties(object, descriptors); Object.create(prototype, descriptors);',
+		errors: [{messageId: 'non-callable-accessor', column: 26}],
+	}, {
+		code: 'const descriptor = ({get: () => 1, writable: false} as const) satisfies PropertyDescriptor; Object.defineProperty<Record<string, unknown>>({}, "property", descriptor!);',
+		languageOptions: {parser: parsers.typescript},
+		errors: [{messageId: 'incompatible-fields'}],
+	}, {
 		code: 'Object.defineProperty(object, "property", {writeable});',
 		errors: [{
 			messageId: 'unknown-field',
