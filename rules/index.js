@@ -103,6 +103,7 @@ export {default as 'no-incorrect-template-string-interpolation'} from './no-inco
 export {default as 'no-instanceof-builtins'} from './no-instanceof-builtins.js';
 export {default as 'no-invalid-argument-count'} from './no-invalid-argument-count.js';
 export {default as 'no-invalid-character-comparison'} from './no-invalid-character-comparison.js';
+export {default as 'no-invalid-dom-token'} from './no-invalid-dom-token.js';
 export {default as 'no-invalid-fetch-options'} from './no-invalid-fetch-options.js';
 export {default as 'no-invalid-file-input-accept'} from './no-invalid-file-input-accept.js';
 export {default as 'no-invalid-media-features'} from './no-invalid-media-features.js';
