@@ -31,6 +31,7 @@ ruleTest.snapshot({
 		'new URLSearchParams(location.search)',
 		'new URLSearchParams(url.href)',
 		'new URLSearchParams({href: "?query=hello"}.href)',
+		'new URLSearchParams({href: "https://example.com/"}.href)',
 		'new URLSearchParams(getInput())',
 		'new URLSearchParams(`https://example.com/?query=${query}`)',
 		'new URLSearchParams("mailto:user@example.com?query=hello")',
@@ -48,6 +49,7 @@ ruleTest.snapshot({
 		'let input = "https://example.com/"; new URLSearchParams(input)',
 		'new URLSearchParams(input); const input = "https://example.com/"',
 		'let url = new URL(input); new URLSearchParams(url.href)',
+		'class Address extends URL {} const url = new Address(input); new URLSearchParams(url.href)',
 		'const url = new URL(input); new URLSearchParams(url["href"])',
 		'const url = new URL(input); new URLSearchParams(url?.href)',
 		'new URLSearchParams(window?.location.href)',
@@ -79,6 +81,7 @@ ruleTest.snapshot({
 		},
 		'new URLSearchParams(/* keep */ "https://example.com/")',
 		'new URLSearchParams(new URL(input).href)',
+		'new URLSearchParams(new URL("mailto:user@example.com?query=hello").href)',
 		'const url = new URL(input, base); new URLSearchParams(url.href)',
 		'const url = new URL(input); const alias = url; new URLSearchParams(alias.href)',
 		'new URLSearchParams((new URL(input)).href)',
@@ -87,6 +90,7 @@ ruleTest.snapshot({
 		'const url = new URL(input); new URLSearchParams(url /* keep */ .href)',
 		'new URLSearchParams(new URL(/* keep */ input).href)',
 		'new URLSearchParams((condition ? new URL(first) : new URL(second)).href)',
+		'const url = new URL(input); new URLSearchParams((before(), url).href)',
 		'const value = foo\nnew URLSearchParams((condition ? new URL(first) : new URL(second)).href)',
 		...['location', 'window.location', 'globalThis.location', 'document.location', 'self.location'].map(receiver => `new URLSearchParams(${receiver}.href)`),
 		'new URLSearchParams(/* keep */ window.location.href)',
@@ -141,6 +145,43 @@ test('suggestions extract queries and distinguish detached copies from live para
 	t.is(url.searchParams.get('query'), 'hello');
 	live.set('query', 'live');
 	t.is(url.searchParams.get('query'), 'live');
+	url.search = '?query=updated';
+	t.is(live.get('query'), 'updated');
+	t.is(detached.get('query'), 'detached');
+});
+
+test('the URL-string suggestion extracts decoded parameters without the fragment', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
+	const code = 'new URLSearchParams("https://example.com/?query=a%2Bb+c&query=again&empty=#fragment")';
+	const [problem] = linter.verify(code, config);
+	t.is(problem?.suggestions?.length, 1);
+	const {fix} = problem.suggestions[0];
+	const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	const parameters = runInNewContext(corrected, {URL});
+	t.deepEqual([...parameters], [['query', 'a+b c'], ['query', 'again'], ['empty', '']]);
+});
+
+test('URL receiver suggestions evaluate the input once', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
+	const code = 'new URLSearchParams(new URL(getInput()).href)';
+	const [problem] = linter.verify(code, config);
+	t.is(problem?.suggestions?.length, 2);
+	for (const {fix} of problem.suggestions) {
+		let calls = 0;
+		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		const parameters = runInNewContext(corrected, {
+			URL,
+			URLSearchParams,
+			getInput() {
+				calls++;
+				return 'https://example.com/?query=hello#fragment';
+			},
+		});
+		t.is(calls, 1);
+		t.is(parameters.get('query'), 'hello');
+	}
 });
 
 test('URL preference rules complement the diagnostic', t => {

@@ -2,9 +2,7 @@ import {isMemberExpression, isNewExpression} from './ast/index.js';
 import {
 	getParenthesizedText,
 	getStaticValueForControlFlow,
-	isParenthesized,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {createBuiltinTypeCheckers} from './utils/type-helpers.js';
@@ -47,12 +45,7 @@ const isLocation = node => {
 Get a URL receiver's search parameters, preserving parentheses and statement boundaries.
 */
 const getSearchParametersText = (receiver, node, context) => {
-	let text = getParenthesizedText(receiver, context);
-	if (!isParenthesized(receiver, context) && shouldAddParenthesesToMemberExpressionObject(receiver, context)) {
-		text = `(${text})`;
-	}
-
-	text += '.searchParams';
+	const text = `${getParenthesizedText(receiver, context)}.searchParams`;
 	return needsSemicolon(context.sourceCode.getTokenBefore(node), context, text) ? `;${text}` : text;
 };
 
