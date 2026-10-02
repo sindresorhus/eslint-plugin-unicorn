@@ -172,6 +172,7 @@ const config = [
 		files: [
 			'rules/prefer-https.js',
 			'test/prefer-https.js',
+			'test/no-url-in-search-params.js',
 			'test/string-content.js',
 		],
 		rules: {

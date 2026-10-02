@@ -189,6 +189,7 @@ export {default as 'no-unscoped-css-nesting-selector'} from './no-unscoped-css-n
 export {default as 'no-unused-builtin-method-return'} from './no-unused-builtin-method-return.js';
 export {default as 'no-unused-iterator-helper'} from './no-unused-iterator-helper.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
+export {default as 'no-url-in-search-params'} from './no-url-in-search-params.js';
 export {default as 'no-useless-boolean-cast'} from './no-useless-boolean-cast.js';
 export {default as 'no-useless-coercion'} from './no-useless-coercion.js';
 export {default as 'no-useless-collection-argument'} from './no-useless-collection-argument.js';
