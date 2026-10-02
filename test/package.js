@@ -355,13 +355,50 @@ for (const language of ['markdown/commonmark', 'markdown/gfm']) {
 				},
 			}),
 		});
-		const code = '<!-- github -->\n\n<!-- TODO [2000-01-01]: Update -->\n\n```html\n<!-- TODO [2000-01-01]: github inside code -->\n```';
+		const code = [
+			'<!-- github -->',
+			'<!-- TODO [2000-01-01]: Update -->',
+			'```html\n<!-- TODO [2000-01-01]: github inside code -->\n```',
+			'`<!-- github -->`',
+			'    <!-- github -->',
+			'> ```html\n> <!-- github -->\n> ```',
+			'- ```html\n  <!-- github -->\n  ```',
+			'\\<!-- github -->',
+		].join('\n\n');
 		const [result] = await eslint.lintText(code, {filePath: 'file.txt'});
 		t.deepEqual(result.messages.map(({ruleId, message}) => ({ruleId, message})), [{
 			ruleId: 'unicorn/expiring-todo-comments',
 			message: 'Past due date: 2000-01-01. Update',
 		}]);
 		t.is(result.output, code.replace('github', 'GitHub'));
+	});
+
+	test(`recommended-markdown preserves comment source ranges in ${language}`, async t => {
+		const eslint = new ESLint({
+			overrideConfigFile: true,
+			fix: true,
+			baseConfig: defineConfig({
+				files: ['**/*.txt'],
+				plugins: languages.markdown.plugins,
+				language,
+				extends: [eslintPluginUnicorn.configs['recommended-markdown']],
+				rules: {
+					'unicorn/comment-content': 'error',
+					'unicorn/expiring-todo-comments': ['error', {date: '2026-01-01', checkDates: true, checkDatesOnPullRequests: true}],
+				},
+			}),
+		});
+		const code = '> <div>\n> <!-- TODO [2000-01-01]: Update -->\n> </div>\n\n> <!--\n> github\n> -->\n\n<!-- github';
+		const [result] = await eslint.lintText(code, {filePath: 'file.txt'});
+		t.deepEqual(result.messages.map(({ruleId, message, line, column, endLine, endColumn}) => ({ruleId, message, line, column, endLine, endColumn})), [{
+			ruleId: 'unicorn/expiring-todo-comments',
+			message: 'Past due date: 2000-01-01. Update',
+			line: 2,
+			column: 3,
+			endLine: 2,
+			endColumn: 37,
+		}]);
+		t.is(result.output, code.replaceAll('github', 'GitHub'));
 	});
 }
 
