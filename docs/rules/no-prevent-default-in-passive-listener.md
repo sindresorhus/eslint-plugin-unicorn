@@ -13,6 +13,8 @@ Calling [`preventDefault()`](https://dom.spec.whatwg.org/#dom-event-preventdefau
 
 If cancellation is intended, use `{passive: false}`. Otherwise, remove the `preventDefault()` call. This rule offers an editor suggestion to change `passive` to `false`, but does not automatically fix the code because enabling cancellation changes runtime behavior.
 
+TypeScript wrappers on `passive` values are supported, including `true as const`. Suggestions preserve these wrappers and surrounding comments.
+
 ## Examples
 
 ```js
@@ -48,7 +50,7 @@ element.addEventListener('click', async event => {
 
 - Only directly supplied arrow functions and function expressions are checked. Callbacks passed by reference, listener objects, nested functions (including immediately invoked functions), and generator callbacks are ignored.
 - The event must be the callback's first parameter and a simple identifier. Aliases, destructured/default/rest parameters, `arguments`, and reassigned event parameters are ignored.
-- Options must be an inline object without spreads or computed keys. The last `passive` property must be a normal data property with the literal value `true`. Dynamic options, truthy non-booleans, and type assertions on the property's value are ignored.
+- Options must be an inline object without spreads or computed keys. The last `passive` property must be a normal data property with the literal value `true`, optionally wrapped in TypeScript syntax. Dynamic options and truthy non-booleans are ignored.
 - Async callbacks use conservative source-order tracking. Calls after an earlier `await` or `for await...of`, or in repeating loop parts containing a suspension point, are ignored even when separate branches cannot both execute.
 - Browser-default passive listeners and legacy cancellation through `event.returnValue` are not checked. Event targets are recognized by the `addEventListener` method name without type analysis.
 

@@ -145,7 +145,9 @@ ruleTest.snapshot({
 ruleTest.snapshot({
 	testerOptions: {languageOptions: {parser: parsers.typescript}},
 	valid: [
-		listener('(event: Event) => event.preventDefault()', '{passive: true as const}'),
+		listener('(event: Event) => event.preventDefault()', '{passive: false as const}'),
+		listener('(event: Event) => event.preventDefault()', '{passive: enabled as true}'),
+		listener('(event: Event) => event.preventDefault()', '{passive: true as const, passive: false}'),
 		listener('async (event: Event) => { await task(); event!.preventDefault(); }'),
 	],
 	invalid: [
@@ -161,7 +163,28 @@ ruleTest.snapshot({
 		listener('((event: Event) => event.preventDefault()) as EventListener', '{passive: true} as const'),
 		listener('((event: Event) => event.preventDefault()) satisfies EventListener', '{passive: true} satisfies AddEventListenerOptions'),
 		listener('<EventListener>((event: Event) => event.preventDefault())', '<AddEventListenerOptions>{passive: true}'),
+		...[
+			'true as const',
+			'true satisfies boolean',
+			'<const>true',
+			'true!',
+		].map(value => listener('(event: Event) => event.preventDefault()', `{passive: ${value}}`)),
+		listener('(event: Event) => event.preventDefault()', '{passive: false, passive: true as const}'),
 	],
+});
+
+ruleTest.typescript({
+	valid: [],
+	invalid: [{
+		code: listener('(event: Event) => event.preventDefault()', '{passive: ((/* keep */ true as const) satisfies boolean)}'),
+		errors: [{
+			messageId: 'no-prevent-default-in-passive-listener/error',
+			suggestions: [{
+				messageId: 'no-prevent-default-in-passive-listener/suggestion',
+				output: listener('(event: Event) => event.preventDefault()', '{passive: ((/* keep */ false as const) satisfies boolean)}'),
+			}],
+		}],
+	}],
 });
 
 test('passive cancellation and late cancellation have separate reports', t => {

@@ -10,7 +10,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Change `passive` to `false` to allow event cancellation.',
 };
 
-const getPassiveProperty = listener => {
+const getPassiveLiteral = listener => {
 	let listenerExpression = listener;
 	while (isTypeScriptExpressionWrapper(listenerExpression.parent)) {
 		listenerExpression = listenerExpression.parent;
@@ -40,11 +40,12 @@ const getPassiveProperty = listener => {
 	}
 
 	const property = options.properties.findLast(property => getPropertyName(property) === 'passive');
-	if (!isBooleanLiteral(property?.value, true)) {
+	const value = unwrapTypeScriptExpression(property?.value);
+	if (!isBooleanLiteral(value, true)) {
 		return;
 	}
 
-	return property;
+	return value;
 };
 
 /**
@@ -74,8 +75,8 @@ const create = context => {
 			return;
 		}
 
-		const passiveProperty = getPassiveProperty(listener);
-		if (!passiveProperty) {
+		const passiveLiteral = getPassiveLiteral(listener);
+		if (!passiveLiteral) {
 			return;
 		}
 
@@ -94,7 +95,7 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 			suggest: [{
 				messageId: MESSAGE_ID_SUGGESTION,
-				fix: fixer => fixer.replaceText(passiveProperty.value, 'false'),
+				fix: fixer => fixer.replaceText(passiveLiteral, 'false'),
 			}],
 		};
 	});
