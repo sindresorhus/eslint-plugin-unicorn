@@ -101,10 +101,6 @@ The rule provides a suggestion to rename `writeable` to `writable` when the desc
 
 ## Limitations
 
-The rule checks inline object literals and direct local `const` initializers used only as descriptors or descriptor maps. It skips aliases, exports, mutations, member accesses, and other uses that could expose these objects to mutation. Reused descriptors are reported once at their definitions.
+The rule analyzes direct `Object`/`Reflect` calls with inline literals or local `const` object literal initializers used only as descriptors or descriptor maps. It skips optional calls, spreads before the descriptor argument or in descriptor/map literals, unresolved computed keys, and explicit descriptor prototypes other than `__proto__: null`.
 
-Spreads, unresolved computed keys, inherited descriptor fields, and explicit descriptor prototypes other than `__proto__: null` are not analyzed. Getter/setter syntax on the descriptor object itself is counted for field presence, but its resulting values are not evaluated. Unknown accessor values, such as function-call results, are left unchanged.
-
-Calls must use a direct `Object` or `Reflect` receiver. Constant computed method names are supported. Optional calls, aliases of these APIs, and spreads before the descriptor argument are skipped. Shadowed or modified built-ins, Proxy behavior, and accessor side effects are unsupported.
-
-The rule validates descriptor conversion rather than whether a descriptor can be applied to a particular target. It does not check existing property attributes or target extensibility. Primitive outer descriptor maps are not rejected, and `Object.create(prototype, undefined)` is allowed.
+Inherited fields and accessor results are not evaluated. Shadowed or modified built-ins, Proxy behavior, and side effects are unsupported. The rule does not check whether a target accepts a descriptor.
