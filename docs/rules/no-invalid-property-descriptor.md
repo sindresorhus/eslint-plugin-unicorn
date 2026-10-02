@@ -33,25 +33,37 @@ Object.defineProperty(object, 'property', {
 	writable: false,
 });
 
+// ✅
+Object.defineProperty(object, 'property', {get: getter});
+```
+
+```js
+// ❌
 Reflect.defineProperty(object, 'property', {get: null});
 
+// ✅
+Reflect.defineProperty(object, 'property', {get: undefined});
+```
+
+```js
+// ❌
 Object.defineProperties(object, {
 	property: {value: 1, writeable: true},
 });
 
+// ✅
+Object.defineProperties(object, {
+	property: {value: 1, writable: true},
+});
+```
+
+```js
+// ❌
 Object.create(prototype, {
 	property: 42,
 });
 
 // ✅
-Object.defineProperty(object, 'property', {get: getter});
-
-Reflect.defineProperty(object, 'property', {get: undefined});
-
-Object.defineProperties(object, {
-	property: {value: 1, writable: true},
-});
-
 Object.create(prototype, {
 	property: {value: 42},
 });
@@ -72,12 +84,15 @@ TypeScript's `PropertyDescriptor` type allows combining accessor and data fields
 
 ```ts
 // ❌
-const descriptor = {
+Object.defineProperty({}, 'property', {
 	get: () => 1,
 	writable: false,
-} satisfies PropertyDescriptor;
+} satisfies PropertyDescriptor);
 
-Object.defineProperty({}, 'property', descriptor);
+// ✅
+Object.defineProperty({}, 'property', {
+	get: () => 1,
+} satisfies PropertyDescriptor);
 ```
 
 ## Suggestions
