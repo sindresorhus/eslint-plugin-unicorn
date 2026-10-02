@@ -323,7 +323,6 @@ function getUrlType(node, context, visitedVariables = new Set()) {
 		}
 
 		case 'TSAsExpression':
-		case 'TSSatisfiesExpression':
 		case 'TSTypeAssertion': {
 			const typeFromAnnotation = getTypeAnnotationType(node.typeAnnotation, context, scope);
 
@@ -332,6 +331,7 @@ function getUrlType(node, context, visitedVariables = new Set()) {
 				: typeFromAnnotation;
 		}
 
+		case 'TSSatisfiesExpression':
 		case 'TSNonNullExpression':
 		case 'ParenthesizedExpression': {
 			return getUrlType(node.expression, context, visitedVariables);

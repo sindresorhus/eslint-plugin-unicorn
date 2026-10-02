@@ -213,6 +213,7 @@ testRule({
 testRule({
 	valid: [
 		typescript('function example(url: URL | string) {if (url instanceof URL) {return url.protocol === "https";}}'),
+		typeAware('function example(url: URL | {protocol: string}) {if (url instanceof URL) {url = {protocol: "https"}; return url.protocol === "https";}}'),
 		typeAware('type URL = {protocol: string}; function example(url: URL | string) {if (typeof url !== "string") {return url.protocol === "https";}}'),
 		typeAware('class CustomURL {protocol = "https";} function example(url: URL | CustomURL) {if (url instanceof CustomURL) {return url.protocol === "https";}}'),
 	],
@@ -233,6 +234,25 @@ testRule({
 			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
 		},
 	],
+});
+
+testRule({
+	valid: [typescript, typeAware].flatMap(parse => [
+		parse('declare const url: any; (url satisfies URL).protocol === "https";'),
+		parse('const url = {protocol: "https"}; (url satisfies {protocol: string}).protocol === "https";'),
+	]),
+	invalid: [typescript, typeAware].flatMap(parse => [
+		{
+			...parse('(new URL("https://example.com") satisfies unknown).protocol === "https";'),
+			output: '(new URL("https://example.com") satisfies unknown).protocol === "https:";',
+			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+		},
+		{
+			...parse('const url = new URL("https://example.com"); (url satisfies {protocol: string}).protocol === "https";'),
+			output: 'const url = new URL("https://example.com"); (url satisfies {protocol: string}).protocol === "https:";',
+			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+		},
+	]),
 });
 
 testRule({

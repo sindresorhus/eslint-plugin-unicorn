@@ -53,6 +53,7 @@ test.snapshot({
 		typescript('type Url = string; function foo(url: Url) { type Url = URL; String(url); }'),
 		typescript('import type {URL} from "node:url"; const URL = class { toString() { return ""; } }; new URL(value).toString();'),
 		typescript('import {URL} from "node:url"; { const URL = class { toString() { return ""; } }; new URL(value).toString(); }'),
+		typescript('String(foo satisfies URL)'),
 	],
 	invalid: [
 		'new URL(value).toString()',
@@ -89,7 +90,6 @@ test.snapshot({
 		typescript('import type {URL} from "node:url"; function foo(url: URL) { return String(url); }'),
 		typescript('String(new URL(value) as URL)'),
 		typescript('(new URL(value) as URL).toString()'),
-		typescript('String(foo satisfies URL)'),
 		typescript('const url = foo as URL; String(url)'),
 		typescript('type Url = URL; const url: Url = new URL(value); { type Url = string; String(url); }'),
 		typescript('type Url = URL; function foo(url: Url) { type Url = string; String(url); }'),
@@ -101,6 +101,24 @@ test.snapshot({
 		'String(/* comment */ new URL(value))',
 		'const url = new URL(value); url.toString(/* comment */)',
 	],
+});
+
+test({
+	valid: [typescript, typeAware].flatMap(parse => [
+		parse('declare const url: any; String(url satisfies URL);'),
+		parse('const url = {toString() {return "custom";}}; (url satisfies {toString(): string}).toString();'),
+	]),
+	invalid: [typescript, typeAware].flatMap(parse => [
+		{
+			...parse('(new URL("https://example.com") satisfies unknown).toString();'),
+			output: '(new URL("https://example.com") satisfies unknown).href;',
+			errors: [{messageId: 'prefer-url-href'}],
+		},
+		{
+			...parse('const url = new URL("https://example.com"); String(url satisfies {toString(): string});'),
+			errors: [{messageId: 'prefer-url-href'}],
+		},
+	]),
 });
 
 test.snapshot({
