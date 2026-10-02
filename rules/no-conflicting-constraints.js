@@ -37,7 +37,7 @@ function * getMediaConstraints(node, sourceCode) {
 	let feature;
 	let comparisons;
 	if (node.type === 'Feature' && node.value) {
-		const match = /^(?:(min|max)-)?(.+)$/v.exec(normalizeCssIdentifier(node.name));
+		const match = /^(?:(min|max)-)?(.+)$/sv.exec(normalizeCssIdentifier(node.name));
 		feature = match[2];
 		comparisons = [[node.value, {min: '>=', max: '<='}[match[1]] ?? '=']];
 	} else if (node.type === 'FeatureRange') {
@@ -73,7 +73,8 @@ function * getMediaConstraints(node, sourceCode) {
 
 		const value = Number(valueNode.value);
 		const unit = valueNode.type === 'Dimension' ? normalizeCssIdentifier(valueNode.unit) : '';
-		if (!Number.isFinite(value) || sourceCode.lexer.match(syntax, valueNode.value + unit).error) {
+		// Decoded units must not be reinterpreted as part of the numeric token.
+		if (!Number.isFinite(value) || !/^[a-z]*$/v.test(unit) || sourceCode.lexer.match(syntax, valueNode.value + unit).error) {
 			continue;
 		}
 
@@ -138,7 +139,7 @@ function * getMediaProblems(node, context) {
 function getHtmlAttributes(node, sourceCode) {
 	const attributes = new Map();
 	for (const attribute of node.attributes) {
-		if (attribute.type !== 'Attribute' || attribute.key.parts.length > 0) {
+		if (attribute.type !== 'Attribute') {
 			continue;
 		}
 
@@ -153,7 +154,7 @@ function getHtmlAttributes(node, sourceCode) {
 		}
 
 		const valueNode = attribute.value;
-		let value;
+		let value = valueNode ? undefined : '';
 		if (valueNode && valueNode.parts.length === 0) {
 			// Read the complete unquoted token because the HTML parser can stop before its actual end.
 			const raw = attribute.startWrapper ? valueNode.value : sourceCode.text.slice(sourceCode.getRange(valueNode)[0]).match(/^[^\t\n\f\r >]+/u)?.[0];
@@ -250,7 +251,11 @@ const create = context => {
 	context.on('MediaQuery', node => getMediaProblems(node, context));
 	context.on('Tag', node => {
 		const name = node.name.toLowerCase();
-		if (!['input', 'textarea'].includes(name) || isHtmlRcdataNode(node)) {
+		if (
+			!['input', 'textarea'].includes(name)
+			|| isHtmlRcdataNode(node)
+			|| node.attributes.some(attribute => attribute.type === 'Attribute' && attribute.key.parts.length > 0)
+		) {
 			return;
 		}
 

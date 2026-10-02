@@ -40,6 +40,11 @@ ruleTest.snapshot({
 		'@media (width < 0px) {}',
 		'@media (1 < color < 2) {}',
 		'@container (min-width: 1000px) and (max-width: 500px) {}',
+		String.raw`@media (\a: 10px) {}`,
+		String.raw`@media (min-\2028: 10px) {}`,
+		String.raw`@media (min-width: 10\65 3px) and (max-width: 5\65 3px) {}`,
+		String.raw`@media (min-width: 10\31 px) and (max-width: 5\31 px) {}`,
+		String.raw`@media (min-resolution: 10\65 3dpi) and (max-resolution: 5\65 3dpi) {}`,
 	].map(code => ({code, language: languages.css})),
 	invalid: [
 		'@media (1000px < width < 500px) {}',
@@ -79,6 +84,7 @@ ruleTest.snapshot({
 		...['height', 'device-width', 'device-height'].map(feature => `@media (min-${feature}: 1000px) and (max-${feature}: 500px) {}`),
 		...['color', 'color-index', 'monochrome', 'horizontal-viewport-segments', 'vertical-viewport-segments'].map(feature => `@media (${feature} > 10) and (${feature} < 5) {}`),
 		'@media (min-resolution: 2dppx) and (max-resolution: 1dppx) {}',
+		String.raw`@media (\a: 10px) and (min-width: 1000px) and (max-width: 500px) {}`,
 	].map(code => ({code, language: languages.css})),
 });
 
@@ -140,6 +146,7 @@ ruleTest.snapshot({
 		'<textarea minlength="10" maxlength="5"></textarea>',
 		'<textarea minlength=10 maxlength=5></textarea>',
 		'<textarea minlength="10" maxlength="5" disabled></textarea>',
+		'<input type minlength="10" maxlength="5">',
 	].map(code => ({code, language: languages.html})),
 });
 
@@ -154,9 +161,13 @@ ruleTest.snapshot({
 ruleTest.snapshot({
 	valid: [
 		'<input type="number" min="10{{offset}}" max="5">',
-		'<input type="number" m{{prefix}}in="10" max="5">',
+		'<input {{attributes}} minlength="10" maxlength="5">',
+		'<input m{{suffix}}ax="20" type="number" min="10" max="5">',
+		'<input type="{{type}}" minlength="10" maxlength="5">',
 	].map(code => ({code, language: languages.html, languageOptions: {templateEngineSyntax: {'{{': '}}'}}})),
-	invalid: [],
+	invalid: [
+		'<input type="number" min="10" max="5" title="{{title}}">',
+	].map(code => ({code, language: languages.html, languageOptions: {templateEngineSyntax: {'{{': '}}'}}})),
 });
 
 ruleTest.snapshot({

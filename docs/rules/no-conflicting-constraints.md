@@ -40,7 +40,7 @@ The rule ignores negation, `or`, grouped conditions, functions such as `calc()`,
 The rule checks:
 
 - `min` and `max` on `input` elements with type `number` or `range`.
-- `minlength` and `maxlength` on `textarea` elements and inputs with type `text`, `search`, `url`, `tel`, `email`, or `password`. Missing or empty input type is treated as `text`.
+- `minlength` and `maxlength` on `textarea` elements and inputs with type `text`, `search`, `url`, `tel`, `email`, or `password`. Missing or empty input type, including a bare `type` attribute, is treated as `text`.
 
 ```html
 <!-- ❌ -->
@@ -56,6 +56,8 @@ The rule checks:
 
 Time inputs intentionally support ranges crossing midnight and are ignored, as are date inputs. The rule compares explicit valid attribute values, including character references and unquoted values. It does not infer default bounds or analyze `step`, `pattern`, or whether a value is required. Disabled and readonly controls are still checked because their explicit bounds conflict. An optional control may remain valid when empty despite conflicting length bounds.
 
+HTML attribute values containing templates are ignored. Elements with templated attribute names are skipped entirely because templates can change the control's type or bounds.
+
 ### JSX and TSX
 
 Native `input` and `textarea` elements are checked using `minLength` and `maxLength`. Literal strings/numbers and safely evaluated static expressions are supported, including preceding constants.
@@ -70,7 +72,7 @@ Native `input` and `textarea` elements are checked using `minLength` and `maxLen
 <textarea minLength={5} maxLength={10} />;
 ```
 
-Custom components, JSX spreads, relevant duplicate attributes, HTML template expressions, dynamic values, mutable bindings, and references to constants before their declarations are ignored. Embedded CSS strings and framework templates are not inspected.
+Custom components, JSX spreads, relevant duplicate attributes, dynamic values, mutable bindings, and references to constants before their declarations are ignored. Embedded CSS strings and framework templates are not inspected.
 
 ## Language setup
 
