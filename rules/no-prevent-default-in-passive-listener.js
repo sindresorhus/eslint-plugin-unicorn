@@ -40,11 +40,7 @@ const getPassiveProperty = listener => {
 	}
 
 	const property = options.properties.findLast(property => getPropertyName(property) === 'passive');
-	if (
-		property?.kind !== 'init'
-		|| property.method
-		|| !isBooleanLiteral(property.value, true)
-	) {
+	if (!isBooleanLiteral(property?.value, true)) {
 		return;
 	}
 
