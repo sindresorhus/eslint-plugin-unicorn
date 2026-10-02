@@ -277,6 +277,11 @@ const suggestions = [
 		'const smallestUnit: string = "hours"; (value as Temporal.Duration).total({unit: smallestUnit});',
 		typescriptEslintParser,
 	],
+	[
+		'const unit = "minute"; (value as Temporal.Instant)?.round?.({unit /* trailing */});',
+		'const unit = "minute"; (value as Temporal.Instant)?.round?.({smallestUnit: unit /* trailing */});',
+		typescriptEslintParser,
+	],
 ];
 
 for (const [code, output, parser] of suggestions) {
@@ -378,6 +383,18 @@ ruleTest.snapshot({
 ruleTest({
 	valid: [],
 	invalid: [{code: `${receivers.PlainYearMonth}.add({days: 1}, {overflow: "invalid"})`, errors: [{messageId: 'invalid-option', suggestions: []}]}],
+});
+
+ruleTest({
+	valid: [
+		...['year', 'month', 'week'].map(unit => `${duration}.round({smallestUnit: "${unit}", largestUnit: "${unit}", roundingIncrement: 2, relativeTo: "2024-01-01"})`),
+		...['PlainDateTime', 'ZonedDateTime'].map(type => `${receivers[type]}.round({smallestUnit: "day", roundingIncrement: 1})`),
+		`${receivers.PlainDate}.until(other, {smallestUnit: "week", largestUnit: "month", roundingIncrement: 2})`,
+	],
+	invalid: [{
+		code: 'Temporal.Duration.from({months: 1}).round({smallestUnit: "week", roundingIncrement: 2, relativeTo: "2024-01-01"})',
+		errors: [{messageId: 'invalid-increment', suggestions: []}],
+	}],
 });
 
 test('reports one problem in contract validation order', t => {

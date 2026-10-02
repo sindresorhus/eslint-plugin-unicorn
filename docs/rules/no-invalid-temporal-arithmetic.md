@@ -71,6 +71,8 @@ Temporal.Now.instant().round({smallestUnit: 'minute', roundingIncrement: 90});
 Temporal.Now.plainTimeISO().round({smallestUnit: 'minute', roundingIncrement: 90});
 ```
 
+Day rounding for PlainDateTime and ZonedDateTime requires an increment of `1`. Duration rounding to years, months, weeks, or days with an increment greater than `1` requires equal `largestUnit` and `smallestUnit`. Difference operations do not impose that restriction on date-unit increments.
+
 ## Suggestions
 
 The rule can suggest correcting `smallestUnit` to `unit` in `total()`, or `unit` to `smallestUnit` in `round()`, when the corrected options have no other known contract error.
