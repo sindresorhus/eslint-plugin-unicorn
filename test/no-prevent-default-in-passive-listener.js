@@ -85,6 +85,8 @@ ruleTest.snapshot({
 			'async event => { for await (const item of stream) { event.preventDefault(); } }',
 			'async event => { for await (const item of stream) {} event.preventDefault(); }',
 			'async event => { while (condition) { event.preventDefault(); await task(); } }',
+			'async event => { for (const item of items) { event.preventDefault(); await task(); } }',
+			'async event => { for (await task(); condition;) { event.preventDefault(); } }',
 			// The shared timing tracker is intentionally conservative across branches.
 			'async event => { if (condition) { await task(); } else { event.preventDefault(); } }',
 		].map(callback => listener(callback)),
@@ -121,6 +123,9 @@ ruleTest.snapshot({
 			'async event => { event.preventDefault(); await task(); event.preventDefault(); }',
 			'async event => { await task(event.preventDefault()); }',
 			'async event => { for await (const item of event.preventDefault()) {} }',
+			'event => { for (const item of items) { event.preventDefault(); } }',
+			'async event => { for (event.preventDefault(); condition;) { await task(); } }',
+			'async event => { for (const item of items) { async function nested() { await task(); } event.preventDefault(); } }',
 			'event => { async function nested() { await task(); } event.preventDefault(); }',
 			'async event => { await task(); other.addEventListener("click", payload => payload.preventDefault(), {passive: true}); }',
 			'event => { other.addEventListener("click", () => {}, {passive: false}); event.preventDefault(); }',
