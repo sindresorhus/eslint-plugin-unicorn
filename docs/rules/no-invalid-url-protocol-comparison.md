@@ -70,6 +70,8 @@ url.protocol = 'https';
 
 The receiver must be a known native `URL`: a direct `new URL()` expression, a `const` binding initialized from a known URL, a supported import from `node:url` or `url`, a TypeScript `URL` annotation, or an expression identified through TypeScript type information when available. The rule does not infer URLs from variable names or arbitrary objects with a `protocol` property.
 
+Type information must identify a `URL` symbol from TypeScript's standard library. Matching a type's name alone is insufficient. Node.js imports are also recognized in direct constructors and variable, parameter, or return type annotations, but not nested member types.
+
 Only string literals and templates without substitutions are checked. Named collections, extracted protocol values, and dynamic strings are ignored. Prefix and substring checks such as `url.protocol.startsWith('http')` are valid and are not reported.
 
 Fixes preserve surrounding comments and syntax. A `switch` label is reported without an automatic fix when normalization would collide with another literal label, including another label that requires normalization.

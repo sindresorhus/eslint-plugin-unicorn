@@ -116,7 +116,7 @@ test.snapshot({
 		typeAware('let url: URL; class URL { toString() { return ""; } } String(url);'),
 		typeAware('function foo<T extends URL>(url: T) { return String(url); }'),
 		typeAware(outdent`
-			import {URL as NodeURL} from 'node:url';
+			import {URL} from 'node:url';
 			namespace Other {
 				export class URL {
 					toString() {
@@ -148,5 +148,9 @@ test({
 	invalid: [
 		{...typescript('function foo(url: Url) { return url.toString(); } type Url = URL;'), errors: [{messageId: 'prefer-url-href'}]},
 		{...typeAware('function foo(url: Url) { return url.toString(); } type Url = URL;'), errors: [{messageId: 'prefer-url-href'}]},
+		{...typescript('function foo(url: URL) { type URL = {toString(): string}; return url.toString(); }'), errors: [{messageId: 'prefer-url-href'}]},
+		{...typeAware('function foo(url: URL) { type URL = {toString(): string}; return url.toString(); }'), errors: [{messageId: 'prefer-url-href'}]},
+		{...typescript('function foo(url: URL) { class URL { toString() { return "custom"; } } return String(url); }'), errors: [{messageId: 'prefer-url-href'}]},
+		{...typescript('function getUrl(): URL { type URL = {toString(): string}; return undefined!; } getUrl().toString();'), errors: [{messageId: 'prefer-url-href'}]},
 	],
 });

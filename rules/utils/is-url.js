@@ -11,12 +11,6 @@ const url = 'url';
 const nonUrl = 'non-url';
 const unknown = 'unknown';
 
-const typeDefinitionTypes = new Set([
-	'ClassName',
-	'ImportBinding',
-	'Type',
-]);
-
 const unknownTypeNames = new Set([
 	'any',
 	'error',
@@ -27,23 +21,6 @@ const urlImportSources = new Set([
 	'node:url',
 	'url',
 ]);
-
-const isTypeDefinition = definition =>
-	typeDefinitionTypes.has(definition.type);
-
-const hasTypeDefinition = (name, scope) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable?.defs.some(definition => isTypeDefinition(definition))) {
-			return true;
-		}
-
-		scope = scope.upper;
-	}
-
-	return false;
-};
 
 const combineTypes = types => {
 	if (types.every(type => type === url)) {
@@ -168,7 +145,7 @@ const getTypeReferenceType = (node, context, scope, visitedTypeReferenceNames) =
 	const [definition] = typeVariable?.defs ?? [];
 
 	if (!definition) {
-		return typeReferenceName === 'URL' && !hasTypeDefinition(typeReferenceName, scope) ? url : unknown;
+		return typeReferenceName === 'URL' ? url : unknown;
 	}
 
 	if (visitedTypeReferenceNames.has(typeReferenceName)) {
@@ -230,32 +207,8 @@ const getTypeAnnotationType = (node, context, scope, visitedTypeReferenceNames =
 	}
 };
 
-const getVisibleTypeNameType = (typeName, node, context) => {
-	if (!/^[\w$]+$/.test(typeName)) {
-		return unknown;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), typeName);
-	const typeDefinitions = variable?.defs.filter(definition =>
-		definition.type === 'Type'
-		|| definition.type === 'ClassName'
-		|| isUrlImport(definition),
-	) ?? [];
-
-	if (typeDefinitions.length === 0) {
-		return unknown;
-	}
-
-	return typeDefinitions.every(definition => isUrlImport(definition)) ? url : nonUrl;
-};
-
 const getTypeScriptUrlType = (type, state) => {
-	const {
-		checker,
-		context,
-		node,
-		program,
-	} = state;
+	const {checker, program} = state;
 
 	if (unknownTypeNames.has(type.intrinsicName)) {
 		return unknown;
@@ -278,12 +231,6 @@ const getTypeScriptUrlType = (type, state) => {
 		return combineTypes(type.types.map(type => getTypeScriptUrlType(type, state)));
 	}
 
-	const typeName = checker.typeToString(type);
-	const visibleTypeNameType = getVisibleTypeNameType(typeName, node, context);
-	if (visibleTypeNameType !== unknown) {
-		return visibleTypeNameType;
-	}
-
 	const symbol = getTypeSymbol(type);
 	if (isDefaultLibrarySymbol(symbol, program) && symbol.getName() === 'URL') {
 		return url;
@@ -304,8 +251,6 @@ const getTypeFromTypeInformation = (node, context) => {
 			parserServices.getTypeAtLocation(node),
 			{
 				checker: program.getTypeChecker(),
-				context,
-				node,
 				program,
 			},
 		);

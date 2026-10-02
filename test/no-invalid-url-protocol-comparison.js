@@ -171,6 +171,7 @@ testRule({
 testRule.snapshot({
 	valid: [
 		typeAware('declare const value: unknown; value.protocol === "https"'),
+		typeAware('import {URL} from "node:url"; namespace Other {export class URL {protocol = "https";}} declare function getUrl(): Other.URL; getUrl().protocol === "https";'),
 		typeAware('type URL = {protocol: string}; declare function getUrl(): URL; getUrl().protocol === "https"'),
 		typeAware('declare const url: URL | {protocol: string}; url.protocol === "https"'),
 		typeAware('class CustomURL extends URL {protocol = "https";} new CustomURL(value).protocol === "https"'),
@@ -179,6 +180,27 @@ testRule.snapshot({
 		typeAware('declare const object: {url: URL}; object.url.protocol === "https"'),
 		typeAware('declare function getUrl(): URL; getUrl().protocol === "https"'),
 		typeAware('declare function getObject(): {url: URL}; ["HTTPS:"].includes(getObject().url.protocol)'),
+	],
+});
+
+testRule({
+	valid: [],
+	invalid: [
+		{
+			...typescript('function example(url: URL) { type URL = {protocol: string}; return url.protocol === "https"; }'),
+			output: 'function example(url: URL) { type URL = {protocol: string}; return url.protocol === "https:"; }',
+			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+		},
+		{
+			...typeAware('function example(url: URL) { class URL {protocol = "https";} return url.protocol === "https"; }'),
+			output: 'function example(url: URL) { class URL {protocol = "https";} return url.protocol === "https:"; }',
+			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+		},
+		{
+			...typescript('function getUrl(): URL { type URL = {protocol: string}; return undefined!; } getUrl().protocol === "https";'),
+			output: 'function getUrl(): URL { type URL = {protocol: string}; return undefined!; } getUrl().protocol === "https:";',
+			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+		},
 	],
 });
 
