@@ -1,7 +1,10 @@
+import test from 'ava';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const typeAware = code => ({
 	code,
@@ -12,16 +15,17 @@ const typeAware = code => ({
 	},
 });
 
-test({
+ruleTest({
 	valid: [],
 	invalid: [{code: 'JSON.stringify({permissions: new Set(["read"])})', errors: 1}],
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'JSON.stringify({name: "unicorn", count: 1, enabled: true, value: null})',
 		'JSON.stringify([1, "unicorn", false, null])',
 		'JSON.stringify(new Date())',
+		'JSON.stringify({pattern: {source: "unicorn", flags: "gi"}})',
 		'JSON.stringify(new URL("https://example.com"))',
 		'JSON.stringify(JSON.rawJSON("123"))',
 		'JSON.stringify(new Uint8Array([1, 2]))',
@@ -72,6 +76,22 @@ test.snapshot({
 		typeAware('declare const value: unknown; JSON.stringify(value)'),
 		typeAware('declare const value: any; JSON.stringify(value)'),
 		typeAware('declare const value: Set<string> | string; JSON.stringify(value)'),
+		'JSON.stringify(condition ? new Set() : [])',
+		'JSON.stringify({pattern: /unicorn/, toJSON() {return "custom";}})',
+		'JSON.stringify({pattern: /unicorn/}, ["other"])',
+		'JSON.stringify(/unicorn/, replacer)',
+		'Response.json({name: "unicorn", optional: undefined}, {status: 201})',
+		'Response.json(new Date())',
+		'Response.json({value: new Set(), toJSON() {return 1;}})',
+		'Response.json(value)',
+		'Response.json(...values)',
+		'Response.json(new Set(), ...options)',
+		'Response.json()',
+		'Response.json(new Set(), options, extra)',
+		'response.json(new Set())',
+		'Response.stringify(new Set())',
+		'JSON.json(new Set())',
+		'const Response = {json() {}}; Response.json(new Set())',
 	],
 	invalid: [
 		'JSON.stringify(new Set([1]))',
@@ -152,5 +172,44 @@ test.snapshot({
 		typeAware('declare const value: ReturnType<() => symbol>; JSON.stringify(value)'),
 		typeAware('declare const value: ReturnType<() => () => void>; JSON.stringify(value)'),
 		typeAware('declare const value: unique symbol; JSON.stringify(value)'),
+		'JSON.stringify(condition ? new Set() : new Set())',
+		'JSON.stringify(/unicorn/gi)',
+		'JSON.stringify(new RegExp(pattern, flags))',
+		'JSON.stringify(RegExp(pattern))',
+		'const value = /unicorn/; JSON.stringify(value)',
+		'JSON.stringify({pattern: /unicorn/})',
+		{code: 'declare const value: RegExp; JSON.stringify(value)', languageOptions: {parser: parsers.typescript}},
+		typeAware('declare const value: ReturnType<() => RegExp>; JSON.stringify(value)'),
+		'Response.json(new Set())',
+		'Response.json(new Set(), options)',
+		'Response.json(new Set(), {status: 201})',
+		'Response.json({value: new Set()}, ["other"])',
+		'Response.json({value: new Map()})',
+		'const value = {nested: [new Set()]}; Response.json(value)',
+		'const value = new Set(); Response.json({value})',
+		'Response.json(1n)',
+		'Response.json(undefined)',
+		'Response.json(() => {})',
+		'Response.json([Symbol()])',
+		'Response.json({value: NaN})',
+		'Response.json({pattern: /unicorn/})',
+		'Response?.json?.(new Set())',
+		'Response["json"](new Set())',
+		{code: 'Response.json({value: new Set<string>() as Set<string>})', languageOptions: {parser: parsers.typescript}},
 	],
+});
+
+test('preserves diagnostics after prefer-response-static-json autofix', t => {
+	const result = new Linter().verifyAndFix('new Response(JSON.stringify({permissions: new Set(["read"])}))', {
+		plugins: {unicorn},
+		rules: {
+			'unicorn/prefer-response-static-json': 'error',
+			'unicorn/no-unsafe-json-serialization': 'error',
+		},
+	});
+
+	t.is(result.output, 'Response.json({permissions: new Set(["read"])})');
+	t.is(result.messages.length, 1);
+	t.is(result.messages[0].messageId, 'no-unsafe-json-serialization');
+	t.is(result.messages[0].message, '`Response.json()` cannot faithfully serialize Set values.');
 });

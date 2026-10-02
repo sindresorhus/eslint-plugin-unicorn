@@ -6,6 +6,7 @@ import {
 	isBigInt,
 	isGlobalIdentifier,
 	isMap,
+	isRegExp,
 	isSet,
 	isWeakMap,
 	isWeakSet,
@@ -14,12 +15,12 @@ import {
 import {createTypeCheckers, target, unknown} from './utils/type-helpers.js';
 import {isUniqueSymbolType} from './utils/types.js';
 
-const MESSAGE_ID = 'no-unsafe-json-stringify';
-const MESSAGE_ID_ARRAY = 'no-unsafe-json-stringify/array';
-const MESSAGE_ID_OBJECT = 'no-unsafe-json-stringify/object';
-const MESSAGE_ID_STRING = 'no-unsafe-json-stringify/string';
+const MESSAGE_ID = 'no-unsafe-json-serialization';
+const MESSAGE_ID_ARRAY = 'no-unsafe-json-serialization/array';
+const MESSAGE_ID_OBJECT = 'no-unsafe-json-serialization/object';
+const MESSAGE_ID_STRING = 'no-unsafe-json-serialization/string';
 const messages = {
-	[MESSAGE_ID]: '`JSON.stringify()` cannot faithfully serialize {{type}} values.',
+	[MESSAGE_ID]: '`{{method}}()` cannot faithfully serialize {{type}} values.',
 	[MESSAGE_ID_ARRAY]: 'Convert the {{type}} to an array.',
 	[MESSAGE_ID_OBJECT]: 'Convert the Map to an object (requires string keys).',
 	[MESSAGE_ID_STRING]: 'Convert the BigInt to a string.',
@@ -80,6 +81,10 @@ function getUnsafeType(node, context) {
 
 	if (isSymbol(node, context)) {
 		return 'symbol';
+	}
+
+	if (isRegExp(node, context)) {
+		return 'RegExp';
 	}
 
 	node = unwrapTypeScriptExpression(node);
@@ -203,7 +208,7 @@ function * getProblems(node, context, {propertyNames, allowUndefined, visitedNod
 */
 const create = context => {
 	context.on('CallExpression', function * (node) {
-		if (!isMethodCall(node, {object: 'JSON', minimumArguments: 1, maximumArguments: 3}) || getPropertyName(node.callee, context.sourceCode.getScope(node)) !== 'stringify') {
+		if (!isMethodCall(node, {objects: ['JSON', 'Response'], minimumArguments: 1, maximumArguments: 3})) {
 			return;
 		}
 
@@ -211,9 +216,14 @@ const create = context => {
 			return;
 		}
 
+		const method = `${node.callee.object.name}.${getPropertyName(node.callee, context.sourceCode.getScope(node))}`;
+		if (method !== 'JSON.stringify' && (method !== 'Response.json' || node.arguments.length > 2)) {
+			return;
+		}
+
 		let propertyNames;
 		const [, replacer] = node.arguments;
-		if (replacer) {
+		if (method === 'JSON.stringify' && replacer) {
 			const result = getStaticValueIfNoSideEffects(replacer, context);
 			if (!result || typeof result.value === 'function') {
 				return;
@@ -224,7 +234,9 @@ const create = context => {
 			}
 		}
 
-		yield * getProblems(node.arguments[0], context, {propertyNames});
+		for (const problem of getProblems(node.arguments[0], context, {propertyNames})) {
+			yield {...problem, data: {...problem.data, method}};
+		}
 	});
 };
 
