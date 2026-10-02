@@ -11,11 +11,13 @@
 
 Enforces no whitespace before commas and exactly one ASCII space after commas on the same line in JSON, JSONC, and JSON5 using [`@eslint/json`](https://github.com/eslint/json).
 
-Line breaks and the whitespace around them are preserved, including comma-first layouts. Whitespace after a trailing comma immediately before `]` or `}` is ignored, but whitespace before the comma is still checked.
+Preserves line breaks and surrounding whitespace, including comma-first layouts. Ignores spacing after trailing commas directly before `]` or `}`, but still checks spacing before them.
 
-Comments are treated as adjacent tokens: whitespace between a comma and a comment is checked, while comment contents and whitespace on the other side of the comment are preserved. For example, `[1,/* comment */]` is fixed to `[1, /* comment */]`, even though the comma is trailing. Commas inside strings and comments are ignored.
+Checks spacing between commas and adjacent comments, preserving comment contents and whitespace beyond them. For example, `[1,/* comment */]` becomes `[1, /* comment */]`. Commas inside strings and comments are ignored.
 
-This rule has no options and is disabled by default. It does not support JavaScript or the languages provided by `eslint-plugin-jsonc`. Unlike [`@stylistic/comma-spacing`](https://eslint.style/rules/comma-spacing), which accepts one or more spaces, this rule requires exactly one space.
+This rule has no options and does not support `eslint-plugin-jsonc` languages.
+
+For JavaScript and TypeScript, use [`@stylistic/comma-spacing`](https://eslint.style/rules/comma-spacing), which allows multiple spaces after commas.
 
 ## Examples
 
@@ -46,23 +48,3 @@ This rule has no options and is disabled by default. It does not support JavaScr
 ```json5
 [1, 2,]
 ```
-
-## Usage
-
-```js
-import json from '@eslint/json';
-import unicorn from 'eslint-plugin-unicorn';
-
-export default [
-	{
-		files: ['**/*.json'],
-		plugins: {json, unicorn},
-		language: 'json/json',
-		rules: {
-			'unicorn/comma-spacing': 'error',
-		},
-	},
-];
-```
-
-For JSONC or JSON5 files, use the corresponding file pattern and `language: 'json/jsonc'` or `language: 'json/json5'`. JSONC trailing commas require `languageOptions: {allowTrailingCommas: true}`.
