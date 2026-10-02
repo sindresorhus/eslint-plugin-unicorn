@@ -196,7 +196,9 @@ test({
 		const value = `${hashes.sha256}${character}broken`;
 		return {
 			code: `<script integrity=${value}></script>`,
-			errors: [{messageId: 'invalid', column: 19, endColumn: 19 + value.length, suggestions: 0}],
+			errors: [{
+				messageId: 'invalid', column: 19, endColumn: 19 + value.length, suggestions: 0,
+			}],
 		};
 	}),
 });
