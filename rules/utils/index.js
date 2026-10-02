@@ -119,6 +119,7 @@ export {
 export {default as isBigInt, isKnownNonBigInt} from './is-bigint.js';
 export {default as isConstEnumReference} from './is-const-enum-reference.js';
 export {default as isString, isKnownNonString} from './is-string.js';
+export {default as isUrl, isFreshUrl} from './is-url.js';
 export {default as isNodeValueNotDomNode} from './is-node-value-not-dom-node.js';
 export {default as isNodeValueNotFunction} from './is-node-value-not-function.js';
 export {default as isNodeContainsLexicalThis} from './is-node-contains-lexical-this.js';

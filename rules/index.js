@@ -116,6 +116,7 @@ export {default as 'no-invalid-property-descriptor'} from './no-invalid-property
 export {default as 'no-invalid-remove-event-listener'} from './no-invalid-remove-event-listener.js';
 export {default as 'no-invalid-style-set-property'} from './no-invalid-style-set-property.js';
 export {default as 'no-invalid-temporal-arithmetic'} from './no-invalid-temporal-arithmetic.js';
+export {default as 'no-invalid-url-protocol-comparison'} from './no-invalid-url-protocol-comparison.js';
 export {default as 'no-invalid-well-known-symbol-methods'} from './no-invalid-well-known-symbol-methods.js';
 export {default as 'no-javascript-url'} from './no-javascript-url.js';
 export {default as 'no-keyword-prefix'} from './no-keyword-prefix.js';
