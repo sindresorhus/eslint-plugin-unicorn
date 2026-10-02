@@ -176,6 +176,17 @@ test({
 			code: 'style.setProperty("color", "red", false)',
 			errors: [{messageId: 'no-invalid-style-set-property/priority', suggestions: []}],
 		},
+		{
+			code: 'style.setProperty("color", "red !important", void trackPriority())',
+			errors: [{messageId: 'no-invalid-style-set-property/value', suggestions: []}],
+		},
+		{
+			code: 'style.setProperty("color", "red !important", "", trackUpdate())',
+			errors: [{
+				messageId: 'no-invalid-style-set-property/value',
+				suggestions: [{messageId: 'no-invalid-style-set-property/move-important', output: 'style.setProperty("color", \'red\', \'important\', trackUpdate())'}],
+			}],
+		},
 	],
 });
 
