@@ -80,6 +80,8 @@ test.snapshot({
 		typeAware('const style = {setProperty() {}}; style.setProperty("backgroundColor", "red");'),
 		typeAware('declare const style: CSSStyleDeclaration | {setProperty: Function}; style.setProperty("backgroundColor", "red");'),
 		typeAware('declare const object: {style: {setProperty: Function}}; object.style.setProperty("backgroundColor", "red");'),
+		{code: '((element?.style) as {setProperty: Function})?.setProperty("backgroundColor", "red")', languageOptions: {parser: parsers.typescript}},
+		typeAware('declare const object: {style: {setProperty: Function}} | undefined; (object?.style)?.setProperty("backgroundColor", "red");'),
 	],
 	invalid: [
 		'style.setProperty("backgroundColor", "red")',
@@ -146,6 +148,9 @@ test.snapshot({
 		'style.setProperty("webkitMaskBoxImageOutset", "0")',
 		'style.setProperty("color", "red !important", (/* keep */ ""))',
 		'style.setProperty("--tokens", "red/* keep */ !important")',
+		'(element?.style)?.setProperty("backgroundColor", "red")',
+		'(element?.style).setProperty("color", "red !important")',
+		{code: '((element?.style)!).setProperty("color", "red", "!important")', languageOptions: {parser: parsers.typescript}},
 	],
 });
 

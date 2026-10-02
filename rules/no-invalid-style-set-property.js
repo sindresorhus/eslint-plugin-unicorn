@@ -43,6 +43,7 @@ const isStyleReceiver = (node, context) => {
 
 	node = unwrapTypeScriptExpression(node);
 	return type === target
+		|| (node.type === 'ChainExpression' && isStyleReceiver(node.expression, context))
 		|| (node.type === 'Identifier' && node.name === 'style')
 		|| isMemberExpression(node, {property: 'style'});
 };
