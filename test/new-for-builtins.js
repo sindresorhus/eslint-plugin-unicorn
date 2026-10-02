@@ -1,4 +1,3 @@
-
 import outdent from 'outdent';
 import {enforceNew, disallowNew, disallowCallOrNew} from '../rules/utils/builtins.js';
 import {getTester, parsers} from './utils/test.js';
