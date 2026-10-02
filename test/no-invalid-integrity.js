@@ -17,6 +17,7 @@ const validMetadata = [
 	`${hashes.sha256} sha25-abc future-unknown garbage`,
 	` \t${hashes.sha256}\r\n${hashes.sha384}\f `,
 	`${hashes.sha256}?`,
+	`${hashes.sha256}?!~`,
 	`${hashes.sha384}?foo=bar?spam=eggs`,
 	`${publicKey}?future-option`,
 	// The grammar permits zero to two padding characters, regardless of canonical padding.
@@ -149,6 +150,8 @@ test.snapshot({
 		{code: '<link integrity=sha256-AAAA/[[digest]]>', languageOptions: {parserOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]}}},
 		// The parser can omit attributes after an unquoted URL containing a slash.
 		'<script src=https://example.test/app.js integrity="sha256-abc"></script>',
+		// The parser can also omit unquoted values starting with a slash.
+		'<link integrity=/unknown>',
 		'<iframe><link integrity="sha256-abc"></iframe>',
 		'<iframe><script integrity="sha256-abc"></script></iframe>',
 		'<IFRAME><div><link integrity="sha256-abc"></div></IFRAME>',
@@ -181,6 +184,7 @@ test({
 	],
 	invalid: [
 		{code: '<link integrity="sha256-abc">', errors: [{messageId: 'invalid', suggestions: 0}]},
+		{code: '<link integrity="/unknown">', errors: [{messageId: 'unrecognized', suggestions: 0}]},
 		{code: '<script integrity="sha256-abc0"></script>', languageOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]}, errors: [{messageId: 'invalid', suggestions: 0}]},
 		{code: '<iframe></iframe><script integrity="sha256-abc"></script>', errors: [{messageId: 'invalid', suggestions: 0}]},
 		{code: '<script integrity="sha256-abc"></script>', languageOptions: {rawContentTags: ['script']}, errors: [{messageId: 'invalid', suggestions: 0}]},
@@ -199,6 +203,7 @@ test({
 		{code: '<script integrity={false || "sha256-abc"} />', errors: [{messageId: 'invalid', suggestions: 0}]},
 		{code: '<script integrity={true ? "sha256-abc" : integrity} />', errors: [{messageId: 'invalid', suggestions: 0}]},
 		{code: jsx('sha256?option'), errors: [{messageId: 'invalid', data: {token: 'sha256?option', reason: 'The algorithm must be followed by `-` and a base64 value.'}, suggestions: 0}]},
+		{code: jsx(`${hashes.sha256}?\u001F`), errors: [{messageId: 'invalid', suggestions: 0}]},
 		{code: '<iframe><script integrity="sha256-abc" /></iframe>', errors: [{messageId: 'invalid', suggestions: 0}]},
 	],
 });
