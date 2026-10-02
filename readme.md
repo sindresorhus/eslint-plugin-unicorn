@@ -198,6 +198,7 @@ export default defineConfig([
 | [no-invalid-dom-token](docs/rules/no-invalid-dom-token.md)                                                 | Disallow invalid DOM tokens.                                                                                                   | ✅ ☑️ |    | 💡 |    |
 | [no-invalid-fetch-options](docs/rules/no-invalid-fetch-options.md)                                         | Disallow invalid options in `fetch()` and `new Request()`.                                                                     | ✅ ☑️ |    |    |    |
 | [no-invalid-file-input-accept](docs/rules/no-invalid-file-input-accept.md)                                 | Disallow invalid `accept` values on file inputs.                                                                               |      | 🔧 |    |    |
+| [no-invalid-integrity](docs/rules/no-invalid-integrity.md)                                                 | Disallow invalid subresource integrity metadata.                                                                               | ✅ ☑️ |    |    |    |
 | [no-invalid-intl-options](docs/rules/no-invalid-intl-options.md)                                           | Disallow invalid or ignored Intl options.                                                                                      | ✅ ☑️ |    | 💡 |    |
 | [no-invalid-media-features](docs/rules/no-invalid-media-features.md)                                       | Disallow unknown media features and invalid values for known media features.                                                   |      |    |    |    |
 | [no-invalid-property-descriptor](docs/rules/no-invalid-property-descriptor.md)                             | Disallow invalid property descriptors.                                                                                         | ✅ ☑️ |    | 💡 |    |
@@ -624,6 +625,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-empty-link-text`](docs/rules/no-empty-link-text.md) |  |  |  | ✅ |  |  |
 | [`no-ineffective-csp-directives`](docs/rules/no-ineffective-csp-directives.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |  |
+| [`no-invalid-integrity`](docs/rules/no-invalid-integrity.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |  |
 | [`no-javascript-url`](docs/rules/no-javascript-url.md) |  |  |  | ✅ |  |  |
 | [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md) | ✅ |  | ✅ |  | ✅ |  |

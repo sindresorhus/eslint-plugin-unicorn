@@ -107,6 +107,7 @@ export {default as 'no-invalid-character-comparison'} from './no-invalid-charact
 export {default as 'no-invalid-dom-token'} from './no-invalid-dom-token.js';
 export {default as 'no-invalid-fetch-options'} from './no-invalid-fetch-options.js';
 export {default as 'no-invalid-file-input-accept'} from './no-invalid-file-input-accept.js';
+export {default as 'no-invalid-integrity'} from './no-invalid-integrity.js';
 export {default as 'no-invalid-intl-options'} from './no-invalid-intl-options.js';
 export {default as 'no-invalid-media-features'} from './no-invalid-media-features.js';
 export {default as 'no-invalid-property-descriptor'} from './no-invalid-property-descriptor.js';
