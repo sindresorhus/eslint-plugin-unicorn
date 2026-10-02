@@ -11,6 +11,8 @@
 
 Disallow Markdown links whose labels contain no non-whitespace content. Empty link labels make links difficult to discover and identify.
 
+This rule checks link labels. [`markdown/no-empty-links`](https://github.com/eslint/markdown/blob/main/docs/rules/no-empty-links.md) checks link destinations.
+
 The rule checks inline links and reference links. Text inside emphasis, strong emphasis, GFM strikethrough, and inline code counts as content. Character references in text and image alternative text are checked after decoding, so `&nbsp;` alone does not count as content. Inside inline code and math, character references remain literal text and count as content.
 
 Inline math is checked when the Markdown parser's `math` language option is enabled. GFM footnote references count as content because they render a reference marker.

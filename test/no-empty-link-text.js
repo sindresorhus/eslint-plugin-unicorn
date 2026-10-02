@@ -120,3 +120,9 @@ test.snapshot({
 		'[*$ $*](https://example.com)',
 	].flatMap(code => markdownCases(code)),
 });
+
+test.snapshot({
+	testerOptions: {languageOptions: {frontmatter: 'yaml'}},
+	valid: [],
+	invalid: markdownCases('---\ntitle: "[](https://example.com)"\n---\n\n[](https://example.com)'),
+});
