@@ -7,7 +7,12 @@ import {
 	isGlobalIdentifier,
 	wouldRemoveComments,
 } from './utils/index.js';
-import {getTypeSymbol, isDefaultLibrarySymbol, isNullishType, isUnknownType} from './utils/types.js';
+import {
+	getTypeSymbol,
+	isDefaultLibrarySymbol,
+	isNullishType,
+	isUnknownType,
+} from './utils/types.js';
 
 const MESSAGE_ID = 'no-invalid-boolean-attribute-value';
 const MESSAGE_ID_REMOVE = 'no-invalid-boolean-attribute-value/remove';
