@@ -235,10 +235,7 @@ const serializeCyclicLists = (declarations, sourceCode, order, primaryIndex) => 
 	return layers.join(', ');
 };
 
-const serializeTransition = (declarations, sourceCode) => {
-	const order = declarations.length === 5 ? [1, 2, 3, 4, 0] : [1, 2, 3, 0];
-	return serializeCyclicLists(declarations, sourceCode, order, 0);
-};
+const serializeTransition = (declarations, sourceCode) => serializeCyclicLists(declarations, sourceCode, [1, 2, 3, 4, 0], 0);
 
 const serializeAnimation = (declarations, sourceCode) => {
 	const animationNameDeclaration = declarations[7];

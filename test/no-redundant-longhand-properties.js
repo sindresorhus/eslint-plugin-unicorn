@@ -363,6 +363,11 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { border-inline-end-width: 2px; border-inline-start-width: 1px; }',
+			output: 'a { border-inline-width: 1px 2px; }',
+			errors: 1,
+		},
+		{
 			code: 'a { border-inline-start-style: solid; border-inline-end-style: dashed; }',
 			output: 'a { border-inline-style: solid dashed; }',
 			errors: 1,
@@ -380,6 +385,11 @@ testRule({
 		{
 			code: 'a { border-block-start-style: solid; border-block-end-style: solid; }',
 			output: 'a { border-block-style: solid; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-style: solid; /* Keep this explanation. */ border-block-end-style: solid; }',
+			output: null,
 			errors: 1,
 		},
 		{
