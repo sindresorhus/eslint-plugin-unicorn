@@ -163,7 +163,12 @@ function isFetchChunk(node, loop, context) {
 	const {definition} = binding;
 	const declaration = definition.node;
 	if (loop.type === 'ForOfStatement' && loop.await && declaration.parent === loop.left && declaration.id === definition.name) {
-		return isFetchBody(loop.right, context);
+		let iterable = unwrapCallee(resolveExpression(loop.right, context));
+		if (isMethodCall(iterable, {method: 'values', maximumArguments: 1})) {
+			iterable = iterable.callee.object;
+		}
+
+		return isFetchBody(iterable, context);
 	}
 
 	return declaration.id.type === 'ObjectPattern'

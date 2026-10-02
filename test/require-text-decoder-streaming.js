@@ -67,7 +67,12 @@ testRule.snapshot({
 		forAwait().replace('response.body', 'stream'),
 		forAwait().replace('response.body', 'response.body.pipeThrough(framer)'),
 		forAwait().replace('response.body', 'response.body.pipeThrough(new TextDecoderStream())'),
-		forAwait().replace('response.body', 'response.body.values()'),
+		forAwait().replace('response.body', 'stream.values()'),
+		forAwait().replace('response.body', 'response.body.pipeThrough(framer).values()'),
+		forAwait().replace('response.body', 'response.body["values"]()'),
+		forAwait().replace('response.body', 'response.body.values(...options)'),
+		forAwait().replace('response.body', 'response.body.values({}, extra)'),
+		forAwait('text += decoder.decode(chunk, {stream: true});').replace('response.body', 'response.body.values()'),
 		forAwait().replace('await fetch(url)', 'new Response(stream)'),
 		forAwait().replace('await fetch(url)', 'getResponse()'),
 		forAwait().replace('await fetch(url)', 'fetch(url)'),
@@ -209,6 +214,7 @@ testRule.typescript({
 			forAwait().replace('fetch(url)', 'globalThis.fetch!(url)'),
 			forAwait().replace('fetch(url)', 'globalThis!.fetch(url)'),
 			forAwait().replace('fetch(url)', '(globalThis as typeof globalThis).fetch(url)'),
+			forAwait().replace('response.body', 'response.body!.values!()'),
 			readerLoop().replace('getReader()', 'getReader!()').replace('reader.read()', 'reader.read!()'),
 		].map(code => ({
 			code,
@@ -235,10 +241,37 @@ testRule({
 			forAwait(),
 			readerLoop(),
 			forAwait().replace('const decoder', 'const alias = response; const decoder').replace('response.body', 'alias.body'),
+			forAwait().replace('response.body', 'response.body.values()'),
+			forAwait().replace('response.body', 'response.body.values({preventCancel: true})'),
+			forAwait('text += decoder.decode(chunk);', 'const chunks = response.body.values();').replace('const chunk of response.body', 'const chunk of chunks'),
 		].map(code => ({
 			code,
 			errors: [{messageId, suggestions: [{messageId: suggestionId, output: suggestionOutput(code)}]}],
 		})),
+		{
+			code: outdent`
+				const response = await fetch(url);
+				const decoder = new TextDecoder();
+				let text = '';
+				for await (const chunk of response.body) {
+					text += decoder.decode(chunk);
+				}
+			`,
+			errors: [{
+				messageId, suggestions: [{
+					messageId: suggestionId,
+					output: outdent`
+						const response = await fetch(url);
+						const decoder = new TextDecoder();
+						let text = '';
+						for await (const chunk of response.body) {
+							text += decoder.decode(chunk, {stream: true});
+						}
+						text += decoder.decode();
+					`,
+				}],
+			}],
+		},
 		{
 			code: forAwait().replace('\n\t}\n}', '\n\t}\n\ttext += decoder.decode();\n}'),
 			errors: [{messageId, suggestions: [{messageId: suggestionId, output: suggestionOutput(forAwait())}]}],
@@ -291,7 +324,11 @@ function createResponse(bytes) {
 	}));
 }
 
-for (const [name, code] of [['async iteration', forAwait()], ['reader loop', readerLoop()]]) {
+for (const [name, code] of [
+	['async iteration', forAwait()],
+	['explicit iterator', forAwait().replace('response.body', 'response.body.values({preventCancel: true})')],
+	['reader loop', readerLoop()],
+]) {
 	test(`${name}: the suggested code preserves split characters and flushes`, async t => {
 		const [problem] = linter.verify(code, config);
 		t.is(problem.messageId, messageId);
