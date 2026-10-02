@@ -43,12 +43,8 @@ The rule suggests replacing a forbidden, statically known primitive constructor 
 
 ## Detection
 
-Checks direct calls with inline constructor or JSON options objects, including TypeScript assertions. A later spread or unknown computed key prevents checking the status.
+Checks direct calls with inline constructor or JSON options objects, using conservative static evaluation and [Web IDL status conversion](https://webidl.spec.whatwg.org/#es-unsigned-short). Constructor body conflicts require a provably non-nullish body.
 
-Checks statically known number, string, boolean, `null`, and `undefined` statuses. Evaluation supports literals, unary operations on primitive literals or built-in constants, templates with primitive literal interpolations, and constants initialized directly with these forms. Constant aliases and compound expressions are skipped. Values follow [Web IDL unsigned short conversion](https://webidl.spec.whatwg.org/#es-unsigned-short); omitted or undefined statuses default to 200 for construction and 302 for redirects.
-
-Constructor bodies must be provably non-nullish. Unknown variables and function results are skipped.
-
-Aliases, qualified globals, optional or computed method calls, spread arguments in the first two positions, and status accessors are skipped. Built-ins are assumed to be unshadowed. Headers, `statusText`, and redirect URLs are outside this rule's scope.
+Skips unknown values or overrides, aliases, qualified globals, optional or computed method calls, and spread arguments in the first two positions. Assumes unshadowed built-ins. Headers, `statusText`, and redirect URLs are not checked.
 
 Related rules: [`no-invalid-fetch-options`](./no-invalid-fetch-options.md), [`no-unnecessary-fetch-options`](./no-unnecessary-fetch-options.md), [`no-invalid-argument-count`](./no-invalid-argument-count.md), [`prefer-response-static-json`](./prefer-response-static-json.md), and [`no-null`](./no-null.md).
