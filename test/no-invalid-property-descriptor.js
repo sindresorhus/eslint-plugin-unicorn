@@ -183,10 +183,10 @@ test({
 			suggestions: [{messageId: 'rename-writeable', output: 'Object.defineProperty(object, "property", {writable: writeable});'}],
 		}],
 	}, {
-		code: 'const wr\\u0069teable = true; Object.defineProperty(object, "property", {wr\\u0069teable});',
+		code: String.raw`const wr\u0069teable = true; Object.defineProperty(object, "property", {wr\u0069teable});`,
 		errors: [{
 			messageId: 'unknown-field',
-			suggestions: [{messageId: 'rename-writeable', output: 'const wr\\u0069teable = true; Object.defineProperty(object, "property", {writable: wr\\u0069teable});'}],
+			suggestions: [{messageId: 'rename-writeable', output: String.raw`const wr\u0069teable = true; Object.defineProperty(object, "property", {writable: wr\u0069teable});`}],
 		}],
 	}, {
 		code: 'const writeable = true; Object.defineProperty(object, "property", {writeable} as PropertyDescriptor);',
