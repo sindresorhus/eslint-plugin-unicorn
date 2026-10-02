@@ -1,5 +1,10 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
-import {isBigIntLiteral, isNumericLiteral, isMethodCall} from './ast/index.js';
+import {
+	isBigIntLiteral,
+	isNumericLiteral,
+	isStringLiteral,
+	isMethodCall,
+} from './ast/index.js';
 import {getStaticValueForControlFlow, isString, unwrapTypeScriptExpression} from './utils/index.js';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import {
@@ -163,7 +168,13 @@ const optionsByConstructor = {
 		localeMatcher,
 		numberingSystem: unicodeType,
 		style: [...textStyles, 'digital'],
-		...Object.fromEntries(durationUnits.map((unit, index) => [unit, index < 4 ? textStyles : [...textStyles, ...(index < 7 ? numericStyles : ['numeric'])]])),
+		...Object.fromEntries(durationUnits.map((unit, index) => {
+			if (index < 4) {
+				return [unit, textStyles];
+			}
+
+			return [unit, [...textStyles, ...(index < 7 ? numericStyles : ['numeric'])]];
+		})),
 		...Object.fromEntries(durationUnits.map(unit => [`${unit}Display`, ['auto', 'always']])),
 		fractionalDigits: [0, 9],
 	},
@@ -354,7 +365,7 @@ function getNormalizedValue(value, definition, name) {
 	if (Array.isArray(definition)) {
 		return definition.includes(string)
 			? {value: string}
-			: {expected: definition.map(value => `"${value}"`).join(', ')};
+			: {expected: `one of ${definition.map(value => `"${value}"`).join(', ')}`};
 	}
 
 	const isValid = definition instanceof RegExp ? definition.test(string) : definition(string);
@@ -434,12 +445,12 @@ function validateDurationOptions(values, addProblem) {
 	for (const unit of timeUnits) {
 		let style = values.get(unit);
 		if (style === undefined) {
-			if (baseStyle === 'digital') {
+			if (baseStyle === 'digital' || ['numeric', '2-digit', 'fractional'].includes(previousStyle)) {
 				style = 'numeric';
 			} else if (baseStyle === unknown || previousStyle === unknown) {
 				style = unknown;
 			} else {
-				style = ['numeric', '2-digit', 'fractional'].includes(previousStyle) ? 'numeric' : baseStyle;
+				style = baseStyle;
 			}
 		}
 
@@ -641,7 +652,13 @@ const callTracker = new GlobalReferenceTracker({
 	handle: ({node, path}, context) => getOptionsProblems(node, path.length === 3 ? 'supportedLocalesOf' : path[1], path.join('.'), context),
 });
 const {isTarget: isDate} = createBuiltinTypeCheckers({name: 'Date', checkClassHeritage: false});
-const {isTarget: isBuiltinString} = createBuiltinTypeCheckers({name: 'String', checkClassHeritage: false});
+const {isTarget: isStringReceiver} = createBuiltinTypeCheckers({
+	name: 'String',
+	checkClassHeritage: false,
+	allowNullishInMixedUnion: true,
+	isTargetTypeAnnotation: node => node?.type === 'TSStringKeyword' || (node?.type === 'TSLiteralType' && isStringLiteral(node.literal)),
+	isTargetType: type => type.intrinsicName === 'string' || type.isStringLiteral?.(),
+});
 const {isTarget: isNumericReceiver} = createTypeCheckers({
 	checkClassHeritage: false,
 	allowNullishInMixedUnion: true,
@@ -683,7 +700,7 @@ const create = context => {
 		}
 
 		const receiver = callee.object;
-		if (method === 'localeCompare' && (isString(receiver, context) || isBuiltinString(receiver, context))) {
+		if (method === 'localeCompare' && (isString(receiver, context) || isStringReceiver(receiver, context))) {
 			return getOptionsProblems(node, 'Collator', 'String.localeCompare', context);
 		}
 

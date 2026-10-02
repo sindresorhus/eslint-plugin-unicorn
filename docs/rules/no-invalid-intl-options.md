@@ -79,7 +79,7 @@ The rule has no automatic fixes. It does not guess replacement values or correct
 
 Only inline object literals are inspected, including literals wrapped in TypeScript assertions, non-null assertions, or `satisfies`. The entire option object is skipped if it contains spreads, unresolved keys, duplicate keys, accessors, methods, or prototype-setting properties. Calls with argument spreads before or at the options argument are skipped.
 
-Only statically known primitive values are validated. Dynamic or potentially mutable values remain unknown, and dependent checks are skipped when their controlling values are unknown. Object coercion and user code are not executed.
+Only statically known primitive values are validated. Dynamic or potentially mutable values remain unknown. Combination checks run only when their outcome can be determined from known values. Object coercion and user code are not executed.
 
 Option-object bindings, generic Arrays, Temporal methods, borrowed methods, and subclasses are outside the rule's scope. Missing constructor arguments are handled by [`no-invalid-argument-count`](./no-invalid-argument-count.md).
 

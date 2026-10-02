@@ -288,6 +288,34 @@ ruleTest.snapshot({
 	],
 });
 
+ruleTest.snapshot({
+	valid: [
+		construct('Collator', 'numeric: Symbol.iterator'),
+		construct('DurationFormat', 'style: dynamicStyle, hours: "numeric", seconds: "numeric", milliseconds: "numeric"'),
+		...['string | number', 'string | number | undefined'].map(type => ({
+			code: `function run(value: ${type}) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); }`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		typeAware('function run(value: string | number | undefined) { value?.localeCompare("other", "en", {sensitivity: "wrong"}); }'),
+	],
+	invalid: [
+		construct('NumberFormat', 'style: Symbol.iterator'),
+		construct('NumberFormat', 'maximumFractionDigits: Symbol.iterator'),
+		construct('NumberFormat', 'useGrouping: Symbol.iterator'),
+		construct('DateTimeFormat', 'timeZone: Symbol.iterator'),
+		...[
+			'style: dynamicStyle, hours: "numeric", seconds: "long"',
+			'style: dynamicStyle, seconds: "numeric", millisecondsDisplay: "always"',
+			'style: dynamicStyle, milliseconds: "numeric", nanoseconds: "long"',
+		].map(options => construct('DurationFormat', options)),
+		...['string | undefined', '"a" | null', 'String | undefined'].map(type => ({
+			code: `function run(value: ${type}) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); }`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		typeAware('function run(value: string | undefined) { value?.localeCompare("other", "en", {sensitivity: "wrong"}); }'),
+	],
+});
+
 test.serial('validation does not use the host Intl implementation or execute user code', t => {
 	const originalIntl = Intl;
 	Object.defineProperty(globalThis, 'Intl', {
