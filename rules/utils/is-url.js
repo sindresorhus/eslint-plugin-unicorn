@@ -5,17 +5,12 @@ import {
 	isDefaultLibrarySymbol,
 	isDefinitionBeforeReference,
 	isTypeImportSpecifier,
+	isUnknownType,
 } from './index.js';
 
 const url = 'url';
 const nonUrl = 'non-url';
 const unknown = 'unknown';
-
-const unknownTypeNames = new Set([
-	'any',
-	'error',
-	'unknown',
-]);
 
 const urlImportSources = new Set([
 	'node:url',
@@ -185,10 +180,7 @@ const getTypeAnnotationType = (node, context, scope, visitedTypeReferenceNames =
 			return getTypeReferenceType(node, context, scope, visitedTypeReferenceNames);
 		}
 
-		case 'TSUnionType': {
-			return combineTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
-		}
-
+		case 'TSUnionType':
 		case 'TSIntersectionType': {
 			return combineTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
 		}
@@ -210,7 +202,7 @@ const getTypeAnnotationType = (node, context, scope, visitedTypeReferenceNames =
 const getTypeScriptUrlType = (type, state) => {
 	const {checker, program} = state;
 
-	if (unknownTypeNames.has(type.intrinsicName)) {
+	if (isUnknownType(type)) {
 		return unknown;
 	}
 

@@ -147,6 +147,7 @@ test({
 		typeAware('import type {URL as Url} from "node:url"; { declare const object: {url: Url}; object.url.toString(); type Url = {toString(): string}; }'),
 	],
 	invalid: [
+		{...typeAware('const {url} = {url: new URL("https://example.com")}; url.toString();'), errors: [{messageId: 'prefer-url-href'}]},
 		{...typescript('function foo(url: Url) { return url.toString(); } type Url = URL;'), errors: [{messageId: 'prefer-url-href'}]},
 		{...typeAware('function foo(url: Url) { return url.toString(); } type Url = URL;'), errors: [{messageId: 'prefer-url-href'}]},
 		{...typescript('function foo(url: URL) { type URL = {toString(): string}; return url.toString(); }'), errors: [{messageId: 'prefer-url-href'}]},

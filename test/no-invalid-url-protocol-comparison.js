@@ -188,6 +188,11 @@ testRule({
 	valid: [],
 	invalid: [
 		{
+			...typeAware('const {url} = {url: new URL("https://example.com")}; url.protocol === "https";'),
+			output: 'const {url} = {url: new URL("https://example.com")}; url.protocol === "https:";',
+			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+		},
+		{
 			...typescript('function example(url: URL) { type URL = {protocol: string}; return url.protocol === "https"; }'),
 			output: 'function example(url: URL) { type URL = {protocol: string}; return url.protocol === "https:"; }',
 			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
