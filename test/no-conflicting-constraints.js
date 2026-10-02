@@ -14,6 +14,8 @@ ruleTest.snapshot({
 		'@media (width >= 500px) and (width <= 500px) {}',
 		'@media (500px <= width <= 500px) {}',
 		'@media (500px >= width >= 500px) {}',
+		'@media (500px < width <= 1000px) {}',
+		'@media (1000px >= width > 500px) {}',
 		'@media (width: 500px) and (min-width: 500px) {}',
 		'@media (width > 1000px) and (height < 500px) {}',
 		'@media (width > 1000px), (width < 500px) {}',
@@ -203,6 +205,7 @@ ruleTest.snapshot({
 		'let minimum = 10; const bound = minimum; <input type="number" min={bound} max={5} />',
 		'const bounds = {min: 10}; bounds.min = 0; <input type="number" min={bounds.min} max={5} />',
 		'const bounds = {get min() { return 10; }}; <input type="number" min={bounds.min} max={5} />',
+		'let minimum = 10; <input type="number" min={true ? minimum : 0} max={5} />',
 	],
 	invalid: [
 		'<input type="range" min="10" max="5" />',
@@ -222,6 +225,7 @@ ruleTest.snapshot({
 		'<input type="number" min={10} max={5} className={className} />',
 		{code: '<input type="number" min={(10 as number) + 5} max={5} />', languageOptions: {parser: parsers.typescript}},
 		{code: 'const minimum = 10 as number; <input type="number" min={minimum} max={5} />', languageOptions: {parser: parsers.typescript}},
+		'let minimum = 10; <input type="number" min={true ? 10 : minimum} max={5} />',
 	],
 });
 
