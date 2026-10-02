@@ -84,6 +84,8 @@ test.snapshot({
 		// Destructured bindings must not inherit the initializer's type
 		'const [map] = [new Map()]; [...map.values()];',
 		'const {0: map} = [new Map()]; [...map.values()];',
+		'const [map] = [new Map()]; const alias = map; [...alias.values()];',
+		'const [map] = [new Map()]; [...map.entries()];',
 		typescript('const [map] = [new Map<string, string>()]; [...map.values()];'),
 	],
 	invalid: [
@@ -184,6 +186,9 @@ test.snapshot({
 			[...map.keys()];
 		`),
 		typeAware('const {0: map} = [new Map<string, string>()]; [...map.values()]; [...map.keys()];'),
+
+		// Map entries are tuples, whose entries iterator is not the default
+		typeAware('const [entry] = new Map<string, string>(); [...entry.entries()];'),
 	],
 	invalid: [
 		typeAware('type Items = string[]; function foo(items: Items) { return [...items.values()]; }'),
@@ -205,5 +210,6 @@ test.snapshot({
 		typeAware('const {0: map} = [new Map<string, string>()]; [...map.entries()];'),
 		typeAware('const [set] = [new Set<string>()]; [...set.values()];'),
 		typeAware('const [set] = [new Set<string>()]; [...set.keys()];'),
+		typeAware('const [...entries] = new Map<string, string>(); [...entries.values()];'),
 	],
 });
