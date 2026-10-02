@@ -196,6 +196,7 @@ const suggestionOutput = code => code
 testRule.typescript({
 	valid: [
 		forAwait('text += decoder.decode!(chunk, {stream: true});'),
+		forAwait().replace('fetch(url)', '(client as typeof globalThis).fetch(url)'),
 	],
 	invalid: [
 		...[
@@ -206,6 +207,8 @@ testRule.typescript({
 		...[
 			forAwait().replace('fetch(url)', 'fetch!(url)').replace('new TextDecoder()', 'new (TextDecoder!)()'),
 			forAwait().replace('fetch(url)', 'globalThis.fetch!(url)'),
+			forAwait().replace('fetch(url)', 'globalThis!.fetch(url)'),
+			forAwait().replace('fetch(url)', '(globalThis as typeof globalThis).fetch(url)'),
 			readerLoop().replace('getReader()', 'getReader!()').replace('reader.read()', 'reader.read!()'),
 		].map(code => ({
 			code,

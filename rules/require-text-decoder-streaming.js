@@ -121,10 +121,16 @@ function isFetchBody(node, context) {
 	}
 
 	const call = unwrapCallee(response.argument);
-	return isCallExpression(call, {name: 'fetch', minimumArguments: 1, maximumArguments: 2})
-		|| isMethodCall(call, {
-			object: 'globalThis', method: 'fetch', minimumArguments: 1, maximumArguments: 2,
-		});
+	if (isCallExpression(call, {name: 'fetch', minimumArguments: 1, maximumArguments: 2})) {
+		return true;
+	}
+
+	if (!isMethodCall(call, {method: 'fetch', minimumArguments: 1, maximumArguments: 2})) {
+		return false;
+	}
+
+	const object = unwrapExpression(call.callee.object);
+	return object.type === 'Identifier' && object.name === 'globalThis';
 }
 
 function isFetchRead(node, loop, context) {
