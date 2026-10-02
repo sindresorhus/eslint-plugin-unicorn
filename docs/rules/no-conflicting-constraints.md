@@ -20,16 +20,48 @@ The rule checks flat positive conjunctions in `@media`, `@import`, and `@contain
 ```css
 /* ❌ */
 @media (width > 1000px) and (width < 500px) {}
+
+/* ✅ */
+@media (width > 1000px), (width < 500px) {}
+```
+
+```css
+/* ❌ */
 @media (1000px < width < 500px) {}
-@media (500px > width > 1000px) {}
-@media (min-width: 1000px) and (max-width: 500px) {}
-@media (width >= 500px) and (width < 500px) {}
-@container card (inline-size > 1000px) and (inline-size < 500px) {}
 
 /* ✅ */
 @media (500px < width < 1000px) {}
+```
+
+```css
+/* ❌ */
+@media (500px > width > 1000px) {}
+
+/* ✅ */
+@media (1000px > width > 500px) {}
+```
+
+```css
+/* ❌ */
+@media (min-width: 1000px) and (max-width: 500px) {}
+
+/* ✅ */
+@media (min-width: 500px) and (max-width: 1000px) {}
+```
+
+```css
+/* ❌ */
+@media (width >= 500px) and (width < 500px) {}
+
+/* ✅ */
 @media (width >= 500px) and (width <= 500px) {}
-@media (width > 1000px), (width < 500px) {}
+```
+
+```css
+/* ❌ */
+@container card (inline-size > 1000px) and (inline-size < 500px) {}
+
+/* ✅ */
 @container card (500px < inline-size < 1000px) {}
 ```
 
@@ -49,12 +81,29 @@ The rule checks:
 ```html
 <!-- ❌ -->
 <input type="number" min="10" max="5">
-<input minlength="10" maxlength="5">
-<textarea minlength="10" maxlength="5"></textarea>
 
 <!-- ✅ -->
 <input type="number" min="5" max="10">
+```
+
+```html
+<!-- ❌ -->
+<input minlength="10" maxlength="5">
+
+<!-- ✅ -->
 <input minlength="5" maxlength="5">
+```
+
+```html
+<!-- ❌ -->
+<textarea minlength="10" maxlength="5"></textarea>
+
+<!-- ✅ -->
+<textarea minlength="5" maxlength="10"></textarea>
+```
+
+```html
+<!-- ✅ -->
 <input type="time" min="23:00" max="01:00">
 ```
 
@@ -76,10 +125,16 @@ Native `input` and `textarea` elements are checked using `minLength` and `maxLen
 // ❌
 const minimum = 10;
 <input type="number" min={minimum} max={5} />;
+
+// ✅
+<input type="number" min={5} max={minimum} />;
+```
+
+```jsx
+// ❌
 <textarea minLength={10} maxLength={5} />;
 
 // ✅
-<input type="number" min={5} max={10} />;
 <textarea minLength={5} maxLength={10} />;
 ```
 
