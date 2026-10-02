@@ -180,6 +180,7 @@ export {default as 'no-unreadable-new-expression'} from './no-unreadable-new-exp
 export {default as 'no-unreadable-object-destructuring'} from './no-unreadable-object-destructuring.js';
 export {default as 'no-unsafe-buffer-conversion'} from './no-unsafe-buffer-conversion.js';
 export {default as 'no-unsafe-dom-html'} from './no-unsafe-dom-html.js';
+export {default as 'no-unsafe-json-stringify'} from './no-unsafe-json-stringify.js';
 export {default as 'no-unsafe-promise-all-settled-values'} from './no-unsafe-promise-all-settled-values.js';
 export {default as 'no-unsafe-property-key'} from './no-unsafe-property-key.js';
 export {default as 'no-unsafe-sqlite-interpolation'} from './no-unsafe-sqlite-interpolation.js';
