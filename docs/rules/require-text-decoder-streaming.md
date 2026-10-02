@@ -11,13 +11,11 @@
 
 <!-- The examples use UTF-8; the rule also checks other encodings. -->
 
-Fetch-body chunks can end in the middle of a multibyte character. Decoding each chunk independently can corrupt text: decoding the bytes of `€` as separate chunks produces `���` instead.
+Fetch-body chunks can split a multibyte character. Decoding each chunk independently can turn `€` into `���`.
 
 The [Encoding Standard](https://encoding.spec.whatwg.org/#interface-textdecoder) describes incremental decoding with the same `TextDecoder` instance: pass `{stream: true}` for each chunk, then consume the result of a final `decoder.decode()` call. The final call flushes any buffered bytes and handles incomplete final characters according to the decoder's `fatal` option.
 
-This rule checks `TextDecoder#decode()` calls whose input comes directly from a native fetch-body stream. It reports missing streaming options or a statically falsy `stream` value. It checks both text accumulation and incremental processing.
-
-The rule does not independently verify decoder reuse or final flushing in code that already enables streaming. Always keep the same decoder between chunks and consume its final flush.
+This rule reports missing streaming options or statically falsy `stream` values when decoding native fetch-body chunks, including incremental processing. It does not independently verify decoder reuse or final flushing.
 
 ## Examples
 
@@ -98,16 +96,14 @@ for await (const record of records) {
 
 ## Suggestions
 
-The rule offers an editor suggestion for simple loops that only accumulate text with `text += decoder.decode(chunk)`, and for the reader-loop shape shown above. The suggestion enables streaming and adds a consumed final flush together, or reuses an immediately following `text += decoder.decode()` flush.
+For the simple accumulation loops shown above, suggestions enable streaming and add or reuse a consumed final flush. There is no autofix because this changes decoding behavior.
 
-Suggestions require a `const` decoder constructed outside the loop, a `let` accumulator initialized to `''`, and both declarations earlier in the same block. The decoder must only be referenced by the chunk decode and optional existing flush, and the accumulator must have no other assignments. Suggestions support omitted options, `{}`, and `{stream: false}`. Comments inside the loop or trailing its closing line prevent suggestions. Other matched calls receive a diagnostic without a suggestion.
-
-No automatic fix is provided because enabling streaming changes decoding behavior and requires a final flush.
+Suggestions require a `const` decoder constructed with `new TextDecoder(...)` and a `let` accumulator initialized to `''`, both declared earlier in the same block. Only the chunk decode and optional immediately following flush may reference the decoder; the accumulator must have no other writes. Options must be omitted, `{}`, or `{stream: false}`. Comments inside the loop or trailing its closing line prevent suggestions.
 
 ## Limitations
 
-The rule follows local `const` bindings and aliases from `await fetch(...)` or `await globalThis.fetch(...)` through `.body`, `.values()` with at most one argument, and `.getReader()`. It recognizes async-iteration chunks, destructured reader values including renamed bindings, and `.value` from an awaited reader result inside a loop. The chunk source and decoding call must share the nearest enclosing loop and function. Decoding an outer loop's chunk inside a nested loop is unchecked. It supports TypeScript expression wrappers and optional chaining on otherwise recognized paths.
+The rule follows local `const` bindings and aliases from awaited `fetch()` or `globalThis.fetch()` through `.body`, `.values()` (at most one argument), and `.getReader()` (no arguments). Async-iteration chunks and reader values must be decoded in the same function and nearest loop. TypeScript wrappers and optional chaining are supported.
 
-The rule intentionally ignores arbitrary byte streams, transformed or framed streams, parameter-only provenance, callbacks, reassigned bindings, BYOB readers, computed method calls, and opaque helper returns. Response or chunk variable names and TypeScript types alone are not evidence of fetch-body provenance. Shadowed built-ins are unsupported.
+Arbitrary, transformed, or framed streams, parameters, callbacks, reassigned bindings, BYOB readers, computed calls, helper returns, and shadowed built-ins are unsupported. Names and types alone do not establish provenance.
 
-Unknown option objects, spreads, accessors, explicit `__proto__` properties, unknown computed option keys, and dynamic streaming flags such as `{stream: !done}` are left unchecked.
+Unknown option objects, dynamic `stream` values, spreads, accessors, explicit `__proto__` properties, and unknown computed keys are unchecked.
