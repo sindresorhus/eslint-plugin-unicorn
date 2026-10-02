@@ -1,6 +1,7 @@
 /* eslint-disable no-template-curly-in-string */
 import test from 'ava';
 import {Linter} from 'eslint';
+import {parse} from 'espree';
 import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
@@ -121,6 +122,9 @@ ruleTest.snapshot({
 			'element.classList.add(("primary active" /* explanation */) as string);',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 		'element.classList.add(`primary ${getSuffix()}`);',
+		'const suffix = " active"; element.classList.add(`primary${suffix}`);',
+		'const token = ""; element.classList.remove(`${token}`);',
+		{code: 'const token = "primary active" as const; element.classList.add(token);', languageOptions: {parser: parsers.typescript}},
 	],
 });
 
@@ -140,6 +144,20 @@ test('split suggestions produce separate valid arguments without autofixing', t 
 	const {fix} = result.messages[0].suggestions[0];
 	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 	t.is(output, 'element.classList.add(\'primary\', \'active\', "other");');
+	t.deepEqual(linter.verify(output, config), []);
+});
+
+test('split suggestions preserve allowed whitespace and escaped token characters', t => {
+	const linter = new Linter();
+	const tokens = ['primary\u000Bactive', 'non\u00A0breaking', 'line\u2028separator', 'paragraph\u2029separator', 'nul\u0000character', 'surrogate\uD800', 'back\\slash', 'quote\'character', '💜', '💜'];
+	const code = `element.classList.remove(${JSON.stringify(tokens.join(' '))});`;
+	const messages = linter.verify(code, config);
+	t.is(messages.length, 1);
+	t.is(messages[0].suggestions.length, 1);
+	const {fix} = messages[0].suggestions[0];
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	const arguments_ = parse(output, {ecmaVersion: 'latest'}).body[0].expression.arguments;
+	t.deepEqual(arguments_.map(({value}) => value), tokens);
 	t.deepEqual(linter.verify(output, config), []);
 });
 
