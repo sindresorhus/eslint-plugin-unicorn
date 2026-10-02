@@ -44,6 +44,7 @@ testRule.snapshot({
 			'{stream: "yes"}',
 			'{stream: false, stream: true}',
 			'{stream: !done}',
+			'{stream: computeFlag()}',
 			'{stream}',
 			'options',
 			'{...options}',
@@ -90,6 +91,9 @@ testRule.snapshot({
 		readerLoop().replace('const {value, done}', 'let {value, done}'),
 		readerLoop('value = record; text += decoder.decode(value);'),
 		readerLoop('const {value} = await otherReader.read(); text += decoder.decode(value);').replace('const {value, done}', 'const {value: bytes, done}'),
+		readerLoop('{ const result = record; text += decoder.decode(result.value); }')
+			.replace('const {value, done} = await reader.read();', 'const result = await reader.read();')
+			.replace('if (done)', 'if (result.done)'),
 		outdent`
 			async function run(response) {
 				const decoder = new TextDecoder();
@@ -224,11 +228,19 @@ testRule({
 			forAwait('text += decoder.decode(chunk, {stream: 0});'),
 			forAwait('text += decoder.decode(chunk, {stream: false, other: value});'),
 			forAwait('text += decoder.decode(chunk, {other: false});'),
+			forAwait('text += decoder.decode(chunk, {other: computeFlag()});'),
 			readerLoop('text += decoder.decode((await reader.read()).value);'),
+			readerLoop('text += decoder.decode(bytes);')
+				.replace('const {value, done} = await reader.read();', 'const result = await reader.read(); const alias = result; const {value: bytes, done} = alias;'),
 			forAwait('text += decoder.decode((await reader.read()).value);', 'const reader = response.body.getReader();')
 				.replace('const chunk of response.body', 'const trigger of events'),
 			forAwait('text += decoder.decode(/* comment */ chunk);'),
 			forAwait('text += decoder.decode(chunk);', 'consume(decoder);'),
+			forAwait('text += decoder.decode(chunk);', 'text = prefix;'),
+			forAwait('text += decoder.decode(chunk);', 'function reset() { text = ""; }'),
+			forAwait('text += decoder.decode(chunk);', 'let otherText = "";')
+				.replace('\n\t}\n}', '\n\t}\n\totherText += decoder.decode();\n}'),
+			forAwait().replace('\n\t}\n}', '\n\t}\n\tdecoder.decode();\n}'),
 			forAwait().replace('\n\t}\n}', '\n\t} // Comment\n}'),
 			forAwait().replace('let text = \'\';', 'let text = getText();'),
 			readerLoop().replace('break;', 'return;'),
