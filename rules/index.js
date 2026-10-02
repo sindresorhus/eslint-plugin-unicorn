@@ -88,6 +88,7 @@ export {default as 'no-duplicate-loops'} from './no-duplicate-loops.js';
 export {default as 'no-duplicate-properties'} from './no-duplicate-properties.js';
 export {default as 'no-duplicate-set-values'} from './no-duplicate-set-values.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';
+export {default as 'no-empty-link-text'} from './no-empty-link-text.js';
 export {default as 'no-error-property-assignment'} from './no-error-property-assignment.js';
 export {default as 'no-exports-in-scripts'} from './no-exports-in-scripts.js';
 export {default as 'no-for-each'} from './no-for-each.js';
