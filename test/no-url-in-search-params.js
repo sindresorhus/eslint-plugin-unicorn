@@ -224,17 +224,22 @@ test('suggestions extract queries and distinguish detached copies from live para
 	t.is(detached.get('query'), 'detached');
 });
 
-test('the URL-string suggestion extracts decoded parameters without the fragment', t => {
-	const linter = new Linter();
-	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
-	const code = 'new URLSearchParams("https://example.com/?query=a%2Bb+c&query=again&empty=#fragment")';
-	const [problem] = linter.verify(code, config);
-	t.is(problem?.suggestions?.length, 1);
-	const {fix} = problem.suggestions[0];
-	const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-	const parameters = runInNewContext(corrected, {URL});
-	t.deepEqual([...parameters], [['query', 'a+b c'], ['query', 'again'], ['empty', '']]);
-});
+for (const [input, expected] of [
+	['https://example.com/?query=a%2Bb+c&query=again&empty=#fragment', [['query', 'a+b c'], ['query', 'again'], ['empty', '']]],
+	['https://example.com/#?query=hello', []],
+]) {
+	test(`the URL-string suggestion extracts only query parameters: ${input}`, t => {
+		const linter = new Linter();
+		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
+		const code = `new URLSearchParams(${JSON.stringify(input)})`;
+		const [problem] = linter.verify(code, config);
+		t.is(problem?.suggestions?.length, 1);
+		const {fix} = problem.suggestions[0];
+		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		const parameters = runInNewContext(corrected, {URL});
+		t.deepEqual([...parameters], expected);
+	});
+}
 
 for (const argument of ['new URL(getInput()).href', 'new URL(getInput())']) {
 	test(`URL receiver suggestions evaluate the input once: ${argument}`, t => {

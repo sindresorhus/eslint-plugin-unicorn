@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`URLSearchParams` parses a query string, not a full URL. Passing a full URL string treats the URL prefix as part of the first parameter name and includes any fragment in the parameter values. Passing a URL object reads its enumerable properties as a record instead of extracting its query.
+`URLSearchParams` parses a query string, not a full URL. Passing a full URL string treats the URL prefix as part of the first parameter name and does not strip the fragment. Passing a URL object reads its enumerable properties as a record instead of extracting its query.
 
 ```js
 const parameters = new URLSearchParams('https://example.com/?query=hello');
