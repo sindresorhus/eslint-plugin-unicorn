@@ -47,7 +47,7 @@ for (const language of [languages.json, languages.jsonc, languages.json5]) {
 			rules: {'unicorn/comma-spacing': 'error'},
 		};
 		for (const [code, output] of [
-			['\uFEFF{"items":[1 ,2,  3],"object":{"a":true ,"b":false}}', '\uFEFF{"items":[1, 2, 3], "object":{"a":true, "b":false}}'],
+			['\uFEFF{"items":["😀, text" ,2,  3],"object":{"a":true ,"b":false}}', '\uFEFF{"items":["😀, text", 2, 3], "object":{"a":true, "b":false}}'],
 			['[1 ,\r\n 2\r ,3 ,\n4]', '[1,\r\n 2\r , 3,\n4]'],
 		]) {
 			const result = linter.verifyAndFix(code, config);

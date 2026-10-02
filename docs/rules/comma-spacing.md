@@ -13,7 +13,7 @@ Enforces no whitespace before commas and exactly one ASCII space after commas on
 
 Line breaks and the whitespace around them are preserved, including comma-first layouts. Whitespace after a trailing comma immediately before `]` or `}` is ignored, but whitespace before the comma is still checked.
 
-Comments are treated as adjacent tokens: whitespace between a comma and a comment is checked, while comment contents and whitespace on the other side of the comment are preserved. Commas inside strings and comments are ignored.
+Comments are treated as adjacent tokens: whitespace between a comma and a comment is checked, while comment contents and whitespace on the other side of the comment are preserved. For example, `[1,/* comment */]` is fixed to `[1, /* comment */]`, even though the comma is trailing. Commas inside strings and comments are ignored.
 
 This rule has no options and is disabled by default. It does not support JavaScript or the languages provided by `eslint-plugin-jsonc`. Unlike [`@stylistic/comma-spacing`](https://eslint.style/rules/comma-spacing), which accepts one or more spaces, this rule requires exactly one space.
 
