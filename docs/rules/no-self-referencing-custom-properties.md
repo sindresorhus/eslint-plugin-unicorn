@@ -64,6 +64,8 @@ export default defineConfig([
 
 ## Limitations
 
+The rule does not resolve dynamically produced property names such as `var(var(--alias))`, but it still checks literal self-references inside nested functions.
+
 The rule does not evaluate whether a fallback or conditional branch is used. The [current CSS draft](https://drafts.csswg.org/css-variables-2/#using-variables) and [web-platform tests](https://github.com/web-platform-tests/wpt/blob/master/css/css-variables/variable-cycles.html) allow cycles in unused fallbacks. For example, the following can compute successfully when `--theme-spacing` has a valid value, but this rule still reports the self-reference:
 
 ```css

@@ -9,6 +9,7 @@ test.snapshot({
 		'a { --spacing: 1px; }',
 		'a { --spacing: var(--base-spacing); }',
 		'a { --spacing: var(--SPACING); }',
+		'a { --café: var(--cafe\u0301); }',
 		'a { --spacing: var(--spacing-extra); }',
 		'a { --spacing: var(--other, --spacing); }',
 		'a { --spacing: --spacing; }',
@@ -25,6 +26,7 @@ test.snapshot({
 		'a { --spacing: var(--other, "var(--spacing)" url("var(--spacing)")); }',
 		'a { spacing: var(--spacing); }',
 		'a { --one: var(--two); --two: var(--one); }',
+		'a { --alias: --spacing; --spacing: var(var(--alias)); }',
 		':root { --spacing: 1px; } a { --component-spacing: var(--spacing); }',
 		'@supports (--spacing: var(--spacing)) {}',
 		'@container style(--spacing: var(--spacing)) {}',
@@ -65,6 +67,17 @@ test({
 	testerOptions: languages.css,
 	valid: [],
 	invalid: [
+		{
+			code: 'a { --spacing: var(var(--spacing)); }',
+			errors: [{
+				messageId: 'no-self-referencing-custom-properties',
+				data: {property: '--spacing'},
+				line: 1,
+				column: 24,
+				endLine: 1,
+				endColumn: 33,
+			}],
+		},
 		{
 			code: String.raw`a { --space-size: var(--space\-size); }`,
 			errors: [{
