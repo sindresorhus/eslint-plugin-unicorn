@@ -69,6 +69,9 @@ html({
 		'<meta http-equiv="refresh" http-equiv="Content-Security-Policy" content="sandbox">',
 		'<meta http-equiv="Content-Security-Policy" content="default-src" content="sandbox">',
 		'<meta data-url=https://example.com title=\'<meta http-equiv="Content-Security-Policy" content="sandbox">\'>',
+		'<meta http-equiv http-equiv="Content-Security-Policy" content="sandbox">',
+		'<meta http-equiv="Content-Security-Policy" content content="sandbox">',
+		'<meta name="description" content="sandbox"><meta http-equiv="Content-Security-Policy" content="default-src \'self\'">',
 	],
 	invalid: [
 		'<meta http-equiv="Content-Security-Policy" content="frame-ancestors \'none\'">',
@@ -88,6 +91,7 @@ html({
 		'<head>\r\n  <meta http-equiv="Content-Security-Policy" content="sandbox;\r\n    frame-ancestors \'none\'">\r\n</head>',
 		'<meta data-url=https://example.com title="a > b" http-equiv="Content-Security-Policy" content="sandbox">',
 		'<meta http-equiv=Content-Security-Policy data-url=https://example.com content="default-src >; sandbox">',
+		'<meta http-equiv="Content-Security-Policy" content="sandbox; SANDBOX">\n<meta http-equiv="Content-Security-Policy" content="sandbox">',
 	],
 });
 
@@ -104,6 +108,7 @@ html({
 		'<meta http-equiv="Content-Security-Policy" con{{attribute}}tent="sandbox">',
 		'<meta http-equiv="Content-Security-Policy" {{content="sandbox"}}>',
 		'<meta http-equiv="Content-Security-Policy" title="{{value}}" content="sandbox">',
+		'<meta data-url=https://example.com http-equiv="Content-Security-Policy" content="sandbox; {{policy}}">',
 	],
 	invalid: [
 		'<meta http-equiv="Content-Security-Policy" content="sandbox">',
