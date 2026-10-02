@@ -59,6 +59,7 @@ ruleTest.snapshot({
 		'const options = {token: "primary active"}; options.token = "primary"; element.classList.add(options.token);',
 		{code: '("string" as any).classList.add("primary active");', languageOptions: {parser: parsers.typescript}},
 		{code: 'element.classList.add("primary" as string);', languageOptions: {parser: parsers.typescript}},
+		'let token = "primary active"; const value = token; element.classList.add(value);',
 	],
 	invalid: [
 		...methods.map(method => `element.classList.${method}("", "primary");`),
@@ -125,6 +126,7 @@ ruleTest.snapshot({
 		'const suffix = " active"; element.classList.add(`primary${suffix}`);',
 		'const token = ""; element.classList.remove(`${token}`);',
 		{code: 'const token = "primary active" as const; element.classList.add(token);', languageOptions: {parser: parsers.typescript}},
+		{code: '(element?.["classList"] as DOMTokenList)?.["add"]?.(("primary active" satisfies string)!);', languageOptions: {parser: parsers.typescript}},
 	],
 });
 
