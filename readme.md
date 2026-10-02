@@ -458,6 +458,7 @@ export default defineConfig([
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md)           | Enforce using the digits argument with `Number#toFixed()`.                                                                     | ✅ ☑️ | 🔧 |    |    |
 | [require-passive-events](docs/rules/require-passive-events.md)                                             | Require passive event listeners for high-frequency events.                                                                     | ✅ ☑️ | 🔧 |    |    |
 | [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md)                     | Enforce using the `targetOrigin` argument with `window.postMessage()`.                                                         |      |    | 💡 |    |
+| [require-property-descriptors](docs/rules/require-property-descriptors.md)                                 | Require descriptors in CSS `@property` rules.                                                                                  |      |    |    |    |
 | [require-proxy-trap-boolean-return](docs/rules/require-proxy-trap-boolean-return.md)                       | Require boolean-returning Proxy traps to return booleans.                                                                      | ✅ ☑️ | 🔧 |    |    |
 | [single-line-block-comment-style](docs/rules/single-line-block-comment-style.md)                           | Enforce a consistent style for single-line block comments.                                                                     | ✅    | 🔧 |    |    |
 | [string-content](docs/rules/string-content.md)                                                             | Enforce better string content.                                                                                                 |      | 🔧 | 💡 |    |
@@ -632,6 +633,7 @@ These rules also work on specific non-JavaScript languages:
 | [`prefer-short-hex-color`](docs/rules/prefer-short-hex-color.md) | ✅ |  |  |  |  |  |
 | [`relative-url-style`](docs/rules/relative-url-style.md) | ✅ | ✅ |  | ✅ |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |  |
+| [`require-property-descriptors`](docs/rules/require-property-descriptors.md) | ✅ |  |  |  |  |  |
 | [`single-line-block-comment-style`](docs/rules/single-line-block-comment-style.md) | ✅ |  | ✅ |  |  |  |
 | [`string-content`](docs/rules/string-content.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |  |  |
