@@ -79,3 +79,5 @@ For JSX, enable JSX parsing in your JavaScript or TypeScript parser configuratio
 This is not a general CSP security audit. It does not validate policy syntax or strength, placement within `<head>`, unknown directives, `report-to`, report-only meta policies, or HTTP response headers.
 
 HTML opening tags containing configured template expressions are ignored. JSX elements with spreads or duplicate relevant attributes are ignored, as are unresolved or mutable expression values and custom components. JavaScript DOM construction and framework-specific templates are not checked.
+
+HTML text that looks like a `<meta>` element inside raw-text containers such as `<iframe>` is not supported and may be reported.

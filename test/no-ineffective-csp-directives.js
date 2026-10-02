@@ -68,6 +68,7 @@ html({
 		'<meta http-equiv="Content-Security-Policy" content="sandbox"',
 		'<meta http-equiv="refresh" http-equiv="Content-Security-Policy" content="sandbox">',
 		'<meta http-equiv="Content-Security-Policy" content="default-src" content="sandbox">',
+		'<meta data-url=https://example.com title=\'<meta http-equiv="Content-Security-Policy" content="sandbox">\'>',
 	],
 	invalid: [
 		'<meta http-equiv="Content-Security-Policy" content="frame-ancestors \'none\'">',
@@ -85,6 +86,8 @@ html({
 		'<meta content=report-uri&#32;/csp;sandbox http-equiv=Content-Security-Policy>',
 		...['\t', '\n', '\f', '\r', ' '].map(whitespace => `<meta http-equiv="Content-Security-Policy" content="${whitespace}sandbox${whitespace}allow-scripts${whitespace}">`),
 		'<head>\r\n  <meta http-equiv="Content-Security-Policy" content="sandbox;\r\n    frame-ancestors \'none\'">\r\n</head>',
+		'<meta data-url=https://example.com title="a > b" http-equiv="Content-Security-Policy" content="sandbox">',
+		'<meta http-equiv=Content-Security-Policy data-url=https://example.com content="default-src >; sandbox">',
 	],
 });
 
@@ -128,6 +131,8 @@ test.snapshot({
 		'<meta httpEquiv="Content-Security-Policy" content={"frame&#45;ancestors \'none\'"} />',
 		'<meta httpEquiv={"Content&#45;Security&#45;Policy"} content="sandbox" />',
 		'let policy = "sandbox"; policy = "default-src"; <meta httpEquiv="Content-Security-Policy" content={policy} />',
+		'let directive = "sandbox"; const policy = directive; <meta httpEquiv="Content-Security-Policy" content={policy} />',
+		'<meta httpEquiv="Content-Security-Policy" content={policy} />; const policy = "sandbox";',
 		'const policy = {value: "sandbox"}; policy.value = "default-src"; <meta httpEquiv="Content-Security-Policy" content={policy.value} />',
 		'<meta {...properties} httpEquiv="Content-Security-Policy" content="sandbox" />',
 		'<meta httpEquiv="Content-Security-Policy" content="sandbox" {...properties} />',

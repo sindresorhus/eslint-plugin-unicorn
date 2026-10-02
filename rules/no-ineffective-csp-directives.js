@@ -33,14 +33,13 @@ function * getProblems(value, node, location) {
 }
 
 const getHtmlAttributes = (node, context) => {
-	if (!node.openEnd) {
+	// The HTML parser stops reading attributes at an unquoted `/` and can mistake a quoted `>` for the tag's end, so read the complete opening tag.
+	const start = context.sourceCode.getRange(node.openStart)[1];
+	const source = context.sourceCode.text.slice(start).match(/^(?:[^"'<>]|"[^"]*"|'[^']*')*>/u)?.[0];
+	if (!source) {
 		return;
 	}
 
-	// The HTML parser stops reading attributes at an unquoted `/`, so read the complete opening tag.
-	const start = context.sourceCode.getRange(node.openStart)[1];
-	const end = context.sourceCode.getRange(node.openEnd)[1] - 1;
-	const source = context.sourceCode.text.slice(start, end);
 	const templateDelimiters = Object.keys(context.languageOptions?.templateEngineSyntax ?? {});
 	if (templateDelimiters.some(delimiter => source.includes(delimiter))) {
 		return;
