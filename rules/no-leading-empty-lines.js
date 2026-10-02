@@ -15,7 +15,7 @@ const create = context => {
 	}
 
 	onRoot(context, node => {
-		const leadingEmptyLines = context.sourceCode.text.match(/^(?:[\t ]*(?:\r\n|[\n\r]))+/v)?.[0];
+		const leadingEmptyLines = context.sourceCode.text.match(/^(?:[\t ]*[\n\r])+/v)?.[0];
 		if (!leadingEmptyLines) {
 			return;
 		}
