@@ -26,10 +26,13 @@ test.snapshot({
 		'Object.defineProperty(object, "property", {get: async () => {}, set: function * () {}});',
 		'Object.defineProperty(object, "property", {value: 1, writable: "yes", enumerable: [], configurable: {}});',
 		'Object.defineProperty(object, "property", {get: factory(), set: object.method});',
+		'let getter = 1; getter = () => {}; Object.defineProperty(object, "property", {get: getter});',
+		'const accessors = {getter: 1}; accessors.getter = () => {}; Object.defineProperty(object, "property", {get: accessors.getter});',
 		'Object.defineProperty(object, "property", {get: new Function()});',
 		'Object.defineProperty(object, "property", /regularExpression/);',
 		'Object.defineProperty(object, "property", {get: condition ? getter : undefined});',
 		'Object.defineProperty(object, "property", {get: 1, get() {}});',
+		'Object.defineProperty(object, "property", {get: 1, ["ge" + "t"]() {}});',
 		'Object.defineProperty(object, "property", {set: false, set: undefined});',
 		'Object.defineProperty(object, "property", {get get() { return getter; }});',
 		'Object.defineProperty(object, "property", {set get(value) {}});',
@@ -41,6 +44,8 @@ test.snapshot({
 		'Object.defineProperty(object, "property", {[field]: true, get: 1});',
 		'let field = "get"; field = "value"; Object.defineProperty(object, "property", {[field]: 1});',
 		'Object.defineProperties(object, {property: {get: 1}, property: {value: 1}});',
+		'Object.defineProperties(object, {1: {get: 1}, [1]: {value: 1}});',
+		'Object.defineProperties(object, {[Symbol.iterator]: {get: 1}, [Symbol.iterator]: {value: 1}});',
 		'Object.defineProperties(object, {property: {get: 1}, ...descriptors});',
 		'Object.defineProperties(object, {property: {get: 1}, [key]: {value: 1}});',
 		'Object.defineProperties(object, {get property() { return descriptor; }});',
@@ -58,6 +63,7 @@ test.snapshot({
 		'globalThis.Object.defineProperty(object, "property", {get: 1});',
 		'const defineProperty = Object.defineProperty; defineProperty(object, "property", {get: 1});',
 		'Object[method](object, "property", {get: 1});',
+		'let method = "defineProperty"; method = "other"; Object[method](object, "property", {get: 1});',
 		'Object.defineProperty?.(object, "property", {get: 1});',
 		'Object?.defineProperty(object, "property", {get: 1});',
 		'Object.defineProperty(...arguments, "property", {get: 1});',
@@ -143,6 +149,8 @@ test.snapshot({
 			code: 'const element = <div>{Object.defineProperty(object, "property", {get: 1})}</div>;',
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
+		'Object.defineProperty(object, "property", {[undefined]: true});',
+		'Object["define" + "Property"](object, "property", {get: 1});',
 	],
 });
 
@@ -173,6 +181,12 @@ test({
 		errors: [{
 			messageId: 'unknown-field',
 			suggestions: [{messageId: 'rename-writeable', output: 'Object.defineProperty(object, "property", {writable: writeable});'}],
+		}],
+	}, {
+		code: 'const wr\\u0069teable = true; Object.defineProperty(object, "property", {wr\\u0069teable});',
+		errors: [{
+			messageId: 'unknown-field',
+			suggestions: [{messageId: 'rename-writeable', output: 'const wr\\u0069teable = true; Object.defineProperty(object, "property", {writable: wr\\u0069teable});'}],
 		}],
 	}, {
 		code: 'const writeable = true; Object.defineProperty(object, "property", {writeable} as PropertyDescriptor);',
