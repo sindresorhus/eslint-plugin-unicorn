@@ -42,10 +42,10 @@ The rule checks parsed CSS declaration values, including custom properties and d
 ## Limitations
 
 - Strings, URLs, CSS-in-JS, and preprocessor syntax are not inspected.
-- `var()` fallback colors in ordinary declarations are skipped because the parser exposes them as unparsed text. Fallback colors in custom properties are checked.
-- Color functions containing comments are reported without an autofix.
-- Ambiguous or invalid legacy arguments are reported without an autofix. This includes comma-separated colors with `var()` components or math functions in color channels: converting them could make an invalid color valid.
-- Scientific-notation alpha literals are reported without automatic conversion. Other parts of the same color function may still be fixed.
+- `var()` fallback colors are checked only in custom properties; elsewhere, the parser leaves them unparsed.
+- Color functions with comments are reported without an autofix.
+- Ambiguous or invalid legacy arguments, including `var()` or math color channels, are reported without an autofix to preserve validity.
+- Scientific-notation alpha is reported without conversion; other parts of the function may still be fixed.
 
 For example:
 
@@ -57,7 +57,3 @@ a {
 	--brand: var(--fallback, rgba(0, 0, 0, .5));
 }
 ```
-
-## Related rules
-
-Modern media feature ranges, viewport units, casing, and formally deprecated CSS features are handled by their existing Unicorn rules.
