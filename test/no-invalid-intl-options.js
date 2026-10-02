@@ -334,9 +334,11 @@ ruleTest.snapshot({
 
 test.serial('validation does not use the host Intl implementation or execute user code', t => {
 	const originalIntl = Intl;
+	let hostIntlAccessCount = 0;
 	Object.defineProperty(globalThis, 'Intl', {
 		value: new Proxy({}, {
 			get() {
+				hostIntlAccessCount++;
 				throw new Error('The host Intl implementation must not be accessed.');
 			},
 		}),
@@ -347,6 +349,8 @@ test.serial('validation does not use the host Intl implementation or execute use
 			'new Intl.NumberFormat("en", {style: "currency"});',
 			'new Intl.DurationFormat("en", {hours: "numeric", seconds: "long"});',
 			'new Intl.Locale("en", {variants: "abcd"});',
+			'new Intl.NumberFormat("en", {style: Intl.NumberFormat.name});',
+			'new Intl.NumberFormat("en", {currency: Intl.supportedValuesOf("currency")[0]});',
 			'new Intl.NumberFormat("en", {style: (() => { throw new Error(); })()});',
 			'new Intl.NumberFormat("en", {style: {toString() { throw new Error(); }}});',
 		].join('\n'), {
@@ -355,6 +359,7 @@ test.serial('validation does not use the host Intl implementation or execute use
 			rules: {'unicorn/no-invalid-intl-options': 'error'},
 		});
 		t.deepEqual(messages.map(({messageId}) => messageId), ['required', 'conflicting', 'invalid']);
+		t.is(hostIntlAccessCount, 0);
 	} finally {
 		Object.defineProperty(globalThis, 'Intl', {value: originalIntl});
 	}
