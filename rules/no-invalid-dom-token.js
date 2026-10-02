@@ -7,6 +7,7 @@ import {
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
+import {createTypeCheckers} from './utils/type-helpers.js';
 
 const MESSAGE_ID_EMPTY = 'no-invalid-dom-token/empty';
 const MESSAGE_ID_WHITESPACE = 'no-invalid-dom-token/whitespace';
@@ -28,6 +29,10 @@ const tokenArgumentCounts = new Map([
 // DOM tokens reject exactly Infra's ASCII whitespace, not all JavaScript whitespace.
 const asciiWhitespacePattern = /[\t\n\f\r ]/v;
 const asciiWhitespaceSequencePattern = /[\t\n\f\r ]+/v;
+const {isTarget: isDomTokenList} = createTypeCheckers({
+	targetTypeNames: new Set(['DOMTokenList']),
+	allowNullishInMixedUnion: true,
+});
 
 const unwrapExpression = node => {
 	node = unwrapTypeScriptExpression(node);
@@ -72,9 +77,11 @@ const create = context => {
 		}
 
 		const receiver = unwrapExpression(callee.object);
+		const isTokenListProperty = tokenListProperties.has(getMemberName(receiver))
+			&& !isNodeValueNotDomNode(unwrapExpression(receiver.object));
 		if (
-			!tokenListProperties.has(getMemberName(receiver))
-			|| isNodeValueNotDomNode(unwrapExpression(receiver.object))
+			!isTokenListProperty
+			&& !(context.sourceCode.parserServices?.program && isDomTokenList(callee.object, context))
 		) {
 			return;
 		}

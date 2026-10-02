@@ -15,6 +15,8 @@ ASCII whitespace is exactly tab (`\t`), line feed (`\n`), form feed (`\f`), carr
 
 This rule checks direct method calls on the `classList`, `relList`, `sandbox`, `part`, `sizes`, `blocking`, `htmlFor`, and `controlsList` properties. It supports optional chaining, literal computed properties, and TypeScript expression wrappers.
 
+When TypeScript type information is available, the rule also checks receivers identified as `DOMTokenList`, including parameters and aliased token lists. Type information is not required for direct calls on the properties listed above.
+
 All arguments to `add()` and `remove()` are tokens. Only the first argument to `toggle()` and the first two arguments to `replace()` are tokens. The rule checks string literals, statically known string expressions and constants, and interpolated templates whose literal text contains ASCII whitespace.
 
 ## Examples
@@ -49,7 +51,7 @@ These corrections are suggestions rather than autofixes because they change a th
 
 ## Limitations
 
-The rule recognizes receivers by property name and does not prove that the receiver is a DOMTokenList. Aliased token lists, dynamic property names, and token values inside spreads are not checked. Static evaluation skips mutable bindings and expressions with side effects; templates can still be reported when their literal text contains ASCII whitespace. For `toggle()` and `replace()`, arguments after a spread are not checked because their positions are unknown.
+Property-name matching does not prove that the receiver is a DOMTokenList. Without type information, aliased token lists are not checked. Dynamic method names, non-string arguments, and token values inside spreads are not checked; the rule does not attempt DOMString coercion. Static evaluation skips mutable bindings and expressions with side effects; templates can still be reported when their literal text contains ASCII whitespace. For `toggle()` and `replace()`, arguments after a spread are not checked because their positions are unknown.
 
 The rule does not check `contains()` or `supports()`, attribute assignments, or whether a token belongs to an attribute's supported vocabulary. For example, assigning `'primary active'` to `classList.value` or `className` is valid.
 

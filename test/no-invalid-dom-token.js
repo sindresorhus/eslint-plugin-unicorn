@@ -3,6 +3,7 @@ import test from 'ava';
 import {Linter} from 'eslint';
 import {parse} from 'espree';
 import unicorn from '../index.js';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
 import notDomNodeTypes from './utils/not-dom-node-types.js';
@@ -12,6 +13,14 @@ const methods = ['add', 'remove', 'toggle', 'replace'];
 const whitespaceEscapes = [String.raw`\t`, String.raw`\n`, String.raw`\f`, String.raw`\r`, ' '];
 const validWhitespaceEscapes = [String.raw`\v`, String.raw`\u0085`, String.raw`\u00A0`, String.raw`\u2003`, String.raw`\u2028`, String.raw`\u2029`, String.raw`\uFEFF`];
 const tokenListProperties = ['classList', 'relList', 'sandbox', 'part', 'sizes', 'blocking', 'htmlFor', 'controlsList'];
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 ruleTest.snapshot({
 	valid: [
@@ -60,6 +69,13 @@ ruleTest.snapshot({
 		{code: '("string" as any).classList.add("primary active");', languageOptions: {parser: parsers.typescript}},
 		{code: 'element.classList.add("primary" as string);', languageOptions: {parser: parsers.typescript}},
 		'let token = "primary active"; const value = token; element.classList.add(value);',
+		'element.classList.add("primary\\\nactive");',
+		{code: 'function update(tokens: DOMTokenList) { tokens.add("primary active"); }', languageOptions: {parser: parsers.typescript}},
+		typeAware('declare const tokens: DOMTokenList; tokens.add("primary", "active");'),
+		typeAware('declare const tokens: any; tokens.add("primary active");'),
+		typeAware('declare const tokens: {add(token: string): void}; tokens.add("primary active");'),
+		typeAware('declare const tokens: DOMTokenList | Set<string>; tokens.add("primary active");'),
+		typeAware('declare const tokens: DOMTokenList; tokens.contains("primary active");'),
 	],
 	invalid: [
 		...methods.map(method => `element.classList.${method}("", "primary");`),
@@ -127,6 +143,13 @@ ruleTest.snapshot({
 		'const token = ""; element.classList.remove(`${token}`);',
 		{code: 'const token = "primary active" as const; element.classList.add(token);', languageOptions: {parser: parsers.typescript}},
 		{code: '(element?.["classList"] as DOMTokenList)?.["add"]?.(("primary active" satisfies string)!);', languageOptions: {parser: parsers.typescript}},
+		'element.classList.add("\\\n");',
+		...methods.map(method => typeAware(`function update(tokens: DOMTokenList) { tokens.${method}("primary active", "other"); }`)),
+		typeAware('const tokens = document.body.classList; tokens.add("primary active");'),
+		typeAware('declare const tokens: DOMTokenList | undefined; tokens?.add("primary active");'),
+		typeAware('declare const tokens: unknown; (tokens as DOMTokenList).add("primary active");'),
+		typeAware('declare const state: {tokens: DOMTokenList}; state.tokens.remove("");'),
+		typeAware('function update<T extends DOMTokenList>(tokens: T) { tokens.replace("primary", "old new"); }'),
 	],
 });
 
