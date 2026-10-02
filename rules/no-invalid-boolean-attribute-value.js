@@ -322,8 +322,16 @@ function getReceiverTypes(node, context, visitedVariables = new Set()) {
 			?? getTypesFromTypeInformation(node, context);
 	}
 
-	if (isCallExpression(node) && isMemberExpression(node.callee) && isDocument(node.callee.object, context)) {
+	if (isCallExpression(node) && isMemberExpression(node.callee)) {
 		const method = getMemberName(node.callee, context);
+		if (!['createElement', 'createElementNS', 'querySelector'].includes(method)) {
+			return getTypesFromTypeInformation(node, context);
+		}
+
+		if (!isDocument(node.callee.object, context)) {
+			return new Set();
+		}
+
 		let tag;
 		if (method === 'createElement' && node.arguments.length === 1) {
 			const name = getStaticString(node.arguments[0], context);
@@ -337,8 +345,6 @@ function getReceiverTypes(node, context, visitedVariables = new Set()) {
 		} else if (method === 'querySelector' && node.arguments.length === 1) {
 			const selector = getStaticString(node.arguments[0], context);
 			tag = selector === undefined ? undefined : getSelectorTag(selector);
-		} else if (!['createElement', 'createElementNS', 'querySelector'].includes(method)) {
-			return getTypesFromTypeInformation(node, context);
 		}
 
 		const type = htmlElementTypesByTag.get(tag);

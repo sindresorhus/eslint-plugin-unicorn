@@ -58,12 +58,12 @@ const attributeElements = [
 
 const buttonCall = value => `document.createElement('button').setAttribute('disabled', ${value})`;
 const typescript = code => ({code, languageOptions: {parser: parsers.typescript}});
-const typeAware = code => ({
+const typeAware = (code, filename = 'file.ts') => ({
 	code,
-	filename: 'file.ts',
+	filename,
 	languageOptions: {
 		parser: typescriptEslintParser,
-		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts', '*.js']}},
 	},
 });
 
@@ -124,6 +124,11 @@ ruleTest.snapshot({
 		typeAware('interface Contract {setAttribute(name: string, value: string): void} function foo(button: Contract) {button.setAttribute("disabled", "false")}'),
 		typeAware('export {}; interface HTMLButtonElement {setAttribute(name: string, value: string): void} function foo(holder: {button: HTMLButtonElement}) {holder.button.setAttribute("disabled", "false")}'),
 		typeAware('function foo(holder: {button: HTMLButtonElement | HTMLDivElement}) {holder.button.setAttribute("disabled", "false")}'),
+		typeAware('function foo(doc: Document) {doc.createElement("button", {is: "custom-button"}).setAttribute("disabled", "false")}'),
+		typeAware('function foo(doc: Document) {const button = doc.createElement("button", {is: "custom-button"}); button.setAttribute("disabled", "false")}'),
+		typeAware('function foo(doc: Document) {doc.querySelector("script")?.setAttribute("async", "false")}'),
+		typeAware('function foo(root: ShadowRoot) {root.querySelector("script")?.setAttribute("async", "false")}'),
+		typeAware('function foo(doc: Document) {doc.createElement("button").setAttribute("disabled", "false")}'),
 	],
 	invalid: [
 		...attributeElements.flatMap(([attribute, elements]) => elements.map(element => `document.createElement('${element}').setAttribute('${attribute}', 'true')`)),
@@ -180,6 +185,10 @@ ruleTest.snapshot({
 		typeAware('function foo(holder: {button: HTMLButtonElement | HTMLInputElement | null}) {holder.button?.setAttribute("disabled", "false")}'),
 		typeAware('function foo(holder: {button: HTMLButtonElement | HTMLDivElement}) {holder.button.setAttribute("inert", "false")}'),
 		typeAware('export {}; declare global {interface HTMLButtonElement {extra: string}} function foo(holder: {button: HTMLButtonElement}) {holder.button.setAttribute("disabled", "false")}'),
+		typeAware('/** @type {HTMLButtonElement} */ const button = getButton(); button.setAttribute("disabled", "false")', 'file.js'),
+		typeAware('function getButton(): HTMLButtonElement {return button} getButton().setAttribute("disabled", "false")'),
+		typeAware('const holder = {getButton(): HTMLButtonElement {return button}}; holder.getButton().setAttribute("disabled", "false")'),
+		typeAware('function foo(doc: Document) {(doc.querySelector("script") as HTMLScriptElement).setAttribute("async", "false")}'),
 	],
 });
 

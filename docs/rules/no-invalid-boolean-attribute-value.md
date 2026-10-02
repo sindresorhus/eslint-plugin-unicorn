@@ -53,7 +53,9 @@ Receivers are identified through:
 - `document.querySelector()` with one native tag optionally followed by class or ID selectors, such as `button.primary#submit`.
 - Simple `const` aliases of supported receivers or the global document, including `window.document`, `self.document`, and `globalThis.document`.
 - Concrete native HTML element types from TypeScript variable and parameter annotations or type assertions, including type aliases and compatible nullable unions.
-- Inferred concrete native HTML element types when TypeScript type information is available.
+- Inferred concrete native HTML element types when [type information](https://typescript-eslint.io/getting-started/typed-linting/) is available, including JavaScript JSDoc annotations.
+
+`createElement()`, `createElementNS()`, and `querySelector()` calls are recognized only on the global document and its supported `const` aliases. Calls on other documents or container objects are ignored even when their inferred return types appear native.
 
 Queries for `a`, `script`, `style`, and `title` are ignored because those tag names also occur in SVG. Complex selectors, custom elements, creation options, and unknown receivers are ignored. Generic `Element` and `HTMLElement` types, custom subclasses, and structural lookalikes alone do not establish a native element's identity. Supported queries for native tags establish identity independently of their TypeScript generic arguments. Explicit concrete native type assertions are trusted.
 
