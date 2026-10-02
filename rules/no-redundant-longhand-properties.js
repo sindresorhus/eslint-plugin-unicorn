@@ -13,7 +13,27 @@ const messages = {
 const cssWideKeywords = new Set(['initial', 'inherit', 'unset', 'revert', 'revert-layer', 'revert-rule']);
 const substitutionFunctions = new Set(['attr', 'env', 'first-valid', 'ident', 'if', 'inherit', 'random', 'random-item', 'var']);
 const slashShorthands = new Set(['grid-area', 'grid-column', 'grid-row']);
-const pairShorthands = new Set(['gap', 'inset-block', 'inset-inline', 'margin-block', 'margin-inline', 'overflow', 'overscroll-behavior', 'padding-block', 'padding-inline', 'scroll-margin-block', 'scroll-margin-inline', 'scroll-padding-block', 'scroll-padding-inline']);
+const pairShorthands = new Set([
+	'border-block-color',
+	'border-block-style',
+	'border-block-width',
+	'border-inline-color',
+	'border-inline-style',
+	'border-inline-width',
+	'gap',
+	'inset-block',
+	'inset-inline',
+	'margin-block',
+	'margin-inline',
+	'overflow',
+	'overscroll-behavior',
+	'padding-block',
+	'padding-inline',
+	'scroll-margin-block',
+	'scroll-margin-inline',
+	'scroll-padding-block',
+	'scroll-padding-inline',
+]);
 const fourSideShorthands = new Set(['border-color', 'border-style', 'border-width', 'inset', 'margin', 'padding', 'scroll-margin', 'scroll-padding']);
 const additionalResetProperties = new Map([
 	['animation', ['animation-composition', 'animation-trigger']],

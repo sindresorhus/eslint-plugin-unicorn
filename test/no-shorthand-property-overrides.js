@@ -81,6 +81,13 @@ test({
 				data: {longhand: 'animation-range-end', shorthand: 'animation'},
 			}],
 		},
+		{
+			code: 'a { -webkit-transition: opacity 1s !important; transition-property: color; transition: color 2s; }',
+			errors: [{
+				messageId: 'no-shorthand-property-overrides',
+				data: {longhand: 'transition-property', shorthand: 'transition'},
+			}],
+		},
 	],
 });
 

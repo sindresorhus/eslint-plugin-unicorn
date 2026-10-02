@@ -373,6 +373,36 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { border-block-start-width: 1px !important; border-block-end-width: 1px !important; }',
+			output: 'a { border-block-width: 1px !important; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-style: solid; border-block-end-style: solid; }',
+			output: 'a { border-block-style: solid; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-color: red; border-block-end-color: red; }',
+			output: 'a { border-block-color: red; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-width: 1px; border-inline-end-width: 1px; }',
+			output: 'a { border-inline-width: 1px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-style: solid; border-inline-end-style: solid; }',
+			output: 'a { border-inline-style: solid; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-color: red; border-inline-end-color: red; }',
+			output: 'a { border-inline-color: red; }',
+			errors: 1,
+		},
+		{
 			code: 'a { grid-gap: 3px; row-gap: 1px; column-gap: 2px; }',
 			output: 'a { grid-gap: 3px; gap: 1px 2px; }',
 			errors: 1,
