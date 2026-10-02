@@ -141,6 +141,7 @@ export {default as 'no-null'} from './no-null.js';
 export {default as 'no-object-as-default-parameter'} from './no-object-as-default-parameter.js';
 export {default as 'no-object-methods-with-collections'} from './no-object-methods-with-collections.js';
 export {default as 'no-optional-chaining-on-undeclared-variable'} from './no-optional-chaining-on-undeclared-variable.js';
+export {default as 'no-prevent-default-in-passive-listener'} from './no-prevent-default-in-passive-listener.js';
 export {default as 'no-process-exit'} from './no-process-exit.js';
 export {default as 'no-redundant-comparison'} from './no-redundant-comparison.js';
 export {default as 'no-redundant-longhand-properties'} from './no-redundant-longhand-properties.js';
