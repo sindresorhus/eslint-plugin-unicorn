@@ -179,6 +179,7 @@ export default defineConfig([
 | [no-duplicate-properties](docs/rules/no-duplicate-properties.md)                                           | Disallow duplicate properties within CSS declaration blocks.                                                                   |      |    | 💡 |    |
 | [no-duplicate-set-values](docs/rules/no-duplicate-set-values.md)                                           | Disallow duplicate values in `Set` constructor array literals.                                                                 | ✅    |    |    |    |
 | [no-empty-file](docs/rules/no-empty-file.md)                                                               | Disallow empty files.                                                                                                          | ✅ ☑️ |    |    |    |
+| [no-empty-link-text](docs/rules/no-empty-link-text.md)                                                     | Disallow empty link text in Markdown.                                                                                          |      |    |    |    |
 | [no-error-property-assignment](docs/rules/no-error-property-assignment.md)                                 | Disallow assigning to built-in error properties.                                                                               | ✅ ☑️ |    |    |    |
 | [no-exports-in-scripts](docs/rules/no-exports-in-scripts.md)                                               | Disallow exports in scripts.                                                                                                   | ✅ ☑️ |    |    |    |
 | [no-for-each](docs/rules/no-for-each.md)                                                                   | Prefer `for…of` over the `forEach` method.                                                                                     | ✅ ☑️ | 🔧 | 💡 |    |
@@ -609,6 +610,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-duplicate-font-family-names`](docs/rules/no-duplicate-font-family-names.md) | ✅ |  |  |  |  |  |
 | [`no-duplicate-properties`](docs/rules/no-duplicate-properties.md) | ✅ |  |  |  |  |  |
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`no-empty-link-text`](docs/rules/no-empty-link-text.md) |  |  |  | ✅ |  |  |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |  |
 | [`no-javascript-url`](docs/rules/no-javascript-url.md) |  |  |  | ✅ |  |  |
