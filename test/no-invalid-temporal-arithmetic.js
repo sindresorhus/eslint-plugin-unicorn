@@ -93,7 +93,7 @@ ruleTest.snapshot({
 			`Temporal.Now.instant().${method}({days: 1})`,
 			`new Temporal.Instant(0n).${method}({days: 1})`,
 			`Temporal.Instant.fromEpochNanoseconds(0n).${method}({days: 1})`,
-			...['PlainDate', 'PlainDateTime', 'PlainYearMonth', 'ZonedDateTime'].map(type => `${receivers[type]}.${method}({days: 1}, {overflow: "ignore"})`),
+			...['PlainDate', 'PlainDateTime', 'PlainYearMonth', 'ZonedDateTime'].map(type => `${receivers[type]}.${method}({months: 1}, {overflow: "ignore"})`),
 		]),
 		`const value = ${instant}; const alias = value; alias["add"]({days: 1})`,
 		`const value = ${instant}; value?.subtract?.({days: 1})`,
@@ -192,6 +192,8 @@ ruleTest.snapshot({
 		'Temporal.Duration.from("PT0.123456789S").total("nanoseconds")',
 		'Temporal.Duration.from("-P0Y0M0W1DT2H").round("hours")',
 		'Temporal.Duration.from({years: 0, months: 0, weeks: 0}).total("days")',
+		'new Temporal.Duration().round({smallestUnit: "day", roundingIncrement: 3})',
+		'Temporal.Duration.from({years: unknown, days: 1}).round({smallestUnit: "day", roundingIncrement: 3})',
 		'Temporal.Duration.compare("-P1M", {months: -1}, {relativeTo: undefined})',
 		'Temporal.Duration.compare({weeks: 1}, {days: 7}, {relativeTo: context})',
 		'const options = {smallestUnit: "invalid"}; Temporal.Now.instant().round(options)',
@@ -199,7 +201,7 @@ ruleTest.snapshot({
 		'const amount = {valueOf() { return 1; }}; Temporal.Now.instant().add({days: amount})',
 		'const value = value; Temporal.Now.instant().add(value)',
 		'Temporal.Now.instant()[method]({days: 1})',
-		...Object.values(receivers).map(receiver => `${receiver}.add({hours: 1}, {overflow: undefined})`),
+		...Object.entries(receivers).map(([type, receiver]) => `${receiver}.add({${type === 'PlainYearMonth' ? 'months' : 'hours'}: 1}, {overflow: undefined})`),
 		...['PlainDate', 'PlainDateTime', 'PlainYearMonth', 'ZonedDateTime'].flatMap(type => ['constrain', 'reject'].map(overflow => `${receivers[type]}.add({months: 1}, {overflow: "${overflow}"})`)),
 		...['Instant', 'Duration', 'PlainTime'].map(type => `${receivers[type]}.add({hours: 1}, {overflow: "invalid"})`),
 		...['Instant', 'PlainTime', 'PlainDate', 'PlainYearMonth', 'PlainDateTime', 'ZonedDateTime'].map(type => `${receivers[type]}.since(other, {largestUnit: "auto"})`),
@@ -319,5 +321,28 @@ test('reports without changing source or offering incomplete corrections', t => 
 		const result = linter.verifyAndFix(code, config);
 		t.false(result.fixed);
 		t.is(result.output, code);
+	}
+});
+
+test('reports one problem in contract validation order', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-invalid-temporal-arithmetic': 'error'}};
+	const receiver = 'Temporal.Duration.from({months: 1})';
+	const cases = [
+		['{smallestUnit: "invalid", roundingIncrement: 0}', 'invalid-option', '"invalid"'],
+		['{unit: "month", roundingIncrement: 0}', 'invalid-increment', '0'],
+		['{}', 'missing-unit', 'round'],
+		['{largestUnit: "hour", smallestUnit: "day"}', 'unit-order', '"hour"'],
+		['{smallestUnit: "hour", roundingIncrement: 24}', 'invalid-increment', '24'],
+	];
+	for (const [options, messageId, location] of cases) {
+		const code = `${receiver}.round(${options});`;
+		const problems = linter.verify(code, config);
+		t.is(problems.length, 1);
+		t.is(problems[0].messageId, messageId);
+		t.is(problems[0].column, code.indexOf(location) + 1);
+		t.is(problems[0].endColumn, code.indexOf(location) + location.length + 1);
+		t.is(problems[0].fix, undefined);
+		t.is(problems[0].suggestions, undefined);
 	}
 });
