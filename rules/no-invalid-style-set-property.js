@@ -47,10 +47,67 @@ const isStyleReceiver = (node, context) => {
 		|| isMemberExpression(node, {property: 'style'});
 };
 
+// Standard Webkit properties missing from css-tree's data: https://compat.spec.whatwg.org/#css-properties
+const additionalWebkitProperties = new Set([
+	'-webkit-align-content',
+	'-webkit-align-items',
+	'-webkit-align-self',
+	'-webkit-animation',
+	'-webkit-animation-delay',
+	'-webkit-animation-direction',
+	'-webkit-animation-duration',
+	'-webkit-animation-fill-mode',
+	'-webkit-animation-iteration-count',
+	'-webkit-animation-name',
+	'-webkit-animation-play-state',
+	'-webkit-animation-timing-function',
+	'-webkit-backface-visibility',
+	'-webkit-background-origin',
+	'-webkit-background-size',
+	'-webkit-border-bottom-left-radius',
+	'-webkit-border-bottom-right-radius',
+	'-webkit-border-radius',
+	'-webkit-border-top-left-radius',
+	'-webkit-border-top-right-radius',
+	'-webkit-box-align',
+	'-webkit-box-flex',
+	'-webkit-box-ordinal-group',
+	'-webkit-box-orient',
+	'-webkit-box-pack',
+	'-webkit-box-shadow',
+	'-webkit-box-sizing',
+	'-webkit-filter',
+	'-webkit-flex',
+	'-webkit-flex-basis',
+	'-webkit-flex-direction',
+	'-webkit-flex-flow',
+	'-webkit-flex-grow',
+	'-webkit-flex-shrink',
+	'-webkit-flex-wrap',
+	'-webkit-justify-content',
+	'-webkit-mask-box-image-outset',
+	'-webkit-mask-box-image-repeat',
+	'-webkit-mask-box-image-slice',
+	'-webkit-mask-box-image-source',
+	'-webkit-mask-box-image-width',
+	'-webkit-order',
+	'-webkit-perspective',
+	'-webkit-perspective-origin',
+	'-webkit-text-size-adjust',
+	'-webkit-transform',
+	'-webkit-transform-origin',
+	'-webkit-transform-style',
+	'-webkit-transition',
+	'-webkit-transition-delay',
+	'-webkit-transition-duration',
+	'-webkit-transition-property',
+	'-webkit-transition-timing-function',
+]);
+
 const getCssPropertyName = property => {
 	if (
 		typeof property !== 'string'
-		|| property.includes('-')
+		|| !/^[A-Za-z][\dA-Za-z]*$/u.test(property)
 		|| lexer.getProperty(property.toLowerCase(), false)
 	) {
 		return;
@@ -63,7 +120,7 @@ const getCssPropertyName = property => {
 
 	if (
 		lexer.getProperty(replacement, false)
-		|| (replacement.startsWith('-webkit-') && lexer.getProperty(replacement.slice('-webkit-'.length), false))
+		|| additionalWebkitProperties.has(replacement)
 	) {
 		return replacement;
 	}
@@ -75,7 +132,7 @@ const closingTokens = new Set([tokenTypes.RightParenthesis, tokenTypes.RightSqua
 const getImportanceMarkers = value => {
 	const markers = [];
 	let depth = 0;
-	let bangStart;
+	let bang;
 	let lastTokenEnd;
 	let lastCommentEnd = 0;
 
@@ -89,23 +146,23 @@ const getImportanceMarkers = value => {
 			return;
 		}
 
-		lastTokenEnd = end;
 		if (openingTokens.has(type)) {
 			depth++;
 		} else if (closingTokens.has(type)) {
 			depth = Math.max(0, depth - 1);
 		} else if (
 			depth === 0
-			&& bangStart !== undefined
+			&& bang !== undefined
 			&& type === tokenTypes.Ident
 			&& ident.decode(value.slice(start, end)).toLowerCase() === 'important'
 		) {
-			markers.push({start: bangStart, end});
+			markers.push({...bang, end});
 		}
 
-		bangStart = depth === 0 && type === tokenTypes.Delim && value.slice(start, end) === '!'
-			? start
+		bang = depth === 0 && type === tokenTypes.Delim && value.slice(start, end) === '!'
+			? {start, valueEnd: Math.max(lastTokenEnd ?? 0, lastCommentEnd)}
 			: undefined;
+		lastTokenEnd = end;
 	});
 
 	return {markers, lastTokenEnd, lastCommentEnd};
@@ -117,7 +174,7 @@ const isNonemptyCssomValue = value => isPrimitive(value) && value !== null && va
 const isDirectString = node => getStaticStringValue(unwrapTypeScriptExpression(node)) !== undefined;
 const isEditablePriority = node => {
 	node = unwrapTypeScriptExpression(node);
-	return node.type === 'Literal' || isDirectString(node) || (node.type === 'Identifier' && node.name === 'undefined');
+	return node.type === 'Literal' || isDirectString(node) || isUndefined(node);
 };
 
 const getReplacementSuggestion = (node, replacement) => ({
@@ -128,9 +185,11 @@ const getReplacementSuggestion = (node, replacement) => ({
 
 const getValueSuggestion = (callExpression, priorityResult, importance, context) => {
 	const [marker] = importance.markers;
+	const valueNode = unwrapTypeScriptExpression(callExpression.arguments[1]);
+	const value = getStaticStringValue(valueNode);
 	const priority = callExpression.arguments[2];
 	if (
-		!isDirectString(callExpression.arguments[1])
+		value === undefined
 		|| importance.markers.length !== 1
 		|| marker.end !== importance.lastTokenEnd
 		|| importance.lastCommentEnd > marker.start
@@ -139,8 +198,7 @@ const getValueSuggestion = (callExpression, priorityResult, importance, context)
 		return;
 	}
 
-	const value = getStaticStringValue(unwrapTypeScriptExpression(callExpression.arguments[1]));
-	const replacement = value.slice(0, marker.start).replace(/[\t\n\f\r ]+$/u, '');
+	const replacement = value.slice(0, marker.valueEnd);
 	if (replacement === '') {
 		return;
 	}
@@ -148,7 +206,7 @@ const getValueSuggestion = (callExpression, priorityResult, importance, context)
 	return {
 		messageId: MESSAGE_ID_MOVE_IMPORTANT,
 		* fix(fixer) {
-			yield fixer.replaceText(unwrapTypeScriptExpression(callExpression.arguments[1]), escapeString(replacement));
+			yield fixer.replaceText(valueNode, escapeString(replacement));
 			yield priority
 				? fixer.replaceText(unwrapTypeScriptExpression(priority), escapeString('important'))
 				: appendArgument(fixer, callExpression, escapeString('important'), context);

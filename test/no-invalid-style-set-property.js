@@ -14,6 +14,14 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
+		'style.setProperty("bacKgroundColor", "red")',
+		'style.setProperty("*backgroundColor", "red")',
+		'style.setProperty("_backgroundColor", "red")',
+		'style.setProperty("webkitColor", "red")',
+		'style.setProperty("webkitBackgroundColor", "red")',
+		'style.setProperty("WebkitStrokeWidth", "2px")',
+		'style.setProperty("color", value, "!important"); const value = "red";',
+
 		'style.setProperty("background-color", "red")',
 		'style.setProperty("bAcKgRoUnD-cOlOr", "red")',
 		'style.setProperty("cOlOr", "red")',
@@ -133,6 +141,11 @@ test.snapshot({
 		typeAware('const declaration = document.body.style; declaration.setProperty("color", "red !important");'),
 		typeAware('declare const declaration: CSSStyleProperties; declaration.setProperty("color", "red", "!important");'),
 		typeAware('declare const declaration: CSSStyleDeclaration | CSSStyleProperties | undefined; declaration?.setProperty("backgroundColor", "red");'),
+		'style.setProperty("webkitFlexDirection", "row")',
+		'style.setProperty("WebkitTransitionProperty", "color")',
+		'style.setProperty("webkitMaskBoxImageOutset", "0")',
+		'style.setProperty("color", "red !important", (/* keep */ ""))',
+		'style.setProperty("--tokens", "red/* keep */ !important")',
 	],
 });
 
@@ -160,3 +173,40 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: String.raw`style.setProperty('--tokens', 'foo\\ !important')`,
+			errors: [{
+				messageId: 'no-invalid-style-set-property/value',
+				suggestions: [{messageId: 'no-invalid-style-set-property/move-important', output: String.raw`style.setProperty('--tokens', 'foo\\ ', 'important')`}],
+			}],
+		},
+		{
+			code: 'style.setProperty("--tokens", " \t !important")',
+			errors: [{messageId: 'no-invalid-style-set-property/value', suggestions: []}],
+		},
+		{
+			code: 'function update(undefined) { style.setProperty("color", "red !important", undefined); }',
+			errors: [{messageId: 'no-invalid-style-set-property/value', suggestions: []}],
+		},
+	],
+});
+
+for (const [code, output] of [
+	[String.raw`style.setProperty('--tokens', 'foo\\\t!important')`, String.raw`style.setProperty('--tokens', 'foo\\\t', 'important')`],
+	[String.raw`style.setProperty('--tokens', 'foo\\31 !important')`, String.raw`style.setProperty('--tokens', 'foo\\31 ', 'important')`],
+]) {
+	test({
+		valid: [],
+		invalid: [{
+			code,
+			errors: [{
+				messageId: 'no-invalid-style-set-property/value',
+				suggestions: [{messageId: 'no-invalid-style-set-property/move-important', output}],
+			}],
+		}],
+	});
+}
