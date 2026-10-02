@@ -96,14 +96,8 @@ for await (const record of records) {
 
 ## Suggestions
 
-For the simple accumulation loops shown above, suggestions enable streaming and add or reuse a consumed final flush. There is no autofix because this changes decoding behavior.
-
-Suggestions require a `const` decoder constructed with `new TextDecoder(...)` and a `let` accumulator initialized to `''`, both declared earlier in the same block. Only the chunk decode and optional immediately following flush may reference the decoder; the accumulator must have no other writes. Options must be omitted, `{}`, or `{stream: false}`. Comments inside the loop or trailing its closing line prevent suggestions.
+Suggestions enable streaming and consume the final flush for the simple accumulation loops shown above. More complex code or comments may prevent suggestions. No autofix is provided.
 
 ## Limitations
 
-The rule follows local `const` bindings and aliases from awaited `fetch()` or `globalThis.fetch()` through `.body`, `.values()` (at most one argument), and `.getReader()` (no arguments). Async-iteration chunks and reader values must be decoded in the same function and nearest loop. TypeScript wrappers and optional chaining are supported.
-
-Arbitrary, transformed, or framed streams, parameters, callbacks, reassigned bindings, BYOB readers, computed calls, helper returns, and shadowed built-ins are unsupported. Names and types alone do not establish provenance.
-
-Unknown option objects, dynamic `stream` values, spreads, accessors, explicit `__proto__` properties, and unknown computed keys are unchecked.
+Detection requires native fetch-body provenance within the same function and nearest loop, following only local `const` bindings and aliases. Arbitrary or transformed streams and unknown option objects or `stream` values are unchecked. Names and types alone do not establish provenance.
