@@ -200,7 +200,8 @@ ruleTest.snapshot({
 });
 
 test('preserves diagnostics after prefer-response-static-json autofix', t => {
-	const result = new Linter().verifyAndFix('new Response(JSON.stringify({permissions: new Set(["read"])}))', {
+	const linter = new Linter();
+	const result = linter.verifyAndFix('new Response(JSON.stringify({permissions: new Set(["read"])}))', {
 		plugins: {unicorn},
 		rules: {
 			'unicorn/prefer-response-static-json': 'error',
