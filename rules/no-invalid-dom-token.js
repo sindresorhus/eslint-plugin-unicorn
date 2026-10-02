@@ -131,7 +131,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow invalid tokens in DOMTokenList methods.',
+			description: 'Disallow invalid DOM tokens.',
 			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,

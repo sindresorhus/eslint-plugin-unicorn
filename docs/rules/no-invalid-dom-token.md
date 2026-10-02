@@ -1,6 +1,6 @@
 # no-invalid-dom-token
 
-📝 Disallow invalid tokens in DOMTokenList methods.
+📝 Disallow invalid DOM tokens.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
