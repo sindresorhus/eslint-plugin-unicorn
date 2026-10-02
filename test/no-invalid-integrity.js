@@ -78,6 +78,8 @@ test.snapshot({
 		'<script integrity={template`sha256-abc`} />',
 		'<script integrity={integrity} />',
 		'let integrity = "sha256-abc"; <script integrity={integrity} />',
+		'const properties = {integrity: "sha256-abc"}; properties.integrity = ""; <script integrity={properties.integrity} />',
+		'<script integrity={integrity} />; const integrity = "sha256-abc";',
 		'<Script integrity="sha256-abc" />',
 		'<custom-script integrity="sha256-abc" />',
 		'<components.script integrity="sha256-abc" />',
@@ -139,6 +141,10 @@ test.snapshot({
 		html('sha256-{{digest}}'),
 		{code: html('[[integrity]]'), languageOptions: {parserOptions: {templateEngineSyntax: {'[[': ']]'}}}},
 		{code: '<script {{name}}="sha256-abc"></script>', languageOptions: {parserOptions: {templateEngineSyntax: {'{{': '}}'}}}},
+		{code: '<link integrity=sha256-AAAA/[[digest]]>', languageOptions: {parserOptions: {templateEngineSyntax: {'[[': ']]'}}}},
+		{code: '<link integrity=sha256-AAAA/[[digest]]>', languageOptions: {parserOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]}}},
+		// The parser can omit attributes after an unquoted URL containing a slash.
+		'<script src=https://example.test/app.js integrity="sha256-abc"></script>',
 	],
 	invalid: [
 		html('sha256-abc'),
@@ -163,8 +169,12 @@ test({
 	valid: [
 		`<link integrity="${hashes.sha256}">`,
 		{code: '<link integrity="[[integrity]]">', languageOptions: {templateEngineSyntax: {'[[': ']]'}}},
+		{code: '<link integrity=sha256-AAAA/[[digest]]>', languageOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]}},
 	],
-	invalid: [{code: '<link integrity="sha256-abc">', errors: [{messageId: 'invalid', suggestions: 0}]}],
+	invalid: [
+		{code: '<link integrity="sha256-abc">', errors: [{messageId: 'invalid', suggestions: 0}]},
+		{code: '<script integrity="sha256-abc0"></script>', languageOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]}, errors: [{messageId: 'invalid', suggestions: 0}]},
+	],
 });
 
 // Regular rule-tester cases assert that diagnostics do not offer autofixes or suggestions.
@@ -175,5 +185,18 @@ test({
 		{code: jsx('sha256-abc'), errors: [{messageId: 'invalid', suggestions: 0}]},
 		{code: jsx('sha25-abc'), errors: [{messageId: 'unrecognized', suggestions: 0}]},
 		{code: jsx('sha256-abc sha384-abc'), errors: [{messageId: 'invalid'}, {messageId: 'invalid'}]},
+		{code: 'const integrity = "sha256-abc" as const; <script integrity={integrity} />', languageOptions: {parser: parsers.typescript}, errors: [{messageId: 'invalid', suggestions: 0}]},
 	],
+});
+
+test({
+	testerOptions: {languageOptions: {parser: parsers.html}},
+	valid: [],
+	invalid: ['"', '\'', '`', '<'].map(character => {
+		const value = `${hashes.sha256}${character}broken`;
+		return {
+			code: `<script integrity=${value}></script>`,
+			errors: [{messageId: 'invalid', column: 19, endColumn: 19 + value.length, suggestions: 0}],
+		};
+	}),
 });

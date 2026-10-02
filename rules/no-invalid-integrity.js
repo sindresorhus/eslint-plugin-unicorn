@@ -72,7 +72,9 @@ function * getIntegrityProblems(node, value, location) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const templateDelimiters = ['{{', '{%', '<%', '${', ...Object.keys(context.languageOptions?.templateEngineSyntax ?? context.languageOptions?.parserOptions?.templateEngineSyntax ?? {})];
+	const templateSyntax = context.languageOptions?.templateEngineSyntax ?? context.languageOptions?.parserOptions?.templateEngineSyntax ?? {};
+	const configuredDelimiters = Array.isArray(templateSyntax) ? templateSyntax.map(({open}) => open) : Object.keys(templateSyntax);
+	const templateDelimiters = ['{{', '{%', '<%', '${', ...configuredDelimiters];
 	context.on(['Tag', 'ScriptTag'], node => {
 		if ((node.type !== 'ScriptTag' && !['script', 'link'].includes(node.name.toLowerCase())) || isHtmlRcdataNode(node)) {
 			return;
@@ -86,7 +88,7 @@ const create = context => {
 		const valueNode = attribute.value;
 		const [start] = context.sourceCode.getRange(valueNode);
 		// The HTML parser can stop an unquoted value at a slash.
-		const raw = attribute.startWrapper ? valueNode.value : context.sourceCode.text.slice(start).match(/^[^\t\n\f\r "'<>`]+/v)?.[0];
+		const raw = attribute.startWrapper ? valueNode.value : context.sourceCode.text.slice(start).match(/^[^\t\n\f\r >]+/v)?.[0];
 		if (!raw) {
 			return;
 		}
