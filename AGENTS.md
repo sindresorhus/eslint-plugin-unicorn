@@ -177,6 +177,8 @@ On rebase, `rules/index.js` and the `readme.md` rules table almost always confli
 
 Use JavaScript syntax for configuration examples, not JSON-style quoted keys and strings, unless the example is specifically JSON.
 
+For rule documentation examples, prefer one failing (`// ❌`) example followed by one corresponding passing (`// ✅`) example in each code block whenever possible. Use separate blocks for distinct cases instead of grouping all failing and passing examples together.
+
 ## Testing
 
 Tests should be comprehensive with many edge cases, but no duplicate coverage. Add lots of focused edge-case tests for matching and fixes/suggestions. Add tests for edge cases the rule intentionally ignores to document the behavior.
