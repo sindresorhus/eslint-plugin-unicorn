@@ -13,7 +13,9 @@ Temporal separates elapsed time from calendar arithmetic. This rule reports arit
 
 - `Temporal.Instant#add()` and `subtract()` with nonzero years, months, weeks, or days.
 - `Temporal.Duration#add()` and `subtract()` with nonzero years, months, or weeks in either operand. These methods do not accept `relativeTo` to enable calendar arithmetic.
+- `Temporal.PlainYearMonth#add()` and `subtract()` with nonzero weeks, days, or time units. Use years or months, or a `Temporal.PlainDate` for date arithmetic.
 - `Temporal.Duration#total()` and `round()` without `relativeTo` when calendar units are involved. Days alone do not require a reference date.
+- Invalid or missing `unit` for `Temporal.Duration#total()`.
 - `Temporal.Duration.compare()` without `relativeTo` when both durations are fully known, have different component values, and contain years, months, or weeks. Identical records do not need a reference date.
 - Invalid `overflow` options for calendar-type `add()` and `subtract()` calls.
 - Invalid units, rounding modes, rounding increments, missing required units, and incompatible largest and smallest units for `round()`, `since()`, and `until()`.
@@ -26,6 +28,7 @@ The rule checks only options read by the method. Singular and plural unit names 
 // ❌
 Temporal.Now.instant().add({days: 1});
 Temporal.Duration.from({months: 1}).add({days: 1});
+Temporal.PlainYearMonth.from('2024-01').add({days: 1});
 Temporal.Duration.from({months: 1}).total('hours');
 Temporal.Duration.from({hours: 1}).total({smallestUnit: 'hour'});
 Temporal.Now.plainTimeISO().round({smallestUnit: 'minute', roundingIncrement: 7});
@@ -35,6 +38,7 @@ Temporal.Now.instant().until(other, {largestUnit: 'minute', smallestUnit: 'hour'
 Temporal.Now.instant().add({hours: 24});
 Temporal.Now.zonedDateTimeISO().add({days: 1});
 Temporal.PlainDate.from('2024-01-01').add({months: 1, days: 1});
+Temporal.PlainYearMonth.from('2024-01').add({months: 1});
 Temporal.Duration.from({months: 1}).total({unit: 'hours', relativeTo: '2024-01-01'});
 Temporal.Duration.from({days: 1}).total('hours');
 Temporal.Duration.from({hours: 1}).total({unit: 'hour'});
@@ -42,9 +46,36 @@ Temporal.Now.plainTimeISO().round({smallestUnit: 'minute', roundingIncrement: 15
 Temporal.Now.instant().until(other, {largestUnit: 'hour', smallestUnit: 'minute'});
 ```
 
+## Units and rounding
+
+The allowed units depend on the receiver and operation:
+
+| Receiver | Operation | Allowed units |
+| --- | --- | --- |
+| Duration | `total`, `round` | Year through nanosecond |
+| Instant, PlainTime | `round`, `since`, `until` | Hour through nanosecond |
+| PlainDateTime, ZonedDateTime | `round` | Day through nanosecond |
+| PlainDate | `since`, `until` | Year through day |
+| PlainYearMonth | `since`, `until` | Year and month |
+| PlainDateTime, ZonedDateTime | `since`, `until` | Year through nanosecond |
+
+`auto` is accepted for `largestUnit` in Duration rounding and difference operations. It is not a valid `smallestUnit` or `unit`.
+
+`roundingIncrement` is truncated to an integer and must be between `1` and `1_000_000_000`. Instant rounding permits increments that divide a full 24-hour day. Other time-unit rounding requires increments smaller than, and evenly dividing, the number of units in the next larger unit. For example, a 90-minute increment divides a 24-hour day, but exceeds the 60-minute limit for PlainTime:
+
+```js
+// ✅
+Temporal.Now.instant().round({smallestUnit: 'minute', roundingIncrement: 90});
+
+// ❌
+Temporal.Now.plainTimeISO().round({smallestUnit: 'minute', roundingIncrement: 90});
+```
+
 ## Suggestions
 
 The rule can suggest correcting `smallestUnit` to `unit` in `total()`, or `unit` to `smallestUnit` in `round()`, when the corrected options have no other known contract error.
+
+Shorthand properties keep their value identifier: `total({smallestUnit})` becomes `total({unit: smallestUnit})`, and `round({unit})` becomes `round({smallestUnit: unit})`.
 
 For an Instant's single-property `{days: amount}` argument, it can suggest treating each day as 24 elapsed hours when the amount and resulting hours are safe integers.
 
@@ -70,6 +101,7 @@ An absent or statically `undefined` `relativeTo` is treated as missing. An unkno
 ## References
 
 - [Temporal specification](https://tc39.es/proposal-temporal/)
+- [PlainYearMonth arithmetic](https://tc39.es/proposal-temporal/#sec-temporal-adddurationtoyearmonth)
 - [Instant arithmetic](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/Instant/add)
 - [Duration totals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/Duration/total)
 - [Rounding increments for Instant](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/Instant/round)

@@ -6,6 +6,7 @@ import {createTypeCheckers} from './utils/type-helpers.js';
 const messages = {
 	'instant-calendar-unit': '`Temporal.Instant.{{method}}()` does not support nonzero years, months, weeks, or days. Use elapsed time units or calendar arithmetic on a `Temporal.ZonedDateTime`.',
 	'duration-calendar-unit': '`Temporal.Duration.{{method}}()` does not support nonzero years, months, or weeks. Use date arithmetic relative to a starting point.',
+	'year-month-unit': '`Temporal.PlainYearMonth.{{method}}()` does not support nonzero weeks, days, or time units. Use years or months, or date arithmetic on a `Temporal.PlainDate`.',
 	'relative-to': '`Temporal.Duration.{{method}}()` requires `relativeTo` for calendar units.',
 	'invalid-option': 'Invalid `{{option}}` for `Temporal.{{type}}.{{method}}()`.',
 	'missing-unit': '`Temporal.{{type}}.{{method}}()` requires {{required}}.',
@@ -411,7 +412,7 @@ function getUnitKeySuggestion(node, operation) {
 	const expected = method === 'total' ? 'unit' : 'smallestUnit';
 	const actual = method === 'total' ? 'smallestUnit' : 'unit';
 	const property = options.get(actual)?.property;
-	if (!property || property.shorthand || options.has(expected)) {
+	if (!property || options.has(expected)) {
 		return;
 	}
 
@@ -421,7 +422,7 @@ function getUnitKeySuggestion(node, operation) {
 		return;
 	}
 
-	return {messageId: 'correct-unit-key', data: {expected, actual}, fix: fixer => fixer.replaceText(property.key, expected)};
+	return {messageId: 'correct-unit-key', data: {expected, actual}, fix: fixer => fixer.replaceText(property.key, property.shorthand ? `${expected}: ${actual}` : expected)};
 }
 
 function getElapsedDaysSuggestion(argument, context) {
@@ -446,7 +447,7 @@ function getElapsedDaysSuggestion(argument, context) {
 	};
 }
 
-function getOverflowProblem(node, type, method, context) {
+function getCalendarAdditionProblem(node, type, method, context) {
 	if (type === 'PlainTime') {
 		return;
 	}
@@ -455,6 +456,20 @@ function getOverflowProblem(node, type, method, context) {
 	const overflow = options && getOption(options, 'overflow');
 	if (overflow !== undefined && overflow !== unknown && !['constrain', 'reject'].includes(String(overflow))) {
 		return {node: options.get('overflow').node, messageId: 'invalid-option', data: {type, method, option: 'overflow'}};
+	}
+
+	if (type !== 'PlainYearMonth') {
+		return;
+	}
+
+	const argument = getDuration(node.arguments[0], context);
+	const forbiddenIndex = argument?.findIndex((value, index) => index >= 2 && value !== unknown && value !== 0) ?? -1;
+	if (forbiddenIndex !== -1) {
+		return {
+			node: getProperties(node.arguments[0])?.get(durationFields[forbiddenIndex])?.value ?? node.arguments[0],
+			messageId: 'year-month-unit',
+			data: {method},
+		};
 	}
 }
 
@@ -485,7 +500,7 @@ function getAdditionProblem(node, type, method, context) {
 		return problem;
 	}
 
-	return getOverflowProblem(node, type, method, context);
+	return getCalendarAdditionProblem(node, type, method, context);
 }
 
 function getArithmeticProblem(node, type, method, context) {

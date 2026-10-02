@@ -7,6 +7,7 @@ import {getTester, parsers} from './utils/test.js';
 const {test: ruleTest} = getTester(import.meta);
 const instant = 'Temporal.Instant.fromEpochMilliseconds(0)';
 const duration = 'Temporal.Duration.from({hours: 1})';
+const yearMonthForbiddenFields = ['weeks', 'days', 'hours', 'minutes', 'seconds', 'milliseconds', 'microseconds', 'nanoseconds'];
 const receivers = {
 	Instant: instant,
 	Duration: duration,
@@ -239,6 +240,7 @@ ruleTest.snapshot({
 
 const suggestions = [
 	[`${instant}.add({days: -2})`, `${instant}.add({hours: -48})`],
+	[`const days = 1 + 1; ${instant}.add({days})`, `const days = 1 + 1; ${instant}.add({hours: 48})`],
 	[`const days = 2; ${instant}.add({days})`, `const days = 2; ${instant}.add({hours: 48})`],
 	[`const days = 2; ${instant}.add({days /* keep */})`, `const days = 2; ${instant}.add({hours: 48 /* keep */})`],
 	[`${instant}.subtract({/* before */ "days": (/* keep */ 2) /* after */})`, `${instant}.subtract({/* before */ hours: (/* keep */ 48) /* after */})`],
@@ -246,6 +248,9 @@ const suggestions = [
 	[`${duration}.round({unit: "minute", roundingIncrement: 15})`, `${duration}.round({smallestUnit: "minute", roundingIncrement: 15})`],
 	[`${duration}.total({"smallestUnit" /* keep */: "hours"})`, `${duration}.total({unit /* keep */: "hours"})`],
 	[`${duration}.total({smallestUnit: "invalid", smallestUnit: "hour"})`, `${duration}.total({smallestUnit: "invalid", unit: "hour"})`],
+	[`const smallestUnit = "hours"; ${duration}.total({/* before */ smallestUnit /* after */})`, `const smallestUnit = "hours"; ${duration}.total({/* before */ unit: smallestUnit /* after */})`],
+	[`const unit = "minutes"; ${duration}.round({unit, roundingIncrement: 15})`, `const unit = "minutes"; ${duration}.round({smallestUnit: unit, roundingIncrement: 15})`],
+	[`const smallestUnit = "hours"; ${duration}.total({smallestUnit: "invalid", smallestUnit})`, `const smallestUnit = "hours"; ${duration}.total({smallestUnit: "invalid", unit: smallestUnit})`],
 	[`${instant}.add({\r\n  days: 1\r\n})`, `${instant}.add({\r\n  hours: 24\r\n})`],
 	[
 		'const days = 2; (value as Temporal.Instant)!.add(({days} satisfies Temporal.DurationLike));',
@@ -260,6 +265,16 @@ const suggestions = [
 	[
 		'function run(value: Temporal.Duration) { value.round({unit: "minutes"}); }',
 		'function run(value: Temporal.Duration) { value.round({smallestUnit: "minutes"}); }',
+		typescriptEslintParser,
+	],
+	[
+		'const unit = "minutes" as const; (value as Temporal.Duration).round(({/* keep */ unit} satisfies Temporal.DurationRoundTo));',
+		'const unit = "minutes" as const; (value as Temporal.Duration).round(({/* keep */ smallestUnit: unit} satisfies Temporal.DurationRoundTo));',
+		typescriptEslintParser,
+	],
+	[
+		'const smallestUnit: string = "hours"; (value as Temporal.Duration).total({smallestUnit});',
+		'const smallestUnit: string = "hours"; (value as Temporal.Duration).total({unit: smallestUnit});',
 		typescriptEslintParser,
 	],
 ];
@@ -315,6 +330,10 @@ test('reports without changing source or offering incomplete corrections', t => 
 		`${duration}.total({smallestUnit: "invalid"})`,
 		`${duration}.round({unit: "minute", roundingIncrement: 7})`,
 		`${duration}.round({smallestUnit: undefined, unit: "minute"})`,
+		`const smallestUnit = "month"; ${duration}.total({smallestUnit})`,
+		`const unit = "minute"; ${duration}.round({unit, roundingIncrement: 7})`,
+		`let smallestUnit = "hours"; smallestUnit = "invalid"; ${duration}.total({smallestUnit})`,
+		`${receivers.PlainYearMonth}.add({days: 1})`,
 	];
 	for (const code of cases) {
 		const problems = linter.verify(code, config);
@@ -324,6 +343,41 @@ test('reports without changing source or offering incomplete corrections', t => 
 		t.false(result.fixed);
 		t.is(result.output, code);
 	}
+});
+
+ruleTest.snapshot({
+	valid: [
+		`let days = 1; days = 0; ${instant}.add({days})`,
+		...['add', 'subtract'].flatMap(method => [
+			...yearMonthForbiddenFields.map(field => `${receivers.PlainYearMonth}.${method}({months: 1, ${field}: 0})`),
+			`${receivers.PlainYearMonth}.${method}("P1Y2M")`,
+			`${receivers.PlainYearMonth}.${method}("PT0S")`,
+			`${receivers.PlainYearMonth}.${method}({days: unknown})`,
+			`${receivers.PlainYearMonth}.${method}({days: 1, days: 0})`,
+			`${receivers.PlainYearMonth}.${method}({...unknown, days: 1})`,
+			`${receivers.PlainYearMonth}.${method}({["days"]: 1})`,
+			`${receivers.PlainYearMonth}.${method}(new Temporal.Duration(...fields))`,
+		]),
+		`const amount = {days: 1}; amount.days = 0; ${receivers.PlainYearMonth}.add(amount)`,
+	],
+	invalid: [
+		...['add', 'subtract'].flatMap(method => [
+			...yearMonthForbiddenFields.flatMap(field => [1, -1].map(value => `${receivers.PlainYearMonth}.${method}({${field}: ${value}})`)),
+			...['P1W', '-P1D', 'PT1H', 'PT0.000000001S'].map(value => `${receivers.PlainYearMonth}.${method}("${value}")`),
+			`${receivers.PlainYearMonth}.${method}(new Temporal.Duration(0, 0, 0, 1))`,
+			`${receivers.PlainYearMonth}.${method}(Temporal.Duration.from({hours: 1}))`,
+			`${receivers.PlainYearMonth}.${method}({days: 0, days: 1})`,
+			`${receivers.PlainYearMonth}.${method}({days: unknown, hours: 1})`,
+		]),
+		`const amount = Temporal.Duration.from({days: 1}); ${receivers.PlainYearMonth}.add(amount)`,
+		`const value = ${receivers.PlainYearMonth}; value?.["subtract"]?.({"days": 1})`,
+		{code: 'function run(value: Temporal.PlainYearMonth) { value.add(({days: 1} satisfies Temporal.DurationLike)); }', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [{code: `${receivers.PlainYearMonth}.add({days: 1}, {overflow: "invalid"})`, errors: [{messageId: 'invalid-option', suggestions: []}]}],
 });
 
 test('reports one problem in contract validation order', t => {
