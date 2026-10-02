@@ -68,12 +68,8 @@ url.protocol = 'https';
 
 ## Detection limits
 
-Without type information, the rule recognizes direct `new URL()` expressions and `const` bindings initialized from known URLs, including named `URL` imports from `node:url` or `url`. It also recognizes native `URL` type annotations in TypeScript.
+The rule recognizes `new URL()`, `const` bindings of known URLs, and native TypeScript `URL` annotations, including named imports from `node:url` or `url`. [Typed linting](https://typescript-eslint.io/getting-started/typed-linting/) additionally recognizes inferred built-in URL types and guarded `URL | string` values.
 
-With [typed linting](https://typescript-eslint.io/getting-started/typed-linting/) enabled, it also recognizes inferred native URL types. It can recognize a `URL | string` value after a guard such as `url instanceof URL`. Selecting the TypeScript parser alone does not enable type information. Type information recognizes TypeScript's built-in `URL` type; nested member types from Node.js imports are not recognized.
+Only string literals and templates without substitutions are checked. Unknown receivers, URL subclasses, nested member types from Node.js imports, named collections, extracted protocol values, and dynamic strings are ignored. Prefix and substring checks are allowed.
 
-The rule does not infer URLs from variable names, arbitrary objects with a `protocol` property, or URL subclasses. A mixed type alone does not establish that the receiver is a native `URL`.
-
-Only string literals and templates without substitutions are checked. Named collections, extracted protocol values, and dynamic strings are ignored. Prefix and substring checks such as `url.protocol.startsWith('http')` are valid and are not reported.
-
-Fixes preserve surrounding comments and syntax. A `switch` label is reported without an automatic fix when normalization would collide with another literal label, including another label that requires normalization.
+`switch` labels are reported without a fix when another literal label normalizes to the same protocol.
