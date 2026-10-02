@@ -37,3 +37,5 @@ window.addEventListener('click', () => {});
 ## Limitations
 
 Only inline listener functions are checked. Named listeners, dynamic options, options with spreads, and opaque event parameter usage are ignored to avoid false positives.
+
+Use [`no-prevent-default-in-passive-listener`](no-prevent-default-in-passive-listener.md) to detect callbacks that call `preventDefault()` despite explicitly being registered with `{passive: true}`.
