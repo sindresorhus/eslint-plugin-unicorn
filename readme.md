@@ -94,6 +94,7 @@ export default defineConfig([
 | [better-dom-traversing](docs/rules/better-dom-traversing.md)                                               | Prefer better DOM traversal APIs.                                                                                              | ✅ ☑️ |    | 💡 |    |
 | [catch-error-name](docs/rules/catch-error-name.md)                                                         | Enforce a specific parameter name in catch clauses.                                                                            | ✅    | 🔧 |    |    |
 | [class-reference-in-static-methods](docs/rules/class-reference-in-static-methods.md)                       | Enforce consistent class references in static methods.                                                                         | ✅    |    | 💡 |    |
+| [comma-spacing](docs/rules/comma-spacing.md)                                                               | Enforce consistent spacing before and after commas in JSON.                                                                    |      | 🔧 |    |    |
 | [comment-content](docs/rules/comment-content.md)                                                           | Enforce better comment content.                                                                                                |      | 🔧 |    |    |
 | [consistent-arrow-return-style](docs/rules/consistent-arrow-return-style.md)                               | Enforce a consistent return style for multiline arrow function bodies.                                                         |      | 🔧 |    |    |
 | [consistent-assert](docs/rules/consistent-assert.md)                                                       | Enforce consistent assertion style with `node:assert`.                                                                         | ✅    | 🔧 |    |    |
@@ -593,6 +594,7 @@ These rules also work on specific non-JavaScript languages:
 
 | Name | CSS | HTML | JSON | Markdown | TOML | YAML |
 | :-- | :-: | :-: | :-: | :-: | :-: | :-: |
+| [`comma-spacing`](docs/rules/comma-spacing.md) |  |  | ✅ |  |  |  |
 | [`consistent-compound-words`](docs/rules/consistent-compound-words.md) | ✅ | ✅ | ✅ |  | ✅ | ✅ |
 | [`empty-brace-spaces`](docs/rules/empty-brace-spaces.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`escape-case`](docs/rules/escape-case.md) | ✅ |  | ✅ |  | ✅ | ✅ |
