@@ -39,6 +39,8 @@ When `syntax` is missing, the rule reports it without also requiring `initial-va
 
 The rule checks descriptor presence only, including descriptors with empty values. It does not validate values, computational independence, `!important`, property names, or at-rule placement. It skips the conditional `initial-value` check when `syntax` is not a single string value.
 
+Use [`css/no-invalid-at-rules`](https://github.com/eslint/css/blob/main/docs/rules/no-invalid-at-rules.md) alongside this rule to check at-rule names, preludes, and descriptor value grammar.
+
 Descriptor names and the at-rule name are case-insensitive, and CSS escapes are decoded. Only declarations directly inside the registration count. For duplicate descriptors, the last declaration is used; browser recovery from invalid duplicate values is not modeled.
 
 There are no fixes or suggestions because the rule cannot infer the intended descriptor values.
