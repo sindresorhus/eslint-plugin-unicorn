@@ -29,6 +29,7 @@ test.snapshot({
 		'new URLSearchParams().toString()',
 		'new NotURL(value).toString()',
 		'const url = createURL(); url.toString()',
+		'const {href} = new URL(value); href.toString()',
 		'let url = new URL(value); url.toString()',
 		'const URL = class {}; new URL(value).toString()',
 		'const String = value => value.href; String(new URL(value))',

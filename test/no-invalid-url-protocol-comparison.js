@@ -72,6 +72,7 @@ testRule.snapshot({
 		'url.protocol === "https"; const url = new URL(value)',
 		'const url = new URLSearchParams(); url.protocol === "https"',
 		'const url = new CustomURL(value); url.protocol === "https"',
+		'const {href: url} = new URL(value); url.protocol === "https"',
 		typescript('function example(url: {protocol: string}) {return url.protocol === "https";}'),
 		typescript('function example(url: URL | string) {return url.protocol === "https";}'),
 		typescript('function example(url: URL | undefined) {return url?.protocol === "https";}'),

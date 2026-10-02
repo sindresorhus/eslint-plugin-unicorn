@@ -277,6 +277,7 @@ const getTypeFromVariable = (node, context, visitedVariables) => {
 	visitedVariables.add(variable);
 
 	const typeFromInitializer = definition.type === 'Variable'
+		&& definition.node.id.type === 'Identifier'
 		&& definition.parent.kind === 'const'
 		&& definition.node.init
 		? getUrlType(definition.node.init, context, visitedVariables)
