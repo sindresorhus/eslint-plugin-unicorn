@@ -201,6 +201,7 @@ export default defineConfig([
 | [no-keyword-prefix](docs/rules/no-keyword-prefix.md)                                                       | Disallow identifiers starting with `new` or `class`.                                                                           |      |    |    |    |
 | [no-late-current-target-access](docs/rules/no-late-current-target-access.md)                               | Disallow accessing `event.currentTarget` after the synchronous event dispatch has finished.                                    | ✅    |    |    |    |
 | [no-late-event-control](docs/rules/no-late-event-control.md)                                               | Disallow event-control method calls after the synchronous event dispatch has finished.                                         | ✅    |    |    |    |
+| [no-leading-empty-lines](docs/rules/no-leading-empty-lines.md)                                             | Disallow empty lines at the beginning of a file.                                                                               | ✅    | 🔧 |    |    |
 | [no-lonely-if](docs/rules/no-lonely-if.md)                                                                 | Disallow `if` statements as the only statement in `if` blocks without `else`.                                                  | ✅ ☑️ | 🔧 |    |    |
 | [no-loop-iterable-mutation](docs/rules/no-loop-iterable-mutation.md)                                       | Disallow mutating a loop iterable during iteration.                                                                            | ✅    |    |    |    |
 | [no-loss-of-precision](docs/rules/no-loss-of-precision.md)                                                 | Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.                                    |      |    |    |    |
@@ -581,6 +582,7 @@ These rules work on **any** file type:
 - [`comment-content`](docs/rules/comment-content.md)
 - [`filename-case`](docs/rules/filename-case.md)
 - [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md)
+- [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md)
 - [`prefer-https`](docs/rules/prefer-https.md)
 
 These rules also work on specific non-JavaScript languages:

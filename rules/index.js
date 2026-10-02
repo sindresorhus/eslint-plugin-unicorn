@@ -110,6 +110,7 @@ export {default as 'no-javascript-url'} from './no-javascript-url.js';
 export {default as 'no-keyword-prefix'} from './no-keyword-prefix.js';
 export {default as 'no-late-current-target-access'} from './no-late-current-target-access.js';
 export {default as 'no-late-event-control'} from './no-late-event-control.js';
+export {default as 'no-leading-empty-lines'} from './no-leading-empty-lines.js';
 export {default as 'no-lonely-if'} from './no-lonely-if.js';
 export {default as 'no-loop-iterable-mutation'} from './no-loop-iterable-mutation.js';
 export {default as 'no-loss-of-precision'} from './no-loss-of-precision.js';
