@@ -31,6 +31,8 @@ test.snapshot({
 		'Object.defineProperty(object, "property", {get: new Function()});',
 		'Object.defineProperty(object, "property", /regularExpression/);',
 		'Object.defineProperty(object, "property", {get: condition ? getter : undefined});',
+		'Object.defineProperty(object, "property", {get: (() => {}) || (() => {})});',
+		'Object.defineProperty(object, "property", condition ? {value: 1} : {value: 2});',
 		'Object.defineProperty(object, "property", {get: 1, get() {}});',
 		'Object.defineProperty(object, "property", {get: 1, ["ge" + "t"]() {}});',
 		'Object.defineProperty(object, "property", {set: false, set: undefined});',
@@ -83,6 +85,7 @@ test.snapshot({
 		'const descriptors = {property: {get: 1}}; mutate(descriptors); Object.create(prototype, descriptors);',
 		'const descriptors = {property: {get: 1}}; const alias = descriptors; Object.defineProperties(object, alias);',
 		'export const descriptors = {property: {get: 1}}; Object.defineProperties(object, descriptors);',
+		'const descriptors = {property: {get: 1}}; export default descriptors; Object.defineProperties(object, descriptors);',
 		'const {descriptor} = {descriptor: {get: 1}}; Object.defineProperty(object, "property", descriptor);',
 		'const descriptor = {get: 1}; const descriptors = {property: descriptor}; mutate(descriptors); Object.defineProperties(object, descriptors);',
 		'const descriptor = {get: 1}; const container = {property: descriptor}; Object.defineProperty(object, "property", descriptor);',
@@ -151,6 +154,10 @@ test.snapshot({
 		},
 		'Object.defineProperty(object, "property", {[undefined]: true});',
 		'Object["define" + "Property"](object, "property", {get: 1});',
+		'Object.defineProperty(object, "property", value + 1);',
+		'Object.defineProperty(object, "property", value++);',
+		'Object.defineProperty(object, "property", {get: value + 1, set: value++});',
+		'const descriptor = {get: 1}; Object.defineProperties(object, {descriptor});',
 	],
 });
 
