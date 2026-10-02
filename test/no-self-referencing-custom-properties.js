@@ -4,6 +4,8 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'a { --spacing:; }',
+		'a { --spacing: /* var(--spacing) */; }',
 		'a { --spacing: 1px; }',
 		'a { --spacing: var(--base-spacing); }',
 		'a { --spacing: var(--SPACING); }',
@@ -18,6 +20,9 @@ test.snapshot({
 		'a { --spacing: foo(--spacing); }',
 		'a { --spacing: var /**/ (--spacing); }',
 		'a { --spacing: var(--spacing extra); }',
+		'a { --spacing: var(--spacing + 1px); }',
+		'a { --spacing: var(--spa/**/cing); }',
+		'a { --spacing: var(--other, "var(--spacing)" url("var(--spacing)")); }',
 		'a { spacing: var(--spacing); }',
 		'a { --one: var(--two); --two: var(--one); }',
 		':root { --spacing: 1px; } a { --component-spacing: var(--spacing); }',
@@ -60,6 +65,27 @@ test({
 	testerOptions: languages.css,
 	valid: [],
 	invalid: [
+		{
+			code: 'a { --spacing: "var(--spacing)" /* var(--spacing) */ url("var(--spacing)") var(--spacing); }',
+			errors: [{
+				messageId: 'no-self-referencing-custom-properties',
+				line: 1,
+				column: 80,
+				endLine: 1,
+				endColumn: 89,
+			}],
+		},
+		{
+			code: String.raw`a { --spacing: V\000041R(--sp\000061cing); }`,
+			errors: [{
+				messageId: 'no-self-referencing-custom-properties',
+				data: {property: '--spacing'},
+				line: 1,
+				column: 26,
+				endLine: 1,
+				endColumn: 41,
+			}],
+		},
 		{
 			code: 'a { --spacing: var(--other) var(--spacing) var(--spacing); }',
 			errors: [{

@@ -39,7 +39,7 @@ This rule disallows syntactic self-references, including references inside fallb
 }
 ```
 
-Custom-property names are case-sensitive, so `--spacing: var(--SPACING)` is allowed. The rule ignores strings, comments, URLs, support tests, and container-query conditions. It does not detect indirect cycles such as `--one: var(--two); --two: var(--one)` or extract CSS from JavaScript.
+Custom-property names are case-sensitive, so `--spacing: var(--SPACING)` is allowed. The rule ignores strings, comments, URL text, support tests, and container-query conditions. It does not detect indirect cycles such as `--one: var(--two); --two: var(--one)` or extract CSS from JavaScript.
 
 ## Usage
 
