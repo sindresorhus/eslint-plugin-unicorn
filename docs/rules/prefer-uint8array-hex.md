@@ -18,7 +18,7 @@ Prefer [`Uint8Array#toHex()`](https://developer.mozilla.org/en-US/docs/Web/JavaS
 
 ### Encoding
 
-The rule recognizes spread followed by `map()`, `Array.from()` followed by `map()`, `Array.from()` with a mapping callback, and borrowed map calls through `Array.prototype.map.call()` or `[].map.call()`, each followed by `join('')`. Arrow functions and functions containing a single `return` are supported. The callback must return one of these expressions:
+The rule recognizes spread followed by `map()`, `Array.from()` followed by `map()`, `Array.from()` with a mapping callback, and borrowed map calls through `Array.prototype.map.call()` or `[].map.call()`, each followed by `join('')`. Callbacks must be synchronous, non-generator functions with exactly one identifier parameter and an expression body or a body containing only a single `return` statement. The callback must return one of these expressions:
 
 - `byte.toString(16).padStart(2, '0')`
 - `('0' + byte.toString(16)).slice(-2)` or the `'00'` prefix variant

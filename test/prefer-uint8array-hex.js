@@ -178,6 +178,7 @@ testRule({
 	valid: [
 		...[
 			'byte => (\'1\' + byte.toString(16)).slice(-2)',
+			'byte => (0 + byte.toString(16)).slice(-2)',
 			'byte => (\'\' + byte.toString(16)).slice(-2)',
 			'byte => (\'000\' + byte.toString(16)).slice(-2)',
 			'byte => (byte.toString(16) + \'0\').slice(-2)',
@@ -185,7 +186,9 @@ testRule({
 			'byte => (\'0\' + other.toString(16)).slice(-2)',
 			'byte => (\'0\' + byte.toString(16)).slice(2)',
 			'byte => (\'0\' + byte.toString(16)).slice(-1)',
+			'byte => (\'0\' + byte.toString(16)).slice()',
 			'byte => (\'0\' + byte.toString(16)).slice(-2, undefined)',
+			'byte => (\'0\' + byte.toString(16)).slice(...[-2])',
 			'byte => (\'0\' + byte.toString(16)).slice(-width)',
 			'byte => (\'0\' + byte.toString(16)).slice(-2n)',
 			'byte => (\'0\' + byte.toString(16)).substr(-2)',
@@ -209,6 +212,7 @@ testRule({
 			'Array.prototype.map.call(bytes)',
 			`Array.prototype.map.call(bytes, ${encode}, sideEffect())`,
 			`Array.prototype.map.call(...bytes, ${encode})`,
+			`Array.prototype.map.call(bytes, ...[${encode}])`,
 			`Array.prototype.map?.call(bytes, ${encode})`,
 			`Array.prototype.map.call?.(bytes, ${encode})`,
 			`Array?.prototype.map.call(bytes, ${encode})`,
@@ -287,6 +291,15 @@ testRule({
 		...['bytes as Uint8Array', '<Uint8Array>bytes'].map(expression => ({
 			code: `[].map.call((${expression}), ${sliceEncoders[0]}).join('')`,
 			output: `(${expression}).toHex()`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [error],
+		})),
+		...[
+			`(${sliceEncoders[0]}) as (byte: number) => string`,
+			'byte => ((\'0\' + byte.toString(16)).slice(-2) as string)',
+		].map(callback => ({
+			code: `const bytes = new Uint8Array(); [].map.call(bytes, ${callback}).join('')`,
+			output: 'const bytes = new Uint8Array(); bytes.toHex()',
 			languageOptions: {parser: parsers.typescript},
 			errors: [error],
 		})),
