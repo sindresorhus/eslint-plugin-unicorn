@@ -90,31 +90,6 @@ const minimum = 10;
 
 Custom components, spreads, dynamic bounds/types, mutable bindings, and forward references are ignored. Embedded CSS strings and framework templates are not inspected.
 
-## Language setup
-
-JSX/TSX uses your existing parser configuration. For CSS and HTML:
-
-```js
-import unicorn from 'eslint-plugin-unicorn';
-import css from '@eslint/css';
-import html from '@html-eslint/eslint-plugin';
-
-export default [
-	{
-		files: ['**/*.css'],
-		plugins: {unicorn, css},
-		language: 'css/css',
-		rules: {'unicorn/no-conflicting-constraints': 'error'},
-	},
-	{
-		files: ['**/*.html'],
-		plugins: {unicorn, html},
-		language: 'html/html',
-		rules: {'unicorn/no-conflicting-constraints': 'error'},
-	},
-];
-```
-
 ## Related rules
 
 [`no-invalid-media-features`](./no-invalid-media-features.md) and HTML ESLint's [`no-invalid-attr-value`](https://html-eslint.org/docs/rules/no-invalid-attr-value) validate individual values. [`prefer-media-feature-range-syntax`](./prefer-media-feature-range-syntax.md) checks notation; HTML ESLint's `no-ineffective-attrs` checks applicability. None checks relationships between bounds.
