@@ -58,6 +58,7 @@ testRule.snapshot({
 		'new Response("", {status}); const status = 204;',
 		'new Response(body, {status: 204}); const body = "";',
 		'new Response("", {[key]: 204}); const key = "status";',
+		'new Response("", {status: 204, [key]: 200}); const key = "headers";',
 		'let body = ""; body = null; new Response(body, {status: 204})',
 		'const status = getStatus(); Response.redirect(url, status)',
 		'Response.redirect(url, status)',
@@ -204,6 +205,10 @@ testRule({
 				messageId: 'body-with-null-body-status',
 				suggestions: [{messageId: 'remove-body', output: 'new Response(undefined, {status: 204});'}],
 			}],
+		},
+		{
+			code: 'new Response(/body/, {status: 204});',
+			errors: [{messageId: 'body-with-null-body-status', suggestions: []}],
 		},
 		{
 			code: 'const object = {}; Object.defineProperty(object, "toString", {get() { sideEffect(); return String; }}); new Response(`${object}`, {status: 204})',

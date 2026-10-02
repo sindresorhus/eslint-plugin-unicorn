@@ -32,6 +32,7 @@ Response.redirect(url, 200);
 // ✅
 new Response(undefined, {status: 204});
 new Response(null, {status: 205});
+new Response(undefined, {status: 304});
 new Response('', {status: 200});
 Response.json(data, {status: 200});
 Response.redirect(url, 302);
