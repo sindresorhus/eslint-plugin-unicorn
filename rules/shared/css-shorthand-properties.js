@@ -83,12 +83,12 @@ const shorthandProperties = new Map(shorthandEntries.map(([shorthand, components
 }]));
 
 // Follow the shared catalog's components and reset-only properties, including nested shorthands.
-const getLonghandProperties = shorthand => {
-	const longhands = new Set();
+const getAffectedProperties = shorthand => {
+	const affectedProperties = new Set();
 
 	const addProperties = properties => {
 		for (const property of properties) {
-			longhands.add(property);
+			affectedProperties.add(property);
 			const nestedShorthand = shorthandProperties.get(property);
 			if (nestedShorthand) {
 				addProperties([...nestedShorthand.components, ...nestedShorthand.resetProperties]);
@@ -101,10 +101,10 @@ const getLonghandProperties = shorthand => {
 		addProperties([...definition.components, ...definition.resetProperties]);
 	}
 
-	return longhands;
+	return affectedProperties;
 };
 
-const shorthandToAffectedProperties = new Map(shorthandProperties.keys().map(shorthand => [shorthand, getLonghandProperties(shorthand)]));
+const shorthandToAffectedProperties = new Map(shorthandProperties.keys().map(shorthand => [shorthand, getAffectedProperties(shorthand)]));
 
 const getVendorPrefix = property => property.match(/^-\w+-/u)?.[0] ?? '';
 

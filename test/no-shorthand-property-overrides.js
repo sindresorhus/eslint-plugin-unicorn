@@ -74,6 +74,13 @@ test({
 				data: {longhand: 'padding-top', shorthand: 'padding'},
 			}],
 		},
+		{
+			code: 'a { animation-range-start: 10% !important; animation-range-end: 90%; animation: fade 1s; }',
+			errors: [{
+				messageId: 'no-shorthand-property-overrides',
+				data: {longhand: 'animation-range-end', shorthand: 'animation'},
+			}],
+		},
 	],
 });
 
