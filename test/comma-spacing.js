@@ -141,16 +141,21 @@ test('preserves JSON5 Unicode line separators while fixing horizontal whitespace
 	t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
 });
 
-test('preserves comments and whitespace beyond adjacent comments', t => {
-	const linter = new Linter();
-	const result = linter.verifyAndFix('[1 /* before,  */ ,/* after,  */  2,// end,  \r\n3]', {
-		language: languages.jsonc.language,
-		plugins: {...languages.jsonc.plugins, unicorn},
-		rules: {'unicorn/comma-spacing': 'error'},
+for (const language of [languages.jsonc, languages.json5]) {
+	test(`preserves comments and whitespace beyond adjacent comments: ${language.name}`, t => {
+		const linter = new Linter();
+		const config = {
+			language: language.language,
+			plugins: {...language.plugins, unicorn},
+			rules: {'unicorn/comma-spacing': 'error'},
+		};
+		const result = linter.verifyAndFix('[1 /* before,  */ ,/* after,  */  2,// end,  \r\n3 // before comma,  \r\n\t,4]', config);
+		t.true(result.fixed);
+		t.is(result.output, '[1 /* before,  */, /* after,  */  2, // end,  \r\n3 // before comma,  \r\n\t, 4]');
+		t.deepEqual(result.messages, []);
+		t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
 	});
-	t.is(result.output, '[1 /* before,  */, /* after,  */  2, // end,  \r\n3]');
-	t.deepEqual(result.messages, []);
-});
+}
 
 test('works with indentation and empty delimiter spacing', t => {
 	const linter = new Linter();
