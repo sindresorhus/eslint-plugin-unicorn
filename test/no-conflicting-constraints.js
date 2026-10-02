@@ -185,6 +185,8 @@ ruleTest.snapshot({
 		'<textarea type="text" type="number" minlength="10" maxlength="5"></textarea>',
 		'<input type minlength="10" maxlength="5">',
 		'<iframe>Fallback text</iframe><input type="number" min="10" max="5">',
+		'<input type="number" min="10" max="5" minlength="1" minlength="2">',
+		'<input minlength="10" maxlength="5" min="1" min="2">',
 	].map(code => ({code, language: languages.html})),
 });
 
@@ -267,6 +269,8 @@ ruleTest.snapshot({
 		{code: '<input type="number" min={(10 as number) + 5} max={5} />', languageOptions: {parser: parsers.typescript}},
 		{code: 'const minimum = 10 as number; <input type="number" min={minimum} max={5} />', languageOptions: {parser: parsers.typescript}},
 		'let minimum = 10; <input type="number" min={true ? 10 : minimum} max={5} />',
+		'<input type="number" min={10} max={5} minLength={1} minLength={2} />',
+		'<input minLength={10} maxLength={5} min={1} min={2} />',
 	],
 });
 

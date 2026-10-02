@@ -70,7 +70,7 @@ The HTML parser may absorb the rest of an opening tag after a slash in an unquot
 
 ### JSX and TSX
 
-Native `input` and `textarea` elements are checked using `minLength` and `maxLength`. Literal strings/numbers and safely evaluated static expressions are supported, including preceding constants.
+Native `input` and `textarea` elements are checked using `minLength` and `maxLength`. Literal strings/numbers and safely evaluated static expressions are supported, including preceding constants. TypeScript type information is not required.
 
 ```jsx
 // ❌
