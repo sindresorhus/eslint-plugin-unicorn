@@ -59,12 +59,12 @@ element.classList.add('primary', suffix);
 
 ## Suggestions
 
-For `add()` and `remove()`, suggestions split string literals and templates without interpolation on ASCII whitespace, preserving token order and duplicates. No suggestion is offered if no tokens remain or comments would be removed. There is no autofix because these changes turn throwing calls into successful ones.
+Suggestions split literal strings or templates without interpolation for `add()`/`remove()`. They are withheld for empty results or comment removal. There is no autofix because splitting changes throwing behavior.
 
 ## Limitations
 
-Receiver matching by property name is heuristic. Without type information, aliases are ignored. Dynamic method names and spread tokens are ignored, and non-string arguments are not coerced. Static evaluation skips mutable bindings and side effects, but fixed template text is still checked. For `toggle()` and `replace()`, checking stops at the first spread.
+Property-name matching is heuristic. Dynamic method names, spread tokens, and non-string arguments are ignored. Mutable bindings and side effects prevent static evaluation. For `toggle()`/`replace()`, checking stops at the first spread.
 
-`contains()`, `supports()`, attribute assignments, and supported token vocabularies are outside this rule's scope.
+`contains()`, `supports()`, attribute assignments, and token vocabularies are not checked.
 
-Use [`no-selector-as-dom-name`](./no-selector-as-dom-name.md) to catch selector prefixes such as `'.primary'`, which are valid DOM tokens.
+Selector prefixes such as `'.primary'` are handled by [`no-selector-as-dom-name`](./no-selector-as-dom-name.md).
