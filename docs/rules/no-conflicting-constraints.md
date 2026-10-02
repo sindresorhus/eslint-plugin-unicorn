@@ -62,6 +62,8 @@ Time inputs intentionally support ranges crossing midnight and are ignored, as a
 
 HTML attribute values containing templates are ignored. Elements with templated attribute names are skipped entirely because templates can change the control's type or bounds.
 
+Markup-like text inside `textarea`, `title`, or `iframe` elements is ignored.
+
 In HTML and JSX, checks that depend on a duplicated attribute are skipped.
 
 The HTML parser may absorb the rest of an opening tag after a slash in an unquoted attribute value. Quote values containing slashes so subsequent constraints can be checked.

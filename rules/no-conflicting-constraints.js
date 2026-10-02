@@ -278,6 +278,7 @@ const create = context => {
 		if (
 			!['input', 'textarea'].includes(name)
 			|| isHtmlRcdataNode(node)
+			|| context.sourceCode.getAncestors(node).some(ancestor => ancestor.type === 'Tag' && ancestor.name.toLowerCase() === 'iframe')
 			|| node.attributes.some(attribute => attribute.type === 'Attribute' && attribute.key.parts.length > 0)
 		) {
 			return;

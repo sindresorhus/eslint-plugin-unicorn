@@ -162,6 +162,8 @@ ruleTest.snapshot({
 		'<custom-input type="number" min="10" max="5"></custom-input>',
 		'<textarea><input type="number" min="10" max="5"></textarea>',
 		'<title><textarea minlength="10" maxlength="5"></textarea></title>',
+		'<iframe><input type="number" min="10" max="5"></iframe>',
+		'<IFRAME><div><textarea minlength="10" maxlength="5"></textarea></div></IFRAME>',
 	].map(code => ({code, language: languages.html})),
 	invalid: [
 		'<input type="range" min="10" max="5">',
@@ -182,6 +184,7 @@ ruleTest.snapshot({
 		'<textarea minlength="10" maxlength="5" disabled></textarea>',
 		'<textarea type="text" type="number" minlength="10" maxlength="5"></textarea>',
 		'<input type minlength="10" maxlength="5">',
+		'<iframe>Fallback text</iframe><input type="number" min="10" max="5">',
 	].map(code => ({code, language: languages.html})),
 });
 
