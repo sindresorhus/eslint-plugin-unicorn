@@ -32,6 +32,7 @@ testRule.snapshot({
 		'a { overflow-x: hidden; overflow-block: scroll; overflow-y: auto; }',
 		'a { overscroll-behavior-x: contain; overscroll-behavior-inline: none; overscroll-behavior-y: auto; }',
 		'a { border-top-width: 1px; border-right-width: 2px; border-block-start-width: 5px; border-bottom-width: 3px; border-left-width: 4px; }',
+		'a { border-block-start-color: red; border-top-color: green; border-block-end-color: blue; }',
 		'a { border-image-source: url(border.png); border-width: 1px; border-style: solid; border-color: red; }',
 		'a { column-width: 20rem; column-count: 2; }',
 		'a { list-style-type: inside; list-style-position: outside; list-style-image: none; }',
@@ -323,6 +324,36 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { border-block-start-width: 1px; border-block-end-width: 2px; }',
+			output: 'a { border-block-width: 1px 2px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-style: solid; border-block-end-style: dashed; }',
+			output: 'a { border-block-style: solid dashed; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-color: red; border-block-end-color: blue; }',
+			output: 'a { border-block-color: red blue; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-width: 1px; border-inline-end-width: 2px; }',
+			output: 'a { border-inline-width: 1px 2px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-style: solid; border-inline-end-style: dashed; }',
+			output: 'a { border-inline-style: solid dashed; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-color: red; border-inline-end-color: blue; }',
+			output: 'a { border-inline-color: red blue; }',
+			errors: 1,
+		},
+		{
 			code: 'a { grid-gap: 3px; row-gap: 1px; column-gap: 2px; }',
 			output: 'a { grid-gap: 3px; gap: 1px 2px; }',
 			errors: 1,
@@ -600,6 +631,32 @@ testRule({
 					mask-origin: border-box;
 					mask-clip: border-box;
 					mask-composite: add;
+				}
+			`,
+			output: outdent`
+				a {
+					mask: none 0% 0% / auto repeat border-box border-box add match-source;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				a {
+					mask-border-source: initial;
+					mask-border-slice: initial;
+					mask-border-width: initial;
+					mask-border-outset: initial;
+					mask-border-repeat: initial;
+					mask-border-mode: initial;
+					mask-image: none;
+					mask-position: 0% 0%;
+					mask-size: auto;
+					mask-repeat: repeat;
+					mask-origin: border-box;
+					mask-clip: border-box;
+					mask-composite: add;
+					mask-mode: match-source;
 				}
 			`,
 			output: outdent`

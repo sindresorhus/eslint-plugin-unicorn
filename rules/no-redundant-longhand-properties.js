@@ -16,7 +16,7 @@ const slashShorthands = new Set(['grid-area', 'grid-column', 'grid-row']);
 const pairShorthands = new Set(['gap', 'inset-block', 'inset-inline', 'margin-block', 'margin-inline', 'overflow', 'overscroll-behavior', 'padding-block', 'padding-inline', 'scroll-margin-block', 'scroll-margin-inline', 'scroll-padding-block', 'scroll-padding-inline']);
 const fourSideShorthands = new Set(['border-color', 'border-style', 'border-width', 'inset', 'margin', 'padding', 'scroll-margin', 'scroll-padding']);
 const additionalResetProperties = new Map([
-	['animation', ['animation-composition', 'animation-range-start', 'animation-range-end', 'animation-trigger']],
+	['animation', ['animation-composition', 'animation-trigger']],
 	['background', ['background-blend-mode']],
 	['columns', ['column-wrap']],
 ]);
@@ -366,22 +366,7 @@ const getLogicalPropertyMapping = property => {
 	}
 };
 
-const getAffectedProperties = property => {
-	const properties = new Set([property, ...(shorthandToAffectedProperties.get(property) ?? []), ...(additionalAffectedProperties.get(property) ?? [])]);
-	const logicalBorderProperties = [];
-	for (const affectedProperty of properties) {
-		const match = affectedProperty.match(/^border-(block|inline)-(width|style|color)$/u);
-		if (match) {
-			logicalBorderProperties.push(`border-${match[1]}-start-${match[2]}`, `border-${match[1]}-end-${match[2]}`);
-		}
-	}
-
-	for (const logicalBorderProperty of logicalBorderProperties) {
-		properties.add(logicalBorderProperty);
-	}
-
-	return properties;
-};
+const getAffectedProperties = property => new Set([property, ...(shorthandToAffectedProperties.get(property) ?? []), ...(additionalAffectedProperties.get(property) ?? [])]);
 
 const propertyAffectsComponent = (property, component) => {
 	const affectedProperties = getAffectedProperties(property);

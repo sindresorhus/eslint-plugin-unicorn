@@ -61,6 +61,22 @@ test.snapshot({
 	].map(code => ({code, language: languages.css})),
 });
 
+test({
+	testerOptions: languages.css,
+	valid: [
+		'a { mask: none !important; mask-border-source: url(border.png); mask-border: none; }',
+	],
+	invalid: [
+		{
+			code: 'a { padding-left: 1px !important; padding-top: 2px; padding: 3px; }',
+			errors: [{
+				messageId: 'no-shorthand-property-overrides',
+				data: {longhand: 'padding-top', shorthand: 'padding'},
+			}],
+		},
+	],
+});
+
 const modernDeclarations = [
 	['animation-timeline: --timeline', 'animation: 1s ease fade'],
 	['animation-range-start: 10%', 'animation: 1s ease fade'],
