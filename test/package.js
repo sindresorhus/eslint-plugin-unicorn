@@ -305,7 +305,8 @@ test.serial('non-JavaScript presets match plugin wildcards and require every dia
 for (const ruleName of ['expiring-todo-comments', 'no-asterisk-prefix-in-documentation-comments', 'no-manually-wrapped-comments', 'single-line-block-comment-style']) {
 	test(`${ruleName} safely ignores comment-like strings in strict JSON`, t => {
 		const code = String.raw`{"line": "// TODO [2000-01-01]: Update", "block": "/* Comment. */", "multiline": "/**\n * Wrapped\n * comment.\n */"}`;
-		const result = new Linter().verifyAndFix(code, {
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, {
 			files: ['**/*.json'],
 			language: languages.json.language,
 			plugins: {...languages.json.plugins, unicorn: eslintPluginUnicorn},
