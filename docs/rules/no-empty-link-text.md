@@ -17,29 +17,6 @@ Links containing embedded HTML are ignored because their accessible content cann
 
 Destinations and titles do not count as label content. [`markdown/no-empty-links`](https://github.com/eslint/markdown/blob/main/docs/rules/no-empty-links.md) checks destinations.
 
-## Usage
-
-Enable this rule explicitly for Markdown files. Unicorn's presets target JavaScript files.
-
-```js
-import markdown from '@eslint/markdown';
-import unicorn from 'eslint-plugin-unicorn';
-import {defineConfig} from 'eslint/config';
-
-export default defineConfig([
-	{
-		files: ['**/*.md'],
-		plugins: {markdown, unicorn},
-		language: 'markdown/commonmark',
-		rules: {
-			'unicorn/no-empty-link-text': 'error',
-		},
-	},
-]);
-```
-
-Use `markdown/gfm` instead of `markdown/commonmark` for GFM files.
-
 ## Examples
 
 ```md
