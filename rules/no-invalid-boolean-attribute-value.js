@@ -7,7 +7,7 @@ import {
 	isGlobalIdentifier,
 	wouldRemoveComments,
 } from './utils/index.js';
-import {getTypeSymbol, isNullishType, isUnknownType} from './utils/types.js';
+import {getTypeSymbol, isDefaultLibrarySymbol, isNullishType, isUnknownType} from './utils/types.js';
 
 const MESSAGE_ID = 'no-invalid-boolean-attribute-value';
 const MESSAGE_ID_REMOVE = 'no-invalid-boolean-attribute-value/remove';
@@ -130,9 +130,13 @@ const getStaticString = (node, context) => {
 	return typeof result?.value === 'string' ? result.value : undefined;
 };
 
-const getMemberName = (node, context) => node.computed
-	? getStaticString(node.property, context)
-	: node.property.name;
+const getMemberName = (node, context) => {
+	if (node.computed) {
+		return getStaticString(node.property, context);
+	}
+
+	return node.property.type === 'Identifier' ? node.property.name : undefined;
+};
 
 const getVariableDefinition = (node, context) => {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
@@ -185,7 +189,7 @@ function getSelectorTag(selector) {
 		const tag = toAsciiLowerCase(ident.decode(nodes[0].name));
 		return ambiguousSelectorTags.has(tag) ? undefined : tag;
 	} catch {
-		// Invalid and unsupported selectors do not establish a native HTML receiver.
+		// Unparseable and unsupported selectors do not establish a native HTML receiver.
 	}
 }
 
@@ -194,13 +198,13 @@ function getTypesFromAnnotation(node, context, visitedTypes = new Set()) {
 		return getTypesFromAnnotation(node.typeAnnotation, context, visitedTypes);
 	}
 
+	if (node?.type === 'TSNullKeyword' || node?.type === 'TSUndefinedKeyword') {
+		return new Set();
+	}
+
 	if (node?.type === 'TSUnionType') {
 		const types = new Set();
 		for (const member of node.types) {
-			if (member.type === 'TSNullKeyword' || member.type === 'TSUndefinedKeyword') {
-				continue;
-			}
-
 			const memberTypes = getTypesFromAnnotation(member, context, visitedTypes);
 			if (!memberTypes) {
 				return;
@@ -261,7 +265,7 @@ function getNativeTypes(type, program) {
 	const symbol = getTypeSymbol(type);
 	if (
 		!nativeElementTypes.has(symbol?.getName())
-		|| !symbol.declarations?.every(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile()))
+		|| !isDefaultLibrarySymbol(symbol, program)
 	) {
 		return;
 	}

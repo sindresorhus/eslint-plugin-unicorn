@@ -52,7 +52,7 @@ Receivers are identified through:
 - `document.createElement()` without creation options, or `document.createElementNS()` with an explicit HTML namespace and no creation options.
 - `document.querySelector()` with one native tag optionally followed by class or ID selectors, such as `button.primary#submit`.
 - Simple `const` aliases of supported receivers or the global document, including `window.document`, `self.document`, and `globalThis.document`.
-- Explicit concrete native HTML element types in TypeScript, including type aliases, assertions, and compatible nullable unions.
+- Concrete native HTML element types from TypeScript variable and parameter annotations or type assertions, including type aliases and compatible nullable unions.
 - Inferred concrete native HTML element types when TypeScript type information is available.
 
 Queries for `a`, `script`, `style`, and `title` are ignored because those tag names also occur in SVG. Complex selectors, custom elements, creation options, custom subclasses, structural lookalikes, and unknown receivers are ignored. Generic `Element` and `HTMLElement` types alone do not establish a native element's identity. Explicit concrete native type assertions are trusted.
