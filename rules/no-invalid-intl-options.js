@@ -651,7 +651,11 @@ const callTracker = new GlobalReferenceTracker({
 	type: GlobalReferenceTracker.CALL,
 	handle: ({node, path}, context) => getOptionsProblems(node, path.length === 3 ? 'supportedLocalesOf' : path[1], path.join('.'), context),
 });
-const {isTarget: isDate} = createBuiltinTypeCheckers({name: 'Date', checkClassHeritage: false});
+const {isTarget: isDate} = createBuiltinTypeCheckers({
+	name: 'Date',
+	checkClassHeritage: false,
+	allowNullishInMixedUnion: true,
+});
 const {isTarget: isStringReceiver} = createBuiltinTypeCheckers({
 	name: 'String',
 	checkClassHeritage: false,
@@ -708,7 +712,7 @@ const create = context => {
 			return getOptionsProblems(node, 'NumberFormat', 'Number.toLocaleString', context);
 		}
 
-		if (method !== 'localeCompare' && isDate(receiver, context, {allowNullishInMixedUnion: true})) {
+		if (method !== 'localeCompare' && isDate(receiver, context)) {
 			return getOptionsProblems(node, 'DateTimeFormat', `Date.${method}`, context);
 		}
 	});
