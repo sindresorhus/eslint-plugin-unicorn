@@ -46,11 +46,16 @@ for (const language of [languages.json, languages.jsonc, languages.json5]) {
 			plugins: {...language.plugins, unicorn},
 			rules: {'unicorn/comma-spacing': 'error'},
 		};
-		const result = linter.verifyAndFix('{"items":[1 ,2,  3],"object":{"a":true ,"b":false}}', config);
-		t.true(result.fixed);
-		t.is(result.output, '{"items":[1, 2, 3], "object":{"a":true, "b":false}}');
-		t.deepEqual(result.messages, []);
-		t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+		for (const [code, output] of [
+			['\uFEFF{"items":[1 ,2,  3],"object":{"a":true ,"b":false}}', '\uFEFF{"items":[1, 2, 3], "object":{"a":true, "b":false}}'],
+			['[1 ,\r\n 2\r ,3 ,\n4]', '[1,\r\n 2\r , 3,\n4]'],
+		]) {
+			const result = linter.verifyAndFix(code, config);
+			t.true(result.fixed);
+			t.is(result.output, output);
+			t.deepEqual(result.messages, []);
+			t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+		}
 	});
 }
 
@@ -86,6 +91,21 @@ for (const language of [languages.jsonc, languages.json5]) {
 			'[1,/* comment */]',
 		].map(code => ({code, language, languageOptions: language === languages.jsonc ? {allowTrailingCommas: true} : {}})),
 	});
+
+	test(`preserves spacing after trailing commas when fixing other gaps: ${language.name}`, t => {
+		const linter = new Linter();
+		const config = {
+			language: language.language,
+			plugins: {...language.plugins, unicorn},
+			languageOptions: language === languages.jsonc ? {allowTrailingCommas: true} : {},
+			rules: {'unicorn/comma-spacing': 'error'},
+		};
+		const result = linter.verifyAndFix('{"array": [1 ,2 ,  ],"object": {"a": 1 ,\t}}', config);
+		t.true(result.fixed);
+		t.is(result.output, '{"array": [1, 2,  ], "object": {"a": 1,\t}}');
+		t.deepEqual(result.messages, []);
+		t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+	});
 }
 
 addCases({
@@ -106,6 +126,20 @@ addCases({
 });
 
 testRule.snapshot({valid, invalid});
+
+test('preserves JSON5 Unicode line separators while fixing horizontal whitespace', t => {
+	const linter = new Linter();
+	const config = {
+		language: languages.json5.language,
+		plugins: {...languages.json5.plugins, unicorn},
+		rules: {'unicorn/comma-spacing': 'error'},
+	};
+	const result = linter.verifyAndFix('[1 \u2028 ,2 ,\u2029 3\u00A0,\u00A04 ,\t]', config);
+	t.true(result.fixed);
+	t.is(result.output, '[1 \u2028 , 2,\u2029 3, 4,\t]');
+	t.deepEqual(result.messages, []);
+	t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+});
 
 test('preserves comments and whitespace beyond adjacent comments', t => {
 	const linter = new Linter();
