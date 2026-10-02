@@ -233,6 +233,7 @@ export default defineConfig([
 | [no-redundant-shorthand-values](docs/rules/no-redundant-shorthand-values.md)                               | Disallow redundant values in CSS shorthand properties.                                                                         |      | 🔧 |    |    |
 | [no-return-array-push](docs/rules/no-return-array-push.md)                                                 | Disallow using the return value of `Array#push()` and `Array#unshift()`.                                                       | ✅    |    | 💡 |    |
 | [no-selector-as-dom-name](docs/rules/no-selector-as-dom-name.md)                                           | Disallow selector syntax in DOM names.                                                                                         | ✅    | 🔧 |    |    |
+| [no-self-referencing-custom-properties](docs/rules/no-self-referencing-custom-properties.md)               | Disallow self-references in CSS custom properties.                                                                             |      |    |    |    |
 | [no-shorthand-property-overrides](docs/rules/no-shorthand-property-overrides.md)                           | Disallow shorthand properties that override related longhand properties.                                                       | ✅ ☑️ |    |    |    |
 | [no-single-promise-in-promise-methods](docs/rules/no-single-promise-in-promise-methods.md)                 | Disallow passing single-element arrays to `Promise` methods.                                                                   | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-static-only-class](docs/rules/no-static-only-class.md)                                                 | Disallow classes that only have static members.                                                                                | ✅ ☑️ | 🔧 |    |    |
@@ -618,6 +619,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-redundant-longhand-properties`](docs/rules/no-redundant-longhand-properties.md) | ✅ |  |  |  |  |  |
 | [`no-redundant-nested-style-rules`](docs/rules/no-redundant-nested-style-rules.md) | ✅ |  |  |  |  |  |
 | [`no-redundant-shorthand-values`](docs/rules/no-redundant-shorthand-values.md) | ✅ |  |  |  |  |  |
+| [`no-self-referencing-custom-properties`](docs/rules/no-self-referencing-custom-properties.md) | ✅ |  |  |  |  |  |
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |  |  |
 | [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |  |  |
 | [`no-unknown-animations`](docs/rules/no-unknown-animations.md) | ✅ |  |  |  |  |  |
