@@ -55,7 +55,7 @@ Receivers are identified through:
 - Concrete native HTML element types from TypeScript variable and parameter annotations or type assertions, including type aliases and compatible nullable unions.
 - Inferred concrete native HTML element types when TypeScript type information is available.
 
-Queries for `a`, `script`, `style`, and `title` are ignored because those tag names also occur in SVG. Complex selectors, custom elements, creation options, custom subclasses, structural lookalikes, and unknown receivers are ignored. Generic `Element` and `HTMLElement` types alone do not establish a native element's identity. Explicit concrete native type assertions are trusted.
+Queries for `a`, `script`, `style`, and `title` are ignored because those tag names also occur in SVG. Complex selectors, custom elements, creation options, and unknown receivers are ignored. Generic `Element` and `HTMLElement` types, custom subclasses, and structural lookalikes alone do not establish a native element's identity. Supported queries for native tags establish identity independently of their TypeScript generic arguments. Explicit concrete native type assertions are trusted.
 
 ARIA, `data-*`, enumerated attributes, JSX attributes, templates, property assignments, and `setAttributeNS()` are not checked. In particular, `hidden`, `draggable`, `contenteditable`, `spellcheck`, and `popover` are enumerated attributes. Input-state restrictions and document-tree conditions are not analyzed.
 
