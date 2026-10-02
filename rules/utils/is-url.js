@@ -29,6 +29,9 @@ const combineTypes = types => {
 	return unknown;
 };
 
+const combineUnionTypes = types =>
+	types.includes(url) && types.includes(nonUrl) ? unknown : combineTypes(types);
+
 const isUrlImportSource = source =>
 	urlImportSources.has(source.value);
 
@@ -180,7 +183,10 @@ const getTypeAnnotationType = (node, context, scope, visitedTypeReferenceNames =
 			return getTypeReferenceType(node, context, scope, visitedTypeReferenceNames);
 		}
 
-		case 'TSUnionType':
+		case 'TSUnionType': {
+			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
+		}
+
 		case 'TSIntersectionType': {
 			return combineTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
 		}
@@ -216,7 +222,7 @@ const getTypeScriptUrlType = (type, state) => {
 	}
 
 	if (type.isUnion()) {
-		return combineTypes(type.types.map(type => getTypeScriptUrlType(type, state)));
+		return combineUnionTypes(type.types.map(type => getTypeScriptUrlType(type, state)));
 	}
 
 	if (type.isIntersection()) {

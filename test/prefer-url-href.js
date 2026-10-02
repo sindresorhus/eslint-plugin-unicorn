@@ -142,11 +142,15 @@ test.snapshot({
 
 test({
 	valid: [
+		typescript('function foo(url: URL | string) {if (url instanceof URL) {return url.toString();}}'),
+		typeAware('class CustomURL {toString() {return "custom";}} function foo(url: URL | CustomURL) {if (url instanceof CustomURL) {return url.toString();}}'),
 		typescript('type Url = URL; { function foo(url: Url) { return url.toString(); } type Url = {toString(): string}; }'),
 		typeAware('type Url = URL; { function foo(url: Url) { return url.toString(); } type Url = {toString(): string}; }'),
 		typeAware('import type {URL as Url} from "node:url"; { declare const object: {url: Url}; object.url.toString(); type Url = {toString(): string}; }'),
 	],
 	invalid: [
+		{...typeAware('function foo(url: URL | string) {if (url instanceof URL) {return url.toString();}}'), errors: [{messageId: 'prefer-url-href'}]},
+		{...typeAware('function foo(url: URL | string) {if (typeof url === "string") {return;} return String(url);}'), errors: [{messageId: 'prefer-url-href'}]},
 		{...typeAware('const {url} = {url: new URL("https://example.com")}; url.toString();'), errors: [{messageId: 'prefer-url-href'}]},
 		{...typescript('function foo(url: Url) { return url.toString(); } type Url = URL;'), errors: [{messageId: 'prefer-url-href'}]},
 		{...typeAware('function foo(url: Url) { return url.toString(); } type Url = URL;'), errors: [{messageId: 'prefer-url-href'}]},

@@ -210,6 +210,41 @@ testRule({
 	],
 });
 
+testRule({
+	valid: [
+		typescript('function example(url: URL | string) {if (url instanceof URL) {return url.protocol === "https";}}'),
+		typeAware('type URL = {protocol: string}; function example(url: URL | string) {if (typeof url !== "string") {return url.protocol === "https";}}'),
+		typeAware('class CustomURL {protocol = "https";} function example(url: URL | CustomURL) {if (url instanceof CustomURL) {return url.protocol === "https";}}'),
+	],
+	invalid: [
+		{
+			...typeAware('function example(url: URL | {protocol: string}) {url.protocol === "https"; if (url instanceof URL) {return url.protocol === "https";} return url.protocol === "https";}'),
+			output: 'function example(url: URL | {protocol: string}) {url.protocol === "https"; if (url instanceof URL) {return url.protocol === "https:";} return url.protocol === "https";}',
+			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+		},
+		{
+			...typeAware('declare function getUrl(): URL | {protocol: string}; const url = getUrl(); url.protocol === "https"; if (url instanceof URL) {url.protocol === "https";} url.protocol === "https";'),
+			output: 'declare function getUrl(): URL | {protocol: string}; const url = getUrl(); url.protocol === "https"; if (url instanceof URL) {url.protocol === "https:";} url.protocol === "https";',
+			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+		},
+		{
+			...typeAware('function example(url: URL | string) {if (typeof url === "string") {return;} return url.protocol === "https";}'),
+			output: 'function example(url: URL | string) {if (typeof url === "string") {return;} return url.protocol === "https:";}',
+			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+		},
+	],
+});
+
+testRule({
+	valid: [],
+	invalid: [parsers.vue, parsers.svelte].map(parser => ({
+		code: '<script>const url = new URL("https://example.com"); url.protocol === "https";</script>',
+		output: '<script>const url = new URL("https://example.com"); url.protocol === "https:";</script>',
+		languageOptions: {parser},
+		errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+	})),
+});
+
 test('fixes converge with prefer-includes', t => {
 	const linter = new Linter();
 	const config = {

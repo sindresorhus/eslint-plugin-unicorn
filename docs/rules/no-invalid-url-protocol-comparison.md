@@ -68,9 +68,11 @@ url.protocol = 'https';
 
 ## Detection limits
 
-The receiver must be a known native `URL`: a direct `new URL()` expression, a `const` binding initialized from a known URL, a supported import from `node:url` or `url`, a TypeScript `URL` annotation, or an expression identified through TypeScript type information when available. The rule does not infer URLs from variable names or arbitrary objects with a `protocol` property.
+Without type information, the rule recognizes direct `new URL()` expressions and `const` bindings initialized from known URLs, including named `URL` imports from `node:url` or `url`. It also recognizes native `URL` type annotations in TypeScript.
 
-Type information must identify a `URL` symbol from TypeScript's standard library. Matching a type's name alone is insufficient. Node.js imports are also recognized in direct constructors and variable, parameter, or return type annotations, but not nested member types.
+With [typed linting](https://typescript-eslint.io/getting-started/typed-linting/) enabled, it also recognizes inferred native URL types. It can recognize a `URL | string` value after a guard such as `url instanceof URL`. Selecting the TypeScript parser alone does not enable type information. Type information recognizes TypeScript's built-in `URL` type; nested member types from Node.js imports are not recognized.
+
+The rule does not infer URLs from variable names, arbitrary objects with a `protocol` property, or URL subclasses. A mixed type alone does not establish that the receiver is a native `URL`.
 
 Only string literals and templates without substitutions are checked. Named collections, extracted protocol values, and dynamic strings are ignored. Prefix and substring checks such as `url.protocol.startsWith('http')` are valid and are not reported.
 
