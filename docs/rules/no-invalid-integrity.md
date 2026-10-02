@@ -49,7 +49,7 @@ Algorithm names are case-sensitive and must be lowercase. Each recognized entry 
 
 Standard (`+`, `/`) and URL-safe (`-`, `_`) base64 characters can be used, including mixed alphabets. Zero to two trailing `=` padding characters are allowed; canonical padding and unused trailing bits are not enforced.
 
-Entries are separated by HTML ASCII whitespace: spaces, tabs, line feeds, form feeds, or carriage returns. Empty and whitespace-only values are allowed. Entries may include a `?options` suffix containing printable ASCII characters, including additional `?` separators; options are not interpreted.
+Entries are separated by HTML ASCII whitespace: spaces, tabs, line feeds, form feeds, or carriage returns. Empty and whitespace-only values are allowed. Entries may include a `?options` suffix. Options may be empty or contain ASCII characters from `!` through `~`, including additional `?` separators; they are not interpreted.
 
 Unknown entries are allowed alongside recognized metadata for forward compatibility. A nonempty value containing no recognized algorithm is reported. Every malformed recognized entry is reported, even when another entry contains a valid or stronger hash.
 

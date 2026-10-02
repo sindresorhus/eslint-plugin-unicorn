@@ -142,6 +142,7 @@ test.snapshot({
 		html('<%= integrity %>'),
 		html('${integrity}'), // eslint-disable-line no-template-curly-in-string
 		html('sha256-{{digest}}'),
+		html('sha256-&#123;&#123;digest}}'),
 		{code: html('[[integrity]]'), languageOptions: {parserOptions: {templateEngineSyntax: {'[[': ']]'}}}},
 		{code: '<script {{name}}="sha256-abc"></script>', languageOptions: {parserOptions: {templateEngineSyntax: {'{{': '}}'}}}},
 		{code: '<link integrity=sha256-AAAA/[[digest]]>', languageOptions: {parserOptions: {templateEngineSyntax: {'[[': ']]'}}}},
