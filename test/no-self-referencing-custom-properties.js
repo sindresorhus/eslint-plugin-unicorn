@@ -1,0 +1,85 @@
+import {getTester, languages} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'a { --spacing: 1px; }',
+		'a { --spacing: var(--base-spacing); }',
+		'a { --spacing: var(--SPACING); }',
+		'a { --spacing: var(--spacing-extra); }',
+		'a { --spacing: var(--other, --spacing); }',
+		'a { --spacing: --spacing; }',
+		'a { --spacing: "var(--spacing)"; }',
+		'a { --spacing: 1px /* var(--spacing) */; }',
+		'a { --spacing: url("var(--spacing)"); }',
+		String.raw`a { --spacing: url(var\(--spacing\)); }`,
+		String.raw`a { --spacing: u\72l("var(--spacing)"); }`,
+		'a { --spacing: foo(--spacing); }',
+		'a { --spacing: var /**/ (--spacing); }',
+		'a { --spacing: var(--spacing extra); }',
+		'a { spacing: var(--spacing); }',
+		'a { --one: var(--two); --two: var(--one); }',
+		':root { --spacing: 1px; } a { --component-spacing: var(--spacing); }',
+		'@supports (--spacing: var(--spacing)) {}',
+		'@container style(--spacing: var(--spacing)) {}',
+		'@import "x.css" supports(--spacing: var(--spacing));',
+		'@property --spacing { syntax: "*"; inherits: false; initial-value: 1px; }',
+		String.raw`a { --spacing: var(--sp\61 cing-extra); }`,
+	].map(code => ({code, language: languages.css})),
+	invalid: [
+		'a { --spacing: var(--spacing); }',
+		'a { --spacing: calc(var(--spacing) + 1px); }',
+		'a { --spacing: var(--spacing, 1px); }',
+		'a { --spacing: var(--spacing,); }',
+		'a { --spacing: var(--other, var(--spacing)); }',
+		'a { --other: 1px; --spacing: var(--other, var(--spacing)); }',
+		'a { --spacing: var(--other, calc(var(--base, var(--spacing)) + 1px)); }',
+		'a { --spacing: var(--spacing) var(--spacing, var(--spacing)); }',
+		'a { --spacing: var(--spacing); --color: var(--color); }',
+		'a { --spacing: VAR(--spacing); }',
+		'a { --spacing: var(/* before */ --spacing /* after */, 1px); }',
+		'a { --spacing: var(--spacing) !important; }',
+		'a { & > b { --spacing: var(--spacing); } }',
+		'@media (width > 1px) { a { --spacing: var(--spacing); } }',
+		'@keyframes grow { to { --spacing: var(--spacing); } }',
+		'@supports (--spacing: var(--spacing)) { a { --spacing: var(--spacing); } }',
+		'@container style(--spacing: var(--spacing)) { a { --spacing: var(--spacing); } }',
+		'a { --spacing: if(style(--enabled: yes): 1px; else: var(--spacing)); }',
+		'a { --spacing: {value: [var(--spacing)]}; }',
+		String.raw`a { --spacing: v\61r(--spacing); }`,
+		String.raw`a { --sp\61 cing: var(--spacing); }`,
+		String.raw`a { --spacing: var(--sp\61 cing); }`,
+		String.raw`a { \2d\2d spacing: var(--spacing); }`,
+		'a { --間隔: var(--間隔); }',
+		'a {\n\t--spacing: calc(\n\t\tvar(--spacing) + 1px\n\t);\n}',
+	].map(code => ({code, language: languages.css})),
+});
+
+test({
+	testerOptions: languages.css,
+	valid: [],
+	invalid: [
+		{
+			code: 'a { --spacing: var(--other) var(--spacing) var(--spacing); }',
+			errors: [{
+				messageId: 'no-self-referencing-custom-properties',
+				data: {property: '--spacing'},
+				line: 1,
+				column: 33,
+				endLine: 1,
+				endColumn: 42,
+			}],
+		},
+		{
+			code: 'a {\r\n  --spacing: var(\r\n    /* keep */ --spacing\r\n  );\r\n}',
+			errors: [{
+				messageId: 'no-self-referencing-custom-properties',
+				line: 3,
+				column: 16,
+				endLine: 3,
+				endColumn: 25,
+			}],
+		},
+	],
+});
