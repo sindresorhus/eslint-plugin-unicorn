@@ -71,6 +71,8 @@ ruleTest.snapshot({
 		].map(input => `new URLSearchParams(${JSON.stringify(input)})`),
 		'new URLSearchParams(`https://example.com/?query=hello`)',
 		'new URLSearchParams("https://" + "example.com/?query=hello")',
+		'new URLSearchParams({input: "https://example.com/"}["input"])',
+		'new URLSearchParams({href: "https://example.com/"}?.href)',
 		'const input = "https://example.com/"; new URLSearchParams(input)',
 		'const input = "https://example.com/"; const alias = input; new URLSearchParams(alias)',
 		'new URLSearchParams((("https://example.com/")),)',
@@ -122,7 +124,10 @@ ruleTest.snapshot({
 
 ruleTest.snapshot({
 	valid: [typeAware('declare const holder: {url: {href: string}}; new URLSearchParams(holder.url.href)')],
-	invalid: [typeAware('declare const holder: {url: URL}; new URLSearchParams(holder.url.href)')],
+	invalid: [
+		typeAware('declare const holder: {url: URL}; new URLSearchParams(holder.url.href)'),
+		typeAware('let url = new URL("https://example.com/"); new URLSearchParams(url.href)'),
+	],
 });
 
 test('suggestions extract queries and distinguish detached copies from live parameters', t => {

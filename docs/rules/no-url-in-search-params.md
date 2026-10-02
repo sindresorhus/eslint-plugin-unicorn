@@ -58,7 +58,7 @@ const parameters = new URLSearchParams(window.location.search);
 
 For string inputs, the rule intentionally skips dynamic templates, relative URLs, and opaque schemes such as `mailto:` and `data:`. Known URL `.href` inputs are reported regardless of the URL scheme.
 
-The rule skips arbitrary objects with `.href`, computed or optional property access, constructor aliases, and unannotated mutable URL bindings. It does not infer URL subclasses, follow aliases of `.href` values, or resolve shadowed built-ins, and assumes built-ins have not been modified.
+When identifying URL receivers, the rule skips arbitrary objects, computed or optional property access, and unannotated mutable URL bindings without type information. Other expressions can still be reported when they evaluate statically to a full URL string. The rule does not follow `URLSearchParams` constructor aliases, infer URL subclasses, follow aliases of `.href` values, or resolve shadowed built-ins, and assumes built-ins have not been modified.
 
 Suggestions that replace the whole constructor are omitted when it contains comments. Replacing only `.href` with `.search` preserves comments and remains available.
 
