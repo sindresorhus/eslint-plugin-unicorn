@@ -22,6 +22,7 @@ ruleTest({
 	invalid: [
 		{code: 'a { color: rgba(0, 0, 0, .5); }', output: 'a { color: rgb(0 0 0 / 50%); }', errors: 1},
 		{code: 'a { color: rgb(1,2,3); }', output: 'a { color: rgb(1 2 3); }', errors: 1},
+		{code: 'a { color: rgba(1%, 2%, 3%, 25%); }', output: 'a { color: rgb(1% 2% 3% / 25%); }', errors: 1},
 		{code: 'a { color: rgb(1, 2, 3, .5); }', output: 'a { color: rgb(1 2 3 / 50%); }', errors: 1},
 		{code: 'a { color: hsl(30, 40%, 50%); }', output: 'a { color: hsl(30 40% 50%); }', errors: 1},
 		{code: 'a { color: hsl(30, 40%, 50%, .5); }', output: 'a { color: hsl(30 40% 50% / 50%); }', errors: 1},
