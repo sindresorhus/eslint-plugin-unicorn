@@ -40,6 +40,7 @@ ruleTest.snapshot({
 		'JSON.stringify({value: new Set(), ["toJSON"]: serialize})',
 		{code: 'JSON.stringify({value: new Set(), toJSON() {return 1;}} as Set<number>)', languageOptions: {parser: parsers.typescript}},
 		{code: 'JSON.stringify([1] as unknown as Set<number>)', languageOptions: {parser: parsers.typescript}},
+		{code: 'JSON.stringify(new Set() as unknown as string)', languageOptions: {parser: parsers.typescript}},
 		'JSON.stringify({value: new Set(), __proto__: {toJSON() {return 1;}}})',
 		'JSON.stringify({value: new Set(), ...custom})',
 		'JSON.stringify({get value() {return new Set();}})',
@@ -196,6 +197,7 @@ ruleTest.snapshot({
 		'Response?.json?.(new Set())',
 		'Response["json"](new Set())',
 		{code: 'Response.json({value: new Set<string>() as Set<string>})', languageOptions: {parser: parsers.typescript}},
+		{code: 'function serialize<T extends Set<string>>(value: T) {return JSON.stringify(value)}', languageOptions: {parser: parsers.typescript}},
 	],
 });
 

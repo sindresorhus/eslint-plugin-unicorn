@@ -91,7 +91,7 @@ This rule targets explicit, known values rather than proving that arbitrary obje
 - Circular references, mutations, arbitrary member values, spread contents, and getters are not analyzed.
 - Object literals with spreads, unknown computed keys, duplicate keys, a `toJSON` property, or a `__proto__` property are skipped because they can change serialization behavior.
 - Custom `toJSON` detection is limited to object literals. Hooks on typed values, functions, classes, or patched prototypes are not resolved.
-- Collections, BigInts, functions, symbols, and regular expressions can be identified from known types, with additional coverage when TypeScript type information is available. Type annotations and assertions on references are trusted, so incorrect types can cause false positives. `undefined` and non-finite numbers are identified from explicit expressions or static values.
+- Collections, BigInts, functions, symbols, and regular expressions can be identified from known types, with additional coverage when TypeScript type information is available. Type annotations and assertions are trusted except when inspecting object and array literals, so incorrect types can cause false positives or missed reports. `undefined` and non-finite numbers are identified from explicit expressions or static values.
 - Arbitrary object types and mixed unions containing supported values are not recursively inspected.
 - Collection subclasses, boxed primitive values, and shadowed native constructors are unsupported.
 - Non-BigInt typed arrays, dates, URLs, and other objects with standard JSON representations are allowed. `BigInt64Array` and `BigUint64Array` contents are not inspected, even though nonempty arrays throw during serialization.
