@@ -171,7 +171,8 @@ function isNonStreamingOptions(node, context) {
 		property.type !== 'Property'
 		|| property.kind !== 'init'
 		|| property.method
-		|| [null, '__proto__'].includes(getPropertyName(property)),
+		|| getPropertyName(property) === null
+		|| getPropertyName(property) === '__proto__',
 	)) {
 		return false;
 	}
