@@ -44,7 +44,7 @@ new Intl.DisplayNames('en', {type: 'language'});
 - `toLocaleString()` on known Number, BigInt, and typed-array receivers, using NumberFormat options.
 - `toLocaleString()`, `toLocaleDateString()`, and `toLocaleTimeString()` on known Date receivers, using DateTimeFormat options. `toLocaleDateString()` disallows `timeStyle`, and `toLocaleTimeString()` disallows `dateStyle`.
 
-Constructor aliases and global-qualified references such as `globalThis.Intl` are supported. Statically known computed option keys and receiver method names are supported. Computed constructor references that depend on bindings are skipped. Receiver types can be identified from JavaScript expressions, TypeScript annotations, or available TypeScript type information.
+Constructor aliases and global-qualified references such as `globalThis.Intl` are supported. Alias reassignment is not tracked. Statically known computed option keys and receiver method names are supported. Computed constructor references that depend on bindings are skipped. Receiver types can be identified from JavaScript expressions, TypeScript annotations, or available TypeScript type information.
 
 ## Checks
 
