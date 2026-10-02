@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`URLSearchParams` parses a query string, not a full URL. Passing a full URL string treats the URL prefix as part of the first parameter name and does not strip the fragment. Passing a URL object reads its enumerable properties as a record instead of extracting its query.
+`URLSearchParams` parses query strings, not full URLs. A URL string makes the URL prefix part of the first parameter name and leaves the fragment intact; a URL object is treated as a record instead of having its query extracted.
 
 ```js
 const parameters = new URLSearchParams('https://example.com/?query=hello');
@@ -17,11 +17,9 @@ parameters.get('query'); // null
 parameters.get('https://example.com/?query'); // 'hello'
 ```
 
-This rule checks direct `new URLSearchParams(input)` calls. It reports statically known, valid URL strings beginning with `scheme://`, including string literals, constant templates, concatenations, and constant references. It also reports known `URL` objects, `.href` on known `URL` receivers, and `.href` on `location`, `window.location`, `globalThis.location`, `document.location`, and `self.location`.
+This rule checks direct `new URLSearchParams(input)` calls with statically known URL strings beginning with `scheme://`, known `URL` objects, or their `.href` values. It also checks `location.href`, including through `window`, `globalThis`, `document`, and `self`. URL objects are recognized through constructors, constant references, TypeScript annotations, and optional type information.
 
-Known `URL` receivers include direct constructors, constant references, TypeScript `URL` annotations, and TypeScript type information when available. Type information is optional.
-
-The rule provides suggestions instead of automatic fixes because extracting the query changes behavior. For a URL string, it suggests parsing the URL and using its `searchParams`. For a known URL object or its `.href`, it offers a detached copy first, followed by access to the URL's live `searchParams`. For browser location inputs, it suggests constructing from `.search`.
+Suggestions extract the query, offering detached copies or live parameters as shown below. There is no automatic fix because this changes behavior.
 
 ## Examples
 
@@ -59,12 +57,12 @@ const parameters = new URLSearchParams(window.location.search);
 
 ## Limitations
 
-For string inputs, the rule intentionally skips dynamic templates, relative URLs, and opaque schemes such as `mailto:` and `data:`. Known URL objects and their `.href` inputs are reported regardless of the URL scheme.
+Dynamic or relative URL strings and opaque schemes such as `mailto:` and `data:` are skipped. Known URL objects and their `.href` values are checked regardless of scheme.
 
-The `.href` checks skip arbitrary objects and computed or optional `.href` access. Without type information, unannotated mutable URL bindings are not recognized. Other expressions can still be reported when they evaluate statically to a full URL string. The rule does not follow `URLSearchParams` constructor aliases, infer URL subclasses, follow aliases of `.href` values, or resolve shadowed built-ins, and assumes built-ins have not been modified.
+Constructor aliases, URL subclasses, and aliases of `.href` values are unsupported. `.href` detection skips arbitrary objects and computed or optional access. Unannotated mutable URL bindings require type information. Built-ins are assumed to be unshadowed and unmodified.
 
-Suggestions that replace the whole constructor are omitted when it contains comments. Replacing only `.href` with `.search` preserves comments and remains available.
+Comments prevent suggestions that replace the whole constructor; replacing `.href` with `.search` remains available.
 
-If you enable the opt-in `no-unreadable-new-expression` rule, assign the parsed URL to a variable before accessing `.searchParams` instead of using the inline suggestion.
+With `no-unreadable-new-expression`, assign the parsed URL to a variable before accessing `.searchParams`.
 
 See the [URL Standard](https://url.spec.whatwg.org/#urlsearchparams) for the parsing algorithm.
