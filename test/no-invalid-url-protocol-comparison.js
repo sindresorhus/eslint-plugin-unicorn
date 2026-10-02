@@ -147,7 +147,25 @@ testRule({
 		{code: withUrl('switch (url.protocol) {case "https": break; case "https:": break;}'), errors: 1},
 		{code: withUrl('switch (url.protocol) {case "HTTPS": break; case "https": break;}'), errors: 2},
 		{code: withUrl('switch (url.protocol) {case "HTTPS:": break; case "https:": break;}'), errors: 1},
+		{
+			...typescript(withUrl('switch (url.protocol) {case "HTTPS": break; case (`https:` as const): break; case "FTP": break;}')),
+			output: withUrl('switch (url.protocol) {case "HTTPS": break; case (`https:` as const): break; case "ftp:": break;}'),
+			errors: 2,
+		},
 	],
+});
+
+testRule({
+	valid: [
+		typescript('type Url = URL; { const url: Url = {protocol: "https"}; url.protocol === "https"; type Url = {protocol: string}; }'),
+		typeAware('type Url = URL; { function example(url: Url) { return url.protocol === "https"; } type Url = {protocol: string}; }'),
+		typeAware('import type {URL as Url} from "node:url"; { declare const object: {url: Url}; object.url.protocol === "https"; type Url = {protocol: string}; }'),
+	],
+	invalid: [{
+		...typescript('function example(url: Url) { return url.protocol === "https"; } type Url = URL;'),
+		output: 'function example(url: Url) { return url.protocol === "https:"; } type Url = URL;',
+		errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
+	}],
 });
 
 testRule.snapshot({

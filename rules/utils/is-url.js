@@ -31,18 +31,6 @@ const urlImportSources = new Set([
 const isTypeDefinition = definition =>
 	typeDefinitionTypes.has(definition.type);
 
-const resolveIdentifierName = (name, scope, referenceNode, context) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable?.defs.some(definition => isDefinitionBeforeReference(definition, referenceNode, context))) {
-			return variable;
-		}
-
-		scope = scope.upper;
-	}
-};
-
 const hasTypeDefinition = (name, scope) => {
 	while (scope) {
 		const variable = scope.set.get(name);
@@ -175,7 +163,8 @@ const getTypeReferenceType = (node, context, scope, visitedTypeReferenceNames) =
 	}
 
 	const typeReferenceName = node.typeName.name;
-	const typeVariable = resolveIdentifierName(typeReferenceName, scope, node.typeName, context);
+	// Use the parser's binding to respect forward declarations and function signature scopes.
+	const typeVariable = scope.references.find(reference => reference.identifier === node.typeName)?.resolved;
 	const [definition] = typeVariable?.defs ?? [];
 
 	if (!definition) {
@@ -199,11 +188,6 @@ const getTypeReferenceType = (node, context, scope, visitedTypeReferenceNames) =
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 	) {
 		type = getTypeAnnotationType(definition.node.typeAnnotation, context, getDefinitionScope(definition, context), visitedTypeReferenceNames);
-	} else if (
-		definition.type === 'Type'
-		&& definition.node.type === 'TSTypeParameter'
-	) {
-		type = unknown;
 	} else if (definition.type === 'ClassName') {
 		type = nonUrl;
 	}
@@ -251,7 +235,7 @@ const getVisibleTypeNameType = (typeName, node, context) => {
 		return unknown;
 	}
 
-	const variable = resolveIdentifierName(typeName, context.sourceCode.getScope(node), node, context);
+	const variable = findVariable(context.sourceCode.getScope(node), typeName);
 	const typeDefinitions = variable?.defs.filter(definition =>
 		definition.type === 'Type'
 		|| definition.type === 'ClassName'
@@ -353,17 +337,10 @@ const getTypeFromVariable = (node, context, visitedVariables) => {
 		? getUrlType(definition.node.init, context, visitedVariables)
 		: unknown;
 	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, context, getDefinitionScope(definition, context));
-	let type = unknown;
-
-	if (typeFromInitializer !== unknown) {
-		type = typeFromInitializer;
-	} else if (typeFromAnnotation !== unknown) {
-		type = typeFromAnnotation;
-	}
 
 	visitedVariables.delete(variable);
 
-	return type;
+	return typeFromInitializer === unknown ? typeFromAnnotation : typeFromInitializer;
 };
 
 const getTypeFromFunctionReturn = (node, context) => {

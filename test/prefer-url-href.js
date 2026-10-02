@@ -138,3 +138,15 @@ test.snapshot({
 		typeAware('type Url = import("url").URL; declare const url: Url; String(url);'),
 	],
 });
+
+test({
+	valid: [
+		typescript('type Url = URL; { function foo(url: Url) { return url.toString(); } type Url = {toString(): string}; }'),
+		typeAware('type Url = URL; { function foo(url: Url) { return url.toString(); } type Url = {toString(): string}; }'),
+		typeAware('import type {URL as Url} from "node:url"; { declare const object: {url: Url}; object.url.toString(); type Url = {toString(): string}; }'),
+	],
+	invalid: [
+		{...typescript('function foo(url: Url) { return url.toString(); } type Url = URL;'), errors: [{messageId: 'prefer-url-href'}]},
+		{...typeAware('function foo(url: Url) { return url.toString(); } type Url = URL;'), errors: [{messageId: 'prefer-url-href'}]},
+	],
+});
