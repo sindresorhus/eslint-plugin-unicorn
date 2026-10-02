@@ -109,6 +109,7 @@ export {default as 'no-invalid-fetch-options'} from './no-invalid-fetch-options.
 export {default as 'no-invalid-file-input-accept'} from './no-invalid-file-input-accept.js';
 export {default as 'no-invalid-intl-options'} from './no-invalid-intl-options.js';
 export {default as 'no-invalid-media-features'} from './no-invalid-media-features.js';
+export {default as 'no-invalid-property-descriptor'} from './no-invalid-property-descriptor.js';
 export {default as 'no-invalid-remove-event-listener'} from './no-invalid-remove-event-listener.js';
 export {default as 'no-invalid-style-set-property'} from './no-invalid-style-set-property.js';
 export {default as 'no-invalid-well-known-symbol-methods'} from './no-invalid-well-known-symbol-methods.js';
