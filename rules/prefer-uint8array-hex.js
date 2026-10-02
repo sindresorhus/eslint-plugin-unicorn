@@ -10,6 +10,7 @@ import {
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedText,
+	isArrayPrototypeProperty,
 	isGlobalIdentifier,
 	isParenthesized,
 	isString,
@@ -165,6 +166,28 @@ function getCallback(node) {
 	return {parameter: node.params[0], expression: unwrapTypeScriptExpression(expression)};
 }
 
+const isZeroPrefix = value => value === '0' || value === '00';
+
+function getZeroPrefixedExpression(node) {
+	if (
+		node.type === 'BinaryExpression'
+		&& node.operator === '+'
+		&& isStringLiteral(node.left)
+		&& isZeroPrefix(node.left.value)
+	) {
+		return node.right;
+	}
+
+	if (
+		node.type === 'TemplateLiteral'
+		&& node.expressions.length === 1
+		&& isZeroPrefix(node.quasis[0].value.cooked)
+		&& node.quasis[1].value.cooked === ''
+	) {
+		return node.expressions[0];
+	}
+}
+
 function isEncodingCallback(node) {
 	const callback = getCallback(node);
 	if (!callback) {
@@ -172,15 +195,24 @@ function isEncodingCallback(node) {
 	}
 
 	const {parameter, expression} = callback;
+	let numberToString;
 	if (
-		!isPlainMethodCall(expression, 'padStart', 2)
-		|| !isLiteralValue(expression.arguments[0], 2)
-		|| !isLiteralValue(expression.arguments[1], '0')
+		isPlainMethodCall(expression, 'padStart', 2)
+		&& isLiteralValue(expression.arguments[0], 2)
+		&& isLiteralValue(expression.arguments[1], '0')
 	) {
+		numberToString = expression.callee.object;
+	} else if (isPlainMethodCall(expression, 'slice', 1)) {
+		const [index] = expression.arguments;
+		if (index.type !== 'UnaryExpression' || index.operator !== '-' || !isLiteralValue(index.argument, 2)) {
+			return false;
+		}
+
+		numberToString = getZeroPrefixedExpression(expression.callee.object);
+	} else {
 		return false;
 	}
 
-	const numberToString = expression.callee.object;
 	return isPlainMethodCall(numberToString, 'toString', 1)
 		&& isLiteralValue(numberToString.arguments[0], 16)
 		&& numberToString.callee.object.type === 'Identifier'
@@ -210,6 +242,14 @@ function getEncodingInput(node) {
 
 	const mapped = unwrapTypeScriptExpression(node.callee.object);
 	if (isPlainMethodCall(mapped, 'from', 2) && mapped.callee.object.name === 'Array' && isEncodingCallback(mapped.arguments[1])) {
+		return mapped.arguments[0];
+	}
+
+	if (
+		isPlainMethodCall(mapped, 'call', 2)
+		&& isArrayPrototypeProperty(mapped.callee.object, {property: 'map'})
+		&& isEncodingCallback(mapped.arguments[1])
+	) {
 		return mapped.arguments[0];
 	}
 

@@ -18,7 +18,11 @@ Prefer [`Uint8Array#toHex()`](https://developer.mozilla.org/en-US/docs/Web/JavaS
 
 ### Encoding
 
-The rule recognizes spread followed by `map()`, `Array.from()` followed by `map()`, and `Array.from()` with a mapping callback, each followed by `join('')`. The callback must return exactly `byte.toString(16).padStart(2, '0')`; arrow functions and functions containing a single `return` are supported.
+The rule recognizes spread followed by `map()`, `Array.from()` followed by `map()`, `Array.from()` with a mapping callback, and borrowed map calls through `Array.prototype.map.call()` or `[].map.call()`, each followed by `join('')`. Arrow functions and functions containing a single `return` are supported. The callback must return one of these expressions:
+
+- `byte.toString(16).padStart(2, '0')`
+- `('0' + byte.toString(16)).slice(-2)` or the `'00'` prefix variant
+- `` `0${byte.toString(16)}`.slice(-2) `` or the `00` prefix variant
 
 ```js
 const bytes = new Uint8Array([0, 15, 255]);
@@ -31,6 +35,15 @@ const hex = Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).jo
 
 // ❌
 const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+
+// ❌
+const hex = Array.from(bytes, byte => ('0' + byte.toString(16)).slice(-2)).join('');
+
+// ❌
+const hex = Array.prototype.map.call(bytes, byte => `0${byte.toString(16)}`.slice(-2)).join('');
+
+// ❌
+const hex = [].map.call(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
 
 // ✅
 const hex = bytes.toHex();
@@ -97,7 +110,7 @@ Calls with inputs known to be non-string are ignored because replacing them with
 
 ## Limitations
 
-The rule does not recognize pipelines split across statements, imperative loops, lookup tables, other padding idioms, arbitrary regex patterns, optional operations, computed method names, `super` method calls, or `toString('hex', start, end)` ranges. Direct typed-array `map()` encoders are ignored because typed-array mapping coerces the callback's strings back into numbers.
+The rule does not recognize pipelines split across statements, imperative loops, reducers, lookup tables, other padding idioms, arbitrary regex patterns, optional operations, computed method names, `super` method calls, or `toString('hex', start, end)` ranges. Direct typed-array `map()` encoders are ignored because typed-array mapping coerces the callback's strings back into numbers. Legacy `.substr()` callbacks can be normalized to `.slice()` by [`prefer-string-slice`](./prefer-string-slice.md) before this rule recognizes them.
 
 Replacements containing comments are reported without a fix or suggestion, so comments are not lost or moved. Compatibility fallbacks are not detected automatically; disable this rule where an older-runtime implementation is intentional.
 

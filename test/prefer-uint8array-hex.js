@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 import test from 'ava';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
@@ -155,6 +156,155 @@ testRule({
 		{
 			code: 'const text = left + right; Buffer.from(text, \'hex\')',
 			errors: [{...error, suggestions: [{...suggestion, output: 'const text = left + right; Uint8Array.fromHex(text)'}]}],
+		},
+	],
+});
+
+const sliceEncoders = [
+	'byte => (\'0\' + byte.toString(16)).slice(-2)',
+	'byte => (\'00\' + byte.toString(16)).slice(-2)',
+	'byte => `0${byte.toString(16)}`.slice(-2)',
+	'byte => `00${byte.toString(16)}`.slice(-2)',
+];
+const encodingPipelines = [
+	callback => `[...bytes].map(${callback}).join('')`,
+	callback => `Array.from(bytes).map(${callback}).join('')`,
+	callback => `Array.from(bytes, ${callback}).join('')`,
+	callback => `Array.prototype.map.call(bytes, ${callback}).join('')`,
+	callback => `[].map.call(bytes, ${callback}).join('')`,
+];
+
+testRule({
+	valid: [
+		...[
+			'byte => (\'1\' + byte.toString(16)).slice(-2)',
+			'byte => (\'\' + byte.toString(16)).slice(-2)',
+			'byte => (\'000\' + byte.toString(16)).slice(-2)',
+			'byte => (byte.toString(16) + \'0\').slice(-2)',
+			'byte => (\'0\' + byte.toString(10)).slice(-2)',
+			'byte => (\'0\' + other.toString(16)).slice(-2)',
+			'byte => (\'0\' + byte.toString(16)).slice(2)',
+			'byte => (\'0\' + byte.toString(16)).slice(-1)',
+			'byte => (\'0\' + byte.toString(16)).slice(-2, undefined)',
+			'byte => (\'0\' + byte.toString(16)).slice(-width)',
+			'byte => (\'0\' + byte.toString(16)).slice(-2n)',
+			'byte => (\'0\' + byte.toString(16)).substr(-2)',
+			'byte => (\'0\' + byte.toString(16))?.slice(-2)',
+			'byte => (\'0\' + byte.toString(16)).slice?.(-2)',
+			'byte => (\'0\' + byte.toString(16))[\'slice\'](-2)',
+			'byte => (\'0\' + byte?.toString(16)).slice(-2)',
+			'byte => (\'0\' + byte.toString(16, extra)).slice(-2)',
+			'byte => `1${byte.toString(16)}`.slice(-2)',
+			'byte => `${byte.toString(16)}`.slice(-2)',
+			'byte => `0${byte.toString(16)}0`.slice(-2)',
+			'byte => `0${byte.toString(16)}${other}`.slice(-2)',
+			'byte => tag`0${byte.toString(16)}`.slice(-2)',
+			'async byte => (\'0\' + byte.toString(16)).slice(-2)',
+			'function * (byte) { return (\'0\' + byte.toString(16)).slice(-2); }',
+			'(byte = sideEffect()) => (\'0\' + byte.toString(16)).slice(-2)',
+			'(byte, index) => (\'0\' + byte.toString(16)).slice(-2)',
+			'byte => { sideEffect(); return (\'0\' + byte.toString(16)).slice(-2); }',
+		].map(callback => `Array.from(bytes, ${callback}).join('')`),
+		...[
+			'Array.prototype.map.call(bytes)',
+			`Array.prototype.map.call(bytes, ${encode}, sideEffect())`,
+			`Array.prototype.map.call(...bytes, ${encode})`,
+			`Array.prototype.map?.call(bytes, ${encode})`,
+			`Array.prototype.map.call?.(bytes, ${encode})`,
+			`Array?.prototype.map.call(bytes, ${encode})`,
+			`Array.prototype?.map.call(bytes, ${encode})`,
+			`Array['prototype'].map.call(bytes, ${encode})`,
+			`Array.prototype['map'].call(bytes, ${encode})`,
+			`Array.prototype.map['call'](bytes, ${encode})`,
+			`Array.prototype.map.apply(bytes, [${encode}])`,
+			`[1].map.call(bytes, ${encode})`,
+			`object.map.call(bytes, ${encode})`,
+		].map(expression => `${expression}.join('')`),
+		...['[0, 255]', 'new Uint16Array([255])', 'new Uint8ClampedArray([255])', 'new Int8Array([-1])'].flatMap(receiver => [
+			`Array.from(${receiver}, ${sliceEncoders[0]}).join('')`,
+			`Array.prototype.map.call(${receiver}, ${sliceEncoders[1]}).join('')`,
+		]),
+		`new Uint8Array([255]).map(${sliceEncoders[0]}).join('')`,
+		`Array.prototype.map.call(object?.bytes, ${encode}).join('')`,
+		`Array.prototype.map.call(bytes, ${encode}).join('-')`,
+		`Array.prototype.map.call(bytes, ${encode}).join()`,
+		`Array.prototype.map.call(bytes, ${encode})?.join('')`,
+		{
+			code: `function hex(bytes: number[]) { return [].map.call(bytes, ${sliceEncoders[0]}).join(''); }`,
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		...[encode, ...sliceEncoders].flatMap(callback => encodingPipelines.map(pipeline => ({
+			code: `const bytes = new Uint8Array([0, 15, 255]); ${pipeline(callback)};`,
+			output: 'const bytes = new Uint8Array([0, 15, 255]); bytes.toHex();',
+			errors: [error],
+		}))),
+		...encodingPipelines.map(pipeline => ({
+			code: pipeline(sliceEncoders[0]),
+			errors: [{...error, suggestions: [{...suggestion, output: 'bytes.toHex()'}]}],
+		})),
+		{
+			code: `Array.prototype.map.call(Buffer.from([0, 15, 255]), ${sliceEncoders[0]}).join('')`,
+			output: 'Buffer.from([0, 15, 255]).toHex()',
+			errors: [error],
+		},
+		...[
+			'function (byte) { return (\'0\' + byte.toString(16)).slice(-2); }',
+			'byte => { return `00${byte.toString(16)}`.slice(-2); }',
+			'byte => ((\'0\' + (byte).toString(0x10))).slice((-0x2))',
+		].map(callback => ({
+			code: `Array.from(new Uint8Array([255]), ${callback}).join('')`,
+			output: 'new Uint8Array([255]).toHex()',
+			errors: [error],
+		})),
+		...[
+			`Array.from(/* keep */ bytes, ${sliceEncoders[0]}).join('')`,
+			'Array.from(bytes, byte => (\'0\' /* keep */ + byte.toString(16)).slice(-2)).join(\'\')',
+			`Array.prototype /* keep */.map.call(bytes, ${encode}).join('')`,
+			'[].map.call(bytes, byte => `0${/* keep */ byte.toString(16)}`.slice(-2)).join(\'\')',
+		].map(code => ({code, errors: [{...error, suggestions: []}]})),
+		{
+			code: `const bytes = new Uint8Array(); [].map.call(bytes, /* keep */ ${encode}).join('')`,
+			errors: [error],
+		},
+		{
+			code: `Array.prototype.map.call((sideEffect(), new Uint8Array()), ${sliceEncoders[0]}).join('').toUpperCase()`,
+			output: '(sideEffect(), new Uint8Array()).toHex().toUpperCase()',
+			errors: [error],
+		},
+		{
+			code: `foo()\nArray.prototype.map.call((condition ? new Uint8Array() : new Uint8Array()), ${sliceEncoders[0]}).join('')`,
+			output: 'foo()\n;(condition ? new Uint8Array() : new Uint8Array()).toHex()',
+			errors: [error],
+		},
+		{
+			code: `function hex(bytes: Uint8Array) { return[].map.call(bytes, ${sliceEncoders[0]}).join(''); }`,
+			output: 'function hex(bytes: Uint8Array) { return bytes.toHex(); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [error],
+		},
+		...['bytes as Uint8Array', '<Uint8Array>bytes'].map(expression => ({
+			code: `[].map.call((${expression}), ${sliceEncoders[0]}).join('')`,
+			output: `(${expression}).toHex()`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [error],
+		})),
+		...['bytes!', 'bytes satisfies Uint8Array'].map(expression => ({
+			code: `[].map.call((${expression}), ${sliceEncoders[0]}).join('')`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{...error, suggestions: [{...suggestion, output: `(${expression}).toHex()`}]}],
+		})),
+		{
+			...typeAware(`function hex(value: {bytes: Uint8Array}) { return Array.from(value.bytes, ${sliceEncoders[0]}).join(''); }`),
+			output: 'function hex(value: {bytes: Uint8Array}) { return value.bytes.toHex(); }',
+			errors: [error],
+		},
+		{
+			code: `const bytes = new Uint8Array(); const element = <span>{[].map.call(bytes, ${sliceEncoders[0]}).join('')}</span>`,
+			output: 'const bytes = new Uint8Array(); const element = <span>{bytes.toHex()}</span>',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [error],
 		},
 	],
 });
@@ -339,11 +489,24 @@ test('works with array and number style rules across fixing passes and suggestio
 			'no-useless-spread',
 			'no-new-buffer',
 			'no-unsafe-buffer-conversion',
+			'prefer-prototype-methods',
+			'prefer-string-slice',
+			'prefer-string-pad-start-end',
 		].map(name => [`unicorn/${name}`, 'error'])),
 	};
 	const encoded = linter.verifyAndFix(`const bytes = new Uint8Array([0, 255]); Array.from(bytes).map(${encode}).join('');`, config);
 	t.is(encoded.output, 'const bytes = new Uint8Array([0, 255]); bytes.toHex();');
 	t.deepEqual(encoded.messages, []);
+
+	for (const pipeline of encodingPipelines) {
+		const sliced = linter.verifyAndFix(`const bytes = new Uint8Array([0, 255]); ${pipeline(sliceEncoders[0])};`, config);
+		t.is(sliced.output, 'const bytes = new Uint8Array([0, 255]); bytes.toHex();');
+		t.deepEqual(sliced.messages, []);
+	}
+
+	const legacy = linter.verifyAndFix('const bytes = new Uint8Array([0, 255]); [].map.call(bytes, byte => (\'0\' + byte.toString(16)).substr(-2)).join(\'\');', config);
+	t.is(legacy.output, 'const bytes = new Uint8Array([0, 255]); bytes.toHex();');
+	t.deepEqual(legacy.messages, []);
 
 	const decoded = linter.verifyAndFix('new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(pair, 16)))', config);
 	t.true(decoded.output.includes('Number.parseInt'));
