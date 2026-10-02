@@ -54,6 +54,10 @@ testRule.snapshot({
 		'const object = {status: 204}; object.status = 200; new Response("", {status: object.status})',
 		'new Response("", {status: (sideEffect(), 204)})',
 		'const alias = condition; var condition = true; new Response("", {status: alias ? 204 : 200})',
+		// Constant initializers are unknown before their declarations.
+		'new Response("", {status}); const status = 204;',
+		'new Response(body, {status: 204}); const body = "";',
+		'new Response("", {[key]: 204}); const key = "status";',
 		'let body = ""; body = null; new Response(body, {status: 204})',
 		'const status = getStatus(); Response.redirect(url, status)',
 		'Response.redirect(url, status)',
