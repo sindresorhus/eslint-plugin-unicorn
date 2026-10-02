@@ -164,6 +164,10 @@ test.snapshot({
 			code: '<meta httpEquiv={("Content-Security-Policy" as string)!} content={("sandbox" as string)!} />',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: '<meta httpEquiv="Content&#45;Security&#45;Policy" content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" />',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

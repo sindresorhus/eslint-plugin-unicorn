@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Browsers ignore the `frame-ancestors`, `sandbox`, and `report-uri` CSP directives when the policy is delivered through a `<meta>` element. The markup can give the impression that framing restrictions, sandbox restrictions, or violation reporting are active when they are not.
+Browsers ignore the `frame-ancestors`, `sandbox`, and `report-uri` Content Security Policy (CSP) directives when the policy is delivered through a `<meta>` element. The markup can give the impression that framing restrictions, sandbox restrictions, or violation reporting are active when they are not.
 
 This rule reports those three directives in static CSP `<meta>` elements in HTML and JSX. It follows the [HTML processing algorithm](https://html.spec.whatwg.org/multipage/semantics.html#attr-meta-http-equiv-content-security-policy) and [CSP specification](https://www.w3.org/TR/CSP3/#delivery-html-meta-element).
 
