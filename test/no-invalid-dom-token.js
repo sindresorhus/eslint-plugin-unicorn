@@ -150,6 +150,7 @@ ruleTest.snapshot({
 		typeAware('declare const tokens: unknown; (tokens as DOMTokenList).add("primary active");'),
 		typeAware('declare const state: {tokens: DOMTokenList}; state.tokens.remove("");'),
 		typeAware('function update<T extends DOMTokenList>(tokens: T) { tokens.replace("primary", "old new"); }'),
+		typeAware('declare const tokens: DOMTokenList | Set<string>; if ("toggle" in tokens) { tokens.add("primary active"); }'),
 	],
 });
 
