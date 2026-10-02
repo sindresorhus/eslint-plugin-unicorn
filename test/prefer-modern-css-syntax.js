@@ -14,6 +14,7 @@ ruleTest({
 		'a { opacity: .5; color: #abcd; content: "rgba(0, 0, 0, .5)"; background: url("rgba(0, 0, 0, .5)"); }',
 		'a:hover::before { color: red; }',
 		'a { --brand: "rgba(0, 0, 0, .5)"; }',
+		'a[data-label=":before"] { --brand: url("rgba(0, 0, 0, .5)"); content: ":after"; }',
 		'a { --brand: rgba(0, 0, 0, .5) #; }',
 		'a { --brand: oKlab(50% 0 0 / .5); color: oKlab(50% 0 0 / .5); }',
 		'a { color: var(--fallback, rgba(0, 0, 0, .5)); }',
@@ -32,6 +33,8 @@ ruleTest({
 		{code: 'a { color: rgb(1 2 3 / .29); }', output: 'a { color: rgb(1 2 3 / 29%); }', errors: 1},
 		{code: 'a { color: rgb(1 2 3 / .005); }', output: 'a { color: rgb(1 2 3 / 0.5%); }', errors: 1},
 		{code: 'a { color: rgb(1 2 3 / +.005); }', output: 'a { color: rgb(1 2 3 / +0.5%); }', errors: 1},
+		{code: 'a { color: rgb(1 2 3 / -.005); }', output: 'a { color: rgb(1 2 3 / -0.5%); }', errors: 1},
+		{code: 'a { color: rgb(1 2 3 / 000.0500); }', output: 'a { color: rgb(1 2 3 / 5%); }', errors: 1},
 		{code: 'a { color: rgb(1 2 3 / 1); }', output: 'a { color: rgb(1 2 3 / 100%); }', errors: 1},
 		{code: 'a { color: rgb(1 2 3 / 0); }', output: 'a { color: rgb(1 2 3 / 0%); }', errors: 1},
 		{code: 'a { color: rgb(1 2 3 / 0.123456789); }', output: 'a { color: rgb(1 2 3 / 12.3456789%); }', errors: 1},
@@ -46,10 +49,16 @@ ruleTest({
 		{code: 'a { color: rgb(var(--red) 0 0 / .5); }', output: 'a { color: rgb(var(--red) 0 0 / 50%); }', errors: 1},
 		{code: 'a { color: rgb(from rgba(0, 0, 0, .5) r g b / .5); }', output: 'a { color: rgb(from rgb(0 0 0 / 50%) r g b / 50%); }', errors: 2},
 		{code: 'a { --brand: rgba(0, 0, 0, .5); }', output: 'a { --brand: rgb(0 0 0 / 50%); }', errors: 1},
+		{
+			code: '/* 😀 */\r\na {\r\n  --brand: /* before */ rgba(0, 0, 0, .5) /* after */ !important;\r\n}',
+			output: '/* 😀 */\r\na {\r\n  --brand: /* before */ rgb(0 0 0 / 50%) /* after */ !important;\r\n}',
+			errors: 1,
+		},
 		{code: 'a { --emoji: "😀"; --brand: rgba(0, 0, 0, .5); }', output: 'a { --emoji: "😀"; --brand: rgb(0 0 0 / 50%); }', errors: 1},
 		{code: 'a { --brand: linear-gradient(rgba(0, 0, 0, .5), hsla(30, 40%, 50%, .5)); }', output: 'a { --brand: linear-gradient(rgb(0 0 0 / 50%), hsl(30 40% 50% / 50%)); }', errors: 2},
 		{code: 'a { --brand: var(--fallback, rgba(0, 0, 0, .5)); }', output: 'a { --brand: var(--fallback, rgb(0 0 0 / 50%)); }', errors: 1},
 		{code: '@supports (color: rgba(0, 0, 0, .5)) { a { color: red; } }', output: '@supports (color: rgb(0 0 0 / 50%)) { a { color: red; } }', errors: 1},
+		{code: '@supports (--brand: rgba(0, 0, 0, .5)) { a { color: red; } }', output: '@supports (--brand: rgb(0 0 0 / 50%)) { a { color: red; } }', errors: 1},
 		{code: '@supports selector(a:before) { a { color: red; } }', output: '@supports selector(a::before) { a { color: red; } }', errors: 1},
 		{
 			code: '@property --brand { syntax: "<color>"; inherits: false; initial-value: rgba(1, 2, 3, .5); }',
@@ -101,8 +110,17 @@ test('fixes are stable', t => {
 			'unicorn/prefer-modern-css-syntax': 'error',
 		},
 	};
-	const first = linter.verifyAndFix('a:before { --brand: rgba(0, 0, 0, .5); }', config, {filename: 'test.css'});
-	t.true(first.fixed);
-	t.is(first.output, 'a::before { --brand: rgb(0 0 0 / 50%); }');
-	t.deepEqual(linter.verify(first.output, config, {filename: 'test.css'}), []);
+	for (const [code, expected] of [
+		['a:before { --brand: rgba(0, 0, 0, .5); }', 'a::before { --brand: rgb(0 0 0 / 50%); }'],
+		['a:after { --brand: rgb(from rgba(1, 2, 3, .25) r g b / .5); }', 'a::after { --brand: rgb(from rgb(1 2 3 / 25%) r g b / 50%); }'],
+	]) {
+		const first = linter.verifyAndFix(code, config, {filename: 'test.css'});
+		t.true(first.fixed);
+		t.is(first.output, expected);
+		t.deepEqual(first.messages, []);
+		const second = linter.verifyAndFix(first.output, config, {filename: 'test.css'});
+		t.false(second.fixed);
+		t.is(second.output, expected);
+		t.deepEqual(second.messages, []);
+	}
 });
