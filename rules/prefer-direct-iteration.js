@@ -199,6 +199,7 @@ const getTypesFromVariable = (node, context, visitedVariables) => {
 	if (
 		definition.type !== 'Variable'
 		|| definition.parent.kind !== 'const'
+		|| definition.node.id !== definition.name
 		|| !definition.node.init
 	) {
 		return;

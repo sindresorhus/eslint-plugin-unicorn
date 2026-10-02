@@ -80,6 +80,13 @@ test.snapshot({
 		typescript('function foo(set: Set<string>) { return [...set.entries()]; }'),
 		typescript('function foo(iterable: string[] | Map<string, string>) { return [...iterable.values()]; }'),
 		typescript('function foo(iterable: Map<string, string> | Set<string>) { return [...iterable.entries()]; }'),
+
+		// Destructured bindings must not inherit the initializer's type
+		'const [map] = [new Map()]; [...map.values()];',
+		'const {0: map} = [new Map()]; [...map.values()];',
+		'const [map] = [new Map()]; const alias = map; [...alias.values()];',
+		'const [map] = [new Map()]; [...map.entries()];',
+		typescript('const [map] = [new Map<string, string>()]; [...map.values()];'),
 	],
 	invalid: [
 		// Direct expressions
@@ -170,6 +177,18 @@ test.snapshot({
 		typeAware('class Collection { values() { return [][Symbol.iterator](); } } const collection = new Collection(); [...collection.values()];'),
 		typeAware('interface Collection { entries(): Iterable<[string, string]>; } declare const collection: Collection; [...collection.entries()];'),
 		typeAware('export {}; class Map { entries() { return []; } } declare function getMap(): Map; const map = getMap(); [...map.entries()];'),
+
+		// Destructured maps do not iterate values or keys by default
+		typeAware(outdent`
+			declare function useState<T>(initial: T): [T, (value: T) => void];
+			const [map] = useState(new Map<string, string>());
+			[...map.values()].forEach(() => { /**/ });
+			[...map.keys()];
+		`),
+		typeAware('const {0: map} = [new Map<string, string>()]; [...map.values()]; [...map.keys()];'),
+
+		// Map entries are tuples, whose entries iterator is not the default
+		typeAware('const [entry] = new Map<string, string>(); [...entry.entries()];'),
 	],
 	invalid: [
 		typeAware('type Items = string[]; function foo(items: Items) { return [...items.values()]; }'),
@@ -181,5 +200,16 @@ test.snapshot({
 		typeAware('type Values = string[] | Set<string>; function foo(values: Values) { return [...values.values()]; }'),
 		typeAware('type Bytes = Uint8Array; declare const bytes: Bytes; [...bytes.values()];'),
 		typeAware('declare function getItems(): string[]; const items = getItems(); [...items.values()];'),
+
+		// Type information still recognizes default iterators of destructured bindings
+		typeAware(outdent`
+			declare function useState<T>(initial: T): [T, (value: T) => void];
+			const [map] = useState(new Map<string, string>());
+			[...map.entries()];
+		`),
+		typeAware('const {0: map} = [new Map<string, string>()]; [...map.entries()];'),
+		typeAware('const [set] = [new Set<string>()]; [...set.values()];'),
+		typeAware('const [set] = [new Set<string>()]; [...set.keys()];'),
+		typeAware('const [...entries] = new Map<string, string>(); [...entries.values()];'),
 	],
 });
