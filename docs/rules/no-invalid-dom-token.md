@@ -20,17 +20,41 @@ It checks all `add()`/`remove()` arguments, the first `toggle()` argument, and t
 ```js
 // ❌
 element.classList.add('primary active');
-element.classList.remove('');
-element.classList.toggle(' primary');
-element.classList.replace('primary', 'active selected');
-element.classList.add(`primary ${suffix}`);
 
 // ✅
 element.classList.add('primary', 'active');
+```
+
+```js
+// ❌
+element.classList.remove('');
+
+// ✅
 element.classList.remove('primary');
+```
+
+```js
+// ❌
+element.classList.toggle(' primary', isActive);
+
+// ✅
 element.classList.toggle('primary', isActive);
+```
+
+```js
+// ❌
+element.classList.replace('primary', 'active selected');
+
+// ✅
 element.classList.replace('primary', 'active');
-element.classList.add('primary\u00A0active');
+```
+
+```js
+// ❌
+element.classList.add(`primary ${suffix}`);
+
+// ✅
+element.classList.add('primary', suffix);
 ```
 
 ## Suggestions
