@@ -130,6 +130,75 @@ ruleTest.snapshot({
 	],
 });
 
+ruleTest.snapshot({
+	valid: [
+		'new URLSearchParams(new URLSearchParams("query=hello"))',
+		'const url = new URL(input); new URLSearchParams(url.searchParams)',
+		'let url = new URL(input); new URLSearchParams(url)',
+		'class Address extends URL {} new URLSearchParams(new Address(input))',
+		'new URLSearchParams(...[new URL(input)])',
+		'new URLSearchParams(new URL(input), extra)',
+	],
+	invalid: [
+		'new URLSearchParams(new URL(input))',
+		'const url = new URL(input, base); new URLSearchParams(url)',
+		'const url = new URL(input); const alias = url; new URLSearchParams(alias)',
+		'new URLSearchParams(((new URL(input))),)',
+		'new URLSearchParams(condition ? new URL(first) : new URL(second))',
+		'new URLSearchParams((before(), new URL(input)))',
+		'const value = foo\nnew URLSearchParams(condition ? new URL(first) : new URL(second))',
+		'new URLSearchParams(new URL(input)).get("query")',
+		'new URLSearchParams(/* keep */ new URL(input))',
+		'new URLSearchParams(new URL(/* keep */ input))',
+	],
+});
+
+ruleTest.snapshot({
+	testerOptions: {languageOptions: {parser: typescriptEslintParser}},
+	valid: [
+		'function read(value: URLSearchParams) { return new URLSearchParams(value); }',
+		'function read(value: URL | string) { return new URLSearchParams(value); }',
+	],
+	invalid: [
+		'function read(url: URL) { return new URLSearchParams(url); }',
+		'import type {URL as Address} from "node:url"; function read(url: Address) { return new URLSearchParams(url); }',
+		'new URLSearchParams(new URL(input) as URL)',
+		'new URLSearchParams(<URL>new URL(input))',
+		'new URLSearchParams(new URL(input) satisfies URL)',
+		'const url = new URL(input); new URLSearchParams(url!)',
+	],
+});
+
+ruleTest.snapshot({
+	valid: [typeAware('declare const holder: {parameters: URLSearchParams}; new URLSearchParams(holder.parameters)')],
+	invalid: [
+		typeAware('declare const holder: {url: URL}; new URLSearchParams(holder.url)'),
+		typeAware('let url = new URL("https://example.com/"); new URLSearchParams(url)'),
+		typeAware('declare const holder: {href: URL}; new URLSearchParams(holder.href)'),
+	],
+});
+
+test('URL object suggestions extract queries and distinguish detached copies from live parameters', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
+	const prefix = 'const url = new URL(input); ';
+	const code = `${prefix}new URLSearchParams(url)`;
+	const [problem] = linter.verify(code, config);
+	t.is(problem?.suggestions?.length, 2);
+	const url = new URL('https://example.com/?query=hello&query=again#fragment');
+	t.deepEqual([...new URLSearchParams(url)], []);
+	const [detached, live] = problem.suggestions.map(({fix}) => {
+		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		return runInNewContext(corrected.slice(prefix.length), {url, URLSearchParams});
+	});
+	t.deepEqual([...detached], [['query', 'hello'], ['query', 'again']]);
+	t.deepEqual([...live], [...detached]);
+	detached.set('query', 'detached');
+	t.is(url.searchParams.get('query'), 'hello');
+	live.set('query', 'live');
+	t.is(url.searchParams.get('query'), 'live');
+});
+
 test('suggestions extract queries and distinguish detached copies from live parameters', t => {
 	const linter = new Linter();
 	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
@@ -167,27 +236,29 @@ test('the URL-string suggestion extracts decoded parameters without the fragment
 	t.deepEqual([...parameters], [['query', 'a+b c'], ['query', 'again'], ['empty', '']]);
 });
 
-test('URL receiver suggestions evaluate the input once', t => {
-	const linter = new Linter();
-	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
-	const code = 'new URLSearchParams(new URL(getInput()).href)';
-	const [problem] = linter.verify(code, config);
-	t.is(problem?.suggestions?.length, 2);
-	for (const {fix} of problem.suggestions) {
-		let calls = 0;
-		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-		const parameters = runInNewContext(corrected, {
-			URL,
-			URLSearchParams,
-			getInput() {
-				calls++;
-				return 'https://example.com/?query=hello#fragment';
-			},
-		});
-		t.is(calls, 1);
-		t.is(parameters.get('query'), 'hello');
-	}
-});
+for (const argument of ['new URL(getInput()).href', 'new URL(getInput())']) {
+	test(`URL receiver suggestions evaluate the input once: ${argument}`, t => {
+		const linter = new Linter();
+		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
+		const code = `new URLSearchParams(${argument})`;
+		const [problem] = linter.verify(code, config);
+		t.is(problem?.suggestions?.length, 2);
+		for (const {fix} of problem.suggestions) {
+			let calls = 0;
+			const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+			const parameters = runInNewContext(corrected, {
+				URL,
+				URLSearchParams,
+				getInput() {
+					calls++;
+					return 'https://example.com/?query=hello#fragment';
+				},
+			});
+			t.is(calls, 1);
+			t.is(parameters.get('query'), 'hello');
+		}
+	});
+}
 
 test('URL preference rules complement the diagnostic', t => {
 	const linter = new Linter();

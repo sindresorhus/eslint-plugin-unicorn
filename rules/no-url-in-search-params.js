@@ -2,7 +2,9 @@ import {isMemberExpression, isNewExpression} from './ast/index.js';
 import {
 	getParenthesizedText,
 	getStaticValueForControlFlow,
+	isParenthesized,
 	needsSemicolon,
+	shouldAddParenthesesToMemberExpressionObject,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {createBuiltinTypeCheckers} from './utils/type-helpers.js';
@@ -42,10 +44,10 @@ const isLocation = node => {
 };
 
 /**
-Get a URL receiver's search parameters, preserving parentheses and statement boundaries.
+Get access to the URL's search parameters, protecting statement boundaries.
 */
-const getSearchParametersText = (receiver, node, context) => {
-	const text = `${getParenthesizedText(receiver, context)}.searchParams`;
+const getSearchParametersText = (receiverText, node, context) => {
+	const text = `${receiverText}.searchParams`;
 	return needsSemicolon(context.sourceCode.getTokenBefore(node), context, text) ? `;${text}` : text;
 };
 
@@ -64,6 +66,25 @@ const create = context => {
 		const problem = {node: argument, messageId: MESSAGE_ID};
 		const hasComments = sourceCode.getCommentsInside(node).length > 0;
 
+		if (isUrl(argument, context)) {
+			if (!hasComments) {
+				let receiverText = getParenthesizedText(argument, context);
+				if (!isParenthesized(argument, context) && shouldAddParenthesesToMemberExpressionObject(argument, context)) {
+					receiverText = `(${receiverText})`;
+				}
+
+				problem.suggest = [{
+					messageId: MESSAGE_ID_COPY,
+					fix: fixer => fixer.replaceText(node, `new URLSearchParams(${receiverText}.search)`),
+				}, {
+					messageId: MESSAGE_ID_LIVE,
+					fix: fixer => fixer.replaceText(node, getSearchParametersText(receiverText, node, context)),
+				}];
+			}
+
+			return problem;
+		}
+
 		if (isMemberExpression(expression, {property: 'href', optional: false})) {
 			const receiver = expression.object;
 			const receiverIsUrl = isUrl(receiver, context);
@@ -78,7 +99,7 @@ const create = context => {
 			if (receiverIsUrl && !hasComments) {
 				problem.suggest.push({
 					messageId: MESSAGE_ID_LIVE,
-					fix: fixer => fixer.replaceText(node, getSearchParametersText(receiver, node, context)),
+					fix: fixer => fixer.replaceText(node, getSearchParametersText(getParenthesizedText(receiver, context), node, context)),
 				});
 			}
 

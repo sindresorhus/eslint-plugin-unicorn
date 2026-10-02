@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`URLSearchParams` parses a query string, not a full URL. Passing a full URL treats the URL prefix as part of the first parameter name and includes any fragment in the parameter values.
+`URLSearchParams` parses a query string, not a full URL. Passing a full URL string treats the URL prefix as part of the first parameter name and includes any fragment in the parameter values. Passing a URL object reads its enumerable properties as a record instead of extracting its query.
 
 ```js
 const parameters = new URLSearchParams('https://example.com/?query=hello');
@@ -17,11 +17,11 @@ parameters.get('query'); // null
 parameters.get('https://example.com/?query'); // 'hello'
 ```
 
-This rule reports statically known, valid URLs beginning with `scheme://`, including string literals, constant templates, concatenations, and constant references. It also reports `.href` on known `URL` receivers and on `location`, `window.location`, `globalThis.location`, `document.location`, and `self.location`.
+This rule checks direct `new URLSearchParams(input)` calls. It reports statically known, valid URL strings beginning with `scheme://`, including string literals, constant templates, concatenations, and constant references. It also reports known `URL` objects, `.href` on known `URL` receivers, and `.href` on `location`, `window.location`, `globalThis.location`, `document.location`, and `self.location`.
 
 Known `URL` receivers include direct constructors, constant references, TypeScript `URL` annotations, and TypeScript type information when available. Type information is optional.
 
-The rule provides suggestions instead of automatic fixes because extracting the query changes behavior. For a URL string, it suggests parsing the URL and using its `searchParams`. For a known URL receiver, it offers a detached copy first, followed by access to the URL's live `searchParams`. For browser location inputs, it suggests constructing from `.search`.
+The rule provides suggestions instead of automatic fixes because extracting the query changes behavior. For a URL string, it suggests parsing the URL and using its `searchParams`. For a known URL object or its `.href`, it offers a detached copy first, followed by access to the URL's live `searchParams`. For browser location inputs, it suggests constructing from `.search`.
 
 ## Examples
 
@@ -38,6 +38,9 @@ const url = new URL(input);
 
 // ❌
 const parameters = new URLSearchParams(url.href);
+
+// ❌
+const parameters = new URLSearchParams(url);
 
 // ✅ Detached copy: changing parameters does not update url.
 const parameters = new URLSearchParams(url.search);
@@ -56,9 +59,9 @@ const parameters = new URLSearchParams(window.location.search);
 
 ## Limitations
 
-For string inputs, the rule intentionally skips dynamic templates, relative URLs, and opaque schemes such as `mailto:` and `data:`. Known URL `.href` inputs are reported regardless of the URL scheme.
+For string inputs, the rule intentionally skips dynamic templates, relative URLs, and opaque schemes such as `mailto:` and `data:`. Known URL objects and their `.href` inputs are reported regardless of the URL scheme.
 
-When identifying URL receivers, the rule skips arbitrary objects, computed or optional property access, and unannotated mutable URL bindings without type information. Other expressions can still be reported when they evaluate statically to a full URL string. The rule does not follow `URLSearchParams` constructor aliases, infer URL subclasses, follow aliases of `.href` values, or resolve shadowed built-ins, and assumes built-ins have not been modified.
+The `.href` checks skip arbitrary objects and computed or optional `.href` access. Without type information, unannotated mutable URL bindings are not recognized. Other expressions can still be reported when they evaluate statically to a full URL string. The rule does not follow `URLSearchParams` constructor aliases, infer URL subclasses, follow aliases of `.href` values, or resolve shadowed built-ins, and assumes built-ins have not been modified.
 
 Suggestions that replace the whole constructor are omitted when it contains comments. Replacing only `.href` with `.search` preserves comments and remains available.
 
