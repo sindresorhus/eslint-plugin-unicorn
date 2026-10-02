@@ -223,8 +223,8 @@ testRule({
 			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
 		},
 		{
-			...typeAware('declare function getUrl(): URL | {protocol: string}; const url = getUrl(); url.protocol === "https"; if (url instanceof URL) {url.protocol === "https";} url.protocol === "https";'),
-			output: 'declare function getUrl(): URL | {protocol: string}; const url = getUrl(); url.protocol === "https"; if (url instanceof URL) {url.protocol === "https:";} url.protocol === "https";',
+			...typeAware('declare function getUrl(): URL | {protocol: string}; const url = getUrl(); if (url instanceof URL) {url.protocol === "https";} url.protocol === "https";'),
+			output: 'declare function getUrl(): URL | {protocol: string}; const url = getUrl(); if (url instanceof URL) {url.protocol === "https:";} url.protocol === "https";',
 			errors: [{messageId: 'no-invalid-url-protocol-comparison'}],
 		},
 		{
