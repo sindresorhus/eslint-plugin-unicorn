@@ -316,6 +316,22 @@ ruleTest.snapshot({
 	],
 });
 
+ruleTest.snapshot({
+	valid: [
+		{code: 'function run(value: Date | number) { value.toLocaleString("en", {style: "wrong"}); }', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [
+		...['as typeof Intl.NumberFormat', '!', 'satisfies typeof Intl.NumberFormat'].map(wrapper => ({
+			code: `new (Intl.NumberFormat ${wrapper})('en', {style: 'wrong'})`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		{code: 'const Formatter = Intl.NumberFormat as typeof Intl.NumberFormat; new Formatter("en", {style: "wrong"})', languageOptions: {parser: parsers.typescript}},
+		'const maximumFractionDigit = 2; new Intl.NumberFormat("en", {maximumFractionDigit /* keep */})',
+		{code: 'function run(value: number | bigint | Uint8Array | undefined) { value?.toLocaleString("en", {style: "wrong"}); }', languageOptions: {parser: parsers.typescript}},
+		construct('NumberFormat', 'maximumSignificantDigits: 3, maximumFractionDigits: Symbol.iterator'),
+	],
+});
+
 test.serial('validation does not use the host Intl implementation or execute user code', t => {
 	const originalIntl = Intl;
 	Object.defineProperty(globalThis, 'Intl', {
