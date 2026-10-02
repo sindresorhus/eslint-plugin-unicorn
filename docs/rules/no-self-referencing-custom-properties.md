@@ -41,38 +41,6 @@ This rule disallows syntactic self-references, including references inside fallb
 
 Custom-property names are case-sensitive, so `--spacing: var(--SPACING)` is allowed. The rule ignores strings, comments, URL text, support tests, and container-query conditions. It does not detect indirect cycles such as `--one: var(--two); --two: var(--one)` or extract CSS from JavaScript.
 
-## Usage
-
-This rule is opt-in and requires the [`@eslint/css`](https://github.com/eslint/css) language plugin.
-
-```js
-import {defineConfig} from 'eslint/config';
-import css from '@eslint/css';
-import unicorn from 'eslint-plugin-unicorn';
-
-export default defineConfig([
-	{
-		files: ['**/*.css'],
-		plugins: {css, unicorn},
-		language: 'css/css',
-		rules: {
-			'unicorn/no-self-referencing-custom-properties': 'error',
-		},
-	},
-]);
-```
-
 ## Limitations
 
-The rule does not resolve dynamically produced property names such as `var(var(--alias))`, but it still checks literal self-references inside nested functions.
-
-The rule does not evaluate whether a fallback or conditional branch is used. The [current CSS draft](https://drafts.csswg.org/css-variables-2/#using-variables) and [web-platform tests](https://github.com/web-platform-tests/wpt/blob/master/css/css-variables/variable-cycles.html) allow cycles in unused fallbacks. For example, the following can compute successfully when `--theme-spacing` has a valid value, but this rule still reports the self-reference:
-
-```css
-.component {
-	--theme-spacing: 1px;
-	--spacing: var(--theme-spacing, var(--spacing));
-}
-```
-
-Use this rule when you want to prohibit self-references regardless of whether they create a runtime cycle.
+Dynamic property names such as `var(var(--alias))` are not resolved. Literal self-references are reported even in unused fallbacks or conditional branches, so a reported declaration may still be valid under the [current CSS draft](https://drafts.csswg.org/css-variables-2/#using-variables) (see [web-platform tests](https://github.com/web-platform-tests/wpt/blob/master/css/css-variables/variable-cycles.html)).
