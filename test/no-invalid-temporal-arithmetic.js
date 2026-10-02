@@ -28,6 +28,14 @@ ruleTest({
 	],
 });
 
+ruleTest({
+	valid: [`const value = condition ? ${instant} : ${receivers.PlainDate}; value.add({days: 1, hours: 1});`],
+	invalid: [{
+		code: `const value = condition ? ${instant} : new Temporal.Instant(0n); value.add({days: 1, hours: 1});`,
+		errors: [{messageId: 'instant-calendar-unit', suggestions: []}],
+	}],
+});
+
 ruleTest.snapshot({
 	valid: [
 		'unknown.add({days: 1})',
