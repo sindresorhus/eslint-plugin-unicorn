@@ -268,6 +268,7 @@ const config = {
 		languages: [
 			'js/js',
 			'css/css',
+			'json/json',
 			'json/jsonc',
 			'json/json5',
 			'toml/toml',

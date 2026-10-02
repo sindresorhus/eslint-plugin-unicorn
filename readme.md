@@ -497,7 +497,7 @@ While most rules target JavaScript and TypeScript, some also lint other file typ
 
 When linting JSON, CSS, Markdown, HTML, or other non-JavaScript languages in the same ESLint config, scope Unicorn's JavaScript rule config objects with `files`. Include TypeScript/JSX extensions there only if your config already provides the matching parser/language setup for those files.
 
-For example, keep Unicorn's JavaScript rules scoped separately, and enable only compatible Unicorn rules in each non-JavaScript language config:
+Use the [non-JavaScript recommended presets](#non-javascript-recommended-configs) in each language config, keeping Unicorn's JavaScript presets scoped separately:
 
 ```js
 import css from '@eslint/css';
@@ -505,91 +505,51 @@ import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import html from '@html-eslint/eslint-plugin';
 import toml from 'eslint-plugin-toml';
+import yml from 'eslint-plugin-yml';
 import unicorn from 'eslint-plugin-unicorn';
 import {defineConfig} from 'eslint/config';
 
 export default defineConfig([
 	{
 		files: ['**/*.js'],
-		plugins: {
-			unicorn,
-		},
-		extends: [
-			'unicorn/recommended',
-		],
+		plugins: {unicorn},
+		extends: ['unicorn/recommended'],
 	},
 	{
 		files: ['**/*.json'],
-		plugins: {
-			json,
-			unicorn,
-		},
+		plugins: {json, unicorn},
 		language: 'json/json',
-		rules: {
-			'unicorn/no-empty-file': 'error',
-			'unicorn/prefer-https': 'error',
-			'unicorn/prefer-short-escape-sequences': 'error',
-		},
+		extends: ['unicorn/recommended-json'],
 	},
 	{
 		files: ['**/*.css'],
-		plugins: {
-			css,
-			unicorn,
-		},
+		plugins: {css, unicorn},
 		language: 'css/css',
-		rules: {
-			'unicorn/no-unscoped-css-nesting-selector': 'error',
-			'unicorn/prefer-explicit-viewport-units': 'error',
-			'unicorn/prefer-https': 'error',
-			'unicorn/prefer-media-feature-range-syntax': 'error',
-			'unicorn/text-encoding-identifier-case': 'error',
-		},
+		extends: ['unicorn/recommended-css'],
 	},
 	{
 		files: ['**/*.html'],
-		plugins: {
-			html,
-			unicorn,
-		},
+		plugins: {html, unicorn},
 		language: 'html/html',
-		rules: {
-			'unicorn/no-invalid-file-input-accept': 'error',
-			'unicorn/prefer-https': 'error',
-		},
+		extends: ['unicorn/recommended-html'],
 	},
 	{
 		files: ['**/*.md'],
-		plugins: {
-			markdown,
-			unicorn,
-		},
+		plugins: {markdown, unicorn},
 		language: 'markdown/commonmark',
-		rules: {
-			'unicorn/expiring-todo-comments': 'error',
-			'unicorn/prefer-https': 'error',
-		},
+		extends: ['unicorn/recommended-markdown'],
 	},
 	{
 		files: ['**/*.toml'],
-		plugins: {
-			toml,
-			unicorn,
-		},
+		plugins: {toml, unicorn},
 		language: 'toml/toml',
-		rules: {
-			'unicorn/comment-content': 'error',
-			'unicorn/escape-case': 'error',
-			'unicorn/expiring-todo-comments': 'error',
-			'unicorn/filename-case': 'error',
-			'unicorn/no-abusive-eslint-disable': 'error',
-			'unicorn/no-empty-file': 'error',
-			'unicorn/no-manually-wrapped-comments': 'error',
-			'unicorn/number-literal-case': 'error',
-			'unicorn/numeric-separators-style': 'error',
-			'unicorn/prefer-https': 'error',
-			'unicorn/prefer-short-escape-sequences': 'error',
-		},
+		extends: ['unicorn/recommended-toml'],
+	},
+	{
+		files: ['**/*.yaml'],
+		plugins: {yml, unicorn},
+		language: 'yml/yaml',
+		extends: ['unicorn/recommended-yaml'],
 	},
 ]);
 ```
@@ -702,6 +662,23 @@ export default defineConfig([
 	},
 ]);
 ```
+
+### Non-JavaScript recommended configs
+
+These presets enable recommended rules compatible with every dialect listed below. Configure file matching, the language plugin, and `language` separately. These presets do not configure JavaScript globals or core-rule overrides.
+
+| Preset | Supported languages |
+| :-- | :-- |
+| `recommended-css` | `css/css` |
+| `recommended-html` | `html/html` |
+| `recommended-json` | `json/json`, `json/jsonc`, `json/json5` |
+| `recommended-markdown` | `markdown/commonmark`, `markdown/gfm` |
+| `recommended-toml` | `toml/toml` |
+| `recommended-yaml` | `yml/yaml` |
+
+For JSONC or JSON5, use `recommended-json` with `language: 'json/jsonc'` or `language: 'json/json5'`. For GFM Markdown, use `recommended-markdown` with `language: 'markdown/gfm'`. These choices are independent of the file extension.
+
+See the [configuration examples](#non-javascript-files). You can also extend a preset directly, for example `extends: [unicorn.configs['recommended-json']]`.
 
 ### All config
 

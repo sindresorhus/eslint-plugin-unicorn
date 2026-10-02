@@ -232,6 +232,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'json/json',
 			'json/jsonc',
 			'json/json5',
 			'css/css',

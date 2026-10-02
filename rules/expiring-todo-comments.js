@@ -658,6 +658,7 @@ const config = {
 			'js/js',
 			'css/css',
 			'html/html',
+			'json/json',
 			'json/jsonc',
 			'json/json5',
 			'markdown/commonmark',
