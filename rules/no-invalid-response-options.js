@@ -26,8 +26,15 @@ const nonNullishExpressionTypes = new Set([
 	'NewExpression',
 ]);
 
-const isPrimitiveLiteral = node => node.type === 'Literal' && !node.regex;
-const isPrimitiveGlobal = node => node.type === 'Identifier' && ['undefined', 'NaN', 'Infinity'].includes(node.name);
+const isPrimitiveLiteral = node => {
+	node = unwrapTypeScriptExpression(node);
+	return node.type === 'Literal' && !node.regex;
+};
+
+const isPrimitiveGlobal = node => {
+	node = unwrapTypeScriptExpression(node);
+	return node.type === 'Identifier' && ['undefined', 'NaN', 'Infinity'].includes(node.name);
+};
 
 /**
 Get a simple static value without trusting object coercion in compound expressions or constant initializers.

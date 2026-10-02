@@ -21,6 +21,7 @@ testRule.snapshot({
 		...constructors.flatMap(constructor => [200, 299, 300, 404, 599, 599.9, 65_736].map(status => `${constructor}("", {status: ${status}})`)),
 		...[301, 302, 303, 307, 308, 302.9, 65_838].map(status => `Response.redirect(url, ${status})`),
 		'Response.redirect(url, "302")',
+		'const status = +302; Response.redirect(url, status)',
 		'new Response(undefined, {status: -65_336})',
 		...constructors.flatMap(constructor => [
 			`${constructor}("", {status: undefined})`,
@@ -104,6 +105,7 @@ testRule.snapshot({
 		'const body = ""; new Response(body, {status: 204})',
 		'new Response("", {status: "204"})',
 		'new Response("", {status: 204.9})',
+		'new Response("", {status: +204})',
 		'new Response("", {status: 65_740})',
 		'const status = 205; new Response("", {status})',
 		'const status = 304; Response.json(data, {status})',
@@ -144,6 +146,8 @@ testRule.snapshot({
 		'new Response(undefined!, {status: 204})',
 		'new Response(body as string, {status: 204})',
 		'Response.json(data, {status: (200 as number)} satisfies ResponseInit)',
+		'const status = +(302 as number); Response.redirect(url, status)',
+		'const object = {}; Object.defineProperty(object, "toString", {value() { return "302"; }}); Response.redirect(url, `${object as string}`)',
 	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	invalid: [
 		'new Response("" as string, {status: 204} as ResponseInit)',
@@ -155,6 +159,11 @@ testRule.snapshot({
 		'Response.json(data, {status: 304} as ResponseInit)',
 		'Response.redirect(url, 200 as number)',
 		'Response.json(data, {["status" as string]: 304})',
+		'new Response("", {status: +(204 as number)})',
+		'Response.json(data, {status: -(1 as number)})',
+		'Response.redirect(url, `${200 as number}`)',
+		'const status = +(204 satisfies number); new Response("", {status})',
+		'Response.redirect(url, -(Infinity as number))',
 	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 });
 
