@@ -256,13 +256,6 @@ function isEslintDirective(context, comment) {
 			|| (comment.type === 'Block' && eslintDirectivePattern.test(comment.value)));
 }
 
-function shouldUseRawCommentFallback(context) {
-	const filename = context.physicalFilename.toLowerCase();
-
-	return filename.endsWith('.md')
-		|| filename.endsWith('.markdown');
-}
-
 function getMarkdownHtmlComments(sourceCode) {
 	const comments = [];
 	const {text} = sourceCode;
@@ -328,11 +321,10 @@ function getMarkdownHtmlComments(sourceCode) {
 }
 
 function getRuleComments(context) {
-	const commentsFromHelper = getComments(context);
-	const comments = (commentsFromHelper.length > 0 ? commentsFromHelper : context.sourceCode.comments ?? [])
+	const comments = getComments(context)
 		.map(comment => normalizeComment(comment, context));
 
-	return comments.length > 0 || !shouldUseRawCommentFallback(context) ? comments : getMarkdownHtmlComments(context.sourceCode);
+	return comments.length > 0 || context.sourceCode.ast.type !== 'root' ? comments : getMarkdownHtmlComments(context.sourceCode);
 }
 
 function getCommentValueStart(comment, sourceCode) {

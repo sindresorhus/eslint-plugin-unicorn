@@ -45,6 +45,17 @@ const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	'filename-case',
 ]);
 
+test('exports only the supported presets', t => {
+	t.deepEqual(Object.keys(eslintPluginUnicorn.configs), [
+		'recommended',
+		'unopinionated',
+		'all',
+		'flat/recommended',
+		'flat/all',
+		...Object.keys(nonJavaScriptConfigs),
+	]);
+});
+
 test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
@@ -285,21 +296,27 @@ test('non-JavaScript preset recommendation levels match rule metadata', t => {
 	}
 });
 
-test.serial('non-JavaScript presets match plugin wildcards and require every dialect', async t => {
+test.serial('non-JavaScript presets honor wildcards, require every dialect, and exclude deprecated rules', async t => {
 	const rule = rawRules.indent;
-	const originalLanguages = rule.meta.languages;
+	const originalMeta = rule.meta;
 	t.teardown(() => {
-		rule.meta.languages = originalLanguages;
+		rule.meta = originalMeta;
 	});
 
-	rule.meta.languages = ['json/*'];
+	rule.meta = {...originalMeta, languages: ['json/*']};
 	const {default: wildcardPlugin} = await import('../index.js?json-wildcard');
 	t.is(wildcardPlugin.configs['recommended-json'].rules['unicorn/indent'], 'off');
 	t.is(wildcardPlugin.configs['recommended-css'].rules['unicorn/indent'], undefined);
 
-	rule.meta.languages = ['json/jsonc'];
+	rule.meta = {...originalMeta, languages: ['json/jsonc']};
 	const {default: dialectPlugin} = await import('../index.js?jsonc-only');
 	t.is(dialectPlugin.configs['recommended-json'].rules['unicorn/indent'], undefined);
+
+	rule.meta = {...originalMeta, languages: ['*'], deprecated: true};
+	const {default: deprecatedPlugin} = await import('../index.js?deprecated-rule');
+	for (const configName of Object.keys(nonJavaScriptConfigs)) {
+		t.is(deprecatedPlugin.configs[configName].rules['unicorn/indent'], undefined);
+	}
 });
 
 for (const ruleName of ['expiring-todo-comments', 'no-asterisk-prefix-in-documentation-comments', 'no-manually-wrapped-comments', 'single-line-block-comment-style']) {
@@ -323,24 +340,28 @@ for (const ruleName of ['expiring-todo-comments', 'no-asterisk-prefix-in-documen
 }
 
 for (const language of ['markdown/commonmark', 'markdown/gfm']) {
-	test(`recommended-markdown checks TODO comments in ${language} independently of file extension`, async t => {
+	test(`recommended-markdown checks comment rules in ${language} on .txt files`, async t => {
 		const eslint = new ESLint({
 			overrideConfigFile: true,
+			fix: true,
 			baseConfig: defineConfig({
 				files: ['**/*.txt'],
 				plugins: languages.markdown.plugins,
 				language,
 				extends: [eslintPluginUnicorn.configs['recommended-markdown']],
 				rules: {
+					'unicorn/comment-content': 'error',
 					'unicorn/expiring-todo-comments': ['error', {date: '2026-01-01', checkDates: true, checkDatesOnPullRequests: true}],
 				},
 			}),
 		});
-		const [result] = await eslint.lintText('<!-- TODO [2000-01-01]: Update -->\n\n```html\n<!-- TODO [2000-01-01]: Inside code -->\n```', {filePath: 'file.txt'});
+		const code = '<!-- github -->\n\n<!-- TODO [2000-01-01]: Update -->\n\n```html\n<!-- TODO [2000-01-01]: github inside code -->\n```';
+		const [result] = await eslint.lintText(code, {filePath: 'file.txt'});
 		t.deepEqual(result.messages.map(({ruleId, message}) => ({ruleId, message})), [{
 			ruleId: 'unicorn/expiring-todo-comments',
 			message: 'Past due date: 2000-01-01. Update',
 		}]);
+		t.is(result.output, code.replace('github', 'GitHub'));
 	});
 }
 
@@ -360,6 +381,26 @@ for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 		t.deepEqual(result.messages, []);
 		t.is(result.output, '/**\nComment.\n*/\n{}');
 	});
+}
+
+for (const {language, plugins} of [languages.json, languages.jsonc, languages.json5]) {
+	for (const extension of ['json', 'json5', 'txt']) {
+		test(`recommended-json preserves valid escapes in ${language} on .${extension} files`, async t => {
+			const eslint = new ESLint({
+				overrideConfigFile: true,
+				fix: true,
+				baseConfig: defineConfig({
+					files: [`**/*.${extension}`],
+					plugins,
+					language,
+					extends: [eslintPluginUnicorn.configs['recommended-json']],
+				}),
+			});
+			const [result] = await eslint.lintText(String.raw`{"value":"\u0000\u000B\u000A"}`, {filePath: `file.${extension}`});
+			t.deepEqual(result.messages, []);
+			t.is(result.output, String.raw`{"value":"\u0000\u000B\n"}`);
+		});
+	}
 }
 
 test('Every rule has valid meta.type', t => {
