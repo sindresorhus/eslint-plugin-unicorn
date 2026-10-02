@@ -363,7 +363,7 @@ for (const language of ['markdown/commonmark', 'markdown/gfm']) {
 			'    <!-- github -->',
 			'> ```html\n> <!-- github -->\n> ```',
 			'- ```html\n  <!-- github -->\n  ```',
-			'\\<!-- github -->',
+			String.raw`\<!-- github -->`,
 		].join('\n\n');
 		const [result] = await eslint.lintText(code, {filePath: 'file.txt'});
 		t.deepEqual(result.messages.map(({ruleId, message}) => ({ruleId, message})), [{
@@ -390,7 +390,9 @@ for (const language of ['markdown/commonmark', 'markdown/gfm']) {
 		});
 		const code = '> <div>\n> <!-- TODO [2000-01-01]: Update -->\n> </div>\n\n> <!--\n> github\n> -->\n\n<!-- github';
 		const [result] = await eslint.lintText(code, {filePath: 'file.txt'});
-		t.deepEqual(result.messages.map(({ruleId, message, line, column, endLine, endColumn}) => ({ruleId, message, line, column, endLine, endColumn})), [{
+		t.deepEqual(result.messages.map(({ruleId, message, line, column, endLine, endColumn}) => ({
+			ruleId, message, line, column, endLine, endColumn,
+		})), [{
 			ruleId: 'unicorn/expiring-todo-comments',
 			message: 'Past due date: 2000-01-01. Update',
 			line: 2,
