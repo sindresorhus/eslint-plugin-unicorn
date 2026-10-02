@@ -1,21 +1,21 @@
 # no-conflicting-constraints
 
-📝 Disallow conflicting CSS media query and HTML form constraints.
+📝 Disallow conflicting CSS query and HTML form constraints.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Report explicit lower and upper bounds that conflict in CSS media queries and HTML form controls, including native JSX/TSX elements. Conflicting bounds often indicate a mistyped breakpoint or attribute value.
+Report explicit lower and upper bounds that conflict in CSS media and container queries and HTML form controls, including native JSX/TSX elements. Conflicting bounds often indicate a mistyped breakpoint or attribute value.
 
 The rule does not provide fixes or suggestions because the intended bounds cannot be inferred.
 
 ## Examples
 
-### CSS media queries
+### CSS queries
 
-The rule checks flat positive conjunctions in `@media` and `@import`, including `min-`/`max-` features, colon equality, and modern comparisons with the feature on either side. Chained ranges can run in either direction.
+The rule checks flat positive conjunctions in `@media`, `@import`, and `@container`, including `min-`/`max-` features, colon equality, and modern comparisons with the feature on either side. Chained ranges can run in either direction.
 
 ```css
 /* ❌ */
@@ -24,16 +24,20 @@ The rule checks flat positive conjunctions in `@media` and `@import`, including 
 @media (500px > width > 1000px) {}
 @media (min-width: 1000px) and (max-width: 500px) {}
 @media (width >= 500px) and (width < 500px) {}
+@container card (inline-size > 1000px) and (inline-size < 500px) {}
 
 /* ✅ */
 @media (500px < width < 1000px) {}
 @media (width >= 500px) and (width <= 500px) {}
 @media (width > 1000px), (width < 500px) {}
+@container card (500px < inline-size < 1000px) {}
 ```
 
-Supported features are `width`, `height`, `device-width`, `device-height`, `resolution`, `color`, `color-index`, `monochrome`, `horizontal-viewport-segments`, and `vertical-viewport-segments`. Values must be valid finite numeric literals with matching units. Each comma-separated query is checked independently, and unrelated features do not prevent checking other bounds in the conjunction.
+Supported media features are `width`, `height`, `device-width`, `device-height`, `resolution`, `color`, `color-index`, `monochrome`, `horizontal-viewport-segments`, and `vertical-viewport-segments`. Supported container features are `width`, `height`, `inline-size`, and `block-size`. Values must be valid finite numeric literals with matching units. Each comma-separated media query is checked independently, and unrelated features do not prevent checking other bounds in the conjunction.
 
 The rule ignores negation, `or`, grouped conditions, functions such as `calc()`, ratios, keyword values, unknown/vendor features, and custom-media definitions or expansion. It does not convert units, compare unitless zero with dimension values, combine enclosing queries, or infer nonnegative domains or integer gaps. For example, `(1 < color < 2)` is ignored even though `color` is an integer. Extreme numeric precision is unsupported. Range `=` syntax currently receives a parser error; use colon equality for exact-value checks.
+
+Container queries containing style or other function queries are skipped.
 
 ### HTML form controls
 
@@ -58,6 +62,8 @@ Time inputs intentionally support ranges crossing midnight and are ignored, as a
 
 HTML attribute values containing templates are ignored. Elements with templated attribute names are skipped entirely because templates can change the control's type or bounds.
 
+In HTML and JSX, checks that depend on a duplicated attribute are skipped.
+
 The HTML parser may absorb the rest of an opening tag after a slash in an unquoted attribute value. Quote values containing slashes so subsequent constraints can be checked.
 
 ### JSX and TSX
@@ -66,7 +72,8 @@ Native `input` and `textarea` elements are checked using `minLength` and `maxLen
 
 ```jsx
 // ❌
-<input type="number" min={10} max={5} />;
+const minimum = 10;
+<input type="number" min={minimum} max={5} />;
 <textarea minLength={10} maxLength={5} />;
 
 // ✅
@@ -74,7 +81,7 @@ Native `input` and `textarea` elements are checked using `minLength` and `maxLen
 <textarea minLength={5} maxLength={10} />;
 ```
 
-Custom components, JSX spreads, relevant duplicate attributes, dynamic values, mutable bindings, and references to constants before their declarations are ignored. Embedded CSS strings and framework templates are not inspected.
+Custom components, JSX spreads, dynamic values, mutable bindings, and references to constants before their declarations are ignored. Embedded CSS strings and framework templates are not inspected.
 
 ## Language setup
 

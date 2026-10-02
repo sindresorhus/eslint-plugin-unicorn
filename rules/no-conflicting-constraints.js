@@ -6,10 +6,10 @@ import {getStaticValueForControlFlow, isHtmlRcdataNode} from './utils/index.js';
 @import * as ESLint from 'eslint';
 */
 
-const MEDIA_MESSAGE_ID = 'no-conflicting-constraints/media';
+const CSS_MESSAGE_ID = 'no-conflicting-constraints/css';
 const HTML_MESSAGE_ID = 'no-conflicting-constraints/html';
 const messages = {
-	[MEDIA_MESSAGE_ID]: 'Conflicting constraints for `{{feature}}`: `{{lower}}` and `{{upper}}` cannot both be satisfied.',
+	[CSS_MESSAGE_ID]: 'Conflicting constraints for `{{feature}}`: `{{lower}}` and `{{upper}}` cannot both be satisfied.',
 	[HTML_MESSAGE_ID]: '`{{minimum}}` must not be greater than `{{maximum}}`.',
 };
 
@@ -25,6 +25,12 @@ const mediaFeatureSyntaxes = new Map([
 	['horizontal-viewport-segments', '<integer>'],
 	['vertical-viewport-segments', '<integer>'],
 ]);
+const containerFeatureSyntaxes = new Map([
+	['width', '<length>'],
+	['height', '<length>'],
+	['inline-size', '<length>'],
+	['block-size', '<length>'],
+]);
 const reverseComparison = {
 	'<': '>', '<=': '>=', '>': '<', '>=': '<=', '=': '=',
 };
@@ -33,7 +39,7 @@ const htmlNumberPattern = /^-?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+\-]?\d+)?$/iv;
 const htmlLengthPattern = /^\d+$/v;
 const normalizeCssIdentifier = value => ident.decode(value).toLowerCase();
 
-function * getMediaConstraints(node, sourceCode) {
+function * getCssConstraints(node, sourceCode, featureSyntaxes) {
 	let feature;
 	let comparisons;
 	if (node.type === 'Feature' && node.value) {
@@ -61,7 +67,7 @@ function * getMediaConstraints(node, sourceCode) {
 		return;
 	}
 
-	const syntax = mediaFeatureSyntaxes.get(feature);
+	const syntax = featureSyntaxes.get(feature);
 	if (!syntax) {
 		return;
 	}
@@ -92,22 +98,18 @@ const isStrongerBound = (constraint, previous, isLower) =>
 const hasConflictingBounds = (lower, upper) => Boolean(lower && upper
 	&& (lower.value > upper.value || (lower.value === upper.value && (!lower.inclusive || !upper.inclusive))));
 
-function * getMediaProblems(node, context) {
+function * getCssProblems(condition, context, featureSyntaxes) {
 	const {sourceCode} = context;
-	const atRule = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'Atrule');
 	if (
-		!atRule
-		|| !['media', 'import'].includes(normalizeCssIdentifier(atRule.name))
-		|| node.modifier === 'not'
-		|| !node.condition
-		|| node.condition.children.some(child => child.type === 'Condition' || (child.type === 'Identifier' && normalizeCssIdentifier(child.name) !== 'and'))
+		!condition
+		|| condition.children.some(child => child.type === 'Condition' || (child.type === 'Identifier' && normalizeCssIdentifier(child.name) !== 'and'))
 	) {
 		return;
 	}
 
 	const groups = new Map();
-	for (const child of node.condition.children) {
-		for (const constraint of getMediaConstraints(child, sourceCode)) {
+	for (const child of condition.children) {
+		for (const constraint of getCssConstraints(child, sourceCode, featureSyntaxes)) {
 			const key = `${constraint.feature}:${constraint.unit}`;
 			if (!groups.has(key)) {
 				groups.set(key, {});
@@ -130,7 +132,7 @@ function * getMediaProblems(node, context) {
 
 		yield {
 			node: sourceCode.getRange(lower.node)[0] > sourceCode.getRange(upper.node)[0] ? lower.node : upper.node,
-			messageId: MEDIA_MESSAGE_ID,
+			messageId: CSS_MESSAGE_ID,
 			data: {feature: lower.feature, lower: sourceCode.getText(lower.node), upper: sourceCode.getText(upper.node)},
 		};
 	}
@@ -248,7 +250,26 @@ function getHtmlProblem(attributes, tagName, isJsx) {
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
-	context.on('MediaQuery', node => getMediaProblems(node, context));
+	context.on('MediaQuery', node => {
+		const atRule = context.sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'Atrule');
+		if (!atRule || !['media', 'import'].includes(normalizeCssIdentifier(atRule.name)) || node.modifier === 'not') {
+			return;
+		}
+
+		return getCssProblems(node.condition, context, mediaFeatureSyntaxes);
+	});
+	context.on('Atrule', node => {
+		if (normalizeCssIdentifier(node.name) !== 'container' || node.prelude?.type !== 'AtrulePrelude') {
+			return;
+		}
+
+		const condition = node.prelude.children.find(child => child.type === 'Condition');
+		if (!condition || condition.children.some(child => !['Identifier', 'Feature', 'FeatureRange'].includes(child.type))) {
+			return;
+		}
+
+		return getCssProblems(condition, context, containerFeatureSyntaxes);
+	});
 	context.on('Tag', node => {
 		const name = node.name.toLowerCase();
 		if (
@@ -282,7 +303,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow conflicting CSS media query and HTML form constraints.',
+			description: 'Disallow conflicting CSS query and HTML form constraints.',
 			recommended: 'unopinionated',
 		},
 		schema: [],

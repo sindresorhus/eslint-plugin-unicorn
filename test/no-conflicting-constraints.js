@@ -5,7 +5,7 @@ import {getTester, languages, parsers} from './utils/test.js';
 
 const {test: ruleTest, rule} = getTester(import.meta);
 const jsxOptions = {languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}};
-const MEDIA_MESSAGE_ID = 'no-conflicting-constraints/media';
+const CSS_MESSAGE_ID = 'no-conflicting-constraints/css';
 const HTML_MESSAGE_ID = 'no-conflicting-constraints/html';
 
 ruleTest.snapshot({
@@ -41,7 +41,6 @@ ruleTest.snapshot({
 		'@media (min-width: 1000px) { @media (max-width: 500px) {} }',
 		'@media (width < 0px) {}',
 		'@media (1 < color < 2) {}',
-		'@container (min-width: 1000px) and (max-width: 500px) {}',
 		String.raw`@media (\a: 10px) {}`,
 		String.raw`@media (min-\2028: 10px) {}`,
 		String.raw`@media (min-width: 10\65 3px) and (max-width: 5\65 3px) {}`,
@@ -88,6 +87,38 @@ ruleTest.snapshot({
 		'@media (min-resolution: 2dppx) and (max-resolution: 1dppx) {}',
 		String.raw`@media (\a: 10px) and (min-width: 1000px) and (max-width: 500px) {}`,
 		'@import "layout.css" layer(theme) supports(display: grid) (width > 1000px) and (width < 500px);',
+	].map(code => ({code, language: languages.css})),
+});
+
+ruleTest.snapshot({
+	valid: [
+		'@container (min-width: 500px) and (max-width: 1000px) {}',
+		'@container (width >= 500px) and (width <= 500px) {}',
+		'@container (1000px >= inline-size > 500px) {}',
+		'@container (width > 1000px) and (height < 500px) {}',
+		'@container (width > 1000px) or (width < 500px) {}',
+		'@container not (1000px < width < 500px) {}',
+		'@container (width > 1000px) and (width < 500em) {}',
+		'@container (width > calc(1000px)) and (width < 500px) {}',
+		'@container (min-width: 10pixels) and (max-width: 5pixels) {}',
+		'@container (min-aspect-ratio: 16/9) and (max-aspect-ratio: 4/3) {}',
+		'@container (min-resolution: 2dppx) and (max-resolution: 1dppx) {}',
+		'@container style(--theme: dark) and (width > 1000px) and (width < 500px) {}',
+		'@container (min-width: 1000px) { @container (max-width: 500px) {} }',
+		'@container first (width > 1000px) {} @container second (width < 500px) {}',
+		'@media (min-inline-size: 1000px) and (max-inline-size: 500px) {}',
+	].map(code => ({code, language: languages.css})),
+	invalid: [
+		'@container (min-width: 1000px) and (max-width: 500px) {}',
+		'@container card (width > 1000px) and (width < 500px) {}',
+		...['height', 'inline-size', 'block-size'].map(feature => `@container (${feature} > 1000px) and (${feature} < 500px) {}`),
+		'@container (1000px < width < 500px) {}',
+		'@container (500px > width > 1000px) {}',
+		'@container (width >= 500px) and (width < 500px) {}',
+		'@container (width: 500px) and (width > 500px) {}',
+		'@container (min-width: 1000px) and (orientation: landscape) and (min-width: 100px) and (max-width: 500px) {}',
+		String.raw`@container (min-in\6c ine-size: 1000p\78) and (max-inline-size: 500px) {}`,
+		'@supports (display: grid) { @container (width > 1000px) and (width < 500px) {} }',
 	].map(code => ({code, language: languages.css})),
 });
 
@@ -157,6 +188,8 @@ ruleTest.snapshot({
 	valid: [
 		'@custom-media --narrow (min-width: 1000px) and (max-width: 500px);',
 		'@media ((min-width: 1000px) and (max-width: 500px)) {}',
+		'@container ((min-width: 1000px) and (max-width: 500px)) {}',
+		'@container scroll-state(stuck: top) and (width > 1000px) and (width < 500px) {}',
 	].map(code => ({code, language: languages.css, languageOptions: {tolerant: true}})),
 	invalid: [],
 });
@@ -234,7 +267,12 @@ ruleTest({
 	valid: [],
 	invalid: [{
 		code: '@media (width > 1000px) and (width < 500px) {}',
-		errors: [{messageId: MEDIA_MESSAGE_ID, column: 29, endColumn: 44}],
+		errors: [{messageId: CSS_MESSAGE_ID, column: 29, endColumn: 44}],
+	}, {
+		code: '@media\n  (max-width: 500px) and\n  (min-width: 1000px) {}',
+		errors: [{
+			messageId: CSS_MESSAGE_ID, line: 3, column: 3, endLine: 3, endColumn: 22,
+		}],
 	}],
 });
 
