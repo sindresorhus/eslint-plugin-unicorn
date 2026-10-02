@@ -57,12 +57,8 @@ const parameters = new URLSearchParams(window.location.search);
 
 ## Limitations
 
-Dynamic or relative URL strings and opaque schemes such as `mailto:` and `data:` are skipped. Known URL objects and their `.href` values are checked regardless of scheme.
+Constructor and `.href` aliases and URL subclasses are unsupported. Mutable URL bindings need annotations or type information. Built-ins are assumed to be unshadowed and unmodified.
 
-Constructor aliases, URL subclasses, and aliases of `.href` values are unsupported. `.href` detection skips arbitrary objects and computed or optional access. Unannotated mutable URL bindings require type information. Built-ins are assumed to be unshadowed and unmodified.
-
-Comments prevent suggestions that replace the whole constructor; replacing `.href` with `.search` remains available.
-
-With `no-unreadable-new-expression`, assign the parsed URL to a variable before accessing `.searchParams`.
+Comments may suppress suggestions. With `no-unreadable-new-expression`, assign inline URLs to variables first.
 
 See the [URL Standard](https://url.spec.whatwg.org/#urlsearchparams) for the parsing algorithm.
