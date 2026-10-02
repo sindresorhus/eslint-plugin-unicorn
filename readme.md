@@ -162,6 +162,7 @@ export default defineConfig([
 | [no-chained-comparison](docs/rules/no-chained-comparison.md)                                               | Disallow chained comparisons such as `a < b < c`.                                                                              | ✅ ☑️ |    | 💡 |    |
 | [no-collection-bracket-access](docs/rules/no-collection-bracket-access.md)                                 | Disallow accessing `Map`, `Set`, `WeakMap`, and `WeakSet` entries with bracket notation.                                       | ✅ ☑️ |    | 💡 |    |
 | [no-computed-property-existence-check](docs/rules/no-computed-property-existence-check.md)                 | Disallow dynamic object property existence checks.                                                                             | ✅    |    | 💡 |    |
+| [no-conflicting-constraints](docs/rules/no-conflicting-constraints.md)                                     | Disallow conflicting CSS media query and HTML form constraints.                                                                | ✅ ☑️ |    |    |    |
 | [no-confusing-array-splice](docs/rules/no-confusing-array-splice.md)                                       | Disallow confusing uses of `Array#{splice,toSpliced}()`.                                                                       | ✅    |    | 💡 |    |
 | [no-confusing-array-with](docs/rules/no-confusing-array-with.md)                                           | Disallow confusing uses of `Array#with()`.                                                                                     | ✅    |    |    |    |
 | [no-console-spaces](docs/rules/no-console-spaces.md)                                                       | Do not use leading/trailing space between `console.log` parameters.                                                            | ✅ ☑️ | 🔧 |    |    |
@@ -612,6 +613,7 @@ These rules also work on specific non-JavaScript languages:
 | [`lowercase-css`](docs/rules/lowercase-css.md) | ✅ |  |  |  |  |  |
 | [`name-replacements`](docs/rules/name-replacements.md) | ✅ | ✅ | ✅ |  | ✅ | ✅ |
 | [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | ✅ |  | ✅ |  |  |  |
+| [`no-conflicting-constraints`](docs/rules/no-conflicting-constraints.md) | ✅ | ✅ |  |  |  |  |
 | [`no-declarations-after-nested-rules`](docs/rules/no-declarations-after-nested-rules.md) | ✅ |  |  |  |  |  |
 | [`no-deprecated-css-features`](docs/rules/no-deprecated-css-features.md) | ✅ |  |  |  |  |  |
 | [`no-descending-specificity`](docs/rules/no-descending-specificity.md) | ✅ |  |  |  |  |  |

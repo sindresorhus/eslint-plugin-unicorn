@@ -71,6 +71,7 @@ export {default as 'no-canvas-to-image'} from './no-canvas-to-image.js';
 export {default as 'no-chained-comparison'} from './no-chained-comparison.js';
 export {default as 'no-collection-bracket-access'} from './no-collection-bracket-access.js';
 export {default as 'no-computed-property-existence-check'} from './no-computed-property-existence-check.js';
+export {default as 'no-conflicting-constraints'} from './no-conflicting-constraints.js';
 export {default as 'no-confusing-array-splice'} from './no-confusing-array-splice.js';
 export {default as 'no-confusing-array-with'} from './no-confusing-array-with.js';
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
