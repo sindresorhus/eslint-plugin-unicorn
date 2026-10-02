@@ -81,7 +81,7 @@ const minimum = 10;
 <textarea minLength={5} maxLength={10} />;
 ```
 
-Custom components, JSX spreads, dynamic values, mutable bindings, and references to constants before their declarations are ignored. Embedded CSS strings and framework templates are not inspected.
+Custom components, JSX spreads, dynamic bounds or input types, mutable bindings, and references to constants before their declarations are ignored. Embedded CSS strings and framework templates are not inspected.
 
 ## Language setup
 

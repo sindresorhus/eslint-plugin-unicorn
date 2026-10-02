@@ -180,6 +180,7 @@ ruleTest.snapshot({
 		'<textarea minlength="10" maxlength="5"></textarea>',
 		'<textarea minlength=10 maxlength=5></textarea>',
 		'<textarea minlength="10" maxlength="5" disabled></textarea>',
+		'<textarea type="text" type="number" minlength="10" maxlength="5"></textarea>',
 		'<input type minlength="10" maxlength="5">',
 	].map(code => ({code, language: languages.html})),
 });
@@ -203,6 +204,7 @@ ruleTest.snapshot({
 	].map(code => ({code, language: languages.html, languageOptions: {templateEngineSyntax: {'{{': '}}'}}})),
 	invalid: [
 		'<input type="number" min="10" max="5" title="{{title}}">',
+		'<textarea type="{{type}}" minlength="10" maxlength="5"></textarea>',
 	].map(code => ({code, language: languages.html, languageOptions: {templateEngineSyntax: {'{{': '}}'}}})),
 });
 
@@ -212,6 +214,7 @@ ruleTest.snapshot({
 		'<input type="number" min={5} max={10} />',
 		'<input type="number" min={5} max={5} />',
 		'<textarea minLength={5} maxLength={5} />',
+		'<textarea type={type} minLength={5} maxLength={5} />',
 		'<Input type="number" min={10} max={5} />',
 		'<components.input type="number" min={10} max={5} />',
 		'<input type="time" min="23:00" max="01:00" />',
@@ -247,6 +250,8 @@ ruleTest.snapshot({
 		'<input type="number" min={1e2} max={5e1} />',
 		'<input minLength="10" maxLength="5" />',
 		'<textarea minLength={10} maxLength={5} />',
+		'<textarea type={type} minLength={10} maxLength={5} />',
+		'<textarea type="text" type="number" minLength={10} maxLength={5} />',
 		'<input type={"number"} min={10} max={5} />',
 		'const minimum = 5; <input type="number" min={minimum + 5} max={5} />',
 		'const type = "number"; <input type={type} min={10} max={5} />',

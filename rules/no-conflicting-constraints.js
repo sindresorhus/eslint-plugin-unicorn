@@ -215,15 +215,18 @@ function getHtmlNumber(value, isLength) {
 }
 
 function getHtmlProblem(attributes, tagName, isJsx) {
-	const typeAttribute = attributes.get('type');
-	if (attributes.has('type') && typeof typeAttribute?.value !== 'string') {
-		return;
-	}
+	let isLength = true;
+	if (tagName === 'input') {
+		const typeAttribute = attributes.get('type');
+		if (attributes.has('type') && typeof typeAttribute?.value !== 'string') {
+			return;
+		}
 
-	const type = typeAttribute?.value.toLowerCase() || 'text';
-	const isLength = tagName === 'textarea' || textInputTypes.has(type);
-	if (!isLength && !['number', 'range'].includes(type)) {
-		return;
+		const type = typeAttribute?.value.toLowerCase() || 'text';
+		isLength = textInputTypes.has(type);
+		if (!isLength && !['number', 'range'].includes(type)) {
+			return;
+		}
 	}
 
 	let minimumName = 'min';
