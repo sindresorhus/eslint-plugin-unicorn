@@ -20,6 +20,8 @@ test.snapshot({
 		'[`&nbsp;`](https://example.com)',
 		'[$ $](https://example.com)',
 		'[&amp;](https://example.com)',
+		String.raw`[\&nbsp;](https://example.com)`,
+		'[** **](https://example.com)',
 		'[![Build](badge.svg)](https://example.com)',
 		'[![ Build ](badge.svg)](https://example.com)',
 		'[*![Build](badge.svg)*](https://example.com)',
@@ -83,6 +85,10 @@ test.snapshot({
 		'[![][badge]](https://example.com)\n\n[badge]: badge.svg',
 		'[![   ][badge]][destination]\n\n[badge]: badge.svg\n[destination]: https://example.com',
 		'[Website](https://example.com) [](first)\n\nText [ ](second)',
+		'[ ](first) [<span></span>](second) [](third)',
+		'[![&nbsp;][]](https://example.com)\n\n[&nbsp;]: badge.svg',
+		'[![&nbsp;]](https://example.com)\n\n[&nbsp;]: badge.svg',
+		'[![` `](image.png)](https://example.com)',
 	].flatMap(code => markdownCases(code)),
 });
 
