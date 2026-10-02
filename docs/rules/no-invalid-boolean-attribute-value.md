@@ -45,26 +45,21 @@ input?.setAttribute('required', '');
 
 ## Attribute and receiver detection
 
-Attribute applicability follows the [HTML attribute index](https://html.spec.whatwg.org/multipage/indices.html#attributes-3). Element-specific attributes are checked only on their applicable native elements. For example, `disabled` is checked on buttons, form controls, fieldsets, and links, but not on `div` elements. The global boolean attributes `autofocus`, `headingreset`, `inert`, and `itemscope` are checked on identified native HTML elements.
+Only boolean attributes applicable to the receiver are checked, following the [HTML attribute index](https://html.spec.whatwg.org/multipage/indices.html#attributes-3).
 
 Receivers are identified through:
 
-- `document.createElement()` without creation options, or `document.createElementNS()` with an explicit HTML namespace and no creation options.
-- `document.querySelector()` with one native tag optionally followed by class or ID selectors, such as `button.primary#submit`.
-- Simple `const` aliases of supported receivers or the global document, including `window.document`, `self.document`, and `globalThis.document`.
-- Concrete native HTML element types from TypeScript variable and parameter annotations or type assertions, including type aliases and compatible nullable unions.
-- Inferred concrete native HTML element types when [type information](https://typescript-eslint.io/getting-started/typed-linting/) is available, including JavaScript JSDoc annotations.
+- The global document's `createElement()` or `createElementNS()` with an HTML namespace, without creation options.
+- The global document's `querySelector()` with one native tag and optional class or ID selectors, such as `button.primary#submit`.
+- Simple `const` aliases of these receivers or the global document.
+- Concrete native TypeScript variable/parameter annotations or assertions. [Type information](https://typescript-eslint.io/getting-started/typed-linting/) also enables inferred types and JavaScript JSDoc annotations.
 
-`createElement()`, `createElementNS()`, and `querySelector()` calls are recognized only on the global document and its supported `const` aliases. Calls on other documents or container objects are ignored even when their inferred return types appear native.
+Factory and query calls on other documents or containers are ignored. Queries for `a`, `script`, `style`, and `title` are ignored because those names also occur in SVG. Supported queries use the tag to establish identity; explicit native type assertions are trusted. Generic `Element`/`HTMLElement` types, subclasses, and structural lookalikes alone are insufficient.
 
-Queries for `a`, `script`, `style`, and `title` are ignored because those tag names also occur in SVG. Complex selectors, custom elements, creation options, and unknown receivers are ignored. Generic `Element` and `HTMLElement` types, custom subclasses, and structural lookalikes alone do not establish a native element's identity. Supported queries for native tags establish identity independently of their TypeScript generic arguments. Explicit concrete native type assertions are trusted.
-
-ARIA, `data-*`, enumerated attributes, JSX attributes, templates, property assignments, and `setAttributeNS()` are not checked. In particular, `hidden`, `draggable`, `contenteditable`, `spellcheck`, and `popover` are enumerated attributes. Input-state restrictions and document-tree conditions are not analyzed.
+ARIA, `data-*`, enumerated attributes (including `hidden`), JSX attributes, templates, property assignments, and `setAttributeNS()` are excluded. Input-state restrictions and document-tree conditions are not analyzed.
 
 ## Suggestions
 
-For `false` and ASCII case-insensitive `'false'` strings, the rule suggests removing the attribute with `removeAttribute()`. For other invalid values, it suggests setting the value to the empty string.
+For `false` or ASCII case-insensitive `'false'` strings, the rule suggests `removeAttribute()`. Other invalid values get a suggestion to use `''`. Suggestions that would remove or relocate comments are omitted. There is no autofix because behavior or attribute reads could change.
 
-Suggestions are withheld when they would remove or relocate comments. There is no automatic fix because removing an attribute changes its behavior, and normalizing its value changes what attribute reads observe.
-
-This rule complements [`prefer-toggle-attribute`](prefer-toggle-attribute.md), which recognizes paired `setAttribute()` and `removeAttribute()` patterns rather than validating standalone attribute values.
+See also [`prefer-toggle-attribute`](prefer-toggle-attribute.md) for paired set/remove patterns.
