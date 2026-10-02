@@ -1,6 +1,6 @@
 import {decodeHTMLAttribute} from 'entities';
 import {isStringLiteral} from './ast/index.js';
-import {getStaticValueForControlFlow, isHtmlRcdataNode, toLocation} from './utils/index.js';
+import {getStaticValueForControlFlow, toLocation} from './utils/index.js';
 
 const messages = {
 	invalid: 'Invalid `integrity` metadata `{{token}}`: {{reason}}',
@@ -12,6 +12,12 @@ const encodedLengths = new Map([
 	['sha384', 64],
 	['sha512', 86],
 	['ed25519', 43],
+]);
+
+const textContentElementNames = new Set([
+	'iframe',
+	'textarea',
+	'title',
 ]);
 
 function getMetadataProblemReason(token, algorithm) {
@@ -76,7 +82,10 @@ const create = context => {
 	const configuredDelimiters = Array.isArray(templateSyntax) ? templateSyntax.map(({open}) => open) : Object.keys(templateSyntax);
 	const templateDelimiters = ['{{', '{%', '<%', '${', ...configuredDelimiters];
 	context.on(['Tag', 'ScriptTag'], node => {
-		if ((node.type !== 'ScriptTag' && !['script', 'link'].includes(node.name.toLowerCase())) || isHtmlRcdataNode(node)) {
+		if (
+			(node.type !== 'ScriptTag' && !['script', 'link'].includes(node.name.toLowerCase()))
+			|| context.sourceCode.getAncestors(node).some(ancestor => ancestor.type === 'Tag' && textContentElementNames.has(ancestor.name.toLowerCase()))
+		) {
 			return;
 		}
 

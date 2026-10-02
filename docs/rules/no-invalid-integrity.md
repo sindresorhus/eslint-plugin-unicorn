@@ -57,7 +57,7 @@ These checks follow the [SRI metadata grammar](https://www.w3.org/TR/sri/#parse-
 
 ## Static values
 
-HTML tag and attribute names are matched case-insensitively, and character references in values are decoded. The first explicit `integrity` attribute is checked. Markup inside `<textarea>` and `<title>` is ignored, as are dynamic template names or values, configured template delimiters, and values containing common template markers (`{{`, `{%`, `<%`, or `${`).
+HTML tag and attribute names are matched case-insensitively, and character references in values are decoded. The first explicit `integrity` attribute is checked. Markup inside `<textarea>`, `<title>`, and `<iframe>` is ignored, as are dynamic template names or values, configured template delimiters, and values containing common template markers (`{{`, `{%`, `<%`, or `${`).
 
 > [!NOTE]
 > The HTML parser can omit attributes after an unquoted URL containing `/`, so an `integrity` attribute following such a URL may not be checked. Quote URL attribute values to avoid this parser limitation.

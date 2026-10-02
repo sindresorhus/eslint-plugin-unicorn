@@ -88,6 +88,9 @@ test.snapshot({
 		'<script INTEGRITY="sha256-abc" />',
 		'<script integrity="sha256-abc" {...properties} />',
 		'<script integrity="sha256-abc" integrity="" />',
+		'<script integrity="sha256-abc" integrity />',
+		'<script integrity="sha256-abc" integrity={undefined} />',
+		'<script integrity="sha256-abc" integrity={integrity} />',
 		'<script {...properties} />',
 		`<link integrity={"${hashes.sha384}"} />`,
 		`const integrity = "${hashes.sha256}"; <script integrity={integrity} />`,
@@ -145,6 +148,9 @@ test.snapshot({
 		{code: '<link integrity=sha256-AAAA/[[digest]]>', languageOptions: {parserOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]}}},
 		// The parser can omit attributes after an unquoted URL containing a slash.
 		'<script src=https://example.test/app.js integrity="sha256-abc"></script>',
+		'<iframe><link integrity="sha256-abc"></iframe>',
+		'<iframe><script integrity="sha256-abc"></script></iframe>',
+		'<IFRAME><div><link integrity="sha256-abc"></div></IFRAME>',
 	],
 	invalid: [
 		html('sha256-abc'),
@@ -170,10 +176,13 @@ test({
 		`<link integrity="${hashes.sha256}">`,
 		{code: '<link integrity="[[integrity]]">', languageOptions: {templateEngineSyntax: {'[[': ']]'}}},
 		{code: '<link integrity=sha256-AAAA/[[digest]]>', languageOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]}},
+		'<iframe><link integrity="sha256-abc"></iframe>',
 	],
 	invalid: [
 		{code: '<link integrity="sha256-abc">', errors: [{messageId: 'invalid', suggestions: 0}]},
 		{code: '<script integrity="sha256-abc0"></script>', languageOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]}, errors: [{messageId: 'invalid', suggestions: 0}]},
+		{code: '<iframe></iframe><script integrity="sha256-abc"></script>', errors: [{messageId: 'invalid', suggestions: 0}]},
+		{code: '<script integrity="sha256-abc"></script>', languageOptions: {rawContentTags: ['script']}, errors: [{messageId: 'invalid', suggestions: 0}]},
 	],
 });
 
@@ -186,6 +195,8 @@ test({
 		{code: jsx('sha25-abc'), errors: [{messageId: 'unrecognized', suggestions: 0}]},
 		{code: jsx('sha256-abc sha384-abc'), errors: [{messageId: 'invalid'}, {messageId: 'invalid'}]},
 		{code: 'const integrity = "sha256-abc" as const; <script integrity={integrity} />', languageOptions: {parser: parsers.typescript}, errors: [{messageId: 'invalid', suggestions: 0}]},
+		{code: '<script integrity={false || "sha256-abc"} />', errors: [{messageId: 'invalid', suggestions: 0}]},
+		{code: '<iframe><script integrity="sha256-abc" /></iframe>', errors: [{messageId: 'invalid', suggestions: 0}]},
 	],
 });
 
