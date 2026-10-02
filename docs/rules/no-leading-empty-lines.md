@@ -44,9 +44,3 @@ These files pass:
 
 value: 1
 ```
-
-## Related rules
-
-[`@stylistic/no-multiple-empty-lines`](https://eslint.style/rules/no-multiple-empty-lines) and [`yml/no-multiple-empty-lines`](https://ota-meshi.github.io/eslint-plugin-yml/rules/no-multiple-empty-lines.html) cover this behavior with `maxBOF: 0` for their supported languages.
-
-[`unicorn/no-empty-file`](./no-empty-file.md) disallows files without meaningful content.
