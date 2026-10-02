@@ -46,5 +46,3 @@ The rule suggests replacing a forbidden, statically known primitive constructor 
 Checks direct calls with inline constructor or JSON options objects, using conservative static evaluation and [Web IDL status conversion](https://webidl.spec.whatwg.org/#es-unsigned-short). Constructor body conflicts require a provably non-nullish body.
 
 Skips unknown values or overrides, aliases, qualified globals, optional or computed method calls, and spread arguments in the first two positions. Assumes unshadowed built-ins. Headers, `statusText`, and redirect URLs are not checked.
-
-Related rules: [`no-invalid-fetch-options`](./no-invalid-fetch-options.md), [`no-unnecessary-fetch-options`](./no-unnecessary-fetch-options.md), [`no-invalid-argument-count`](./no-invalid-argument-count.md), [`prefer-response-static-json`](./prefer-response-static-json.md), and [`no-null`](./no-null.md).
