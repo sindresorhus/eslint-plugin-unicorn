@@ -123,8 +123,8 @@ function getProblem(node, type, context) {
 	// No default
 	}
 
-	// An object method cannot be replaced with an expression in place.
-	if (node.parent.type === 'Property' && node.parent.method) {
+	// Some unsafe values have no suggested conversion.
+	if (conversions.length === 0) {
 		return problem;
 	}
 
@@ -154,12 +154,7 @@ function * getProblems(node, context, {propertyNames, allowUndefined, visitedNod
 
 	visitedNodes = new Set(visitedNodes);
 	visitedNodes.add(node);
-	const type = getUnsafeType(originalNode, context);
-	if (type) {
-		if (type !== 'undefined' || !allowUndefined) {
-			yield getProblem(originalNode, type, context);
-		}
-	} else if (node.type === 'ArrayExpression') {
+	if (node.type === 'ArrayExpression') {
 		for (const element of node.elements) {
 			if (element && element.type !== 'SpreadElement') {
 				yield * getProblems(element, context, {propertyNames, visitedNodes});
@@ -183,6 +178,15 @@ function * getProblems(node, context, {propertyNames, allowUndefined, visitedNod
 			}
 		}
 	} else {
+		const type = getUnsafeType(originalNode, context);
+		if (type) {
+			if (type !== 'undefined' || !allowUndefined) {
+				yield getProblem(originalNode, type, context);
+			}
+
+			return;
+		}
+
 		const initializer = getConstVariableInitializer(node, context);
 		if (initializer?.parent.id.type === 'Identifier') {
 			// Report at the serialization site, and do not suggest changing a shared initializer.

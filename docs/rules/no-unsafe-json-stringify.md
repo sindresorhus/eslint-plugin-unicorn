@@ -48,7 +48,7 @@ JSON.stringify(new Date());
 
 The rule offers suggestions instead of automatic fixes because each conversion chooses a serialization contract:
 
-- Convert a `Set` to an array of values.
+- Convert a `Set` to an array of values. The values must themselves be JSON-compatible.
 - Convert a `Map` to an array of entries or an object. Choose an object only when the keys are strings; other keys are coerced and can collide. The entry-array suggestion preserves the entry structure, but the keys and values must themselves be JSON-compatible.
 - Convert a `BigInt` to a string to preserve precision.
 
@@ -76,9 +76,9 @@ JSON.stringify({
 
 ## Limitations
 
-This rule targets explicit, known values rather than proving that arbitrary objects are JSON-compatible. It does not analyze circular references, mutations, arbitrary member values, spread contents, getters, or collection subclasses. Object literals with spreads, unknown computed keys, duplicate keys, a `toJSON` property, or a `__proto__` property are skipped because they can change serialization behavior. Custom `toJSON` detection is limited to object literals; hooks on typed collections, functions, classes, or patched prototypes are not resolved. Shadowed native constructors are unsupported.
+This rule targets explicit, known values rather than proving that arbitrary objects are JSON-compatible. It does not analyze circular references, mutations, arbitrary member values, spread contents, getters, collection subclasses, or boxed primitive values. Object literals with spreads, unknown computed keys, duplicate keys, a `toJSON` property, or a `__proto__` property are skipped because they can change serialization behavior. Custom `toJSON` detection is limited to object literals; hooks on typed collections, functions, classes, or patched prototypes are not resolved. Shadowed native constructors are unsupported.
 
-Collections, BigInts, functions, and symbols can be identified from known types, with additional coverage when TypeScript type information is available. `undefined` and non-finite numbers are identified from explicit expressions or static values. Arbitrary object types and mixed unions containing supported values are not recursively inspected. Numeric typed arrays, dates, URLs, and other objects with standard JSON representations are allowed.
+Collections, BigInts, functions, and symbols can be identified from known types, with additional coverage when TypeScript type information is available. Type annotations and assertions on references are trusted, so incorrect types can cause false positives. `undefined` and non-finite numbers are identified from explicit expressions or static values. Arbitrary object types and mixed unions containing supported values are not recursively inspected. Non-BigInt typed arrays, dates, URLs, and other objects with standard JSON representations are allowed. `BigInt64Array` and `BigUint64Array` contents are not inspected, even though nonempty arrays throw during serialization.
 
 ## Related rules
 
