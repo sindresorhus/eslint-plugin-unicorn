@@ -45,18 +45,11 @@ input?.setAttribute('required', '');
 
 ## Attribute and receiver detection
 
-Only boolean attributes applicable to the receiver are checked, following the [HTML attribute index](https://html.spec.whatwg.org/multipage/indices.html#attributes-3).
+Only boolean attributes applicable to the element are checked, per the [HTML attribute index](https://html.spec.whatwg.org/multipage/indices.html#attributes-3). ARIA, `data-*`, and enumerated attributes such as `hidden` are excluded.
 
-Receivers are identified through:
+Receivers are recognized through the global document's `createElement()`, HTML-namespace `createElementNS()`, or `querySelector()` with one tag and optional class/ID selectors. Simple `const` aliases are supported. Creation options, other documents/containers, and queries for SVG-ambiguous tags (`a`, `script`, `style`, `title`) are excluded.
 
-- The global document's `createElement()` or `createElementNS()` with an HTML namespace, without creation options.
-- The global document's `querySelector()` with one native tag and optional class or ID selectors, such as `button.primary#submit`.
-- Simple `const` aliases of these receivers or the global document.
-- Concrete native TypeScript variable/parameter annotations or assertions. [Type information](https://typescript-eslint.io/getting-started/typed-linting/) also enables inferred types and JavaScript JSDoc annotations.
-
-Factory and query calls on other documents or containers are ignored. Queries for `a`, `script`, `style`, and `title` are ignored because those names also occur in SVG. Supported queries use the tag to establish identity; explicit native type assertions are trusted. Generic `Element`/`HTMLElement` types, subclasses, and structural lookalikes alone are insufficient.
-
-ARIA, `data-*`, enumerated attributes (including `hidden`), JSX attributes, templates, property assignments, and `setAttributeNS()` are excluded. Input-state restrictions and document-tree conditions are not analyzed.
+Concrete native TypeScript annotations and assertions are supported. [Type information](https://typescript-eslint.io/getting-started/typed-linting/) also enables inferred types and JavaScript JSDoc annotations. Generic `Element`/`HTMLElement` types, subclasses, and structural lookalikes alone are insufficient. Input-state and document-tree restrictions are not analyzed.
 
 ## Suggestions
 
