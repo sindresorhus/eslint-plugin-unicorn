@@ -36,6 +36,8 @@ ruleTest({
 ruleTest.snapshot({
 	valid: [
 		'element.addEventListener("wheel", event => event.preventDefault());',
+		'function handler(event) { event.preventDefault(); } element.addEventListener("wheel", handler, {passive: true});',
+		'const handler = event => event.preventDefault(); element.addEventListener("wheel", handler, {passive: true});',
 		...[
 			'false',
 			'{}',
@@ -55,7 +57,6 @@ ruleTest.snapshot({
 			'{passive() { return true; }}',
 		].map(options => listener('event => event.preventDefault()', options)),
 		...[
-			'handler',
 			'{handleEvent(event) { event.preventDefault(); }}',
 			'() => event.preventDefault()',
 			'event => other.preventDefault()',

@@ -72,7 +72,6 @@ const create = context => {
 		const listener = getEnclosingFunction(node);
 		if (
 			!listener
-			|| !['ArrowFunctionExpression', 'FunctionExpression'].includes(listener.type)
 			|| listener.generator
 			|| listener.params[0]?.type !== 'Identifier'
 		) {
