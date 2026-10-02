@@ -42,42 +42,17 @@ Content-Security-Policy: default-src 'self'; frame-ancestors 'none'; sandbox; re
 
 The rule has no autofix or suggestions because removing a directive from the markup does not activate the intended protection or reporting.
 
-## HTML usage
-
-For HTML files, configure the [`@html-eslint/eslint-plugin`](https://html-eslint.org) language plugin:
-
-```js
-import html from '@html-eslint/eslint-plugin';
-import unicorn from 'eslint-plugin-unicorn';
-
-export default [
-	{
-		files: ['**/*.html'],
-		plugins: {
-			html,
-			unicorn,
-		},
-		language: 'html/html',
-		rules: {
-			'unicorn/no-ineffective-csp-directives': 'error',
-		},
-	},
-];
-```
-
-For JSX, enable JSX parsing in your JavaScript or TypeScript parser configuration. The rule is included in the `recommended` and `unopinionated` configs.
-
 ## Details
 
-- HTML tag and attribute names, the `Content-Security-Policy` value, and directive names are case-insensitive. Whitespace surrounding the `http-equiv` value is not ignored.
-- HTML character references are decoded. Quoted and unquoted attribute values are supported.
-- JSX checks lowercase `<meta>` elements with `httpEquiv` or `http-equiv`. It checks strings and expressions that can be conservatively evaluated as strings, including local constants and composed template literals.
-- Each distinct ineffective directive produces one report on the `content` value, in source order. Repeated occurrences of the same directive do not produce additional reports.
+- HTML tag and attribute names, the `Content-Security-Policy` value, and directive names are case-insensitive. Whitespace around `http-equiv` values is significant.
+- HTML character references are decoded in quoted and unquoted attributes.
+- JSX checks lowercase `<meta>` with `httpEquiv` or `http-equiv` and static strings, including constants and composed templates.
+- Reports each distinct directive once on the `content` value, in source order.
 
 ## Limitations
 
-This is not a general CSP security audit. It does not validate policy syntax or strength, placement within `<head>`, unknown directives, `report-to`, report-only meta policies, or HTTP response headers.
+Other directives, report-only policies, policy syntax or strength, `<head>` placement, HTTP headers, DOM construction, and framework templates are outside scope.
 
-HTML opening tags containing configured template expressions are ignored. JSX elements with spreads or duplicate relevant attributes are ignored, as are unresolved or mutable expression values and custom components. JavaScript DOM construction and framework-specific templates are not checked.
+Skips HTML tags with configured templates. In JSX, skips spreads, duplicate relevant attributes, custom components, and unresolved or mutable values.
 
-HTML text that looks like a `<meta>` element inside raw-text containers such as `<iframe>` is not supported and may be reported.
+`<meta>`-like text inside raw-text containers such as `<iframe>` may be reported.
