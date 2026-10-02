@@ -55,6 +55,8 @@ ruleTest.snapshot({
 		`${duration}.total({unit: "hour", roundingIncrement: 0})`,
 		'Temporal.Duration.compare({months: 1}, unknown)',
 		'Temporal.Duration.compare({months: 1}, "P1M")',
+		'Temporal.Duration.compare(new Temporal.Duration(0, "1"), {months: 1, days: undefined})',
+		'Temporal.Duration.compare("P1MT0.123456789S", {months: 1, milliseconds: 123, microseconds: 456, nanoseconds: 789})',
 		'Temporal.Duration.compare({days: 1}, {hours: 24})',
 		'Temporal.Duration.compare({months: 1}, {months: 1, hours: unknown})',
 		`${duration}.round({largestUnit: "auto"})`,
@@ -111,6 +113,7 @@ ruleTest.snapshot({
 		'Temporal.Duration.compare({months: 1}, {days: 30})',
 		'Temporal.Duration.compare("P1Y", new Temporal.Duration(0, 12))',
 		'Temporal.Duration.compare({months: 1, hours: 1}, {months: 1, minutes: 60})',
+		'Temporal.Duration.compare("P1MT0.123456789S", {months: 1, milliseconds: 123, microseconds: 456, nanoseconds: 788})',
 		...['Instant', 'Duration', 'PlainTime', 'PlainDateTime', 'ZonedDateTime'].flatMap(type => [
 			`${receivers[type]}.round({})`,
 			`${receivers[type]}.round()`,
@@ -153,6 +156,10 @@ ruleTest.snapshot({
 		{code: '(<Temporal.Instant>value).add({days: 1})', languageOptions: {parser: parsers.typescript}},
 		{code: `const value = ${instant}; (value satisfies Temporal.Instant).add({days: 1})`, languageOptions: {parser: parsers.typescript}},
 		{code: 'function run(value: Temporal.Duration) { value.total("month"); }', languageOptions: {parser: parsers.typescript}},
+		...['as', 'satisfies'].map(operator => ({
+			code: `const value = Temporal.Duration.from({months: 1}) ${operator} Temporal.Duration; value.total("hours");`,
+			languageOptions: {parser: parsers.typescript},
+		})),
 		{code: 'function run<Value extends Temporal.Instant>(value: Value) { value.add<Temporal.DurationLike>({days: 1}); }', languageOptions: {parser: parsers.typescript}},
 		{code: '<div>{Temporal.Now.instant().add({days: 1})}</div>', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
 	],
@@ -193,6 +200,8 @@ ruleTest.snapshot({
 		'const value = value; Temporal.Now.instant().add(value)',
 		'Temporal.Now.instant()[method]({days: 1})',
 		...Object.values(receivers).map(receiver => `${receiver}.add({hours: 1}, {overflow: undefined})`),
+		...['PlainDate', 'PlainDateTime', 'PlainYearMonth', 'ZonedDateTime'].flatMap(type => ['constrain', 'reject'].map(overflow => `${receivers[type]}.add({months: 1}, {overflow: "${overflow}"})`)),
+		...['Instant', 'Duration', 'PlainTime'].map(type => `${receivers[type]}.add({hours: 1}, {overflow: "invalid"})`),
 		...['Instant', 'PlainTime', 'PlainDate', 'PlainYearMonth', 'PlainDateTime', 'ZonedDateTime'].map(type => `${receivers[type]}.since(other, {largestUnit: "auto"})`),
 		`${receivers.PlainDate}.until(other, {largestUnit: "month", roundingIncrement: 1000000000})`,
 		`${receivers.PlainYearMonth}.until(other, {largestUnit: "month"})`,
@@ -227,26 +236,47 @@ ruleTest.snapshot({
 const suggestions = [
 	[`${instant}.add({days: -2})`, `${instant}.add({hours: -48})`],
 	[`const days = 2; ${instant}.add({days})`, `const days = 2; ${instant}.add({hours: 48})`],
+	[`const days = 2; ${instant}.add({days /* keep */})`, `const days = 2; ${instant}.add({hours: 48 /* keep */})`],
 	[`${instant}.subtract({/* before */ "days": (/* keep */ 2) /* after */})`, `${instant}.subtract({/* before */ hours: (/* keep */ 48) /* after */})`],
 	[`${duration}.total({/* keep */ smallestUnit: "hours"})`, `${duration}.total({/* keep */ unit: "hours"})`],
 	[`${duration}.round({unit: "minute", roundingIncrement: 15})`, `${duration}.round({smallestUnit: "minute", roundingIncrement: 15})`],
 	[`${duration}.total({"smallestUnit" /* keep */: "hours"})`, `${duration}.total({unit /* keep */: "hours"})`],
 	[`${duration}.total({smallestUnit: "invalid", smallestUnit: "hour"})`, `${duration}.total({smallestUnit: "invalid", unit: "hour"})`],
 	[`${instant}.add({\r\n  days: 1\r\n})`, `${instant}.add({\r\n  hours: 24\r\n})`],
+	[
+		'const days = 2; (value as Temporal.Instant)!.add(({days} satisfies Temporal.DurationLike));',
+		'const days = 2; (value as Temporal.Instant)!.add(({hours: 48} satisfies Temporal.DurationLike));',
+		typescriptEslintParser,
+	],
+	[
+		'const days = 2; (value as Temporal.Instant).add({days: days as number});',
+		'const days = 2; (value as Temporal.Instant).add({hours: 48});',
+		typescriptEslintParser,
+	],
+	[
+		'function run(value: Temporal.Duration) { value.round({unit: "minutes"}); }',
+		'function run(value: Temporal.Duration) { value.round({smallestUnit: "minutes"}); }',
+		typescriptEslintParser,
+	],
 ];
 
-for (const [code, output] of suggestions) {
+for (const [code, output, parser] of suggestions) {
 	test(`suggestion: ${code}`, t => {
 		const linter = new Linter();
-		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-invalid-temporal-arithmetic': 'error'}};
-		const problems = linter.verify(code, config);
+		const config = {files: ['**'], plugins: {unicorn: plugin}, rules: {'unicorn/no-invalid-temporal-arithmetic': 'error'}};
+		if (parser) {
+			config.languageOptions = {parser};
+		}
+
+		const filename = parser ? 'file.ts' : 'file.js';
+		const problems = linter.verify(code, config, {filename});
 		t.is(problems.length, 1);
 		t.is(problems[0].fix, undefined);
 		t.is(problems[0].suggestions?.length, 1);
 		const {fix} = problems[0].suggestions[0];
 		const result = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 		t.is(result, output);
-		t.deepEqual(linter.verify(result, config), []);
+		t.deepEqual(linter.verify(result, config, {filename}), []);
 	});
 }
 
@@ -276,6 +306,7 @@ test('reports without changing source or offering incomplete corrections', t => 
 		`${instant}.add({days: 1, hours: 1})`,
 		`${instant}.add({days: 375299968947542})`,
 		`${instant}.add({days: 1 /* preserve */ + 1})`,
+		`${instant}.add({days: - /* preserve */ 1})`,
 		`${duration}.total({smallestUnit: "month"})`,
 		`${duration}.total({smallestUnit: "invalid"})`,
 		`${duration}.round({unit: "minute", roundingIncrement: 7})`,
