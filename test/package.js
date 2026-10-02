@@ -232,6 +232,41 @@ for (const [configName, supportedLanguages] of Object.entries(nonJavaScriptConfi
 	}
 }
 
+test('direct presets register Unicorn and stay scoped alongside JavaScript with user overrides', async t => {
+	const languageConfigs = Object.entries(nonJavaScriptConfigs).flatMap(([configName, supportedLanguages]) => supportedLanguages.map(({language, plugins}) => ({
+		files: [`file.${language.split('/').at(-1)}`],
+		plugins,
+		language,
+		extends: [eslintPluginUnicorn.configs[configName]],
+		rules: {'unicorn/prefer-https': 'off'},
+	})));
+	const eslint = new ESLint({
+		overrideConfigFile: true,
+		baseConfig: defineConfig([
+			{
+				files: ['file.js'],
+				extends: [eslintPluginUnicorn.configs.recommended],
+				rules: {'unicorn/prefer-https': ['error', {ignore: [/example\.com/v]}]},
+			},
+			...languageConfigs,
+		]),
+	});
+	const javaScriptConfig = await eslint.calculateConfigForFile('file.js');
+	t.is(javaScriptConfig.rules['unicorn/prefer-includes'][0], 2);
+	const [javaScriptResult] = await eslint.lintText(`export default ${nonJavaScriptCode.json};`, {filePath: 'file.js'});
+	t.deepEqual(javaScriptResult.messages, []);
+
+	await Promise.all(Object.values(nonJavaScriptConfigs).flat().map(async ({name, language}) => {
+		const filePath = `file.${language.split('/').at(-1)}`;
+		const config = await eslint.calculateConfigForFile(filePath);
+		t.is(config.rules['unicorn/prefer-includes'], undefined);
+		t.is(config.languageOptions.globals, undefined);
+		t.is(config.rules['unicorn/prefer-https'][0], 0);
+		const [result] = await eslint.lintText(nonJavaScriptCode[name], {filePath});
+		t.deepEqual(result.messages, [], language);
+	}));
+});
+
 test('non-JavaScript preset recommendation levels match rule metadata', t => {
 	for (const [configName, supportedLanguages] of Object.entries(nonJavaScriptConfigs)) {
 		const {rules} = eslintPluginUnicorn.configs[configName];
@@ -269,16 +304,42 @@ test.serial('non-JavaScript presets match plugin wildcards and require every dia
 
 for (const ruleName of ['expiring-todo-comments', 'no-asterisk-prefix-in-documentation-comments', 'no-manually-wrapped-comments', 'single-line-block-comment-style']) {
 	test(`${ruleName} safely ignores comment-like strings in strict JSON`, t => {
-		const code = String.raw`{"line": "// TODO: Update", "block": "/* Comment. */", "multiline": "/**\n * Wrapped\n * comment.\n */"}`;
+		const code = String.raw`{"line": "// TODO [2000-01-01]: Update", "block": "/* Comment. */", "multiline": "/**\n * Wrapped\n * comment.\n */"}`;
 		const result = new Linter().verifyAndFix(code, {
 			files: ['**/*.json'],
 			language: languages.json.language,
 			plugins: {...languages.json.plugins, unicorn: eslintPluginUnicorn},
-			rules: {[`unicorn/${ruleName}`]: 'error'},
+			rules: {
+				[`unicorn/${ruleName}`]: ruleName === 'expiring-todo-comments'
+					? ['error', {date: '2026-01-01', checkDates: true, checkDatesOnPullRequests: true}]
+					: 'error',
+			},
 		}, {filename: 'file.json'});
 		t.deepEqual(result.messages, []);
 		t.is(result.output, code);
 		t.false(result.fixed);
+	});
+}
+
+for (const language of ['markdown/commonmark', 'markdown/gfm']) {
+	test(`recommended-markdown checks TODO comments in ${language} independently of file extension`, async t => {
+		const eslint = new ESLint({
+			overrideConfigFile: true,
+			baseConfig: defineConfig({
+				files: ['**/*.txt'],
+				plugins: languages.markdown.plugins,
+				language,
+				extends: [eslintPluginUnicorn.configs['recommended-markdown']],
+				rules: {
+					'unicorn/expiring-todo-comments': ['error', {date: '2026-01-01', checkDates: true, checkDatesOnPullRequests: true}],
+				},
+			}),
+		});
+		const [result] = await eslint.lintText('<!-- TODO [2000-01-01]: Update -->\n\n```html\n<!-- TODO [2000-01-01]: Inside code -->\n```', {filePath: 'file.txt'});
+		t.deepEqual(result.messages.map(({ruleId, message}) => ({ruleId, message})), [{
+			ruleId: 'unicorn/expiring-todo-comments',
+			message: 'Past due date: 2000-01-01. Update',
+		}]);
 	});
 }
 

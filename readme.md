@@ -665,7 +665,7 @@ export default defineConfig([
 
 ### Non-JavaScript recommended configs
 
-These presets enable recommended rules compatible with every dialect listed below. Configure file matching, the language plugin, and `language` separately. These presets do not configure JavaScript globals or core-rule overrides.
+These presets enable recommended rules compatible with every dialect listed below. Compatible opt-in rules are disabled, and deprecated rules are excluded. Configure file matching, the language plugin, and `language` separately. These presets do not configure JavaScript globals or core-rule overrides.
 
 | Preset | Supported languages |
 | :-- | :-- |
