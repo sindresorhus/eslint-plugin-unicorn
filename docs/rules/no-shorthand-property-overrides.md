@@ -13,6 +13,14 @@ This rule checks declarations only within the same block. It supports matching v
 
 A normal shorthand after an `!important` longhand is not reported, because the `!important` declaration wins whatever the source order is.
 
+An `!important` shorthand also makes all of its related longhands important. A later normal declaration does not remove that protection.
+
+The rule includes properties reset indirectly by a shorthand, such as `border-image` by `border`, `mask-border` by `mask`, and animation ranges by `animation`. It also checks modern longhands such as `animation-timeline`, `transition-behavior`, `font-synthesis-position`, and `column-height`. The `grid` shorthand does not reset gap properties, so those combinations are allowed.
+
+This rule does not provide an autofix or editor suggestion because the intended styling is ambiguous. Move the shorthand before the longhand if the longhand should win, include the intended value in the shorthand where possible, or remove the earlier declaration if the override is intentional.
+
+Related rules check different patterns: [`no-duplicate-properties`](./no-duplicate-properties.md) checks repeated property names, [`no-redundant-longhand-properties`](./no-redundant-longhand-properties.md) combines longhands into shorthands, and [`no-redundant-shorthand-values`](./no-redundant-shorthand-values.md) removes repeated shorthand values.
+
 ## Examples
 
 ```css
@@ -39,6 +47,43 @@ b {
 	padding: 20px;
 }
 ```
+
+```css
+/* ❌ */
+.image {
+	background-repeat: no-repeat;
+	background: url(image.png);
+}
+
+.animation {
+	animation-timeline: --scroll;
+	animation-range-start: 10%;
+	animation: fade 1s;
+}
+
+/* ✅ */
+.image {
+	background: url(image.png);
+	background-repeat: no-repeat;
+}
+
+.animation {
+	animation: fade 1s;
+	animation-timeline: --scroll;
+	animation-range-start: 10%;
+}
+```
+
+```css
+/* ✅ */
+.spacing {
+	padding: 1px !important;
+	padding-left: 2px;
+	padding: 3px;
+}
+```
+
+The effective `padding-left` in this example remains `1px`, because the first shorthand made it important.
 
 ## CSS files
 

@@ -1,4 +1,4 @@
-import {getVendorPrefix, shorthandToLonghandProperties} from './shared/css-shorthand-properties.js';
+import {getVendorPrefix, shorthandToAffectedProperties} from './shared/css-shorthand-properties.js';
 
 const MESSAGE_ID = 'no-shorthand-property-overrides';
 const messages = {
@@ -21,12 +21,15 @@ const create = context => {
 			const property = declaration.property.toLowerCase();
 			const vendorPrefix = getVendorPrefix(property);
 			const unprefixedProperty = property.slice(vendorPrefix.length);
-			const longhandProperties = shorthandToLonghandProperties.get(unprefixedProperty);
+			const longhandProperties = shorthandToAffectedProperties.get(unprefixedProperty);
 
 			declarations.set(property, declaration.property);
-			// A later normal declaration of the same property does not beat an `!important` one
+			// A later normal declaration does not beat an `!important` one, including longhands set by an important shorthand.
 			if (declaration.important) {
 				importantDeclarations.add(property);
+				for (const longhand of longhandProperties ?? []) {
+					importantDeclarations.add(vendorPrefix + longhand);
+				}
 			}
 
 			if (!longhandProperties) {

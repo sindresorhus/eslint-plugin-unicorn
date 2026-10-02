@@ -10,6 +10,10 @@ const css = code => ({code, language: languages.css});
 
 testRule.snapshot({
 	valid: [
+		'a { mask-border-source: url(border.png); mask-border-slice: 10; mask-border-width: 2; mask-border-outset: 3; mask-border-repeat: repeat; mask-border-mode: alpha; }',
+		'a { animation-range-start: 10%; animation-range-end: 90%; }',
+		'a { animation-range-start: entry 10%, exit 20%; animation-range-end: entry 90%, exit 80%; }',
+		'a { mask-border: initial; mask-border-mode: luminance; mask-image: none; mask-position: 0% 0%; mask-size: auto; mask-repeat: repeat; mask-origin: border-box; mask-clip: border-box; mask-composite: add; mask-mode: match-source; }',
 		'a { margin-top: 1px; margin-right: 2px; margin-bottom: 3px; }',
 		'a { margin-top: 1px; margin-right: 2px; } b { margin-bottom: 3px; margin-left: 4px; }',
 		'a { margin-top: 1px; margin-right: 2px; @media (width > 0px) { margin-top: 9px; margin-bottom: 9px; } margin-bottom: 3px; margin-left: 4px; }',

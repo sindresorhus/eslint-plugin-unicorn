@@ -19,17 +19,14 @@ const additionalResetProperties = new Map([
 	['animation', ['animation-composition', 'animation-range-start', 'animation-range-end', 'animation-trigger']],
 	['background', ['background-blend-mode']],
 	['columns', ['column-wrap']],
-	['mask', ['mask-border']],
 ]);
 const additionalAffectedProperties = new Map([
-	['animation-range', ['animation-range-start', 'animation-range-end']],
 	['background-position', ['background-position-x', 'background-position-y']],
 	['column-gap', ['grid-column-gap']],
 	['font-stretch', ['font-width']],
 	['font-width', ['font-stretch']],
 	['grid-column-gap', ['column-gap']],
 	['grid-row-gap', ['row-gap']],
-	['mask-border', ['mask-border-source', 'mask-border-slice', 'mask-border-width', 'mask-border-outset', 'mask-border-repeat', 'mask-border-mode']],
 	['row-gap', ['grid-row-gap']],
 ]);
 
@@ -406,7 +403,8 @@ const getCandidates = (children, {shorthand, definition, catalogIndex}, sourceCo
 	const declarations = new Map();
 	const duplicateComponents = new Set();
 	const {components} = definition;
-	const resetProperties = [...definition.resetProperties, ...additionalResetProperties.get(shorthand) ?? []];
+	const resetPropertyNames = [...definition.resetProperties, ...additionalResetProperties.get(shorthand) ?? []];
+	const resetProperties = [...new Set(resetPropertyNames.flatMap(property => [...shorthandToAffectedProperties.get(property) ?? [property]]))];
 	const resetStates = new Map();
 
 	const setAllResetStates = (declaration, keyword) => {
@@ -598,7 +596,8 @@ const create = context => {
 		const candidates = [];
 		let catalogIndex = 0;
 		for (const [shorthand, definition] of shorthandProperties) {
-			if (!ignoredShorthands.has(shorthand)) {
+			// These shorthands need dedicated serializers for slash-separated values and comma-separated ranges.
+			if (!ignoredShorthands.has(shorthand) && !['mask-border', 'animation-range'].includes(shorthand)) {
 				candidates.push(...getCandidates(block.children, {shorthand, definition, catalogIndex}, sourceCode));
 			}
 
