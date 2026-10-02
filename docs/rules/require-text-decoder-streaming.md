@@ -121,10 +121,10 @@ No automatic fix is provided because enabling streaming changes decoding behavio
 
 ## Limitations
 
-The rule follows local `const` bindings and aliases from `await fetch(...)` or `await globalThis.fetch(...)` through `.body` and `.getReader()`. It recognizes async-iteration chunks, destructured reader values including renamed bindings, and `.value` from an awaited reader result inside a loop. It supports TypeScript expression wrappers and optional chaining on otherwise recognized paths.
+The rule follows local `const` bindings and aliases from `await fetch(...)` or `await globalThis.fetch(...)` through `.body` and `.getReader()`. It recognizes async-iteration chunks, destructured reader values including renamed bindings, and `.value` from an awaited reader result inside a loop. The chunk source and decoding call must share the nearest enclosing loop and function. Decoding an outer loop's chunk inside a nested loop is unchecked. It supports TypeScript expression wrappers and optional chaining on otherwise recognized paths.
 
 The rule intentionally ignores arbitrary byte streams, transformed or framed streams, parameter-only provenance, callbacks, reassigned bindings, BYOB readers, computed method calls, and opaque helper returns. Response or chunk variable names and TypeScript types alone are not evidence of fetch-body provenance. Shadowed built-ins are unsupported.
 
-Unknown option objects, spreads, accessors, unknown computed option keys, and dynamic streaming flags such as `{stream: !done}` are left unchecked.
+Unknown option objects, spreads, accessors, explicit `__proto__` properties, unknown computed option keys, and dynamic streaming flags such as `{stream: !done}` are left unchecked.
 
 This rule checks missing streaming at recognized chunk-decoding calls. It does not independently verify decoder reuse or final flushing in code that already enables streaming. Always keep the same decoder between chunks and consume its final flush.

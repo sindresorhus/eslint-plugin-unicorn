@@ -166,7 +166,13 @@ function isNonStreamingOptions(node, context) {
 		return result !== undefined && (result.value === undefined || result.value === null);
 	}
 
-	if (node.properties.some(property => property.type !== 'Property' || property.kind !== 'init' || property.method || getPropertyName(property) === null)) {
+	// An explicit prototype can supply an inherited `stream` property.
+	if (node.properties.some(property =>
+		property.type !== 'Property'
+		|| property.kind !== 'init'
+		|| property.method
+		|| [null, '__proto__'].includes(getPropertyName(property)),
+	)) {
 		return false;
 	}
 
@@ -268,8 +274,8 @@ function canSuggestBindings(node, loop, flush, context) {
 		return false;
 	}
 
-	return decoder.variable.references.every(reference => !(!reference.init && reference.identifier !== node.callee.object && reference.identifier !== flush?.right.callee.object))
-		&& accumulator.variable.references.every(reference => !(reference.isWrite() && !reference.init && reference.identifier !== accumulation.left && reference.identifier !== flush?.left));
+	return decoder.variable.references.every(reference => reference.init || reference.identifier === node.callee.object || reference.identifier === flush?.right.callee.object)
+		&& accumulator.variable.references.every(reference => !reference.isWrite() || reference.init || reference.identifier === accumulation.left || reference.identifier === flush?.left);
 }
 
 function canSuggestOptions(node) {

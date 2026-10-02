@@ -51,6 +51,9 @@ testRule.snapshot({
 			'{[key]: false}',
 			'{get stream() { return false; }}',
 			'{stream() {}}',
+			'{__proto__: {stream: true}}',
+			'{__proto__: options}',
+			'{["__proto__"]: options}',
 		].map(options => forAwait(`text += decoder.decode(chunk, ${options});`)),
 		forAwait('text += decoder.decode();'),
 		forAwait('text += decoder.decode(chunk, ...options);'),
@@ -72,6 +75,7 @@ testRule.snapshot({
 		forAwait().replace('const chunk', 'let chunk'),
 		forAwait('function later() { return decoder.decode(chunk); }'),
 		forAwait('for (const chunk of records) { text += decoder.decode(chunk); }'),
+		forAwait('for (const item of items) { process(decoder.decode(chunk)); }'),
 		forAwait('const chunk = record; text += decoder.decode(chunk);').replace('const chunk of', 'const bytes of'),
 		forAwait('const decoder = customDecoder; text += decoder.decode(chunk);'),
 		forAwait('text += customDecoder.decode(chunk);'),
@@ -106,6 +110,18 @@ testRule.snapshot({
 			}
 		`,
 		forAwait('const first = second; const second = first; text += decoder.decode(first);'),
+		outdent`
+			async function run() {
+				const response = await fetch(url);
+				const decoder = new TextDecoder();
+				{
+					const response = getResponse();
+					for await (const chunk of response.body) {
+						decoder.decode(chunk);
+					}
+				}
+			}
+		`,
 		{code: forAwait().replace('await fetch(url)', 'getResponse() as Response'), languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
@@ -176,7 +192,22 @@ const suggestionOutput = code => code
 testRule({
 	valid: [],
 	invalid: [
-		...[forAwait(), readerLoop()].map(code => ({
+		{
+			code: forAwait('text += (decoder).decode((chunk), ({}));').replaceAll(';', ''),
+			errors: [{
+				messageId, suggestions: [{
+					messageId: suggestionId,
+					output: forAwait('text += (decoder).decode((chunk), ({stream: true}));')
+						.replaceAll(';', '')
+						.replace('\n\t}\n}', '\n\t}\n\ttext += decoder.decode();\n}'),
+				}],
+			}],
+		},
+		...[
+			forAwait(),
+			readerLoop(),
+			forAwait().replace('const decoder', 'const alias = response; const decoder').replace('response.body', 'alias.body'),
+		].map(code => ({
 			code,
 			errors: [{messageId, suggestions: [{messageId: suggestionId, output: suggestionOutput(code)}]}],
 		})),
