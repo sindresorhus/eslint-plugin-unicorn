@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-A custom property that directly references itself through `var()` creates a cyclic dependency. For example, `--spacing: calc(var(--spacing) + 1px)` does not increment an inherited value, and adding a fallback to `var(--spacing, 1px)` does not repair the cycle. See the [CSS specification](https://www.w3.org/TR/css-variables-1/#cycles).
+A custom-property declaration such as `--spacing: calc(var(--spacing) + 1px)` creates a cyclic dependency. It does not increment an inherited value, and adding a fallback to `var(--spacing, 1px)` does not repair the cycle. See the [CSS specification](https://www.w3.org/TR/css-variables-1/#cycles).
 
 This rule disallows syntactic self-references, including references inside fallbacks and conditional functions. It reports once per declaration and does not provide an autofix or suggestion because the intended value or variable is unknown.
 

@@ -66,6 +66,17 @@ test({
 	valid: [],
 	invalid: [
 		{
+			code: String.raw`a { --space-size: var(--space\-size); }`,
+			errors: [{
+				messageId: 'no-self-referencing-custom-properties',
+				data: {property: '--space-size'},
+				line: 1,
+				column: 23,
+				endLine: 1,
+				endColumn: 36,
+			}],
+		},
+		{
 			code: 'a { --spacing: "var(--spacing)" /* var(--spacing) */ url("var(--spacing)") var(--spacing); }',
 			errors: [{
 				messageId: 'no-self-referencing-custom-properties',
