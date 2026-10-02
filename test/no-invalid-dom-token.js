@@ -149,7 +149,18 @@ test('split suggestions produce separate valid arguments without autofixing', t 
 
 test('split suggestions preserve allowed whitespace and escaped token characters', t => {
 	const linter = new Linter();
-	const tokens = ['primary\u000Bactive', 'non\u00A0breaking', 'line\u2028separator', 'paragraph\u2029separator', 'nul\u0000character', 'surrogate\uD800', 'back\\slash', 'quote\'character', '💜', '💜'];
+	const tokens = [
+		'primary\u000Bactive',
+		'non\u00A0breaking',
+		'line\u2028separator',
+		'paragraph\u2029separator',
+		'nul\u0000character',
+		'surrogate\uD800',
+		String.raw`back\slash`,
+		'quote\'character',
+		'💜',
+		'💜',
+	];
 	const code = `element.classList.remove(${JSON.stringify(tokens.join(' '))});`;
 	const messages = linter.verify(code, config);
 	t.is(messages.length, 1);
