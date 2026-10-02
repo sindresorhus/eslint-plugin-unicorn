@@ -21,7 +21,14 @@ const timeUnits = units.slice(4);
 const dateUnits = units.slice(0, 4);
 const roundingModes = new Set(['ceil', 'floor', 'expand', 'trunc', 'halfCeil', 'halfFloor', 'halfExpand', 'halfTrunc', 'halfEven']);
 const maximumIncrements = new Map([['hour', 24], ['minute', 60], ['second', 60], ['millisecond', 1000], ['microsecond', 1000], ['nanosecond', 1000]]);
-const instantIncrements = new Map(timeUnits.map((unit, index) => [unit, [24, 1440, 86_400, 86_400_000, 86_400_000_000, 86_400_000_000_000][index]]));
+const instantIncrements = new Map([
+	['hour', 24],
+	['minute', 1440],
+	['second', 86_400],
+	['millisecond', 86_400_000],
+	['microsecond', 86_400_000_000],
+	['nanosecond', 86_400_000_000_000],
+]);
 const typeNames = ['Instant', 'Duration', 'PlainTime', 'PlainDate', 'PlainYearMonth', 'PlainDateTime', 'ZonedDateTime'];
 const nowMethods = new Map([
 	['Instant', 'instant'],
