@@ -99,6 +99,7 @@ export {default as 'no-impossible-length-comparison'} from './no-impossible-leng
 export {default as 'no-incomplete-accessor-override'} from './no-incomplete-accessor-override.js';
 export {default as 'no-incorrect-query-selector'} from './no-incorrect-query-selector.js';
 export {default as 'no-incorrect-template-string-interpolation'} from './no-incorrect-template-string-interpolation.js';
+export {default as 'no-ineffective-csp-directives'} from './no-ineffective-csp-directives.js';
 export {default as 'no-instanceof-builtins'} from './no-instanceof-builtins.js';
 export {default as 'no-invalid-argument-count'} from './no-invalid-argument-count.js';
 export {default as 'no-invalid-character-comparison'} from './no-invalid-character-comparison.js';

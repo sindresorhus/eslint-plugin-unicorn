@@ -190,6 +190,7 @@ export default defineConfig([
 | [no-incomplete-accessor-override](docs/rules/no-incomplete-accessor-override.md)                           | Disallow class accessors that hide an inherited getter or setter.                                                              | ✅ ☑️ |    |    |    |
 | [no-incorrect-query-selector](docs/rules/no-incorrect-query-selector.md)                                   | Disallow incorrect `querySelector()` and `querySelectorAll()` usage.                                                           | ✅    | 🔧 |    |    |
 | [no-incorrect-template-string-interpolation](docs/rules/no-incorrect-template-string-interpolation.md)     | Disallow incorrect template literal interpolation syntax.                                                                      | ✅    |    | 💡 |    |
+| [no-ineffective-csp-directives](docs/rules/no-ineffective-csp-directives.md)                               | Disallow ineffective CSP directives in `<meta>` elements.                                                                      | ✅ ☑️ |    |    |    |
 | [no-instanceof-builtins](docs/rules/no-instanceof-builtins.md)                                             | Disallow `instanceof` with built-in objects                                                                                    | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-invalid-argument-count](docs/rules/no-invalid-argument-count.md)                                       | Disallow calling functions and constructors with an invalid number of arguments.                                               | ✅ ☑️ |    |    |    |
 | [no-invalid-character-comparison](docs/rules/no-invalid-character-comparison.md)                           | Disallow comparing a single character from a string to a multi-character string.                                               | ✅ ☑️ |    |    |    |
@@ -611,6 +612,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-duplicate-properties`](docs/rules/no-duplicate-properties.md) | ✅ |  |  |  |  |  |
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`no-empty-link-text`](docs/rules/no-empty-link-text.md) |  |  |  | ✅ |  |  |
+| [`no-ineffective-csp-directives`](docs/rules/no-ineffective-csp-directives.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |  |  |
 | [`no-invalid-media-features`](docs/rules/no-invalid-media-features.md) | ✅ |  |  |  |  |  |
 | [`no-javascript-url`](docs/rules/no-javascript-url.md) |  |  |  | ✅ |  |  |
