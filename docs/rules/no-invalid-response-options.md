@@ -46,6 +46,8 @@ The rule checks direct `new Response()`, `Response.json()`, and `Response.redire
 
 Status values can be statically known numbers, strings, booleans, `null`, or `undefined`. They follow [Web IDL unsigned short conversion](https://webidl.spec.whatwg.org/#es-unsigned-short), including truncation and wrapping. An omitted or undefined status defaults to 200 for construction and 302 for redirects.
 
+Static evaluation is limited to literals, unary operations on primitive literals or built-in constants, templates containing only primitive literal interpolations, and constants initialized directly with these forms. Constant aliases and compound expressions, such as conditionals and arithmetic involving variables, are not evaluated. This prevents object coercion from producing false reports or removing side effects in suggestions.
+
 Constructor body checks require a known non-nullish value or a direct template literal, object literal, array literal, or constructor expression. Unknown variables and function results are skipped because they may be `null` or `undefined`.
 
 ```js
@@ -58,6 +60,6 @@ const options = {status: 204};
 new Response('', options);
 ```
 
-Aliases, subclasses, qualified globals, optional calls, computed method calls, and spread arguments within the first two argument positions are not checked. The rule assumes `Response` and `undefined` refer to the built-ins. Object, symbol, and BigInt status values, status accessors, headers, `statusText`, and redirect URL validity are outside its scope.
+Aliases, subclasses, qualified globals, optional calls, computed method calls, and spread arguments within the first two argument positions are not checked. The rule assumes `Response`, `undefined`, `NaN`, and `Infinity` refer to the built-ins. Object, symbol, and BigInt status values, status accessors, headers, `statusText`, and redirect URL validity are outside its scope.
 
 This rule complements [`no-invalid-fetch-options`](./no-invalid-fetch-options.md), [`no-unnecessary-fetch-options`](./no-unnecessary-fetch-options.md), [`no-invalid-argument-count`](./no-invalid-argument-count.md), and [`prefer-response-static-json`](./prefer-response-static-json.md). It also works with [`no-null`](./no-null.md), which supports using `undefined` for a constructor's absent body.

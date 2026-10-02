@@ -1,6 +1,6 @@
-import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
+import {getPropertyName} from '@eslint-community/eslint-utils';
 import {isNewExpression, isMethodCall, isUndefinedValue} from './ast/index.js';
-import {getStaticValueForControlFlow, unwrapTypeScriptExpression} from './utils/index.js';
+import {getConstVariableInitializer, getStaticValueForControlFlow, unwrapTypeScriptExpression} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -26,6 +26,33 @@ const nonNullishExpressionTypes = new Set([
 	'NewExpression',
 ]);
 
+const isPrimitiveLiteral = node => node.type === 'Literal' && !node.regex;
+const isPrimitiveGlobal = node => node.type === 'Identifier' && ['undefined', 'NaN', 'Infinity'].includes(node.name);
+
+/**
+Get a simple static value without trusting object coercion in compound expressions or constant initializers.
+*/
+function getStaticValue(node, context) {
+	node = unwrapTypeScriptExpression(node);
+	const expression = unwrapTypeScriptExpression(getConstVariableInitializer(node, context) ?? node);
+	if (
+		!['Literal', 'ObjectExpression', 'ArrayExpression'].includes(expression.type)
+		&& !isPrimitiveGlobal(expression)
+		&& !(
+			expression.type === 'UnaryExpression'
+			&& (isPrimitiveLiteral(expression.argument) || isPrimitiveGlobal(expression.argument))
+		)
+		&& !(
+			expression.type === 'TemplateLiteral'
+			&& expression.expressions.every(expression => isPrimitiveLiteral(expression))
+		)
+	) {
+		return;
+	}
+
+	return getStaticValueForControlFlow(node, context);
+}
+
 /**
 Get the effective status property of an inline options object, unless a later property could override it.
 */
@@ -42,7 +69,7 @@ function getStatusProperty(node, context) {
 		}
 
 		const name = property.computed
-			? getStaticValueForControlFlow(property.key, context)?.value
+			? getStaticValue(property.key, context)?.value
 			: getPropertyName(property);
 		if (property.computed && typeof name !== 'string' && typeof name !== 'number') {
 			return;
@@ -63,7 +90,7 @@ function getStatus(node, context, defaultStatus) {
 		return defaultStatus;
 	}
 
-	const result = getStaticValueForControlFlow(node, context);
+	const result = getStaticValue(node, context);
 	if (!result) {
 		return;
 	}
@@ -91,7 +118,7 @@ Get a problem for a proven non-nullish constructor body, with a suggestion when 
 */
 function getBodyProblem(node, status, context) {
 	const body = unwrapTypeScriptExpression(node);
-	const result = getStaticValueForControlFlow(body, context);
+	const result = getStaticValue(body, context);
 	if (
 		!nonNullishExpressionTypes.has(body.type)
 		&& (!result || result.value === null || result.value === undefined)
@@ -105,12 +132,11 @@ function getBodyProblem(node, status, context) {
 		data: {status},
 	};
 
-	// Only known primitives avoid user-defined string conversion during body extraction.
+	// Only simple primitive values avoid user-defined string conversion during body extraction.
 	if (
 		!result
 		|| !['string', 'number', 'boolean', 'bigint'].includes(typeof result.value)
 		|| context.sourceCode.getCommentsInside(node).length > 0
-		|| hasSideEffect(body, context.sourceCode, {considerGetters: true, considerImplicitTypeConversion: true})
 	) {
 		return problem;
 	}

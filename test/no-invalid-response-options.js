@@ -81,6 +81,17 @@ testRule.snapshot({
 		String.raw`new Response("", {statusText: "\n"})`,
 		'Response.json(data, {headers: {"invalid header": "value"}})',
 		'Response.redirect("http://:", 302)',
+		// Compound expressions and constant aliases are intentionally not evaluated.
+		'new Response(true ? "" : null, {status: 204})',
+		'const condition = true; Response.json(data, {status: condition ? 204 : 200})',
+		'const originalStatus = 204; const status = originalStatus; new Response("", {status})',
+		'const object = {}; mutate(object); new Response(true ? `${object}` : "", {status: 204})',
+		'const object = {}; mutate(object); new Response((`${object}`, "body"), {status: 204})',
+		'const object = {}; Object.defineProperty(object, "valueOf", {value() { return 302; }}); Response.redirect(url, +object)',
+		'const object = {}; Object.defineProperty(object, "toString", {value() { return "302"; }}); Response.redirect(url, `${object}`)',
+		'const object = {}; Object.defineProperty(object, "valueOf", {value() { return 302; }}); const status = +object; Response.redirect(url, status)',
+		'const object = {}; Object.defineProperty(object, "valueOf", {value() { return 1; }}); new Response(+object ? null : "", {status: 204})',
+		'const object = {}; Object.defineProperty(object, "toString", {value() { return "status"; }}); new Response("", {status: 204, [`${object}`]: 200})',
 	],
 	invalid: [
 		...[204, 205, 304].flatMap(status => [
@@ -91,7 +102,6 @@ testRule.snapshot({
 		'Response.json(undefined, {status: 204})',
 		...['"body"', 'false', '0', '[]', '{}', 'new Uint8Array()', 'new Blob([])', '`body ${value}`', '[sideEffect()]', '{value: object.value}'].map(body => `new Response(${body}, {status: 204})`),
 		'const body = ""; new Response(body, {status: 204})',
-		'new Response(true ? "" : null, {status: 204})',
 		'new Response("", {status: "204"})',
 		'new Response("", {status: 204.9})',
 		'new Response("", {status: 65_740})',
@@ -107,7 +117,6 @@ testRule.snapshot({
 		'const key = "status"; new Response("", {[key]: 204})',
 		'new Response("", {[`status`]: 204})',
 		'new Response("", {status: 204, [0]: 200})',
-		'const condition = true; Response.json(data, {status: condition ? 204 : 200})',
 		...constructors.flatMap(constructor => [
 			`${constructor}("", {status: 200, status: 204})`,
 			`${constructor}("", {get status() { return 200; }, status: 204})`,
@@ -175,6 +184,17 @@ testRule({
 				messageId: 'body-with-null-body-status',
 				suggestions: [{messageId: 'remove-body', output: 'new Response(undefined, {status: 204});'}],
 			}],
+		},
+		{
+			code: 'new Response(1n, {status: 204});',
+			errors: [{
+				messageId: 'body-with-null-body-status',
+				suggestions: [{messageId: 'remove-body', output: 'new Response(undefined, {status: 204});'}],
+			}],
+		},
+		{
+			code: 'const object = {}; Object.defineProperty(object, "toString", {get() { sideEffect(); return String; }}); new Response(`${object}`, {status: 204})',
+			errors: [{messageId: 'body-with-null-body-status', suggestions: []}],
 		},
 		...[
 			'{}',
