@@ -196,9 +196,34 @@ test({
 		{code: jsx('sha256-abc sha384-abc'), errors: [{messageId: 'invalid'}, {messageId: 'invalid'}]},
 		{code: 'const integrity = "sha256-abc" as const; <script integrity={integrity} />', languageOptions: {parser: parsers.typescript}, errors: [{messageId: 'invalid', suggestions: 0}]},
 		{code: '<script integrity={false || "sha256-abc"} />', errors: [{messageId: 'invalid', suggestions: 0}]},
+		{code: '<script integrity={true ? "sha256-abc" : integrity} />', errors: [{messageId: 'invalid', suggestions: 0}]},
+		{code: jsx('sha256?option'), errors: [{messageId: 'invalid', data: {token: 'sha256?option', reason: 'The algorithm must be followed by `-` and a base64 value.'}, suggestions: 0}]},
 		{code: '<iframe><script integrity="sha256-abc" /></iframe>', errors: [{messageId: 'invalid', suggestions: 0}]},
 	],
 });
+
+for (const testerOptions of [
+	{languageOptions: {parser: parsers.html, parserOptions: {frontmatter: true}}},
+	{...languages.html, languageOptions: {frontmatter: true}},
+]) {
+	test({
+		testerOptions,
+		valid: [],
+		invalid: [{
+			name: `frontmatter and CRLF (${testerOptions.language ?? 'parser'})`,
+			code: '---\r\nlayout: page\r\n---\r\n<link integrity="\r\nsha256-abc\r\nsha384-abc">',
+			errors: ['sha256', 'sha384'].map(algorithm => ({
+				messageId: 'invalid',
+				data: {token: `${algorithm}-abc`, reason: `The \`${algorithm}\` value must contain ${algorithm === 'sha256' ? 43 : 64} base64 characters, excluding padding.`},
+				line: 4,
+				column: 18,
+				endLine: 6,
+				endColumn: 11,
+				suggestions: 0,
+			})),
+		}],
+	});
+}
 
 test({
 	testerOptions: {languageOptions: {parser: parsers.html}},
