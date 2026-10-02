@@ -193,6 +193,27 @@ const suggestionOutput = code => code
 	.replace('decoder.decode(value)', 'decoder.decode(value, {stream: true})')
 	.replace('\n\t}\n}', '\n\t}\n\ttext += decoder.decode();\n}');
 
+testRule.typescript({
+	valid: [
+		forAwait('text += decoder.decode!(chunk, {stream: true});'),
+	],
+	invalid: [
+		...[
+			forAwait('text += decoder.decode!(chunk);'),
+			forAwait('text += (decoder.decode as TextDecoder["decode"])(chunk);'),
+			forAwait('text += new (TextDecoder as typeof TextDecoder)().decode(chunk);'),
+		].map(code => ({code, errors: [{messageId, suggestions: []}]})),
+		...[
+			forAwait().replace('fetch(url)', 'fetch!(url)').replace('new TextDecoder()', 'new (TextDecoder!)()'),
+			forAwait().replace('fetch(url)', 'globalThis.fetch!(url)'),
+			readerLoop().replace('getReader()', 'getReader!()').replace('reader.read()', 'reader.read!()'),
+		].map(code => ({
+			code,
+			errors: [{messageId, suggestions: [{messageId: suggestionId, output: suggestionOutput(code)}]}],
+		})),
+	],
+});
+
 testRule({
 	valid: [],
 	invalid: [

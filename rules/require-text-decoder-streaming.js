@@ -27,6 +27,16 @@ function unwrapExpression(node) {
 	return node?.type === 'ChainExpression' ? unwrapExpression(node.expression) : node;
 }
 
+function unwrapCallee(node) {
+	node = unwrapExpression(node);
+	if (node?.type !== 'CallExpression' && node?.type !== 'NewExpression') {
+		return node;
+	}
+
+	const callee = unwrapExpression(node.callee);
+	return callee === node.callee ? node : {...node, callee};
+}
+
 function getFunction(node) {
 	for (; node; node = node.parent) {
 		if (isFunction(node) || node.type === 'Program') {
@@ -110,7 +120,7 @@ function isFetchBody(node, context) {
 		return false;
 	}
 
-	const call = unwrapExpression(response.argument);
+	const call = unwrapCallee(response.argument);
 	return isCallExpression(call, {name: 'fetch', minimumArguments: 1, maximumArguments: 2})
 		|| isMethodCall(call, {
 			object: 'globalThis', method: 'fetch', minimumArguments: 1, maximumArguments: 2,
@@ -123,12 +133,12 @@ function isFetchRead(node, loop, context) {
 		return false;
 	}
 
-	const read = unwrapExpression(node.argument);
+	const read = unwrapCallee(node.argument);
 	if (!isMethodCall(read, {method: 'read', argumentsLength: 0})) {
 		return false;
 	}
 
-	const reader = resolveExpression(read.callee.object, context);
+	const reader = unwrapCallee(resolveExpression(read.callee.object, context));
 	return isMethodCall(reader, {method: 'getReader', argumentsLength: 0})
 		&& isFetchBody(reader.callee.object, context);
 }
@@ -267,7 +277,7 @@ function canSuggestBindings(node, loop, flush, context) {
 	const accumulator = getBindingBeforeLoop(accumulation.left, loop, context);
 	if (
 		decoder?.definition.parent.kind !== 'const'
-		|| !isNewExpression(unwrapExpression(decoder.definition.node.init), {name: 'TextDecoder'})
+		|| !isNewExpression(unwrapCallee(decoder.definition.node.init), {name: 'TextDecoder'})
 		|| accumulator?.definition.parent.kind !== 'let'
 		|| accumulator.definition.node.init?.type !== 'Literal'
 		|| accumulator.definition.node.init.value !== ''
@@ -339,17 +349,18 @@ function getStreamingSuggestion(node, loop, context) {
 */
 const create = context => {
 	context.on('CallExpression', node => {
-		if (!isMethodCall(node, {method: 'decode', minimumArguments: 1, maximumArguments: 2}) || !isNonStreamingOptions(node.arguments[1], context)) {
+		const call = unwrapCallee(node);
+		if (!isMethodCall(call, {method: 'decode', minimumArguments: 1, maximumArguments: 2}) || !isNonStreamingOptions(node.arguments[1], context)) {
 			return;
 		}
 
 		const loop = getLoop(node);
-		const decoder = resolveExpression(node.callee.object, context);
+		const decoder = unwrapCallee(resolveExpression(call.callee.object, context));
 		if (!loop || !isNewExpression(decoder, {name: 'TextDecoder'}) || !isFetchChunk(node.arguments[0], loop, context)) {
 			return;
 		}
 
-		const problem = {node: node.callee.property, messageId: MESSAGE_ID_ERROR};
+		const problem = {node: call.callee.property, messageId: MESSAGE_ID_ERROR};
 		const suggestion = getStreamingSuggestion(node, loop, context);
 		if (suggestion) {
 			problem.suggest = [suggestion];
