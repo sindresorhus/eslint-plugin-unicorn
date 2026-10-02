@@ -125,3 +125,29 @@ test('fixes are stable', t => {
 		t.deepEqual(second.messages, []);
 	}
 });
+
+test('fixes converge with other CSS rules', t => {
+	const linter = new Linter();
+	const config = {
+		files: ['**/*.css'],
+		language: languages.css.language,
+		plugins: {
+			...languages.css.plugins,
+			unicorn: plugin,
+		},
+		rules: {
+			'unicorn/prefer-modern-css-syntax': 'error',
+			'unicorn/lowercase-css': 'error',
+			'unicorn/no-zero-fractions': 'error',
+		},
+	};
+	const first = linter.verifyAndFix('a:BEFORE { --brand: RGBA(.0,0.00,0,.50); color: RGB(.0,0.00,0,.50); }', config, {filename: 'test.css'});
+	const expected = 'a::before { --brand: rgb(0 0 0 / 50%); color: rgb(0 0 0 / 50%); }';
+	t.true(first.fixed);
+	t.is(first.output, expected);
+	t.deepEqual(first.messages, []);
+	const second = linter.verifyAndFix(first.output, config, {filename: 'test.css'});
+	t.false(second.fixed);
+	t.is(second.output, expected);
+	t.deepEqual(second.messages, []);
+});
