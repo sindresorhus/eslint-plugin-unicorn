@@ -36,6 +36,7 @@ testRule.snapshot({
 		{code: '\nconst value = "value" as string;', languageOptions: {parser: parsers.typescript}},
 		{code: '\n<div />;', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
 		{code: '\n<template><div /></template>\n<script>\n\n</script>', languageOptions: {parser: parsers.vue}},
+		{code: '\n\n<script>\nconst value = `\n\ntext`;\n</script>\n<pre>\n\n{value}\n</pre>', languageOptions: {parser: parsers.svelte}},
 		{code: '\n<!-- Comment -->\n<div>\n\nText\n</div>', languageOptions: {parser: parsers.html}},
 	],
 });
