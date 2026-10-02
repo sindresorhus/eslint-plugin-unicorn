@@ -169,9 +169,27 @@ const config = [
 		},
 	},
 	{
+		files: [
+			'rules/no-url-in-search-params.js',
+			'test/no-url-in-search-params.js',
+		],
+		rules: {
+			// The public rule name uses the URLSearchParams API spelling.
+			'unicorn/name-replacements': ['error', {checkFilenames: false}],
+		},
+	},
+	{
+		files: ['test/no-url-in-search-params.js'],
+		rules: {
+			// The runtime test deliberately demonstrates parsing a full URL incorrectly.
+			'unicorn/no-url-in-search-params': 'off',
+		},
+	},
+	{
 		// Intentional HTTP examples are used in tests.
 		files: [
 			'test/prefer-https.js',
+			'test/no-url-in-search-params.js',
 			'test/string-content.js',
 		],
 		rules: {
