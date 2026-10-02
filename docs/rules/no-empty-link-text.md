@@ -9,17 +9,13 @@
 
 <!-- Embedded HTML is intentionally outside this rule's content analysis. -->
 
-Disallow Markdown links whose labels contain no non-whitespace content. Empty link labels make links difficult to discover and identify.
+Disallow empty or whitespace-only labels in inline and reference links. Text, including formatted text and inline code, and non-whitespace image alternative text count as content. Decorative images are allowed alongside text.
 
-This rule checks link labels. [`markdown/no-empty-links`](https://github.com/eslint/markdown/blob/main/docs/rules/no-empty-links.md) checks link destinations.
+Character references such as `&nbsp;` are decoded in text and image alternative text, but remain literal in code and math. GFM footnote markers count as content. Inline math is checked when `languageOptions.math` is enabled.
 
-The rule checks inline links and reference links. Text inside emphasis, strong emphasis, GFM strikethrough, and inline code counts as content. Character references in text and image alternative text are checked after decoding, so `&nbsp;` alone does not count as content. Inside inline code and math, character references remain literal text and count as content.
+Links containing embedded HTML are ignored because their accessible content cannot be determined reliably. Standalone images, reference definitions, and code blocks are not checked.
 
-Inline math is checked when the Markdown parser's `math` language option is enabled. GFM footnote references count as content because they render a reference marker.
-
-Linked images count as content when their alternative text contains non-whitespace characters. A linked image with empty alternative text is allowed when the link also contains text. Link destinations and titles do not count as label content.
-
-Links containing embedded HTML are ignored because their accessible content cannot be determined reliably. Standalone images, reference definitions, and Markdown syntax inside code blocks are not checked.
+Destinations and titles do not count as label content. [`markdown/no-empty-links`](https://github.com/eslint/markdown/blob/main/docs/rules/no-empty-links.md) checks destinations.
 
 ## Usage
 
@@ -33,10 +29,7 @@ import {defineConfig} from 'eslint/config';
 export default defineConfig([
 	{
 		files: ['**/*.md'],
-		plugins: {
-			markdown,
-			unicorn,
-		},
+		plugins: {markdown, unicorn},
 		language: 'markdown/commonmark',
 		rules: {
 			'unicorn/no-empty-link-text': 'error',
