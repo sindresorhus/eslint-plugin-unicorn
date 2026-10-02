@@ -10,6 +10,28 @@ const css = code => ({code, language: languages.css});
 
 testRule.snapshot({
 	valid: [
+		'a { mask-border-source: url(border.png); mask-border-slice: 10; mask-border-width: 2; mask-border-outset: 3; mask-border-repeat: repeat; mask-border-mode: alpha; }',
+		'a { animation-range-start: 10%; animation-range-end: 90%; }',
+		'a { animation-range-start: entry 10%, exit 20%; animation-range-end: entry 90%, exit 80%; }',
+		'a { mask-border: initial; mask-border-mode: luminance; mask-image: none; mask-position: 0% 0%; mask-size: auto; mask-repeat: repeat; mask-origin: border-box; mask-clip: border-box; mask-composite: add; mask-mode: match-source; }',
+		outdent`
+			a {
+				mask-border-source: initial;
+				mask-border-slice: initial;
+				mask-border-width: initial;
+				mask-border-outset: initial;
+				mask-border-repeat: initial;
+				mask-border-mode: initial !important;
+				mask-image: none;
+				mask-position: 0% 0%;
+				mask-size: auto;
+				mask-repeat: repeat;
+				mask-origin: border-box;
+				mask-clip: border-box;
+				mask-composite: add;
+				mask-mode: match-source;
+			}
+		`,
 		'a { margin-top: 1px; margin-right: 2px; margin-bottom: 3px; }',
 		'a { margin-top: 1px; margin-right: 2px; } b { margin-bottom: 3px; margin-left: 4px; }',
 		'a { margin-top: 1px; margin-right: 2px; @media (width > 0px) { margin-top: 9px; margin-bottom: 9px; } margin-bottom: 3px; margin-left: 4px; }',
@@ -17,6 +39,7 @@ testRule.snapshot({
 		'a { margin-top: inherit; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
 		'a { margin-top: red; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
 		'a { margin-top: var(--top); margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
+		'a { border-block-start-width: calc(random(--size property-scoped, 1px, 10px)); border-block-end-width: calc(random(--size property-scoped, 1px, 10px)); }',
 		'a { margin-top: env(safe-area-inset-top); margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
 		'a { margin-top: inherit(--spacing); margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
 		'a { margin-top: --spacing(); margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }',
@@ -28,6 +51,7 @@ testRule.snapshot({
 		'a { overflow-x: hidden; overflow-block: scroll; overflow-y: auto; }',
 		'a { overscroll-behavior-x: contain; overscroll-behavior-inline: none; overscroll-behavior-y: auto; }',
 		'a { border-top-width: 1px; border-right-width: 2px; border-block-start-width: 5px; border-bottom-width: 3px; border-left-width: 4px; }',
+		'a { border-block-start-color: red; border-top-color: green; border-block-end-color: blue; }',
 		'a { border-image-source: url(border.png); border-width: 1px; border-style: solid; border-color: red; }',
 		'a { column-width: 20rem; column-count: 2; }',
 		'a { list-style-type: inside; list-style-position: outside; list-style-image: none; }',
@@ -319,6 +343,76 @@ testRule({
 			errors: 1,
 		},
 		{
+			code: 'a { border-block-start-width: 1px; border-block-end-width: 2px; }',
+			output: 'a { border-block-width: 1px 2px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-style: solid; border-block-end-style: dashed; }',
+			output: 'a { border-block-style: solid dashed; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-color: red; border-block-end-color: blue; }',
+			output: 'a { border-block-color: red blue; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-width: 1px; border-inline-end-width: 2px; }',
+			output: 'a { border-inline-width: 1px 2px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-end-width: 2px; border-inline-start-width: 1px; }',
+			output: 'a { border-inline-width: 1px 2px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-style: solid; border-inline-end-style: dashed; }',
+			output: 'a { border-inline-style: solid dashed; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-color: red; border-inline-end-color: blue; }',
+			output: 'a { border-inline-color: red blue; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-width: 1px !important; border-block-end-width: 1px !important; }',
+			output: 'a { border-block-width: 1px !important; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-style: solid; border-block-end-style: solid; }',
+			output: 'a { border-block-style: solid; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-style: solid; /* Keep this explanation. */ border-block-end-style: solid; }',
+			output: null,
+			errors: 1,
+		},
+		{
+			code: 'a { border-block-start-color: red; border-block-end-color: red; }',
+			output: 'a { border-block-color: red; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-width: 1px; border-inline-end-width: 1px; }',
+			output: 'a { border-inline-width: 1px; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-style: solid; border-inline-end-style: solid; }',
+			output: 'a { border-inline-style: solid; }',
+			errors: 1,
+		},
+		{
+			code: 'a { border-inline-start-color: red; border-inline-end-color: red; }',
+			output: 'a { border-inline-color: red; }',
+			errors: 1,
+		},
+		{
 			code: 'a { grid-gap: 3px; row-gap: 1px; column-gap: 2px; }',
 			output: 'a { grid-gap: 3px; gap: 1px 2px; }',
 			errors: 1,
@@ -596,6 +690,32 @@ testRule({
 					mask-origin: border-box;
 					mask-clip: border-box;
 					mask-composite: add;
+				}
+			`,
+			output: outdent`
+				a {
+					mask: none 0% 0% / auto repeat border-box border-box add match-source;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				a {
+					mask-border-source: initial;
+					mask-border-slice: initial;
+					mask-border-width: initial;
+					mask-border-outset: initial;
+					mask-border-repeat: initial;
+					mask-border-mode: initial;
+					mask-image: none;
+					mask-position: 0% 0%;
+					mask-size: auto;
+					mask-repeat: repeat;
+					mask-origin: border-box;
+					mask-clip: border-box;
+					mask-composite: add;
+					mask-mode: match-source;
 				}
 			`,
 			output: outdent`

@@ -11,25 +11,42 @@ const messages = {
 };
 
 const cssWideKeywords = new Set(['initial', 'inherit', 'unset', 'revert', 'revert-layer', 'revert-rule']);
-const substitutionFunctions = new Set(['attr', 'env', 'first-valid', 'ident', 'if', 'inherit', 'random-item', 'var']);
+const substitutionFunctions = new Set(['attr', 'env', 'first-valid', 'ident', 'if', 'inherit', 'random', 'random-item', 'var']);
 const slashShorthands = new Set(['grid-area', 'grid-column', 'grid-row']);
-const pairShorthands = new Set(['gap', 'inset-block', 'inset-inline', 'margin-block', 'margin-inline', 'overflow', 'overscroll-behavior', 'padding-block', 'padding-inline', 'scroll-margin-block', 'scroll-margin-inline', 'scroll-padding-block', 'scroll-padding-inline']);
+const pairShorthands = new Set([
+	'border-block-color',
+	'border-block-style',
+	'border-block-width',
+	'border-inline-color',
+	'border-inline-style',
+	'border-inline-width',
+	'gap',
+	'inset-block',
+	'inset-inline',
+	'margin-block',
+	'margin-inline',
+	'overflow',
+	'overscroll-behavior',
+	'padding-block',
+	'padding-inline',
+	'scroll-margin-block',
+	'scroll-margin-inline',
+	'scroll-padding-block',
+	'scroll-padding-inline',
+]);
 const fourSideShorthands = new Set(['border-color', 'border-style', 'border-width', 'inset', 'margin', 'padding', 'scroll-margin', 'scroll-padding']);
 const additionalResetProperties = new Map([
-	['animation', ['animation-composition', 'animation-range-start', 'animation-range-end', 'animation-trigger']],
+	['animation', ['animation-composition', 'animation-trigger']],
 	['background', ['background-blend-mode']],
 	['columns', ['column-wrap']],
-	['mask', ['mask-border']],
 ]);
 const additionalAffectedProperties = new Map([
-	['animation-range', ['animation-range-start', 'animation-range-end']],
 	['background-position', ['background-position-x', 'background-position-y']],
 	['column-gap', ['grid-column-gap']],
 	['font-stretch', ['font-width']],
 	['font-width', ['font-stretch']],
 	['grid-column-gap', ['column-gap']],
 	['grid-row-gap', ['row-gap']],
-	['mask-border', ['mask-border-source', 'mask-border-slice', 'mask-border-width', 'mask-border-outset', 'mask-border-repeat', 'mask-border-mode']],
 	['row-gap', ['grid-row-gap']],
 ]);
 
@@ -218,10 +235,7 @@ const serializeCyclicLists = (declarations, sourceCode, order, primaryIndex) => 
 	return layers.join(', ');
 };
 
-const serializeTransition = (declarations, sourceCode) => {
-	const order = declarations.length === 5 ? [1, 2, 3, 4, 0] : [1, 2, 3, 0];
-	return serializeCyclicLists(declarations, sourceCode, order, 0);
-};
+const serializeTransition = (declarations, sourceCode) => serializeCyclicLists(declarations, sourceCode, [1, 2, 3, 4, 0], 0);
 
 const serializeAnimation = (declarations, sourceCode) => {
 	const animationNameDeclaration = declarations[7];
@@ -369,22 +383,7 @@ const getLogicalPropertyMapping = property => {
 	}
 };
 
-const getAffectedProperties = property => {
-	const properties = new Set([property, ...(shorthandToAffectedProperties.get(property) ?? []), ...(additionalAffectedProperties.get(property) ?? [])]);
-	const logicalBorderProperties = [];
-	for (const affectedProperty of properties) {
-		const match = affectedProperty.match(/^border-(block|inline)-(width|style|color)$/u);
-		if (match) {
-			logicalBorderProperties.push(`border-${match[1]}-start-${match[2]}`, `border-${match[1]}-end-${match[2]}`);
-		}
-	}
-
-	for (const logicalBorderProperty of logicalBorderProperties) {
-		properties.add(logicalBorderProperty);
-	}
-
-	return properties;
-};
+const getAffectedProperties = property => new Set([property, ...(shorthandToAffectedProperties.get(property) ?? []), ...(additionalAffectedProperties.get(property) ?? [])]);
 
 const propertyAffectsComponent = (property, component) => {
 	const affectedProperties = getAffectedProperties(property);
@@ -406,7 +405,8 @@ const getCandidates = (children, {shorthand, definition, catalogIndex}, sourceCo
 	const declarations = new Map();
 	const duplicateComponents = new Set();
 	const {components} = definition;
-	const resetProperties = [...definition.resetProperties, ...additionalResetProperties.get(shorthand) ?? []];
+	const resetPropertyNames = [...definition.resetProperties, ...additionalResetProperties.get(shorthand) ?? []];
+	const resetProperties = [...new Set(resetPropertyNames.flatMap(property => [...shorthandToAffectedProperties.get(property) ?? [property]]))];
 	const resetStates = new Map();
 
 	const setAllResetStates = (declaration, keyword) => {
@@ -598,7 +598,8 @@ const create = context => {
 		const candidates = [];
 		let catalogIndex = 0;
 		for (const [shorthand, definition] of shorthandProperties) {
-			if (!ignoredShorthands.has(shorthand)) {
+			// These shorthands need dedicated serializers for slash-separated values and comma-separated ranges.
+			if (!ignoredShorthands.has(shorthand) && !['mask-border', 'animation-range'].includes(shorthand)) {
 				candidates.push(...getCandidates(block.children, {shorthand, definition, catalogIndex}, sourceCode));
 			}
 

@@ -28,7 +28,7 @@ div {
 }
 ```
 
-The rule skips invalid values, duplicate longhands, mixed `!important` declarations, and values containing `var()` or similar functions. It also skips some ambiguous or inconsistently supported animation, font, column, and list-style values.
+The rule skips invalid values, duplicate longhands, mixed `!important` declarations, and values containing `var()`, `random()`, or similar functions. It also skips some ambiguous or inconsistently supported animation, font, column, and list-style values.
 
 Comma-separated values can repeat across shorthand layers, but lists longer than the primary list are skipped. If a shorthand would also reset another property, such as `border-image`, the rule only reports when it can verify that reset is safe.
 
