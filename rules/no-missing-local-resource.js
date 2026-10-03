@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
-import {isVirtualFilename} from './utils/index.js';
+import {getStaticStringValue, isNewExpression} from './ast/index.js';
+import {isNodeMatchesNameOrPath, isVirtualFilename, unwrapTypeScriptExpression} from './utils/index.js';
 import getSrcsetCandidates from './shared/get-srcset-candidates.js';
 
 const MESSAGE_ID_MISSING = 'missing';
@@ -326,6 +327,30 @@ const create = context => {
 		};
 	};
 
+	context.on('NewExpression', node => {
+		if (!isNewExpression(node, {name: 'URL', argumentsLength: 2})) {
+			return;
+		}
+
+		const [resourceNode, baseNode] = node.arguments.map(argument => unwrapTypeScriptExpression(argument));
+		if (!isNodeMatchesNameOrPath(baseNode, 'import.meta.url')) {
+			return;
+		}
+
+		const value = getStaticStringValue(resourceNode);
+		if (value === undefined || /[\t\n\r]/v.test(value)) {
+			return;
+		}
+
+		const {sourceCode} = context;
+		let valueRange;
+		if (sourceCode.getText(resourceNode).slice(1, -1) === value) {
+			const [start, end] = sourceCode.getRange(resourceNode);
+			valueRange = [start + 1, end - 1];
+		}
+
+		return getResourceProblem(resourceNode, value, valueRange, false);
+	});
 	context.on(['definition', 'image', 'link'], node => getResourceProblem(node, node.url));
 	context.on('Atrule', node => {
 		if (!node.name || ident.decode(node.name).toLowerCase() !== 'import') {
@@ -394,6 +419,7 @@ const config = {
 		schema: [],
 		messages,
 		languages: [
+			'js/js',
 			'css/css',
 			'html/html',
 			'markdown/commonmark',

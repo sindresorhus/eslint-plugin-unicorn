@@ -1,14 +1,79 @@
 import {getVendorPrefix, shorthandToAffectedProperties} from './shared/css-shorthand-properties.js';
+import {getStaticStringValue} from './ast/index.js';
+import {unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-shorthand-property-overrides';
 const messages = {
 	[MESSAGE_ID]: 'The shorthand property `{{shorthand}}` overrides the previously declared `{{longhand}}` property.',
 };
 
+const isStaticStyleValue = node => {
+	node = unwrapTypeScriptExpression(node);
+	const numericNode = node.type === 'UnaryExpression' && (node.operator === '+' || node.operator === '-')
+		? unwrapTypeScriptExpression(node.argument)
+		: node;
+	if (numericNode.type === 'Literal' && typeof numericNode.value === 'number') {
+		return Number.isFinite(numericNode.value);
+	}
+
+	const value = getStaticStringValue(node);
+	return typeof value === 'string' && value.trim() !== '' && !/!\s*important\b/iu.test(value);
+};
+
+function * getJsxStyleProblems(attribute) {
+	if (
+		attribute.name.type !== 'JSXIdentifier'
+		|| attribute.name.name !== 'style'
+		|| attribute.parent.name.type !== 'JSXIdentifier'
+		|| !/^[a-z]/u.test(attribute.parent.name.name)
+		|| attribute.value?.type !== 'JSXExpressionContainer'
+	) {
+		return;
+	}
+
+	const object = unwrapTypeScriptExpression(attribute.value.expression);
+	if (
+		object.type !== 'ObjectExpression'
+		|| object.properties.some(property => property.type !== 'Property' || property.computed || property.method || property.kind !== 'init')
+	) {
+		return;
+	}
+
+	// Updating an existing object key keeps its original insertion order.
+	const properties = new Map(object.properties.map(property => [property.key.name ?? property.key.value, property]));
+	const declarations = new Map();
+	for (const [name, node] of properties) {
+		if (typeof name !== 'string' || !isStaticStyleValue(node.value)) {
+			continue;
+		}
+
+		let property = name.replaceAll(/[A-Z]/gu, letter => `-${letter.toLowerCase()}`);
+		if (property.startsWith('ms-')) {
+			property = `-${property}`;
+		}
+
+		const vendorPrefix = getVendorPrefix(property);
+		const longhandProperties = shorthandToAffectedProperties.get(property.slice(vendorPrefix.length));
+		declarations.set(property, name);
+		for (const longhand of longhandProperties ?? []) {
+			const original = declarations.get(vendorPrefix + longhand);
+			if (original) {
+				yield {
+					node: node.key,
+					messageId: MESSAGE_ID,
+					data: {shorthand: name, longhand: original},
+				};
+			}
+		}
+	}
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	context.on('JSXAttribute', getJsxStyleProblems);
+
 	context.on('Block', function * (block) {
 		const declarations = new Map();
 		const importantDeclarations = new Set();
@@ -71,6 +136,7 @@ const config = {
 		},
 		messages,
 		languages: [
+			'js/js',
 			'css/css',
 		],
 	},

@@ -159,3 +159,74 @@ test.snapshot({
 		'a { & b { mask-border-source: url(border.png); mask: none; } }',
 	].map(code => ({code, language: languages.css})),
 });
+
+const jsxLanguageOptions = {parserOptions: {ecmaFeatures: {jsx: true}}};
+
+test({
+	testerOptions: {languageOptions: jsxLanguageOptions},
+	valid: [
+		'<div style={{padding: 20, paddingLeft: 10}} />;',
+		'<><div style={{paddingLeft: 10}} /><div style={{padding: 20}} /></>;',
+		'const object = {paddingLeft: 10, padding: 20};',
+		'<Component style={{paddingLeft: 10, padding: 20}} />;',
+		'<ui.div style={{paddingLeft: 10, padding: 20}} />;',
+		'<div css={{paddingLeft: 10, padding: 20}} />;',
+		'<div style={styles} />;',
+		'<div style={{color: "red", padding: 20}} />;',
+		'<div style={{WebkitTransitionProperty: "opacity", transition: "opacity 1s"}} />;',
+		'<div style={{padding: 10, paddingLeft: 20, padding: 30}} />;',
+		'<div style={{paddingLeft: 10, ...styles, padding: 20}} />;',
+		'<div style={{paddingLeft: 10, [property]: 20, padding: 30}} />;',
+		'<div style={{get paddingLeft() { return 10; }, padding: 20}} />;',
+		'<div style={{paddingLeft() { return 10; }, padding: 20}} />;',
+		...['null', 'undefined', 'false', 'true', '""', '"   "', '"10px !important"', '"10px ! IMPORTANT"', 'value', 'NaN', 'Infinity', '-Infinity', '+"10"'].flatMap(value => [
+			`<div style={{paddingLeft: ${value}, padding: 20}} />;`,
+			`<div style={{paddingLeft: 10, padding: ${value}}} />;`,
+		]),
+		'<div style={{paddingLeft: 10, paddingLeft: null, padding: 20}} />;',
+	],
+	invalid: [
+		...[
+			['<div style={{paddingLeft: 10, padding: 20}} />;', 'paddingLeft', 'padding'],
+			['<div style={{"padding-left": "10px", padding: "20px"}} />;', 'padding-left', 'padding'],
+			['<div style={{WebkitTransitionProperty: "opacity", WebkitTransition: "opacity 1s"}} />;', 'WebkitTransitionProperty', 'WebkitTransition'],
+			['<div style={{msTransitionProperty: "opacity", msTransition: "opacity 1s"}} />;', 'msTransitionProperty', 'msTransition'],
+			['<div style={{"-webkit-transition-property": "opacity", "-webkit-transition": "opacity 1s"}} />;', '-webkit-transition-property', '-webkit-transition'],
+			['<div style={{borderImageSource: "url(border.png)", border: "1px solid"}} />;', 'borderImageSource', 'border'],
+			['<div style={{paddingLeft: 10, paddingLeft: 30, padding: 20}} />;', 'paddingLeft', 'padding'],
+			['<div style={{paddingLeft: null, padding: 20, paddingLeft: 10}} />;', 'paddingLeft', 'padding'],
+			['<div style={{paddingLeft: 0, padding: 20}} />;', 'paddingLeft', 'padding'],
+			['<div style={{marginLeft: -1, margin: "2px"}} />;', 'marginLeft', 'margin'],
+			['<div style={{marginLeft: +1, margin: "2px"}} />;', 'marginLeft', 'margin'],
+			['<div style={{paddingLeft: `10px`, padding: `20px`}} />;', 'paddingLeft', 'padding'],
+		].map(([code, longhand, shorthand]) => ({
+			code,
+			errors: [{messageId: 'no-shorthand-property-overrides', data: {longhand, shorthand}}],
+		})),
+		{
+			code: '<div style={{paddingTop: 10, paddingLeft: 20, padding: 30}} />;',
+			errors: ['paddingTop', 'paddingLeft'].map(longhand => ({
+				messageId: 'no-shorthand-property-overrides',
+				data: {longhand, shorthand: 'padding'},
+			})),
+		},
+	],
+});
+
+test.typescript({
+	testerOptions: {languageOptions: jsxLanguageOptions},
+	valid: [
+		'<div style={({padding: 20, paddingLeft: 10} as Style)!} />;',
+		'<div style={{padding: 20, paddingLeft: 10} satisfies Style} />;',
+	].map(code => ({code, filename: 'file.tsx'})),
+	invalid: [
+		'<div style={({paddingLeft: 10, padding: 20} as Style)!} />;',
+		'<div style={{paddingLeft: 10, padding: 20} satisfies Style} />;',
+		'<div style={{paddingLeft: 10 as number, padding: 20 satisfies number}} />;',
+		'<div style={{paddingLeft: -(10 as number), padding: 20}} />;',
+	].map(code => ({
+		code,
+		filename: 'file.tsx',
+		errors: [{messageId: 'no-shorthand-property-overrides', data: {longhand: 'paddingLeft', shorthand: 'padding'}}],
+	})),
+});

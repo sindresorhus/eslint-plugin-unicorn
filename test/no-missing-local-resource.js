@@ -238,3 +238,91 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [
+		'new URL("./assets/logo.svg", import.meta.url);',
+		'new URL(`./assets/logo.svg`, import.meta.url);',
+		String.raw`new URL("./assets/\u006Cogo.svg", import.meta.url);`,
+		String.raw`new URL("./assets/lo\tgo.svg", import.meta.url);`,
+		String.raw`new URL("./assets/lo\ngo.svg", import.meta.url);`,
+		String.raw`new URL("./assets/lo\rgo.svg", import.meta.url);`,
+		'new URL("./assets/logo.svg?first=1&second=2#icon", import.meta.url);',
+		'new URL("./encoded%20name.md", import.meta.url);',
+		'new URL("./encoded%23name.md", import.meta.url);',
+		'new URL("./directory/", import.meta.url);',
+		'new URL("https://example.com/missing.svg", import.meta.url);',
+		'new URL("/missing.svg", import.meta.url);',
+		'new URL("#icon", import.meta.url);',
+		'new URL("./missing.svg", "https://example.com/");',
+		'new URL("./missing.svg", base);',
+		'new URL(resource, import.meta.url);',
+		// eslint-disable-next-line no-template-curly-in-string -- The fixture contains a dynamic URL template.
+		'new URL(`./assets/${name}.svg`, import.meta.url);',
+		'new OtherURL("./missing.svg", import.meta.url);',
+		'new URL(...arguments_);',
+		'fetch("./missing.svg");',
+	].map(code => ({code, filename: path.join(fixtureDirectory, 'app.js')})),
+	invalid: [
+		{
+			code: 'new URL("./assets/missing.svg", import.meta.url);',
+			errors: [{messageId: 'missing', data: {resource: './assets/missing.svg'}}],
+		},
+		{
+			code: 'new URL("./assets/LOGO.svg?first=1&second=2#icon", import.meta.url);',
+			output: 'new URL("./assets/logo.svg?first=1&second=2#icon", import.meta.url);',
+			errors: [{messageId: 'incorrect-case', data: {resource: './assets/logo.svg?first=1&second=2#icon'}}],
+		},
+		{
+			code: 'new URL(`./Assets/logo.svg`, import.meta.url);',
+			output: 'new URL(`./assets/logo.svg`, import.meta.url);',
+			errors: [{messageId: 'incorrect-case', data: {resource: './assets/logo.svg'}}],
+		},
+		{
+			code: String.raw`new URL("./assets/\u004COGO.svg", import.meta.url);`,
+			errors: [{messageId: 'incorrect-case', data: {resource: './assets/logo.svg'}}],
+		},
+		{
+			code: 'new URL(`./assets/\\u004COGO.svg`, import.meta.url);',
+			errors: [{messageId: 'incorrect-case', data: {resource: './assets/logo.svg'}}],
+		},
+		{
+			code: String.raw`new URL("./assets/\u006Dissing.svg", import.meta.url);`,
+			errors: [{messageId: 'missing', data: {resource: './assets/missing.svg'}}],
+		},
+		{
+			code: 'new URL("./assets/logo&#46;svg", import.meta.url);',
+			errors: [{messageId: 'missing', data: {resource: './assets/logo&#46;svg'}}],
+		},
+		{
+			code: 'new URL("./Encoded%20name.md", import.meta.url);',
+			output: 'new URL("./encoded%20name.md", import.meta.url);',
+			errors: [{messageId: 'incorrect-case', data: {resource: './encoded%20name.md'}}],
+		},
+	].map(testCase => ({...testCase, filename: path.join(fixtureDirectory, 'app.js')})),
+});
+
+test({
+	valid: [{
+		code: 'new URL("../guide.md", import.meta.url);',
+		filename: path.join(fixtureDirectory, 'nested', 'app.js'),
+	}],
+	invalid: [{
+		code: 'new URL("../missing.md", import.meta.url);',
+		filename: path.join(fixtureDirectory, 'nested', 'app.js'),
+		errors: [{messageId: 'missing', data: {resource: '../missing.md'}}],
+	}],
+});
+
+test.typescript({
+	valid: [{
+		code: 'new URL("./assets/logo.svg" as string, import.meta.url as string);',
+		filename: path.join(fixtureDirectory, 'app.ts'),
+	}],
+	invalid: [{
+		code: 'new URL("./assets/LOGO.svg" as string, import.meta.url as string);',
+		output: 'new URL("./assets/logo.svg" as string, import.meta.url as string);',
+		filename: path.join(fixtureDirectory, 'app.ts'),
+		errors: [{messageId: 'incorrect-case', data: {resource: './assets/logo.svg'}}],
+	}],
+});

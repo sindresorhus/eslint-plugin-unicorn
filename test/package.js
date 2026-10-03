@@ -368,18 +368,35 @@ test('Every rule declares valid supported languages', t => {
 	}
 });
 
-for (const ruleName of ['no-shorthand-property-overrides', 'no-missing-local-resource', 'require-frontmatter-fields']) {
-	test(`${ruleName} rejects JavaScript and is excluded from JavaScript presets`, t => {
+for (const [ruleName, code, recommendedSeverity] of [
+	['no-shorthand-property-overrides', 'const element = <div style={{paddingLeft: 1, padding: 2}} />;', 'error'],
+	['no-missing-local-resource', 'new URL("./missing-resource-for-package-test.svg", import.meta.url);', 'off'],
+]) {
+	test(`${ruleName} reports JavaScript problems and is configured in JavaScript presets`, t => {
 		const linter = new Linter();
-		t.throws(() => linter.verify('const value = 1;', {
+		const messages = linter.verify(code, {
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 			plugins: {unicorn: eslintPluginUnicorn},
 			rules: {[`unicorn/${ruleName}`]: 'error'},
-		}), {message: /do not support the language "js\/js"/});
-		t.is(eslintPluginUnicorn.configs.all.rules[`unicorn/${ruleName}`], undefined);
-		t.is(eslintPluginUnicorn.configs.recommended.rules[`unicorn/${ruleName}`], 'off');
-		t.is(eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${ruleName}`], 'off');
+		}, {filename: 'file.js'});
+		t.deepEqual(messages.map(({ruleId}) => ruleId), [`unicorn/${ruleName}`]);
+		t.is(eslintPluginUnicorn.configs.all.rules[`unicorn/${ruleName}`], 'error');
+		t.is(eslintPluginUnicorn.configs.recommended.rules[`unicorn/${ruleName}`], recommendedSeverity);
+		t.is(eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${ruleName}`], recommendedSeverity);
 	});
 }
+
+test('require-frontmatter-fields rejects JavaScript and is excluded from JavaScript presets', t => {
+	const ruleId = 'unicorn/require-frontmatter-fields';
+	const linter = new Linter();
+	t.throws(() => linter.verify('const value = 1;', {
+		plugins: {unicorn: eslintPluginUnicorn},
+		rules: {[ruleId]: 'error'},
+	}), {message: /do not support the language "js\/js"/});
+	t.is(eslintPluginUnicorn.configs.all.rules[ruleId], undefined);
+	t.is(eslintPluginUnicorn.configs.recommended.rules[ruleId], 'off');
+	t.is(eslintPluginUnicorn.configs.unopinionated.rules[ruleId], 'off');
+});
 
 test('Every rule has valid meta.type', t => {
 	const validTypes = ['problem', 'suggestion', 'layout'];
