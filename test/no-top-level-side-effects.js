@@ -209,10 +209,80 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [
+		...[
+			'memo',
+			'forwardRef',
+			'lazy',
+			'createContext',
+			'createRef',
+			'createElement',
+			'cloneElement',
+			'isValidElement',
+		].flatMap(method => [
+			`import React from "react"; export default React.${method}(value);`,
+			`import {${method}} from "react"; export {}; ${method}(value);`,
+		]),
+		'import * as React from "react"; export default React.memo(Link);',
+		'import ReactLibrary from "react"; export default ReactLibrary.memo(Link);',
+		'import * as ReactLibrary from "react"; export default ReactLibrary.forwardRef(Link);',
+		'import {memo as wrap} from "react"; export default wrap(Link);',
+		'import {memo} from "react"; export default (memo)(Link);',
+		'import React from "react"; export default (React).memo(Link);',
+		'import React from "react"; export default React.memo(React.forwardRef(Link));',
+		'import {memo, forwardRef} from "react"; export default memo(forwardRef(Link));',
+		'import {memo} from "react"; export default memo(Link, (previous, next) => compare(previous, next));',
+		'import {forwardRef} from "react"; export default forwardRef((properties, reference) => render(properties, reference));',
+		'import {lazy} from "react"; export default lazy(() => import("./Component.js"));',
+		'import {createElement} from "react"; export default createElement("div", {}, createElement("span"));',
+		'import {memo} from "react"; export default memo(/* Component */ Link);',
+		typescriptCode('import {memo} from "react"; export default (memo(Link) as Component);'),
+		typescriptCode('import {memo} from "react"; export default (memo(Link) satisfies Component);'),
+		typescriptCode('import {memo} from "react"; export default memo(Link)!;'),
+		typescriptCode('import {memo} from "react"; export default <Component>memo(Link);'),
+		typescriptCode('import {memo, forwardRef} from "react"; export default memo((forwardRef<Props>(Link) as Component));'),
+		vueCode('<script>import {memo} from "react"; export default memo(Link);</script>'),
+	],
+	invalid: [
+		...[
+			'import React from "react"; export default React.memo(initialize());',
+			'import {memo} from "react"; export default (initialize(), memo)(Link);',
+			'import React from "react"; export default React[(initialize(), "memo")](Link);',
+			'import {memo, forwardRef} from "react"; export default memo(forwardRef(initialize()));',
+			'import {memo} from "react"; export {}; memo(initialize());',
+			'import {memo} from "react"; export default memo(Link, initialize());',
+			'import {memo} from "react"; export default memo(counter++);',
+			'import {memo} from "react"; export default memo(Component = initialize());',
+			'import {memo} from "react"; export default memo(...initialize());',
+			'import {memo} from "react"; export default memo(tag`value`);',
+			'import {memo} from "react"; export default memo(Link); init();',
+			'import React from "other"; export default React.memo(Link);',
+			'import * as React from "other"; export default React.memo(Link);',
+			'import {memo} from "other"; export default memo(Link);',
+			'import {memo as wrap} from "other"; export default wrap(Link);',
+			'import {createPortal} from "react-dom"; export default createPortal(element, container);',
+			'import {useMemo} from "react"; export default useMemo(createComponent, []);',
+			'export default React.memo(Link);',
+			'function memo(value) { return value; } export default memo(Link);',
+			'import {memo} from "react"; export default {Component: memo(Link)};',
+			'import {memo} from "react"; export default [memo(Link)];',
+			'import {memo} from "react"; export default memo({Component: initialize()});',
+			// eslint-disable-next-line no-template-curly-in-string
+			'import figma from "figma"; export default {example: figma.code`<Tag ${figma.helpers.react.renderProp("color", color)} />`};',
+		].map(code => ({code, errors: 1})),
+		{
+			...typescriptCode('import {memo} from "react"; export default (memo(initialize()) as Component);'),
+			errors: 1,
+		},
+	],
+});
+
 // `export default init()` runs at module evaluation time just like a bare expression
 test({
 	valid: [
 		'export default {};',
+		typescriptCode('import React from "react"; export default React.memo<Props>(Link);'),
 		'export default function () {};',
 		'export default class {};',
 		'const x = 1;\nexport default x;',

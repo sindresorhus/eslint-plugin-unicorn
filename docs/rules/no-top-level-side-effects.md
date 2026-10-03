@@ -13,6 +13,8 @@ This rule reports direct top-level expression statements with side effects in fi
 
 The rule ignores files without exports and executable scripts with a shebang. Files whose only exports are type-only (`export type`, `export interface`, `export declare`, `export {type Foo}`, …) are treated as having no exports, since those exports are erased when TypeScript is compiled to JavaScript. Top-level assignments and declarations are also out of scope, so `document.title = 'gone';` and `const response = fetch();` are not reported. A default-exported expression is not a declaration, so `export default init();` is reported. This assignment exception is intentionally narrow: other mutation expressions, including `counter++` and `delete object.property`, are reported. When intentionally removing a property while constructing an export, prefer object rest destructuring or locally disable the rule. Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
 
+Direct calls to `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement` imported from `react` are allowed, including nested calls such as `memo(forwardRef(Component))`. Default, namespace, and named imports are supported, including aliases. Arguments are still checked for side effects, so `memo(initialize())` is reported. This allowance applies to standalone top-level expression statements and default exports. Calls inside arbitrary object or array expressions remain conservatively checked, and globally supplied React objects are not recognized.
+
 With `vue-eslint-parser`, direct top-level expressions in `<script setup>` are ignored because they run in component setup scope, not module scope. The normal `<script>` is still checked when the module has a runtime export.
 
 ```vue
@@ -60,4 +62,29 @@ const response = fetch();
 // ✅
 export {};
 document.title = 'gone';
+```
+
+```js
+import {memo, forwardRef} from 'react';
+
+// ❌
+export default memo(initialize());
+
+// ✅
+export default memo(forwardRef(Component));
+```
+
+## Figma Code Connect templates
+
+Figma Code Connect template bodies run inside a function rather than at module scope. Disable this rule for template files with an ESLint config override, adjusting the file pattern to match your project:
+
+```js
+export default [
+	{
+		files: ['**/*.figma.template.{js,ts}'],
+		rules: {
+			'unicorn/no-top-level-side-effects': 'off',
+		},
+	},
+];
 ```

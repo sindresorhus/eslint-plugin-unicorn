@@ -1,9 +1,27 @@
-import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {hasSideEffect, ReferenceTracker} from '@eslint-community/eslint-utils';
 import {unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-top-level-side-effects';
 const messages = {
 	[MESSAGE_ID]: 'Do not use top-level side effects in exported modules.',
+};
+
+const reactCallMap = Object.fromEntries([
+	'memo',
+	'forwardRef',
+	'lazy',
+	'createContext',
+	'createRef',
+	'createElement',
+	'cloneElement',
+	'isValidElement',
+].map(method => [method, {[ReferenceTracker.CALL]: true}]));
+const reactTraceMap = {
+	react: {
+		[ReferenceTracker.ESM]: true,
+		...reactCallMap,
+		default: reactCallMap,
+	},
 };
 
 const exportDeclarationTypes = new Set([
@@ -45,11 +63,16 @@ const isInScriptSetup = (node, scriptSetupRange, sourceCode) => {
 	return scriptSetupRange[0] <= nodeRange[0] && nodeRange[1] <= scriptSetupRange[1];
 };
 
-const hasTopLevelSideEffect = (node, sourceCode) => {
+const hasTopLevelSideEffect = (node, sourceCode, pureReactCalls) => {
 	node = unwrapTypeScriptExpression(node);
 
+	if (pureReactCalls.has(node)) {
+		return hasSideEffect(node.callee, sourceCode)
+			|| node.arguments.some(argument => hasTopLevelSideEffect(argument, sourceCode, pureReactCalls));
+	}
+
 	if (node.type === 'ClassExpression') {
-		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode) : false;
+		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode, pureReactCalls) : false;
 	}
 
 	return node.type === 'TaggedTemplateExpression'
@@ -62,11 +85,19 @@ const hasTopLevelSideEffect = (node, sourceCode) => {
 const create = context => {
 	const {sourceCode} = context;
 	const scriptSetupRange = getScriptSetupRange(sourceCode);
+	const pureReactCalls = new Set();
 	let shouldCheck = false;
 
 	context.on('Program', program => {
 		shouldCheck = !sourceCode.lines[0].startsWith('#!')
 			&& program.body.some(node => isExportDeclaration(node));
+
+		if (shouldCheck) {
+			const tracker = new ReferenceTracker(sourceCode.getScope(program));
+			for (const {node} of tracker.iterateEsmReferences(reactTraceMap)) {
+				pureReactCalls.add(node);
+			}
+		}
 	});
 
 	context.on('ExpressionStatement', node => {
@@ -75,7 +106,7 @@ const create = context => {
 			|| node.parent.type !== 'Program'
 			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(node.expression)
-			|| !hasTopLevelSideEffect(node.expression, sourceCode)
+			|| !hasTopLevelSideEffect(node.expression, sourceCode, pureReactCalls)
 		) {
 			return;
 		}
@@ -94,7 +125,7 @@ const create = context => {
 			|| (declaration.type === 'FunctionDeclaration' || declaration.type === 'ClassDeclaration')
 			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(declaration)
-			|| !hasTopLevelSideEffect(declaration, sourceCode)
+			|| !hasTopLevelSideEffect(declaration, sourceCode, pureReactCalls)
 		) {
 			return;
 		}
