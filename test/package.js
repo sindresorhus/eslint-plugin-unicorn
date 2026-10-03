@@ -363,7 +363,7 @@ test('Every rule declares valid supported languages', t => {
 	for (const [name, rule] of Object.entries(rawRules)) {
 		t.true(Array.isArray(rule.meta.languages), name);
 		t.true(rule.meta.languages.length > 0, name);
-		t.is(new Set(rule.meta.languages).size, rule.meta.languages.length, name);
+		t.deepEqual(rule.meta.languages, [...new Set(rule.meta.languages)], name);
 		for (const language of rule.meta.languages) {
 			t.true(supportedLanguages.has(language), `${name}: ${language}`);
 		}
