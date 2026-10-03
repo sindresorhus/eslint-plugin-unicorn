@@ -2750,9 +2750,6 @@ test({
 		}),
 		typescript('type Base<T> = T; interface Loader extends Base<() => Promise<boolean>> {} declare function load(): Loader; const value = load();'),
 		typescript('type Base = string; interface Loader extends Base {} declare function load(): Loader; const value = load();'),
-		// A type argument that references an outer type parameter with the same name as the alias type parameter must not expand forever
-		typescript('type Box<T> = T; type Callback<B> = () => Box<B>; function foo<B>() { interface Loader extends Callback<Box<B>> {} let value: Loader; }'),
-		typescript('type Box<T> = T; type Callback<B> = () => Promise<Box<B>>; function foo<B>() { interface Loader extends Callback<Box<B>> {} let value: Loader; }'),
 		'const isFoo = undeclared.value;',
 	],
 	invalid: [

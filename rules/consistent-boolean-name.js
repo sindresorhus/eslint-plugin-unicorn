@@ -1288,22 +1288,14 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 	return results[0];
 }
 
-const unknownTypeAnnotation = {type: 'TSUnknownKeyword'};
-
 function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 	const typeParameterTypes = new Map(typeState.typeParameterTypes);
-	const parameters = definitionNode.typeParameters?.params ?? [];
-	// After resolving, references to these names are outer type parameters with the same names, like `B` in `function foo<B>() { interface Bar extends Baz<Box<B>> {} }` with `type Baz<B> = …`. They are unknown here. Leaving them would make them refer to the definition's own type parameters, which can expand forever.
-	const outerTypeParameterTypes = getTypeState({
-		typeParameterTypes: new Map(parameters.map(parameter => [parameter.name.name, unknownTypeAnnotation])),
-	});
-	const resolve = (node, typeState) => resolveTypeParameterType(resolveTypeParameterType(node, typeState), outerTypeParameterTypes);
-	for (const [index, parameter] of parameters.entries()) {
+	for (const [index, parameter] of (definitionNode.typeParameters?.params ?? []).entries()) {
 		const typeArgument = typeArguments?.[index];
 		if (typeArgument) {
-			typeParameterTypes.set(parameter.name.name, resolve(typeArgument, typeState));
+			typeParameterTypes.set(parameter.name.name, resolveTypeParameterType(typeArgument, typeState));
 		} else if (parameter.default) {
-			typeParameterTypes.set(parameter.name.name, resolve(parameter.default, {
+			typeParameterTypes.set(parameter.name.name, resolveTypeParameterType(parameter.default, {
 				...typeState,
 				typeParameterTypes,
 			}));
