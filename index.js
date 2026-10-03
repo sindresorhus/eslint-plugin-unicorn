@@ -7,6 +7,23 @@ import packageJson from './package.json' with {type: 'json'};
 
 const rules = toEslintRules(rawRules);
 
+const movedToCssicorn = ruleName => ({
+	message: `Moved to \`eslint-cssicorn\` as \`cssicorn/${ruleName}\`.`,
+	replacedBy: [
+		{
+			plugin: {
+				name: 'eslint-cssicorn',
+				url: 'https://github.com/sindresorhus/eslint-cssicorn',
+			},
+			// ESLint prefixes the rule name with the plugin name, so it must not include `cssicorn/`.
+			rule: {
+				name: ruleName,
+				url: `https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/${ruleName}.md`,
+			},
+		},
+	],
+});
+
 const deprecatedRules = createDeprecatedRules({
 	'no-unused-array-method-return': {
 		message: 'Replaced by `unicorn/no-unused-builtin-method-return` which covers more cases.',
@@ -44,6 +61,17 @@ const deprecatedRules = createDeprecatedRules({
 		message: 'Renamed to `unicorn/dom-node-dataset`.',
 		replacedBy: ['unicorn/dom-node-dataset'],
 	},
+	'no-deprecated-css-features': movedToCssicorn('no-deprecated-features'),
+	'no-duplicate-css-selectors': movedToCssicorn('no-duplicate-selectors'),
+	'no-duplicate-font-family-names': movedToCssicorn('no-duplicate-font-family-names'),
+	'no-invalid-media-features': movedToCssicorn('no-invalid-media-features'),
+	'no-nesting-with-mixed-specificity': movedToCssicorn('no-nesting-with-mixed-specificity'),
+	'no-redundant-nested-style-rules': movedToCssicorn('no-redundant-nested-style-rules'),
+	'no-unknown-css-annotations': movedToCssicorn('no-unknown-annotations'),
+	'no-unknown-pseudo-selectors': movedToCssicorn('no-unknown-pseudo-selectors'),
+	'no-unscoped-css-nesting-selector': movedToCssicorn('no-unscoped-nesting-selector'),
+	'prefer-explicit-viewport-units': movedToCssicorn('prefer-explicit-viewport-units'),
+	'prefer-media-feature-range-syntax': movedToCssicorn('prefer-media-feature-range-syntax'),
 });
 
 const getExternalRules = rules => Object.fromEntries(

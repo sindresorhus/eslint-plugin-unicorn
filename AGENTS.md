@@ -105,6 +105,8 @@ Available identifiers:
 
 Most rules visit JavaScript AST nodes, so `js/js` is all they can support. But when a rule's logic is language-agnostic (filename, raw text, comments, or disable directives), support as many languages as is feasible. Root node types differ per language (`Program` for JS/TS, HTML, TOML, and YAML, `StyleSheet` for CSS, `Document` for JSON, `root` for Markdown), so use `onRoot(context, listener)` to run on every root and `getComments(context)` for cross-language comments (both from `rules/utils/`). For reference, see `prefer-https` (`['*']`, raw-text scan) and `no-empty-file` (per-language root handlers).
 
+CSS-only rules (`['css/css']`) belong in [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn), not here.
+
 ### TOML
 
 - The `Program` body always contains a `TOMLTopLevelTable`, even in empty files. Its `body` contains key/value pairs and table declarations; an empty named table counts as content.
@@ -116,6 +118,8 @@ Most rules visit JavaScript AST nodes, so `js/js` is all they can support. But w
 ## Reusable utilities
 
 `../eslint-node-test` adapts its infrastructure (rule adapter, snapshot test harness, doc generation) from this plugin. When changing shared patterns here (rule anatomy, testing conventions, autofix rules), consider whether the equivalent should be ported over there.
+
+`../eslint-cssicorn` shares CSS rule utilities with this plugin (for example, `rules/shared/css-shorthand-properties.js`). Keep them in sync: when you change a CSS utility in one plugin, make the same change in the other.
 
 Before writing helpers, check these directories:
 

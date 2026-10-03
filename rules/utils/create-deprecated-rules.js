@@ -22,12 +22,15 @@ export default function createDeprecatedRules(rules) {
 					deprecated: {
 						message: deprecatedInfo.message,
 						url,
-						replacedBy: deprecatedInfo.replacedBy.map(replacementRuleId => ({
-							rule: {
-								name: replacementRuleId,
-								url: getDocumentationUrl(replacementRuleId),
-							},
-						})),
+						// A string is a Unicorn rule ID. An object is a complete `ReplacedByInfo`, for example, for a rule in another plugin.
+						replacedBy: deprecatedInfo.replacedBy.map(replacement => typeof replacement === 'string'
+							? {
+								rule: {
+									name: replacement,
+									url: getDocumentationUrl(replacement),
+								},
+							}
+							: replacement),
 					},
 				},
 			},

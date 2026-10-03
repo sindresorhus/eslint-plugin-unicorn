@@ -1,6 +1,5 @@
 import test from 'ava';
 import {Linter} from 'eslint';
-import unicorn from '../index.js';
 import {getTester, languages, parsers} from './utils/test.js';
 
 const {test: ruleTest, rule} = getTester(import.meta);
@@ -319,15 +318,5 @@ test('metadata and neighboring rules', t => {
 			...languages.html,
 			rules: {'html/no-invalid-attr-value': 'error', 'html/no-ineffective-attrs': 'error'},
 		}], {filename: 'index.html'}), []);
-	}
-
-	const neighboringRule = unicorn.rules['no-invalid-media-features'];
-	for (const code of ['@media (width > 1000px) and (width < 500px) {}', '@media (1000px < width < 500px) {}', '@media (500px > width > 1000px) {}']) {
-		t.deepEqual(linter.verify(code, [{
-			files: ['**'],
-			...languages.css,
-			plugins: {...languages.css.plugins, unicorn: {rules: {'no-invalid-media-features': neighboringRule}}},
-			rules: {'unicorn/no-invalid-media-features': 'error'},
-		}], {filename: 'index.css'}), []);
 	}
 });

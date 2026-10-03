@@ -2,6 +2,50 @@
 
 ## Deprecated rules
 
+### no-deprecated-css-features
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/no-deprecated-features`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-deprecated-features.md).
+
+### no-duplicate-css-selectors
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/no-duplicate-selectors`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-duplicate-selectors.md).
+
+### no-duplicate-font-family-names
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/no-duplicate-font-family-names`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-duplicate-font-family-names.md).
+
+### no-invalid-media-features
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/no-invalid-media-features`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-invalid-media-features.md).
+
+### no-nesting-with-mixed-specificity
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/no-nesting-with-mixed-specificity`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-nesting-with-mixed-specificity.md).
+
+### no-redundant-nested-style-rules
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/no-redundant-nested-style-rules`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-redundant-nested-style-rules.md).
+
+### no-unknown-css-annotations
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/no-unknown-annotations`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-unknown-annotations.md).
+
+### no-unknown-pseudo-selectors
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/no-unknown-pseudo-selectors`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-unknown-pseudo-selectors.md).
+
+### no-unscoped-css-nesting-selector
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/no-unscoped-nesting-selector`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-unscoped-nesting-selector.md).
+
+### prefer-explicit-viewport-units
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/prefer-explicit-viewport-units`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/prefer-explicit-viewport-units.md).
+
+### prefer-media-feature-range-syntax
+
+Moved to [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn) as [`cssicorn/prefer-media-feature-range-syntax`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/prefer-media-feature-range-syntax.md).
+
 ### no-unused-array-method-return
 
 Replaced by [`no-unused-builtin-method-return`](rules/no-unused-builtin-method-return.md) which also covers Set and Temporal methods. Update explicit configurations to use the new name; the old rule is now a no-op.

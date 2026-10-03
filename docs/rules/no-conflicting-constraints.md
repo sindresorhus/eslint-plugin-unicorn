@@ -92,4 +92,4 @@ Custom components, spreads, dynamic bounds/types, mutable bindings, and forward 
 
 ## Related rules
 
-[`no-invalid-media-features`](./no-invalid-media-features.md) and HTML ESLint's [`no-invalid-attr-value`](https://html-eslint.org/docs/rules/no-invalid-attr-value) validate individual values. [`prefer-media-feature-range-syntax`](./prefer-media-feature-range-syntax.md) checks notation; HTML ESLint's `no-ineffective-attrs` checks applicability. None checks relationships between bounds.
+[`cssicorn/no-invalid-media-features`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-invalid-media-features.md) and HTML ESLint's [`no-invalid-attr-value`](https://html-eslint.org/docs/rules/no-invalid-attr-value) validate individual values. [`cssicorn/prefer-media-feature-range-syntax`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/prefer-media-feature-range-syntax.md) checks notation; HTML ESLint's `no-ineffective-attrs` checks applicability. None checks relationships between bounds.
