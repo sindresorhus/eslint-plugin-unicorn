@@ -50,8 +50,6 @@ test('exports only the supported presets', t => {
 		'recommended',
 		'unopinionated',
 		'all',
-		'flat/recommended',
-		'flat/all',
 		...Object.keys(nonJavaScriptConfigs),
 	]);
 });

@@ -77,12 +77,6 @@ Recommended rules for YAML. Compatible opt-in rules are disabled, and deprecated
 ```
 */
 		'recommended-yaml': Linter.Config;
-
-		/** @deprecated Use `all` instead. The `flat/` prefix is no longer needed. */
-		'flat/all': Linter.Config;
-
-		/** @deprecated Use `recommended` instead. The `flat/` prefix is no longer needed. */
-		'flat/recommended': Linter.Config;
 	};
 };
 

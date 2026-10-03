@@ -102,10 +102,6 @@ const configs = {
 	recommended: createConfig(recommendedRules, 'unicorn/recommended'),
 	unopinionated: createConfig(unopinionatedRules, 'unicorn/unopinionated'),
 	all: createConfig(allRules, 'unicorn/all'),
-
-	// TODO: Remove this at some point. Kept for now to avoid breaking users.
-	'flat/recommended': createConfig(recommendedRules, 'unicorn/flat/recommended'),
-	'flat/all': createConfig(allRules, 'unicorn/flat/all'),
 };
 
 const nonJavaScriptLanguages = {

@@ -8,8 +8,6 @@ const config = {
 	],
 	ignoreConfig: [
 		'all',
-		'flat/all',
-		'flat/recommended',
 		'recommended-css',
 		'recommended-html',
 		'recommended-json',
