@@ -274,6 +274,11 @@ test({
 			errors: [{messageId: 'incorrect-case', data: {resource: './assets/logo.svg?first=1&second=2#icon'}}],
 		},
 		{
+			code: 'new URL(/* Asset. */ "  ./assets/LOGO.svg?raw=1#icon  " /* Path. */, /* Base. */ import.meta.url);',
+			output: 'new URL(/* Asset. */ "  ./assets/logo.svg?raw=1#icon  " /* Path. */, /* Base. */ import.meta.url);',
+			errors: [{messageId: 'incorrect-case', data: {resource: './assets/logo.svg?raw=1#icon'}}],
+		},
+		{
 			code: 'new URL(`./Assets/logo.svg`, import.meta.url);',
 			output: 'new URL(`./assets/logo.svg`, import.meta.url);',
 			errors: [{messageId: 'incorrect-case', data: {resource: './assets/logo.svg'}}],
