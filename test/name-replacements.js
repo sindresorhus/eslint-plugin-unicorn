@@ -2804,3 +2804,17 @@ test.snapshot({
 		'a { -webkit-animation-name: "btn"; }',
 	].map(code => ({code, language: languages.css})),
 });
+
+test({
+	valid: ['markdown/commonmark', 'markdown/gfm'].flatMap(language => [
+		{code: '# Markdown filename', filename: 'error.md'},
+		{code: '# Markdown filename', filename: 'err.md', options: [{checkFilenames: false}]},
+	].map(testCase => ({...testCase, language, plugins: languages.markdown.plugins}))),
+	invalid: ['markdown/commonmark', 'markdown/gfm'].map(language => ({
+		code: '# Markdown filename',
+		filename: 'err.md',
+		language,
+		plugins: languages.markdown.plugins,
+		errors: [{message: 'The filename `err.md` should be named `error.md`. A more descriptive name will do too.'}],
+	})),
+});

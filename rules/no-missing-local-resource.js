@@ -394,7 +394,6 @@ const config = {
 		schema: [],
 		messages,
 		languages: [
-			'js/js',
 			'css/css',
 			'html/html',
 			'markdown/commonmark',

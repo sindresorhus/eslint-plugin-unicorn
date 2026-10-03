@@ -88,8 +88,7 @@ const config = {
 		defaultOptions: [{fields: []}],
 		messages,
 		languages: [
-			// `configs.all` applies every rule to JavaScript files.
-			'js/js',
+			// YAML frontmatter is exposed as a `yaml` node in Markdown.
 			'markdown/commonmark',
 			'markdown/gfm',
 		],

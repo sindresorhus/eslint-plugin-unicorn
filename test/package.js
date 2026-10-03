@@ -357,6 +357,32 @@ for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 	});
 }
 
+test('Every rule declares valid supported languages', t => {
+	const knownLanguages = ['js/js', 'markdown/gfm', ...Object.values(languages).map(({language}) => language)];
+	const supportedLanguages = new Set(['*', ...knownLanguages, ...knownLanguages.map(language => `${language.split('/', 1)[0]}/*`)]);
+	for (const [name, rule] of Object.entries(rawRules)) {
+		t.true(Array.isArray(rule.meta.languages), name);
+		t.true(rule.meta.languages.length > 0, name);
+		t.is(new Set(rule.meta.languages).size, rule.meta.languages.length, name);
+		for (const language of rule.meta.languages) {
+			t.true(supportedLanguages.has(language), `${name}: ${language}`);
+		}
+	}
+});
+
+for (const ruleName of ['no-shorthand-property-overrides', 'no-missing-local-resource', 'require-frontmatter-fields']) {
+	test(`${ruleName} rejects JavaScript and is excluded from JavaScript presets`, t => {
+		const linter = new Linter();
+		t.throws(() => linter.verify('const value = 1;', {
+			plugins: {unicorn: eslintPluginUnicorn},
+			rules: {[`unicorn/${ruleName}`]: 'error'},
+		}), {message: /do not support the language "js\/js"/});
+		t.is(eslintPluginUnicorn.configs.all.rules[`unicorn/${ruleName}`], undefined);
+		t.is(eslintPluginUnicorn.configs.recommended.rules[`unicorn/${ruleName}`], 'off');
+		t.is(eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${ruleName}`], 'off');
+	});
+}
+
 test('Every rule has valid meta.type', t => {
 	const validTypes = ['problem', 'suggestion', 'layout'];
 

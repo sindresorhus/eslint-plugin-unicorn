@@ -248,7 +248,7 @@ export default defineConfig([
 | [no-return-array-push](docs/rules/no-return-array-push.md)                                                 | Disallow using the return value of `Array#push()` and `Array#unshift()`.                                                       | ✅    |    | 💡 |    |
 | [no-selector-as-dom-name](docs/rules/no-selector-as-dom-name.md)                                           | Disallow selector syntax in DOM names.                                                                                         | ✅    | 🔧 |    |    |
 | [no-self-referencing-custom-properties](docs/rules/no-self-referencing-custom-properties.md)               | Disallow self-references in CSS custom properties.                                                                             |      |    |    |    |
-| [no-shorthand-property-overrides](docs/rules/no-shorthand-property-overrides.md)                           | Disallow shorthand properties that override related longhand properties.                                                       | ✅ ☑️ |    |    |    |
+| [no-shorthand-property-overrides](docs/rules/no-shorthand-property-overrides.md)                           | Disallow shorthand properties that override related longhand properties.                                                       |      |    |    |    |
 | [no-single-promise-in-promise-methods](docs/rules/no-single-promise-in-promise-methods.md)                 | Disallow passing single-element arrays to `Promise` methods.                                                                   | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-static-only-class](docs/rules/no-static-only-class.md)                                                 | Disallow classes that only have static members.                                                                                | ✅ ☑️ | 🔧 |    |    |
 | [no-subtraction-comparison](docs/rules/no-subtraction-comparison.md)                                       | Prefer comparing values directly over subtracting and comparing to `0`.                                                        | ✅ ☑️ | 🔧 | 💡 |    |
@@ -618,7 +618,7 @@ These rules also work on specific non-JavaScript languages:
 | [`indent`](docs/rules/indent.md) | ✅ |  | ✅ |  |  |  |
 | [`key-name-casing`](docs/rules/key-name-casing.md) |  |  | ✅ |  | ✅ | ✅ |
 | [`lowercase-css`](docs/rules/lowercase-css.md) | ✅ |  |  |  |  |  |
-| [`name-replacements`](docs/rules/name-replacements.md) | ✅ | ✅ | ✅ |  | ✅ | ✅ |
+| [`name-replacements`](docs/rules/name-replacements.md) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md) | ✅ |  | ✅ |  |  |  |
 | [`no-conflicting-constraints`](docs/rules/no-conflicting-constraints.md) | ✅ | ✅ |  |  |  |  |
 | [`no-declarations-after-nested-rules`](docs/rules/no-declarations-after-nested-rules.md) | ✅ |  |  |  |  |  |
