@@ -323,6 +323,54 @@ test({
 	],
 });
 
+for (const moduleName of ['eslint/config', '@eslint/config-helpers']) {
+	test({
+		valid: [
+			{
+				code: `import {defineConfig} from "${moduleName}"; export default defineConfig([]);`,
+				filename: 'eslint.config.js',
+			},
+			`import {defineConfig as configure} from "${moduleName}"; export {}; configure({rules: {}});`,
+			`import * as configHelpers from "${moduleName}"; export default configHelpers.defineConfig([{rules: {}}]);`,
+			typescriptCode(`import {defineConfig} from "${moduleName}"; export default defineConfig([]) satisfies Config[];`),
+		],
+		invalid: [
+			...[
+				`import {defineConfig} from "${moduleName}"; export default defineConfig(loadConfig());`,
+				`import {defineConfig} from "${moduleName}"; export default defineConfig([loadConfig()]);`,
+				`import {defineConfig} from "${moduleName}"; export {}; defineConfig({settings: {value: loadConfig()}});`,
+				`import * as configHelpers from "${moduleName}"; export default configHelpers.defineConfig(loadConfig());`,
+				`import {globalIgnores} from "${moduleName}"; export default globalIgnores([]);`,
+				`import {includeIgnoreFile} from "${moduleName}"; export default includeIgnoreFile(".gitignore");`,
+				`import {defineConfig} from "${moduleName}"; const configure = defineConfig; export default configure([]);`,
+			].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
+			{
+				...typescriptCode(`import type {defineConfig} from "${moduleName}"; export default defineConfig([]);`),
+				errors: [{messageId: 'no-top-level-side-effects'}],
+			},
+		],
+	});
+}
+
+test({
+	valid: ['import configHelpers from "eslint/config"; export default configHelpers.defineConfig([]);'],
+	invalid: [
+		{
+			code: 'import {defineConfig} from "other"; export default defineConfig([]);',
+			errors: [{messageId: 'no-top-level-side-effects'}],
+		},
+		{
+			code: 'export default defineConfig([]);',
+			errors: [{messageId: 'no-top-level-side-effects'}],
+		},
+		{
+			code: 'import {defineConfig} from "eslint/config"; export default defineConfig([]);\ninit();',
+			filename: 'eslint.config.js',
+			errors: [{messageId: 'no-top-level-side-effects', line: 2}],
+		},
+	],
+});
+
 for (const [parser, filename] of [[undefined, 'component.jsx'], [parsers.typescript, 'component.tsx']]) {
 	test({
 		testerOptions: {

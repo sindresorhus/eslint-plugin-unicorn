@@ -6,15 +6,19 @@ const messages = {
 	[MESSAGE_ID]: 'Do not use top-level side effects in exported modules.',
 };
 
-const pureReactMethods = new Set([
-	'memo',
-	'forwardRef',
-	'lazy',
-	'createContext',
-	'createRef',
-	'createElement',
-	'cloneElement',
-	'isValidElement',
+const knownPureMethods = new Map([
+	['react', new Set([
+		'memo',
+		'forwardRef',
+		'lazy',
+		'createContext',
+		'createRef',
+		'createElement',
+		'cloneElement',
+		'isValidElement',
+	])],
+	['eslint/config', new Set(['defineConfig'])],
+	['@eslint/config-helpers', new Set(['defineConfig'])],
 ]);
 
 const exportDeclarationTypes = new Set([
@@ -56,14 +60,14 @@ const isInScriptSetup = (node, scriptSetupRange, sourceCode) => {
 	return scriptSetupRange[0] <= nodeRange[0] && nodeRange[1] <= scriptSetupRange[1];
 };
 
-const isPureReactCall = (node, sourceCode) => {
+const isKnownPureCall = (node, sourceCode) => {
 	if (node.type !== 'CallExpression' || node.optional) {
 		return false;
 	}
 
 	const callee = unwrapTypeScriptExpression(node.callee);
 	const isMember = callee.type === 'MemberExpression';
-	if (isMember && (callee.computed || callee.optional || !pureReactMethods.has(callee.property.name))) {
+	if (isMember && (callee.computed || callee.optional)) {
 		return false;
 	}
 
@@ -77,23 +81,27 @@ const isPureReactCall = (node, sourceCode) => {
 		if (
 			definition.type !== 'ImportBinding'
 			|| definition.parent.type !== 'ImportDeclaration'
-			|| definition.parent.source.value !== 'react'
 			|| !isRuntimeImportSpecifier(definition.node)
 		) {
 			return false;
 		}
 
+		const methods = knownPureMethods.get(definition.parent.source.value);
+		if (!methods) {
+			return false;
+		}
+
 		const specifier = definition.node;
 		return isMember
-			? specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier'
-			: specifier.type === 'ImportSpecifier' && pureReactMethods.has(specifier.imported.name ?? specifier.imported.value);
+			? methods.has(callee.property.name) && (specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier')
+			: specifier.type === 'ImportSpecifier' && methods.has(specifier.imported.name ?? specifier.imported.value);
 	}) ?? false;
 };
 
 const hasExpressionSideEffect = (node, sourceCode) => {
 	node = unwrapTypeScriptExpression(node);
 
-	if (isPureReactCall(node, sourceCode)) {
+	if (isKnownPureCall(node, sourceCode)) {
 		return node.arguments.some(argument => hasExpressionSideEffect(argument, sourceCode));
 	}
 
