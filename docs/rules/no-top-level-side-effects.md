@@ -15,6 +15,8 @@ The rule ignores files without exports and executable scripts with a shebang. Fi
 
 Direct calls to `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement` imported from `react` are allowed, including nested calls such as `memo(forwardRef(Component))`. Default, namespace, and named imports are supported, including import aliases. Calls through local variable aliases, computed members, optional chains, or conditional expressions remain conservatively checked. Arguments are still checked for side effects, so `memo(initialize())` is reported. This allowance applies to standalone top-level expression statements and default exports. Calls inside arbitrary object or array expressions remain conservatively checked, and globally supplied React objects are not recognized.
 
+Tagged templates are checked when they are direct arguments. Tags nested in other expressions, such as object properties, are outside this rule's analysis.
+
 With `vue-eslint-parser`, direct top-level expressions in `<script setup>` are ignored because they run in component setup scope, not module scope. The normal `<script>` is still checked when the module has a runtime export.
 
 ```vue

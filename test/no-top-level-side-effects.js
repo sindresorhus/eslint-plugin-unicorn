@@ -228,6 +228,7 @@ test({
 		'import ReactLibrary from "react"; export default ReactLibrary.memo(Link);',
 		'import * as ReactLibrary from "react"; export default ReactLibrary.forwardRef(Link);',
 		'import {memo as wrap} from "react"; export default wrap(Link);',
+		'import {"memo" as wrap} from "react"; export default wrap(Link);',
 		'import {memo} from "react"; export default (memo)(Link);',
 		'import React from "react"; export default (React).memo(Link);',
 		'import React from "react"; export default React.memo(React.forwardRef(Link));',
@@ -236,6 +237,8 @@ test({
 		'import {forwardRef} from "react"; export default forwardRef((properties, reference) => render(properties, reference));',
 		'import {lazy} from "react"; export default lazy(() => import("./Component.js"));',
 		'import {createElement} from "react"; export default createElement("div", {}, createElement("span"));',
+		// Nested tagged templates are outside the argument analysis.
+		'import {createElement} from "react"; export default createElement("div", {title: tag`value`});',
 		'import {memo} from "react"; export default memo(/* Component */ Link);',
 		'import {memo} from "react"; export default memo(class extends Component {});',
 		'import {createRef} from "react"; export default createRef();',
@@ -273,7 +276,6 @@ test({
 			'import {memo} from "react"; export default memo(Component = Link);',
 			'import {memo} from "react"; export default memo(...initialize());',
 			'import {memo} from "react"; export default memo(tag`value`);',
-			'import {memo} from "react"; export default memo(Link); init();',
 			'import React from "other"; export default React.memo(Link);',
 			'import * as React from "other"; export default React.memo(Link);',
 			'import {memo} from "other"; export default memo(Link);',
@@ -292,6 +294,10 @@ test({
 			// eslint-disable-next-line no-template-curly-in-string
 			'import figma from "figma"; export default {example: figma.code`<Tag ${figma.helpers.react.renderProp("color", color)} />`};',
 		].map(code => ({code, errors: 1})),
+		{
+			code: 'import {memo} from "react"; export default memo(Link);\ninit();',
+			errors: [{messageId: 'no-top-level-side-effects', line: 2, column: 1, endLine: 2, endColumn: 8}],
+		},
 		{
 			...typescriptCode('import {memo} from "react"; export default (memo(initialize()) as Component);'),
 			errors: 1,
