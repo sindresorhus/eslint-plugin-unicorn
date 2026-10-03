@@ -713,6 +713,9 @@ export default defineConfig([
 
 These presets enable recommended rules compatible with every dialect listed below. Compatible opt-in rules are disabled, and deprecated rules are excluded. Configure file matching, the language plugin, and `language` separately. These presets do not configure JavaScript globals or core-rule overrides.
 
+> [!NOTE]
+> Ideally, a single `recommended` preset would work for every language. ESLint currently throws when an enabled rule's `meta.languages` does not support the active language, rather than filtering incompatible rules from shared presets. This requires separate presets per language. [Our request for ESLint to support this](https://github.com/eslint/eslint/issues/20999) was closed. If you want a single preset, [open a new ESLint issue](https://github.com/eslint/eslint/issues/new/choose) explaining your use case and referencing that request.
+
 | Preset | Supported languages |
 | :-- | :-- |
 | `recommended-css` | `css/css` |
