@@ -2,7 +2,7 @@
 
 📝 Disallow duplicate properties within CSS declaration blocks.
 
-🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, ☑️ `unopinionated`.
+🚫 Disabled by default.
 
 💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 

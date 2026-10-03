@@ -2,7 +2,7 @@
 
 📝 Enforce a case style for data keys.
 
-🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🧩 `recommended-json`, 🛠️ `recommended-toml`, 📋 `recommended-yaml`, ☑️ `unopinionated`.
+🚫 Disabled by default.
 
 <!-- end auto-generated rule header -->
 

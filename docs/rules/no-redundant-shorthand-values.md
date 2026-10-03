@@ -2,7 +2,7 @@
 
 📝 Disallow redundant values in CSS shorthand properties.
 
-🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, ☑️ `unopinionated`.
+🚫 Disabled by default.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 

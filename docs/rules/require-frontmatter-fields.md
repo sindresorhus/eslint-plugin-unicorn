@@ -2,7 +2,7 @@
 
 📝 Require configured YAML frontmatter fields.
 
-🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 📚 `recommended-markdown`, ☑️ `unopinionated`.
+🚫 Disabled by default.
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
