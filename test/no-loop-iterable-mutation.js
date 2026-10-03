@@ -408,6 +408,34 @@ test.snapshot({
 				}
 			}
 		`,
+		// Not an iterator method
+		'for (const value of foo.toArray()) { foo.push(value); }',
+		// The iterator method is not called on a reference
+		'for (const value of getSet().keys()) { foo.push(value); }',
+		// Calls that are not member calls are ignored
+		'for (const value of array) { foo(value); }',
+		// The loop body is not a block
+		'for (const value of set) set.add(value);',
+		// Earlier statements that are not calls do not delete the current item
+		outdent`
+			for (const value of set) {
+				let count;
+				count = 1;
+				set.add(value);
+			}
+		`,
+		// The `else` branch that would delete leaves the loop
+		outdent`
+			for (const value of set) {
+				if (condition) {
+					foo();
+				} else {
+					continue;
+				}
+
+				set.add(value);
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -778,6 +806,18 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		// The current item is deleted in the `else` branch first
+		outdent`
+			for (const value of set) {
+				if (condition) {
+					foo();
+				} else {
+					set.delete(value);
+				}
+
+				set.add(value);
+			}
+		`,
 	],
 });
 

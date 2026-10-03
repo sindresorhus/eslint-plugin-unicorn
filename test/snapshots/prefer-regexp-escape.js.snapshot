@@ -1,0 +1,611 @@
+exports[`prefer-regexp-escape > invalid(1): const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(1): const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(10): const escaped = string.replace(/[\\/\\\\^$*+?.()|[\\]{}-]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[\\/\\\\^$*+?.()|[\\]{}-]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(10): const escaped = string.replace(/[\\/\\\\^$*+?.()|[\\]{}-]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[\\/\\\\^$*+?.()|[\\]{}-]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(11): const escaped = object.value.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = object.value.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(11): const escaped = object.value.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = object.value.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(object.value);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(12): const escaped = getString().replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = getString().replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(12): const escaped = getString().replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = getString().replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(getString());
+
+`;
+
+exports[`prefer-regexp-escape > invalid(13): const escaped = (string).replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = (string).replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(13): const escaped = (string).replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = (string).replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape((string));
+
+`;
+
+exports[`prefer-regexp-escape > invalid(14): const escaped = (0, string).replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = (0, string).replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(14): const escaped = (0, string).replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = (0, string).replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape((0, string));
+
+`;
+
+exports[`prefer-regexp-escape > invalid(15): const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/g, \"\\\\$&\"); 1`] = `
+
+  1 | const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/g, "\\\\$&");
+
+`;
+
+exports[`prefer-regexp-escape > invalid(15): const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/g, \"\\\\$&\"); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/g, "\\\\$&");
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(16): const escaped = string.replace(/* pattern */ /[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/* pattern */ /[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(16): const escaped = string.replace(/* pattern */ /[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/* pattern */ /[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+`;
+
+exports[`prefer-regexp-escape > invalid(17): class StringSubclass extends String { method() { return super.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); } } 1`] = `
+
+  1 | class StringSubclass extends String { method() { return super.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); } }
+
+`;
+
+exports[`prefer-regexp-escape > invalid(17): class StringSubclass extends String { method() { return super.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); } } 2`] = `
+
+Message:
+> 1 | class StringSubclass extends String { method() { return super.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); } }
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+`;
+
+exports[`prefer-regexp-escape > invalid(18): import escapeStringRegexp from 'escape-string-regexp'; const escaped = escapeStringRegexp(string); 1`] = `
+
+  1 | import escapeStringRegexp from 'escape-string-regexp'; const escaped = escapeStringRegexp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(18): import escapeStringRegexp from 'escape-string-regexp'; const escaped = escapeStringRegexp(string); 2`] = `
+
+Message:
+> 1 | import escapeStringRegexp from 'escape-string-regexp'; const escaped = escapeStringRegexp(string);
+    |                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import escapeStringRegexp from 'escape-string-regexp'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(19): import escapeRegex from 'escape-string-regexp'; const escaped = escapeRegex(string); 1`] = `
+
+  1 | import escapeRegex from 'escape-string-regexp'; const escaped = escapeRegex(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(19): import escapeRegex from 'escape-string-regexp'; const escaped = escapeRegex(string); 2`] = `
+
+Message:
+> 1 | import escapeRegex from 'escape-string-regexp'; const escaped = escapeRegex(string);
+    |                                                                 ^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import escapeRegex from 'escape-string-regexp'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(2): const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/gi, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/gi, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(2): const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/gi, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\]/gi, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(20): import {default as escapeStringRegexp} from 'escape-string-regexp'; const escaped = escapeStringRegexp(string); 1`] = `
+
+  1 | import {default as escapeStringRegexp} from 'escape-string-regexp'; const escaped = escapeStringRegexp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(20): import {default as escapeStringRegexp} from 'escape-string-regexp'; const escaped = escapeStringRegexp(string); 2`] = `
+
+Message:
+> 1 | import {default as escapeStringRegexp} from 'escape-string-regexp'; const escaped = escapeStringRegexp(string);
+    |                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import {default as escapeStringRegexp} from 'escape-string-regexp'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(21): const escapeStringRegexp = require('escape-string-regexp'); const escaped = escapeStringRegexp(string); 1`] = `
+
+  1 | const escapeStringRegexp = require('escape-string-regexp'); const escaped = escapeStringRegexp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(21): const escapeStringRegexp = require('escape-string-regexp'); const escaped = escapeStringRegexp(string); 2`] = `
+
+Message:
+> 1 | const escapeStringRegexp = require('escape-string-regexp'); const escaped = escapeStringRegexp(string);
+    |                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | const escapeStringRegexp = require('escape-string-regexp'); const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(22): import escapeRegExp from 'lodash.escaperegexp'; const escaped = escapeRegExp(string); 1`] = `
+
+  1 | import escapeRegExp from 'lodash.escaperegexp'; const escaped = escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(22): import escapeRegExp from 'lodash.escaperegexp'; const escaped = escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | import escapeRegExp from 'lodash.escaperegexp'; const escaped = escapeRegExp(string);
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import escapeRegExp from 'lodash.escaperegexp'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(23): import {default as escapeRegExp} from 'lodash.escaperegexp'; const escaped = escapeRegExp(string); 1`] = `
+
+  1 | import {default as escapeRegExp} from 'lodash.escaperegexp'; const escaped = escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(23): import {default as escapeRegExp} from 'lodash.escaperegexp'; const escaped = escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | import {default as escapeRegExp} from 'lodash.escaperegexp'; const escaped = escapeRegExp(string);
+    |                                                                              ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import {default as escapeRegExp} from 'lodash.escaperegexp'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(24): const escapeRegExp = require('lodash.escaperegexp'); const escaped = escapeRegExp(string); 1`] = `
+
+  1 | const escapeRegExp = require('lodash.escaperegexp'); const escaped = escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(24): const escapeRegExp = require('lodash.escaperegexp'); const escaped = escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | const escapeRegExp = require('lodash.escaperegexp'); const escaped = escapeRegExp(string);
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | const escapeRegExp = require('lodash.escaperegexp'); const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(25): import escapeRegExp from 'lodash/escapeRegExp'; const escaped = escapeRegExp(string); 1`] = `
+
+  1 | import escapeRegExp from 'lodash/escapeRegExp'; const escaped = escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(25): import escapeRegExp from 'lodash/escapeRegExp'; const escaped = escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | import escapeRegExp from 'lodash/escapeRegExp'; const escaped = escapeRegExp(string);
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import escapeRegExp from 'lodash/escapeRegExp'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(26): import {default as escapeRegExp} from 'lodash/escapeRegExp'; const escaped = escapeRegExp(string); 1`] = `
+
+  1 | import {default as escapeRegExp} from 'lodash/escapeRegExp'; const escaped = escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(26): import {default as escapeRegExp} from 'lodash/escapeRegExp'; const escaped = escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | import {default as escapeRegExp} from 'lodash/escapeRegExp'; const escaped = escapeRegExp(string);
+    |                                                                              ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import {default as escapeRegExp} from 'lodash/escapeRegExp'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(27): const escapeRegExp = require('lodash/escapeRegExp'); const escaped = escapeRegExp(string); 1`] = `
+
+  1 | const escapeRegExp = require('lodash/escapeRegExp'); const escaped = escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(27): const escapeRegExp = require('lodash/escapeRegExp'); const escaped = escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | const escapeRegExp = require('lodash/escapeRegExp'); const escaped = escapeRegExp(string);
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | const escapeRegExp = require('lodash/escapeRegExp'); const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(28): import {escapeRegExp} from 'lodash-es'; const escaped = escapeRegExp(string); 1`] = `
+
+  1 | import {escapeRegExp} from 'lodash-es'; const escaped = escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(28): import {escapeRegExp} from 'lodash-es'; const escaped = escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | import {escapeRegExp} from 'lodash-es'; const escaped = escapeRegExp(string);
+    |                                                         ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import {escapeRegExp} from 'lodash-es'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(29): import {escapeRegExp as escapeRegex} from 'lodash'; const escaped = escapeRegex(string); 1`] = `
+
+  1 | import {escapeRegExp as escapeRegex} from 'lodash'; const escaped = escapeRegex(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(29): import {escapeRegExp as escapeRegex} from 'lodash'; const escaped = escapeRegex(string); 2`] = `
+
+Message:
+> 1 | import {escapeRegExp as escapeRegex} from 'lodash'; const escaped = escapeRegex(string);
+    |                                                                     ^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import {escapeRegExp as escapeRegex} from 'lodash'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(3): const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\/]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\/]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(3): const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\/]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[.*+?^\${}()|[\\]\\\\/]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(30): const {escapeRegExp} = require('lodash'); const escaped = escapeRegExp(string); 1`] = `
+
+  1 | const {escapeRegExp} = require('lodash'); const escaped = escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(30): const {escapeRegExp} = require('lodash'); const escaped = escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | const {escapeRegExp} = require('lodash'); const escaped = escapeRegExp(string);
+    |                                                           ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | const {escapeRegExp} = require('lodash'); const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(31): import lodash from 'lodash'; const escaped = lodash.escapeRegExp(string); 1`] = `
+
+  1 | import lodash from 'lodash'; const escaped = lodash.escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(31): import lodash from 'lodash'; const escaped = lodash.escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | import lodash from 'lodash'; const escaped = lodash.escapeRegExp(string);
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import lodash from 'lodash'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(32): import * as lodash from 'lodash-es'; const escaped = lodash.escapeRegExp(string); 1`] = `
+
+  1 | import * as lodash from 'lodash-es'; const escaped = lodash.escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(32): import * as lodash from 'lodash-es'; const escaped = lodash.escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | import * as lodash from 'lodash-es'; const escaped = lodash.escapeRegExp(string);
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import * as lodash from 'lodash-es'; const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(33): const lodash = require('lodash'); const escaped = lodash.escapeRegExp(string); 1`] = `
+
+  1 | const lodash = require('lodash'); const escaped = lodash.escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(33): const lodash = require('lodash'); const escaped = lodash.escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | const lodash = require('lodash'); const escaped = lodash.escapeRegExp(string);
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | const lodash = require('lodash'); const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(34): const escaped = _.escapeRegExp(string); 1`] = `
+
+  1 | const escaped = _.escapeRegExp(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(34): const escaped = _.escapeRegExp(string); 2`] = `
+
+Message:
+> 1 | const escaped = _.escapeRegExp(string);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(35): import escapeStringRegexp from 'escape-string-regexp';\nconst object = {value: 42};\nObject.defineProperty(object, 'value', {get() { return 'value'; }});\nconst escaped = escapeStringRegexp(object.value); 1`] = `
+
+  1 | import escapeStringRegexp from 'escape-string-regexp';
+  2 | const object = {value: 42};
+  3 | Object.defineProperty(object, 'value', {get() { return 'value'; }});
+  4 | const escaped = escapeStringRegexp(object.value);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(35): import escapeStringRegexp from 'escape-string-regexp';\nconst object = {value: 42};\nObject.defineProperty(object, 'value', {get() { return 'value'; }});\nconst escaped = escapeStringRegexp(object.value); 2`] = `
+
+Message:
+  1 | import escapeStringRegexp from 'escape-string-regexp';
+  2 | const object = {value: 42};
+  3 | Object.defineProperty(object, 'value', {get() { return 'value'; }});
+> 4 | const escaped = escapeStringRegexp(object.value);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Suggestion 1/1: Replace with \`RegExp.escape()\`.:
+  1 | import escapeStringRegexp from 'escape-string-regexp';
+  2 | const object = {value: 42};
+  3 | Object.defineProperty(object, 'value', {get() { return 'value'; }});
+  4 | const escaped = RegExp.escape(object.value);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(36): import escapeStringRegexp from 'escape-string-regexp'; const escaped = escapeStringRegexp(/* string */ string); 1`] = `
+
+  1 | import escapeStringRegexp from 'escape-string-regexp'; const escaped = escapeStringRegexp(/* string */ string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(36): import escapeStringRegexp from 'escape-string-regexp'; const escaped = escapeStringRegexp(/* string */ string); 2`] = `
+
+Message:
+> 1 | import escapeStringRegexp from 'escape-string-regexp'; const escaped = escapeStringRegexp(/* string */ string);
+    |                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+`;
+
+exports[`prefer-regexp-escape > invalid(4): const escaped = string.replace(/[\\]\\\\.*+?^\${}()|[]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[\\]\\\\.*+?^\${}()|[]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(4): const escaped = string.replace(/[\\]\\\\.*+?^\${}()|[]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[\\]\\\\.*+?^\${}()|[]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(5): const escaped = string.replace(/[.*+?^$()]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[.*+?^$()]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(5): const escaped = string.replace(/[.*+?^$()]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[.*+?^$()]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(6): const escaped = string.replace(/[\\\\^$.*+?()[\\]{}|]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[\\\\^$.*+?()[\\]{}|]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(6): const escaped = string.replace(/[\\\\^$.*+?()[\\]{}|]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[\\\\^$.*+?()[\\]{}|]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(7): const escaped = string.replace(/[|\\\\{}()[\\]^$+*?.]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[|\\\\{}()[\\]^$+*?.]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(7): const escaped = string.replace(/[|\\\\{}()[\\]^$+*?.]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[|\\\\{}()[\\]^$+*?.]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(8): const escaped = string.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(8): const escaped = string.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;
+
+exports[`prefer-regexp-escape > invalid(9): const escaped = string.replace(/[\\/\\-\\\\^$*+?.()|[\\]{}]/g, '\\\\$&'); 1`] = `
+
+  1 | const escaped = string.replace(/[\\/\\-\\\\^$*+?.()|[\\]{}]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-regexp-escape > invalid(9): const escaped = string.replace(/[\\/\\-\\\\^$*+?.()|[\\]{}]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | const escaped = string.replace(/[\\/\\-\\\\^$*+?.()|[\\]{}]/g, '\\\\$&');
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp.escape()\` for escaping strings to use in regular expressions.
+
+Output:
+  1 | const escaped = RegExp.escape(string);
+
+`;

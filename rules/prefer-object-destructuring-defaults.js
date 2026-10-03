@@ -53,8 +53,9 @@ const getSimplePatternProperties = (objectPattern, context) => {
 			return;
 		}
 
+		// A non-computed key always has a name
 		const name = getPropertyName(property, context.sourceCode.getScope(property));
-		if (name === null || objectPrototypePropertyNames.has(name)) {
+		if (objectPrototypePropertyNames.has(name)) {
 			return;
 		}
 
@@ -85,7 +86,7 @@ const getDefaultProperties = (objectExpression, context) => {
 		}
 
 		const name = getPropertyName(property, context.sourceCode.getScope(property));
-		if (name === null || defaultProperties.has(name)) {
+		if (defaultProperties.has(name)) {
 			return;
 		}
 

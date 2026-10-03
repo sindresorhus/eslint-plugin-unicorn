@@ -1,6 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 import {runInNewContext} from 'node:vm';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import plugin from '../index.js';
@@ -184,19 +184,19 @@ test('URL object suggestions extract queries and distinguish detached copies fro
 	const prefix = 'const url = new URL(input); ';
 	const code = `${prefix}new URLSearchParams(url)`;
 	const [problem] = linter.verify(code, config);
-	t.is(problem?.suggestions?.length, 2);
+	t.assert.strictEqual(problem?.suggestions?.length, 2);
 	const url = new URL('https://example.com/?query=hello&query=again#fragment');
-	t.deepEqual([...new URLSearchParams(url)], []);
+	t.assert.deepStrictEqual([...new URLSearchParams(url)], []);
 	const [detached, live] = problem.suggestions.map(({fix}) => {
 		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 		return runInNewContext(corrected.slice(prefix.length), {url, URLSearchParams});
 	});
-	t.deepEqual([...detached], [['query', 'hello'], ['query', 'again']]);
-	t.deepEqual([...live], [...detached]);
+	t.assert.deepStrictEqual([...detached], [['query', 'hello'], ['query', 'again']]);
+	t.assert.deepStrictEqual([...live], [...detached]);
 	detached.set('query', 'detached');
-	t.is(url.searchParams.get('query'), 'hello');
+	t.assert.strictEqual(url.searchParams.get('query'), 'hello');
 	live.set('query', 'live');
-	t.is(url.searchParams.get('query'), 'live');
+	t.assert.strictEqual(url.searchParams.get('query'), 'live');
 });
 
 test('suggestions extract queries and distinguish detached copies from live parameters', t => {
@@ -205,23 +205,23 @@ test('suggestions extract queries and distinguish detached copies from live para
 	const prefix = 'const url = new URL(input); ';
 	const code = `${prefix}new URLSearchParams(url.href)`;
 	const [problem] = linter.verify(code, config);
-	t.is(problem?.suggestions?.length, 2);
+	t.assert.strictEqual(problem?.suggestions?.length, 2);
 	const input = 'https://example.com/?query=hello&query=again#fragment';
 	const url = new URL(input);
-	t.deepEqual([...new URLSearchParams(input)], [['https://example.com/?query', 'hello'], ['query', 'again#fragment']]);
+	t.assert.deepStrictEqual([...new URLSearchParams(input)], [['https://example.com/?query', 'hello'], ['query', 'again#fragment']]);
 	const [detached, live] = problem.suggestions.map(({fix}) => {
 		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 		return runInNewContext(corrected.slice(prefix.length), {url, URLSearchParams});
 	});
-	t.deepEqual([...detached], [['query', 'hello'], ['query', 'again']]);
-	t.deepEqual([...live], [...detached]);
+	t.assert.deepStrictEqual([...detached], [['query', 'hello'], ['query', 'again']]);
+	t.assert.deepStrictEqual([...live], [...detached]);
 	detached.set('query', 'detached');
-	t.is(url.searchParams.get('query'), 'hello');
+	t.assert.strictEqual(url.searchParams.get('query'), 'hello');
 	live.set('query', 'live');
-	t.is(url.searchParams.get('query'), 'live');
+	t.assert.strictEqual(url.searchParams.get('query'), 'live');
 	url.search = '?query=updated';
-	t.is(live.get('query'), 'updated');
-	t.is(detached.get('query'), 'detached');
+	t.assert.strictEqual(live.get('query'), 'updated');
+	t.assert.strictEqual(detached.get('query'), 'detached');
 });
 
 for (const [input, expected] of [
@@ -233,11 +233,11 @@ for (const [input, expected] of [
 		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
 		const code = `new URLSearchParams(${JSON.stringify(input)})`;
 		const [problem] = linter.verify(code, config);
-		t.is(problem?.suggestions?.length, 1);
+		t.assert.strictEqual(problem?.suggestions?.length, 1);
 		const {fix} = problem.suggestions[0];
 		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 		const parameters = runInNewContext(corrected, {URL});
-		t.deepEqual([...parameters], expected);
+		t.assert.deepStrictEqual([...parameters], expected);
 	});
 }
 
@@ -247,7 +247,7 @@ for (const argument of ['new URL(getInput()).href', 'new URL(getInput())']) {
 		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
 		const code = `new URLSearchParams(${argument})`;
 		const [problem] = linter.verify(code, config);
-		t.is(problem?.suggestions?.length, 2);
+		t.assert.strictEqual(problem?.suggestions?.length, 2);
 		for (const {fix} of problem.suggestions) {
 			let calls = 0;
 			const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
@@ -259,8 +259,8 @@ for (const argument of ['new URL(getInput()).href', 'new URL(getInput())']) {
 					return 'https://example.com/?query=hello#fragment';
 				},
 			});
-			t.is(calls, 1);
-			t.is(parameters.get('query'), 'hello');
+			t.assert.strictEqual(calls, 1);
+			t.assert.strictEqual(parameters.get('query'), 'hello');
 		}
 	});
 }
@@ -276,12 +276,12 @@ test('URL preference rules complement the diagnostic', t => {
 		},
 	};
 	const href = linter.verifyAndFix('new URLSearchParams(new URL(input).toString())', config);
-	t.is(href.output, 'new URLSearchParams(new URL(input).href)');
-	t.deepEqual(href.messages.map(({ruleId}) => ruleId), ['unicorn/no-url-in-search-params']);
+	t.assert.strictEqual(href.output, 'new URLSearchParams(new URL(input).href)');
+	t.assert.deepStrictEqual(href.messages.map(({ruleId}) => ruleId), ['unicorn/no-url-in-search-params']);
 	const original = 'new URLSearchParams("https://example.com/".split("&").map(part => part.split("=")))';
 	const [manual] = linter.verify(original, config);
-	t.is(manual.ruleId, 'unicorn/prefer-url-search-parameters');
+	t.assert.strictEqual(manual.ruleId, 'unicorn/prefer-url-search-parameters');
 	const {fix} = manual.suggestions[0];
 	const corrected = original.slice(0, fix.range[0]) + fix.text + original.slice(fix.range[1]);
-	t.deepEqual(linter.verify(corrected, config).map(({ruleId}) => ruleId), ['unicorn/no-url-in-search-params']);
+	t.assert.deepStrictEqual(linter.verify(corrected, config).map(({ruleId}) => ruleId), ['unicorn/no-url-in-search-params']);
 });

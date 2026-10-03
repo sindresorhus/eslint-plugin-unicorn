@@ -1,0 +1,663 @@
+exports[`no-useless-concat > invalid(1): 'a' + 'b' 1`] = `
+
+  1 | 'a' + 'b'
+
+`;
+
+exports[`no-useless-concat > invalid(1): 'a' + 'b' 2`] = `
+
+Message:
+> 1 | 'a' + 'b'
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'ab'
+
+`;
+
+exports[`no-useless-concat > invalid(10): 'a' + '\${}' 1`] = `
+
+  1 | 'a' + '\${}'
+
+`;
+
+exports[`no-useless-concat > invalid(10): 'a' + '\${}' 2`] = `
+
+Message:
+> 1 | 'a' + '\${}'
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'a\${}'
+
+`;
+
+exports[`no-useless-concat > invalid(11): \`a\` + \`\${b}\` 1`] = `
+
+  1 | \`a\` + \`\${b}\`
+
+`;
+
+exports[`no-useless-concat > invalid(11): \`a\` + \`\${b}\` 2`] = `
+
+Message:
+> 1 | \`a\` + \`\${b}\`
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | \`a\${b}\`
+
+`;
+
+exports[`no-useless-concat > invalid(12): \"a\`b\" + \"c\" 1`] = `
+
+  1 | "a\`b" + "c"
+
+`;
+
+exports[`no-useless-concat > invalid(12): \"a\`b\" + \"c\" 2`] = `
+
+Message:
+> 1 | "a\`b" + "c"
+    |       ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'a\`bc'
+
+`;
+
+exports[`no-useless-concat > invalid(13): \`a\${x}\` + \`b\` 1`] = `
+
+  1 | \`a\${x}\` + \`b\`
+
+`;
+
+exports[`no-useless-concat > invalid(13): \`a\${x}\` + \`b\` 2`] = `
+
+Message:
+> 1 | \`a\${x}\` + \`b\`
+    |         ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | \`a\${x}b\`
+
+`;
+
+exports[`no-useless-concat > invalid(14): 'a' + \`b\${x}\` 1`] = `
+
+  1 | 'a' + \`b\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(14): 'a' + \`b\${x}\` 2`] = `
+
+Message:
+> 1 | 'a' + \`b\${x}\`
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | \`ab\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(15): \`a\${x}\` + \`b\${y}\` 1`] = `
+
+  1 | \`a\${x}\` + \`b\${y}\`
+
+`;
+
+exports[`no-useless-concat > invalid(15): \`a\${x}\` + \`b\${y}\` 2`] = `
+
+Message:
+> 1 | \`a\${x}\` + \`b\${y}\`
+    |         ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | \`a\${x}b\${y}\`
+
+`;
+
+exports[`no-useless-concat > invalid(16): \`a\` + \`b\${x}\` 1`] = `
+
+  1 | \`a\` + \`b\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(16): \`a\` + \`b\${x}\` 2`] = `
+
+Message:
+> 1 | \`a\` + \`b\${x}\`
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | \`ab\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(17): foo + 'a' + 'b' 1`] = `
+
+  1 | foo + 'a' + 'b'
+
+`;
+
+exports[`no-useless-concat > invalid(17): foo + 'a' + 'b' 2`] = `
+
+Message:
+> 1 | foo + 'a' + 'b'
+    |           ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | foo + 'ab'
+
+`;
+
+exports[`no-useless-concat > invalid(18): 'a' + 'b' + 'c' 1`] = `
+
+  1 | 'a' + 'b' + 'c'
+
+`;
+
+exports[`no-useless-concat > invalid(18): 'a' + 'b' + 'c' 2`] = `
+
+Message:
+> 1 | 'a' + 'b' + 'c'
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'ab' + 'c'
+
+`;
+
+exports[`no-useless-concat > invalid(18): 'a' + 'b' + 'c' 3`] = `
+
+Message:
+> 1 | 'a' + 'b' + 'c'
+    |           ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'a' + 'bc'
+
+`;
+
+exports[`no-useless-concat > invalid(19): 'a' + 'b' + c 1`] = `
+
+  1 | 'a' + 'b' + c
+
+`;
+
+exports[`no-useless-concat > invalid(19): 'a' + 'b' + c 2`] = `
+
+Message:
+> 1 | 'a' + 'b' + c
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'ab' + c
+
+`;
+
+exports[`no-useless-concat > invalid(2): '1' + '0' 1`] = `
+
+  1 | '1' + '0'
+
+`;
+
+exports[`no-useless-concat > invalid(2): '1' + '0' 2`] = `
+
+Message:
+> 1 | '1' + '0'
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | '10'
+
+`;
+
+exports[`no-useless-concat > invalid(20): foo + 'a' + 'b' + 'c' 1`] = `
+
+  1 | foo + 'a' + 'b' + 'c'
+
+`;
+
+exports[`no-useless-concat > invalid(20): foo + 'a' + 'b' + 'c' 2`] = `
+
+Message:
+> 1 | foo + 'a' + 'b' + 'c'
+    |           ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | foo + 'ab' + 'c'
+
+`;
+
+exports[`no-useless-concat > invalid(20): foo + 'a' + 'b' + 'c' 3`] = `
+
+Message:
+> 1 | foo + 'a' + 'b' + 'c'
+    |                 ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | foo + 'a' + 'bc'
+
+`;
+
+exports[`no-useless-concat > invalid(21): ('a') + 'b' 1`] = `
+
+  1 | ('a') + 'b'
+
+`;
+
+exports[`no-useless-concat > invalid(21): ('a') + 'b' 2`] = `
+
+Message:
+> 1 | ('a') + 'b'
+    |       ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'ab'
+
+`;
+
+exports[`no-useless-concat > invalid(22): 'a' + ('b') 1`] = `
+
+  1 | 'a' + ('b')
+
+`;
+
+exports[`no-useless-concat > invalid(22): 'a' + ('b') 2`] = `
+
+Message:
+> 1 | 'a' + ('b')
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'ab'
+
+`;
+
+exports[`no-useless-concat > invalid(23): foo + ('a') + 'b' 1`] = `
+
+  1 | foo + ('a') + 'b'
+
+`;
+
+exports[`no-useless-concat > invalid(23): foo + ('a') + 'b' 2`] = `
+
+Message:
+> 1 | foo + ('a') + 'b'
+    |             ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | foo + 'ab'
+
+`;
+
+exports[`no-useless-concat > invalid(24): (foo + 'a') + 'b' 1`] = `
+
+  1 | (foo + 'a') + 'b'
+
+`;
+
+exports[`no-useless-concat > invalid(24): (foo + 'a') + 'b' 2`] = `
+
+Message:
+> 1 | (foo + 'a') + 'b'
+    |             ^ Do not concatenate two literals, combine them into one.
+
+`;
+
+exports[`no-useless-concat > invalid(25): foo + 'a' + \`\${bar()}\` 1`] = `
+
+  1 | foo + 'a' + \`\${bar()}\`
+
+`;
+
+exports[`no-useless-concat > invalid(25): foo + 'a' + \`\${bar()}\` 2`] = `
+
+Message:
+> 1 | foo + 'a' + \`\${bar()}\`
+    |           ^ Do not concatenate two literals, combine them into one.
+
+`;
+
+exports[`no-useless-concat > invalid(26): foo + \`a\` + \`b\${baz()}\` 1`] = `
+
+  1 | foo + \`a\` + \`b\${baz()}\`
+
+`;
+
+exports[`no-useless-concat > invalid(26): foo + \`a\` + \`b\${baz()}\` 2`] = `
+
+Message:
+> 1 | foo + \`a\` + \`b\${baz()}\`
+    |           ^ Do not concatenate two literals, combine them into one.
+
+`;
+
+exports[`no-useless-concat > invalid(27): foo\n'a' + \`b\${x}\` 1`] = `
+
+  1 | foo
+  2 | 'a' + \`b\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(27): foo\n'a' + \`b\${x}\` 2`] = `
+
+Message:
+  1 | foo
+> 2 | 'a' + \`b\${x}\`
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | foo
+  2 | ;\`ab\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(28): 'a' /* comment */ + 'b' 1`] = `
+
+  1 | 'a' /* comment */ + 'b'
+
+`;
+
+exports[`no-useless-concat > invalid(28): 'a' /* comment */ + 'b' 2`] = `
+
+Message:
+> 1 | 'a' /* comment */ + 'b'
+    |                   ^ Do not concatenate two literals, combine them into one.
+
+`;
+
+exports[`no-useless-concat > invalid(29): 'a' + /* comment */ 'b' 1`] = `
+
+  1 | 'a' + /* comment */ 'b'
+
+`;
+
+exports[`no-useless-concat > invalid(29): 'a' + /* comment */ 'b' 2`] = `
+
+Message:
+> 1 | 'a' + /* comment */ 'b'
+    |     ^ Do not concatenate two literals, combine them into one.
+
+`;
+
+exports[`no-useless-concat > invalid(3): \`a\` + \`b\` 1`] = `
+
+  1 | \`a\` + \`b\`
+
+`;
+
+exports[`no-useless-concat > invalid(3): \`a\` + \`b\` 2`] = `
+
+Message:
+> 1 | \`a\` + \`b\`
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'ab'
+
+`;
+
+exports[`no-useless-concat > invalid(30): '\\1' + \`\${x}\` 1`] = `
+
+  1 | '\\1' + \`\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(30): '\\1' + \`\${x}\` 2`] = `
+
+Message:
+> 1 | '\\1' + \`\${x}\`
+    |      ^ Do not concatenate two literals, combine them into one.
+
+`;
+
+exports[`no-useless-concat > invalid(31): \`\${x}\` + '\\012' 1`] = `
+
+  1 | \`\${x}\` + '\\012'
+
+`;
+
+exports[`no-useless-concat > invalid(31): \`\${x}\` + '\\012' 2`] = `
+
+Message:
+> 1 | \`\${x}\` + '\\012'
+    |        ^ Do not concatenate two literals, combine them into one.
+
+`;
+
+exports[`no-useless-concat > invalid(32): '\\8' + \`\${x}\` 1`] = `
+
+  1 | '\\8' + \`\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(32): '\\8' + \`\${x}\` 2`] = `
+
+Message:
+> 1 | '\\8' + \`\${x}\`
+    |      ^ Do not concatenate two literals, combine them into one.
+
+`;
+
+exports[`no-useless-concat > invalid(33): '\\0' + \`\${x}\` 1`] = `
+
+  1 | '\\0' + \`\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(33): '\\0' + \`\${x}\` 2`] = `
+
+Message:
+> 1 | '\\0' + \`\${x}\`
+    |      ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | \`\\0\${x}\`
+
+`;
+
+exports[`no-useless-concat > invalid(34): const element = <div>{'a' + 'b'}</div>; 1`] = `
+
+  1 | const element = <div>{'a' + 'b'}</div>;
+
+`;
+
+exports[`no-useless-concat > invalid(34): const element = <div>{'a' + 'b'}</div>; 2`] = `
+
+Message:
+> 1 | const element = <div>{'a' + 'b'}</div>;
+    |                           ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | const element = <div>{'ab'}</div>;
+
+`;
+
+exports[`no-useless-concat > invalid(35): function foo() { return \`a\` + \`b\${x}\` } 1`] = `
+
+  1 | function foo() { return \`a\` + \`b\${x}\` }
+
+`;
+
+exports[`no-useless-concat > invalid(35): function foo() { return \`a\` + \`b\${x}\` } 2`] = `
+
+Message:
+> 1 | function foo() { return \`a\` + \`b\${x}\` }
+    |                             ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | function foo() { return \`ab\${x}\` }
+
+`;
+
+exports[`no-useless-concat > invalid(36): function foo() { return 'a' + 'b' } 1`] = `
+
+  1 | function foo() { return 'a' + 'b' }
+
+`;
+
+exports[`no-useless-concat > invalid(36): function foo() { return 'a' + 'b' } 2`] = `
+
+Message:
+> 1 | function foo() { return 'a' + 'b' }
+    |                             ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | function foo() { return 'ab' }
+
+`;
+
+exports[`no-useless-concat > invalid(37): function foo() { throw \`a\` + \`b\${x}\` } 1`] = `
+
+  1 | function foo() { throw \`a\` + \`b\${x}\` }
+
+`;
+
+exports[`no-useless-concat > invalid(37): function foo() { throw \`a\` + \`b\${x}\` } 2`] = `
+
+Message:
+> 1 | function foo() { throw \`a\` + \`b\${x}\` }
+    |                            ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | function foo() { throw \`ab\${x}\` }
+
+`;
+
+exports[`no-useless-concat > invalid(38): const fn = () => \`a\` + \`b\${x}\`; 1`] = `
+
+  1 | const fn = () => \`a\` + \`b\${x}\`;
+
+`;
+
+exports[`no-useless-concat > invalid(38): const fn = () => \`a\` + \`b\${x}\`; 2`] = `
+
+Message:
+> 1 | const fn = () => \`a\` + \`b\${x}\`;
+    |                      ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | const fn = () => \`ab\${x}\`;
+
+`;
+
+exports[`no-useless-concat > invalid(39): \`a\` + \`\` 1`] = `
+
+  1 | \`a\` + \`\`
+
+`;
+
+exports[`no-useless-concat > invalid(39): \`a\` + \`\` 2`] = `
+
+Message:
+> 1 | \`a\` + \`\`
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'a'
+
+`;
+
+exports[`no-useless-concat > invalid(4): '1' + \`0\` 1`] = `
+
+  1 | '1' + \`0\`
+
+`;
+
+exports[`no-useless-concat > invalid(4): '1' + \`0\` 2`] = `
+
+Message:
+> 1 | '1' + \`0\`
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | '10'
+
+`;
+
+exports[`no-useless-concat > invalid(5): \`1\` + '0' 1`] = `
+
+  1 | \`1\` + '0'
+
+`;
+
+exports[`no-useless-concat > invalid(5): \`1\` + '0' 2`] = `
+
+Message:
+> 1 | \`1\` + '0'
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | '10'
+
+`;
+
+exports[`no-useless-concat > invalid(6): \"a\" + \"b\" 1`] = `
+
+  1 | "a" + "b"
+
+`;
+
+exports[`no-useless-concat > invalid(6): \"a\" + \"b\" 2`] = `
+
+Message:
+> 1 | "a" + "b"
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'ab'
+
+`;
+
+exports[`no-useless-concat > invalid(7): '' + 'a' 1`] = `
+
+  1 | '' + 'a'
+
+`;
+
+exports[`no-useless-concat > invalid(7): '' + 'a' 2`] = `
+
+Message:
+> 1 | '' + 'a'
+    |    ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'a'
+
+`;
+
+exports[`no-useless-concat > invalid(8): 'a' + 'b\\'c' 1`] = `
+
+  1 | 'a' + 'b\\'c'
+
+`;
+
+exports[`no-useless-concat > invalid(8): 'a' + 'b\\'c' 2`] = `
+
+Message:
+> 1 | 'a' + 'b\\'c'
+    |     ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | 'ab\\'c'
+
+`;
+
+exports[`no-useless-concat > invalid(9): '\\\\' + 'n' 1`] = `
+
+  1 | '\\\\' + 'n'
+
+`;
+
+exports[`no-useless-concat > invalid(9): '\\\\' + 'n' 2`] = `
+
+Message:
+> 1 | '\\\\' + 'n'
+    |      ^ Do not concatenate two literals, combine them into one.
+
+Output:
+  1 | '\\\\n'
+
+`;

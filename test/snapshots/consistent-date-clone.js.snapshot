@@ -1,0 +1,218 @@
+exports[`consistent-date-clone > invalid(1): new Date(date.getTime()) 1`] = `
+
+  1 | new Date(date.getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(1): new Date(date.getTime()) 2`] = `
+
+Message:
+> 1 | new Date(date.getTime())
+    |               ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+Output:
+  1 | new Date(date)
+
+`;
+
+exports[`consistent-date-clone > invalid(10): new Date(date // comment\n\t.getTime()) 1`] = `
+
+  1 | new Date(date // comment
+  2 | 	.getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(10): new Date(date // comment\n\t.getTime()) 2`] = `
+
+Message:
+  1 | new Date(date // comment
+> 2 | 	.getTime())
+    | 	 ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+`;
+
+exports[`consistent-date-clone > invalid(11): new Date((date as Date).getTime()) 1`] = `
+
+  1 | new Date((date as Date).getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(11): new Date((date as Date).getTime()) 2`] = `
+
+Message:
+> 1 | new Date((date as Date).getTime())
+    |                         ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+Output:
+  1 | new Date((date as Date))
+
+`;
+
+exports[`consistent-date-clone > invalid(12): new Date(getDate(/* comment */).getTime()) 1`] = `
+
+  1 | new Date(getDate(/* comment */).getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(12): new Date(getDate(/* comment */).getTime()) 2`] = `
+
+Message:
+> 1 | new Date(getDate(/* comment */).getTime())
+    |                                 ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+Output:
+  1 | new Date(getDate(/* comment */))
+
+`;
+
+exports[`consistent-date-clone > invalid(13): new Date((date /* comment */).getTime()) 1`] = `
+
+  1 | new Date((date /* comment */).getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(13): new Date((date /* comment */).getTime()) 2`] = `
+
+Message:
+> 1 | new Date((date /* comment */).getTime())
+    |                               ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+Output:
+  1 | new Date((date /* comment */))
+
+`;
+
+exports[`consistent-date-clone > invalid(2): new Date(date.getTime(),) 1`] = `
+
+  1 | new Date(date.getTime(),)
+
+`;
+
+exports[`consistent-date-clone > invalid(2): new Date(date.getTime(),) 2`] = `
+
+Message:
+> 1 | new Date(date.getTime(),)
+    |               ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+Output:
+  1 | new Date(date,)
+
+`;
+
+exports[`consistent-date-clone > invalid(3): new Date(new Date(date.getTime()).getTime()) 1`] = `
+
+  1 | new Date(new Date(date.getTime()).getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(3): new Date(new Date(date.getTime()).getTime()) 2`] = `
+
+Message:
+> 1 | new Date(new Date(date.getTime()).getTime())
+    |                        ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+Output:
+  1 | new Date(new Date(date).getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(3): new Date(new Date(date.getTime()).getTime()) 3`] = `
+
+Message:
+> 1 | new Date(new Date(date.getTime()).getTime())
+    |                                   ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+Output:
+  1 | new Date(new Date(date.getTime()))
+
+`;
+
+exports[`consistent-date-clone > invalid(4): new Date((0, date).getTime()) 1`] = `
+
+  1 | new Date((0, date).getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(4): new Date((0, date).getTime()) 2`] = `
+
+Message:
+> 1 | new Date((0, date).getTime())
+    |                    ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+Output:
+  1 | new Date((0, date))
+
+`;
+
+exports[`consistent-date-clone > invalid(5): new Date(date.getTime(/* comment */)) 1`] = `
+
+  1 | new Date(date.getTime(/* comment */))
+
+`;
+
+exports[`consistent-date-clone > invalid(5): new Date(date.getTime(/* comment */)) 2`] = `
+
+Message:
+> 1 | new Date(date.getTime(/* comment */))
+    |               ^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+`;
+
+exports[`consistent-date-clone > invalid(6): new Date(date./* comment */getTime()) 1`] = `
+
+  1 | new Date(date./* comment */getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(6): new Date(date./* comment */getTime()) 2`] = `
+
+Message:
+> 1 | new Date(date./* comment */getTime())
+    |                            ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+`;
+
+exports[`consistent-date-clone > invalid(7): new Date(date /* comment */.getTime()) 1`] = `
+
+  1 | new Date(date /* comment */.getTime())
+
+`;
+
+exports[`consistent-date-clone > invalid(7): new Date(date /* comment */.getTime()) 2`] = `
+
+Message:
+> 1 | new Date(date /* comment */.getTime())
+    |                             ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+`;
+
+exports[`consistent-date-clone > invalid(8): new Date(date.getTime /* comment */()) 1`] = `
+
+  1 | new Date(date.getTime /* comment */())
+
+`;
+
+exports[`consistent-date-clone > invalid(8): new Date(date.getTime /* comment */()) 2`] = `
+
+Message:
+> 1 | new Date(date.getTime /* comment */())
+    |               ^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+`;
+
+exports[`consistent-date-clone > invalid(9): new Date(date.getTime() /* comment */) 1`] = `
+
+  1 | new Date(date.getTime() /* comment */)
+
+`;
+
+exports[`consistent-date-clone > invalid(9): new Date(date.getTime() /* comment */) 2`] = `
+
+Message:
+> 1 | new Date(date.getTime() /* comment */)
+    |               ^^^^^^^^^ Unnecessary \`.getTime()\` call.
+
+Output:
+  1 | new Date(date /* comment */)
+
+`;

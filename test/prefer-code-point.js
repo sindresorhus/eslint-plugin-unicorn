@@ -60,5 +60,7 @@ test.snapshot({
 		// TypeScript wrappers on the receiver
 		{code: 'foo!.charCodeAt(0)', languageOptions: {parser: parsers.typescript}},
 		{code: '(str as string).charCodeAt(0)', languageOptions: {parser: parsers.typescript}},
+		'sum += condition ? 0 : string.charCodeAt(index)',
+		'sum += string.charCodeAt(index) ? 1 : 0',
 	],
 });

@@ -1,0 +1,355 @@
+exports[`prefer-number-coercion > invalid(1): parseFloat(value); 1`] = `
+
+  1 | parseFloat(value);
+
+`;
+
+exports[`prefer-number-coercion > invalid(1): parseFloat(value); 2`] = `
+
+Message:
+> 1 | parseFloat(value);
+    | ^^^^^^^^^^ Prefer \`Number()\` over \`parseFloat()\`.
+
+Suggestion 1/1: Use \`Number()\` when the whole value should be numeric.:
+  1 | Number(value);
+
+`;
+
+exports[`prefer-number-coercion > invalid(10): Number.parseInt(value, 10); 1`] = `
+
+  1 | Number.parseInt(value, 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(10): Number.parseInt(value, 10); 2`] = `
+
+Message:
+> 1 | Number.parseInt(value, 10);
+    | ^^^^^^^^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`Number.parseInt()\` with radix \`10\`.
+
+Suggestion 1/1: Replace \`Number.parseInt()\` with \`Math.trunc(Number())\`.:
+  1 | Math.trunc(Number(value));
+
+`;
+
+exports[`prefer-number-coercion > invalid(11): globalThis.parseInt(value, 10); 1`] = `
+
+  1 | globalThis.parseInt(value, 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(11): globalThis.parseInt(value, 10); 2`] = `
+
+Message:
+> 1 | globalThis.parseInt(value, 10);
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+Suggestion 1/1: Replace \`parseInt()\` with \`Math.trunc(Number())\`.:
+  1 | Math.trunc(Number(value));
+
+`;
+
+exports[`prefer-number-coercion > invalid(12): parseInt?.(value, 10); 1`] = `
+
+  1 | parseInt?.(value, 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(12): parseInt?.(value, 10); 2`] = `
+
+Message:
+> 1 | parseInt?.(value, 10);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+`;
+
+exports[`prefer-number-coercion > invalid(13): Number.parseInt?.(value, 10); 1`] = `
+
+  1 | Number.parseInt?.(value, 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(13): Number.parseInt?.(value, 10); 2`] = `
+
+Message:
+> 1 | Number.parseInt?.(value, 10);
+    | ^^^^^^^^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`Number.parseInt()\` with radix \`10\`.
+
+`;
+
+exports[`prefer-number-coercion > invalid(14): const {parseInt} = Number;\nparseInt(value, 10); 1`] = `
+
+  1 | const {parseInt} = Number;
+  2 | parseInt(value, 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(14): const {parseInt} = Number;\nparseInt(value, 10); 2`] = `
+
+Message:
+  1 | const {parseInt} = Number;
+> 2 | parseInt(value, 10);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`Number.parseInt()\` with radix \`10\`.
+
+Suggestion 1/1: Replace \`Number.parseInt()\` with \`Math.trunc(Number())\`.:
+  1 | const {parseInt} = Number;
+  2 | Math.trunc(Number(value));
+
+`;
+
+exports[`prefer-number-coercion > invalid(15): parseInt(value, 0xA); 1`] = `
+
+  1 | parseInt(value, 0xA);
+
+`;
+
+exports[`prefer-number-coercion > invalid(15): parseInt(value, 0xA); 2`] = `
+
+Message:
+> 1 | parseInt(value, 0xA);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+Suggestion 1/1: Replace \`parseInt()\` with \`Math.trunc(Number())\`.:
+  1 | Math.trunc(Number(value));
+
+`;
+
+exports[`prefer-number-coercion > invalid(16): parseInt(value, 2 * 5); 1`] = `
+
+  1 | parseInt(value, 2 * 5);
+
+`;
+
+exports[`prefer-number-coercion > invalid(16): parseInt(value, 2 * 5); 2`] = `
+
+Message:
+> 1 | parseInt(value, 2 * 5);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+Suggestion 1/1: Replace \`parseInt()\` with \`Math.trunc(Number())\`.:
+  1 | Math.trunc(Number(value));
+
+`;
+
+exports[`prefer-number-coercion > invalid(17): const radix = 10;\nparseInt(value, radix); 1`] = `
+
+  1 | const radix = 10;
+  2 | parseInt(value, radix);
+
+`;
+
+exports[`prefer-number-coercion > invalid(17): const radix = 10;\nparseInt(value, radix); 2`] = `
+
+Message:
+  1 | const radix = 10;
+> 2 | parseInt(value, radix);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+Suggestion 1/1: Replace \`parseInt()\` with \`Math.trunc(Number())\`.:
+  1 | const radix = 10;
+  2 | Math.trunc(Number(value));
+
+`;
+
+exports[`prefer-number-coercion > invalid(18): parseInt(value, radix = 10); 1`] = `
+
+  1 | parseInt(value, radix = 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(18): parseInt(value, radix = 10); 2`] = `
+
+Message:
+> 1 | parseInt(value, radix = 10);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+`;
+
+exports[`prefer-number-coercion > invalid(19): parseInt((foo, bar), 10); 1`] = `
+
+  1 | parseInt((foo, bar), 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(19): parseInt((foo, bar), 10); 2`] = `
+
+Message:
+> 1 | parseInt((foo, bar), 10);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+Suggestion 1/1: Replace \`parseInt()\` with \`Math.trunc(Number())\`.:
+  1 | Math.trunc(Number((foo, bar)));
+
+`;
+
+exports[`prefer-number-coercion > invalid(2): Number.parseFloat(value); 1`] = `
+
+  1 | Number.parseFloat(value);
+
+`;
+
+exports[`prefer-number-coercion > invalid(2): Number.parseFloat(value); 2`] = `
+
+Message:
+> 1 | Number.parseFloat(value);
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Number()\` over \`Number.parseFloat()\`.
+
+Suggestion 1/1: Use \`Number()\` when the whole value should be numeric.:
+  1 | Number(value);
+
+`;
+
+exports[`prefer-number-coercion > invalid(20): parseInt(value, 10, extra); 1`] = `
+
+  1 | parseInt(value, 10, extra);
+
+`;
+
+exports[`prefer-number-coercion > invalid(20): parseInt(value, 10, extra); 2`] = `
+
+Message:
+> 1 | parseInt(value, 10, extra);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+`;
+
+exports[`prefer-number-coercion > invalid(21): parseInt(/* comment */ value, 10); 1`] = `
+
+  1 | parseInt(/* comment */ value, 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(21): parseInt(/* comment */ value, 10); 2`] = `
+
+Message:
+> 1 | parseInt(/* comment */ value, 10);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+`;
+
+exports[`prefer-number-coercion > invalid(22): parseInt(value, /* comment */ 10); 1`] = `
+
+  1 | parseInt(value, /* comment */ 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(22): parseInt(value, /* comment */ 10); 2`] = `
+
+Message:
+> 1 | parseInt(value, /* comment */ 10);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+`;
+
+exports[`prefer-number-coercion > invalid(3): globalThis.parseFloat(value); 1`] = `
+
+  1 | globalThis.parseFloat(value);
+
+`;
+
+exports[`prefer-number-coercion > invalid(3): globalThis.parseFloat(value); 2`] = `
+
+Message:
+> 1 | globalThis.parseFloat(value);
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number()\` over \`parseFloat()\`.
+
+Suggestion 1/1: Use \`Number()\` when the whole value should be numeric.:
+  1 | Number(value);
+
+`;
+
+exports[`prefer-number-coercion > invalid(4): parseFloat(value, extra); 1`] = `
+
+  1 | parseFloat(value, extra);
+
+`;
+
+exports[`prefer-number-coercion > invalid(4): parseFloat(value, extra); 2`] = `
+
+Message:
+> 1 | parseFloat(value, extra);
+    | ^^^^^^^^^^ Prefer \`Number()\` over \`parseFloat()\`.
+
+Suggestion 1/1: Use \`Number()\` when the whole value should be numeric.:
+  1 | Number(value, extra);
+
+`;
+
+exports[`prefer-number-coercion > invalid(5): Number /* comment */ .parseFloat(value); 1`] = `
+
+  1 | Number /* comment */ .parseFloat(value);
+
+`;
+
+exports[`prefer-number-coercion > invalid(5): Number /* comment */ .parseFloat(value); 2`] = `
+
+Message:
+> 1 | Number /* comment */ .parseFloat(value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number()\` over \`Number.parseFloat()\`.
+
+`;
+
+exports[`prefer-number-coercion > invalid(6): parseFloat(...argumentsArray); 1`] = `
+
+  1 | parseFloat(...argumentsArray);
+
+`;
+
+exports[`prefer-number-coercion > invalid(6): parseFloat(...argumentsArray); 2`] = `
+
+Message:
+> 1 | parseFloat(...argumentsArray);
+    | ^^^^^^^^^^ Prefer \`Number()\` over \`parseFloat()\`.
+
+`;
+
+exports[`prefer-number-coercion > invalid(7): parseFloat(...firstArguments, ...secondArguments); 1`] = `
+
+  1 | parseFloat(...firstArguments, ...secondArguments);
+
+`;
+
+exports[`prefer-number-coercion > invalid(7): parseFloat(...firstArguments, ...secondArguments); 2`] = `
+
+Message:
+> 1 | parseFloat(...firstArguments, ...secondArguments);
+    | ^^^^^^^^^^ Prefer \`Number()\` over \`parseFloat()\`.
+
+`;
+
+exports[`prefer-number-coercion > invalid(8): const {parseFloat} = Number;\nparseFloat(value); 1`] = `
+
+  1 | const {parseFloat} = Number;
+  2 | parseFloat(value);
+
+`;
+
+exports[`prefer-number-coercion > invalid(8): const {parseFloat} = Number;\nparseFloat(value); 2`] = `
+
+Message:
+  1 | const {parseFloat} = Number;
+> 2 | parseFloat(value);
+    | ^^^^^^^^^^ Prefer \`Number()\` over \`Number.parseFloat()\`.
+
+Suggestion 1/1: Use \`Number()\` when the whole value should be numeric.:
+  1 | const {parseFloat} = Number;
+  2 | Number(value);
+
+`;
+
+exports[`prefer-number-coercion > invalid(9): parseInt(value, 10); 1`] = `
+
+  1 | parseInt(value, 10);
+
+`;
+
+exports[`prefer-number-coercion > invalid(9): parseInt(value, 10); 2`] = `
+
+Message:
+> 1 | parseInt(value, 10);
+    | ^^^^^^^^ Prefer \`Number()\` with explicit integer conversion over \`parseInt()\` with radix \`10\`.
+
+Suggestion 1/1: Replace \`parseInt()\` with \`Math.trunc(Number())\`.:
+  1 | Math.trunc(Number(value));
+
+`;

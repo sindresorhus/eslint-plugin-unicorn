@@ -74,8 +74,9 @@ const getLastObjectProperty = (objectExpression, propertyName, context) => {
 			return;
 		}
 
+		// `getPropertyName()` returns `null` for a computed key it cannot resolve
 		const name = getPropertyName(property, context.sourceCode.getScope(property));
-		if (name === undefined && property.computed) {
+		if (name === null) {
 			return;
 		}
 
@@ -91,7 +92,7 @@ const hasUnknownObjectProperty = (objectExpression, context) =>
 		property.type === 'SpreadElement'
 		|| (property.type === 'Property'
 			&& property.computed
-			&& getPropertyName(property, context.sourceCode.getScope(property)) === undefined),
+			&& getPropertyName(property, context.sourceCode.getScope(property)) === null),
 	);
 
 const isUnconditionallyExecutedSwitchCase = node =>
@@ -174,12 +175,7 @@ const getAssignmentValue = (node, context) => {
 		}
 
 		if (parent.type === 'ArrayPattern') {
-			const index = parent.elements.indexOf(current);
-			if (index === -1) {
-				return;
-			}
-
-			path.push({type: 'array', index});
+			path.push({type: 'array', index: parent.elements.indexOf(current)});
 		} else if (parent.type === 'Property' && parent.parent.type === 'ObjectPattern') {
 			path.push({
 				type: 'object',
@@ -215,11 +211,7 @@ const isKnownNumericPropertyMutation = (reference, propertyName, context) => {
 	}
 
 	const {parent} = node;
-	if (parent?.type === 'ForInStatement') {
-		return false;
-	}
-
-	if (parent?.type === 'ForOfStatement') {
+	if (parent.type === 'ForOfStatement') {
 		const staticValue = getStaticValueForControlFlow(parent.right, context)?.value;
 		return Array.isArray(staticValue) && staticValue.length > 0 && staticValue.every(value => Number.isSafeInteger(value) && value >= 0);
 	}
@@ -324,9 +316,7 @@ const isPropertyMutation = (reference, propertyName, context) => {
 		return false;
 	}
 
-	const {parent} = node;
-	return isLeftHandSide(node)
-		|| ((parent?.type === 'ForOfStatement' || parent?.type === 'ForInStatement') && parent.left === node);
+	return isLeftHandSide(node);
 };
 
 const isForInPropertyMutation = (reference, propertyName, context) => {
@@ -355,9 +345,9 @@ const isPropertyRead = (reference, propertyName, context) => {
 
 	const {parent} = node;
 	return !(
-		(parent?.type === 'CallExpression' && parent.callee === node)
-		|| (parent?.type === 'NewExpression' && parent.callee === node)
-		|| (parent?.type === 'TaggedTemplateExpression' && parent.tag === node)
+		(parent.type === 'CallExpression' && parent.callee === node)
+		|| (parent.type === 'NewExpression' && parent.callee === node)
+		|| (parent.type === 'TaggedTemplateExpression' && parent.tag === node)
 	);
 };
 

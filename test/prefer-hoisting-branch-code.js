@@ -33,6 +33,8 @@ test.snapshot({
 		'if (a) foo(); else { foo(); bar(); }',
 		// `else if` chain without a final `else`
 		'if (a) { foo(); cleanup(); } else if (b) { bar(); cleanup(); } else if (c) { baz(); cleanup(); }',
+		// Empty statements are not shared code
+		'if (a) { ; doA(); } else { ; doB(); }',
 	],
 	invalid: [
 		// Shared trailing statement (autofix)
@@ -303,6 +305,15 @@ test.snapshot({
 		// A multi-line template literal in the hoisted code cannot be reindented without changing its value
 		'if (a) {\n\tbar();\n\tfoo(`x\n\ty`);\n} else {\n\tbaz();\n\tfoo(`x\n\ty`);\n}',
 		'if (a) {\n\t`x\n\ty`;\n\tbar();\n} else {\n\t`x\n\ty`;\n\tbaz();\n}',
+		// A tagged template nested in an array (suggestion)
+		'if (a) { [tag`x`]; doA(); } else { [tag`x`]; doB(); }',
+		// Array holes are fine (autofix)
+		'if (a) { [, b]; doA(); } else { [, b]; doB(); }',
+		// A labeled sloppy-mode function declaration in the shared statements is declared in the branch scope, but moves with its references
+		{
+			code: 'if (a) { foo: function f() {} f(); doA(); } else { foo: function f() {} f(); doB(); }',
+			languageOptions: {sourceType: 'script'},
+		},
 	],
 });
 

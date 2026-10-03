@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import {parsers, getTester} from './utils/test.js';
 
@@ -184,8 +184,8 @@ test('fixes nested arrows in multiple passes', t => {
 		},
 	});
 
-	t.is(result.output, 'const value = () => {\n\treturn foo(\n\t\t() => bar,\n\t);\n};');
-	t.deepEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'const value = () => {\n\treturn foo(\n\t\t() => bar,\n\t);\n};');
+	t.assert.deepStrictEqual(result.messages, []);
 });
 
 ruleTest.snapshot({

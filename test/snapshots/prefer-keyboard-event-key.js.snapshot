@@ -1,0 +1,47 @@
+exports[`prefer-keyboard-event-key > invalid(1): window.addEventListener('click', ({which, another}) => {\n\tif (which === 23) {\n\t\tconsole.log('Wrong!')\n\t}\n}) 1`] = `
+
+  1 | window.addEventListener('click', ({which, another}) => {
+  2 | 	if (which === 23) {
+  3 | 		console.log('Wrong!')
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`prefer-keyboard-event-key > invalid(1): window.addEventListener('click', ({which, another}) => {\n\tif (which === 23) {\n\t\tconsole.log('Wrong!')\n\t}\n}) 2`] = `
+
+Message:
+> 1 | window.addEventListener('click', ({which, another}) => {
+    |                                    ^^^^^ Use \`.key\` instead of \`.which\`.
+  2 | 	if (which === 23) {
+  3 | 		console.log('Wrong!')
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`prefer-keyboard-event-key > invalid(2): foo123.addEventListener('click', event => {\n\tif (event.keyCode === 27) {\n\t}\n}); 1`] = `
+
+  1 | foo123.addEventListener('click', event => {
+  2 | 	if (event.keyCode === 27) {
+  3 | 	}
+  4 | });
+
+`;
+
+exports[`prefer-keyboard-event-key > invalid(2): foo123.addEventListener('click', event => {\n\tif (event.keyCode === 27) {\n\t}\n}); 2`] = `
+
+Message:
+  1 | foo123.addEventListener('click', event => {
+> 2 | 	if (event.keyCode === 27) {
+    | 	          ^^^^^^^ Use \`.key\` instead of \`.keyCode\`.
+  3 | 	}
+  4 | });
+
+Output:
+  1 | foo123.addEventListener('click', event => {
+  2 | 	if (event.key === 'Escape') {
+  3 | 	}
+  4 | });
+
+`;

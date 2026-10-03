@@ -1,0 +1,354 @@
+exports[`prefer-set-size > invalid(1): [...new Set(array)].length 1`] = `
+
+  1 | [...new Set(array)].length
+
+`;
+
+exports[`prefer-set-size > invalid(1): [...new Set(array)].length 2`] = `
+
+Message:
+> 1 | [...new Set(array)].length
+    |                     ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | new Set(array).size
+
+`;
+
+exports[`prefer-set-size > invalid(10): Array.from(new Set(array)).length 1`] = `
+
+  1 | Array.from(new Set(array)).length
+
+`;
+
+exports[`prefer-set-size > invalid(10): Array.from(new Set(array)).length 2`] = `
+
+Message:
+> 1 | Array.from(new Set(array)).length
+    |                            ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | new Set(array).size
+
+`;
+
+exports[`prefer-set-size > invalid(11): const foo = new Set([]);\nconsole.log(Array.from(foo).length); 1`] = `
+
+  1 | const foo = new Set([]);
+  2 | console.log(Array.from(foo).length);
+
+`;
+
+exports[`prefer-set-size > invalid(11): const foo = new Set([]);\nconsole.log(Array.from(foo).length); 2`] = `
+
+Message:
+  1 | const foo = new Set([]);
+> 2 | console.log(Array.from(foo).length);
+    |                             ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | const foo = new Set([]);
+  2 | console.log(foo.size);
+
+`;
+
+exports[`prefer-set-size > invalid(12): Array.from((( new Set(array) ))).length 1`] = `
+
+  1 | Array.from((( new Set(array) ))).length
+
+`;
+
+exports[`prefer-set-size > invalid(12): Array.from((( new Set(array) ))).length 2`] = `
+
+Message:
+> 1 | Array.from((( new Set(array) ))).length
+    |                                  ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | new Set(array).size
+
+`;
+
+exports[`prefer-set-size > invalid(13): (( Array.from(new Set(array)) )).length 1`] = `
+
+  1 | (( Array.from(new Set(array)) )).length
+
+`;
+
+exports[`prefer-set-size > invalid(13): (( Array.from(new Set(array)) )).length 2`] = `
+
+Message:
+> 1 | (( Array.from(new Set(array)) )).length
+    |                                  ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | (( new Set(array) )).size
+
+`;
+
+exports[`prefer-set-size > invalid(14): Array.from(/* comment */ new Set(array)).length 1`] = `
+
+  1 | Array.from(/* comment */ new Set(array)).length
+
+`;
+
+exports[`prefer-set-size > invalid(14): Array.from(/* comment */ new Set(array)).length 2`] = `
+
+Message:
+> 1 | Array.from(/* comment */ new Set(array)).length
+    |                                          ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+`;
+
+exports[`prefer-set-size > invalid(15): Array.from(new /* comment */ Set(array)).length 1`] = `
+
+  1 | Array.from(new /* comment */ Set(array)).length
+
+`;
+
+exports[`prefer-set-size > invalid(15): Array.from(new /* comment */ Set(array)).length 2`] = `
+
+Message:
+> 1 | Array.from(new /* comment */ Set(array)).length
+    |                                          ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | new /* comment */ Set(array).size
+
+`;
+
+exports[`prefer-set-size > invalid(16): function isUnique(array) {\n\treturn Array.from(new Set(array)).length === array.length\n} 1`] = `
+
+  1 | function isUnique(array) {
+  2 | 	return Array.from(new Set(array)).length === array.length
+  3 | }
+
+`;
+
+exports[`prefer-set-size > invalid(16): function isUnique(array) {\n\treturn Array.from(new Set(array)).length === array.length\n} 2`] = `
+
+Message:
+  1 | function isUnique(array) {
+> 2 | 	return Array.from(new Set(array)).length === array.length
+    | 	                                  ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+  3 | }
+
+Output:
+  1 | function isUnique(array) {
+  2 | 	return new Set(array).size === array.length
+  3 | }
+
+`;
+
+exports[`prefer-set-size > invalid(17): function getSize(set: Set<string>) { return Array.from(set).length; } 1`] = `
+
+  1 | function getSize(set: Set<string>) { return Array.from(set).length; }
+
+`;
+
+exports[`prefer-set-size > invalid(17): function getSize(set: Set<string>) { return Array.from(set).length; } 2`] = `
+
+Message:
+> 1 | function getSize(set: Set<string>) { return Array.from(set).length; }
+    |                                                             ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | function getSize(set: Set<string>) { return set.size; }
+
+`;
+
+exports[`prefer-set-size > invalid(18): function getSize(set: ReadonlySet<string>) { return Array.from(set).length; } 1`] = `
+
+  1 | function getSize(set: ReadonlySet<string>) { return Array.from(set).length; }
+
+`;
+
+exports[`prefer-set-size > invalid(18): function getSize(set: ReadonlySet<string>) { return Array.from(set).length; } 2`] = `
+
+Message:
+> 1 | function getSize(set: ReadonlySet<string>) { return Array.from(set).length; }
+    |                                                                     ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | function getSize(set: ReadonlySet<string>) { return set.size; }
+
+`;
+
+exports[`prefer-set-size > invalid(19): function getSize(set: unknown) { return [...(set as Set<string>)].length; } 1`] = `
+
+  1 | function getSize(set: unknown) { return [...(set as Set<string>)].length; }
+
+`;
+
+exports[`prefer-set-size > invalid(19): function getSize(set: unknown) { return [...(set as Set<string>)].length; } 2`] = `
+
+Message:
+> 1 | function getSize(set: unknown) { return [...(set as Set<string>)].length; }
+    |                                                                   ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | function getSize(set: unknown) { return (set as Set<string>).size; }
+
+`;
+
+exports[`prefer-set-size > invalid(2): const foo = new Set([]);\nconsole.log([...foo].length); 1`] = `
+
+  1 | const foo = new Set([]);
+  2 | console.log([...foo].length);
+
+`;
+
+exports[`prefer-set-size > invalid(2): const foo = new Set([]);\nconsole.log([...foo].length); 2`] = `
+
+Message:
+  1 | const foo = new Set([]);
+> 2 | console.log([...foo].length);
+    |                      ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | const foo = new Set([]);
+  2 | console.log(foo.size);
+
+`;
+
+exports[`prefer-set-size > invalid(20): function getSize(set: unknown) { return Array.from(set as Set<string>).length; } 1`] = `
+
+  1 | function getSize(set: unknown) { return Array.from(set as Set<string>).length; }
+
+`;
+
+exports[`prefer-set-size > invalid(20): function getSize(set: unknown) { return Array.from(set as Set<string>).length; } 2`] = `
+
+Message:
+> 1 | function getSize(set: unknown) { return Array.from(set as Set<string>).length; }
+    |                                                                        ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | function getSize(set: unknown) { return (set as Set<string>).size; }
+
+`;
+
+exports[`prefer-set-size > invalid(3): function isUnique(array) {\n\treturn[...new Set(array)].length === array.length\n} 1`] = `
+
+  1 | function isUnique(array) {
+  2 | 	return[...new Set(array)].length === array.length
+  3 | }
+
+`;
+
+exports[`prefer-set-size > invalid(3): function isUnique(array) {\n\treturn[...new Set(array)].length === array.length\n} 2`] = `
+
+Message:
+  1 | function isUnique(array) {
+> 2 | 	return[...new Set(array)].length === array.length
+    | 	                          ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+  3 | }
+
+Output:
+  1 | function isUnique(array) {
+  2 | 	return new Set(array).size === array.length
+  3 | }
+
+`;
+
+exports[`prefer-set-size > invalid(4): [...new Set(array),].length 1`] = `
+
+  1 | [...new Set(array),].length
+
+`;
+
+exports[`prefer-set-size > invalid(4): [...new Set(array),].length 2`] = `
+
+Message:
+> 1 | [...new Set(array),].length
+    |                      ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | new Set(array).size
+
+`;
+
+exports[`prefer-set-size > invalid(5): [...(( new Set(array) ))].length 1`] = `
+
+  1 | [...(( new Set(array) ))].length
+
+`;
+
+exports[`prefer-set-size > invalid(5): [...(( new Set(array) ))].length 2`] = `
+
+Message:
+> 1 | [...(( new Set(array) ))].length
+    |                           ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | new Set(array).size
+
+`;
+
+exports[`prefer-set-size > invalid(6): (( [...new Set(array)] )).length 1`] = `
+
+  1 | (( [...new Set(array)] )).length
+
+`;
+
+exports[`prefer-set-size > invalid(6): (( [...new Set(array)] )).length 2`] = `
+
+Message:
+> 1 | (( [...new Set(array)] )).length
+    |                           ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | (( new Set(array) )).size
+
+`;
+
+exports[`prefer-set-size > invalid(7): foo\n;[...new Set(array)].length 1`] = `
+
+  1 | foo
+  2 | ;[...new Set(array)].length
+
+`;
+
+exports[`prefer-set-size > invalid(7): foo\n;[...new Set(array)].length 2`] = `
+
+Message:
+  1 | foo
+> 2 | ;[...new Set(array)].length
+    |                      ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | foo
+  2 | ;new Set(array).size
+
+`;
+
+exports[`prefer-set-size > invalid(8): [/* comment */...new Set(array)].length 1`] = `
+
+  1 | [/* comment */...new Set(array)].length
+
+`;
+
+exports[`prefer-set-size > invalid(8): [/* comment */...new Set(array)].length 2`] = `
+
+Message:
+> 1 | [/* comment */...new Set(array)].length
+    |                                  ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+`;
+
+exports[`prefer-set-size > invalid(9): [...new /* comment */ Set(array)].length 1`] = `
+
+  1 | [...new /* comment */ Set(array)].length
+
+`;
+
+exports[`prefer-set-size > invalid(9): [...new /* comment */ Set(array)].length 2`] = `
+
+Message:
+> 1 | [...new /* comment */ Set(array)].length
+    |                                   ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
+
+Output:
+  1 | new /* comment */ Set(array).size
+
+`;

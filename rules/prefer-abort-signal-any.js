@@ -100,24 +100,11 @@ const getExpressionParentIgnoringTypeScriptWrappers = node => {
 	return {expression, parent};
 };
 
-const isSignalAlias = node => {
-	const {expression, parent} = getExpressionParentIgnoringTypeScriptWrappers(node);
-
-	return (
-		parent.type === 'VariableDeclarator'
-		&& parent.init === expression
-	) || (
-		parent.type === 'AssignmentExpression'
-		&& parent.right === expression
-	);
+// An alias like `const signal = controller.signal`, or a write through a TypeScript wrapper like `(controller.signal as AbortSignal) = value`
+const isSignalAliasOrWrite = node => {
+	const {parent} = getExpressionParentIgnoringTypeScriptWrappers(node);
+	return parent.type === 'VariableDeclarator' || parent.type === 'AssignmentExpression';
 };
-
-const isForLoopLeftSide = node =>
-	(
-		node.parent.type === 'ForInStatement'
-		|| node.parent.type === 'ForOfStatement'
-	)
-	&& node.parent.left === node;
 
 const isReasonSensitiveProperty = (node, context) =>
 	reasonSensitiveProperties.has(getPropertyName(node, context.sourceCode.getScope(node)));
@@ -141,9 +128,8 @@ const getSignalMember = (identifier, context) => {
 		})
 		|| parent.object !== identifier
 		|| isLeftHandSide(parent)
-		|| isForLoopLeftSide(parent)
 		|| isReasonSensitiveRead(parent, context)
-		|| isSignalAlias(parent)
+		|| isSignalAliasOrWrite(parent)
 		|| hasNonDirectiveComment(context, parent)
 	) {
 		return;
@@ -246,6 +232,8 @@ const getAbortSignalTypeState = (node, context) => {
 			program.getTypeChecker(),
 			program,
 		);
+		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
+		/* node:coverage ignore next */
 	} catch {}
 };
 
@@ -363,7 +351,8 @@ const isArrayConstructorExpression = (node, context) =>
 	)
 	&& isGlobalIdentifier(node.callee, context);
 
-const hasKnownAlreadyAbortedSignal = (node, context, seen = new Set()) => {
+// Whether the source can contain the controller's own signal or an already aborted signal. A source that cannot be resolved counts as one.
+const hasUnsupportedSignalSource = (node, controllerName, context, seen = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
 
 	if (seen.has(node)) {
@@ -377,15 +366,15 @@ const hasKnownAlreadyAbortedSignal = (node, context, seen = new Set()) => {
 	}
 
 	if (node.type === 'ArrayExpression') {
-		return node.elements.some(element => element && hasKnownAlreadyAbortedSignal(element, context, seen));
+		return node.elements.some(element => element && hasUnsupportedSignalSource(element, controllerName, context, seen));
 	}
 
 	if (isArrayStaticCall(node, 'of', context)) {
-		return node.arguments.some(argument => hasKnownAlreadyAbortedSignal(argument, context, seen));
+		return node.arguments.some(argument => hasUnsupportedSignalSource(argument, controllerName, context, seen));
 	}
 
 	if (isArrayConstructorExpression(node, context)) {
-		return node.arguments.some(argument => hasKnownAlreadyAbortedSignal(argument, context, seen));
+		return node.arguments.some(argument => hasUnsupportedSignalSource(argument, controllerName, context, seen));
 	}
 
 	if (isArrayStaticCall(node, 'from', context)) {
@@ -408,15 +397,15 @@ const hasKnownAlreadyAbortedSignal = (node, context, seen = new Set()) => {
 				return true;
 			}
 
-			return hasKnownAlreadyAbortedSignal(initializer, context, seen);
+			return hasUnsupportedSignalSource(initializer, controllerName, context, seen);
 		}
 
 		const unwrappedSource = unwrapTypeScriptExpression(source);
-		return unwrappedSource.type !== 'ArrayExpression' || hasKnownAlreadyAbortedSignal(unwrappedSource, context, seen);
+		return unwrappedSource.type !== 'ArrayExpression' || hasUnsupportedSignalSource(unwrappedSource, controllerName, context, seen);
 	}
 
 	if (isAbortSignalAnyCall(node)) {
-		return node.arguments[0] && hasKnownAlreadyAbortedSignal(node.arguments[0], context, seen);
+		return node.arguments[0] && hasUnsupportedSignalSource(node.arguments[0], controllerName, context, seen);
 	}
 
 	const initializer = getConstantInitializer(node, context);
@@ -428,88 +417,16 @@ const hasKnownAlreadyAbortedSignal = (node, context, seen = new Set()) => {
 			return true;
 		}
 
-		return hasKnownAlreadyAbortedSignal(initializer, context, seen);
+		return hasUnsupportedSignalSource(initializer, controllerName, context, seen);
 	}
 
-	return isKnownAlreadyAbortedSignal(node);
-};
-
-const hasControllerSignalSource = (node, controllerName, context, seen = new Set()) => {
-	node = unwrapTypeScriptExpression(node);
-
-	if (seen.has(node)) {
-		return false;
-	}
-
-	seen.add(node);
-
-	if (node.type === 'SpreadElement') {
-		return true;
-	}
-
-	if (node.type === 'ArrayExpression') {
-		return node.elements.some(element => element && hasControllerSignalSource(element, controllerName, context, seen));
-	}
-
-	if (isArrayStaticCall(node, 'of', context)) {
-		return node.arguments.some(argument => hasControllerSignalSource(argument, controllerName, context, seen));
-	}
-
-	if (isArrayConstructorExpression(node, context)) {
-		return node.arguments.some(argument => hasControllerSignalSource(argument, controllerName, context, seen));
-	}
-
-	if (isArrayStaticCall(node, 'from', context)) {
-		if (node.arguments.length !== 1) {
-			return true;
-		}
-
-		const [source] = node.arguments;
-		if (source.type === 'SpreadElement') {
-			return true;
-		}
-
-		const initializer = getConstantInitializer(source, context);
-		if (initializer) {
-			if (!isArray(initializer, context)) {
-				return true;
-			}
-
-			if (isPossiblyMutatedConstantArray(source, context)) {
-				return true;
-			}
-
-			return hasControllerSignalSource(initializer, controllerName, context, seen);
-		}
-
-		const unwrappedSource = unwrapTypeScriptExpression(source);
-		return unwrappedSource.type !== 'ArrayExpression' || hasControllerSignalSource(unwrappedSource, controllerName, context, seen);
-	}
-
-	if (isAbortSignalAnyCall(node)) {
-		return node.arguments[0] && hasControllerSignalSource(node.arguments[0], controllerName, context, seen);
-	}
-
-	const initializer = getConstantInitializer(node, context);
-	if (initializer) {
-		if (
-			isArray(initializer, context)
-			&& isPossiblyMutatedConstantArray(node, context)
-		) {
-			return true;
-		}
-
-		return hasControllerSignalSource(initializer, controllerName, context, seen);
-	}
-
-	return isControllerSignal(node, controllerName);
+	return isControllerSignal(node, controllerName) || isKnownAlreadyAbortedSignal(node);
 };
 
 const isSignalLikeName = name => name === 'signal' || name.endsWith('Signal');
 
+// Only called with identifiers
 const isSignalLikeExpression = (node, context) => {
-	node = unwrapTypeScriptExpression(node);
-
 	const typeState = getAbortSignalTypeState(node, context);
 	if (typeState === true) {
 		return true;
@@ -519,15 +436,7 @@ const isSignalLikeExpression = (node, context) => {
 		return false;
 	}
 
-	if (hasFullTypeInformation(context)) {
-		return false;
-	}
-
-	if (node.type === 'Identifier') {
-		return isSignalLikeName(node.name);
-	}
-
-	return isAbortSignalCall(node);
+	return !hasFullTypeInformation(context) && isSignalLikeName(node.name);
 };
 
 const isDirectBridgeSource = (node, context) => {
@@ -578,16 +487,16 @@ const getKnownArrayElements = (node, context, seen = new Set()) => {
 
 	seen.add(node);
 
+	// Spread elements never get here, `hasUnsupportedSignalSource()` already rejects them
 	if (node.type === 'ArrayExpression') {
-		return node.elements.every(element => element && element.type !== 'SpreadElement') ? node.elements : undefined;
+		return node.elements.every(Boolean) ? node.elements : undefined;
 	}
 
-	if (isArrayStaticCall(node, 'of', context)) {
-		return node.arguments.every(argument => argument.type !== 'SpreadElement') ? node.arguments : undefined;
-	}
-
-	if (isArrayConstructorExpression(node, context)) {
-		return node.arguments.every(argument => argument.type !== 'SpreadElement') ? node.arguments : undefined;
+	if (
+		isArrayStaticCall(node, 'of', context)
+		|| isArrayConstructorExpression(node, context)
+	) {
+		return node.arguments;
 	}
 
 	const arrayFromSource = getKnownArrayFromSource(node, context);
@@ -637,15 +546,7 @@ const isAllowedForOfArraySource = (node, context, seen = new Set()) => {
 	return false;
 };
 
-const getTypeName = typeName => {
-	if (typeName.type === 'Identifier') {
-		return typeName.name;
-	}
-
-	if (typeName.type === 'TSQualifiedName') {
-		return getTypeName(typeName.right);
-	}
-};
+const getTypeName = typeName => typeName.type === 'TSQualifiedName' ? typeName.right.name : typeName.name;
 
 const isConstAssertion = typeAnnotation =>
 	typeAnnotation?.type === 'TSTypeReference'
@@ -684,25 +585,13 @@ const isAbortSignalTypeReferenceAnnotation = (typeAnnotation, context, visitedTy
 	return isAbortSignal;
 };
 
-const isAbortSignalTypeAnnotation = (typeAnnotation, context, visitedTypeNames = new Set()) => {
-	if (typeAnnotation?.type === 'TSTypeAnnotation') {
-		typeAnnotation = typeAnnotation.typeAnnotation;
-	}
-
-	if (typeAnnotation?.type === 'TSParenthesizedType') {
-		return isAbortSignalTypeAnnotation(typeAnnotation.typeAnnotation, context, visitedTypeNames);
-	}
-
-	if (typeAnnotation?.type !== 'TSTypeReference') {
-		return false;
-	}
-
-	return isAbortSignalTypeReferenceAnnotation(typeAnnotation, context, visitedTypeNames);
-};
+const isAbortSignalTypeAnnotation = (typeAnnotation, context, visitedTypeNames = new Set()) =>
+	typeAnnotation.type === 'TSTypeReference'
+	&& isAbortSignalTypeReferenceAnnotation(typeAnnotation, context, visitedTypeNames);
 
 const getAbortSignalArrayTypeReferenceAnnotationState = (typeAnnotation, context, visitedTypeNames) => {
 	const typeName = getTypeName(typeAnnotation.typeName);
-	const typeArguments = typeAnnotation.typeArguments?.params ?? typeAnnotation.typeParameters?.params;
+	const typeArguments = (typeAnnotation.typeArguments ?? typeAnnotation.typeParameters)?.params;
 	if (
 		(
 			typeName === 'Array'
@@ -742,10 +631,6 @@ const getAbortSignalArrayTypeAnnotationState = (typeAnnotation, context, visited
 		typeAnnotation = typeAnnotation.typeAnnotation;
 	}
 
-	if (typeAnnotation?.type === 'TSParenthesizedType') {
-		return getAbortSignalArrayTypeAnnotationState(typeAnnotation.typeAnnotation, context, visitedTypeNames);
-	}
-
 	if (typeAnnotation?.type === 'TSTypeOperator') {
 		return typeAnnotation.operator === 'readonly'
 			? getAbortSignalArrayTypeAnnotationState(typeAnnotation.typeAnnotation, context, visitedTypeNames)
@@ -771,10 +656,6 @@ const getAbortSignalArrayTypeAnnotationState = (typeAnnotation, context, visited
 const isReadonlyArrayTypeAnnotation = (typeAnnotation, context, visitedTypeNames = new Set()) => {
 	if (typeAnnotation?.type === 'TSTypeAnnotation') {
 		typeAnnotation = typeAnnotation.typeAnnotation;
-	}
-
-	if (typeAnnotation?.type === 'TSParenthesizedType') {
-		return isReadonlyArrayTypeAnnotation(typeAnnotation.typeAnnotation, context, visitedTypeNames);
 	}
 
 	if (typeAnnotation?.type === 'TSTypeOperator') {
@@ -864,6 +745,8 @@ const isReadonlyArrayTypeFromTypeInformation = (node, context) => {
 			program.getTypeChecker(),
 			program,
 		);
+		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}
@@ -1110,8 +993,7 @@ const getDirectBridge = (declaration, controllerName, context) => {
 			!listener
 			|| !isStatementCommentFree(statement, context)
 			|| hasCommentBetween(context, previousStatement, statement)
-			|| hasControllerSignalSource(listener.sourceSignal, controllerName, context)
-			|| hasKnownAlreadyAbortedSignal(listener.sourceSignal, context)
+			|| hasUnsupportedSignalSource(listener.sourceSignal, controllerName, context)
 			|| !isDirectBridgeSource(listener.sourceSignal, context)
 		) {
 			break;
@@ -1158,20 +1040,16 @@ const getForOfVariable = left => {
 	if (
 		left.type !== 'VariableDeclaration'
 		|| left.kind !== 'const'
-		|| left.declarations.length !== 1
 	) {
 		return;
 	}
 
-	const [declarator] = left.declarations;
-	if (
-		declarator.id.type !== 'Identifier'
-		|| declarator.init
-	) {
+	const {id} = left.declarations[0];
+	if (id.type !== 'Identifier') {
 		return;
 	}
 
-	return declarator.id;
+	return id;
 };
 
 const getForOfBridge = (declaration, controllerName, context) => {
@@ -1183,8 +1061,7 @@ const getForOfBridge = (declaration, controllerName, context) => {
 		|| hasCommentBetween(context, declaration, statement)
 		|| !isAllowedForOfArraySource(statement.right, context)
 		|| isPossiblyMutatedConstantArray(statement.right, context)
-		|| hasControllerSignalSource(statement.right, controllerName, context)
-		|| hasKnownAlreadyAbortedSignal(statement.right, context)
+		|| hasUnsupportedSignalSource(statement.right, controllerName, context)
 		|| !isForOfArray(statement.right, context)
 		|| !isAllowedArrayCompositionSource(statement.right, context)
 	) {
@@ -1267,23 +1144,15 @@ const removeStatementGroup = (statements, context, fixer) => {
 	let [start] = sourceCode.getRange(firstStatement);
 	let [, end] = sourceCode.getRange(lastStatement);
 
+	// The statements follow the controller declaration, so they never start the file
 	if (isWhitespaceOnly(textBefore) && isWhitespaceOnly(textAfter)) {
 		end += textAfter.length;
+		start -= textBefore.length;
 
-		if (start === 0) {
-			if (text[end] === '\r' && text[end + 1] === '\n') {
-				end += 2;
-			} else if (text[end] === '\n' || text[end] === '\r') {
-				end++;
-			}
-		} else {
-			start -= textBefore.length;
-
-			if (text[start - 2] === '\r' && text[start - 1] === '\n') {
-				start -= 2;
-			} else if (text[start - 1] === '\n' || text[start - 1] === '\r') {
-				start--;
-			}
+		if (text[start - 2] === '\r' && text[start - 1] === '\n') {
+			start -= 2;
+		} else if (text[start - 1] === '\n' || text[start - 1] === '\r') {
+			start--;
 		}
 	}
 
@@ -1317,9 +1186,6 @@ const createProblem = (declarator, context) => {
 	}
 
 	const variable = findVariable(sourceCode.getScope(id), id);
-	if (!variable) {
-		return;
-	}
 
 	for (const abortReference of bridge.abortReferences) {
 		if (findVariable(sourceCode.getScope(abortReference), abortReference) !== variable) {

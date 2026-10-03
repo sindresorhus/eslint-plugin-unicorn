@@ -6,6 +6,7 @@ import {
 	getParenthesizedText,
 	hasUnsafeArrowConversionReference,
 	getLinebreak,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID_INLINE = 'default-export-style/inline';
@@ -81,68 +82,46 @@ const hasTrailingComment = (context, node) => {
 };
 
 const isBindingReassigned = (scope, identifier) =>
-	findVariable(scope, identifier)?.references.some(reference =>
-		!reference.init && reference.isWrite()) ?? false;
+	findVariable(scope, identifier).references.some(reference =>
+		!reference.init && reference.isWrite());
 
-const hasTypeScriptSyntax = node => {
-	if (!node) {
-		return false;
-	}
-
-	return Boolean(
-		node.type.startsWith('TS')
-		|| node.typeAnnotation
-		|| node.typeParameters
-		|| node.returnType
-		|| node.implements?.length > 0
-		|| node.superTypeArguments
-		|| node.accessibility
-		|| node.readonly
-		|| node.override
-		|| node.definite
-		|| (
-			node.optional
-			&& node.type !== 'MemberExpression'
-			&& node.type !== 'CallExpression'
-		)
-		|| node.abstract
-		|| node.declare
-		|| node.decorators?.length > 0,
-	);
-};
+const hasTypeScriptSyntax = node => Boolean(
+	node.type.startsWith('TS')
+	|| node.typeAnnotation
+	|| node.typeParameters
+	|| node.returnType
+	|| node.implements?.length > 0
+	|| node.superTypeArguments
+	|| node.accessibility
+	|| node.readonly
+	|| node.override
+	|| node.definite
+	|| (
+		node.optional
+		&& node.type !== 'MemberExpression'
+		&& node.type !== 'CallExpression'
+	)
+	|| node.abstract
+	|| node.declare
+	|| node.decorators?.length > 0,
+);
 
 const hasTypeScriptSyntaxInTree = (node, visitorKeys) => {
 	if (hasTypeScriptSyntax(node)) {
 		return true;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			if (value.some(child => child?.type && hasTypeScriptSyntaxInTree(child, visitorKeys))) {
-				return true;
-			}
-
-			continue;
-		}
-
-		if (value?.type && hasTypeScriptSyntaxInTree(value, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(child => hasTypeScriptSyntaxInTree(child, visitorKeys));
 };
 
 const hasSafeParametersForArrowConversion = (functionNode, context) =>
 	functionNode.params.every(parameter => !hasUnsafeArrowConversionReference(parameter, context.sourceCode.visitorKeys));
 
 const hasOtherReferences = (scope, identifier, allowedReferenceIdentifier) =>
-	findVariable(scope, identifier)?.references.some(reference =>
+	findVariable(scope, identifier).references.some(reference =>
 		!reference.init
 		&& reference.identifier !== allowedReferenceIdentifier,
-	) ?? false;
+	);
 
 const hasCommentsOutsideFunction = (context, node, functionNode) =>
 	context.sourceCode.getCommentsInside(node).length > context.sourceCode.getCommentsInside(functionNode).length;

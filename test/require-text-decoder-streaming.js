@@ -1,5 +1,5 @@
 import vm from 'node:vm';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
@@ -132,6 +132,9 @@ testRule.snapshot({
 			}
 		`,
 		{code: forAwait().replace('await fetch(url)', 'getResponse() as Response'), languageOptions: {parser: parsers.typescript}},
+		'new TextDecoder().decode(chunk);',
+		forAwait().replace('await fetch(url)', 'await getResponse(url)'),
+		readerLoop().replace('await reader.read()', 'await reader.peek()'),
 	],
 	invalid: [
 		forAwait(),
@@ -190,6 +193,10 @@ testRule.snapshot({
 			forAwait('text += (<TextDecoder>decoder).decode(<Uint8Array>chunk);'),
 			readerLoop().replace('await reader.read()', '(await reader.read()) as ReadableStreamReadResult<Uint8Array>'),
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		// Not a simple loop, so no suggestion
+		readerLoop().replace('break;\n\t\t}', 'break;\n\t\t} else {\n\t\t\tcontinue;\n\t\t}'),
+		readerLoop().replace('break;', 'cleanup();\n\t\t\tbreak;'),
+		forAwait().replace('{\n\t\ttext += decoder.decode(chunk);\n\t}', 'text += decoder.decode(chunk);'),
 	],
 });
 
@@ -331,25 +338,25 @@ for (const [name, code] of [
 ]) {
 	test(`${name}: the suggested code preserves split characters and flushes`, async t => {
 		const [problem] = linter.verify(code, config);
-		t.is(problem.messageId, messageId);
+		t.assert.strictEqual(problem.messageId, messageId);
 		const [{fix}] = problem.suggestions;
 		const fixed = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-		t.deepEqual(linter.verify(fixed, config), []);
+		t.assert.deepStrictEqual(linter.verify(fixed, config), []);
 		const original = code.replace('\n}', '\nreturn text;\n}') + '\nrun();';
 		const encoder = new TextEncoder();
 		const broken = await vm.runInNewContext(original, {fetch: () => createResponse(encoder.encode('€')), url: 'url', TextDecoder});
-		t.is(broken, '���');
+		t.assert.strictEqual(broken, '���');
 		const executable = fixed.replace('\n}', '\nreturn text;\n}') + '\nrun();';
 		await Promise.all(['€', '😀', 'a€😀z', ''].map(async text => {
 			const result = await vm.runInNewContext(executable, {fetch: () => createResponse(encoder.encode(text)), url: 'url', TextDecoder});
-			t.is(result, text);
+			t.assert.strictEqual(result, text);
 		}));
 		const utf16Code = executable.replace('new TextDecoder()', 'new TextDecoder("utf-16le")');
 		const utf16 = await vm.runInNewContext(utf16Code, {fetch: () => createResponse([0xAC, 0x20]), url: 'url', TextDecoder});
-		t.is(utf16, '€');
+		t.assert.strictEqual(utf16, '€');
 		const result = await vm.runInNewContext(executable, {fetch: () => createResponse([0xE2]), url: 'url', TextDecoder});
-		t.is(result, '�');
+		t.assert.strictEqual(result, '�');
 		const fatalCode = executable.replace('new TextDecoder()', 'new TextDecoder("utf-8", {fatal: true})');
-		await t.throwsAsync(vm.runInNewContext(fatalCode, {fetch: () => createResponse([0xE2]), url: 'url', TextDecoder}), {instanceOf: TypeError});
+		await t.assert.rejects(vm.runInNewContext(fatalCode, {fetch: () => createResponse([0xE2]), url: 'url', TextDecoder}), TypeError);
 	});
 }

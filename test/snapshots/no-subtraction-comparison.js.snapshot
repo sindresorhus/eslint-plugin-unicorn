@@ -1,0 +1,608 @@
+exports[`no-subtraction-comparison > invalid(1): if (a - b > 0) {} 1`] = `
+
+  1 | if (a - b > 0) {}
+
+`;
+
+exports[`no-subtraction-comparison > invalid(1): if (a - b > 0) {} 2`] = `
+
+Message:
+> 1 | if (a - b > 0) {}
+    |     ^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a > b\`.:
+  1 | if (a > b) {}
+
+`;
+
+exports[`no-subtraction-comparison > invalid(10): 0 <= a - b 1`] = `
+
+  1 | 0 <= a - b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(10): 0 <= a - b 2`] = `
+
+Message:
+> 1 | 0 <= a - b
+    | ^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a >= b\`.:
+  1 | a >= b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(11): 0 > a - b 1`] = `
+
+  1 | 0 > a - b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(11): 0 > a - b 2`] = `
+
+Message:
+> 1 | 0 > a - b
+    | ^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a < b\`.:
+  1 | a < b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(12): 0 >= a - b 1`] = `
+
+  1 | 0 >= a - b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(12): 0 >= a - b 2`] = `
+
+Message:
+> 1 | 0 >= a - b
+    | ^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a <= b\`.:
+  1 | a <= b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(13): 0 === a - b 1`] = `
+
+  1 | 0 === a - b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(13): 0 === a - b 2`] = `
+
+Message:
+> 1 | 0 === a - b
+    | ^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a === b\`.:
+  1 | a === b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(14): 0 !== a - b 1`] = `
+
+  1 | 0 !== a - b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(14): 0 !== a - b 2`] = `
+
+Message:
+> 1 | 0 !== a - b
+    | ^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a !== b\`.:
+  1 | a !== b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(15): 1 - 2 > 0 1`] = `
+
+  1 | 1 - 2 > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(15): 1 - 2 > 0 2`] = `
+
+Message:
+> 1 | 1 - 2 > 0
+    | ^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | 1 > 2
+
+`;
+
+exports[`no-subtraction-comparison > invalid(16): foo.length - bar.length > 0 1`] = `
+
+  1 | foo.length - bar.length > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(16): foo.length - bar.length > 0 2`] = `
+
+Message:
+> 1 | foo.length - bar.length > 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | foo.length > bar.length
+
+`;
+
+exports[`no-subtraction-comparison > invalid(17): Number(a) - Number(b) < 0 1`] = `
+
+  1 | Number(a) - Number(b) < 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(17): Number(a) - Number(b) < 0 2`] = `
+
+Message:
+> 1 | Number(a) - Number(b) < 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | Number(a) < Number(b)
+
+`;
+
+exports[`no-subtraction-comparison > invalid(18): Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY > 0 1`] = `
+
+  1 | Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(18): Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY > 0 2`] = `
+
+Message:
+> 1 | Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY > 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | Number.POSITIVE_INFINITY > Number.POSITIVE_INFINITY
+
+`;
+
+exports[`no-subtraction-comparison > invalid(19): 1 - 2 >= 0 1`] = `
+
+  1 | 1 - 2 >= 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(19): 1 - 2 >= 0 2`] = `
+
+Message:
+> 1 | 1 - 2 >= 0
+    | ^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | 1 >= 2
+
+`;
+
+exports[`no-subtraction-comparison > invalid(2): if (a - b >= 0) {} 1`] = `
+
+  1 | if (a - b >= 0) {}
+
+`;
+
+exports[`no-subtraction-comparison > invalid(2): if (a - b >= 0) {} 2`] = `
+
+Message:
+> 1 | if (a - b >= 0) {}
+    |     ^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a >= b\`.:
+  1 | if (a >= b) {}
+
+`;
+
+exports[`no-subtraction-comparison > invalid(20): 1 - 1 === 0 1`] = `
+
+  1 | 1 - 1 === 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(20): 1 - 1 === 0 2`] = `
+
+Message:
+> 1 | 1 - 1 === 0
+    | ^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | 1 === 1
+
+`;
+
+exports[`no-subtraction-comparison > invalid(21): 0 < foo.length - bar.length 1`] = `
+
+  1 | 0 < foo.length - bar.length
+
+`;
+
+exports[`no-subtraction-comparison > invalid(21): 0 < foo.length - bar.length 2`] = `
+
+Message:
+> 1 | 0 < foo.length - bar.length
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | foo.length > bar.length
+
+`;
+
+exports[`no-subtraction-comparison > invalid(22): Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY >= 0 1`] = `
+
+  1 | Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY >= 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(22): Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY >= 0 2`] = `
+
+Message:
+> 1 | Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY >= 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`Number.POSITIVE_INFINITY >= Number.POSITIVE_INFINITY\`.:
+  1 | Number.POSITIVE_INFINITY >= Number.POSITIVE_INFINITY
+
+`;
+
+exports[`no-subtraction-comparison > invalid(23): Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY === 0 1`] = `
+
+  1 | Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY === 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(23): Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY === 0 2`] = `
+
+Message:
+> 1 | Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY === 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`Number.POSITIVE_INFINITY === Number.POSITIVE_INFINITY\`.:
+  1 | Number.POSITIVE_INFINITY === Number.POSITIVE_INFINITY
+
+`;
+
+exports[`no-subtraction-comparison > invalid(24): foo.length - bar.length >= 0 1`] = `
+
+  1 | foo.length - bar.length >= 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(24): foo.length - bar.length >= 0 2`] = `
+
+Message:
+> 1 | foo.length - bar.length >= 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`foo.length >= bar.length\`.:
+  1 | foo.length >= bar.length
+
+`;
+
+exports[`no-subtraction-comparison > invalid(25): foo.length - bar > 0 1`] = `
+
+  1 | foo.length - bar > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(25): foo.length - bar > 0 2`] = `
+
+Message:
+> 1 | foo.length - bar > 0
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`foo.length > bar\`.:
+  1 | foo.length > bar
+
+`;
+
+exports[`no-subtraction-comparison > invalid(26): Math.round(a) - Math.round(b) > 0 1`] = `
+
+  1 | Math.round(a) - Math.round(b) > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(26): Math.round(a) - Math.round(b) > 0 2`] = `
+
+Message:
+> 1 | Math.round(a) - Math.round(b) > 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | Math.round(a) > Math.round(b)
+
+`;
+
+exports[`no-subtraction-comparison > invalid(27): a.length - b.length - c > 0 1`] = `
+
+  1 | a.length - b.length - c > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(27): a.length - b.length - c > 0 2`] = `
+
+Message:
+> 1 | a.length - b.length - c > 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a.length - b.length > c\`.:
+  1 | a.length - b.length > c
+
+`;
+
+exports[`no-subtraction-comparison > invalid(28): (foo.length) - (bar.length) > 0 1`] = `
+
+  1 | (foo.length) - (bar.length) > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(28): (foo.length) - (bar.length) > 0 2`] = `
+
+Message:
+> 1 | (foo.length) - (bar.length) > 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | (foo.length) > (bar.length)
+
+`;
+
+exports[`no-subtraction-comparison > invalid(29): const modes = new Set(['foo']); modes.clear(); (modes.size ? 1 : 'x') - (modes.size ? 1 : 'x') === 0 1`] = `
+
+  1 | const modes = new Set(['foo']); modes.clear(); (modes.size ? 1 : 'x') - (modes.size ? 1 : 'x') === 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(29): const modes = new Set(['foo']); modes.clear(); (modes.size ? 1 : 'x') - (modes.size ? 1 : 'x') === 0 2`] = `
+
+Message:
+> 1 | const modes = new Set(['foo']); modes.clear(); (modes.size ? 1 : 'x') - (modes.size ? 1 : 'x') === 0
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`(modes.size ? 1 : 'x') === (modes.size ? 1 : 'x')\`.:
+  1 | const modes = new Set(['foo']); modes.clear(); (modes.size ? 1 : 'x') === (modes.size ? 1 : 'x')
+
+`;
+
+exports[`no-subtraction-comparison > invalid(3): if (a - b < 0) {} 1`] = `
+
+  1 | if (a - b < 0) {}
+
+`;
+
+exports[`no-subtraction-comparison > invalid(3): if (a - b < 0) {} 2`] = `
+
+Message:
+> 1 | if (a - b < 0) {}
+    |     ^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a < b\`.:
+  1 | if (a < b) {}
+
+`;
+
+exports[`no-subtraction-comparison > invalid(30): const modes = new Set(['foo']); modes.clear(); ((modes.size && 1) || value) - 1 === 0 1`] = `
+
+  1 | const modes = new Set(['foo']); modes.clear(); ((modes.size && 1) || value) - 1 === 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(30): const modes = new Set(['foo']); modes.clear(); ((modes.size && 1) || value) - 1 === 0 2`] = `
+
+Message:
+> 1 | const modes = new Set(['foo']); modes.clear(); ((modes.size && 1) || value) - 1 === 0
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`((modes.size && 1) || value) === 1\`.:
+  1 | const modes = new Set(['foo']); modes.clear(); ((modes.size && 1) || value) === 1
+
+`;
+
+exports[`no-subtraction-comparison > invalid(31): const object = {value: true}; Object.defineProperty(object, 'value', {get() { return false; }}); (object.value ? 1 : value) - 1 === 0 1`] = `
+
+  1 | const object = {value: true}; Object.defineProperty(object, 'value', {get() { return false; }}); (object.value ? 1 : value) - 1 === 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(31): const object = {value: true}; Object.defineProperty(object, 'value', {get() { return false; }}); (object.value ? 1 : value) - 1 === 0 2`] = `
+
+Message:
+> 1 | const object = {value: true}; Object.defineProperty(object, 'value', {get() { return false; }}); (object.value ? 1 : value) - 1 === 0
+    |                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`(object.value ? 1 : value) === 1\`.:
+  1 | const object = {value: true}; Object.defineProperty(object, 'value', {get() { return false; }}); (object.value ? 1 : value) === 1
+
+`;
+
+exports[`no-subtraction-comparison > invalid(32): const modes = new Set(['foo']); modes.clear(); ((modes.size ? 1 : value) as number) - 1 === 0 1`] = `
+
+  1 | const modes = new Set(['foo']); modes.clear(); ((modes.size ? 1 : value) as number) - 1 === 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(32): const modes = new Set(['foo']); modes.clear(); ((modes.size ? 1 : value) as number) - 1 === 0 2`] = `
+
+Message:
+> 1 | const modes = new Set(['foo']); modes.clear(); ((modes.size ? 1 : value) as number) - 1 === 0
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`((modes.size ? 1 : value) as number) === 1\`.:
+  1 | const modes = new Set(['foo']); modes.clear(); ((modes.size ? 1 : value) as number) === 1
+
+`;
+
+exports[`no-subtraction-comparison > invalid(33): (a - b) > 0 1`] = `
+
+  1 | (a - b) > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(33): (a - b) > 0 2`] = `
+
+Message:
+> 1 | (a - b) > 0
+    | ^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a > b\`.:
+  1 | a > b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(34): a?.b - c?.d > 0 1`] = `
+
+  1 | a?.b - c?.d > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(34): a?.b - c?.d > 0 2`] = `
+
+Message:
+> 1 | a?.b - c?.d > 0
+    | ^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a?.b > c?.d\`.:
+  1 | a?.b > c?.d
+
+`;
+
+exports[`no-subtraction-comparison > invalid(35): a - /* comment */ b > 0 1`] = `
+
+  1 | a - /* comment */ b > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(35): a - /* comment */ b > 0 2`] = `
+
+Message:
+> 1 | a - /* comment */ b > 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+`;
+
+exports[`no-subtraction-comparison > invalid(36): (a as number) - (b as number) > 0 1`] = `
+
+  1 | (a as number) - (b as number) > 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(36): (a as number) - (b as number) > 0 2`] = `
+
+Message:
+> 1 | (a as number) - (b as number) > 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Output:
+  1 | (a as number) > (b as number)
+
+`;
+
+exports[`no-subtraction-comparison > invalid(4): if (a - b <= 0) {} 1`] = `
+
+  1 | if (a - b <= 0) {}
+
+`;
+
+exports[`no-subtraction-comparison > invalid(4): if (a - b <= 0) {} 2`] = `
+
+Message:
+> 1 | if (a - b <= 0) {}
+    |     ^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a <= b\`.:
+  1 | if (a <= b) {}
+
+`;
+
+exports[`no-subtraction-comparison > invalid(5): a - b === 0 1`] = `
+
+  1 | a - b === 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(5): a - b === 0 2`] = `
+
+Message:
+> 1 | a - b === 0
+    | ^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a === b\`.:
+  1 | a === b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(6): a - b !== 0 1`] = `
+
+  1 | a - b !== 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(6): a - b !== 0 2`] = `
+
+Message:
+> 1 | a - b !== 0
+    | ^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a !== b\`.:
+  1 | a !== b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(7): a - b == 0 1`] = `
+
+  1 | a - b == 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(7): a - b == 0 2`] = `
+
+Message:
+> 1 | a - b == 0
+    | ^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a == b\`.:
+  1 | a == b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(8): a - b != 0 1`] = `
+
+  1 | a - b != 0
+
+`;
+
+exports[`no-subtraction-comparison > invalid(8): a - b != 0 2`] = `
+
+Message:
+> 1 | a - b != 0
+    | ^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a != b\`.:
+  1 | a != b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(9): 0 < a - b 1`] = `
+
+  1 | 0 < a - b
+
+`;
+
+exports[`no-subtraction-comparison > invalid(9): 0 < a - b 2`] = `
+
+Message:
+> 1 | 0 < a - b
+    | ^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
+
+Suggestion 1/1: Replace with \`a > b\`.:
+  1 | a > b
+
+`;

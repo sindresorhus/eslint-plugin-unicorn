@@ -168,6 +168,11 @@ test.snapshot({
 				(${data}).removeAttribute('hidden');
 			}
 		`),
+		outdent`
+			if (condition) {
+				element.setAttribute('hidden', '');
+			}
+		`,
 	],
 	invalid: [
 		outdent`

@@ -10,13 +10,12 @@ import {
 	containsSuspensionPoint,
 	hasOptionalChainElement,
 	isCallExpressionValueDiscardedWithVoid,
-	isParenthesized,
 	isPromiseType,
 	isTypeScriptFile,
 	reindentText,
-	shouldAddParenthesesToAwaitExpressionArgument,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-await';
@@ -40,6 +39,8 @@ function isKnownNonPromiseObject(node, context) {
 			parserServices.getTypeAtLocation(node),
 			parserServices.program.getTypeChecker(),
 		) === false;
+		// The TypeScript failure can not be reproduced in a test.
+		/* node:coverage ignore next 4 */
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
 		return false;
@@ -48,12 +49,8 @@ function isKnownNonPromiseObject(node, context) {
 
 function hasPromiseMethodCallInChain(node, context) {
 	while (true) {
+		// Optional chains (`ChainExpression`) are already excluded by `hasOptionalChainElement()` before this runs.
 		node = unwrapTypeScriptExpression(node);
-		if (node.type === 'ChainExpression') {
-			node = node.expression;
-			continue;
-		}
-
 		if (node.type === 'CallExpression') {
 			const {callee} = node;
 			if (
@@ -74,18 +71,6 @@ function hasPromiseMethodCallInChain(node, context) {
 
 		return false;
 	}
-}
-
-function getAwaitArgumentText(node, context) {
-	let text = getParenthesizedText(node, context);
-	if (
-		!isParenthesized(node, context)
-		&& shouldAddParenthesesToAwaitExpressionArgument(node)
-	) {
-		text = `(${text})`;
-	}
-
-	return text;
 }
 
 function hasCallbackBindingConflict(promiseObject, callback, context) {
@@ -112,16 +97,7 @@ function containsNodeMatching(node, visitorKeys, predicate) {
 		return true;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		for (const childNode of Array.isArray(child) ? child : [child]) {
-			if (childNode?.type && containsNodeMatching(childNode, visitorKeys, predicate)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(child => containsNodeMatching(child, visitorKeys, predicate));
 }
 
 function containsNonModuleAwaitIdentifier(node, context) {
@@ -209,6 +185,8 @@ function canSuggestForCall(callExpression, context) {
 		&& callee.property.name === 'then'
 		&& callExpression.arguments.length === 1
 		&& callExpression.parent.type === 'ExpressionStatement'
+		// `await super` is a syntax error
+		&& callee.object.type !== 'Super'
 		&& isAtStartOfLine(callExpression, context)
 		&& !hasOptionalChainElement(callee.object)
 		&& !containsNonModuleAwaitIdentifier(callee.object, context)
@@ -255,7 +233,8 @@ function getSuggestion(callExpression, context) {
 	}
 
 	const [parameter] = callback.params;
-	const awaitArgumentText = getAwaitArgumentText(callee.object, context);
+	// A member object is either parenthesized or binds at least as tightly as `await`, so it never needs extra parentheses.
+	const awaitArgumentText = getParenthesizedText(callee.object, context);
 	let initialStatement;
 	if (parameter) {
 		const parameterVariable = context.sourceCode.getDeclaredVariables(callback)

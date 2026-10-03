@@ -90,6 +90,8 @@ jsx.snapshot({
 		'<Input type="file" accept="image/jpg" />',
 		'<input type="file" Accept="image/jpg" />',
 		'<input Type="file" accept="image/jpg" />',
+		'<Foo.input type="file" accept="image/jpg" />',
+		'<input type="file" xlink:accept="image/jpg" />',
 	],
 	invalid: [
 		'const modes = new Set(["foo"]); modes.clear(); <input type="file" accept={modes.size ? "bad" : "image/jpeg"} />',
@@ -117,6 +119,7 @@ jsx.snapshot({
 		'<input type="file" accept="image/png,.png" />',
 		'<input type="file" accept="image/png; charset=utf-8" />',
 		'<input type="file" accept={"IMAGE/PNG"} />',
+		'<input type="file" accept=<div /> />',
 	],
 });
 
@@ -154,6 +157,9 @@ html.snapshot({
 		'<input type=file accept=image&#x2F;png>',
 		'<input type=file accept="image&#47;jpg">',
 		'<input type=file accept="image/png&#44;.png">',
+		'<input type="file">',
+		// A non-ASCII whitespace character is part of the attribute name
+		'<input type="file" x\u00A0accept>',
 	],
 	invalid: [
 		'<input type="file" accept>',
@@ -169,6 +175,11 @@ html.snapshot({
 		'<input type="file" accept="IMAGE/PNG,.PNG, image/png">',
 		'<input type="file" accept="image/png,.png">',
 		'<input type="file" accept="image/png; charset=utf-8">',
+		'<input / type="file" accept="image/jpg">',
+		'<input type="file" accept/>',
+		'<input type=file a/b accept=image/jpg>',
+		// The parser drops attributes after a stray `/`, so the problem is reported on the tag
+		'<input type="file" / accept>',
 	],
 });
 

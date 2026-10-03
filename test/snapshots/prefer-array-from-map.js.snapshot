@@ -1,0 +1,621 @@
+exports[`prefer-array-from-map > invalid(1): Array.from(iterable).map(element => element.id); 1`] = `
+
+  1 | Array.from(iterable).map(element => element.id);
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): Array.from(iterable).map(element => element.id); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map(element => element.id);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, element => element.id);
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): const foo = (Array.from(bar).map)(element => element.id); 1`] = `
+
+  1 | const foo = (Array.from(bar).map)(element => element.id);
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): const foo = (Array.from(bar).map)(element => element.id); 2`] = `
+
+Message:
+> 1 | const foo = (Array.from(bar).map)(element => element.id);
+    |                              ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): export const result = []; for (const element of iterable) { result.push(element * 2); } 1`] = `
+
+  1 | export const result = []; for (const element of iterable) { result.push(element * 2); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): export const result = []; for (const element of iterable) { result.push(element * 2); } 2`] = `
+
+Message:
+> 1 | export const result = []; for (const element of iterable) { result.push(element * 2); }
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | export const result = Array.from(iterable, element => element * 2);
+
+`;
+
+exports[`prefer-array-from-map > invalid(10): Array.from(iterable) /* comment */ .map(element => element); 1`] = `
+
+  1 | Array.from(iterable) /* comment */ .map(element => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(10): Array.from(iterable) /* comment */ .map(element => element); 2`] = `
+
+Message:
+> 1 | Array.from(iterable) /* comment */ .map(element => element);
+    |                                     ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
+exports[`prefer-array-from-map > invalid(11): Array.from(iterable).map(element => element /* comment */); 1`] = `
+
+  1 | Array.from(iterable).map(element => element /* comment */);
+
+`;
+
+exports[`prefer-array-from-map > invalid(11): Array.from(iterable).map(element => element /* comment */); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map(element => element /* comment */);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, element => element /* comment */);
+
+`;
+
+exports[`prefer-array-from-map > invalid(12): Array.from(iterable).map(element => element, /* this */ thisArgument); 1`] = `
+
+  1 | Array.from(iterable).map(element => element, /* this */ thisArgument);
+
+`;
+
+exports[`prefer-array-from-map > invalid(12): Array.from(iterable).map(element => element, /* this */ thisArgument); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map(element => element, /* this */ thisArgument);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, element => element, /* this */ thisArgument);
+
+`;
+
+exports[`prefer-array-from-map > invalid(13): Array.from(iterable).map(element => element /* comment */,); 1`] = `
+
+  1 | Array.from(iterable).map(element => element /* comment */,);
+
+`;
+
+exports[`prefer-array-from-map > invalid(13): Array.from(iterable).map(element => element /* comment */,); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map(element => element /* comment */,);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, element => element /* comment */);
+
+`;
+
+exports[`prefer-array-from-map > invalid(14): Array.from(iterable).map(element => element).flat(2); 1`] = `
+
+  1 | Array.from(iterable).map(element => element).flat(2);
+
+`;
+
+exports[`prefer-array-from-map > invalid(14): Array.from(iterable).map(element => element).flat(2); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map(element => element).flat(2);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, element => element).flat(2);
+
+`;
+
+exports[`prefer-array-from-map > invalid(15): const result = Array.from(iterable)\n\t.map(element => {\n\t\treturn element.id;\n\t}); 1`] = `
+
+  1 | const result = Array.from(iterable)
+  2 | 	.map(element => {
+  3 | 		return element.id;
+  4 | 	});
+
+`;
+
+exports[`prefer-array-from-map > invalid(15): const result = Array.from(iterable)\n\t.map(element => {\n\t\treturn element.id;\n\t}); 2`] = `
+
+Message:
+  1 | const result = Array.from(iterable)
+> 2 | 	.map(element => {
+    | 	 ^^^ Pass the mapping function to \`Array.from()\` directly.
+  3 | 		return element.id;
+  4 | 	});
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | const result = Array.from(iterable, element => {
+  2 | 		return element.id;
+  3 | 	});
+
+`;
+
+exports[`prefer-array-from-map > invalid(16): const result = [];\nfor (const element of iterable) {\n\tresult.push(transform(element));\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of iterable) {
+  3 | 	result.push(transform(element));
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(16): const result = [];\nfor (const element of iterable) {\n\tresult.push(transform(element));\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(transform(element));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(iterable, element => transform(element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(17): const result = [];\nfor (const element of iterable)\n\tresult.push(transform(element)); 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of iterable)
+  3 | 	result.push(transform(element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(17): const result = [];\nfor (const element of iterable)\n\tresult.push(transform(element)); 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of iterable)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(transform(element));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(iterable, element => transform(element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(18): let result = [];\nfor (const element of iterable) {\n\tresult.push(transform(element));\n} 1`] = `
+
+  1 | let result = [];
+  2 | for (const element of iterable) {
+  3 | 	result.push(transform(element));
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(18): let result = [];\nfor (const element of iterable) {\n\tresult.push(transform(element));\n} 2`] = `
+
+Message:
+  1 | let result = [];
+> 2 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(transform(element));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | let result = Array.from(iterable, element => transform(element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(19): const result = [];\nfor (const element of (iterable)) {\n\tresult.push(transform(element));\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of (iterable)) {
+  3 | 	result.push(transform(element));
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(19): const result = [];\nfor (const element of (iterable)) {\n\tresult.push(transform(element));\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of (iterable)) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(transform(element));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from((iterable), element => transform(element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(2): Array.from(iterable).map((element, index) => element + index); 1`] = `
+
+  1 | Array.from(iterable).map((element, index) => element + index);
+
+`;
+
+exports[`prefer-array-from-map > invalid(2): Array.from(iterable).map((element, index) => element + index); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map((element, index) => element + index);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, (element, index) => element + index);
+
+`;
+
+exports[`prefer-array-from-map > invalid(2): const foo = ((Array.from(bar)).map)(element => element.id); 1`] = `
+
+  1 | const foo = ((Array.from(bar)).map)(element => element.id);
+
+`;
+
+exports[`prefer-array-from-map > invalid(2): const foo = ((Array.from(bar)).map)(element => element.id); 2`] = `
+
+Message:
+> 1 | const foo = ((Array.from(bar)).map)(element => element.id);
+    |                                ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
+exports[`prefer-array-from-map > invalid(20): const result = [];\nfor (const [index, element] of iterable.entries()) {\n\tresult.push(transform(element, index));\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const [index, element] of iterable.entries()) {
+  3 | 	result.push(transform(element, index));
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(20): const result = [];\nfor (const [index, element] of iterable.entries()) {\n\tresult.push(transform(element, index));\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const [index, element] of iterable.entries()) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(transform(element, index));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(iterable.entries(), ([index, element]) => transform(element, index));
+
+`;
+
+exports[`prefer-array-from-map > invalid(21): const result = [];\nfor (const [index, element] of [foo, bar].entries()) {\n\tresult.push(transform(element, index));\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const [index, element] of [foo, bar].entries()) {
+  3 | 	result.push(transform(element, index));
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(21): const result = [];\nfor (const [index, element] of [foo, bar].entries()) {\n\tresult.push(transform(element, index));\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const [index, element] of [foo, bar].entries()) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(transform(element, index));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from([foo, bar], (element, index) => transform(element, index));
+
+`;
+
+exports[`prefer-array-from-map > invalid(22): const result = [];\nfor (const [index, element] of [foo, bar].entries()) {\n\tresult[index] = transform(element);\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const [index, element] of [foo, bar].entries()) {
+  3 | 	result[index] = transform(element);
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(22): const result = [];\nfor (const [index, element] of [foo, bar].entries()) {\n\tresult[index] = transform(element);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const [index, element] of [foo, bar].entries()) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result[index] = transform(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from([foo, bar], (element, index) => transform(element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(23): const result = [];\nfor (const element of iterable) {\n\tresult.push(element.result);\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of iterable) {
+  3 | 	result.push(element.result);
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(23): const result = [];\nfor (const element of iterable) {\n\tresult.push(element.result);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(element.result);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(iterable, element => element.result);
+
+`;
+
+exports[`prefer-array-from-map > invalid(24): const result = [];\nfor (const element of iterable) {\n\tresult.push({value: element});\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of iterable) {
+  3 | 	result.push({value: element});
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(24): const result = [];\nfor (const element of iterable) {\n\tresult.push({value: element});\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push({value: element});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(iterable, element => ({value: element}));
+
+`;
+
+exports[`prefer-array-from-map > invalid(25): const result: string[] = [];\nfor (const element of iterable) {\n\tresult.push(transform(element));\n} 1`] = `
+
+  1 | const result: string[] = [];
+  2 | for (const element of iterable) {
+  3 | 	result.push(transform(element));
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(25): const result: string[] = [];\nfor (const element of iterable) {\n\tresult.push(transform(element));\n} 2`] = `
+
+Message:
+  1 | const result: string[] = [];
+> 2 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(transform(element));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result: string[] = Array.from(iterable, element => transform(element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(26): const result: Item[] = [];\nfor (const element of iterable) {\n\tresult.push({value: element} satisfies Item);\n} 1`] = `
+
+  1 | const result: Item[] = [];
+  2 | for (const element of iterable) {
+  3 | 	result.push({value: element} satisfies Item);
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(26): const result: Item[] = [];\nfor (const element of iterable) {\n\tresult.push({value: element} satisfies Item);\n} 2`] = `
+
+Message:
+  1 | const result: Item[] = [];
+> 2 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push({value: element} satisfies Item);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result: Item[] = Array.from(iterable, element => ({value: element} satisfies Item));
+
+`;
+
+exports[`prefer-array-from-map > invalid(27): Array.from(iterable).map((element: string) => element); 1`] = `
+
+  1 | Array.from(iterable).map((element: string) => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(27): Array.from(iterable).map((element: string) => element); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map((element: string) => element);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, (element: string) => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(28): Array.from(iterable).map((element: string, index: number): string => element + index); 1`] = `
+
+  1 | Array.from(iterable).map((element: string, index: number): string => element + index);
+
+`;
+
+exports[`prefer-array-from-map > invalid(28): Array.from(iterable).map((element: string, index: number): string => element + index); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map((element: string, index: number): string => element + index);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, (element: string, index: number): string => element + index);
+
+`;
+
+exports[`prefer-array-from-map > invalid(29): const result = []; for (let element of iterable) { result.push(transform(element)); } 1`] = `
+
+  1 | const result = []; for (let element of iterable) { result.push(transform(element)); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(29): const result = []; for (let element of iterable) { result.push(transform(element)); } 2`] = `
+
+Message:
+> 1 | const result = []; for (let element of iterable) { result.push(transform(element)); }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(iterable, element => transform(element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(3): Array.from(iterable).map(element => element).filter(Boolean); 1`] = `
+
+  1 | Array.from(iterable).map(element => element).filter(Boolean);
+
+`;
+
+exports[`prefer-array-from-map > invalid(3): Array.from(iterable).map(element => element).filter(Boolean); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map(element => element).filter(Boolean);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, element => element).filter(Boolean);
+
+`;
+
+exports[`prefer-array-from-map > invalid(4): Array.from(iterable,).map(element => element); 1`] = `
+
+  1 | Array.from(iterable,).map(element => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(4): Array.from(iterable,).map(element => element); 2`] = `
+
+Message:
+> 1 | Array.from(iterable,).map(element => element);
+    |                       ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, element => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(5): (Array.from(iterable)).map(element => element); 1`] = `
+
+  1 | (Array.from(iterable)).map(element => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(5): (Array.from(iterable)).map(element => element); 2`] = `
+
+Message:
+> 1 | (Array.from(iterable)).map(element => element);
+    |                        ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
+exports[`prefer-array-from-map > invalid(6): Array.from(iterable).map((element => element)); 1`] = `
+
+  1 | Array.from(iterable).map((element => element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(6): Array.from(iterable).map((element => element)); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map((element => element));
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, (element => element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(7): Array.from(iterable).map((element => element), thisArgument); 1`] = `
+
+  1 | Array.from(iterable).map((element => element), thisArgument);
+
+`;
+
+exports[`prefer-array-from-map > invalid(7): Array.from(iterable).map((element => element), thisArgument); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map((element => element), thisArgument);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(iterable, (element => element), thisArgument);
+
+`;
+
+exports[`prefer-array-from-map > invalid(8): Array.from(/* source */ iterable).map(element => element); 1`] = `
+
+  1 | Array.from(/* source */ iterable).map(element => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(8): Array.from(/* source */ iterable).map(element => element); 2`] = `
+
+Message:
+> 1 | Array.from(/* source */ iterable).map(element => element);
+    |                                   ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | Array.from(/* source */ iterable, element => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(9): Array.from(iterable).map(/* callback */ element => element); 1`] = `
+
+  1 | Array.from(iterable).map(/* callback */ element => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(9): Array.from(iterable).map(/* callback */ element => element); 2`] = `
+
+Message:
+> 1 | Array.from(iterable).map(/* callback */ element => element);
+    |                      ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;

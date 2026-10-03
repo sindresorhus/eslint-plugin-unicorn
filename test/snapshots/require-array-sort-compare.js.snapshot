@@ -1,0 +1,393 @@
+exports[`require-array-sort-compare > invalid(1): array.sort() 1`] = `
+
+  1 | array.sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(1): array.sort() 2`] = `
+
+Message:
+> 1 | array.sort()
+    |       ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | array.sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | array.sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(10): Array.from(iterable).sort() 1`] = `
+
+  1 | Array.from(iterable).sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(10): Array.from(iterable).sort() 2`] = `
+
+Message:
+> 1 | Array.from(iterable).sort()
+    |                      ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | Array.from(iterable).sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | Array.from(iterable).sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(11): Array.of(3, 2, 1).sort() 1`] = `
+
+  1 | Array.of(3, 2, 1).sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(11): Array.of(3, 2, 1).sort() 2`] = `
+
+Message:
+> 1 | Array.of(3, 2, 1).sort()
+    |                   ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | Array.of(3, 2, 1).sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | Array.of(3, 2, 1).sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(12): new Array(3).sort() 1`] = `
+
+  1 | new Array(3).sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(12): new Array(3).sort() 2`] = `
+
+Message:
+> 1 | new Array(3).sort()
+    |              ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | new Array(3).sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | new Array(3).sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(13): const array = []; array.sort() 1`] = `
+
+  1 | const array = []; array.sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(13): const array = []; array.sort() 2`] = `
+
+Message:
+> 1 | const array = []; array.sort()
+    |                         ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | const array = []; array.sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | const array = []; array.sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(14): const array = Array.from(iterable); array.sort() 1`] = `
+
+  1 | const array = Array.from(iterable); array.sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(14): const array = Array.from(iterable); array.sort() 2`] = `
+
+Message:
+> 1 | const array = Array.from(iterable); array.sort()
+    |                                           ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | const array = Array.from(iterable); array.sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | const array = Array.from(iterable); array.sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(15): const array = Array.of(3, 2, 1); array.toSorted() 1`] = `
+
+  1 | const array = Array.of(3, 2, 1); array.toSorted()
+
+`;
+
+exports[`require-array-sort-compare > invalid(15): const array = Array.of(3, 2, 1); array.toSorted() 2`] = `
+
+Message:
+> 1 | const array = Array.of(3, 2, 1); array.toSorted()
+    |                                        ^^^^^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | const array = Array.of(3, 2, 1); array.toSorted((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | const array = Array.of(3, 2, 1); array.toSorted((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(16): array.sort(/* comment */) 1`] = `
+
+  1 | array.sort(/* comment */)
+
+`;
+
+exports[`require-array-sort-compare > invalid(16): array.sort(/* comment */) 2`] = `
+
+Message:
+> 1 | array.sort(/* comment */)
+    |       ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+`;
+
+exports[`require-array-sort-compare > invalid(17): const array: string[] = []; array.sort() 1`] = `
+
+  1 | const array: string[] = []; array.sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(17): const array: string[] = []; array.sort() 2`] = `
+
+Message:
+> 1 | const array: string[] = []; array.sort()
+    |                                   ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | const array: string[] = []; array.sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | const array: string[] = []; array.sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(18): const array: Array<string> = []; array.toSorted() 1`] = `
+
+  1 | const array: Array<string> = []; array.toSorted()
+
+`;
+
+exports[`require-array-sort-compare > invalid(18): const array: Array<string> = []; array.toSorted() 2`] = `
+
+Message:
+> 1 | const array: Array<string> = []; array.toSorted()
+    |                                        ^^^^^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | const array: Array<string> = []; array.toSorted((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | const array: Array<string> = []; array.toSorted((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(19): (value as string[]).sort() 1`] = `
+
+  1 | (value as string[]).sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(19): (value as string[]).sort() 2`] = `
+
+Message:
+> 1 | (value as string[]).sort()
+    |                     ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | (value as string[]).sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | (value as string[]).sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(2): array.toSorted() 1`] = `
+
+  1 | array.toSorted()
+
+`;
+
+exports[`require-array-sort-compare > invalid(2): array.toSorted() 2`] = `
+
+Message:
+> 1 | array.toSorted()
+    |       ^^^^^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | array.toSorted((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | array.toSorted((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(20): (<string[]>value).toSorted() 1`] = `
+
+  1 | (<string[]>value).toSorted()
+
+`;
+
+exports[`require-array-sort-compare > invalid(20): (<string[]>value).toSorted() 2`] = `
+
+Message:
+> 1 | (<string[]>value).toSorted()
+    |                   ^^^^^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | (<string[]>value).toSorted((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | (<string[]>value).toSorted((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(3): array.sort(undefined) 1`] = `
+
+  1 | array.sort(undefined)
+
+`;
+
+exports[`require-array-sort-compare > invalid(3): array.sort(undefined) 2`] = `
+
+Message:
+> 1 | array.sort(undefined)
+    |       ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | array.sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | array.sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(4): array.toSorted(undefined) 1`] = `
+
+  1 | array.toSorted(undefined)
+
+`;
+
+exports[`require-array-sort-compare > invalid(4): array.toSorted(undefined) 2`] = `
+
+Message:
+> 1 | array.toSorted(undefined)
+    |       ^^^^^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | array.toSorted((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | array.toSorted((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(5): array?.sort() 1`] = `
+
+  1 | array?.sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(5): array?.sort() 2`] = `
+
+Message:
+> 1 | array?.sort()
+    |        ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | array?.sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | array?.sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(6): array?.toSorted() 1`] = `
+
+  1 | array?.toSorted()
+
+`;
+
+exports[`require-array-sort-compare > invalid(6): array?.toSorted() 2`] = `
+
+Message:
+> 1 | array?.toSorted()
+    |        ^^^^^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | array?.toSorted((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | array?.toSorted((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(7): [].sort() 1`] = `
+
+  1 | [].sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(7): [].sort() 2`] = `
+
+Message:
+> 1 | [].sort()
+    |    ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | [].sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | [].sort((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(8): [].toSorted() 1`] = `
+
+  1 | [].toSorted()
+
+`;
+
+exports[`require-array-sort-compare > invalid(8): [].toSorted() 2`] = `
+
+Message:
+> 1 | [].toSorted()
+    |    ^^^^^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | [].toSorted((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | [].toSorted((a, b) => a.localeCompare(b))
+
+`;
+
+exports[`require-array-sort-compare > invalid(9): [3, 2, 1].sort() 1`] = `
+
+  1 | [3, 2, 1].sort()
+
+`;
+
+exports[`require-array-sort-compare > invalid(9): [3, 2, 1].sort() 2`] = `
+
+Message:
+> 1 | [3, 2, 1].sort()
+    |           ^^^^ Pass a compare function to avoid sorting elements as strings.
+
+Suggestion 1/2: Sort numerically.:
+  1 | [3, 2, 1].sort((a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | [3, 2, 1].sort((a, b) => a.localeCompare(b))
+
+`;

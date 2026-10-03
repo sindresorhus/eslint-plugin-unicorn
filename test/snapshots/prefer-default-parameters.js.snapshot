@@ -1,0 +1,1004 @@
+exports[`prefer-default-parameters > invalid(1): const fn = a => [a ?? 3, a ?? 3]; 1`] = `
+
+  1 | const fn = a => [a ?? 3, a ?? 3];
+
+`;
+
+exports[`prefer-default-parameters > invalid(1): const fn = a => [a ?? 3, a ?? 3]; 2`] = `
+
+Message:
+> 1 | const fn = a => [a ?? 3, a ?? 3];
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3) => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(10): const fn = (a) => (a) ?? (3); 1`] = `
+
+  1 | const fn = (a) => (a) ?? (3);
+
+`;
+
+exports[`prefer-default-parameters > invalid(10): const fn = (a) => (a) ?? (3); 2`] = `
+
+Message:
+> 1 | const fn = (a) => (a) ?? (3);
+    |             ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(11): const fn = a => ((a ?? 3)); 1`] = `
+
+  1 | const fn = a => ((a ?? 3));
+
+`;
+
+exports[`prefer-default-parameters > invalid(11): const fn = a => ((a ?? 3)); 2`] = `
+
+Message:
+> 1 | const fn = a => ((a ?? 3));
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3) => ((a));
+
+`;
+
+exports[`prefer-default-parameters > invalid(12): const fn = a => ({[a ?? 3]: a ?? 3}); 1`] = `
+
+  1 | const fn = a => ({[a ?? 3]: a ?? 3});
+
+`;
+
+exports[`prefer-default-parameters > invalid(12): const fn = a => ({[a ?? 3]: a ?? 3}); 2`] = `
+
+Message:
+> 1 | const fn = a => ({[a ?? 3]: a ?? 3});
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3) => ({[a]: a});
+
+`;
+
+exports[`prefer-default-parameters > invalid(13): const fn = a => { function read() { return a ?? 3; } return a ?? 3; }; 1`] = `
+
+  1 | const fn = a => { function read() { return a ?? 3; } return a ?? 3; };
+
+`;
+
+exports[`prefer-default-parameters > invalid(13): const fn = a => { function read() { return a ?? 3; } return a ?? 3; }; 2`] = `
+
+Message:
+> 1 | const fn = a => { function read() { return a ?? 3; } return a ?? 3; };
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3) => { function read() { return a; } return a; };
+
+`;
+
+exports[`prefer-default-parameters > invalid(14): const fn = a => { { const a = 1; console.log(a ?? 4); } return a ?? 3; }; 1`] = `
+
+  1 | const fn = a => { { const a = 1; console.log(a ?? 4); } return a ?? 3; };
+
+`;
+
+exports[`prefer-default-parameters > invalid(14): const fn = a => { { const a = 1; console.log(a ?? 4); } return a ?? 3; }; 2`] = `
+
+Message:
+> 1 | const fn = a => { { const a = 1; console.log(a ?? 4); } return a ?? 3; };
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3) => { { const a = 1; console.log(a ?? 4); } return a; };
+
+`;
+
+exports[`prefer-default-parameters > invalid(15): const fn = a => b => a ?? 3; 1`] = `
+
+  1 | const fn = a => b => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(15): const fn = a => b => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = a => b => a ?? 3;
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3) => b => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(16): const fn = function(a) { return a ?? 3; }; 1`] = `
+
+  1 | const fn = function(a) { return a ?? 3; };
+
+`;
+
+exports[`prefer-default-parameters > invalid(16): const fn = function(a) { return a ?? 3; }; 2`] = `
+
+Message:
+> 1 | const fn = function(a) { return a ?? 3; };
+    |                     ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = function(a = 3) { return a; };
+
+`;
+
+exports[`prefer-default-parameters > invalid(17): async function fn(a) { return a ?? 3; } 1`] = `
+
+  1 | async function fn(a) { return a ?? 3; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(17): async function fn(a) { return a ?? 3; } 2`] = `
+
+Message:
+> 1 | async function fn(a) { return a ?? 3; }
+    |                   ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | async function fn(a = 3) { return a; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(18): function * fn(a) { yield a ?? 3; } 1`] = `
+
+  1 | function * fn(a) { yield a ?? 3; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(18): function * fn(a) { yield a ?? 3; } 2`] = `
+
+Message:
+> 1 | function * fn(a) { yield a ?? 3; }
+    |               ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | function * fn(a = 3) { yield a; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(19): const object = { fn(a) { return a ?? 3; } }; 1`] = `
+
+  1 | const object = { fn(a) { return a ?? 3; } };
+
+`;
+
+exports[`prefer-default-parameters > invalid(19): const object = { fn(a) { return a ?? 3; } }; 2`] = `
+
+Message:
+> 1 | const object = { fn(a) { return a ?? 3; } };
+    |                     ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const object = { fn(a = 3) { return a; } };
+
+`;
+
+exports[`prefer-default-parameters > invalid(2): const fn = a => [a || 3, a || 3]; 1`] = `
+
+  1 | const fn = a => [a || 3, a || 3];
+
+`;
+
+exports[`prefer-default-parameters > invalid(2): const fn = a => [a || 3, a || 3]; 2`] = `
+
+Message:
+> 1 | const fn = a => [a || 3, a || 3];
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3) => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(20): class Class { fn(a) { return a ?? 3; } } 1`] = `
+
+  1 | class Class { fn(a) { return a ?? 3; } }
+
+`;
+
+exports[`prefer-default-parameters > invalid(20): class Class { fn(a) { return a ?? 3; } } 2`] = `
+
+Message:
+> 1 | class Class { fn(a) { return a ?? 3; } }
+    |                  ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | class Class { fn(a = 3) { return a; } }
+
+`;
+
+exports[`prefer-default-parameters > invalid(21): const fn = ({a}, b) => a ?? 3; 1`] = `
+
+  1 | const fn = ({a}, b) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(21): const fn = ({a}, b) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ({a}, b) => a ?? 3;
+    |              ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({a = 3}, b) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(22): const fn = ([a]) => a ?? 3; 1`] = `
+
+  1 | const fn = ([a]) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(22): const fn = ([a]) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ([a]) => a ?? 3;
+    |              ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ([a = 3]) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(23): const fn = ({property: a}) => a ?? 3; 1`] = `
+
+  1 | const fn = ({property: a}) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(23): const fn = ({property: a}) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ({property: a}) => a ?? 3;
+    |                        ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({property: a = 3}) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(24): const fn = ({nested: {a}}) => a ?? 3; 1`] = `
+
+  1 | const fn = ({nested: {a}}) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(24): const fn = ({nested: {a}}) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ({nested: {a}}) => a ?? 3;
+    |                       ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({nested: {a = 3}}) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(25): const fn = ([[a]]) => a ?? 3; 1`] = `
+
+  1 | const fn = ([[a]]) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(25): const fn = ([[a]]) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ([[a]]) => a ?? 3;
+    |               ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ([[a = 3]]) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(26): const fn = ({a} = {}) => a ?? 3; 1`] = `
+
+  1 | const fn = ({a} = {}) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(26): const fn = ({a} = {}) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ({a} = {}) => a ?? 3;
+    |              ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({a = 3} = {}) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(27): const fn = ({a, b = a ?? 3}) => b; 1`] = `
+
+  1 | const fn = ({a, b = a ?? 3}) => b;
+
+`;
+
+exports[`prefer-default-parameters > invalid(27): const fn = ({a, b = a ?? 3}) => b; 2`] = `
+
+Message:
+> 1 | const fn = ({a, b = a ?? 3}) => b;
+    |              ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({a = 3, b = a}) => b;
+
+`;
+
+exports[`prefer-default-parameters > invalid(28): const fn = ({a, b}) => [a ?? 3, b || 4]; 1`] = `
+
+  1 | const fn = ({a, b}) => [a ?? 3, b || 4];
+
+`;
+
+exports[`prefer-default-parameters > invalid(28): const fn = ({a, b}) => [a ?? 3, b || 4]; 2`] = `
+
+Message:
+> 1 | const fn = ({a, b}) => [a ?? 3, b || 4];
+    |              ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({a = 3, b}) => [a, b || 4];
+
+`;
+
+exports[`prefer-default-parameters > invalid(28): const fn = ({a, b}) => [a ?? 3, b || 4]; 3`] = `
+
+Message:
+> 1 | const fn = ({a, b}) => [a ?? 3, b || 4];
+    |                 ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({a, b = 4}) => [a ?? 3, b];
+
+`;
+
+exports[`prefer-default-parameters > invalid(29): const {property: a} = options; console.log(a ?? 3); 1`] = `
+
+  1 | const {property: a} = options; console.log(a ?? 3);
+
+`;
+
+exports[`prefer-default-parameters > invalid(29): const {property: a} = options; console.log(a ?? 3); 2`] = `
+
+Message:
+> 1 | const {property: a} = options; console.log(a ?? 3);
+    |                  ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const {property: a = 3} = options; console.log(a);
+
+`;
+
+exports[`prefer-default-parameters > invalid(3): const fn = a => [a ?? 3, a ?? 0x3]; 1`] = `
+
+  1 | const fn = a => [a ?? 3, a ?? 0x3];
+
+`;
+
+exports[`prefer-default-parameters > invalid(3): const fn = a => [a ?? 3, a ?? 0x3]; 2`] = `
+
+Message:
+> 1 | const fn = a => [a ?? 3, a ?? 0x3];
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3) => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(30): const {nested: [a]} = options; console.log(a ?? 3); 1`] = `
+
+  1 | const {nested: [a]} = options; console.log(a ?? 3);
+
+`;
+
+exports[`prefer-default-parameters > invalid(30): const {nested: [a]} = options; console.log(a ?? 3); 2`] = `
+
+Message:
+> 1 | const {nested: [a]} = options; console.log(a ?? 3);
+    |                 ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const {nested: [a = 3]} = options; console.log(a);
+
+`;
+
+exports[`prefer-default-parameters > invalid(31): const [a] = arr; console.log(a ?? 3, a ?? 3); 1`] = `
+
+  1 | const [a] = arr; console.log(a ?? 3, a ?? 3);
+
+`;
+
+exports[`prefer-default-parameters > invalid(31): const [a] = arr; console.log(a ?? 3, a ?? 3); 2`] = `
+
+Message:
+> 1 | const [a] = arr; console.log(a ?? 3, a ?? 3);
+    |        ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const [a = 3] = arr; console.log(a, a);
+
+`;
+
+exports[`prefer-default-parameters > invalid(32): let {a} = options; console.log(a ?? 3); 1`] = `
+
+  1 | let {a} = options; console.log(a ?? 3);
+
+`;
+
+exports[`prefer-default-parameters > invalid(32): let {a} = options; console.log(a ?? 3); 2`] = `
+
+Message:
+> 1 | let {a} = options; console.log(a ?? 3);
+    |      ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | let {a = 3} = options; console.log(a);
+
+`;
+
+exports[`prefer-default-parameters > invalid(33): for (const [a] of arrays) { console.log(a ?? 3); } 1`] = `
+
+  1 | for (const [a] of arrays) { console.log(a ?? 3); }
+
+`;
+
+exports[`prefer-default-parameters > invalid(33): for (const [a] of arrays) { console.log(a ?? 3); } 2`] = `
+
+Message:
+> 1 | for (const [a] of arrays) { console.log(a ?? 3); }
+    |             ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | for (const [a = 3] of arrays) { console.log(a); }
+
+`;
+
+exports[`prefer-default-parameters > invalid(34): const {a} = options; const fn = () => a ?? 3; 1`] = `
+
+  1 | const {a} = options; const fn = () => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(34): const {a} = options; const fn = () => a ?? 3; 2`] = `
+
+Message:
+> 1 | const {a} = options; const fn = () => a ?? 3;
+    |        ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const {a = 3} = options; const fn = () => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(35): const {a} = options, [b] = arr; console.log(a ?? 3, b ?? 4); 1`] = `
+
+  1 | const {a} = options, [b] = arr; console.log(a ?? 3, b ?? 4);
+
+`;
+
+exports[`prefer-default-parameters > invalid(35): const {a} = options, [b] = arr; console.log(a ?? 3, b ?? 4); 2`] = `
+
+Message:
+> 1 | const {a} = options, [b] = arr; console.log(a ?? 3, b ?? 4);
+    |        ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const {a = 3} = options, [b] = arr; console.log(a, b ?? 4);
+
+`;
+
+exports[`prefer-default-parameters > invalid(35): const {a} = options, [b] = arr; console.log(a ?? 3, b ?? 4); 3`] = `
+
+Message:
+> 1 | const {a} = options, [b] = arr; console.log(a ?? 3, b ?? 4);
+    |                       ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const {a} = options, [b = 4] = arr; console.log(a ?? 3, b);
+
+`;
+
+exports[`prefer-default-parameters > invalid(36): const fn = (a /* Keep comment. */) => (/* Keep comment. */ a ?? 3); 1`] = `
+
+  1 | const fn = (a /* Keep comment. */) => (/* Keep comment. */ a ?? 3);
+
+`;
+
+exports[`prefer-default-parameters > invalid(36): const fn = (a /* Keep comment. */) => (/* Keep comment. */ a ?? 3); 2`] = `
+
+Message:
+> 1 | const fn = (a /* Keep comment. */) => (/* Keep comment. */ a ?? 3);
+    |             ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3 /* Keep comment. */) => (/* Keep comment. */ a);
+
+`;
+
+exports[`prefer-default-parameters > invalid(37): const fn = ({a /* Keep comment. */}) => a ?? 3; 1`] = `
+
+  1 | const fn = ({a /* Keep comment. */}) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(37): const fn = ({a /* Keep comment. */}) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ({a /* Keep comment. */}) => a ?? 3;
+    |              ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({a = 3 /* Keep comment. */}) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(38): const fn = a => a /* Keep comment. */ ?? 3; 1`] = `
+
+  1 | const fn = a => a /* Keep comment. */ ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(38): const fn = a => a /* Keep comment. */ ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = a => a /* Keep comment. */ ?? 3;
+    |            ^ Prefer a default parameter over fallback expressions.
+
+`;
+
+exports[`prefer-default-parameters > invalid(39): const fn = a => a ?? /* Keep comment. */ 3; 1`] = `
+
+  1 | const fn = a => a ?? /* Keep comment. */ 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(39): const fn = a => a ?? /* Keep comment. */ 3; 2`] = `
+
+Message:
+> 1 | const fn = a => a ?? /* Keep comment. */ 3;
+    |            ^ Prefer a default parameter over fallback expressions.
+
+`;
+
+exports[`prefer-default-parameters > invalid(4): const fn = a => [a ?? 3n, a ?? 0x3n]; 1`] = `
+
+  1 | const fn = a => [a ?? 3n, a ?? 0x3n];
+
+`;
+
+exports[`prefer-default-parameters > invalid(4): const fn = a => [a ?? 3n, a ?? 0x3n]; 2`] = `
+
+Message:
+> 1 | const fn = a => [a ?? 3n, a ?? 0x3n];
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3n) => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(40): const fn = a => [a ?? 3, a ?? /* Keep comment. */ 3]; 1`] = `
+
+  1 | const fn = a => [a ?? 3, a ?? /* Keep comment. */ 3];
+
+`;
+
+exports[`prefer-default-parameters > invalid(40): const fn = a => [a ?? 3, a ?? /* Keep comment. */ 3]; 2`] = `
+
+Message:
+> 1 | const fn = a => [a ?? 3, a ?? /* Keep comment. */ 3];
+    |            ^ Prefer a default parameter over fallback expressions.
+
+`;
+
+exports[`prefer-default-parameters > invalid(41): const [a] = arr; console.log(a ?? // Keep comment.\n3); 1`] = `
+
+  1 | const [a] = arr; console.log(a ?? // Keep comment.
+  2 | 3);
+
+`;
+
+exports[`prefer-default-parameters > invalid(41): const [a] = arr; console.log(a ?? // Keep comment.\n3); 2`] = `
+
+Message:
+> 1 | const [a] = arr; console.log(a ?? // Keep comment.
+    |        ^ Prefer a destructuring default over fallback expressions.
+  2 | 3);
+
+`;
+
+exports[`prefer-default-parameters > invalid(42): function fn(a) {\r\n  return a ?? 3;\r\n} 1`] = `
+
+  1 | function fn(a) {
+  2 |   return a ?? 3;
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(42): function fn(a) {\r\n  return a ?? 3;\r\n} 2`] = `
+
+Message:
+> 1 | function fn(a) {
+    |             ^ Prefer a default parameter over fallback expressions.
+  2 |   return a ?? 3;
+  3 | }
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | function fn(a = 3) {
+  2 |   return a;
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(43): function abc(foo) {\n\tconst {bar} = foo || 123;\n} 1`] = `
+
+  1 | function abc(foo) {
+  2 | 	const {bar} = foo || 123;
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(43): function abc(foo) {\n\tconst {bar} = foo || 123;\n} 2`] = `
+
+Message:
+> 1 | function abc(foo) {
+    |              ^^^ Prefer a default parameter over fallback expressions.
+  2 | 	const {bar} = foo || 123;
+  3 | }
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | function abc(foo = 123) {
+  2 | 	const {bar} = foo;
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(44): function abc(foo) {\n\tconst bar = foo || 'bar', keep = sideEffect();\n} 1`] = `
+
+  1 | function abc(foo) {
+  2 | 	const bar = foo || 'bar', keep = sideEffect();
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(44): function abc(foo) {\n\tconst bar = foo || 'bar', keep = sideEffect();\n} 2`] = `
+
+Message:
+> 1 | function abc(foo) {
+    |              ^^^ Prefer a default parameter over fallback expressions.
+  2 | 	const bar = foo || 'bar', keep = sideEffect();
+  3 | }
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | function abc(foo = 'bar') {
+  2 | 	const bar = foo, keep = sideEffect();
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(45): function abc(bar, foo) {\n\tvar bar = foo || 'bar';\n} 1`] = `
+
+  1 | function abc(bar, foo) {
+  2 | 	var bar = foo || 'bar';
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(45): function abc(bar, foo) {\n\tvar bar = foo || 'bar';\n} 2`] = `
+
+Message:
+> 1 | function abc(bar, foo) {
+    |                   ^^^ Prefer a default parameter over fallback expressions.
+  2 | 	var bar = foo || 'bar';
+  3 | }
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | function abc(bar, foo = 'bar') {
+  2 | 	var bar = foo;
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(46): function abc({bar}, foo) {\n\tvar bar = foo || 'bar';\n} 1`] = `
+
+  1 | function abc({bar}, foo) {
+  2 | 	var bar = foo || 'bar';
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(46): function abc({bar}, foo) {\n\tvar bar = foo || 'bar';\n} 2`] = `
+
+Message:
+> 1 | function abc({bar}, foo) {
+    |                     ^^^ Prefer a default parameter over fallback expressions.
+  2 | 	var bar = foo || 'bar';
+  3 | }
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | function abc({bar}, foo = 'bar') {
+  2 | 	var bar = foo;
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(47): const fn = (a?: number) => a ?? 3; 1`] = `
+
+  1 | const fn = (a?: number) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(47): const fn = (a?: number) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = (a?: number) => a ?? 3;
+    |             ^^^^^^^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a: number = 3) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(48): const fn = (a?: number,) => a ?? 3; 1`] = `
+
+  1 | const fn = (a?: number,) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(48): const fn = (a?: number,) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = (a?: number,) => a ?? 3;
+    |             ^^^^^^^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a: number = 3,) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(49): const fn = (a: number | undefined) => a ?? 3; 1`] = `
+
+  1 | const fn = (a: number | undefined) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(49): const fn = (a: number | undefined) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = (a: number | undefined) => a ?? 3;
+    |             ^^^^^^^^^^^^^^^^^^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a: number | undefined = 3) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(5): const fn = a => [a ?? \"default\", a ?? \"\\u0064efault\"]; 1`] = `
+
+  1 | const fn = a => [a ?? "default", a ?? "\\u0064efault"];
+
+`;
+
+exports[`prefer-default-parameters > invalid(5): const fn = a => [a ?? \"default\", a ?? \"\\u0064efault\"]; 2`] = `
+
+Message:
+> 1 | const fn = a => [a ?? "default", a ?? "\\u0064efault"];
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = "default") => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(50): const fn = ({a}: {a?: number}) => a ?? 3; 1`] = `
+
+  1 | const fn = ({a}: {a?: number}) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(50): const fn = ({a}: {a?: number}) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ({a}: {a?: number}) => a ?? 3;
+    |              ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({a = 3}: {a?: number}) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(51): const [a]: [number?] = arr; console.log(a ?? 3); 1`] = `
+
+  1 | const [a]: [number?] = arr; console.log(a ?? 3);
+
+`;
+
+exports[`prefer-default-parameters > invalid(51): const [a]: [number?] = arr; console.log(a ?? 3); 2`] = `
+
+Message:
+> 1 | const [a]: [number?] = arr; console.log(a ?? 3);
+    |        ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const [a = 3]: [number?] = arr; console.log(a);
+
+`;
+
+exports[`prefer-default-parameters > invalid(52): const fn = (a /* Keep comment. */: number | undefined) => a ?? 3; 1`] = `
+
+  1 | const fn = (a /* Keep comment. */: number | undefined) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(52): const fn = (a /* Keep comment. */: number | undefined) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = (a /* Keep comment. */: number | undefined) => a ?? 3;
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a default parameter over fallback expressions.
+
+`;
+
+exports[`prefer-default-parameters > invalid(53): const fn = <Value,>(a: number | undefined) => <span>{a ?? 3}</span>; 1`] = `
+
+  1 | const fn = <Value,>(a: number | undefined) => <span>{a ?? 3}</span>;
+
+`;
+
+exports[`prefer-default-parameters > invalid(53): const fn = <Value,>(a: number | undefined) => <span>{a ?? 3}</span>; 2`] = `
+
+Message:
+> 1 | const fn = <Value,>(a: number | undefined) => <span>{a ?? 3}</span>;
+    |                     ^^^^^^^^^^^^^^^^^^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = <Value,>(a: number | undefined = 3) => <span>{a}</span>;
+
+`;
+
+exports[`prefer-default-parameters > invalid(54): const fn = a => a ?? (3 /* Keep comment. */); 1`] = `
+
+  1 | const fn = a => a ?? (3 /* Keep comment. */);
+
+`;
+
+exports[`prefer-default-parameters > invalid(54): const fn = a => a ?? (3 /* Keep comment. */); 2`] = `
+
+Message:
+> 1 | const fn = a => a ?? (3 /* Keep comment. */);
+    |            ^ Prefer a default parameter over fallback expressions.
+
+`;
+
+exports[`prefer-default-parameters > invalid(55): const fn = async a => a ?? 3; 1`] = `
+
+  1 | const fn = async a => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(55): const fn = async a => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = async a => a ?? 3;
+    |                  ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = async (a = 3) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(56): const fn = (a: bigint | undefined) => [a ?? 3n, a ?? 0x3n]; 1`] = `
+
+  1 | const fn = (a: bigint | undefined) => [a ?? 3n, a ?? 0x3n];
+
+`;
+
+exports[`prefer-default-parameters > invalid(56): const fn = (a: bigint | undefined) => [a ?? 3n, a ?? 0x3n]; 2`] = `
+
+Message:
+> 1 | const fn = (a: bigint | undefined) => [a ?? 3n, a ?? 0x3n];
+    |             ^^^^^^^^^^^^^^^^^^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a: bigint | undefined = 3n) => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(57): const fn = ({[key]: a}) => a ?? 3; 1`] = `
+
+  1 | const fn = ({[key]: a}) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(57): const fn = ({[key]: a}) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ({[key]: a}) => a ?? 3;
+    |                     ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = ({[key]: a = 3}) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(6): const fn = a => a || false; 1`] = `
+
+  1 | const fn = a => a || false;
+
+`;
+
+exports[`prefer-default-parameters > invalid(6): const fn = a => a || false; 2`] = `
+
+Message:
+> 1 | const fn = a => a || false;
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = false) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(7): const fn = a => a ?? null; 1`] = `
+
+  1 | const fn = a => a ?? null;
+
+`;
+
+exports[`prefer-default-parameters > invalid(7): const fn = a => a ?? null; 2`] = `
+
+Message:
+> 1 | const fn = a => a ?? null;
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = null) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(8): const fn = (b, a) => a ?? 3; 1`] = `
+
+  1 | const fn = (b, a) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(8): const fn = (b, a) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = (b, a) => a ?? 3;
+    |                ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (b, a = 3) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(9): const fn = (a,) => a ?? 3; 1`] = `
+
+  1 | const fn = (a,) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(9): const fn = (a,) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = (a,) => a ?? 3;
+    |             ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration.:
+  1 | const fn = (a = 3,) => a;
+
+`;

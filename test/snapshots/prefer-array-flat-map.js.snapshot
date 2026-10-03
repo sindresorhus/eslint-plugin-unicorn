@@ -1,0 +1,620 @@
+exports[`prefer-array-flat-map > invalid(1): const bar = [[1],[2],[3]].map(i => [i]).flat() 1`] = `
+
+  1 | const bar = [[1],[2],[3]].map(i => [i]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(1): const bar = [[1],[2],[3]].map(i => [i]).flat() 2`] = `
+
+Message:
+> 1 | const bar = [[1],[2],[3]].map(i => [i]).flat()
+    |                           ^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = [[1],[2],[3]].flatMap(i => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(10): const bar = [1,2,3].map(i => [i]).flat<number>() 1`] = `
+
+  1 | const bar = [1,2,3].map(i => [i]).flat<number>()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(10): const bar = [1,2,3].map(i => [i]).flat<number>() 2`] = `
+
+Message:
+> 1 | const bar = [1,2,3].map(i => [i]).flat<number>()
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+`;
+
+exports[`prefer-array-flat-map > invalid(11): const bar = [1,2,3].map<number[]>(i => [i]).flat() 1`] = `
+
+  1 | const bar = [1,2,3].map<number[]>(i => [i]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(11): const bar = [1,2,3].map<number[]>(i => [i]).flat() 2`] = `
+
+Message:
+> 1 | const bar = [1,2,3].map<number[]>(i => [i]).flat()
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+`;
+
+exports[`prefer-array-flat-map > invalid(12): const bar = { map: () => {} }.map(i => [i]).flat() 1`] = `
+
+  1 | const bar = { map: () => {} }.map(i => [i]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(12): const bar = { map: () => {} }.map(i => [i]).flat() 2`] = `
+
+Message:
+> 1 | const bar = { map: () => {} }.map(i => [i]).flat()
+    |                               ^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = { map: () => {} }.flatMap(i => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(13): const bar = [1,2,3].map(i => i).map(i => [i]).flat() 1`] = `
+
+  1 | const bar = [1,2,3].map(i => i).map(i => [i]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(13): const bar = [1,2,3].map(i => i).map(i => [i]).flat() 2`] = `
+
+Message:
+> 1 | const bar = [1,2,3].map(i => i).map(i => [i]).flat()
+    |                                 ^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = [1,2,3].map(i => i).flatMap(i => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(14): const bar = [1,2,3].sort().map(i => [i]).flat() 1`] = `
+
+  1 | const bar = [1,2,3].sort().map(i => [i]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(14): const bar = [1,2,3].sort().map(i => [i]).flat() 2`] = `
+
+Message:
+> 1 | const bar = [1,2,3].sort().map(i => [i]).flat()
+    |                            ^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = [1,2,3].sort().flatMap(i => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(15): const bar = (([1,2,3].map(i => [i]))).flat() 1`] = `
+
+  1 | const bar = (([1,2,3].map(i => [i]))).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(15): const bar = (([1,2,3].map(i => [i]))).flat() 2`] = `
+
+Message:
+> 1 | const bar = (([1,2,3].map(i => [i]))).flat()
+    |                       ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = (([1,2,3].flatMap(i => [i])))
+
+`;
+
+exports[`prefer-array-flat-map > invalid(16): let bar = [1,2,3].map(i => {\n\treturn [i];\n}).flat(); 1`] = `
+
+  1 | let bar = [1,2,3].map(i => {
+  2 | 	return [i];
+  3 | }).flat();
+
+`;
+
+exports[`prefer-array-flat-map > invalid(16): let bar = [1,2,3].map(i => {\n\treturn [i];\n}).flat(); 2`] = `
+
+Message:
+> 1 | let bar = [1,2,3].map(i => {
+    |                   ^^^^^^^^^^
+> 2 | 	return [i];
+    | ^^^^^^^^^^^^
+> 3 | }).flat();
+    | ^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | let bar = [1,2,3].flatMap(i => {
+  2 | 	return [i];
+  3 | });
+
+`;
+
+exports[`prefer-array-flat-map > invalid(17): let bar = [1,2,3].map(i => {\n\treturn [i];\n})\n.flat(); 1`] = `
+
+  1 | let bar = [1,2,3].map(i => {
+  2 | 	return [i];
+  3 | })
+  4 | .flat();
+
+`;
+
+exports[`prefer-array-flat-map > invalid(17): let bar = [1,2,3].map(i => {\n\treturn [i];\n})\n.flat(); 2`] = `
+
+Message:
+> 1 | let bar = [1,2,3].map(i => {
+    |                   ^^^^^^^^^^
+> 2 | 	return [i];
+    | ^^^^^^^^^^^^
+> 3 | })
+    | ^^
+> 4 | .flat();
+    | ^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | let bar = [1,2,3].flatMap(i => {
+  2 | 	return [i];
+  3 | });
+
+`;
+
+exports[`prefer-array-flat-map > invalid(18): let bar = [1,2,3].map(i => {\n\treturn [i];\n}) // comment\n.flat(); 1`] = `
+
+  1 | let bar = [1,2,3].map(i => {
+  2 | 	return [i];
+  3 | }) // comment
+  4 | .flat();
+
+`;
+
+exports[`prefer-array-flat-map > invalid(18): let bar = [1,2,3].map(i => {\n\treturn [i];\n}) // comment\n.flat(); 2`] = `
+
+Message:
+> 1 | let bar = [1,2,3].map(i => {
+    |                   ^^^^^^^^^^
+> 2 | 	return [i];
+    | ^^^^^^^^^^^^
+> 3 | }) // comment
+    | ^^^^^^^^^^^^^
+> 4 | .flat();
+    | ^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+`;
+
+exports[`prefer-array-flat-map > invalid(19): let bar = [1,2,3].map(i => {\n\treturn [i];\n}) // comment\n.flat(); // other 1`] = `
+
+  1 | let bar = [1,2,3].map(i => {
+  2 | 	return [i];
+  3 | }) // comment
+  4 | .flat(); // other
+
+`;
+
+exports[`prefer-array-flat-map > invalid(19): let bar = [1,2,3].map(i => {\n\treturn [i];\n}) // comment\n.flat(); // other 2`] = `
+
+Message:
+> 1 | let bar = [1,2,3].map(i => {
+    |                   ^^^^^^^^^^
+> 2 | 	return [i];
+    | ^^^^^^^^^^^^
+> 3 | }) // comment
+    | ^^^^^^^^^^^^^
+> 4 | .flat(); // other
+    | ^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+`;
+
+exports[`prefer-array-flat-map > invalid(2): const bar = [[1],[2],[3]].map(i => [i]).flat(1,) 1`] = `
+
+  1 | const bar = [[1],[2],[3]].map(i => [i]).flat(1,)
+
+`;
+
+exports[`prefer-array-flat-map > invalid(2): const bar = [[1],[2],[3]].map(i => [i]).flat(1,) 2`] = `
+
+Message:
+> 1 | const bar = [[1],[2],[3]].map(i => [i]).flat(1,)
+    |                           ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = [[1],[2],[3]].flatMap(i => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(20): let bar = [1,2,3]\n\t.map(i => { return [i]; })\n\t.flat(); 1`] = `
+
+  1 | let bar = [1,2,3]
+  2 | 	.map(i => { return [i]; })
+  3 | 	.flat();
+
+`;
+
+exports[`prefer-array-flat-map > invalid(20): let bar = [1,2,3]\n\t.map(i => { return [i]; })\n\t.flat(); 2`] = `
+
+Message:
+  1 | let bar = [1,2,3]
+> 2 | 	.map(i => { return [i]; })
+    | 	 ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	.flat();
+    | ^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | let bar = [1,2,3]
+  2 | 	.flatMap(i => { return [i]; });
+
+`;
+
+exports[`prefer-array-flat-map > invalid(21): let bar = [1,2,3].map(i => { return [i]; })\n\t.flat(); 1`] = `
+
+  1 | let bar = [1,2,3].map(i => { return [i]; })
+  2 | 	.flat();
+
+`;
+
+exports[`prefer-array-flat-map > invalid(21): let bar = [1,2,3].map(i => { return [i]; })\n\t.flat(); 2`] = `
+
+Message:
+> 1 | let bar = [1,2,3].map(i => { return [i]; })
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	.flat();
+    | ^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | let bar = [1,2,3].flatMap(i => { return [i]; });
+
+`;
+
+exports[`prefer-array-flat-map > invalid(22): let bar = [1,2,3] . map( x => y ) . flat () // 🤪 1`] = `
+
+  1 | let bar = [1,2,3] . map( x => y ) . flat () // 🤪
+
+`;
+
+exports[`prefer-array-flat-map > invalid(22): let bar = [1,2,3] . map( x => y ) . flat () // 🤪 2`] = `
+
+Message:
+> 1 | let bar = [1,2,3] . map( x => y ) . flat () // 🤪
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | let bar = [1,2,3] . flatMap( x => y ) // 🤪
+
+`;
+
+exports[`prefer-array-flat-map > invalid(23): const bar = [1,2,3].map(i => [i]).flat(1); 1`] = `
+
+  1 | const bar = [1,2,3].map(i => [i]).flat(1);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(23): const bar = [1,2,3].map(i => [i]).flat(1); 2`] = `
+
+Message:
+> 1 | const bar = [1,2,3].map(i => [i]).flat(1);
+    |                     ^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = [1,2,3].flatMap(i => [i]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(24): const foo = bars\n\t.filter(foo => !!foo.zaz)\n\t.map(foo => doFoo(foo))\n\t.flat(); 1`] = `
+
+  1 | const foo = bars
+  2 | 	.filter(foo => !!foo.zaz)
+  3 | 	.map(foo => doFoo(foo))
+  4 | 	.flat();
+
+`;
+
+exports[`prefer-array-flat-map > invalid(24): const foo = bars\n\t.filter(foo => !!foo.zaz)\n\t.map(foo => doFoo(foo))\n\t.flat(); 2`] = `
+
+Message:
+  1 | const foo = bars
+  2 | 	.filter(foo => !!foo.zaz)
+> 3 | 	.map(foo => doFoo(foo))
+    | 	 ^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	.flat();
+    | ^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const foo = bars
+  2 | 	.filter(foo => !!foo.zaz)
+  3 | 	.flatMap(foo => doFoo(foo));
+
+`;
+
+exports[`prefer-array-flat-map > invalid(25): array.filter(value => value > 0.5).flatMap(value => [value, value * 2]); 1`] = `
+
+  1 | array.filter(value => value > 0.5).flatMap(value => [value, value * 2]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(25): array.filter(value => value > 0.5).flatMap(value => [value, value * 2]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value > 0.5).flatMap(value => [value, value * 2]);
+    |                                    ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
+  1 | array.flatMap(value => value > 0.5 ? [value, value * 2] : []);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(26): (array).filter(value => (value.active)).flatMap(value => ([value.id, value.slug])); 1`] = `
+
+  1 | (array).filter(value => (value.active)).flatMap(value => ([value.id, value.slug]));
+
+`;
+
+exports[`prefer-array-flat-map > invalid(26): (array).filter(value => (value.active)).flatMap(value => ([value.id, value.slug])); 2`] = `
+
+Message:
+> 1 | (array).filter(value => (value.active)).flatMap(value => ([value.id, value.slug]));
+    |                                         ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
+  1 | (array).flatMap(value => (value.active) ? [value.id, value.slug] : []);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(27): array.filter(value => value.active && value.visible).flatMap(value => [value.id, value.slug]); 1`] = `
+
+  1 | array.filter(value => value.active && value.visible).flatMap(value => [value.id, value.slug]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(27): array.filter(value => value.active && value.visible).flatMap(value => [value.id, value.slug]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active && value.visible).flatMap(value => [value.id, value.slug]);
+    |                                                      ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
+  1 | array.flatMap(value => value.active && value.visible ? [value.id, value.slug] : []);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(28): array.filter(value => value.active ? value.visible : value.enabled).flatMap(value => [value.id, value.slug]); 1`] = `
+
+  1 | array.filter(value => value.active ? value.visible : value.enabled).flatMap(value => [value.id, value.slug]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(28): array.filter(value => value.active ? value.visible : value.enabled).flatMap(value => [value.id, value.slug]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active ? value.visible : value.enabled).flatMap(value => [value.id, value.slug]);
+    |                                                                     ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
+  1 | array.flatMap(value => (value.active ? value.visible : value.enabled) ? [value.id, value.slug] : []);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(29): array.filter(value => value.active = true).flatMap(value => [value.id, value.slug]); 1`] = `
+
+  1 | array.filter(value => value.active = true).flatMap(value => [value.id, value.slug]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(29): array.filter(value => value.active = true).flatMap(value => [value.id, value.slug]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active = true).flatMap(value => [value.id, value.slug]);
+    |                                            ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
+  1 | array.flatMap(value => (value.active = true) ? [value.id, value.slug] : []);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(3): const bar = [1,2,3].map(i => [i]).flat() 1`] = `
+
+  1 | const bar = [1,2,3].map(i => [i]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(3): const bar = [1,2,3].map(i => [i]).flat() 2`] = `
+
+Message:
+> 1 | const bar = [1,2,3].map(i => [i]).flat()
+    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = [1,2,3].flatMap(i => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(30): array.filter(value => value.active).flatMap(value => [value.id, ...value.children]); 1`] = `
+
+  1 | array.filter(value => value.active).flatMap(value => [value.id, ...value.children]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(30): array.filter(value => value.active).flatMap(value => [value.id, ...value.children]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active).flatMap(value => [value.id, ...value.children]);
+    |                                     ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
+  1 | array.flatMap(value => value.active ? [value.id, ...value.children] : []);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(31): function foo(array: unknown[]) { return array.filter(value => value as boolean).flatMap(value => [value, value]); } 1`] = `
+
+  1 | function foo(array: unknown[]) { return array.filter(value => value as boolean).flatMap(value => [value, value]); }
+
+`;
+
+exports[`prefer-array-flat-map > invalid(31): function foo(array: unknown[]) { return array.filter(value => value as boolean).flatMap(value => [value, value]); } 2`] = `
+
+Message:
+> 1 | function foo(array: unknown[]) { return array.filter(value => value as boolean).flatMap(value => [value, value]); }
+    |                                                                                 ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
+  1 | function foo(array: unknown[]) { return array.flatMap(value => (value as boolean) ? [value, value] : []); }
+
+`;
+
+exports[`prefer-array-flat-map > invalid(32): class ArraySubclass extends Array { method() { return super.filter(value => value).flatMap(value => [value, value.id]); } } 1`] = `
+
+  1 | class ArraySubclass extends Array { method() { return super.filter(value => value).flatMap(value => [value, value.id]); } }
+
+`;
+
+exports[`prefer-array-flat-map > invalid(32): class ArraySubclass extends Array { method() { return super.filter(value => value).flatMap(value => [value, value.id]); } } 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array { method() { return super.filter(value => value).flatMap(value => [value, value.id]); } }
+    |                                                                                    ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
+  1 | class ArraySubclass extends Array { method() { return super.flatMap(value => value ? [value, value.id] : []); } }
+
+`;
+
+exports[`prefer-array-flat-map > invalid(33): class ArraySubclass extends Array { method() { return super.map(value => [value]).flat(); } } 1`] = `
+
+  1 | class ArraySubclass extends Array { method() { return super.map(value => [value]).flat(); } }
+
+`;
+
+exports[`prefer-array-flat-map > invalid(33): class ArraySubclass extends Array { method() { return super.map(value => [value]).flat(); } } 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array { method() { return super.map(value => [value]).flat(); } }
+    |                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | class ArraySubclass extends Array { method() { return super.flatMap(value => [value]); } }
+
+`;
+
+exports[`prefer-array-flat-map > invalid(34): array!.filter(value => value.active).flatMap(value => [value.id, value.name]); 1`] = `
+
+  1 | array!.filter(value => value.active).flatMap(value => [value.id, value.name]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(34): array!.filter(value => value.active).flatMap(value => [value.id, value.name]); 2`] = `
+
+Message:
+> 1 | array!.filter(value => value.active).flatMap(value => [value.id, value.name]);
+    |                                      ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
+  1 | array!.flatMap(value => value.active ? [value.id, value.name] : []);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(4): const bar = [1,2,3].map((i) => [i]).flat() 1`] = `
+
+  1 | const bar = [1,2,3].map((i) => [i]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(4): const bar = [1,2,3].map((i) => [i]).flat() 2`] = `
+
+Message:
+> 1 | const bar = [1,2,3].map((i) => [i]).flat()
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = [1,2,3].flatMap((i) => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(5): const bar = [1,2,3].map((i) => { return [i]; }).flat() 1`] = `
+
+  1 | const bar = [1,2,3].map((i) => { return [i]; }).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(5): const bar = [1,2,3].map((i) => { return [i]; }).flat() 2`] = `
+
+Message:
+> 1 | const bar = [1,2,3].map((i) => { return [i]; }).flat()
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = [1,2,3].flatMap((i) => { return [i]; })
+
+`;
+
+exports[`prefer-array-flat-map > invalid(6): const bar = [1,2,3].map(foo).flat() 1`] = `
+
+  1 | const bar = [1,2,3].map(foo).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(6): const bar = [1,2,3].map(foo).flat() 2`] = `
+
+Message:
+> 1 | const bar = [1,2,3].map(foo).flat()
+    |                     ^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = [1,2,3].flatMap(foo)
+
+`;
+
+exports[`prefer-array-flat-map > invalid(7): const bar = foo.map(i => [i]).flat() 1`] = `
+
+  1 | const bar = foo.map(i => [i]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(7): const bar = foo.map(i => [i]).flat() 2`] = `
+
+Message:
+> 1 | const bar = foo.map(i => [i]).flat()
+    |                 ^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = foo.flatMap(i => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(8): const bar = foo?.map(i => [i]).flat() 1`] = `
+
+  1 | const bar = foo?.map(i => [i]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(8): const bar = foo?.map(i => [i]).flat() 2`] = `
+
+Message:
+> 1 | const bar = foo?.map(i => [i]).flat()
+    |                  ^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | const bar = foo?.flatMap(i => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(9): function foo(collection: string[] | {map(callback: (value: string) => string[]): string[][]}) { collection.map(value => [value]).flat(); } 1`] = `
+
+  1 | function foo(collection: string[] | {map(callback: (value: string) => string[]): string[][]}) { collection.map(value => [value]).flat(); }
+
+`;
+
+exports[`prefer-array-flat-map > invalid(9): function foo(collection: string[] | {map(callback: (value: string) => string[]): string[][]}) { collection.map(value => [value]).flat(); } 2`] = `
+
+Message:
+> 1 | function foo(collection: string[] | {map(callback: (value: string) => string[]): string[][]}) { collection.map(value => [value]).flat(); }
+    |                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | function foo(collection: string[] | {map(callback: (value: string) => string[]): string[][]}) { collection.flatMap(value => [value]); }
+
+`;

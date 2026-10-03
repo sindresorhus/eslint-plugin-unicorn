@@ -36,12 +36,8 @@ const unwrapChainExpression = node =>
 		? node.expression
 		: node;
 
-const getHtmlAssignmentProperty = node => {
-	if (!isMemberExpression(node)) {
-		return;
-	}
-
-	const property = getStaticPropertyName(node);
+const getHtmlAssignmentProperty = memberExpression => {
+	const property = getStaticPropertyName(memberExpression);
 	return htmlAssignmentProperties.has(property) ? property : undefined;
 };
 

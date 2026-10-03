@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import languages from './utils/languages.js';
@@ -40,23 +40,23 @@ for (const [name, ordinaryComment, directive] of [
 		};
 		const verifyOptions = {filename: `file.${name}`};
 		const baselineMessages = linter.verify('', config, verifyOptions);
-		t.is(baselineMessages.length, 1);
-		t.is(baselineMessages[0].ruleId, ruleId);
-		t.deepEqual(linter.verify(ordinaryComment, config, verifyOptions), []);
-		t.deepEqual(linter.verify(directive, config, verifyOptions), []);
+		t.assert.strictEqual(baselineMessages.length, 1);
+		t.assert.strictEqual(baselineMessages[0].ruleId, ruleId);
+		t.assert.deepStrictEqual(linter.verify(ordinaryComment, config, verifyOptions), []);
+		t.assert.deepStrictEqual(linter.verify(directive, config, verifyOptions), []);
 		const suppressedMessages = linter.getSuppressedMessages();
-		t.is(suppressedMessages.length, 1);
-		t.is(suppressedMessages[0].ruleId, ruleId);
+		t.assert.strictEqual(suppressedMessages.length, 1);
+		t.assert.strictEqual(suppressedMessages[0].ruleId, ruleId);
 		for (const allowComments of [true, false]) {
 			const indentedCode = `\n\n  ${directive}  \n`;
-			t.deepEqual(linter.verify(indentedCode, {...config, rules: {[ruleId]: ['error', {allowComments}]}}, verifyOptions), []);
-			t.is(linter.getSuppressedMessages().length, 1);
+			t.assert.deepStrictEqual(linter.verify(indentedCode, {...config, rules: {[ruleId]: ['error', {allowComments}]}}, verifyOptions), []);
+			t.assert.strictEqual(linter.getSuppressedMessages().length, 1);
 		}
 
 		const unrelatedMessages = linter.verify(directive.replace(ruleId, 'no-alert'), {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}}, verifyOptions);
-		t.is(unrelatedMessages.length, 1);
-		t.is(unrelatedMessages[0].ruleId, ruleId);
-		t.deepEqual(linter.verify(`${directive}\n${ordinaryComment}`, {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}}, verifyOptions), []);
+		t.assert.strictEqual(unrelatedMessages.length, 1);
+		t.assert.strictEqual(unrelatedMessages[0].ruleId, ruleId);
+		t.assert.deepStrictEqual(linter.verify(`${directive}\n${ordinaryComment}`, {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}}, verifyOptions), []);
 	});
 }
 
@@ -75,21 +75,21 @@ test('no-empty-file handles adjacent Markdown comments', t => {
 			const ruleConfig = {...config, rules: {[ruleId]: ['error', {allowComments}]}};
 			const ordinaryComments = `<!-- First. -->${separator}<!-- Second. -->`;
 			const ordinaryMessages = linter.verify(ordinaryComments, ruleConfig, verifyOptions);
-			t.deepEqual(ordinaryMessages.map(message => message.ruleId), allowComments ? [] : [ruleId]);
+			t.assert.deepStrictEqual(ordinaryMessages.map(message => message.ruleId), allowComments ? [] : [ruleId]);
 			const directives = `<!-- eslint-disable ${ruleId} -- Explanation. -->${separator}<!-- eslint-enable ${ruleId} -->`;
-			t.deepEqual(linter.verify(directives, ruleConfig, verifyOptions), []);
+			t.assert.deepStrictEqual(linter.verify(directives, ruleConfig, verifyOptions), []);
 			const suppressedMessages = linter.getSuppressedMessages();
-			t.is(suppressedMessages.length, 1);
-			t.is(suppressedMessages[0].ruleId, ruleId);
+			t.assert.strictEqual(suppressedMessages.length, 1);
+			t.assert.strictEqual(suppressedMessages[0].ruleId, ruleId);
 			const unrelatedDirectives = directives.replaceAll(ruleId, 'no-alert');
 			const unrelatedMessages = linter.verify(unrelatedDirectives, {...ruleConfig, linterOptions: {reportUnusedDisableDirectives: 'off'}}, verifyOptions);
-			t.deepEqual(unrelatedMessages.map(message => message.ruleId), [ruleId]);
-			t.is(linter.getSuppressedMessages().length, 0);
+			t.assert.deepStrictEqual(unrelatedMessages.map(message => message.ruleId), [ruleId]);
+			t.assert.strictEqual(linter.getSuppressedMessages().length, 0);
 			const mixedComments = `<!-- eslint-disable ${ruleId} -->${separator}<!-- Explanation. -->`;
-			t.deepEqual(linter.verify(mixedComments, {...ruleConfig, linterOptions: {reportUnusedDisableDirectives: 'off'}}, verifyOptions), []);
-			t.is(linter.getSuppressedMessages().length, allowComments ? 0 : 1);
-			t.deepEqual(linter.verify(`${ordinaryComments} text`, ruleConfig, verifyOptions), []);
-			t.deepEqual(linter.verify(`${ordinaryComments}<div></div>`, ruleConfig, verifyOptions), []);
+			t.assert.deepStrictEqual(linter.verify(mixedComments, {...ruleConfig, linterOptions: {reportUnusedDisableDirectives: 'off'}}, verifyOptions), []);
+			t.assert.strictEqual(linter.getSuppressedMessages().length, allowComments ? 0 : 1);
+			t.assert.deepStrictEqual(linter.verify(`${ordinaryComments} text`, ruleConfig, verifyOptions), []);
+			t.assert.deepStrictEqual(linter.verify(`${ordinaryComments}<div></div>`, ruleConfig, verifyOptions), []);
 		}
 	}
 });
@@ -109,8 +109,8 @@ for (const [ruleName, template] of [
 				linterOptions: {reportUnusedDisableDirectives: 'error'},
 			};
 			const code = template.replace('@', () => `/* eslint-${directiveType} ${ruleId} */\n`);
-			t.deepEqual(linter.verify(code, config), []);
-			t.is(linter.getSuppressedMessages().length, 1);
+			t.assert.deepStrictEqual(linter.verify(code, config), []);
+			t.assert.strictEqual(linter.getSuppressedMessages().length, 1);
 		});
 	}
 }

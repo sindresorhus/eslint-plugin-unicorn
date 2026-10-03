@@ -2,12 +2,11 @@ import {isParenthesized, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedRange,
-	getParenthesizedText,
 	isNodeValueNotDomNode,
 	isSameReference,
 	isValueNotUsable,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -67,13 +66,7 @@ const create = context => {
 			&& isSameReference(parentNode.object, childNode);
 
 		const createFix = (optional = false) => fixer => {
-			let childNodeText = getParenthesizedText(childNode, context);
-			if (
-				!isParenthesized(childNode, sourceCode)
-				&& shouldAddParenthesesToMemberExpressionObject(childNode, context)
-			) {
-				childNodeText = `(${childNodeText})`;
-			}
+			let childNodeText = getMemberExpressionObjectText(childNode, context);
 
 			if (needsSemicolon(sourceCode.getTokenBefore(node), context, childNodeText)) {
 				childNodeText = `;${childNodeText}`;

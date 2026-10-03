@@ -20,7 +20,6 @@ import {
 import {
 	containsOptionalChain,
 	getBinaryExpressionWithReplacedOperatorText,
-	hasLowerLogicalOperatorPrecedence,
 	isSame,
 	negatedEqualityOperators,
 	negatedLogicalOperators,
@@ -181,66 +180,28 @@ const canDropAbsorptionOperand = (node, replacement, removable, context) =>
 		|| (isBoolean(replacement, context) && isBoolean(removable, context))
 	);
 
-function getNegatedExpression(node, context, canUseTruthiness) {
+// The returned text never needs parentheses as an operand of `&&`/`||`: a source operand of `!` that binds looser than `!` is always parenthesized in the source, and every generated text is a unary or equality expression.
+function getNegatedExpressionText(node, context, canUseTruthiness) {
 	if (isNegation(node)) {
 		if (canUseTruthiness || isBoolean(node.argument, context)) {
-			return {
-				precedenceNode: node.argument,
-				text: getParenthesizedText(node.argument, context),
-			};
+			return getParenthesizedText(node.argument, context);
 		}
 
-		return {
-			precedenceNode: node,
-			text: `!${getParenthesizedText(node, context)}`,
-		};
+		return `!${getParenthesizedText(node, context)}`;
 	}
 
 	if (isEqualityComparison(node)) {
-		return {
-			precedenceNode: node,
-			text: getBinaryExpressionWithReplacedOperatorText(
-				node,
-				context,
-				negatedEqualityOperators.get(node.operator),
-			),
-		};
+		return getBinaryExpressionWithReplacedOperatorText(
+			node,
+			context,
+			negatedEqualityOperators.get(node.operator),
+		);
 	}
 
 	const text = getParenthesizedText(node, context);
-	return {
-		precedenceNode: {
-			type: 'UnaryExpression',
-			operator: '!',
-			prefix: true,
-			argument: node,
-		},
-		text: shouldAddParenthesesToUnaryExpressionArgument(node, '!') && !isParenthesized(node, context)
-			? `!(${text})`
-			: `!${text}`,
-	};
-}
-
-function shouldAddParenthesesToGeneratedLogicalChild(node, operator) {
-	node = unwrapTypeScriptExpression(node);
-
-	if (node.type === 'LogicalExpression') {
-		return hasLowerLogicalOperatorPrecedence(node.operator, operator);
-	}
-
-	return [
-		'ConditionalExpression',
-		'AssignmentExpression',
-		'ArrowFunctionExpression',
-		'YieldExpression',
-		'SequenceExpression',
-	].includes(node.type);
-}
-
-function getGeneratedLogicalChildText(node, text, operator) {
-	return shouldAddParenthesesToGeneratedLogicalChild(node, operator)
-		? `(${text})`
-		: text;
+	return shouldAddParenthesesToUnaryExpressionArgument(node, '!') && !isParenthesized(node, context)
+		? `!(${text})`
+		: `!${text}`;
 }
 
 function shouldAddParenthesesToLogicalReplacement(node, operator, context) {
@@ -249,10 +210,6 @@ function shouldAddParenthesesToLogicalReplacement(node, operator, context) {
 	}
 
 	const {parent} = node;
-	if (!parent) {
-		return false;
-	}
-
 	if (parent.type === 'LogicalExpression') {
 		return shouldAddParenthesesToLogicalExpressionChild(
 			{
@@ -270,13 +227,8 @@ function shouldAddParenthesesToLogicalReplacement(node, operator, context) {
 		return true;
 	}
 
-	return parent.type === 'UnaryExpression'
-		|| parent.type === 'AwaitExpression'
-		|| parent.type === 'BinaryExpression'
-		|| parent.type === 'TaggedTemplateExpression'
-		|| (parent.type === 'MemberExpression' && parent.object === node)
-		|| (parent.type === 'CallExpression' && parent.callee === node)
-		|| (parent.type === 'NewExpression' && parent.callee === node);
+	// An unparenthesized `!` or logical expression can not be a member object, a callee, or a tag.
+	return ['UnaryExpression', 'AwaitExpression', 'BinaryExpression'].includes(parent.type);
 }
 
 function getLogicalReplacementText(node, operator, replacement, context) {
@@ -293,12 +245,10 @@ function getDeMorganReplacementText(node, context) {
 	const {argument} = node;
 	const operator = negatedLogicalOperators.get(argument.operator);
 	const canUseTruthiness = isControlFlowTest(node);
-	const left = getNegatedExpression(argument.left, context, canUseTruthiness);
-	const right = getNegatedExpression(argument.right, context, canUseTruthiness);
 	const replacement = [
-		getGeneratedLogicalChildText(left.precedenceNode, left.text, operator),
+		getNegatedExpressionText(argument.left, context, canUseTruthiness),
 		operator,
-		getGeneratedLogicalChildText(right.precedenceNode, right.text, operator),
+		getNegatedExpressionText(argument.right, context, canUseTruthiness),
 	].join(' ');
 
 	return getLogicalReplacementText(node, operator, replacement, context);
@@ -495,9 +445,10 @@ function getAbsorptionTerm(node, context) {
 }
 
 function getFactoringReplacementText(node, factoringTerms, context) {
-	const commonText = getGeneratedLogicalChildText(factoringTerms.common, getParenthesizedText(factoringTerms.common, context), node.left.operator);
-	const leftOtherText = getGeneratedLogicalChildText(factoringTerms.leftOther, getParenthesizedText(factoringTerms.leftOther, context), node.operator);
-	const rightOtherText = getGeneratedLogicalChildText(factoringTerms.rightOther, getParenthesizedText(factoringTerms.rightOther, context), node.operator);
+	// Factoring operands are simple repeatable expressions, which never need parentheses as an operand of `&&`/`||`.
+	const commonText = getParenthesizedText(factoringTerms.common, context);
+	const leftOtherText = getParenthesizedText(factoringTerms.leftOther, context);
+	const rightOtherText = getParenthesizedText(factoringTerms.rightOther, context);
 	const replacement = `${commonText} ${node.left.operator} (${leftOtherText} ${node.operator} ${rightOtherText})`;
 
 	return getLogicalReplacementText(node, node.left.operator, replacement, context);

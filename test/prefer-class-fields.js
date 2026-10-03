@@ -161,6 +161,14 @@ test.snapshot({
 			static// comment;
 			}
 		`,
+		outdent`
+			class Foo {
+				bar
+				constructor() {
+					this.bar = 1;
+				}
+			}
+		`,
 	],
 });
 

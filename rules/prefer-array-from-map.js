@@ -16,6 +16,7 @@ import {
 	isArray,
 	isParenthesized,
 	wouldRemoveComments,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-array-from-map/error';
@@ -116,11 +117,8 @@ const getSingleForOfBinding = node => {
 		return;
 	}
 
-	const [{id, init}] = node.left.declarations;
-	if (init) {
-		return;
-	}
-
+	// A `for…of` declaration can not have an initializer.
+	const [{id}] = node.left.declarations;
 	if (id.type === 'Identifier') {
 		return {element: id};
 	}
@@ -171,19 +169,7 @@ const hasSuspendingExpression = (node, visitorKeys) => {
 		return true;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			if (value.some(child => child?.type && hasSuspendingExpression(child, visitorKeys))) {
-				return true;
-			}
-		} else if (value?.type && hasSuspendingExpression(value, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(child => hasSuspendingExpression(child, visitorKeys));
 };
 
 const isGlobalArrayAvailable = (node, context) => {

@@ -144,6 +144,12 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		'var result = []; for (const element of iterable) { result.push(transform(element)); }',
+		'const result = []; for (var element of iterable) { result.push(transform(element)); }',
+		'const result = []; for (const {value} of iterable) { result.push(transform(value)); }',
+		'const result = []; for (const [key, value] of map) { result.push(transform(key, value)); }',
+		'async function foo() { const result = []; for (const element of iterable) { result.push(transform(await element)); } }',
+		'async function foo() { const result = []; for (const element of iterable) { result.push((await element).value); } }',
 	],
 	invalid: [
 		'Array.from(iterable).map(element => element.id);',
@@ -253,6 +259,7 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		'const result = []; for (let element of iterable) { result.push(transform(element)); }',
 	],
 });
 

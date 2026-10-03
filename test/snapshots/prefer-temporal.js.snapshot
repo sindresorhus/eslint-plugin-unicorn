@@ -1,0 +1,919 @@
+exports[`prefer-temporal > invalid(1): Date.now() 1`] = `
+
+Options:
+- checkDateNow: true
+
+Code:
+  1 | Date.now()
+
+`;
+
+exports[`prefer-temporal > invalid(1): Date.now() 2`] = `
+
+Message:
+> 1 | Date.now()
+    | ^^^^^^^^^^ Prefer \`Temporal\` over \`Date.now()\`.
+
+Output:
+  1 | Temporal.Now.instant().epochMilliseconds
+
+`;
+
+exports[`prefer-temporal > invalid(1): function f(date: Date) { return date.getFullYear(); } 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMethods: true
+
+Code:
+  1 | function f(date: Date) { return date.getFullYear(); }
+
+`;
+
+exports[`prefer-temporal > invalid(1): function f(date: Date) { return date.getFullYear(); } 2`] = `
+
+Message:
+> 1 | function f(date: Date) { return date.getFullYear(); }
+    |                                 ^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date#getFullYear()\`.
+
+`;
+
+exports[`prefer-temporal > invalid(1): new Date() 1`] = `
+
+  1 | new Date()
+
+`;
+
+exports[`prefer-temporal > invalid(1): new Date() 2`] = `
+
+Message:
+> 1 | new Date()
+    | ^^^^^^^^^^ Prefer \`Temporal\` over \`new Date()\`.
+
+Suggestion 1/3: Replace with \`Temporal.Now.instant()\`.:
+  1 | Temporal.Now.instant()
+
+Suggestion 2/3: Replace with \`Temporal.Now.zonedDateTimeISO()\`.:
+  1 | Temporal.Now.zonedDateTimeISO()
+
+Suggestion 3/3: Replace with \`Temporal.Now.plainDateTimeISO()\`.:
+  1 | Temporal.Now.plainDateTimeISO()
+
+`;
+
+exports[`prefer-temporal > invalid(1): x instanceof Date 1`] = `
+
+Options:
+- checkReferences: true
+
+Code:
+  1 | x instanceof Date
+
+`;
+
+exports[`prefer-temporal > invalid(1): x instanceof Date 2`] = `
+
+Message:
+> 1 | x instanceof Date
+    |              ^^^^ Prefer \`Temporal\` over \`Date\`.
+
+`;
+
+exports[`prefer-temporal > invalid(10): const modes = new Set(['foo']); modes.clear(); new Date((modes.size && 0) || timestamp) 1`] = `
+
+  1 | const modes = new Set(['foo']); modes.clear(); new Date((modes.size && 0) || timestamp)
+
+`;
+
+exports[`prefer-temporal > invalid(10): const modes = new Set(['foo']); modes.clear(); new Date((modes.size && 0) || timestamp) 2`] = `
+
+Message:
+> 1 | const modes = new Set(['foo']); modes.clear(); new Date((modes.size && 0) || timestamp)
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(11): const object = {value: true}; Object.defineProperty(object, 'value', {get() { return 0; }}); new Date(object.value ? 0 : timestamp) 1`] = `
+
+  1 | const object = {value: true}; Object.defineProperty(object, 'value', {get() { return 0; }}); new Date(object.value ? 0 : timestamp)
+
+`;
+
+exports[`prefer-temporal > invalid(11): const object = {value: true}; Object.defineProperty(object, 'value', {get() { return 0; }}); new Date(object.value ? 0 : timestamp) 2`] = `
+
+Message:
+> 1 | const object = {value: true}; Object.defineProperty(object, 'value', {get() { return 0; }}); new Date(object.value ? 0 : timestamp)
+    |                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(12): const string = \"2024-08-16\"; new Date(string); 1`] = `
+
+  1 | const string = "2024-08-16"; new Date(string);
+
+`;
+
+exports[`prefer-temporal > invalid(12): const string = \"2024-08-16\"; new Date(string); 2`] = `
+
+Message:
+> 1 | const string = "2024-08-16"; new Date(string);
+    |                              ^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`. Parsing date strings with \`Date\` is inconsistent across implementations.
+
+`;
+
+exports[`prefer-temporal > invalid(13): new Date(\`2024-08-16\`) 1`] = `
+
+  1 | new Date(\`2024-08-16\`)
+
+`;
+
+exports[`prefer-temporal > invalid(13): new Date(\`2024-08-16\`) 2`] = `
+
+Message:
+> 1 | new Date(\`2024-08-16\`)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`. Parsing date strings with \`Date\` is inconsistent across implementations.
+
+`;
+
+exports[`prefer-temporal > invalid(14): new Date(2024, 0, 1) 1`] = `
+
+  1 | new Date(2024, 0, 1)
+
+`;
+
+exports[`prefer-temporal > invalid(14): new Date(2024, 0, 1) 2`] = `
+
+Message:
+> 1 | new Date(2024, 0, 1)
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`. The month argument of \`Date\` is zero-indexed, which is error-prone.
+
+`;
+
+exports[`prefer-temporal > invalid(15): new Date(2024, 11, 25, 10, 30) 1`] = `
+
+  1 | new Date(2024, 11, 25, 10, 30)
+
+`;
+
+exports[`prefer-temporal > invalid(15): new Date(2024, 11, 25, 10, 30) 2`] = `
+
+Message:
+> 1 | new Date(2024, 11, 25, 10, 30)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`. The month argument of \`Date\` is zero-indexed, which is error-prone.
+
+`;
+
+exports[`prefer-temporal > invalid(16): new Date(input) 1`] = `
+
+  1 | new Date(input)
+
+`;
+
+exports[`prefer-temporal > invalid(16): new Date(input) 2`] = `
+
+Message:
+> 1 | new Date(input)
+    | ^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(17): new Date(NaN) 1`] = `
+
+  1 | new Date(NaN)
+
+`;
+
+exports[`prefer-temporal > invalid(17): new Date(NaN) 2`] = `
+
+Message:
+> 1 | new Date(NaN)
+    | ^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(18): new Date(Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | new Date(Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`prefer-temporal > invalid(18): new Date(Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | new Date(Number.POSITIVE_INFINITY)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(19): new Date(1.5) 1`] = `
+
+  1 | new Date(1.5)
+
+`;
+
+exports[`prefer-temporal > invalid(19): new Date(1.5) 2`] = `
+
+Message:
+> 1 | new Date(1.5)
+    | ^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(2): const d = Date; 1`] = `
+
+Options:
+- checkReferences: true
+
+Code:
+  1 | const d = Date;
+
+`;
+
+exports[`prefer-temporal > invalid(2): const d = Date; 2`] = `
+
+Message:
+> 1 | const d = Date;
+    |           ^^^^ Prefer \`Temporal\` over \`Date\`.
+
+`;
+
+exports[`prefer-temporal > invalid(2): const now = new Date(); 1`] = `
+
+  1 | const now = new Date();
+
+`;
+
+exports[`prefer-temporal > invalid(2): const now = new Date(); 2`] = `
+
+Message:
+> 1 | const now = new Date();
+    |             ^^^^^^^^^^ Prefer \`Temporal\` over \`new Date()\`.
+
+Suggestion 1/3: Replace with \`Temporal.Now.instant()\`.:
+  1 | const now = Temporal.Now.instant();
+
+Suggestion 2/3: Replace with \`Temporal.Now.zonedDateTimeISO()\`.:
+  1 | const now = Temporal.Now.zonedDateTimeISO();
+
+Suggestion 3/3: Replace with \`Temporal.Now.plainDateTimeISO()\`.:
+  1 | const now = Temporal.Now.plainDateTimeISO();
+
+`;
+
+exports[`prefer-temporal > invalid(2): const start = Date.now(); 1`] = `
+
+Options:
+- checkDateNow: true
+
+Code:
+  1 | const start = Date.now();
+
+`;
+
+exports[`prefer-temporal > invalid(2): const start = Date.now(); 2`] = `
+
+Message:
+> 1 | const start = Date.now();
+    |               ^^^^^^^^^^ Prefer \`Temporal\` over \`Date.now()\`.
+
+Output:
+  1 | const start = Temporal.Now.instant().epochMilliseconds;
+
+`;
+
+exports[`prefer-temporal > invalid(2): declare const date: Date; date.toISOString(); 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMethods: true
+
+Code:
+  1 | declare const date: Date; date.toISOString();
+
+`;
+
+exports[`prefer-temporal > invalid(2): declare const date: Date; date.toISOString(); 2`] = `
+
+Message:
+> 1 | declare const date: Date; date.toISOString();
+    |                           ^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date#toISOString()\`.
+
+`;
+
+exports[`prefer-temporal > invalid(20): new Date(9_000_000_000_000_000) 1`] = `
+
+  1 | new Date(9_000_000_000_000_000)
+
+`;
+
+exports[`prefer-temporal > invalid(20): new Date(9_000_000_000_000_000) 2`] = `
+
+Message:
+> 1 | new Date(9_000_000_000_000_000)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(21): new Date(1e21) 1`] = `
+
+  1 | new Date(1e21)
+
+`;
+
+exports[`prefer-temporal > invalid(21): new Date(1e21) 2`] = `
+
+Message:
+> 1 | new Date(1e21)
+    | ^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(22): new Date(0n) 1`] = `
+
+  1 | new Date(0n)
+
+`;
+
+exports[`prefer-temporal > invalid(22): new Date(0n) 2`] = `
+
+Message:
+> 1 | new Date(0n)
+    | ^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(23): new Date(...timestamps) 1`] = `
+
+  1 | new Date(...timestamps)
+
+`;
+
+exports[`prefer-temporal > invalid(23): new Date(...timestamps) 2`] = `
+
+Message:
+> 1 | new Date(...timestamps)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(24): new Date(/* epoch */ 1000) 1`] = `
+
+  1 | new Date(/* epoch */ 1000)
+
+`;
+
+exports[`prefer-temporal > invalid(24): new Date(/* epoch */ 1000) 2`] = `
+
+Message:
+> 1 | new Date(/* epoch */ 1000)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(25): Date.parse(\"2024-08-16\") 1`] = `
+
+  1 | Date.parse("2024-08-16")
+
+`;
+
+exports[`prefer-temporal > invalid(25): Date.parse(\"2024-08-16\") 2`] = `
+
+Message:
+> 1 | Date.parse("2024-08-16")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date.parse(…)\`. Parsing date strings with \`Date\` is inconsistent across implementations.
+
+`;
+
+exports[`prefer-temporal > invalid(26): Date.UTC(2000, 11, 25) 1`] = `
+
+  1 | Date.UTC(2000, 11, 25)
+
+`;
+
+exports[`prefer-temporal > invalid(26): Date.UTC(2000, 11, 25) 2`] = `
+
+Message:
+> 1 | Date.UTC(2000, 11, 25)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date.UTC(…)\`. The month argument of \`Date\` is zero-indexed, which is error-prone.
+
+`;
+
+exports[`prefer-temporal > invalid(27): Date() 1`] = `
+
+  1 | Date()
+
+`;
+
+exports[`prefer-temporal > invalid(27): Date() 2`] = `
+
+Message:
+> 1 | Date()
+    | ^^^^^^ Prefer \`Temporal\` over \`Date()\`.
+
+`;
+
+exports[`prefer-temporal > invalid(28): new Date() 1`] = `
+
+  1 | new Date()
+
+`;
+
+exports[`prefer-temporal > invalid(28): new Date() 2`] = `
+
+Message:
+> 1 | new Date()
+    | ^^^^^^^^^^ Prefer \`Temporal\` over \`new Date()\`.
+
+Suggestion 1/3: Replace with \`Temporal.Now.instant()\`.:
+  1 | Temporal.Now.instant()
+
+Suggestion 2/3: Replace with \`Temporal.Now.zonedDateTimeISO()\`.:
+  1 | Temporal.Now.zonedDateTimeISO()
+
+Suggestion 3/3: Replace with \`Temporal.Now.plainDateTimeISO()\`.:
+  1 | Temporal.Now.plainDateTimeISO()
+
+`;
+
+exports[`prefer-temporal > invalid(29): new Date(x as number) 1`] = `
+
+  1 | new Date(x as number)
+
+`;
+
+exports[`prefer-temporal > invalid(29): new Date(x as number) 2`] = `
+
+Message:
+> 1 | new Date(x as number)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(3): const duration = Date.now() - start; 1`] = `
+
+Options:
+- checkDateNow: true
+
+Code:
+  1 | const duration = Date.now() - start;
+
+`;
+
+exports[`prefer-temporal > invalid(3): const duration = Date.now() - start; 2`] = `
+
+Message:
+> 1 | const duration = Date.now() - start;
+    |                  ^^^^^^^^^^ Prefer \`Temporal\` over \`Date.now()\`.
+
+Output:
+  1 | const duration = Temporal.Now.instant().epochMilliseconds - start;
+
+`;
+
+exports[`prefer-temporal > invalid(3): foo(Date) 1`] = `
+
+Options:
+- checkReferences: true
+
+Code:
+  1 | foo(Date)
+
+`;
+
+exports[`prefer-temporal > invalid(3): foo(Date) 2`] = `
+
+Message:
+> 1 | foo(Date)
+    |     ^^^^ Prefer \`Temporal\` over \`Date\`.
+
+`;
+
+exports[`prefer-temporal > invalid(3): function f(date: Date) { return date.setUTCFullYear(2024); } 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMethods: true
+
+Code:
+  1 | function f(date: Date) { return date.setUTCFullYear(2024); }
+
+`;
+
+exports[`prefer-temporal > invalid(3): function f(date: Date) { return date.setUTCFullYear(2024); } 2`] = `
+
+Message:
+> 1 | function f(date: Date) { return date.setUTCFullYear(2024); }
+    |                                 ^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date#setUTCFullYear()\`.
+
+`;
+
+exports[`prefer-temporal > invalid(3): new Date 1`] = `
+
+  1 | new Date
+
+`;
+
+exports[`prefer-temporal > invalid(3): new Date 2`] = `
+
+Message:
+> 1 | new Date
+    | ^^^^^^^^ Prefer \`Temporal\` over \`new Date()\`.
+
+Suggestion 1/3: Replace with \`Temporal.Now.instant()\`.:
+  1 | Temporal.Now.instant()
+
+Suggestion 2/3: Replace with \`Temporal.Now.zonedDateTimeISO()\`.:
+  1 | Temporal.Now.zonedDateTimeISO()
+
+Suggestion 3/3: Replace with \`Temporal.Now.plainDateTimeISO()\`.:
+  1 | Temporal.Now.plainDateTimeISO()
+
+`;
+
+exports[`prefer-temporal > invalid(30): new Date((1)) 1`] = `
+
+  1 | new Date((1))
+
+`;
+
+exports[`prefer-temporal > invalid(30): new Date((1)) 2`] = `
+
+Message:
+> 1 | new Date((1))
+    | ^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+Suggestion 1/1: Replace with \`Temporal.Instant.fromEpochMilliseconds((1))\`.:
+  1 | Temporal.Instant.fromEpochMilliseconds((1))
+
+`;
+
+exports[`prefer-temporal > invalid(31): new Date((0, 1)) 1`] = `
+
+  1 | new Date((0, 1))
+
+`;
+
+exports[`prefer-temporal > invalid(31): new Date((0, 1)) 2`] = `
+
+Message:
+> 1 | new Date((0, 1))
+    | ^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+Suggestion 1/1: Replace with \`Temporal.Instant.fromEpochMilliseconds((0, 1))\`.:
+  1 | Temporal.Instant.fromEpochMilliseconds((0, 1))
+
+`;
+
+exports[`prefer-temporal > invalid(32): new Date((1, 2).length) 1`] = `
+
+  1 | new Date((1, 2).length)
+
+`;
+
+exports[`prefer-temporal > invalid(32): new Date((1, 2).length) 2`] = `
+
+Message:
+> 1 | new Date((1, 2).length)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;
+
+exports[`prefer-temporal > invalid(4): Date[\"now\"]() 1`] = `
+
+Options:
+- checkDateNow: true
+
+Code:
+  1 | Date["now"]()
+
+`;
+
+exports[`prefer-temporal > invalid(4): Date[\"now\"]() 2`] = `
+
+Message:
+> 1 | Date["now"]()
+    | ^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date.now()\`.
+
+Output:
+  1 | Temporal.Now.instant().epochMilliseconds
+
+`;
+
+exports[`prefer-temporal > invalid(4): [Date] 1`] = `
+
+Options:
+- checkReferences: true
+
+Code:
+  1 | [Date]
+
+`;
+
+exports[`prefer-temporal > invalid(4): [Date] 2`] = `
+
+Message:
+> 1 | [Date]
+    |  ^^^^ Prefer \`Temporal\` over \`Date\`.
+
+`;
+
+exports[`prefer-temporal > invalid(4): function f(date: Date) { return date[\"getTime\"](); } 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMethods: true
+
+Code:
+  1 | function f(date: Date) { return date["getTime"](); }
+
+`;
+
+exports[`prefer-temporal > invalid(4): function f(date: Date) { return date[\"getTime\"](); } 2`] = `
+
+Message:
+> 1 | function f(date: Date) { return date["getTime"](); }
+    |                                 ^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date#getTime()\`.
+
+`;
+
+exports[`prefer-temporal > invalid(4): new Date(1_724_198_400_000) 1`] = `
+
+  1 | new Date(1_724_198_400_000)
+
+`;
+
+exports[`prefer-temporal > invalid(4): new Date(1_724_198_400_000) 2`] = `
+
+Message:
+> 1 | new Date(1_724_198_400_000)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+Suggestion 1/1: Replace with \`Temporal.Instant.fromEpochMilliseconds(1_724_198_400_000)\`.:
+  1 | Temporal.Instant.fromEpochMilliseconds(1_724_198_400_000)
+
+`;
+
+exports[`prefer-temporal > invalid(5): Date?.now() 1`] = `
+
+Options:
+- checkDateNow: true
+
+Code:
+  1 | Date?.now()
+
+`;
+
+exports[`prefer-temporal > invalid(5): Date?.now() 2`] = `
+
+Message:
+> 1 | Date?.now()
+    | ^^^^^^^^^^^ Prefer \`Temporal\` over \`Date.now()\`.
+
+Output:
+  1 | Temporal.Now.instant().epochMilliseconds
+
+`;
+
+exports[`prefer-temporal > invalid(5): function f(date: Date | undefined) { return date?.getMonth(); } 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMethods: true
+
+Code:
+  1 | function f(date: Date | undefined) { return date?.getMonth(); }
+
+`;
+
+exports[`prefer-temporal > invalid(5): function f(date: Date | undefined) { return date?.getMonth(); } 2`] = `
+
+Message:
+> 1 | function f(date: Date | undefined) { return date?.getMonth(); }
+    |                                             ^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date#getMonth()\`.
+
+`;
+
+exports[`prefer-temporal > invalid(5): new Date(0) 1`] = `
+
+  1 | new Date(0)
+
+`;
+
+exports[`prefer-temporal > invalid(5): new Date(0) 2`] = `
+
+Message:
+> 1 | new Date(0)
+    | ^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+Suggestion 1/1: Replace with \`Temporal.Instant.fromEpochMilliseconds(0)\`.:
+  1 | Temporal.Instant.fromEpochMilliseconds(0)
+
+`;
+
+exports[`prefer-temporal > invalid(5): typeof Date === \"function\" 1`] = `
+
+Options:
+- checkReferences: true
+
+Code:
+  1 | typeof Date === "function"
+
+`;
+
+exports[`prefer-temporal > invalid(5): typeof Date === \"function\" 2`] = `
+
+Message:
+> 1 | typeof Date === "function"
+    |        ^^^^ Prefer \`Temporal\` over \`Date\`.
+
+`;
+
+exports[`prefer-temporal > invalid(6): function f(date: Date & {tag: string}) { return date.getTime(); } 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMethods: true
+
+Code:
+  1 | function f(date: Date & {tag: string}) { return date.getTime(); }
+
+`;
+
+exports[`prefer-temporal > invalid(6): function f(date: Date & {tag: string}) { return date.getTime(); } 2`] = `
+
+Message:
+> 1 | function f(date: Date & {tag: string}) { return date.getTime(); }
+    |                                                 ^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date#getTime()\`.
+
+`;
+
+exports[`prefer-temporal > invalid(6): globalThis.Date.now() 1`] = `
+
+Options:
+- checkDateNow: true
+
+Code:
+  1 | globalThis.Date.now()
+
+`;
+
+exports[`prefer-temporal > invalid(6): globalThis.Date.now() 2`] = `
+
+Message:
+> 1 | globalThis.Date.now()
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date.now()\`.
+
+Output:
+  1 | Temporal.Now.instant().epochMilliseconds
+
+`;
+
+exports[`prefer-temporal > invalid(6): new Date() 1`] = `
+
+Options:
+- checkReferences: true
+
+Code:
+  1 | new Date()
+
+`;
+
+exports[`prefer-temporal > invalid(6): new Date() 2`] = `
+
+Message:
+> 1 | new Date()
+    | ^^^^^^^^^^ Prefer \`Temporal\` over \`new Date()\`.
+
+Suggestion 1/3: Replace with \`Temporal.Now.instant()\`.:
+  1 | Temporal.Now.instant()
+
+Suggestion 2/3: Replace with \`Temporal.Now.zonedDateTimeISO()\`.:
+  1 | Temporal.Now.zonedDateTimeISO()
+
+Suggestion 3/3: Replace with \`Temporal.Now.plainDateTimeISO()\`.:
+  1 | Temporal.Now.plainDateTimeISO()
+
+`;
+
+exports[`prefer-temporal > invalid(6): new Date(-1000) 1`] = `
+
+  1 | new Date(-1000)
+
+`;
+
+exports[`prefer-temporal > invalid(6): new Date(-1000) 2`] = `
+
+Message:
+> 1 | new Date(-1000)
+    | ^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+Suggestion 1/1: Replace with \`Temporal.Instant.fromEpochMilliseconds(-1000)\`.:
+  1 | Temporal.Instant.fromEpochMilliseconds(-1000)
+
+`;
+
+exports[`prefer-temporal > invalid(7): Date.parse(\"2024-08-16\") 1`] = `
+
+Options:
+- checkReferences: true
+
+Code:
+  1 | Date.parse("2024-08-16")
+
+`;
+
+exports[`prefer-temporal > invalid(7): Date.parse(\"2024-08-16\") 2`] = `
+
+Message:
+> 1 | Date.parse("2024-08-16")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date.parse(…)\`. Parsing date strings with \`Date\` is inconsistent across implementations.
+
+`;
+
+exports[`prefer-temporal > invalid(7): const ms = 1000; new Date(ms); 1`] = `
+
+  1 | const ms = 1000; new Date(ms);
+
+`;
+
+exports[`prefer-temporal > invalid(7): const ms = 1000; new Date(ms); 2`] = `
+
+Message:
+> 1 | const ms = 1000; new Date(ms);
+    |                  ^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+Suggestion 1/1: Replace with \`Temporal.Instant.fromEpochMilliseconds(ms)\`.:
+  1 | const ms = 1000; Temporal.Instant.fromEpochMilliseconds(ms);
+
+`;
+
+exports[`prefer-temporal > invalid(7): new Date().getFullYear(); 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMethods: true
+
+Code:
+  1 | new Date().getFullYear();
+
+`;
+
+exports[`prefer-temporal > invalid(7): new Date().getFullYear(); 2`] = `
+
+Message:
+> 1 | new Date().getFullYear();
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`Date#getFullYear()\`.
+
+`;
+
+exports[`prefer-temporal > invalid(7): new Date().getFullYear(); 3`] = `
+
+Message:
+> 1 | new Date().getFullYear();
+    | ^^^^^^^^^^ Prefer \`Temporal\` over \`new Date()\`.
+
+Suggestion 1/3: Replace with \`Temporal.Now.instant()\`.:
+  1 | Temporal.Now.instant().getFullYear();
+
+Suggestion 2/3: Replace with \`Temporal.Now.zonedDateTimeISO()\`.:
+  1 | Temporal.Now.zonedDateTimeISO().getFullYear();
+
+Suggestion 3/3: Replace with \`Temporal.Now.plainDateTimeISO()\`.:
+  1 | Temporal.Now.plainDateTimeISO().getFullYear();
+
+`;
+
+exports[`prefer-temporal > invalid(8): new Date(\"2024-08-16\") 1`] = `
+
+  1 | new Date("2024-08-16")
+
+`;
+
+exports[`prefer-temporal > invalid(8): new Date(\"2024-08-16\") 2`] = `
+
+Message:
+> 1 | new Date("2024-08-16")
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`. Parsing date strings with \`Date\` is inconsistent across implementations.
+
+`;
+
+exports[`prefer-temporal > invalid(9): const modes = new Set(['foo']); modes.clear(); new Date(modes.size ? 0 : '2020-01-01') 1`] = `
+
+  1 | const modes = new Set(['foo']); modes.clear(); new Date(modes.size ? 0 : '2020-01-01')
+
+`;
+
+exports[`prefer-temporal > invalid(9): const modes = new Set(['foo']); modes.clear(); new Date(modes.size ? 0 : '2020-01-01') 2`] = `
+
+Message:
+> 1 | const modes = new Set(['foo']); modes.clear(); new Date(modes.size ? 0 : '2020-01-01')
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Temporal\` over \`new Date(…)\`.
+
+`;

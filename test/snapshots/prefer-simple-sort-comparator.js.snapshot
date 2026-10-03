@@ -1,0 +1,619 @@
+exports[`prefer-simple-sort-comparator > invalid(1): array.sort((a, b) => a > b ? 1 : -1) 1`] = `
+
+  1 | array.sort((a, b) => a > b ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(1): array.sort((a, b) => a > b ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a > b ? 1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(10): array.sort((a, b) => a >= b ? -1 : 1) 1`] = `
+
+  1 | array.sort((a, b) => a >= b ? -1 : 1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(10): array.sort((a, b) => a >= b ? -1 : 1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a >= b ? -1 : 1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => b - a\`.:
+  1 | array.sort((a, b) => b - a)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(11): array.sort((a, b) => {\n\tif (a > b) {\n\t\treturn 1;\n\t}\n\n\treturn -1;\n}) 1`] = `
+
+  1 | array.sort((a, b) => {
+  2 | 	if (a > b) {
+  3 | 		return 1;
+  4 | 	}
+  5 |
+  6 | 	return -1;
+  7 | })
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(11): array.sort((a, b) => {\n\tif (a > b) {\n\t\treturn 1;\n\t}\n\n\treturn -1;\n}) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => {
+    |            ^^^^^^^^^^^
+> 2 | 	if (a > b) {
+    | ^^^^^^^^^^^^^
+> 3 | 		return 1;
+    | ^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 |
+    | ^
+> 6 | 	return -1;
+    | ^^^^^^^^^^^
+> 7 | })
+    | ^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(12): array.sort((a, b) => a.foo > b.foo ? 1 : -1) 1`] = `
+
+  1 | array.sort((a, b) => a.foo > b.foo ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(12): array.sort((a, b) => a.foo > b.foo ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a.foo > b.foo ? 1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a.foo - b.foo\`.:
+  1 | array.sort((a, b) => a.foo - b.foo)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(13): array.sort((a, b) => a[0] > b[0] ? 1 : -1) 1`] = `
+
+  1 | array.sort((a, b) => a[0] > b[0] ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(13): array.sort((a, b) => a[0] > b[0] ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a[0] > b[0] ? 1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a[0] - b[0]\`.:
+  1 | array.sort((a, b) => a[0] - b[0])
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(14): array.sort((a, b) => a[i] > b[i] ? 1 : -1) 1`] = `
+
+  1 | array.sort((a, b) => a[i] > b[i] ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(14): array.sort((a, b) => a[i] > b[i] ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a[i] > b[i] ? 1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a[i] - b[i]\`.:
+  1 | array.sort((a, b) => a[i] - b[i])
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(15): array.sort((a, b) => a.foo.bar < b.foo.bar ? -1 : 1) 1`] = `
+
+  1 | array.sort((a, b) => a.foo.bar < b.foo.bar ? -1 : 1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(15): array.sort((a, b) => a.foo.bar < b.foo.bar ? -1 : 1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a.foo.bar < b.foo.bar ? -1 : 1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a.foo.bar - b.foo.bar\`.:
+  1 | array.sort((a, b) => a.foo.bar - b.foo.bar)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(16): array.sort((a, b) => a > b ? +1 : -1) 1`] = `
+
+  1 | array.sort((a, b) => a > b ? +1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(16): array.sort((a, b) => a > b ? +1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a > b ? +1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(17): array.sort((a, b) => {\n\tif (a > b) {\n\t\treturn 1;\n\t}\n\n\tif (a < b) {\n\t\treturn -1;\n\t}\n\n\treturn 0;\n}) 1`] = `
+
+   1 | array.sort((a, b) => {
+   2 | 	if (a > b) {
+   3 | 		return 1;
+   4 | 	}
+   5 |
+   6 | 	if (a < b) {
+   7 | 		return -1;
+   8 | 	}
+   9 |
+  10 | 	return 0;
+  11 | })
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(17): array.sort((a, b) => {\n\tif (a > b) {\n\t\treturn 1;\n\t}\n\n\tif (a < b) {\n\t\treturn -1;\n\t}\n\n\treturn 0;\n}) 2`] = `
+
+Message:
+>  1 | array.sort((a, b) => {
+     |            ^^^^^^^^^^^
+>  2 | 	if (a > b) {
+     | ^^^^^^^^^^^^^
+>  3 | 		return 1;
+     | ^^^^^^^^^^^
+>  4 | 	}
+     | ^^
+>  5 |
+     | ^
+>  6 | 	if (a < b) {
+     | ^^^^^^^^^^^^^
+>  7 | 		return -1;
+     | ^^^^^^^^^^^^
+>  8 | 	}
+     | ^^
+>  9 |
+     | ^
+> 10 | 	return 0;
+     | ^^^^^^^^^^
+> 11 | })
+     | ^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(18): array.sort((a, b) => {\n\tif (a > b) {\n\t\treturn -1;\n\t}\n\n\tif (a < b) {\n\t\treturn 1;\n\t}\n\n\treturn 0;\n}) 1`] = `
+
+   1 | array.sort((a, b) => {
+   2 | 	if (a > b) {
+   3 | 		return -1;
+   4 | 	}
+   5 |
+   6 | 	if (a < b) {
+   7 | 		return 1;
+   8 | 	}
+   9 |
+  10 | 	return 0;
+  11 | })
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(18): array.sort((a, b) => {\n\tif (a > b) {\n\t\treturn -1;\n\t}\n\n\tif (a < b) {\n\t\treturn 1;\n\t}\n\n\treturn 0;\n}) 2`] = `
+
+Message:
+>  1 | array.sort((a, b) => {
+     |            ^^^^^^^^^^^
+>  2 | 	if (a > b) {
+     | ^^^^^^^^^^^^^
+>  3 | 		return -1;
+     | ^^^^^^^^^^^^
+>  4 | 	}
+     | ^^
+>  5 |
+     | ^
+>  6 | 	if (a < b) {
+     | ^^^^^^^^^^^^^
+>  7 | 		return 1;
+     | ^^^^^^^^^^^
+>  8 | 	}
+     | ^^
+>  9 |
+     | ^
+> 10 | 	return 0;
+     | ^^^^^^^^^^
+> 11 | })
+     | ^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => b - a\`.:
+  1 | array.sort((a, b) => b - a)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(19): array.sort((a, b) => {\n\tif (a > b) {\n\t\treturn 1;\n\t} else if (a < b) {\n\t\treturn -1;\n\t} else {\n\t\treturn 0;\n\t}\n}) 1`] = `
+
+  1 | array.sort((a, b) => {
+  2 | 	if (a > b) {
+  3 | 		return 1;
+  4 | 	} else if (a < b) {
+  5 | 		return -1;
+  6 | 	} else {
+  7 | 		return 0;
+  8 | 	}
+  9 | })
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(19): array.sort((a, b) => {\n\tif (a > b) {\n\t\treturn 1;\n\t} else if (a < b) {\n\t\treturn -1;\n\t} else {\n\t\treturn 0;\n\t}\n}) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => {
+    |            ^^^^^^^^^^^
+> 2 | 	if (a > b) {
+    | ^^^^^^^^^^^^^
+> 3 | 		return 1;
+    | ^^^^^^^^^^^
+> 4 | 	} else if (a < b) {
+    | ^^^^^^^^^^^^^^^^^^^^
+> 5 | 		return -1;
+    | ^^^^^^^^^^^^
+> 6 | 	} else {
+    | ^^^^^^^^^
+> 7 | 		return 0;
+    | ^^^^^^^^^^^
+> 8 | 	}
+    | ^^
+> 9 | })
+    | ^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(2): array.sort((a, b) => a < b ? -1 : 1) 1`] = `
+
+  1 | array.sort((a, b) => a < b ? -1 : 1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(2): array.sort((a, b) => a < b ? -1 : 1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a < b ? -1 : 1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(20): array.sort(function (a, b) { return a > b ? 1 : -1; }) 1`] = `
+
+  1 | array.sort(function (a, b) { return a > b ? 1 : -1; })
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(20): array.sort(function (a, b) { return a > b ? 1 : -1; }) 2`] = `
+
+Message:
+> 1 | array.sort(function (a, b) { return a > b ? 1 : -1; })
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(21): array.toSorted((a, b) => a > b ? 1 : -1) 1`] = `
+
+  1 | array.toSorted((a, b) => a > b ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(21): array.toSorted((a, b) => a > b ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.toSorted((a, b) => a > b ? 1 : -1)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.toSorted((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(22): array.sort((a, b) => (a) > (b) ? 1 : -1) 1`] = `
+
+  1 | array.sort((a, b) => (a) > (b) ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(22): array.sort((a, b) => (a) > (b) ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => (a) > (b) ? 1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(23): array.sort((a, b) => {\n\t// Compare\n\treturn a > b ? 1 : -1;\n}) 1`] = `
+
+  1 | array.sort((a, b) => {
+  2 | 	// Compare
+  3 | 	return a > b ? 1 : -1;
+  4 | })
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(23): array.sort((a, b) => {\n\t// Compare\n\treturn a > b ? 1 : -1;\n}) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => {
+    |            ^^^^^^^^^^^
+> 2 | 	// Compare
+    | ^^^^^^^^^^^
+> 3 | 	return a > b ? 1 : -1;
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | })
+    | ^ Prefer a simple comparison function for \`Array#sort()\`.
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(24): array.sort((a: number, b: number): number => a > b ? 1 : -1) 1`] = `
+
+  1 | array.sort((a: number, b: number): number => a > b ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(24): array.sort((a: number, b: number): number => a > b ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a: number, b: number): number => a > b ? 1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(25): function f(foo: number[]) { foo.sort((a, b) => a > b ? 1 : -1); } 1`] = `
+
+  1 | function f(foo: number[]) { foo.sort((a, b) => a > b ? 1 : -1); }
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(25): function f(foo: number[]) { foo.sort((a, b) => a > b ? 1 : -1); } 2`] = `
+
+Message:
+> 1 | function f(foo: number[]) { foo.sort((a, b) => a > b ? 1 : -1); }
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | function f(foo: number[]) { foo.sort((a, b) => a - b); }
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(26): function f(foo: Int8Array) { foo.sort((a, b) => a > b ? 1 : -1); } 1`] = `
+
+  1 | function f(foo: Int8Array) { foo.sort((a, b) => a > b ? 1 : -1); }
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(26): function f(foo: Int8Array) { foo.sort((a, b) => a > b ? 1 : -1); } 2`] = `
+
+Message:
+> 1 | function f(foo: Int8Array) { foo.sort((a, b) => a > b ? 1 : -1); }
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | function f(foo: Int8Array) { foo.sort((a, b) => a - b); }
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(27): new BigInt64Array().sort((a, b) => a > b ? 1 : -1) 1`] = `
+
+  1 | new BigInt64Array().sort((a, b) => a > b ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(27): new BigInt64Array().sort((a, b) => a > b ? 1 : -1) 2`] = `
+
+Message:
+> 1 | new BigInt64Array().sort((a, b) => a > b ? 1 : -1)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(28): new BigUint64Array().sort((a, b) => a > b ? 1 : -1) 1`] = `
+
+  1 | new BigUint64Array().sort((a, b) => a > b ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(28): new BigUint64Array().sort((a, b) => a > b ? 1 : -1) 2`] = `
+
+Message:
+> 1 | new BigUint64Array().sort((a, b) => a > b ? 1 : -1)
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(29): BigInt64Array.from([]).sort((a, b) => a > b ? 1 : -1) 1`] = `
+
+  1 | BigInt64Array.from([]).sort((a, b) => a > b ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(29): BigInt64Array.from([]).sort((a, b) => a > b ? 1 : -1) 2`] = `
+
+Message:
+> 1 | BigInt64Array.from([]).sort((a, b) => a > b ? 1 : -1)
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(3): array.sort((a, b) => b > a ? 1 : -1) 1`] = `
+
+  1 | array.sort((a, b) => b > a ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(3): array.sort((a, b) => b > a ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => b > a ? 1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => b - a\`.:
+  1 | array.sort((a, b) => b - a)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(30): BigUint64Array.of(1n).sort((a, b) => a > b ? 1 : -1) 1`] = `
+
+  1 | BigUint64Array.of(1n).sort((a, b) => a > b ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(30): BigUint64Array.of(1n).sort((a, b) => a > b ? 1 : -1) 2`] = `
+
+Message:
+> 1 | BigUint64Array.of(1n).sort((a, b) => a > b ? 1 : -1)
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(31): function f(values: BigInt64Array | Int8Array) { values.sort((a, b) => a > b ? 1 : -1); } 1`] = `
+
+  1 | function f(values: BigInt64Array | Int8Array) { values.sort((a, b) => a > b ? 1 : -1); }
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(31): function f(values: BigInt64Array | Int8Array) { values.sort((a, b) => a > b ? 1 : -1); } 2`] = `
+
+Message:
+> 1 | function f(values: BigInt64Array | Int8Array) { values.sort((a, b) => a > b ? 1 : -1); }
+    |                                                             ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(4): array.sort((a, b) => a > b ? -1 : 1) 1`] = `
+
+  1 | array.sort((a, b) => a > b ? -1 : 1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(4): array.sort((a, b) => a > b ? -1 : 1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a > b ? -1 : 1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => b - a\`.:
+  1 | array.sort((a, b) => b - a)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(5): array.sort((a, b) => a < b ? 1 : -1) 1`] = `
+
+  1 | array.sort((a, b) => a < b ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(5): array.sort((a, b) => a < b ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a < b ? 1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => b - a\`.:
+  1 | array.sort((a, b) => b - a)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(6): array.sort((a, b) => a > b ? 1 : a < b ? -1 : 0) 1`] = `
+
+  1 | array.sort((a, b) => a > b ? 1 : a < b ? -1 : 0)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(6): array.sort((a, b) => a > b ? 1 : a < b ? -1 : 0) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a > b ? 1 : a < b ? -1 : 0)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(7): array.sort((a, b) => a < b ? -1 : a > b ? 1 : 0) 1`] = `
+
+  1 | array.sort((a, b) => a < b ? -1 : a > b ? 1 : 0)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(7): array.sort((a, b) => a < b ? -1 : a > b ? 1 : 0) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a < b ? -1 : a > b ? 1 : 0)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(8): array.sort((a, b) => a >= b ? 1 : -1) 1`] = `
+
+  1 | array.sort((a, b) => a >= b ? 1 : -1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(8): array.sort((a, b) => a >= b ? 1 : -1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a >= b ? 1 : -1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(9): array.sort((a, b) => a <= b ? -1 : 1) 1`] = `
+
+  1 | array.sort((a, b) => a <= b ? -1 : 1)
+
+`;
+
+exports[`prefer-simple-sort-comparator > invalid(9): array.sort((a, b) => a <= b ? -1 : 1) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a <= b ? -1 : 1)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simple comparison function for \`Array#sort()\`.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;

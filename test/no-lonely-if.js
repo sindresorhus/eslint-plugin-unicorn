@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {ESLint} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -316,8 +316,8 @@ test('fix should not produce invalid code when another rule replaces the origina
 	const [result] = await eslint.lintText(code, {filePath: 'fixture.js'});
 	const fatalMessages = result.messages.filter(({fatal}) => fatal);
 
-	t.false(fatalMessages.length > 0);
-	t.is(result.output, outdent`
+	t.assert.strictEqual(fatalMessages.length > 0, false);
+	t.assert.strictEqual(result.output, outdent`
 		function some(value) {
 		  if (value < 10 && value < 5) {
 		    console.log(
@@ -333,25 +333,25 @@ test('fix should not produce invalid code when another rule replaces the origina
 test('fix should preserve text between the outer condition and block', async t => {
 	const result = await lintFixture('if (a) /* comment */ { if (b) { foo(); } }');
 
-	t.is(result.output, '/* comment */ if (a && b) { foo(); }');
+	t.assert.strictEqual(result.output, '/* comment */ if (a && b) { foo(); }');
 });
 
 test('fix should preserve text between the outer condition and non-block consequent', async t => {
 	const result = await lintFixture('if (a) /* comment */ { if (b) foo(); }');
 
-	t.is(result.output, '/* comment */ if (a && b) foo();');
+	t.assert.strictEqual(result.output, '/* comment */ if (a && b) foo();');
 });
 
 test('fix should preserve comments before the inner if inside the outer block', async t => {
 	const result = await lintFixture('if (a) { /* before */ if (b) foo(); }');
 
-	t.is(result.output, '/* before */ if (a && b) foo();');
+	t.assert.strictEqual(result.output, '/* before */ if (a && b) foo();');
 });
 
 test('fix should preserve comments after the inner if inside the outer block', async t => {
 	const result = await lintFixture('if (a) { if (b) foo(); /* after */ }');
 
-	t.is(result.output, 'if (a && b) foo(); /* after */ ');
+	t.assert.strictEqual(result.output, 'if (a && b) foo(); /* after */ ');
 });
 
 test('fix should keep pragma comments from before the inner if attached to the merged if', async t => {
@@ -361,8 +361,8 @@ test('fix should keep pragma comments from before the inner if attached to the m
 		pragmaAttachmentPlugins,
 	);
 
-	t.is(result.output, '/* @keep-next */ if (a && b) foo();');
-	t.false(hasRuleMessage(result, 'fake/pragma-attachment'));
+	t.assert.strictEqual(result.output, '/* @keep-next */ if (a && b) foo();');
+	t.assert.strictEqual(hasRuleMessage(result, 'fake/pragma-attachment'), false);
 });
 
 test('fix should keep pragma comments from the outer condition gap attached to the merged if', async t => {
@@ -372,8 +372,8 @@ test('fix should keep pragma comments from the outer condition gap attached to t
 		pragmaAttachmentPlugins,
 	);
 
-	t.is(result.output, '/* @keep-next */ if (a && b) foo();');
-	t.false(hasRuleMessage(result, 'fake/pragma-attachment'));
+	t.assert.strictEqual(result.output, '/* @keep-next */ if (a && b) foo();');
+	t.assert.strictEqual(hasRuleMessage(result, 'fake/pragma-attachment'), false);
 });
 
 test('fix should preserve eslint-disable-next-line before the inner if', async t => {
@@ -384,8 +384,8 @@ test('fix should preserve eslint-disable-next-line before the inner if', async t
 		}
 	`, {'no-console': 'error'});
 
-	t.is(result.output, '// eslint-disable-next-line no-console\n\tif (a && b) console.log(\'foo\');');
-	t.false(hasRuleMessage(result, 'no-console'));
+	t.assert.strictEqual(result.output, '// eslint-disable-next-line no-console\n\tif (a && b) console.log(\'foo\');');
+	t.assert.strictEqual(hasRuleMessage(result, 'no-console'), false);
 });
 
 test('fix should preserve block eslint-disable-next-line before the inner if', async t => {
@@ -396,8 +396,8 @@ test('fix should preserve block eslint-disable-next-line before the inner if', a
 		}
 	`, {'no-console': 'error'});
 
-	t.is(result.output, '/* eslint-disable-next-line no-console */\n\tif (a && b) console.log(\'foo\');');
-	t.false(hasRuleMessage(result, 'no-console'));
+	t.assert.strictEqual(result.output, '/* eslint-disable-next-line no-console */\n\tif (a && b) console.log(\'foo\');');
+	t.assert.strictEqual(hasRuleMessage(result, 'no-console'), false);
 });
 
 test('fix should preserve eslint-disable-line between the outer condition and block', async t => {
@@ -408,54 +408,67 @@ test('fix should preserve eslint-disable-line between the outer condition and bl
 		}
 	`, {'no-constant-condition': 'error'});
 
-	t.is(result.output, 'if (true && true) // eslint-disable-line no-constant-condition\n foo();');
-	t.false(hasRuleMessage(result, 'no-constant-condition'));
+	t.assert.strictEqual(result.output, 'if (true && true) // eslint-disable-line no-constant-condition\n foo();');
+	t.assert.strictEqual(hasRuleMessage(result, 'no-constant-condition'), false);
 });
 
 test('fix should preserve comments inside merged conditions', async t => {
 	const result = await lintFixture('if (/* outer */ a) { if (b /* inner */) foo(); }');
 
-	t.is(result.output, 'if (/* outer */ a && b /* inner */) foo();');
+	t.assert.strictEqual(result.output, 'if (/* outer */ a && b /* inner */) foo();');
 });
 
 test('fix should preserve comments between if and opening parenthesis', async t => {
 	const result = await lintFixture('if/* outer */(a) if/* inner */(b) foo();');
 
-	t.is(result.output, 'if/* outer */(a && /* inner */b) foo();');
+	t.assert.strictEqual(result.output, 'if/* outer */(a && /* inner */b) foo();');
 });
 
 test('fix should preserve ASI-safe semicolon insertion when keeping outer-gap text', async t => {
 	const result = await lintFixture('if (a) /* comment */ { if (b) foo() } [].forEach(bar)');
 
-	t.is(result.output, '/* comment */ if (a && b) foo();[].forEach(bar)');
-	t.false(result.messages.some(message => message.fatal));
+	t.assert.strictEqual(result.output, '/* comment */ if (a && b) foo();[].forEach(bar)');
+	t.assert.strictEqual(result.messages.some(message => message.fatal), false);
 });
 
 test('fix should preserve ASI-safe semicolon insertion when keeping trailing text from the outer block', async t => {
 	const result = await lintFixture('if (a) { if (b) foo() /* after */ } [].forEach(bar)');
 
-	t.is(result.output, 'if (a && b) foo() /* after */ ;[].forEach(bar)');
-	t.false(result.messages.some(message => message.fatal));
+	t.assert.strictEqual(result.output, 'if (a && b) foo() /* after */ ;[].forEach(bar)');
+	t.assert.strictEqual(result.messages.some(message => message.fatal), false);
 });
 
 // An arrow function is an `AssignmentExpression` in the grammar, so it needs parentheses before `&&`
 test('fix should parenthesize an arrow function test', async t => {
 	const result = await lintFixture('if (a => b) { if (c => d) { e(); } }');
 
-	t.is(result.output, 'if ((a => b) && (c => d)) { e(); }');
-	t.false(result.messages.some(message => message.fatal));
+	t.assert.strictEqual(result.output, 'if ((a => b) && (c => d)) { e(); }');
+	t.assert.strictEqual(result.messages.some(message => message.fatal), false);
 });
 
 test('fix should parenthesize a single arrow function test', async t => {
 	const result = await lintFixture('if (x) { if (a => b) { c(); } }');
 
-	t.is(result.output, 'if (x && (a => b)) { c(); }');
-	t.false(result.messages.some(message => message.fatal));
+	t.assert.strictEqual(result.output, 'if (x && (a => b)) { c(); }');
+	t.assert.strictEqual(result.messages.some(message => message.fatal), false);
 });
 
 test('fix should parenthesize an async arrow function test', async t => {
 	const result = await lintFixture('if (async a => b) { if (c => d) { e(); } }');
 
-	t.is(result.output, 'if ((async a => b) && (c => d)) { e(); }');
-	t.false(result.messages.some(message => message.fatal));
+	t.assert.strictEqual(result.output, 'if ((async a => b) && (c => d)) { e(); }');
+	t.assert.strictEqual(result.messages.some(message => message.fatal), false);
+});
+
+test('fix should keep a comment between the outer statement and the next token when inserting a semicolon', async t => {
+	const result = await lintFixture('if (a) { if (b) foo() } /* after */ [].forEach(bar)');
+
+	t.assert.strictEqual(result.output, 'if (a && b) foo(); /* after */ [].forEach(bar)');
+	t.assert.strictEqual(result.messages.some(message => message.fatal), false);
+});
+
+test('fix should collapse whitespace between a commented condition prefix and a padded test', async t => {
+	const result = await lintFixture('if (a) if /* inner */ ( b) foo();');
+
+	t.assert.strictEqual(result.output, 'if (a &&  /* inner */ b) foo();');
 });

@@ -1,0 +1,2506 @@
+exports[`explicit-length-check > invalid(1): <template><div v-if=\"foo.length\"></div></template> 1`] = `
+
+  1 | <template><div v-if="foo.length"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(1): <template><div v-if=\"foo.length\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="foo.length"></div></template>
+    |                      ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | <template><div v-if="foo.length > 0"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 1`] = `
+
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 10`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+> 13 | 		foo.length ||
+     | 		^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length > 0 ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 11`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+> 14 | 		!!foo.length ||
+     | 		^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		foo.length > 0 ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 12`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+> 15 | 		foo.length !== 0 ||
+     | 		^^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length > 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 13`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+> 16 | 		foo.length != 0 ||
+     | 		^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length > 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 14`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+> 17 | 		foo.length >= 1 ||
+     | 		^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length > 0 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 15`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+> 18 | 		0 !== foo.length ||
+     | 		^^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		foo.length > 0 ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 16`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+> 19 | 		0 != foo.length ||
+     | 		^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		foo.length > 0 ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 17`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+> 20 | 		0 < foo.length ||
+     | 		^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		foo.length > 0 ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 18`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+> 21 | 		1 <= foo.length
+     | 		^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		foo.length > 0
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 2`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+>  3 | 		!foo.length &&
+     | 		^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		foo.length === 0 &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 3`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+>  4 | 		foo.length == 0 &&
+     | 		^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length === 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 4`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+>  5 | 		foo.length < 1 &&
+     | 		^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length === 0 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 5`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+>  6 | 		foo.length <= 0 &&
+     | 		^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length === 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 6`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+>  7 | 		0 === foo.length &&
+     | 		^^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		foo.length === 0 &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 7`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+>  8 | 		0 == foo.length &&
+     | 		^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		foo.length === 0 &&
+   9 | 		1 > foo.length &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 8`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+>  9 | 		1 > foo.length &&
+     | 		^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		foo.length === 0 &&
+  10 | 		0 >= foo.length
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(1): if (\n\t!!!(\n\t\t!foo.length &&\n\t\tfoo.length == 0 &&\n\t\tfoo.length < 1 &&\n\t\tfoo.length <= 0 &&\n\t\t0 === foo.length &&\n\t\t0 == foo.length &&\n\t\t1 > foo.length &&\n\t\t0 >= foo.length\n\t) ||\n\t!(\n\t\tfoo.length ||\n\t\t!!foo.length ||\n\t\tfoo.length !== 0 ||\n\t\tfoo.length != 0 ||\n\t\tfoo.length >= 1 ||\n\t\t0 !== foo.length ||\n\t\t0 != foo.length ||\n\t\t0 < foo.length ||\n\t\t1 <= foo.length\n\t)\n) {} 9`] = `
+
+Message:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+> 10 | 		0 >= foo.length
+     | 		^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+Output:
+   1 | if (
+   2 | 	!!!(
+   3 | 		!foo.length &&
+   4 | 		foo.length == 0 &&
+   5 | 		foo.length < 1 &&
+   6 | 		foo.length <= 0 &&
+   7 | 		0 === foo.length &&
+   8 | 		0 == foo.length &&
+   9 | 		1 > foo.length &&
+  10 | 		foo.length === 0
+  11 | 	) ||
+  12 | 	!(
+  13 | 		foo.length ||
+  14 | 		!!foo.length ||
+  15 | 		foo.length !== 0 ||
+  16 | 		foo.length != 0 ||
+  17 | 		foo.length >= 1 ||
+  18 | 		0 !== foo.length ||
+  19 | 		0 != foo.length ||
+  20 | 		0 < foo.length ||
+  21 | 		1 <= foo.length
+  22 | 	)
+  23 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(10): <template><div @click=\"method($event, foo.length >= 1)\"></div></template> 1`] = `
+
+  1 | <template><div @click="method($event, foo.length >= 1)"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(10): <template><div @click=\"method($event, foo.length >= 1)\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div @click="method($event, foo.length >= 1)"></div></template>
+    |                                       ^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | <template><div @click="method($event, foo.length > 0)"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(10): if (foo.bar && foo.bar.length) {} 1`] = `
+
+  1 | if (foo.bar && foo.bar.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(10): if (foo.bar && foo.bar.length) {} 2`] = `
+
+Message:
+> 1 | if (foo.bar && foo.bar.length) {}
+    |                ^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | if (foo.bar && foo.bar.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(11): <template><div v-bind:hidden=\"0 === foo.length\"></div></template> 1`] = `
+
+  1 | <template><div v-bind:hidden="0 === foo.length"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(11): <template><div v-bind:hidden=\"0 === foo.length\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-bind:hidden="0 === foo.length"></div></template>
+    |                               ^^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | <template><div v-bind:hidden="foo.length === 0"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(11): if (foo.length || foo.bar()) {} 1`] = `
+
+  1 | if (foo.length || foo.bar()) {}
+
+`;
+
+exports[`explicit-length-check > invalid(11): if (foo.length || foo.bar()) {} 2`] = `
+
+Message:
+> 1 | if (foo.length || foo.bar()) {}
+    |     ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | if (foo.length > 0 || foo.bar()) {}
+
+`;
+
+exports[`explicit-length-check > invalid(12): <template><input :disabled=\"Boolean(foo.length)\"></template> 1`] = `
+
+  1 | <template><input :disabled="Boolean(foo.length)"></template>
+
+`;
+
+exports[`explicit-length-check > invalid(12): <template><input :disabled=\"Boolean(foo.length)\"></template> 2`] = `
+
+Message:
+> 1 | <template><input :disabled="Boolean(foo.length)"></template>
+    |                             ^^^^^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | <template><input :disabled="foo.length > 0"></template>
+
+`;
+
+exports[`explicit-length-check > invalid(12): if (!!(!!foo.length)) {} 1`] = `
+
+  1 | if (!!(!!foo.length)) {}
+
+`;
+
+exports[`explicit-length-check > invalid(12): if (!!(!!foo.length)) {} 2`] = `
+
+Message:
+> 1 | if (!!(!!foo.length)) {}
+    |     ^^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(13): <template><custom-component :custom-property=\"!foo.length\"></custom-component></template> 1`] = `
+
+  1 | <template><custom-component :custom-property="!foo.length"></custom-component></template>
+
+`;
+
+exports[`explicit-length-check > invalid(13): <template><custom-component :custom-property=\"!foo.length\"></custom-component></template> 2`] = `
+
+Message:
+> 1 | <template><custom-component :custom-property="!foo.length"></custom-component></template>
+    |                                               ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | <template><custom-component :custom-property="foo.length === 0"></custom-component></template>
+
+`;
+
+exports[`explicit-length-check > invalid(13): if (!(foo.length === 0)) {} 1`] = `
+
+  1 | if (!(foo.length === 0)) {}
+
+`;
+
+exports[`explicit-length-check > invalid(13): if (!(foo.length === 0)) {} 2`] = `
+
+Message:
+> 1 | if (!(foo.length === 0)) {}
+    |     ^^^^^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(14): while (foo.length >= 1) {} 1`] = `
+
+  1 | while (foo.length >= 1) {}
+
+`;
+
+exports[`explicit-length-check > invalid(14): while (foo.length >= 1) {} 2`] = `
+
+Message:
+> 1 | while (foo.length >= 1) {}
+    |        ^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | while (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(15): do {} while (foo.length); 1`] = `
+
+  1 | do {} while (foo.length);
+
+`;
+
+exports[`explicit-length-check > invalid(15): do {} while (foo.length); 2`] = `
+
+Message:
+> 1 | do {} while (foo.length);
+    |              ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | do {} while (foo.length > 0);
+
+`;
+
+exports[`explicit-length-check > invalid(16): for (let i = 0; (bar && !foo.length); i ++) {} 1`] = `
+
+  1 | for (let i = 0; (bar && !foo.length); i ++) {}
+
+`;
+
+exports[`explicit-length-check > invalid(16): for (let i = 0; (bar && !foo.length); i ++) {} 2`] = `
+
+Message:
+> 1 | for (let i = 0; (bar && !foo.length); i ++) {}
+    |                         ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | for (let i = 0; (bar && foo.length === 0); i ++) {}
+
+`;
+
+exports[`explicit-length-check > invalid(17): const isEmpty = foo.length < 1; 1`] = `
+
+  1 | const isEmpty = foo.length < 1;
+
+`;
+
+exports[`explicit-length-check > invalid(17): const isEmpty = foo.length < 1; 2`] = `
+
+Message:
+> 1 | const isEmpty = foo.length < 1;
+    |                 ^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | const isEmpty = foo.length === 0;
+
+`;
+
+exports[`explicit-length-check > invalid(18): const isEmpty = foo.length < 1 ? true : false; 1`] = `
+
+  1 | const isEmpty = foo.length < 1 ? true : false;
+
+`;
+
+exports[`explicit-length-check > invalid(18): const isEmpty = foo.length < 1 ? true : false; 2`] = `
+
+Message:
+> 1 | const isEmpty = foo.length < 1 ? true : false;
+    |                 ^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | const isEmpty = foo.length === 0 ? true : false;
+
+`;
+
+exports[`explicit-length-check > invalid(19): const isEmpty = foo.length <= 0; 1`] = `
+
+  1 | const isEmpty = foo.length <= 0;
+
+`;
+
+exports[`explicit-length-check > invalid(19): const isEmpty = foo.length <= 0; 2`] = `
+
+Message:
+> 1 | const isEmpty = foo.length <= 0;
+    |                 ^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | const isEmpty = foo.length === 0;
+
+`;
+
+exports[`explicit-length-check > invalid(2): <template>\n\t<div>\n\t\t<div v-if=\"foo\"></div>\n\t\t<div v-else-if=\"bar.length\"></div>\n\t</div>\n</template> 1`] = `
+
+  1 | <template>
+  2 | 	<div>
+  3 | 		<div v-if="foo"></div>
+  4 | 		<div v-else-if="bar.length"></div>
+  5 | 	</div>
+  6 | </template>
+
+`;
+
+exports[`explicit-length-check > invalid(2): <template>\n\t<div>\n\t\t<div v-if=\"foo\"></div>\n\t\t<div v-else-if=\"bar.length\"></div>\n\t</div>\n</template> 2`] = `
+
+Message:
+  1 | <template>
+  2 | 	<div>
+  3 | 		<div v-if="foo"></div>
+> 4 | 		<div v-else-if="bar.length"></div>
+    | 		                ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+  5 | 	</div>
+  6 | </template>
+
+Output:
+  1 | <template>
+  2 | 	<div>
+  3 | 		<div v-if="foo"></div>
+  4 | 		<div v-else-if="bar.length > 0"></div>
+  5 | 	</div>
+  6 | </template>
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 1`] = `
+
+Options:
+- non-zero: 'not-equal'
+
+Code:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 10`] = `
+
+Message:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+> 10 | 	1 <= foo.length
+     | 	^^^^^^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+  11 | ) {}
+
+Output:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	foo.length !== 0
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 2`] = `
+
+Message:
+   1 | if (
+>  2 | 	foo.length ||
+     | 	^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+Output:
+   1 | if (
+   2 | 	foo.length !== 0 ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 3`] = `
+
+Message:
+   1 | if (
+   2 | 	foo.length ||
+>  3 | 	!!foo.length ||
+     | 	^^^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+Output:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	foo.length !== 0 ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 4`] = `
+
+Message:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+>  4 | 	foo.length != 0 ||
+     | 	^^^^^^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+Output:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length !== 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 5`] = `
+
+Message:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+>  5 | 	foo.length > 0 ||
+     | 	^^^^^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+Output:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length !== 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 6`] = `
+
+Message:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+>  6 | 	foo.length >= 1 ||
+     | 	^^^^^^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+Output:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length !== 0 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 7`] = `
+
+Message:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+>  7 | 	0 !== foo.length ||
+     | 	^^^^^^^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+Output:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	foo.length !== 0 ||
+   8 | 	0 != foo.length ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 8`] = `
+
+Message:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+>  8 | 	0 != foo.length ||
+     | 	^^^^^^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+Output:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	foo.length !== 0 ||
+   9 | 	0 < foo.length ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(2): if (\n\tfoo.length ||\n\t!!foo.length ||\n\tfoo.length != 0 ||\n\tfoo.length > 0 ||\n\tfoo.length >= 1 ||\n\t0 !== foo.length ||\n\t0 != foo.length ||\n\t0 < foo.length ||\n\t1 <= foo.length\n) {} 9`] = `
+
+Message:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+>  9 | 	0 < foo.length ||
+     | 	^^^^^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+Output:
+   1 | if (
+   2 | 	foo.length ||
+   3 | 	!!foo.length ||
+   4 | 	foo.length != 0 ||
+   5 | 	foo.length > 0 ||
+   6 | 	foo.length >= 1 ||
+   7 | 	0 !== foo.length ||
+   8 | 	0 != foo.length ||
+   9 | 	foo.length !== 0 ||
+  10 | 	1 <= foo.length
+  11 | ) {}
+
+`;
+
+exports[`explicit-length-check > invalid(20): if (0 >= foo.length) {} 1`] = `
+
+  1 | if (0 >= foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(20): if (0 >= foo.length) {} 2`] = `
+
+Message:
+> 1 | if (0 >= foo.length) {}
+    |     ^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | if (foo.length === 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(21): bar(foo.length >= 1) 1`] = `
+
+  1 | bar(foo.length >= 1)
+
+`;
+
+exports[`explicit-length-check > invalid(21): bar(foo.length >= 1) 2`] = `
+
+Message:
+> 1 | bar(foo.length >= 1)
+    |     ^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | bar(foo.length > 0)
+
+`;
+
+exports[`explicit-length-check > invalid(22): bar(!foo.length || foo.length) 1`] = `
+
+  1 | bar(!foo.length || foo.length)
+
+`;
+
+exports[`explicit-length-check > invalid(22): bar(!foo.length || foo.length) 2`] = `
+
+Message:
+> 1 | bar(!foo.length || foo.length)
+    |     ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | bar(foo.length === 0 || foo.length)
+
+`;
+
+exports[`explicit-length-check > invalid(23): const bar = void !foo.length; 1`] = `
+
+  1 | const bar = void !foo.length;
+
+`;
+
+exports[`explicit-length-check > invalid(23): const bar = void !foo.length; 2`] = `
+
+Message:
+> 1 | const bar = void !foo.length;
+    |                  ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | const bar = void (foo.length === 0);
+
+`;
+
+exports[`explicit-length-check > invalid(24): const isNotEmpty = Boolean(foo.length) 1`] = `
+
+  1 | const isNotEmpty = Boolean(foo.length)
+
+`;
+
+exports[`explicit-length-check > invalid(24): const isNotEmpty = Boolean(foo.length) 2`] = `
+
+Message:
+> 1 | const isNotEmpty = Boolean(foo.length)
+    |                    ^^^^^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const isNotEmpty = foo.length > 0
+
+`;
+
+exports[`explicit-length-check > invalid(25): if (!!Boolean(foo.length)) {} 1`] = `
+
+  1 | if (!!Boolean(foo.length)) {}
+
+`;
+
+exports[`explicit-length-check > invalid(25): if (!!Boolean(foo.length)) {} 2`] = `
+
+Message:
+> 1 | if (!!Boolean(foo.length)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(26): const isNotEmpty = Boolean(foo.length || bar) 1`] = `
+
+  1 | const isNotEmpty = Boolean(foo.length || bar)
+
+`;
+
+exports[`explicit-length-check > invalid(26): const isNotEmpty = Boolean(foo.length || bar) 2`] = `
+
+Message:
+> 1 | const isNotEmpty = Boolean(foo.length || bar)
+    |                            ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const isNotEmpty = Boolean(foo.length > 0 || bar)
+
+`;
+
+exports[`explicit-length-check > invalid(27): const isEmpty = Boolean(!foo.length) 1`] = `
+
+  1 | const isEmpty = Boolean(!foo.length)
+
+`;
+
+exports[`explicit-length-check > invalid(27): const isEmpty = Boolean(!foo.length) 2`] = `
+
+Message:
+> 1 | const isEmpty = Boolean(!foo.length)
+    |                 ^^^^^^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | const isEmpty = foo.length === 0
+
+`;
+
+exports[`explicit-length-check > invalid(28): const isEmpty = Boolean(foo.length === 0) 1`] = `
+
+  1 | const isEmpty = Boolean(foo.length === 0)
+
+`;
+
+exports[`explicit-length-check > invalid(28): const isEmpty = Boolean(foo.length === 0) 2`] = `
+
+Message:
+> 1 | const isEmpty = Boolean(foo.length === 0)
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | const isEmpty = foo.length === 0
+
+`;
+
+exports[`explicit-length-check > invalid(29): const isNotEmpty = !Boolean(foo.length === 0) 1`] = `
+
+  1 | const isNotEmpty = !Boolean(foo.length === 0)
+
+`;
+
+exports[`explicit-length-check > invalid(29): const isNotEmpty = !Boolean(foo.length === 0) 2`] = `
+
+Message:
+> 1 | const isNotEmpty = !Boolean(foo.length === 0)
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const isNotEmpty = foo.length > 0
+
+`;
+
+exports[`explicit-length-check > invalid(3): <template><div v-if=\"foo.length\"></div></template> 1`] = `
+
+Options:
+- non-zero: 'not-equal'
+
+Code:
+  1 | <template><div v-if="foo.length"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(3): <template><div v-if=\"foo.length\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="foo.length"></div></template>
+    |                      ^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+
+Output:
+  1 | <template><div v-if="foo.length !== 0"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(3): const foo = { length: 123 }; if (foo.length) {} 1`] = `
+
+Options:
+- non-zero: 'not-equal'
+
+Code:
+  1 | const foo = { length: 123 }; if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(3): const foo = { length: 123 }; if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = { length: 123 }; if (foo.length) {}
+    |                                  ^^^^^^^^^^ Use \`.length !== 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = { length: 123 }; if (foo.length !== 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(30): const isEmpty = !Boolean(!Boolean(foo.length === 0)) 1`] = `
+
+  1 | const isEmpty = !Boolean(!Boolean(foo.length === 0))
+
+`;
+
+exports[`explicit-length-check > invalid(30): const isEmpty = !Boolean(!Boolean(foo.length === 0)) 2`] = `
+
+Message:
+> 1 | const isEmpty = !Boolean(!Boolean(foo.length === 0))
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | const isEmpty = foo.length === 0
+
+`;
+
+exports[`explicit-length-check > invalid(31): if (foo.size) {} 1`] = `
+
+  1 | if (foo.size) {}
+
+`;
+
+exports[`explicit-length-check > invalid(31): if (foo.size) {} 2`] = `
+
+Message:
+> 1 | if (foo.size) {}
+    |     ^^^^^^^^ Use \`.size > 0\` when checking size is not zero.
+
+Output:
+  1 | if (foo.size > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(32): if (foo.size && bar.length) {} 1`] = `
+
+  1 | if (foo.size && bar.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(32): if (foo.size && bar.length) {} 2`] = `
+
+Message:
+> 1 | if (foo.size && bar.length) {}
+    |     ^^^^^^^^ Use \`.size > 0\` when checking size is not zero.
+
+Output:
+  1 | if (foo.size > 0 && bar.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(32): if (foo.size && bar.length) {} 3`] = `
+
+Message:
+> 1 | if (foo.size && bar.length) {}
+    |                 ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | if (foo.size && bar.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(33): function foo() {return!foo.length} 1`] = `
+
+  1 | function foo() {return!foo.length}
+
+`;
+
+exports[`explicit-length-check > invalid(33): function foo() {return!foo.length} 2`] = `
+
+Message:
+> 1 | function foo() {return!foo.length}
+    |                       ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | function foo() {return foo.length === 0}
+
+`;
+
+exports[`explicit-length-check > invalid(34): function foo() {throw!foo.length} 1`] = `
+
+  1 | function foo() {throw!foo.length}
+
+`;
+
+exports[`explicit-length-check > invalid(34): function foo() {throw!foo.length} 2`] = `
+
+Message:
+> 1 | function foo() {throw!foo.length}
+    |                      ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | function foo() {throw foo.length === 0}
+
+`;
+
+exports[`explicit-length-check > invalid(35): async function foo() {await!foo.length} 1`] = `
+
+  1 | async function foo() {await!foo.length}
+
+`;
+
+exports[`explicit-length-check > invalid(35): async function foo() {await!foo.length} 2`] = `
+
+Message:
+> 1 | async function foo() {await!foo.length}
+    |                            ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | async function foo() {await (foo.length === 0)}
+
+`;
+
+exports[`explicit-length-check > invalid(36): function * foo() {yield!foo.length} 1`] = `
+
+  1 | function * foo() {yield!foo.length}
+
+`;
+
+exports[`explicit-length-check > invalid(36): function * foo() {yield!foo.length} 2`] = `
+
+Message:
+> 1 | function * foo() {yield!foo.length}
+    |                        ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | function * foo() {yield foo.length === 0}
+
+`;
+
+exports[`explicit-length-check > invalid(37): function * foo() {yield*!foo.length} 1`] = `
+
+  1 | function * foo() {yield*!foo.length}
+
+`;
+
+exports[`explicit-length-check > invalid(37): function * foo() {yield*!foo.length} 2`] = `
+
+Message:
+> 1 | function * foo() {yield*!foo.length}
+    |                         ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | function * foo() {yield*foo.length === 0}
+
+`;
+
+exports[`explicit-length-check > invalid(38): delete!foo.length 1`] = `
+
+  1 | delete!foo.length
+
+`;
+
+exports[`explicit-length-check > invalid(38): delete!foo.length 2`] = `
+
+Message:
+> 1 | delete!foo.length
+    |       ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | delete (foo.length === 0)
+
+`;
+
+exports[`explicit-length-check > invalid(39): typeof!foo.length 1`] = `
+
+  1 | typeof!foo.length
+
+`;
+
+exports[`explicit-length-check > invalid(39): typeof!foo.length 2`] = `
+
+Message:
+> 1 | typeof!foo.length
+    |       ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | typeof (foo.length === 0)
+
+`;
+
+exports[`explicit-length-check > invalid(4): <template><div v-if=\"foo.length\"></div></template> 1`] = `
+
+Options:
+- non-zero: 'greater-than'
+
+Code:
+  1 | <template><div v-if="foo.length"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(4): <template><div v-if=\"foo.length\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="foo.length"></div></template>
+    |                      ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | <template><div v-if="foo.length > 0"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(4): const foo = {length: -1}; foo.length = 123; if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; foo.length = 123; if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(4): const foo = {length: -1}; foo.length = 123; if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; foo.length = 123; if (foo.length) {}
+    |                                                 ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; foo.length = 123; if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(40): void!foo.length 1`] = `
+
+  1 | void!foo.length
+
+`;
+
+exports[`explicit-length-check > invalid(40): void!foo.length 2`] = `
+
+Message:
+> 1 | void!foo.length
+    |     ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | void (foo.length === 0)
+
+`;
+
+exports[`explicit-length-check > invalid(41): a instanceof!foo.length 1`] = `
+
+  1 | a instanceof!foo.length
+
+`;
+
+exports[`explicit-length-check > invalid(41): a instanceof!foo.length 2`] = `
+
+Message:
+> 1 | a instanceof!foo.length
+    |             ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | a instanceof (foo.length === 0)
+
+`;
+
+exports[`explicit-length-check > invalid(42): a in!foo.length 1`] = `
+
+  1 | a in!foo.length
+
+`;
+
+exports[`explicit-length-check > invalid(42): a in!foo.length 2`] = `
+
+Message:
+> 1 | a in!foo.length
+    |     ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | a in (foo.length === 0)
+
+`;
+
+exports[`explicit-length-check > invalid(43): export default!foo.length 1`] = `
+
+  1 | export default!foo.length
+
+`;
+
+exports[`explicit-length-check > invalid(43): export default!foo.length 2`] = `
+
+Message:
+> 1 | export default!foo.length
+    |               ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | export default foo.length === 0
+
+`;
+
+exports[`explicit-length-check > invalid(44): if(true){}else!foo.length 1`] = `
+
+  1 | if(true){}else!foo.length
+
+`;
+
+exports[`explicit-length-check > invalid(44): if(true){}else!foo.length 2`] = `
+
+Message:
+> 1 | if(true){}else!foo.length
+    |               ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | if(true){}else foo.length === 0
+
+`;
+
+exports[`explicit-length-check > invalid(45): do!foo.length;while(true) {} 1`] = `
+
+  1 | do!foo.length;while(true) {}
+
+`;
+
+exports[`explicit-length-check > invalid(45): do!foo.length;while(true) {} 2`] = `
+
+Message:
+> 1 | do!foo.length;while(true) {}
+    |   ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | do foo.length === 0;while(true) {}
+
+`;
+
+exports[`explicit-length-check > invalid(46): switch(foo){case!foo.length:{}} 1`] = `
+
+  1 | switch(foo){case!foo.length:{}}
+
+`;
+
+exports[`explicit-length-check > invalid(46): switch(foo){case!foo.length:{}} 2`] = `
+
+Message:
+> 1 | switch(foo){case!foo.length:{}}
+    |                 ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | switch(foo){case foo.length === 0:{}}
+
+`;
+
+exports[`explicit-length-check > invalid(47): for(const a of!foo.length); 1`] = `
+
+  1 | for(const a of!foo.length);
+
+`;
+
+exports[`explicit-length-check > invalid(47): for(const a of!foo.length); 2`] = `
+
+Message:
+> 1 | for(const a of!foo.length);
+    |               ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | for(const a of foo.length === 0);
+
+`;
+
+exports[`explicit-length-check > invalid(48): for(const a in!foo.length); 1`] = `
+
+  1 | for(const a in!foo.length);
+
+`;
+
+exports[`explicit-length-check > invalid(48): for(const a in!foo.length); 2`] = `
+
+Message:
+> 1 | for(const a in!foo.length);
+    |               ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | for(const a in foo.length === 0);
+
+`;
+
+exports[`explicit-length-check > invalid(49): const foo = {length: -1}; if (true) foo.length = 123; if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; if (true) foo.length = 123; if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(49): const foo = {length: -1}; if (true) foo.length = 123; if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; if (true) foo.length = 123; if (foo.length) {}
+    |                                                           ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; if (true) foo.length = 123; if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(5): <template><div v-if=\"foo.length && bar\"></div></template> 1`] = `
+
+  1 | <template><div v-if="foo.length && bar"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(5): <template><div v-if=\"foo.length && bar\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="foo.length && bar"></div></template>
+    |                      ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | <template><div v-if="foo.length > 0 && bar"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(5): const foo = {length: -1}; Object.assign(foo, {length: 123}); if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; Object.assign(foo, {length: 123}); if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(5): const foo = {length: -1}; Object.assign(foo, {length: 123}); if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; Object.assign(foo, {length: 123}); if (foo.length) {}
+    |                                                                  ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; Object.assign(foo, {length: 123}); if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(50): const foo = {length: -1}; if (false) {} else foo.length = 123; if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; if (false) {} else foo.length = 123; if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(50): const foo = {length: -1}; if (false) {} else foo.length = 123; if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; if (false) {} else foo.length = 123; if (foo.length) {}
+    |                                                                    ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; if (false) {} else foo.length = 123; if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(51): const foo = {length: -1}; true ? foo.length = 123 : 0; if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; true ? foo.length = 123 : 0; if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(51): const foo = {length: -1}; true ? foo.length = 123 : 0; if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; true ? foo.length = 123 : 0; if (foo.length) {}
+    |                                                            ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; true ? foo.length = 123 : 0; if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(52): const foo = {length: -1}; false ? 0 : foo.length = 123; if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; false ? 0 : foo.length = 123; if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(52): const foo = {length: -1}; false ? 0 : foo.length = 123; if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; false ? 0 : foo.length = 123; if (foo.length) {}
+    |                                                             ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; false ? 0 : foo.length = 123; if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(53): const foo = {length: -1}; Object.assign(foo, {length: 'x', length: 123}); if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; Object.assign(foo, {length: 'x', length: 123}); if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(53): const foo = {length: -1}; Object.assign(foo, {length: 'x', length: 123}); if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; Object.assign(foo, {length: 'x', length: 123}); if (foo.length) {}
+    |                                                                               ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; Object.assign(foo, {length: 'x', length: 123}); if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(54): const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 'x', value: 123}); if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 'x', value: 123}); if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(54): const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 'x', value: 123}); if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 'x', value: 123}); if (foo.length) {}
+    |                                                                                               ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 'x', value: 123}); if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(55): const foo = {length: -1}; Object.defineProperties(foo, {length: {value: 'x'}, length: {value: 123}}); if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; Object.defineProperties(foo, {length: {value: 'x'}, length: {value: 123}}); if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(55): const foo = {length: -1}; Object.defineProperties(foo, {length: {value: 'x'}, length: {value: 123}}); if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; Object.defineProperties(foo, {length: {value: 'x'}, length: {value: 123}}); if (foo.length) {}
+    |                                                                                                           ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; Object.defineProperties(foo, {length: {value: 'x'}, length: {value: 123}}); if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(56): const foo = {length: -1}; ({length: foo.length} = {length: 'x', length: 123}); if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; ({length: foo.length} = {length: 'x', length: 123}); if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(56): const foo = {length: -1}; ({length: foo.length} = {length: 'x', length: 123}); if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; ({length: foo.length} = {length: 'x', length: 123}); if (foo.length) {}
+    |                                                                                    ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; ({length: foo.length} = {length: 'x', length: 123}); if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(57): const foo = {length: 123}; Object.assign(foo); if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: 123}; Object.assign(foo); if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(57): const foo = {length: 123}; Object.assign(foo); if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: 123}; Object.assign(foo); if (foo.length) {}
+    |                                                    ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: 123}; Object.assign(foo); if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(58): const foo = {length: -1}; switch (value) { default: foo.length = 123; } if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; switch (value) { default: foo.length = 123; } if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(58): const foo = {length: -1}; switch (value) { default: foo.length = 123; } if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; switch (value) { default: foo.length = 123; } if (foo.length) {}
+    |                                                                             ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; switch (value) { default: foo.length = 123; } if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(59): const bar = foo.length === 2 && foo.length; 1`] = `
+
+  1 | const bar = foo.length === 2 && foo.length;
+
+`;
+
+exports[`explicit-length-check > invalid(59): const bar = foo.length === 2 && foo.length; 2`] = `
+
+Message:
+> 1 | const bar = foo.length === 2 && foo.length;
+    |                                 ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Suggestion 1/1: Replace \`.length\` with \`.length > 0\`.:
+  1 | const bar = foo.length === 2 && foo.length > 0;
+
+`;
+
+exports[`explicit-length-check > invalid(6): <script>if (foo.length) {}</script> 1`] = `
+
+  1 | <script>if (foo.length) {}</script>
+
+`;
+
+exports[`explicit-length-check > invalid(6): <script>if (foo.length) {}</script> 2`] = `
+
+Message:
+> 1 | <script>if (foo.length) {}</script>
+    |             ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | <script>if (foo.length > 0) {}</script>
+
+`;
+
+exports[`explicit-length-check > invalid(6): const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 123}); if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 123}); if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(6): const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 123}); if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 123}); if (foo.length) {}
+    |                                                                                   ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; Object.defineProperty(foo, 'length', {value: 123}); if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(60): const bar = (!foo.length).toString(); 1`] = `
+
+  1 | const bar = (!foo.length).toString();
+
+`;
+
+exports[`explicit-length-check > invalid(60): const bar = (!foo.length).toString(); 2`] = `
+
+Message:
+> 1 | const bar = (!foo.length).toString();
+    |              ^^^^^^^^^^^ Use \`.length === 0\` when checking length is zero.
+
+Output:
+  1 | const bar = (foo.length === 0).toString();
+
+`;
+
+exports[`explicit-length-check > invalid(7): <template><div v-show=\"foo.length\"></div></template> 1`] = `
+
+  1 | <template><div v-show="foo.length"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(7): <template><div v-show=\"foo.length\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-show="foo.length"></div></template>
+    |                        ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | <template><div v-show="foo.length > 0"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(7): const foo = {length: -1}; [foo.length] = [123]; if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; [foo.length] = [123]; if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(7): const foo = {length: -1}; [foo.length] = [123]; if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; [foo.length] = [123]; if (foo.length) {}
+    |                                                     ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; [foo.length] = [123]; if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(8): <template><div :hidden=\"foo.length >= 1\"></div></template> 1`] = `
+
+  1 | <template><div :hidden="foo.length >= 1"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(8): <template><div :hidden=\"foo.length >= 1\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div :hidden="foo.length >= 1"></div></template>
+    |                         ^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | <template><div :hidden="foo.length > 0"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(8): const foo = {length: -1}; ({length: foo.length} = {length: 123}); if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; ({length: foo.length} = {length: 123}); if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(8): const foo = {length: -1}; ({length: foo.length} = {length: 123}); if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; ({length: foo.length} = {length: 123}); if (foo.length) {}
+    |                                                                       ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; ({length: foo.length} = {length: 123}); if (foo.length > 0) {}
+
+`;
+
+exports[`explicit-length-check > invalid(9): <template><div @click=\"foo.length >= 1\"></div></template> 1`] = `
+
+  1 | <template><div @click="foo.length >= 1"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(9): <template><div @click=\"foo.length >= 1\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div @click="foo.length >= 1"></div></template>
+    |                        ^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | <template><div @click="foo.length > 0"></div></template>
+
+`;
+
+exports[`explicit-length-check > invalid(9): const foo = {length: -1}; for (foo.length of [123]) {} if (foo.length) {} 1`] = `
+
+  1 | const foo = {length: -1}; for (foo.length of [123]) {} if (foo.length) {}
+
+`;
+
+exports[`explicit-length-check > invalid(9): const foo = {length: -1}; for (foo.length of [123]) {} if (foo.length) {} 2`] = `
+
+Message:
+> 1 | const foo = {length: -1}; for (foo.length of [123]) {} if (foo.length) {}
+    |                                                            ^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
+
+Output:
+  1 | const foo = {length: -1}; for (foo.length of [123]) {} if (foo.length > 0) {}
+
+`;

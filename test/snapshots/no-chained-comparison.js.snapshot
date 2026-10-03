@@ -1,0 +1,776 @@
+exports[`no-chained-comparison > invalid(1): a < b < c 1`] = `
+
+  1 | a < b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(1): a < b < c 2`] = `
+
+Message:
+> 1 | a < b < c
+    | ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b && b < c\`.:
+  1 | a < b && b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(10): a !== b !== c 1`] = `
+
+  1 | a !== b !== c
+
+`;
+
+exports[`no-chained-comparison > invalid(10): a !== b !== c 2`] = `
+
+Message:
+> 1 | a !== b !== c
+    | ^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a !== b && b !== c\`.:
+  1 | a !== b && b !== c
+
+`;
+
+exports[`no-chained-comparison > invalid(11): a <= b >= c 1`] = `
+
+  1 | a <= b >= c
+
+`;
+
+exports[`no-chained-comparison > invalid(11): a <= b >= c 2`] = `
+
+Message:
+> 1 | a <= b >= c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a <= b && b >= c\`.:
+  1 | a <= b && b >= c
+
+`;
+
+exports[`no-chained-comparison > invalid(12): a === b !== c 1`] = `
+
+  1 | a === b !== c
+
+`;
+
+exports[`no-chained-comparison > invalid(12): a === b !== c 2`] = `
+
+Message:
+> 1 | a === b !== c
+    | ^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a === b && b !== c\`.:
+  1 | a === b && b !== c
+
+`;
+
+exports[`no-chained-comparison > invalid(13): (a < b) < c 1`] = `
+
+  1 | (a < b) < c
+
+`;
+
+exports[`no-chained-comparison > invalid(13): (a < b) < c 2`] = `
+
+Message:
+> 1 | (a < b) < c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b && b < c\`.:
+  1 | a < b && b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(14): (a == b) == c 1`] = `
+
+  1 | (a == b) == c
+
+`;
+
+exports[`no-chained-comparison > invalid(14): (a == b) == c 2`] = `
+
+Message:
+> 1 | (a == b) == c
+    | ^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a == b && b == c\`.:
+  1 | a == b && b == c
+
+`;
+
+exports[`no-chained-comparison > invalid(15): 0 < x < 10 1`] = `
+
+  1 | 0 < x < 10
+
+`;
+
+exports[`no-chained-comparison > invalid(15): 0 < x < 10 2`] = `
+
+Message:
+> 1 | 0 < x < 10
+    | ^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`0 < x && x < 10\`.:
+  1 | 0 < x && x < 10
+
+`;
+
+exports[`no-chained-comparison > invalid(16): min <= value <= max 1`] = `
+
+  1 | min <= value <= max
+
+`;
+
+exports[`no-chained-comparison > invalid(16): min <= value <= max 2`] = `
+
+Message:
+> 1 | min <= value <= max
+    | ^^^^^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`min <= value && value <= max\`.:
+  1 | min <= value && value <= max
+
+`;
+
+exports[`no-chained-comparison > invalid(17): -1 < x < 1 1`] = `
+
+  1 | -1 < x < 1
+
+`;
+
+exports[`no-chained-comparison > invalid(17): -1 < x < 1 2`] = `
+
+Message:
+> 1 | -1 < x < 1
+    | ^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`-1 < x && x < 1\`.:
+  1 | -1 < x && x < 1
+
+`;
+
+exports[`no-chained-comparison > invalid(18): a < b.c < d 1`] = `
+
+  1 | a < b.c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(18): a < b.c < d 2`] = `
+
+Message:
+> 1 | a < b.c < d
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b.c && b.c < d\`.:
+  1 | a < b.c && b.c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(19): a < b[c] < d 1`] = `
+
+  1 | a < b[c] < d
+
+`;
+
+exports[`no-chained-comparison > invalid(19): a < b[c] < d 2`] = `
+
+Message:
+> 1 | a < b[c] < d
+    | ^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b[c] && b[c] < d\`.:
+  1 | a < b[c] && b[c] < d
+
+`;
+
+exports[`no-chained-comparison > invalid(2): a > b > c 1`] = `
+
+  1 | a > b > c
+
+`;
+
+exports[`no-chained-comparison > invalid(2): a > b > c 2`] = `
+
+Message:
+> 1 | a > b > c
+    | ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a > b && b > c\`.:
+  1 | a > b && b > c
+
+`;
+
+exports[`no-chained-comparison > invalid(20): a < b?.c < d 1`] = `
+
+  1 | a < b?.c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(20): a < b?.c < d 2`] = `
+
+Message:
+> 1 | a < b?.c < d
+    | ^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b?.c && b?.c < d\`.:
+  1 | a < b?.c && b?.c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(21): a < b + c < d 1`] = `
+
+  1 | a < b + c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(21): a < b + c < d 2`] = `
+
+Message:
+> 1 | a < b + c < d
+    | ^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b + c && b + c < d\`.:
+  1 | a < b + c && b + c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(22): a < b === c 1`] = `
+
+  1 | a < b === c
+
+`;
+
+exports[`no-chained-comparison > invalid(22): a < b === c 2`] = `
+
+Message:
+> 1 | a < b === c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(23): a === b < c 1`] = `
+
+  1 | a === b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(23): a === b < c 2`] = `
+
+Message:
+> 1 | a === b < c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(24): (a > 0) == 0 1`] = `
+
+  1 | (a > 0) == 0
+
+`;
+
+exports[`no-chained-comparison > invalid(24): (a > 0) == 0 2`] = `
+
+Message:
+> 1 | (a > 0) == 0
+    | ^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(25): (a > 0) === isEnabled 1`] = `
+
+  1 | (a > 0) === isEnabled
+
+`;
+
+exports[`no-chained-comparison > invalid(25): (a > 0) === isEnabled 2`] = `
+
+Message:
+> 1 | (a > 0) === isEnabled
+    | ^^^^^^^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(26): a == b < c 1`] = `
+
+  1 | a == b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(26): a == b < c 2`] = `
+
+Message:
+> 1 | a == b < c
+    | ^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(27): a === b > c 1`] = `
+
+  1 | a === b > c
+
+`;
+
+exports[`no-chained-comparison > invalid(27): a === b > c 2`] = `
+
+Message:
+> 1 | a === b > c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(28): a < f() < c 1`] = `
+
+  1 | a < f() < c
+
+`;
+
+exports[`no-chained-comparison > invalid(28): a < f() < c 2`] = `
+
+Message:
+> 1 | a < f() < c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(29): a < (b = c) < d 1`] = `
+
+  1 | a < (b = c) < d
+
+`;
+
+exports[`no-chained-comparison > invalid(29): a < (b = c) < d 2`] = `
+
+Message:
+> 1 | a < (b = c) < d
+    | ^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(3): a <= b <= c 1`] = `
+
+  1 | a <= b <= c
+
+`;
+
+exports[`no-chained-comparison > invalid(3): a <= b <= c 2`] = `
+
+Message:
+> 1 | a <= b <= c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a <= b && b <= c\`.:
+  1 | a <= b && b <= c
+
+`;
+
+exports[`no-chained-comparison > invalid(30): a < b++ < c 1`] = `
+
+  1 | a < b++ < c
+
+`;
+
+exports[`no-chained-comparison > invalid(30): a < b++ < c 2`] = `
+
+Message:
+> 1 | a < b++ < c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(31): a < /* comment */ b < c 1`] = `
+
+  1 | a < /* comment */ b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(31): a < /* comment */ b < c 2`] = `
+
+Message:
+> 1 | a < /* comment */ b < c
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(32): (a < b) < true 1`] = `
+
+  1 | (a < b) < true
+
+`;
+
+exports[`no-chained-comparison > invalid(32): (a < b) < true 2`] = `
+
+Message:
+> 1 | (a < b) < true
+    | ^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(33): a < b < false 1`] = `
+
+  1 | a < b < false
+
+`;
+
+exports[`no-chained-comparison > invalid(33): a < b < false 2`] = `
+
+Message:
+> 1 | a < b < false
+    | ^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(34): (a < b) < (c < d) 1`] = `
+
+  1 | (a < b) < (c < d)
+
+`;
+
+exports[`no-chained-comparison > invalid(34): (a < b) < (c < d) 2`] = `
+
+Message:
+> 1 | (a < b) < (c < d)
+    | ^^^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(35): a < b < c < d 1`] = `
+
+  1 | a < b < c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(35): a < b < c < d 2`] = `
+
+Message:
+> 1 | a < b < c < d
+    | ^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(35): a < b < c < d 3`] = `
+
+Message:
+> 1 | a < b < c < d
+    | ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(36): foo === a < b < c 1`] = `
+
+  1 | foo === a < b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(36): foo === a < b < c 2`] = `
+
+Message:
+> 1 | foo === a < b < c
+    | ^^^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(36): foo === a < b < c 3`] = `
+
+Message:
+> 1 | foo === a < b < c
+    |         ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(37): a < b < c === foo 1`] = `
+
+  1 | a < b < c === foo
+
+`;
+
+exports[`no-chained-comparison > invalid(37): a < b < c === foo 2`] = `
+
+Message:
+> 1 | a < b < c === foo
+    | ^^^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(37): a < b < c === foo 3`] = `
+
+Message:
+> 1 | a < b < c === foo
+    | ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(38): x & a < b < c 1`] = `
+
+  1 | x & a < b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(38): x & a < b < c 2`] = `
+
+Message:
+> 1 | x & a < b < c
+    |     ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(39): a ?? b < c < d 1`] = `
+
+  1 | a ?? b < c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(39): a ?? b < c < d 2`] = `
+
+Message:
+> 1 | a ?? b < c < d
+    |      ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(4): a >= b >= c 1`] = `
+
+  1 | a >= b >= c
+
+`;
+
+exports[`no-chained-comparison > invalid(4): a >= b >= c 2`] = `
+
+Message:
+> 1 | a >= b >= c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a >= b && b >= c\`.:
+  1 | a >= b && b >= c
+
+`;
+
+exports[`no-chained-comparison > invalid(40): foo === (a < b < c) 1`] = `
+
+  1 | foo === (a < b < c)
+
+`;
+
+exports[`no-chained-comparison > invalid(40): foo === (a < b < c) 2`] = `
+
+Message:
+> 1 | foo === (a < b < c)
+    | ^^^^^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+`;
+
+exports[`no-chained-comparison > invalid(40): foo === (a < b < c) 3`] = `
+
+Message:
+> 1 | foo === (a < b < c)
+    |          ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b && b < c\`.:
+  1 | foo === (a < b && b < c)
+
+`;
+
+exports[`no-chained-comparison > invalid(41): a && b < c < d 1`] = `
+
+  1 | a && b < c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(41): a && b < c < d 2`] = `
+
+Message:
+> 1 | a && b < c < d
+    |      ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`b < c && c < d\`.:
+  1 | a && b < c && c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(42): a || b < c < d 1`] = `
+
+  1 | a || b < c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(42): a || b < c < d 2`] = `
+
+Message:
+> 1 | a || b < c < d
+    |      ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`b < c && c < d\`.:
+  1 | a || b < c && c < d
+
+`;
+
+exports[`no-chained-comparison > invalid(43): a < b < c ? x : y 1`] = `
+
+  1 | a < b < c ? x : y
+
+`;
+
+exports[`no-chained-comparison > invalid(43): a < b < c ? x : y 2`] = `
+
+Message:
+> 1 | a < b < c ? x : y
+    | ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b && b < c\`.:
+  1 | a < b && b < c ? x : y
+
+`;
+
+exports[`no-chained-comparison > invalid(44): a < (b ?? 0) < c 1`] = `
+
+  1 | a < (b ?? 0) < c
+
+`;
+
+exports[`no-chained-comparison > invalid(44): a < (b ?? 0) < c 2`] = `
+
+Message:
+> 1 | a < (b ?? 0) < c
+    | ^^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < (b ?? 0) && (b ?? 0) < c\`.:
+  1 | a < (b ?? 0) && (b ?? 0) < c
+
+`;
+
+exports[`no-chained-comparison > invalid(45): a < b < c 1`] = `
+
+  1 | a < b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(45): a < b < c 2`] = `
+
+Message:
+> 1 | a < b < c
+    | ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b && b < c\`.:
+  1 | a < b && b < c
+
+`;
+
+exports[`no-chained-comparison > invalid(46): a < b! < c 1`] = `
+
+  1 | a < b! < c
+
+`;
+
+exports[`no-chained-comparison > invalid(46): a < b! < c 2`] = `
+
+Message:
+> 1 | a < b! < c
+    | ^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b! && b! < c\`.:
+  1 | a < b! && b! < c
+
+`;
+
+exports[`no-chained-comparison > invalid(47): a < (b as number) < c 1`] = `
+
+  1 | a < (b as number) < c
+
+`;
+
+exports[`no-chained-comparison > invalid(47): a < (b as number) < c 2`] = `
+
+Message:
+> 1 | a < (b as number) < c
+    | ^^^^^^^^^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < (b as number) && (b as number) < c\`.:
+  1 | a < (b as number) && (b as number) < c
+
+`;
+
+exports[`no-chained-comparison > invalid(5): a < b <= c 1`] = `
+
+  1 | a < b <= c
+
+`;
+
+exports[`no-chained-comparison > invalid(5): a < b <= c 2`] = `
+
+Message:
+> 1 | a < b <= c
+    | ^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b && b <= c\`.:
+  1 | a < b && b <= c
+
+`;
+
+exports[`no-chained-comparison > invalid(6): a < b > c 1`] = `
+
+  1 | a < b > c
+
+`;
+
+exports[`no-chained-comparison > invalid(6): a < b > c 2`] = `
+
+Message:
+> 1 | a < b > c
+    | ^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a < b && b > c\`.:
+  1 | a < b && b > c
+
+`;
+
+exports[`no-chained-comparison > invalid(7): a == b == c 1`] = `
+
+  1 | a == b == c
+
+`;
+
+exports[`no-chained-comparison > invalid(7): a == b == c 2`] = `
+
+Message:
+> 1 | a == b == c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a == b && b == c\`.:
+  1 | a == b && b == c
+
+`;
+
+exports[`no-chained-comparison > invalid(8): a === b === c 1`] = `
+
+  1 | a === b === c
+
+`;
+
+exports[`no-chained-comparison > invalid(8): a === b === c 2`] = `
+
+Message:
+> 1 | a === b === c
+    | ^^^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a === b && b === c\`.:
+  1 | a === b && b === c
+
+`;
+
+exports[`no-chained-comparison > invalid(9): a != b != c 1`] = `
+
+  1 | a != b != c
+
+`;
+
+exports[`no-chained-comparison > invalid(9): a != b != c 2`] = `
+
+Message:
+> 1 | a != b != c
+    | ^^^^^^^^^^^ Comparison operators cannot be chained. The inner comparison evaluates to a boolean, which is then compared instead of the operands.
+
+Suggestion 1/1: Replace with \`a != b && b != c\`.:
+  1 | a != b && b != c
+
+`;

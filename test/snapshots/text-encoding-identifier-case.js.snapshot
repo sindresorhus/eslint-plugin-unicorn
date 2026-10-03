@@ -1,0 +1,1270 @@
+exports[`text-encoding-identifier-case > invalid(1): <meta charset=\"ASCII\" /> 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | <meta charset="ASCII" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(1): <meta charset=\"ASCII\" /> 2`] = `
+
+Message:
+> 1 | <meta charset="ASCII" />
+    |               ^^^^^^^ Prefer \`ascii\` over \`ASCII\`.
+
+Suggestion 1/1: Replace \`ASCII\` with \`ascii\`.:
+  1 | <meta charset="ascii" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(1): <meta charset=\"UTF-8\"> 1`] = `
+
+  1 | <meta charset="UTF-8">
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(1): <meta charset=\"UTF-8\"> 2`] = `
+
+Message:
+> 1 | <meta charset="UTF-8">
+    |                ^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | <meta charset="utf-8">
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(1): @charset \"UTF-8\"; 1`] = `
+
+  1 | @charset "UTF-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(1): @charset \"UTF-8\"; 2`] = `
+
+Message:
+> 1 | @charset "UTF-8";
+    |          ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | @charset "utf-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(1): \"UTF-8\" 1`] = `
+
+  1 | "UTF-8"
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(1): \"UTF-8\" 2`] = `
+
+Message:
+> 1 | "UTF-8"
+    | ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | "utf8"
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(1): \"UTF-8\"; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | "UTF-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(1): \"UTF-8\"; 2`] = `
+
+Message:
+> 1 | "UTF-8";
+    | ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | "utf-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(10): <form acceptCharset=\"utf8\" /> 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | <form acceptCharset="utf8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(10): <form acceptCharset=\"utf8\" /> 2`] = `
+
+Message:
+> 1 | <form acceptCharset="utf8" />
+    |                     ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | <form acceptCharset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(10): \`Utf8\`; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | \`Utf8\`;
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(10): \`Utf8\`; 2`] = `
+
+Message:
+> 1 | \`Utf8\`;
+    | ^^^^^^ Prefer \`utf-8\` over \`Utf8\`.
+
+Suggestion 1/1: Replace \`Utf8\` with \`utf-8\`.:
+  1 | \`utf-8\`;
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(10): fs.readFile?.(file, \"UTF-8\") 1`] = `
+
+  1 | fs.readFile?.(file, "UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(10): fs.readFile?.(file, \"UTF-8\") 2`] = `
+
+Message:
+> 1 | fs.readFile?.(file, "UTF-8")
+    |                     ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | fs.readFile?.(file, "utf8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(11): <form accept-charset=\"UTF-8\" /> 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | <form accept-charset="UTF-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(11): <form accept-charset=\"UTF-8\" /> 2`] = `
+
+Message:
+> 1 | <form accept-charset="UTF-8" />
+    |                      ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | <form accept-charset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(11): \`ASCII\`; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | \`ASCII\`;
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(11): \`ASCII\`; 2`] = `
+
+Message:
+> 1 | \`ASCII\`;
+    | ^^^^^^^ Prefer \`ascii\` over \`ASCII\`.
+
+Suggestion 1/1: Replace \`ASCII\` with \`ascii\`.:
+  1 | \`ascii\`;
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(11): fs?.readFile(file, \"UTF-8\") 1`] = `
+
+  1 | fs?.readFile(file, "UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(11): fs?.readFile(file, \"UTF-8\") 2`] = `
+
+Message:
+> 1 | fs?.readFile(file, "UTF-8")
+    |                    ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | fs?.readFile(file, "utf8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(12): <form accept-charset=\"UTF-8\" /> 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | <form accept-charset="UTF-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(12): <form accept-charset=\"UTF-8\" /> 2`] = `
+
+Message:
+> 1 | <form accept-charset="UTF-8" />
+    |                      ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | <form accept-charset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(12): fs.readFile(file, \"utf8\",); 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | fs.readFile(file, "utf8",);
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(12): fs.readFile(file, \"utf8\",); 2`] = `
+
+Message:
+> 1 | fs.readFile(file, "utf8",);
+    |                   ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Output:
+  1 | fs.readFile(file, "utf-8",);
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(12): readFile(file, \"UTF-8\") 1`] = `
+
+  1 | readFile(file, "UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(12): readFile(file, \"UTF-8\") 2`] = `
+
+Message:
+> 1 | readFile(file, "UTF-8")
+    |                ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | readFile(file, "utf8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(13): fs.readFile(...file, \"UTF-8\") 1`] = `
+
+  1 | fs.readFile(...file, "UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(13): fs.readFile(...file, \"UTF-8\") 2`] = `
+
+Message:
+> 1 | fs.readFile(...file, "UTF-8")
+    |                      ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | fs.readFile(...file, "utf8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(13): new TextDecoder(\"UTF-8\") 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | new TextDecoder("UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(13): new TextDecoder(\"UTF-8\") 2`] = `
+
+Message:
+> 1 | new TextDecoder("UTF-8")
+    |                 ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | new TextDecoder("utf-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(13): whatever.readFile(file, \"UTF8\",) 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | whatever.readFile(file, "UTF8",)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(13): whatever.readFile(file, \"UTF8\",) 2`] = `
+
+Message:
+> 1 | whatever.readFile(file, "UTF8",)
+    |                         ^^^^^^ Prefer \`utf-8\` over \`UTF8\`.
+
+Output:
+  1 | whatever.readFile(file, "utf-8",)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(14): new TextDecoder(\"UTF-8\") 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | new TextDecoder("UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(14): new TextDecoder(\"UTF-8\") 2`] = `
+
+Message:
+> 1 | new TextDecoder("UTF-8")
+    |                 ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | new TextDecoder("utf-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(14): new fs.readFile(file, \"UTF-8\") 1`] = `
+
+  1 | new fs.readFile(file, "UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(14): new fs.readFile(file, \"UTF-8\") 2`] = `
+
+Message:
+> 1 | new fs.readFile(file, "UTF-8")
+    |                       ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | new fs.readFile(file, "utf8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(15): fs.readFile(file, {encoding: \"UTF-8\"}) 1`] = `
+
+  1 | fs.readFile(file, {encoding: "UTF-8"})
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(15): fs.readFile(file, {encoding: \"UTF-8\"}) 2`] = `
+
+Message:
+> 1 | fs.readFile(file, {encoding: "UTF-8"})
+    |                              ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | fs.readFile(file, {encoding: "utf8"})
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(15): new TextDecoder(\"UTF-8\", options) 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | new TextDecoder("UTF-8", options)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(15): new TextDecoder(\"UTF-8\", options) 2`] = `
+
+Message:
+> 1 | new TextDecoder("UTF-8", options)
+    |                 ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | new TextDecoder("utf-8", options)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(16): fs.readFile(\"UTF-8\") 1`] = `
+
+  1 | fs.readFile("UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(16): fs.readFile(\"UTF-8\") 2`] = `
+
+Message:
+> 1 | fs.readFile("UTF-8")
+    |             ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | fs.readFile("utf8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(16): new TextDecoder(\"UTF-8\", options) 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | new TextDecoder("UTF-8", options)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(16): new TextDecoder(\"UTF-8\", options) 2`] = `
+
+Message:
+> 1 | new TextDecoder("UTF-8", options)
+    |                 ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | new TextDecoder("utf-8", options)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(17): <not-meta charset=\"utf8\" /> 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | <not-meta charset="utf8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(17): <not-meta charset=\"utf8\" /> 2`] = `
+
+Message:
+> 1 | <not-meta charset="utf8" />
+    |                   ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | <not-meta charset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(17): fs.readFile(file, \"UTF-8\", () => {}) 1`] = `
+
+  1 | fs.readFile(file, "UTF-8", () => {})
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(17): fs.readFile(file, \"UTF-8\", () => {}) 2`] = `
+
+Message:
+> 1 | fs.readFile(file, "UTF-8", () => {})
+    |                   ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Output:
+  1 | fs.readFile(file, "utf8", () => {})
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(18): <not-meta notCharset=\"utf8\" /> 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | <not-meta notCharset="utf8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(18): <not-meta notCharset=\"utf8\" /> 2`] = `
+
+Message:
+> 1 | <not-meta notCharset="utf8" />
+    |                      ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | <not-meta notCharset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(18): fs.readFileSync(file, \"UTF-8\") 1`] = `
+
+  1 | fs.readFileSync(file, "UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(18): fs.readFileSync(file, \"UTF-8\") 2`] = `
+
+Message:
+> 1 | fs.readFileSync(file, "UTF-8")
+    |                       ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Output:
+  1 | fs.readFileSync(file, "utf8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(19): <not-meta charset=\"utf-8\" /> 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | <not-meta charset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(19): <not-meta charset=\"utf-8\" /> 2`] = `
+
+Message:
+> 1 | <not-meta charset="utf-8" />
+    |                   ^^^^^^^ Prefer \`utf8\` over \`utf-8\`.
+
+Suggestion 1/1: Replace \`utf-8\` with \`utf8\`.:
+  1 | <not-meta charset="utf8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(19): fs[readFile](file, \"UTF-8\") 1`] = `
+
+  1 | fs[readFile](file, "UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(19): fs[readFile](file, \"UTF-8\") 2`] = `
+
+Message:
+> 1 | fs[readFile](file, "UTF-8")
+    |                    ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | fs[readFile](file, "utf8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): <meta charset=\"ASCII\" /> 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | <meta charset="ASCII" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): <meta charset=\"ASCII\" /> 2`] = `
+
+Message:
+> 1 | <meta charset="ASCII" />
+    |               ^^^^^^^ Prefer \`ascii\` over \`ASCII\`.
+
+Suggestion 1/1: Replace \`ASCII\` with \`ascii\`.:
+  1 | <meta charset="ascii" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): <meta charset=\"utf8\"> 1`] = `
+
+  1 | <meta charset="utf8">
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): <meta charset=\"utf8\"> 2`] = `
+
+Message:
+> 1 | <meta charset="utf8">
+    |                ^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | <meta charset="utf-8">
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): @charset \"utf8\"; 1`] = `
+
+  1 | @charset "utf8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): @charset \"utf8\"; 2`] = `
+
+Message:
+> 1 | @charset "utf8";
+    |          ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | @charset "utf-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): \"UTF8\"; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | "UTF8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): \"UTF8\"; 2`] = `
+
+Message:
+> 1 | "UTF8";
+    | ^^^^^^ Prefer \`utf-8\` over \`UTF8\`.
+
+Suggestion 1/1: Replace \`UTF8\` with \`utf-8\`.:
+  1 | "utf-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): \"utf-8\" 1`] = `
+
+  1 | "utf-8"
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(2): \"utf-8\" 2`] = `
+
+Message:
+> 1 | "utf-8"
+    | ^^^^^^^ Prefer \`utf8\` over \`utf-8\`.
+
+Suggestion 1/1: Replace \`utf-8\` with \`utf8\`.:
+  1 | "utf8"
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(20): <not-meta notCharset=\"utf-8\" /> 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | <not-meta notCharset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(20): <not-meta notCharset=\"utf-8\" /> 2`] = `
+
+Message:
+> 1 | <not-meta notCharset="utf-8" />
+    |                      ^^^^^^^ Prefer \`utf8\` over \`utf-8\`.
+
+Suggestion 1/1: Replace \`utf-8\` with \`utf8\`.:
+  1 | <not-meta notCharset="utf8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(20): fs[\"readFile\"](file, \"UTF-8\") 1`] = `
+
+  1 | fs["readFile"](file, "UTF-8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(20): fs[\"readFile\"](file, \"UTF-8\") 2`] = `
+
+Message:
+> 1 | fs["readFile"](file, "UTF-8")
+    |                      ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | fs["readFile"](file, "utf8")
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(21): await fs.readFile(file, \"UTF-8\",) 1`] = `
+
+  1 | await fs.readFile(file, "UTF-8",)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(21): await fs.readFile(file, \"UTF-8\",) 2`] = `
+
+Message:
+> 1 | await fs.readFile(file, "UTF-8",)
+    |                         ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Output:
+  1 | await fs.readFile(file, "utf8",)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(22): fs.promises.readFile(file, \"UTF-8\",) 1`] = `
+
+  1 | fs.promises.readFile(file, "UTF-8",)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(22): fs.promises.readFile(file, \"UTF-8\",) 2`] = `
+
+Message:
+> 1 | fs.promises.readFile(file, "UTF-8",)
+    |                            ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Output:
+  1 | fs.promises.readFile(file, "utf8",)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(23): whatever.readFile(file, \"UTF-8\",) 1`] = `
+
+  1 | whatever.readFile(file, "UTF-8",)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(23): whatever.readFile(file, \"UTF-8\",) 2`] = `
+
+Message:
+> 1 | whatever.readFile(file, "UTF-8",)
+    |                         ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Output:
+  1 | whatever.readFile(file, "utf8",)
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): 'utf-8' 1`] = `
+
+  1 | 'utf-8'
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): 'utf-8' 2`] = `
+
+Message:
+> 1 | 'utf-8'
+    | ^^^^^^^ Prefer \`utf8\` over \`utf-8\`.
+
+Suggestion 1/1: Replace \`utf-8\` with \`utf8\`.:
+  1 | 'utf8'
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): <META CHARSET=\"ASCII\" /> 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | <META CHARSET="ASCII" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): <META CHARSET=\"ASCII\" /> 2`] = `
+
+Message:
+> 1 | <META CHARSET="ASCII" />
+    |               ^^^^^^^ Prefer \`ascii\` over \`ASCII\`.
+
+Suggestion 1/1: Replace \`ASCII\` with \`ascii\`.:
+  1 | <META CHARSET="ascii" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): <META CHARSET=\"UTF-8\"> 1`] = `
+
+  1 | <META CHARSET="UTF-8">
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): <META CHARSET=\"UTF-8\"> 2`] = `
+
+Message:
+> 1 | <META CHARSET="UTF-8">
+    |                ^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | <META CHARSET="utf-8">
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): @charset \"Utf8\"; 1`] = `
+
+  1 | @charset "Utf8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): @charset \"Utf8\"; 2`] = `
+
+Message:
+> 1 | @charset "Utf8";
+    |          ^^^^^^ Prefer \`utf-8\` over \`Utf8\`.
+
+Suggestion 1/1: Replace \`Utf8\` with \`utf-8\`.:
+  1 | @charset "utf-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): \"utf8\"; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | "utf8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(3): \"utf8\"; 2`] = `
+
+Message:
+> 1 | "utf8";
+    | ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | "utf-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): 'utf8'; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | 'utf8';
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): 'utf8'; 2`] = `
+
+Message:
+> 1 | 'utf8';
+    | ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | 'utf-8';
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): <META CHARSET=\"ASCII\" /> 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | <META CHARSET="ASCII" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): <META CHARSET=\"ASCII\" /> 2`] = `
+
+Message:
+> 1 | <META CHARSET="ASCII" />
+    |               ^^^^^^^ Prefer \`ascii\` over \`ASCII\`.
+
+Suggestion 1/1: Replace \`ASCII\` with \`ascii\`.:
+  1 | <META CHARSET="ascii" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): <form accept-charset=\"UTF-8\"></form> 1`] = `
+
+  1 | <form accept-charset="UTF-8"></form>
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): <form accept-charset=\"UTF-8\"></form> 2`] = `
+
+Message:
+> 1 | <form accept-charset="UTF-8"></form>
+    |                       ^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | <form accept-charset="utf-8"></form>
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): @CHARSET \"utf8\"; 1`] = `
+
+  1 | @CHARSET "utf8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): @CHARSET \"utf8\"; 2`] = `
+
+Message:
+> 1 | @CHARSET "utf8";
+    |          ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | @CHARSET "utf-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): \"Utf8\" 1`] = `
+
+  1 | "Utf8"
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(4): \"Utf8\" 2`] = `
+
+Message:
+> 1 | "Utf8"
+    | ^^^^^^ Prefer \`utf8\` over \`Utf8\`.
+
+Suggestion 1/1: Replace \`Utf8\` with \`utf8\`.:
+  1 | "utf8"
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): <form accept-charset=\"utf8\"></form> 1`] = `
+
+  1 | <form accept-charset="utf8"></form>
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): <form accept-charset=\"utf8\"></form> 2`] = `
+
+Message:
+> 1 | <form accept-charset="utf8"></form>
+    |                       ^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | <form accept-charset="utf-8"></form>
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): <meta charset=\"utf8\" /> 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | <meta charset="utf8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): <meta charset=\"utf8\" /> 2`] = `
+
+Message:
+> 1 | <meta charset="utf8" />
+    |               ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | <meta charset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): @charset \"ASCII\"; 1`] = `
+
+  1 | @charset "ASCII";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): @charset \"ASCII\"; 2`] = `
+
+Message:
+> 1 | @charset "ASCII";
+    |          ^^^^^^^ Prefer \`ascii\` over \`ASCII\`.
+
+Suggestion 1/1: Replace \`ASCII\` with \`ascii\`.:
+  1 | @charset "ascii";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): \"ASCII\" 1`] = `
+
+  1 | "ASCII"
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): \"ASCII\" 2`] = `
+
+Message:
+> 1 | "ASCII"
+    | ^^^^^^^ Prefer \`ascii\` over \`ASCII\`.
+
+Suggestion 1/1: Replace \`ASCII\` with \`ascii\`.:
+  1 | "ascii"
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): \"Utf8\"; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | "Utf8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(5): \"Utf8\"; 2`] = `
+
+Message:
+> 1 | "Utf8";
+    | ^^^^^^ Prefer \`utf-8\` over \`Utf8\`.
+
+Suggestion 1/1: Replace \`Utf8\` with \`utf-8\`.:
+  1 | "utf-8";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(6): <meta charset=\"utf8\" /> 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | <meta charset="utf8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(6): <meta charset=\"utf8\" /> 2`] = `
+
+Message:
+> 1 | <meta charset="utf8" />
+    |               ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | <meta charset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(6): <meta http-equiv=\"content-type\" charset=\"utf8\"> 1`] = `
+
+  1 | <meta http-equiv="content-type" charset="utf8">
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(6): <meta http-equiv=\"content-type\" charset=\"utf8\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="content-type" charset="utf8">
+    |                                          ^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | <meta http-equiv="content-type" charset="utf-8">
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(6): \"ASCII\"; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | "ASCII";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(6): \"ASCII\"; 2`] = `
+
+Message:
+> 1 | "ASCII";
+    | ^^^^^^^ Prefer \`ascii\` over \`ASCII\`.
+
+Suggestion 1/1: Replace \`ASCII\` with \`ascii\`.:
+  1 | "ascii";
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(6): \`UTF-8\` 1`] = `
+
+  1 | \`UTF-8\`
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(6): \`UTF-8\` 2`] = `
+
+Message:
+> 1 | \`UTF-8\`
+    | ^^^^^^^ Prefer \`utf8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf8\`.:
+  1 | \`utf8\`
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(7): <meta charset=\"UTF-8\" /> 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | <meta charset="UTF-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(7): <meta charset=\"UTF-8\" /> 2`] = `
+
+Message:
+> 1 | <meta charset="UTF-8" />
+    |               ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | <meta charset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(7): \`UTF-8\`; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | \`UTF-8\`;
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(7): \`UTF-8\`; 2`] = `
+
+Message:
+> 1 | \`UTF-8\`;
+    | ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | \`utf-8\`;
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(7): \`utf-8\` 1`] = `
+
+  1 | \`utf-8\`
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(7): \`utf-8\` 2`] = `
+
+Message:
+> 1 | \`utf-8\`
+    | ^^^^^^^ Prefer \`utf8\` over \`utf-8\`.
+
+Suggestion 1/1: Replace \`utf-8\` with \`utf8\`.:
+  1 | \`utf8\`
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(8): <meta charset=\"UTF-8\" /> 1`] = `
+
+Options:
+- withDash: false
+
+Code:
+  1 | <meta charset="UTF-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(8): <meta charset=\"UTF-8\" /> 2`] = `
+
+Message:
+> 1 | <meta charset="UTF-8" />
+    |               ^^^^^^^ Prefer \`utf-8\` over \`UTF-8\`.
+
+Suggestion 1/1: Replace \`UTF-8\` with \`utf-8\`.:
+  1 | <meta charset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(8): \`UTF8\`; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | \`UTF8\`;
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(8): \`UTF8\`; 2`] = `
+
+Message:
+> 1 | \`UTF8\`;
+    | ^^^^^^ Prefer \`utf-8\` over \`UTF8\`.
+
+Suggestion 1/1: Replace \`UTF8\` with \`utf-8\`.:
+  1 | \`utf-8\`;
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(8): \`Utf8\` 1`] = `
+
+  1 | \`Utf8\`
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(8): \`Utf8\` 2`] = `
+
+Message:
+> 1 | \`Utf8\`
+    | ^^^^^^ Prefer \`utf8\` over \`Utf8\`.
+
+Suggestion 1/1: Replace \`Utf8\` with \`utf8\`.:
+  1 | \`utf8\`
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(9): <form acceptCharset=\"utf8\" /> 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | <form acceptCharset="utf8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(9): <form acceptCharset=\"utf8\" /> 2`] = `
+
+Message:
+> 1 | <form acceptCharset="utf8" />
+    |                     ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | <form acceptCharset="utf-8" />
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(9): \`ASCII\` 1`] = `
+
+  1 | \`ASCII\`
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(9): \`ASCII\` 2`] = `
+
+Message:
+> 1 | \`ASCII\`
+    | ^^^^^^^ Prefer \`ascii\` over \`ASCII\`.
+
+Suggestion 1/1: Replace \`ASCII\` with \`ascii\`.:
+  1 | \`ascii\`
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(9): \`utf8\`; 1`] = `
+
+Options:
+- withDash: true
+
+Code:
+  1 | \`utf8\`;
+
+`;
+
+exports[`text-encoding-identifier-case > invalid(9): \`utf8\`; 2`] = `
+
+Message:
+> 1 | \`utf8\`;
+    | ^^^^^^ Prefer \`utf-8\` over \`utf8\`.
+
+Suggestion 1/1: Replace \`utf8\` with \`utf-8\`.:
+  1 | \`utf-8\`;
+
+`;

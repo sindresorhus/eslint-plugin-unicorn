@@ -1,0 +1,594 @@
+exports[`prefer-url-search-parameters > invalid(1): query.split(\"&\").map(part => part.split(\"=\")); 1`] = `
+
+  1 | query.split("&").map(part => part.split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(1): query.split(\"&\").map(part => part.split(\"=\")); 2`] = `
+
+Message:
+> 1 | query.split("&").map(part => part.split("="));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(10): type Object = unknown; Object.fromEntries(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | type Object = unknown; Object.fromEntries(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(10): type Object = unknown; Object.fromEntries(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | type Object = unknown; Object.fromEntries(query.split("&").map(part => part.split("=")));
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`Object.fromEntries(new URLSearchParams(query))\`.:
+  1 | type Object = unknown; Object.fromEntries(new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(11): type Map = unknown; new Map(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | type Map = unknown; new Map(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(11): type Map = unknown; new Map(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | type Map = unknown; new Map(query.split("&").map(part => part.split("=")));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new Map(new URLSearchParams(query))\`.:
+  1 | type Map = unknown; new Map(new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(12): import type {Map} from \"x\"; new Map(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | import type {Map} from "x"; new Map(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(12): import type {Map} from \"x\"; new Map(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | import type {Map} from "x"; new Map(query.split("&").map(part => part.split("=")));
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new Map(new URLSearchParams(query))\`.:
+  1 | import type {Map} from "x"; new Map(new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(13): Object.fromEntries<string>(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | Object.fromEntries<string>(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(13): Object.fromEntries<string>(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | Object.fromEntries<string>(query.split("&").map(part => part.split("=")));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`Object.fromEntries<string>(new URLSearchParams(query))\`.:
+  1 | Object.fromEntries<string>(new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(14): new Map<string, string>(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | new Map<string, string>(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(14): new Map<string, string>(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | new Map<string, string>(query.split("&").map(part => part.split("=")));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new Map<string, string>(new URLSearchParams(query))\`.:
+  1 | new Map<string, string>(new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(15): new URLSearchParams<string>(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | new URLSearchParams<string>(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(15): new URLSearchParams<string>(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | new URLSearchParams<string>(query.split("&").map(part => part.split("=")));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams<string>(query)\`.:
+  1 | new URLSearchParams<string>(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(16): Object.fromEntries((query.split(\"&\").map(part => part.split(\"=\")) as Iterable<[string, string]>)); 1`] = `
+
+  1 | Object.fromEntries((query.split("&").map(part => part.split("=")) as Iterable<[string, string]>));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(16): Object.fromEntries((query.split(\"&\").map(part => part.split(\"=\")) as Iterable<[string, string]>)); 2`] = `
+
+Message:
+> 1 | Object.fromEntries((query.split("&").map(part => part.split("=")) as Iterable<[string, string]>));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`Object.fromEntries(new URLSearchParams(query))\`.:
+  1 | Object.fromEntries(new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(17): new Map((query.split(\"&\").map(part => part.split(\"=\")) as Iterable<[string, string]>)); 1`] = `
+
+  1 | new Map((query.split("&").map(part => part.split("=")) as Iterable<[string, string]>));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(17): new Map((query.split(\"&\").map(part => part.split(\"=\")) as Iterable<[string, string]>)); 2`] = `
+
+Message:
+> 1 | new Map((query.split("&").map(part => part.split("=")) as Iterable<[string, string]>));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new Map(new URLSearchParams(query))\`.:
+  1 | new Map(new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(18): new URLSearchParams((query.split(\"&\").map(part => part.split(\"=\")) as any)); 1`] = `
+
+  1 | new URLSearchParams((query.split("&").map(part => part.split("=")) as any));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(18): new URLSearchParams((query.split(\"&\").map(part => part.split(\"=\")) as any)); 2`] = `
+
+Message:
+> 1 | new URLSearchParams((query.split("&").map(part => part.split("=")) as any));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(19): (query || \"\").split(\"&\").map(part => part.split(\"=\")); 1`] = `
+
+  1 | (query || "").split("&").map(part => part.split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(19): (query || \"\").split(\"&\").map(part => part.split(\"=\")); 2`] = `
+
+Message:
+> 1 | (query || "").split("&").map(part => part.split("="));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query || "")\`.:
+  1 | new URLSearchParams(query || "");
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(2): query.split(\"&\").map(part => part.split(\"=\", 2)); 1`] = `
+
+  1 | query.split("&").map(part => part.split("=", 2));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(2): query.split(\"&\").map(part => part.split(\"=\", 2)); 2`] = `
+
+Message:
+> 1 | query.split("&").map(part => part.split("=", 2));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(20): const query: string = \"\"; query.split(\"&\").map((part: string) => part.split(\"=\")); 1`] = `
+
+  1 | const query: string = ""; query.split("&").map((part: string) => part.split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(20): const query: string = \"\"; query.split(\"&\").map((part: string) => part.split(\"=\")); 2`] = `
+
+Message:
+> 1 | const query: string = ""; query.split("&").map((part: string) => part.split("="));
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | const query: string = ""; new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(21): (query.split(\"&\") as string[]).map(part => part.split(\"=\")); 1`] = `
+
+  1 | (query.split("&") as string[]).map(part => part.split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(21): (query.split(\"&\") as string[]).map(part => part.split(\"=\")); 2`] = `
+
+Message:
+> 1 | (query.split("&") as string[]).map(part => part.split("="));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(22): (query as string).split(\"&\").map(part => (part as string).split(\"=\")); 1`] = `
+
+  1 | (query as string).split("&").map(part => (part as string).split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(22): (query as string).split(\"&\").map(part => (part as string).split(\"=\")); 2`] = `
+
+Message:
+> 1 | (query as string).split("&").map(part => (part as string).split("="));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query as string)\`.:
+  1 | new URLSearchParams(query as string);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(23): query.split(\"&\").map(part => part.split(\"=\") as [string, string]); 1`] = `
+
+  1 | query.split("&").map(part => part.split("=") as [string, string]);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(23): query.split(\"&\").map(part => part.split(\"=\") as [string, string]); 2`] = `
+
+Message:
+> 1 | query.split("&").map(part => part.split("=") as [string, string]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(24): query.split(\"&\").map(part => part.split(\"=\")!); 1`] = `
+
+  1 | query.split("&").map(part => part.split("=")!);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(24): query.split(\"&\").map(part => part.split(\"=\")!); 2`] = `
+
+Message:
+> 1 | query.split("&").map(part => part.split("=")!);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(25): query.split(\"&\").map(part => part.split(\"=\") satisfies [string, string]); 1`] = `
+
+  1 | query.split("&").map(part => part.split("=") satisfies [string, string]);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(25): query.split(\"&\").map(part => part.split(\"=\") satisfies [string, string]); 2`] = `
+
+Message:
+> 1 | query.split("&").map(part => part.split("=") satisfies [string, string]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(26): import {URLSearchParams} from \"node:url\"; query.split(\"&\").map(part => part.split(\"=\")); 1`] = `
+
+  1 | import {URLSearchParams} from "node:url"; query.split("&").map(part => part.split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(26): import {URLSearchParams} from \"node:url\"; query.split(\"&\").map(part => part.split(\"=\")); 2`] = `
+
+Message:
+> 1 | import {URLSearchParams} from "node:url"; query.split("&").map(part => part.split("="));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | import {URLSearchParams} from "node:url"; new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(27): import {URLSearchParams} from \"url\"; new URLSearchParams(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | import {URLSearchParams} from "url"; new URLSearchParams(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(27): import {URLSearchParams} from \"url\"; new URLSearchParams(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | import {URLSearchParams} from "url"; new URLSearchParams(query.split("&").map(part => part.split("=")));
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | import {URLSearchParams} from "url"; new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(28): import type {URLSearchParams} from \"node:url\"; query.split(\"&\").map(part => part.split(\"=\")); 1`] = `
+
+  1 | import type {URLSearchParams} from "node:url"; query.split("&").map(part => part.split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(28): import type {URLSearchParams} from \"node:url\"; query.split(\"&\").map(part => part.split(\"=\")); 2`] = `
+
+Message:
+> 1 | import type {URLSearchParams} from "node:url"; query.split("&").map(part => part.split("="));
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | import type {URLSearchParams} from "node:url"; new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(29): type URLSearchParams = unknown; query.split(\"&\").map(part => part.split(\"=\")); 1`] = `
+
+  1 | type URLSearchParams = unknown; query.split("&").map(part => part.split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(29): type URLSearchParams = unknown; query.split(\"&\").map(part => part.split(\"=\")); 2`] = `
+
+Message:
+> 1 | type URLSearchParams = unknown; query.split("&").map(part => part.split("="));
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | type URLSearchParams = unknown; new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(3): const limit = 2; query.split(\"&\").map(part => part.split(\"=\", limit)); 1`] = `
+
+  1 | const limit = 2; query.split("&").map(part => part.split("=", limit));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(3): const limit = 2; query.split(\"&\").map(part => part.split(\"=\", limit)); 2`] = `
+
+Message:
+> 1 | const limit = 2; query.split("&").map(part => part.split("=", limit));
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | const limit = 2; new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(30): const pairs = query.split(\"&\").map(part => part.split(\"=\")); 1`] = `
+
+  1 | const pairs = query.split("&").map(part => part.split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(30): const pairs = query.split(\"&\").map(part => part.split(\"=\")); 2`] = `
+
+Message:
+> 1 | const pairs = query.split("&").map(part => part.split("="));
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | const pairs = new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(31): (foo, query).split(\"&\").map(part => part.split(\"=\")); 1`] = `
+
+  1 | (foo, query).split("&").map(part => part.split("="));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(31): (foo, query).split(\"&\").map(part => part.split(\"=\")); 2`] = `
+
+Message:
+> 1 | (foo, query).split("&").map(part => part.split("="));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams((foo, query))\`.:
+  1 | new URLSearchParams((foo, query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(32): Object[fromEntries](query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | Object[fromEntries](query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(32): Object[fromEntries](query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | Object[fromEntries](query.split("&").map(part => part.split("=")));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | Object[fromEntries](new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(33): Object.fromEntries(/* keep */ query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | Object.fromEntries(/* keep */ query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(33): Object.fromEntries(/* keep */ query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | Object.fromEntries(/* keep */ query.split("&").map(part => part.split("=")));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`Object.fromEntries(/* keep */ new URLSearchParams(query))\`.:
+  1 | Object.fromEntries(/* keep */ new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(34): new Map(/* keep */ query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | new Map(/* keep */ query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(34): new Map(/* keep */ query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | new Map(/* keep */ query.split("&").map(part => part.split("=")));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new Map(/* keep */ new URLSearchParams(query))\`.:
+  1 | new Map(/* keep */ new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(35): new URLSearchParams(/* keep */ query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | new URLSearchParams(/* keep */ query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(35): new URLSearchParams(/* keep */ query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | new URLSearchParams(/* keep */ query.split("&").map(part => part.split("=")));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(/* keep */ query)\`.:
+  1 | new URLSearchParams(/* keep */ query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(4): query.split(\`&\`).map(part => part.split(\`=\`)); 1`] = `
+
+  1 | query.split(\`&\`).map(part => part.split(\`=\`));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(4): query.split(\`&\`).map(part => part.split(\`=\`)); 2`] = `
+
+Message:
+> 1 | query.split(\`&\`).map(part => part.split(\`=\`));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(5): query.split(\"&\").map(function (part) { return part.split(\"=\"); }); 1`] = `
+
+  1 | query.split("&").map(function (part) { return part.split("="); });
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(5): query.split(\"&\").map(function (part) { return part.split(\"=\"); }); 2`] = `
+
+Message:
+> 1 | query.split("&").map(function (part) { return part.split("="); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(6): query.split(\"&\").map(part => { return part.split(\"=\"); }); 1`] = `
+
+  1 | query.split("&").map(part => { return part.split("="); });
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(6): query.split(\"&\").map(part => { return part.split(\"=\"); }); 2`] = `
+
+Message:
+> 1 | query.split("&").map(part => { return part.split("="); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(7): Object.fromEntries(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | Object.fromEntries(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(7): Object.fromEntries(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | Object.fromEntries(query.split("&").map(part => part.split("=")));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`Object.fromEntries(new URLSearchParams(query))\`.:
+  1 | Object.fromEntries(new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(8): new Map(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | new Map(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(8): new Map(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | new Map(query.split("&").map(part => part.split("=")));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new Map(new URLSearchParams(query))\`.:
+  1 | new Map(new URLSearchParams(query));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(9): new URLSearchParams(query.split(\"&\").map(part => part.split(\"=\"))); 1`] = `
+
+  1 | new URLSearchParams(query.split("&").map(part => part.split("=")));
+
+`;
+
+exports[`prefer-url-search-parameters > invalid(9): new URLSearchParams(query.split(\"&\").map(part => part.split(\"=\"))); 2`] = `
+
+Message:
+> 1 | new URLSearchParams(query.split("&").map(part => part.split("=")));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URLSearchParams\` over manually splitting query strings.
+
+Suggestion 1/1: Use \`new URLSearchParams(query)\`.:
+  1 | new URLSearchParams(query);
+
+`;

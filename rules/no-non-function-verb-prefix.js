@@ -140,6 +140,8 @@ function getTypeCallability(type, checker, program, visitedTypes = new Set()) {
 		return unknown;
 	}
 
+	// Defensive: TypeScript resolves circular constraints to no constraint, so a type does not reach itself. This guards against infinite recursion.
+	/* node:coverage ignore next 3 */
 	if (visitedTypes.has(type)) {
 		return unknown;
 	}
@@ -198,6 +200,8 @@ function getProblem(identifier, context, options, typeNode = identifier) {
 	let type;
 	try {
 		type = parserServices.getTypeAtLocation(typeNode);
+		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return;
 	}

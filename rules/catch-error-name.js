@@ -65,7 +65,7 @@ const create = context => {
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
 		// But can't reproduce, just ignore this case
-		/* c8 ignore next 3 */
+		/* node:coverage ignore next 3 */
 		if (!variable) {
 			return;
 		}

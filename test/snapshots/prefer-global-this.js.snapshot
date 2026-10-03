@@ -1,0 +1,1549 @@
+exports[`prefer-global-this > invalid(1): global 1`] = `
+
+  1 | global
+
+`;
+
+exports[`prefer-global-this > invalid(1): global 2`] = `
+
+Message:
+> 1 | global
+    | ^^^^^^ Prefer \`globalThis\` over \`global\`.
+
+Output:
+  1 | globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(1): global.global_did_not_declare_in_language_options 1`] = `
+
+  1 | global.global_did_not_declare_in_language_options
+
+`;
+
+exports[`prefer-global-this > invalid(1): global.global_did_not_declare_in_language_options 2`] = `
+
+Message:
+> 1 | global.global_did_not_declare_in_language_options
+    | ^^^^^^ Prefer \`globalThis\` over \`global\`.
+
+Output:
+  1 | globalThis.global_did_not_declare_in_language_options
+
+`;
+
+exports[`prefer-global-this > invalid(10): window.foo = 123 1`] = `
+
+  1 | window.foo = 123
+
+`;
+
+exports[`prefer-global-this > invalid(10): window.foo = 123 2`] = `
+
+Message:
+> 1 | window.foo = 123
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis.foo = 123
+
+`;
+
+exports[`prefer-global-this > invalid(11): window = 123 1`] = `
+
+  1 | window = 123
+
+`;
+
+exports[`prefer-global-this > invalid(11): window = 123 2`] = `
+
+Message:
+> 1 | window = 123
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+`;
+
+exports[`prefer-global-this > invalid(12): obj.a = window 1`] = `
+
+  1 | obj.a = window
+
+`;
+
+exports[`prefer-global-this > invalid(12): obj.a = window 2`] = `
+
+Message:
+> 1 | obj.a = window
+    |         ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | obj.a = globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(13): function* gen() {\n  yield window\n} 1`] = `
+
+  1 | function* gen() {
+  2 |   yield window
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(13): function* gen() {\n  yield window\n} 2`] = `
+
+Message:
+  1 | function* gen() {
+> 2 |   yield window
+    |         ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  3 | }
+
+Output:
+  1 | function* gen() {
+  2 |   yield globalThis
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(14): async function gen() {\n  await window\n} 1`] = `
+
+  1 | async function gen() {
+  2 |   await window
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(14): async function gen() {\n  await window\n} 2`] = `
+
+Message:
+  1 | async function gen() {
+> 2 |   await window
+    |         ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  3 | }
+
+Output:
+  1 | async function gen() {
+  2 |   await globalThis
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(15): window ? foo : bar 1`] = `
+
+  1 | window ? foo : bar
+
+`;
+
+exports[`prefer-global-this > invalid(15): window ? foo : bar 2`] = `
+
+Message:
+> 1 | window ? foo : bar
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis ? foo : bar
+
+`;
+
+exports[`prefer-global-this > invalid(16): foo ? window : bar 1`] = `
+
+  1 | foo ? window : bar
+
+`;
+
+exports[`prefer-global-this > invalid(16): foo ? window : bar 2`] = `
+
+Message:
+> 1 | foo ? window : bar
+    |       ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | foo ? globalThis : bar
+
+`;
+
+exports[`prefer-global-this > invalid(17): foo ? bar : window 1`] = `
+
+  1 | foo ? bar : window
+
+`;
+
+exports[`prefer-global-this > invalid(17): foo ? bar : window 2`] = `
+
+Message:
+> 1 | foo ? bar : window
+    |             ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | foo ? bar : globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(18): function foo() {\n  return window\n} 1`] = `
+
+  1 | function foo() {
+  2 |   return window
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(18): function foo() {\n  return window\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 |   return window
+    |          ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  3 | }
+
+Output:
+  1 | function foo() {
+  2 |   return globalThis
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(19): new window() 1`] = `
+
+  1 | new window()
+
+`;
+
+exports[`prefer-global-this > invalid(19): new window() 2`] = `
+
+Message:
+> 1 | new window()
+    |     ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | new globalThis()
+
+`;
+
+exports[`prefer-global-this > invalid(2): self 1`] = `
+
+  1 | self
+
+`;
+
+exports[`prefer-global-this > invalid(2): self 2`] = `
+
+Message:
+> 1 | self
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(2): window.window_did_not_declare_in_language_options 1`] = `
+
+  1 | window.window_did_not_declare_in_language_options
+
+`;
+
+exports[`prefer-global-this > invalid(2): window.window_did_not_declare_in_language_options 2`] = `
+
+Message:
+> 1 | window.window_did_not_declare_in_language_options
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis.window_did_not_declare_in_language_options
+
+`;
+
+exports[`prefer-global-this > invalid(20): const obj = {\n\tfoo: window.foo,\n\tbar: window.bar,\n\twindow: window\n} 1`] = `
+
+  1 | const obj = {
+  2 | 	foo: window.foo,
+  3 | 	bar: window.bar,
+  4 | 	window: window
+  5 | }
+
+`;
+
+exports[`prefer-global-this > invalid(20): const obj = {\n\tfoo: window.foo,\n\tbar: window.bar,\n\twindow: window\n} 2`] = `
+
+Message:
+  1 | const obj = {
+> 2 | 	foo: window.foo,
+    | 	     ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  3 | 	bar: window.bar,
+  4 | 	window: window
+  5 | }
+
+Output:
+  1 | const obj = {
+  2 | 	foo: globalThis.foo,
+  3 | 	bar: window.bar,
+  4 | 	window: window
+  5 | }
+
+`;
+
+exports[`prefer-global-this > invalid(20): const obj = {\n\tfoo: window.foo,\n\tbar: window.bar,\n\twindow: window\n} 3`] = `
+
+Message:
+  1 | const obj = {
+  2 | 	foo: window.foo,
+> 3 | 	bar: window.bar,
+    | 	     ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  4 | 	window: window
+  5 | }
+
+Output:
+  1 | const obj = {
+  2 | 	foo: window.foo,
+  3 | 	bar: globalThis.bar,
+  4 | 	window: window
+  5 | }
+
+`;
+
+exports[`prefer-global-this > invalid(20): const obj = {\n\tfoo: window.foo,\n\tbar: window.bar,\n\twindow: window\n} 4`] = `
+
+Message:
+  1 | const obj = {
+  2 | 	foo: window.foo,
+  3 | 	bar: window.bar,
+> 4 | 	window: window
+    | 	        ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  5 | }
+
+Output:
+  1 | const obj = {
+  2 | 	foo: window.foo,
+  3 | 	bar: window.bar,
+  4 | 	window: globalThis
+  5 | }
+
+`;
+
+exports[`prefer-global-this > invalid(21): function sequenceTest() {\n\tlet x, y;\n\tx = (y = 10, y + 5, window);\n\tconsole.log(x, y);\n} 1`] = `
+
+  1 | function sequenceTest() {
+  2 | 	let x, y;
+  3 | 	x = (y = 10, y + 5, window);
+  4 | 	console.log(x, y);
+  5 | }
+
+`;
+
+exports[`prefer-global-this > invalid(21): function sequenceTest() {\n\tlet x, y;\n\tx = (y = 10, y + 5, window);\n\tconsole.log(x, y);\n} 2`] = `
+
+Message:
+  1 | function sequenceTest() {
+  2 | 	let x, y;
+> 3 | 	x = (y = 10, y + 5, window);
+    | 	                    ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  4 | 	console.log(x, y);
+  5 | }
+
+Output:
+  1 | function sequenceTest() {
+  2 | 	let x, y;
+  3 | 	x = (y = 10, y + 5, globalThis);
+  4 | 	console.log(x, y);
+  5 | }
+
+`;
+
+exports[`prefer-global-this > invalid(22): window\`Hello \${42} World\` 1`] = `
+
+  1 | window\`Hello \${42} World\`
+
+`;
+
+exports[`prefer-global-this > invalid(22): window\`Hello \${42} World\` 2`] = `
+
+Message:
+> 1 | window\`Hello \${42} World\`
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis\`Hello \${42} World\`
+
+`;
+
+exports[`prefer-global-this > invalid(23): tag\`Hello \${window.foo} World\` 1`] = `
+
+  1 | tag\`Hello \${window.foo} World\`
+
+`;
+
+exports[`prefer-global-this > invalid(23): tag\`Hello \${window.foo} World\` 2`] = `
+
+Message:
+> 1 | tag\`Hello \${window.foo} World\`
+    |             ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | tag\`Hello \${globalThis.foo} World\`
+
+`;
+
+exports[`prefer-global-this > invalid(24): var str = \`hello \${window.foo} world!\` 1`] = `
+
+  1 | var str = \`hello \${window.foo} world!\`
+
+`;
+
+exports[`prefer-global-this > invalid(24): var str = \`hello \${window.foo} world!\` 2`] = `
+
+Message:
+> 1 | var str = \`hello \${window.foo} world!\`
+    |                    ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | var str = \`hello \${globalThis.foo} world!\`
+
+`;
+
+exports[`prefer-global-this > invalid(25): delete window.foo 1`] = `
+
+  1 | delete window.foo
+
+`;
+
+exports[`prefer-global-this > invalid(25): delete window.foo 2`] = `
+
+Message:
+> 1 | delete window.foo
+    |        ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | delete globalThis.foo
+
+`;
+
+exports[`prefer-global-this > invalid(26): ++window 1`] = `
+
+  1 | ++window
+
+`;
+
+exports[`prefer-global-this > invalid(26): ++window 2`] = `
+
+Message:
+> 1 | ++window
+    |   ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+`;
+
+exports[`prefer-global-this > invalid(27): ++window.foo 1`] = `
+
+  1 | ++window.foo
+
+`;
+
+exports[`prefer-global-this > invalid(27): ++window.foo 2`] = `
+
+Message:
+> 1 | ++window.foo
+    |   ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | ++globalThis.foo
+
+`;
+
+exports[`prefer-global-this > invalid(28): for (var attr in window) {\n\n} 1`] = `
+
+  1 | for (var attr in window) {
+  2 |
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(28): for (var attr in window) {\n\n} 2`] = `
+
+Message:
+> 1 | for (var attr in window) {
+    |                  ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  2 |
+  3 | }
+
+Output:
+  1 | for (var attr in globalThis) {
+  2 |
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(29): for (window.foo = 0; i < 10; window.foo++) {\n\n} 1`] = `
+
+  1 | for (window.foo = 0; i < 10; window.foo++) {
+  2 |
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(29): for (window.foo = 0; i < 10; window.foo++) {\n\n} 2`] = `
+
+Message:
+> 1 | for (window.foo = 0; i < 10; window.foo++) {
+    |      ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  2 |
+  3 | }
+
+Output:
+  1 | for (globalThis.foo = 0; i < 10; window.foo++) {
+  2 |
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(29): for (window.foo = 0; i < 10; window.foo++) {\n\n} 3`] = `
+
+Message:
+> 1 | for (window.foo = 0; i < 10; window.foo++) {
+    |                              ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  2 |
+  3 | }
+
+Output:
+  1 | for (window.foo = 0; i < 10; globalThis.foo++) {
+  2 |
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(3): self.self_did_not_declare_in_language_options 1`] = `
+
+  1 | self.self_did_not_declare_in_language_options
+
+`;
+
+exports[`prefer-global-this > invalid(3): self.self_did_not_declare_in_language_options 2`] = `
+
+Message:
+> 1 | self.self_did_not_declare_in_language_options
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.self_did_not_declare_in_language_options
+
+`;
+
+exports[`prefer-global-this > invalid(3): window 1`] = `
+
+  1 | window
+
+`;
+
+exports[`prefer-global-this > invalid(3): window 2`] = `
+
+Message:
+> 1 | window
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(30): for (const item of window.foo) {\n} 1`] = `
+
+  1 | for (const item of window.foo) {
+  2 | }
+
+`;
+
+exports[`prefer-global-this > invalid(30): for (const item of window.foo) {\n} 2`] = `
+
+Message:
+> 1 | for (const item of window.foo) {
+    |                    ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  2 | }
+
+Output:
+  1 | for (const item of globalThis.foo) {
+  2 | }
+
+`;
+
+exports[`prefer-global-this > invalid(31): for (const item of window) {\n} 1`] = `
+
+  1 | for (const item of window) {
+  2 | }
+
+`;
+
+exports[`prefer-global-this > invalid(31): for (const item of window) {\n} 2`] = `
+
+Message:
+> 1 | for (const item of window) {
+    |                    ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  2 | }
+
+Output:
+  1 | for (const item of globalThis) {
+  2 | }
+
+`;
+
+exports[`prefer-global-this > invalid(32): switch (window) {} 1`] = `
+
+  1 | switch (window) {}
+
+`;
+
+exports[`prefer-global-this > invalid(32): switch (window) {} 2`] = `
+
+Message:
+> 1 | switch (window) {}
+    |         ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | switch (globalThis) {}
+
+`;
+
+exports[`prefer-global-this > invalid(33): switch (true) {\n\tcase window:\n\t\tbreak;\n} 1`] = `
+
+  1 | switch (true) {
+  2 | 	case window:
+  3 | 		break;
+  4 | }
+
+`;
+
+exports[`prefer-global-this > invalid(33): switch (true) {\n\tcase window:\n\t\tbreak;\n} 2`] = `
+
+Message:
+  1 | switch (true) {
+> 2 | 	case window:
+    | 	     ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  3 | 		break;
+  4 | }
+
+Output:
+  1 | switch (true) {
+  2 | 	case globalThis:
+  3 | 		break;
+  4 | }
+
+`;
+
+exports[`prefer-global-this > invalid(34): switch (true) {\n\tcase window.foo:\n\t\tbreak;\n} 1`] = `
+
+  1 | switch (true) {
+  2 | 	case window.foo:
+  3 | 		break;
+  4 | }
+
+`;
+
+exports[`prefer-global-this > invalid(34): switch (true) {\n\tcase window.foo:\n\t\tbreak;\n} 2`] = `
+
+Message:
+  1 | switch (true) {
+> 2 | 	case window.foo:
+    | 	     ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  3 | 		break;
+  4 | }
+
+Output:
+  1 | switch (true) {
+  2 | 	case globalThis.foo:
+  3 | 		break;
+  4 | }
+
+`;
+
+exports[`prefer-global-this > invalid(35): while (window) {\n} 1`] = `
+
+  1 | while (window) {
+  2 | }
+
+`;
+
+exports[`prefer-global-this > invalid(35): while (window) {\n} 2`] = `
+
+Message:
+> 1 | while (window) {
+    |        ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  2 | }
+
+Output:
+  1 | while (globalThis) {
+  2 | }
+
+`;
+
+exports[`prefer-global-this > invalid(36): do {} while (window) {} 1`] = `
+
+  1 | do {} while (window) {}
+
+`;
+
+exports[`prefer-global-this > invalid(36): do {} while (window) {} 2`] = `
+
+Message:
+> 1 | do {} while (window) {}
+    |              ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | do {} while (globalThis) {}
+
+`;
+
+exports[`prefer-global-this > invalid(37): if (window) {} 1`] = `
+
+  1 | if (window) {}
+
+`;
+
+exports[`prefer-global-this > invalid(37): if (window) {} 2`] = `
+
+Message:
+> 1 | if (window) {}
+    |     ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | if (globalThis) {}
+
+`;
+
+exports[`prefer-global-this > invalid(38): throw window 1`] = `
+
+  1 | throw window
+
+`;
+
+exports[`prefer-global-this > invalid(38): throw window 2`] = `
+
+Message:
+> 1 | throw window
+    |       ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | throw globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(39): var foo = window 1`] = `
+
+  1 | var foo = window
+
+`;
+
+exports[`prefer-global-this > invalid(39): var foo = window 2`] = `
+
+Message:
+> 1 | var foo = window
+    |           ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | var foo = globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(4): window.foo 1`] = `
+
+  1 | window.foo
+
+`;
+
+exports[`prefer-global-this > invalid(4): window.foo 2`] = `
+
+Message:
+> 1 | window.foo
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis.foo
+
+`;
+
+exports[`prefer-global-this > invalid(40): function foo (name = window) {\n\n} 1`] = `
+
+  1 | function foo (name = window) {
+  2 |
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(40): function foo (name = window) {\n\n} 2`] = `
+
+Message:
+> 1 | function foo (name = window) {
+    |                      ^^^^^^ Prefer \`globalThis\` over \`window\`.
+  2 |
+  3 | }
+
+Output:
+  1 | function foo (name = globalThis) {
+  2 |
+  3 | }
+
+`;
+
+exports[`prefer-global-this > invalid(41): self.innerWidth 1`] = `
+
+  1 | self.innerWidth
+
+`;
+
+exports[`prefer-global-this > invalid(41): self.innerWidth 2`] = `
+
+Message:
+> 1 | self.innerWidth
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.innerWidth
+
+`;
+
+exports[`prefer-global-this > invalid(42): self.innerHeight 1`] = `
+
+  1 | self.innerHeight
+
+`;
+
+exports[`prefer-global-this > invalid(42): self.innerHeight 2`] = `
+
+Message:
+> 1 | self.innerHeight
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.innerHeight
+
+`;
+
+exports[`prefer-global-this > invalid(43): self.location 1`] = `
+
+  1 | self.location
+
+`;
+
+exports[`prefer-global-this > invalid(43): self.location 2`] = `
+
+Message:
+> 1 | self.location
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.location
+
+`;
+
+exports[`prefer-global-this > invalid(44): self.navigator 1`] = `
+
+  1 | self.navigator
+
+`;
+
+exports[`prefer-global-this > invalid(44): self.navigator 2`] = `
+
+Message:
+> 1 | self.navigator
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.navigator
+
+`;
+
+exports[`prefer-global-this > invalid(45): self.name 1`] = `
+
+  1 | self.name
+
+`;
+
+exports[`prefer-global-this > invalid(45): self.name 2`] = `
+
+Message:
+> 1 | self.name
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.name
+
+`;
+
+exports[`prefer-global-this > invalid(46): self.postMessage(\"Hello\") 1`] = `
+
+  1 | self.postMessage("Hello")
+
+`;
+
+exports[`prefer-global-this > invalid(46): self.postMessage(\"Hello\") 2`] = `
+
+Message:
+> 1 | self.postMessage("Hello")
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.postMessage("Hello")
+
+`;
+
+exports[`prefer-global-this > invalid(47): self.onconnect = function () {} 1`] = `
+
+  1 | self.onconnect = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(47): self.onconnect = function () {} 2`] = `
+
+Message:
+> 1 | self.onconnect = function () {}
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.onconnect = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(48): self.onerror = function () {} 1`] = `
+
+  1 | self.onerror = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(48): self.onerror = function () {} 2`] = `
+
+Message:
+> 1 | self.onerror = function () {}
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.onerror = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(49): self.onlanguagechange = function () {} 1`] = `
+
+  1 | self.onlanguagechange = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(49): self.onlanguagechange = function () {} 2`] = `
+
+Message:
+> 1 | self.onlanguagechange = function () {}
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.onlanguagechange = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(5): window.foo() 1`] = `
+
+  1 | window.foo()
+
+`;
+
+exports[`prefer-global-this > invalid(5): window.foo() 2`] = `
+
+Message:
+> 1 | window.foo()
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis.foo()
+
+`;
+
+exports[`prefer-global-this > invalid(50): self.onoffline = function () {} 1`] = `
+
+  1 | self.onoffline = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(50): self.onoffline = function () {} 2`] = `
+
+Message:
+> 1 | self.onoffline = function () {}
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.onoffline = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(51): self.ononline = function () {} 1`] = `
+
+  1 | self.ononline = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(51): self.ononline = function () {} 2`] = `
+
+Message:
+> 1 | self.ononline = function () {}
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.ononline = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(52): self.addEventListener(\"message\", () => {}) 1`] = `
+
+  1 | self.addEventListener("message", () => {})
+
+`;
+
+exports[`prefer-global-this > invalid(52): self.addEventListener(\"message\", () => {}) 2`] = `
+
+Message:
+> 1 | self.addEventListener("message", () => {})
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.addEventListener("message", () => {})
+
+`;
+
+exports[`prefer-global-this > invalid(53): self.removeEventListener(\"message\", () => {}) 1`] = `
+
+  1 | self.removeEventListener("message", () => {})
+
+`;
+
+exports[`prefer-global-this > invalid(53): self.removeEventListener(\"message\", () => {}) 2`] = `
+
+Message:
+> 1 | self.removeEventListener("message", () => {})
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.removeEventListener("message", () => {})
+
+`;
+
+exports[`prefer-global-this > invalid(54): self.dispatchEvent(new Event(\"message\")) 1`] = `
+
+  1 | self.dispatchEvent(new Event("message"))
+
+`;
+
+exports[`prefer-global-this > invalid(54): self.dispatchEvent(new Event(\"message\")) 2`] = `
+
+Message:
+> 1 | self.dispatchEvent(new Event("message"))
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.dispatchEvent(new Event("message"))
+
+`;
+
+exports[`prefer-global-this > invalid(55): self.self 1`] = `
+
+  1 | self.self
+
+`;
+
+exports[`prefer-global-this > invalid(55): self.self 2`] = `
+
+Message:
+> 1 | self.self
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.self
+
+`;
+
+exports[`prefer-global-this > invalid(56): self.onrejectionhandled = function () {} 1`] = `
+
+  1 | self.onrejectionhandled = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(56): self.onrejectionhandled = function () {} 2`] = `
+
+Message:
+> 1 | self.onrejectionhandled = function () {}
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.onrejectionhandled = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(57): self.onunhandledrejection = function () {} 1`] = `
+
+  1 | self.onunhandledrejection = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(57): self.onunhandledrejection = function () {} 2`] = `
+
+Message:
+> 1 | self.onunhandledrejection = function () {}
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis.onunhandledrejection = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(58): 'postMessage' in self 1`] = `
+
+  1 | 'postMessage' in self
+
+`;
+
+exports[`prefer-global-this > invalid(58): 'postMessage' in self 2`] = `
+
+Message:
+> 1 | 'postMessage' in self
+    |                  ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | 'postMessage' in globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(59): window.crypto 1`] = `
+
+  1 | window.crypto
+
+`;
+
+exports[`prefer-global-this > invalid(59): window.crypto 2`] = `
+
+Message:
+> 1 | window.crypto
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis.crypto
+
+`;
+
+exports[`prefer-global-this > invalid(6): window > 10 1`] = `
+
+  1 | window > 10
+
+`;
+
+exports[`prefer-global-this > invalid(6): window > 10 2`] = `
+
+Message:
+> 1 | window > 10
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis > 10
+
+`;
+
+exports[`prefer-global-this > invalid(60): window.addEventListener(\"play\", () => {}) 1`] = `
+
+  1 | window.addEventListener("play", () => {})
+
+`;
+
+exports[`prefer-global-this > invalid(60): window.addEventListener(\"play\", () => {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("play", () => {})
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis.addEventListener("play", () => {})
+
+`;
+
+exports[`prefer-global-this > invalid(61): window.onplay = function () {} 1`] = `
+
+  1 | window.onplay = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(61): window.onplay = function () {} 2`] = `
+
+Message:
+> 1 | window.onplay = function () {}
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis.onplay = function () {}
+
+`;
+
+exports[`prefer-global-this > invalid(62): function greet({ name = window.foo }) {} 1`] = `
+
+  1 | function greet({ name = window.foo }) {}
+
+`;
+
+exports[`prefer-global-this > invalid(62): function greet({ name = window.foo }) {} 2`] = `
+
+Message:
+> 1 | function greet({ name = window.foo }) {}
+    |                         ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | function greet({ name = globalThis.foo }) {}
+
+`;
+
+exports[`prefer-global-this > invalid(63): ({ foo: window.foo } =  {}) 1`] = `
+
+  1 | ({ foo: window.foo } =  {})
+
+`;
+
+exports[`prefer-global-this > invalid(63): ({ foo: window.foo } =  {}) 2`] = `
+
+Message:
+> 1 | ({ foo: window.foo } =  {})
+    |         ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | ({ foo: globalThis.foo } =  {})
+
+`;
+
+exports[`prefer-global-this > invalid(64): [window.foo] = [] 1`] = `
+
+  1 | [window.foo] = []
+
+`;
+
+exports[`prefer-global-this > invalid(64): [window.foo] = [] 2`] = `
+
+Message:
+> 1 | [window.foo] = []
+    |  ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | [globalThis.foo] = []
+
+`;
+
+exports[`prefer-global-this > invalid(65): foo[window] 1`] = `
+
+  1 | foo[window]
+
+`;
+
+exports[`prefer-global-this > invalid(65): foo[window] 2`] = `
+
+Message:
+> 1 | foo[window]
+    |     ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | foo[globalThis]
+
+`;
+
+exports[`prefer-global-this > invalid(66): foo[window.foo] 1`] = `
+
+  1 | foo[window.foo]
+
+`;
+
+exports[`prefer-global-this > invalid(66): foo[window.foo] 2`] = `
+
+Message:
+> 1 | foo[window.foo]
+    |     ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | foo[globalThis.foo]
+
+`;
+
+exports[`prefer-global-this > invalid(67): 'foo' in window 1`] = `
+
+  1 | 'foo' in window
+
+`;
+
+exports[`prefer-global-this > invalid(67): 'foo' in window 2`] = `
+
+Message:
+> 1 | 'foo' in window
+    |          ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | 'foo' in globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(68): 'foo' in global 1`] = `
+
+  1 | 'foo' in global
+
+`;
+
+exports[`prefer-global-this > invalid(68): 'foo' in global 2`] = `
+
+Message:
+> 1 | 'foo' in global
+    |          ^^^^^^ Prefer \`globalThis\` over \`global\`.
+
+Output:
+  1 | 'foo' in globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(69): typeof window.something === \"function\" 1`] = `
+
+  1 | typeof window.something === "function"
+
+`;
+
+exports[`prefer-global-this > invalid(69): typeof window.something === \"function\" 2`] = `
+
+Message:
+> 1 | typeof window.something === "function"
+    |        ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | typeof globalThis.something === "function"
+
+`;
+
+exports[`prefer-global-this > invalid(7): 10 > window 1`] = `
+
+  1 | 10 > window
+
+`;
+
+exports[`prefer-global-this > invalid(7): 10 > window 2`] = `
+
+Message:
+> 1 | 10 > window
+    |      ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | 10 > globalThis
+
+`;
+
+exports[`prefer-global-this > invalid(70): typeof self.something === \"function\" 1`] = `
+
+  1 | typeof self.something === "function"
+
+`;
+
+exports[`prefer-global-this > invalid(70): typeof self.something === \"function\" 2`] = `
+
+Message:
+> 1 | typeof self.something === "function"
+    |        ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | typeof globalThis.something === "function"
+
+`;
+
+exports[`prefer-global-this > invalid(71): typeof global.something === \"function\" 1`] = `
+
+  1 | typeof global.something === "function"
+
+`;
+
+exports[`prefer-global-this > invalid(71): typeof global.something === \"function\" 2`] = `
+
+Message:
+> 1 | typeof global.something === "function"
+    |        ^^^^^^ Prefer \`globalThis\` over \`global\`.
+
+Output:
+  1 | typeof globalThis.something === "function"
+
+`;
+
+exports[`prefer-global-this > invalid(72): self[foo] 1`] = `
+
+  1 | self[foo]
+
+`;
+
+exports[`prefer-global-this > invalid(72): self[foo] 2`] = `
+
+Message:
+> 1 | self[foo]
+    | ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | globalThis[foo]
+
+`;
+
+exports[`prefer-global-this > invalid(73): global[foo] 1`] = `
+
+  1 | global[foo]
+
+`;
+
+exports[`prefer-global-this > invalid(73): global[foo] 2`] = `
+
+Message:
+> 1 | global[foo]
+    | ^^^^^^ Prefer \`globalThis\` over \`global\`.
+
+Output:
+  1 | globalThis[foo]
+
+`;
+
+exports[`prefer-global-this > invalid(74): const foo: typeof window = window; 1`] = `
+
+  1 | const foo: typeof window = window;
+
+`;
+
+exports[`prefer-global-this > invalid(74): const foo: typeof window = window; 2`] = `
+
+Message:
+> 1 | const foo: typeof window = window;
+    |                            ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | const foo: typeof window = globalThis;
+
+`;
+
+exports[`prefer-global-this > invalid(75): const foo = {window}; 1`] = `
+
+  1 | const foo = {window};
+
+`;
+
+exports[`prefer-global-this > invalid(75): const foo = {window}; 2`] = `
+
+Message:
+> 1 | const foo = {window};
+    |              ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | const foo = {window: globalThis};
+
+`;
+
+exports[`prefer-global-this > invalid(76): const foo = {window, self}; 1`] = `
+
+  1 | const foo = {window, self};
+
+`;
+
+exports[`prefer-global-this > invalid(76): const foo = {window, self}; 2`] = `
+
+Message:
+> 1 | const foo = {window, self};
+    |              ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | const foo = {window: globalThis, self};
+
+`;
+
+exports[`prefer-global-this > invalid(76): const foo = {window, self}; 3`] = `
+
+Message:
+> 1 | const foo = {window, self};
+    |                      ^^^^ Prefer \`globalThis\` over \`self\`.
+
+Output:
+  1 | const foo = {window, self: globalThis};
+
+`;
+
+exports[`prefer-global-this > invalid(77): foo({window}); 1`] = `
+
+  1 | foo({window});
+
+`;
+
+exports[`prefer-global-this > invalid(77): foo({window}); 2`] = `
+
+Message:
+> 1 | foo({window});
+    |      ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | foo({window: globalThis});
+
+`;
+
+exports[`prefer-global-this > invalid(78): const foo = {[window]: 1}; 1`] = `
+
+  1 | const foo = {[window]: 1};
+
+`;
+
+exports[`prefer-global-this > invalid(78): const foo = {[window]: 1}; 2`] = `
+
+Message:
+> 1 | const foo = {[window]: 1};
+    |               ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | const foo = {[globalThis]: 1};
+
+`;
+
+exports[`prefer-global-this > invalid(79): ({window} = foo); 1`] = `
+
+  1 | ({window} = foo);
+
+`;
+
+exports[`prefer-global-this > invalid(79): ({window} = foo); 2`] = `
+
+Message:
+> 1 | ({window} = foo);
+    |   ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+`;
+
+exports[`prefer-global-this > invalid(8): window ?? 10 1`] = `
+
+  1 | window ?? 10
+
+`;
+
+exports[`prefer-global-this > invalid(8): window ?? 10 2`] = `
+
+Message:
+> 1 | window ?? 10
+    | ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | globalThis ?? 10
+
+`;
+
+exports[`prefer-global-this > invalid(80): ({window = 1} = foo); 1`] = `
+
+  1 | ({window = 1} = foo);
+
+`;
+
+exports[`prefer-global-this > invalid(80): ({window = 1} = foo); 2`] = `
+
+Message:
+> 1 | ({window = 1} = foo);
+    |   ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+`;
+
+exports[`prefer-global-this > invalid(9): 10 ?? window 1`] = `
+
+  1 | 10 ?? window
+
+`;
+
+exports[`prefer-global-this > invalid(9): 10 ?? window 2`] = `
+
+Message:
+> 1 | 10 ?? window
+    |       ^^^^^^ Prefer \`globalThis\` over \`window\`.
+
+Output:
+  1 | 10 ?? globalThis
+
+`;

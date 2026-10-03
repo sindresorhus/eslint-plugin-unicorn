@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import {parse} from 'espree';
 import unicorn from '../index.js';
@@ -164,13 +164,13 @@ test('split suggestions produce separate valid arguments without autofixing', t 
 	const linter = new Linter();
 	const code = 'element.classList.add((("primary active")), "other");';
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.is(result.messages.length, 1);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
 	const {fix} = result.messages[0].suggestions[0];
 	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-	t.is(output, 'element.classList.add(\'primary\', \'active\', "other");');
-	t.deepEqual(linter.verify(output, config), []);
+	t.assert.strictEqual(output, 'element.classList.add(\'primary\', \'active\', "other");');
+	t.assert.deepStrictEqual(linter.verify(output, config), []);
 });
 
 test('split suggestions preserve allowed whitespace and escaped token characters', t => {
@@ -189,13 +189,13 @@ test('split suggestions preserve allowed whitespace and escaped token characters
 	];
 	const code = `element.classList.remove(${JSON.stringify(tokens.join(' '))});`;
 	const messages = linter.verify(code, config);
-	t.is(messages.length, 1);
-	t.is(messages[0].suggestions.length, 1);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
 	const {fix} = messages[0].suggestions[0];
 	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 	const arguments_ = parse(output, {ecmaVersion: 'latest'}).body[0].expression.arguments;
-	t.deepEqual(arguments_.map(({value}) => value), tokens);
-	t.deepEqual(linter.verify(output, config), []);
+	t.assert.deepStrictEqual(arguments_.map(({value}) => value), tokens);
+	t.assert.deepStrictEqual(linter.verify(output, config), []);
 });
 
 test('selector-prefix reports are independent of invalid-token reports', t => {
@@ -204,8 +204,8 @@ test('selector-prefix reports are independent of invalid-token reports', t => {
 		...config,
 		rules: {...config.rules, 'unicorn/no-selector-as-dom-name': 'error'},
 	});
-	t.is(messages.length, 2);
-	t.deepEqual(new Set(messages.map(({ruleId}) => ruleId)), new Set([
+	t.assert.strictEqual(messages.length, 2);
+	t.assert.deepStrictEqual(new Set(messages.map(({ruleId}) => ruleId)), new Set([
 		'unicorn/no-invalid-dom-token',
 		'unicorn/no-selector-as-dom-name',
 	]));
@@ -226,9 +226,9 @@ test('invalid tokens remain detectable after sibling-rule autofixes', t => {
 			...config,
 			rules: {...config.rules, [`unicorn/${rule}`]: 'error'},
 		});
-		t.true(result.fixed);
-		t.is(result.output, output);
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/no-invalid-dom-token');
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, output);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-invalid-dom-token');
 	}
 });

@@ -1,0 +1,471 @@
+exports[`empty-brace-spaces > invalid(1): a { } 1`] = `
+
+  1 | a { }
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): a { } 2`] = `
+
+Message:
+> 1 | a { }
+    |    ^ Do not add spaces between braces.
+
+Output:
+  1 | a {}
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): try {\n\tfoo();\n} catch (error) {\n\t       \n} 1`] = `
+
+  1 | try {
+  2 | 	foo();
+  3 | } catch (error) {
+  4 | 	       
+  5 | }
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): try {\n\tfoo();\n} catch (error) {\n\t       \n} 2`] = `
+
+Message:
+  1 | try {
+  2 | 	foo();
+> 3 | } catch (error) {
+    |                  ^
+> 4 | 	       
+    | ^^^^^^^^
+> 5 | }
+    | ^ Do not add spaces between braces.
+
+Output:
+  1 | try {
+  2 | 	foo();
+  3 | } catch (error) {}
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): value = { } 1`] = `
+
+  1 | value = { }
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): value = { } 2`] = `
+
+Message:
+> 1 | value = { }
+    |          ^ Do not add spaces between braces.
+
+Output:
+  1 | value = {}
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): value: { } 1`] = `
+
+  1 | value: { }
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): value: { } 2`] = `
+
+Message:
+> 1 | value: { }
+    |         ^ Do not add spaces between braces.
+
+Output:
+  1 | value: {}
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): {\"object\": { }} 1`] = `
+
+  1 | {"object": { }}
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): {\"object\": { }} 2`] = `
+
+Message:
+> 1 | {"object": { }}
+    |             ^ Do not add spaces between braces.
+
+Output:
+  1 | {"object": {}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): @media screen {\n} 1`] = `
+
+  1 | @media screen {
+  2 | }
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): @media screen {\n} 2`] = `
+
+Message:
+> 1 | @media screen {
+    |                ^
+> 2 | }
+    | ^ Do not add spaces between braces.
+
+Output:
+  1 | @media screen {}
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): [ ] 1`] = `
+
+  1 | [ ]
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): [ ] 2`] = `
+
+Message:
+> 1 | [ ]
+    |  ^ Do not add spaces between braces.
+
+Output:
+  1 | []
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): value = [ ] 1`] = `
+
+  1 | value = [ ]
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): value = [ ] 2`] = `
+
+Message:
+> 1 | value = [ ]
+    |          ^ Do not add spaces between braces.
+
+Output:
+  1 | value = []
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): value: [ ] 1`] = `
+
+  1 | value: [ ]
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): value: [ ] 2`] = `
+
+Message:
+> 1 | value: [ ]
+    |         ^ Do not add spaces between braces.
+
+Output:
+  1 | value: []
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): @keyframes animation { from { } } 1`] = `
+
+  1 | @keyframes animation { from { } }
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): @keyframes animation { from { } } 2`] = `
+
+Message:
+> 1 | @keyframes animation { from { } }
+    |                              ^ Do not add spaces between braces.
+
+Output:
+  1 | @keyframes animation { from {} }
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): value = {nested = [\r\n  ]} 1`] = `
+
+  1 | value = {nested = [
+  2 |   ]}
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): value = {nested = [\r\n  ]} 2`] = `
+
+Message:
+> 1 | value = {nested = [
+    |                    ^
+> 2 |   ]}
+    | ^^ Do not add spaces between braces.
+
+Output:
+  1 | value = {nested = []}
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): value: {nested: [\r\n  ]} 1`] = `
+
+  1 | value: {nested: [
+  2 |   ]}
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): value: {nested: [\r\n  ]} 2`] = `
+
+Message:
+> 1 | value: {nested: [
+    |                  ^
+> 2 |   ]}
+    | ^^ Do not add spaces between braces.
+
+Output:
+  1 | value: {nested: []}
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): {\"array\": [\r\n  ], \"object\": {\n\t}} 1`] = `
+
+  1 | {"array": [
+  2 |   ], "object": {
+  3 | 	}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): {\"array\": [\r\n  ], \"object\": {\n\t}} 2`] = `
+
+Message:
+> 1 | {"array": [
+    |            ^
+> 2 |   ], "object": {
+    | ^^ Do not add spaces between braces.
+  3 | 	}}
+
+Output:
+  1 | {"array": [], "object": {
+  2 | 	}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): {\"array\": [\r\n  ], \"object\": {\n\t}} 3`] = `
+
+Message:
+  1 | {"array": [
+> 2 |   ], "object": {
+    |                 ^
+> 3 | 	}}
+    | ^ Do not add spaces between braces.
+
+Output:
+  1 | {"array": [
+  2 |   ], "object": {}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(4): a {\r\n  } 1`] = `
+
+  1 | a {
+  2 |   }
+
+`;
+
+exports[`empty-brace-spaces > invalid(4): a {\r\n  } 2`] = `
+
+Message:
+> 1 | a {
+    |    ^
+> 2 |   }
+    | ^^ Do not add spaces between braces.
+
+Output:
+  1 | a {}
+
+`;
+
+exports[`empty-brace-spaces > invalid(4): value = [{ }, [ ]] 1`] = `
+
+  1 | value = [{ }, [ ]]
+
+`;
+
+exports[`empty-brace-spaces > invalid(4): value = [{ }, [ ]] 2`] = `
+
+Message:
+> 1 | value = [{ }, [ ]]
+    |           ^ Do not add spaces between braces.
+
+Output:
+  1 | value = [{}, [ ]]
+
+`;
+
+exports[`empty-brace-spaces > invalid(4): value = [{ }, [ ]] 3`] = `
+
+Message:
+> 1 | value = [{ }, [ ]]
+    |                ^ Do not add spaces between braces.
+
+Output:
+  1 | value = [{ }, []]
+
+`;
+
+exports[`empty-brace-spaces > invalid(4): value: &anchor { } 1`] = `
+
+  1 | value: &anchor { }
+
+`;
+
+exports[`empty-brace-spaces > invalid(4): value: &anchor { } 2`] = `
+
+Message:
+> 1 | value: &anchor { }
+    |                 ^ Do not add spaces between braces.
+
+Output:
+  1 | value: &anchor {}
+
+`;
+
+exports[`empty-brace-spaces > invalid(4): {\"object\": { }} 1`] = `
+
+  1 | {"object": { }}
+
+`;
+
+exports[`empty-brace-spaces > invalid(4): {\"object\": { }} 2`] = `
+
+Message:
+> 1 | {"object": { }}
+    |             ^ Do not add spaces between braces.
+
+Output:
+  1 | {"object": {}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(5): [ ] 1`] = `
+
+  1 | [ ]
+
+`;
+
+exports[`empty-brace-spaces > invalid(5): [ ] 2`] = `
+
+Message:
+> 1 | [ ]
+    |  ^ Do not add spaces between braces.
+
+Output:
+  1 | []
+
+`;
+
+exports[`empty-brace-spaces > invalid(6): {\"array\": [\r\n  ], \"object\": {\n\t}} 1`] = `
+
+  1 | {"array": [
+  2 |   ], "object": {
+  3 | 	}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(6): {\"array\": [\r\n  ], \"object\": {\n\t}} 2`] = `
+
+Message:
+> 1 | {"array": [
+    |            ^
+> 2 |   ], "object": {
+    | ^^ Do not add spaces between braces.
+  3 | 	}}
+
+Output:
+  1 | {"array": [], "object": {
+  2 | 	}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(6): {\"array\": [\r\n  ], \"object\": {\n\t}} 3`] = `
+
+Message:
+  1 | {"array": [
+> 2 |   ], "object": {
+    |                 ^
+> 3 | 	}}
+    | ^ Do not add spaces between braces.
+
+Output:
+  1 | {"array": [
+  2 |   ], "object": {}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(7): {\"object\": { }} 1`] = `
+
+  1 | {"object": { }}
+
+`;
+
+exports[`empty-brace-spaces > invalid(7): {\"object\": { }} 2`] = `
+
+Message:
+> 1 | {"object": { }}
+    |             ^ Do not add spaces between braces.
+
+Output:
+  1 | {"object": {}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(8): [ ] 1`] = `
+
+  1 | [ ]
+
+`;
+
+exports[`empty-brace-spaces > invalid(8): [ ] 2`] = `
+
+Message:
+> 1 | [ ]
+    |  ^ Do not add spaces between braces.
+
+Output:
+  1 | []
+
+`;
+
+exports[`empty-brace-spaces > invalid(9): {\"array\": [\r\n  ], \"object\": {\n\t}} 1`] = `
+
+  1 | {"array": [
+  2 |   ], "object": {
+  3 | 	}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(9): {\"array\": [\r\n  ], \"object\": {\n\t}} 2`] = `
+
+Message:
+> 1 | {"array": [
+    |            ^
+> 2 |   ], "object": {
+    | ^^ Do not add spaces between braces.
+  3 | 	}}
+
+Output:
+  1 | {"array": [], "object": {
+  2 | 	}}
+
+`;
+
+exports[`empty-brace-spaces > invalid(9): {\"array\": [\r\n  ], \"object\": {\n\t}} 3`] = `
+
+Message:
+  1 | {"array": [
+> 2 |   ], "object": {
+    |                 ^
+> 3 | 	}}
+    | ^ Do not add spaces between braces.
+
+Output:
+  1 | {"array": [
+  2 |   ], "object": {}}
+
+`;

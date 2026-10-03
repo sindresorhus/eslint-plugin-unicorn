@@ -66,6 +66,8 @@ const isDomStyleDeclarationType = (type, program) => {
 const isDomStyleDeclaration = (node, parserServices) => {
 	try {
 		return isDomStyleDeclarationType(parserServices.getTypeAtLocation(node), parserServices.program);
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}

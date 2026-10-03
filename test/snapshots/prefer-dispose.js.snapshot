@@ -1,0 +1,952 @@
+exports[`prefer-dispose > invalid(1): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo.close();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } finally {
+  5 | 	foo.close();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(1): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo.close();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	foo.close();
+    | ^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = open();
+  3 |
+  4 | 	use(foo);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(1): const foo: Disposable = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo[Symbol.dispose]();\n} 1`] = `
+
+Filename: file.ts
+
+  1 | const foo: Disposable = open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } finally {
+  5 | 	foo[Symbol.dispose]();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(1): const foo: Disposable = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo[Symbol.dispose]();\n} 2`] = `
+
+Message:
+  1 | const foo: Disposable = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	foo[Symbol.dispose]();
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo: Disposable = open();
+  3 |
+  4 | 	use(foo);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(1): const resource = acquire();\ntry {\n\tuse(resource);\n} finally {\n\tresource.close();\n} 1`] = `
+
+  1 | const resource = acquire();
+  2 | try {
+  3 | 	use(resource);
+  4 | } finally {
+  5 | 	resource.close();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(1): const resource = acquire();\ntry {\n\tuse(resource);\n} finally {\n\tresource.close();\n} 2`] = `
+
+Message:
+  1 | const resource = acquire();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(resource);
+    | ^^^^^^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	resource.close();
+    | ^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using resource = acquire();
+  3 |
+  4 | 	use(resource);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(10): async function main() {\n\tconst foo = open();\n\ttry {\n\t\tawait use(foo);\n\t} finally {\n\t\tfoo[Symbol.asyncDispose]();\n\t}\n} 1`] = `
+
+  1 | async function main() {
+  2 | 	const foo = open();
+  3 | 	try {
+  4 | 		await use(foo);
+  5 | 	} finally {
+  6 | 		foo[Symbol.asyncDispose]();
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-dispose > invalid(10): async function main() {\n\tconst foo = open();\n\ttry {\n\t\tawait use(foo);\n\t} finally {\n\t\tfoo[Symbol.asyncDispose]();\n\t}\n} 2`] = `
+
+Message:
+  1 | async function main() {
+  2 | 	const foo = open();
+> 3 | 	try {
+    | 	^^^^^
+> 4 | 		await use(foo);
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 	} finally {
+    | ^^^^^^^^^^^^
+> 6 | 		foo[Symbol.asyncDispose]();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer \`await using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+  8 | }
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`await using\`.:
+  1 | async function main() {
+  2 | 	{
+  3 | 		await using foo = open();
+  4 |
+  5 | 		await use(foo);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-dispose > invalid(11): const foo = open();\ntry {\n\tawait use(foo);\n} finally {\n\tawait foo.close();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {
+  3 | 	await use(foo);
+  4 | } finally {
+  5 | 	await foo.close();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(11): const foo = open();\ntry {\n\tawait use(foo);\n} finally {\n\tawait foo.close();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	await use(foo);
+    | ^^^^^^^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	await foo.close();
+    | ^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`await using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`await using\`.:
+  1 | {
+  2 | 	await using foo = open();
+  3 |
+  4 | 	await use(foo);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(12): const foo = open();\ntry {\n\tuse(foo);\n} catch (error) {\n\thandle(error);\n} finally {\n\tfoo.close();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } catch (error) {
+  5 | 	handle(error);
+  6 | } finally {
+  7 | 	foo.close();
+  8 | }
+
+`;
+
+exports[`prefer-dispose > invalid(12): const foo = open();\ntry {\n\tuse(foo);\n} catch (error) {\n\thandle(error);\n} finally {\n\tfoo.close();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } catch (error) {
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 	handle(error);
+    | ^^^^^^^^^^^^^^^
+> 6 | } finally {
+    | ^^^^^^^^^^^
+> 7 | 	foo.close();
+    | ^^^^^^^^^^^^^
+> 8 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = open();
+  3 | 	try {
+  4 | 		use(foo);
+  5 | 	} catch (error) {
+  6 | 		handle(error);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-dispose > invalid(13): const foo = openFoo();\nconst bar = openBar();\ntry {\n\tuse(foo, bar);\n} finally {\n\tbar.destroy();\n\tfoo.close();\n} 1`] = `
+
+  1 | const foo = openFoo();
+  2 | const bar = openBar();
+  3 | try {
+  4 | 	use(foo, bar);
+  5 | } finally {
+  6 | 	bar.destroy();
+  7 | 	foo.close();
+  8 | }
+
+`;
+
+exports[`prefer-dispose > invalid(13): const foo = openFoo();\nconst bar = openBar();\ntry {\n\tuse(foo, bar);\n} finally {\n\tbar.destroy();\n\tfoo.close();\n} 2`] = `
+
+Message:
+  1 | const foo = openFoo();
+  2 | const bar = openBar();
+> 3 | try {
+    | ^^^^^
+> 4 | 	use(foo, bar);
+    | ^^^^^^^^^^^^^^^
+> 5 | } finally {
+    | ^^^^^^^^^^^
+> 6 | 	bar.destroy();
+    | ^^^^^^^^^^^^^^^
+> 7 | 	foo.close();
+    | ^^^^^^^^^^^^^
+> 8 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = openFoo();
+  3 | 	using bar = openBar();
+  4 |
+  5 | 	use(foo, bar);
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(14): function run() {\n\tconst foo = open();\n\ttry {\n\t\tuse(foo);\n\t} finally {\n\t\tfoo.close();\n\t}\n} 1`] = `
+
+  1 | function run() {
+  2 | 	const foo = open();
+  3 | 	try {
+  4 | 		use(foo);
+  5 | 	} finally {
+  6 | 		foo.close();
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-dispose > invalid(14): function run() {\n\tconst foo = open();\n\ttry {\n\t\tuse(foo);\n\t} finally {\n\t\tfoo.close();\n\t}\n} 2`] = `
+
+Message:
+  1 | function run() {
+  2 | 	const foo = open();
+> 3 | 	try {
+    | 	^^^^^
+> 4 | 		use(foo);
+    | ^^^^^^^^^^^
+> 5 | 	} finally {
+    | ^^^^^^^^^^^^
+> 6 | 		foo.close();
+    | ^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+  8 | }
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | function run() {
+  2 | 	{
+  3 | 		using foo = open();
+  4 |
+  5 | 		use(foo);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-dispose > invalid(15): const outer = open();\ntry {\n\tconst inner = open();\n\ttry {\n\t\tuse(inner);\n\t} finally {\n\t\tinner.close();\n\t}\n} finally {\n\touter.close();\n} 1`] = `
+
+   1 | const outer = open();
+   2 | try {
+   3 | 	const inner = open();
+   4 | 	try {
+   5 | 		use(inner);
+   6 | 	} finally {
+   7 | 		inner.close();
+   8 | 	}
+   9 | } finally {
+  10 | 	outer.close();
+  11 | }
+
+`;
+
+exports[`prefer-dispose > invalid(15): const outer = open();\ntry {\n\tconst inner = open();\n\ttry {\n\t\tuse(inner);\n\t} finally {\n\t\tinner.close();\n\t}\n} finally {\n\touter.close();\n} 2`] = `
+
+Message:
+   1 | const outer = open();
+>  2 | try {
+     | ^^^^^
+>  3 | 	const inner = open();
+     | ^^^^^^^^^^^^^^^^^^^^^^
+>  4 | 	try {
+     | ^^^^^^
+>  5 | 		use(inner);
+     | ^^^^^^^^^^^^^
+>  6 | 	} finally {
+     | ^^^^^^^^^^^^
+>  7 | 		inner.close();
+     | ^^^^^^^^^^^^^^^^
+>  8 | 	}
+     | ^^
+>  9 | } finally {
+     | ^^^^^^^^^^^
+> 10 | 	outer.close();
+     | ^^^^^^^^^^^^^^^
+> 11 | }
+     | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+   1 | {
+   2 | 	using outer = open();
+   3 |
+   4 | 	const inner = open();
+   5 | 	try {
+   6 | 		use(inner);
+   7 | 	} finally {
+   8 | 		inner.close();
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-dispose > invalid(15): const outer = open();\ntry {\n\tconst inner = open();\n\ttry {\n\t\tuse(inner);\n\t} finally {\n\t\tinner.close();\n\t}\n} finally {\n\touter.close();\n} 3`] = `
+
+Message:
+   1 | const outer = open();
+   2 | try {
+   3 | 	const inner = open();
+>  4 | 	try {
+     | 	^^^^^
+>  5 | 		use(inner);
+     | ^^^^^^^^^^^^^
+>  6 | 	} finally {
+     | ^^^^^^^^^^^^
+>  7 | 		inner.close();
+     | ^^^^^^^^^^^^^^^^
+>  8 | 	}
+     | ^^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+   9 | } finally {
+  10 | 	outer.close();
+  11 | }
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+   1 | const outer = open();
+   2 | try {
+   3 | 	{
+   4 | 		using inner = open();
+   5 |
+   6 | 		use(inner);
+   7 | 	}
+   8 | } finally {
+   9 | 	outer.close();
+  10 | }
+
+`;
+
+exports[`prefer-dispose > invalid(16): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\t// Clean up.\n\tfoo.close();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } finally {
+  5 | 	// Clean up.
+  6 | 	foo.close();
+  7 | }
+
+`;
+
+exports[`prefer-dispose > invalid(16): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\t// Clean up.\n\tfoo.close();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	// Clean up.
+    | ^^^^^^^^^^^^^
+> 6 | 	foo.close();
+    | ^^^^^^^^^^^^^
+> 7 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+`;
+
+exports[`prefer-dispose > invalid(17): const foo = open();\ntry {\n\tuse(foo);\n} /* keep me */ finally {\n\tfoo.close();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } /* keep me */ finally {
+  5 | 	foo.close();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(17): const foo = open();\ntry {\n\tuse(foo);\n} /* keep me */ finally {\n\tfoo.close();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } /* keep me */ finally {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	foo.close();
+    | ^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+`;
+
+exports[`prefer-dispose > invalid(18): const foo = open();\ntry {\n\tconst foo = 1;\n\tuse(foo);\n} finally {\n\tfoo.close();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {
+  3 | 	const foo = 1;
+  4 | 	use(foo);
+  5 | } finally {
+  6 | 	foo.close();
+  7 | }
+
+`;
+
+exports[`prefer-dispose > invalid(18): const foo = open();\ntry {\n\tconst foo = 1;\n\tuse(foo);\n} finally {\n\tfoo.close();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	const foo = 1;
+    | ^^^^^^^^^^^^^^^
+> 4 | 	use(foo);
+    | ^^^^^^^^^^
+> 5 | } finally {
+    | ^^^^^^^^^^^
+> 6 | 	foo.close();
+    | ^^^^^^^^^^^^^
+> 7 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+`;
+
+exports[`prefer-dispose > invalid(19): const foo = /* keep me */ open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo.close();\n} 1`] = `
+
+  1 | const foo = /* keep me */ open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } finally {
+  5 | 	foo.close();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(19): const foo = /* keep me */ open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo.close();\n} 2`] = `
+
+Message:
+  1 | const foo = /* keep me */ open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	foo.close();
+    | ^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = /* keep me */ open();
+  3 |
+  4 | 	use(foo);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(2): async function main() {\n\tconst foo: AsyncDisposable = open();\n\ttry {\n\t\tawait use(foo);\n\t} finally {\n\t\tawait foo[Symbol.asyncDispose]();\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+  1 | async function main() {
+  2 | 	const foo: AsyncDisposable = open();
+  3 | 	try {
+  4 | 		await use(foo);
+  5 | 	} finally {
+  6 | 		await foo[Symbol.asyncDispose]();
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-dispose > invalid(2): async function main() {\n\tconst foo: AsyncDisposable = open();\n\ttry {\n\t\tawait use(foo);\n\t} finally {\n\t\tawait foo[Symbol.asyncDispose]();\n\t}\n} 2`] = `
+
+Message:
+  1 | async function main() {
+  2 | 	const foo: AsyncDisposable = open();
+> 3 | 	try {
+    | 	^^^^^
+> 4 | 		await use(foo);
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 	} finally {
+    | ^^^^^^^^^^^^
+> 6 | 		await foo[Symbol.asyncDispose]();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer \`await using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+  8 | }
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`await using\`.:
+  1 | async function main() {
+  2 | 	{
+  3 | 		await using foo: AsyncDisposable = open();
+  4 |
+  5 | 		await use(foo);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-dispose > invalid(2): let foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo.close();\n} 1`] = `
+
+  1 | let foo = open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } finally {
+  5 | 	foo.close();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(2): let foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo.close();\n} 2`] = `
+
+Message:
+  1 | let foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	foo.close();
+    | ^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = open();
+  3 |
+  4 | 	use(foo);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(20): async function main() {\n\tconst foo = openFoo();\n\tconst bar = openBar();\n\ttry {\n\t\tuse(foo, bar);\n\t} finally {\n\t\tawait bar[Symbol.asyncDispose]();\n\t\tfoo.close();\n\t}\n} 1`] = `
+
+   1 | async function main() {
+   2 | 	const foo = openFoo();
+   3 | 	const bar = openBar();
+   4 | 	try {
+   5 | 		use(foo, bar);
+   6 | 	} finally {
+   7 | 		await bar[Symbol.asyncDispose]();
+   8 | 		foo.close();
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-dispose > invalid(20): async function main() {\n\tconst foo = openFoo();\n\tconst bar = openBar();\n\ttry {\n\t\tuse(foo, bar);\n\t} finally {\n\t\tawait bar[Symbol.asyncDispose]();\n\t\tfoo.close();\n\t}\n} 2`] = `
+
+Message:
+   1 | async function main() {
+   2 | 	const foo = openFoo();
+   3 | 	const bar = openBar();
+>  4 | 	try {
+     | 	^^^^^
+>  5 | 		use(foo, bar);
+     | ^^^^^^^^^^^^^^^^
+>  6 | 	} finally {
+     | ^^^^^^^^^^^^
+>  7 | 		await bar[Symbol.asyncDispose]();
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  8 | 		foo.close();
+     | ^^^^^^^^^^^^^^
+>  9 | 	}
+     | ^^ Prefer \`await using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+  10 | }
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`await using\`.:
+  1 | async function main() {
+  2 | 	{
+  3 | 		using foo = openFoo();
+  4 | 		await using bar = openBar();
+  5 |
+  6 | 		use(foo, bar);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-dispose > invalid(21): const foo = open(); try { use(foo); } finally { foo.close(); } 1`] = `
+
+  1 | const foo = open(); try { use(foo); } finally { foo.close(); }
+
+`;
+
+exports[`prefer-dispose > invalid(21): const foo = open(); try { use(foo); } finally { foo.close(); } 2`] = `
+
+Message:
+> 1 | const foo = open(); try { use(foo); } finally { foo.close(); }
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = open(); 
+  3 | 	use(foo);
+  4 | }
+
+`;
+
+exports[`prefer-dispose > invalid(22): const foo = open();\ntry {} finally {\n\tfoo.close();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {} finally {
+  3 | 	foo.close();
+  4 | }
+
+`;
+
+exports[`prefer-dispose > invalid(22): const foo = open();\ntry {} finally {\n\tfoo.close();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {} finally {
+    | ^^^^^^^^^^^^^^^^
+> 3 | 	foo.close();
+    | ^^^^^^^^^^^^^
+> 4 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = open();
+  3 |
+  4 | }
+
+`;
+
+exports[`prefer-dispose > invalid(3): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo.dispose();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } finally {
+  5 | 	foo.dispose();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(3): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo.dispose();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	foo.dispose();
+    | ^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = open();
+  3 |
+  4 | 	use(foo);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(4): const connection = connect();\ntry {\n\tuse(connection);\n} finally {\n\tconnection.destroy();\n} 1`] = `
+
+  1 | const connection = connect();
+  2 | try {
+  3 | 	use(connection);
+  4 | } finally {
+  5 | 	connection.destroy();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(4): const connection = connect();\ntry {\n\tuse(connection);\n} finally {\n\tconnection.destroy();\n} 2`] = `
+
+Message:
+  1 | const connection = connect();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(connection);
+    | ^^^^^^^^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	connection.destroy();
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using connection = connect();
+  3 |
+  4 | 	use(connection);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(5): const stream = createStream();\ntry {\n\tprocess(stream);\n} finally {\n\tstream.end();\n} 1`] = `
+
+  1 | const stream = createStream();
+  2 | try {
+  3 | 	process(stream);
+  4 | } finally {
+  5 | 	stream.end();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(5): const stream = createStream();\ntry {\n\tprocess(stream);\n} finally {\n\tstream.end();\n} 2`] = `
+
+Message:
+  1 | const stream = createStream();
+> 2 | try {
+    | ^^^^^
+> 3 | 	process(stream);
+    | ^^^^^^^^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	stream.end();
+    | ^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using stream = createStream();
+  3 |
+  4 | 	process(stream);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(6): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo[Symbol.dispose]();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } finally {
+  5 | 	foo[Symbol.dispose]();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(6): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo[Symbol.dispose]();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	foo[Symbol.dispose]();
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = open();
+  3 |
+  4 | 	use(foo);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(7): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo?.close();\n} 1`] = `
+
+  1 | const foo = open();
+  2 | try {
+  3 | 	use(foo);
+  4 | } finally {
+  5 | 	foo?.close();
+  6 | }
+
+`;
+
+exports[`prefer-dispose > invalid(7): const foo = open();\ntry {\n\tuse(foo);\n} finally {\n\tfoo?.close();\n} 2`] = `
+
+Message:
+  1 | const foo = open();
+> 2 | try {
+    | ^^^^^
+> 3 | 	use(foo);
+    | ^^^^^^^^^^
+> 4 | } finally {
+    | ^^^^^^^^^^^
+> 5 | 	foo?.close();
+    | ^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`using\`.:
+  1 | {
+  2 | 	using foo = open();
+  3 |
+  4 | 	use(foo);
+  5 | }
+
+`;
+
+exports[`prefer-dispose > invalid(8): async function main() {\n\tconst foo = open();\n\ttry {\n\t\tawait use(foo);\n\t} finally {\n\t\tawait foo.close();\n\t}\n} 1`] = `
+
+  1 | async function main() {
+  2 | 	const foo = open();
+  3 | 	try {
+  4 | 		await use(foo);
+  5 | 	} finally {
+  6 | 		await foo.close();
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-dispose > invalid(8): async function main() {\n\tconst foo = open();\n\ttry {\n\t\tawait use(foo);\n\t} finally {\n\t\tawait foo.close();\n\t}\n} 2`] = `
+
+Message:
+  1 | async function main() {
+  2 | 	const foo = open();
+> 3 | 	try {
+    | 	^^^^^
+> 4 | 		await use(foo);
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 	} finally {
+    | ^^^^^^^^^^^^
+> 6 | 		await foo.close();
+    | ^^^^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer \`await using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+  8 | }
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`await using\`.:
+  1 | async function main() {
+  2 | 	{
+  3 | 		await using foo = open();
+  4 |
+  5 | 		await use(foo);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-dispose > invalid(9): async function main() {\n\tconst foo = open();\n\ttry {\n\t\tawait use(foo);\n\t} finally {\n\t\tawait foo[Symbol.asyncDispose]();\n\t}\n} 1`] = `
+
+  1 | async function main() {
+  2 | 	const foo = open();
+  3 | 	try {
+  4 | 		await use(foo);
+  5 | 	} finally {
+  6 | 		await foo[Symbol.asyncDispose]();
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-dispose > invalid(9): async function main() {\n\tconst foo = open();\n\ttry {\n\t\tawait use(foo);\n\t} finally {\n\t\tawait foo[Symbol.asyncDispose]();\n\t}\n} 2`] = `
+
+Message:
+  1 | async function main() {
+  2 | 	const foo = open();
+> 3 | 	try {
+    | 	^^^^^
+> 4 | 		await use(foo);
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 	} finally {
+    | ^^^^^^^^^^^^
+> 6 | 		await foo[Symbol.asyncDispose]();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer \`await using\` (Explicit Resource Management) over the \`try\`/\`finally\` disposal pattern.
+  8 | }
+
+Suggestion 1/1: Replace the \`try\`/\`finally\` with \`await using\`.:
+  1 | async function main() {
+  2 | 	{
+  3 | 		await using foo = open();
+  4 |
+  5 | 		await use(foo);
+  6 | 	}
+  7 | }
+
+`;

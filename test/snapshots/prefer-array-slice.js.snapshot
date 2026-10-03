@@ -1,0 +1,498 @@
+exports[`prefer-array-slice > invalid(1): array.splice(index as number)[0] 1`] = `
+
+  1 | array.splice(index as number)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(1): array.splice(index as number)[0] 2`] = `
+
+Message:
+> 1 | array.splice(index as number)[0]
+    |       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | array.slice(index as number)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(1): function getArray(): string[] { return []; } const array = getArray(); array.splice(0)[0] 1`] = `
+
+Filename: file.ts
+
+  1 | function getArray(): string[] { return []; } const array = getArray(); array.splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(1): function getArray(): string[] { return []; } const array = getArray(); array.splice(0)[0] 2`] = `
+
+Message:
+> 1 | function getArray(): string[] { return []; } const array = getArray(); array.splice(0)[0]
+    |                                                                              ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | function getArray(): string[] { return []; } const array = getArray(); array.slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(1): process.argv.splice(2)[0] 1`] = `
+
+  1 | process.argv.splice(2)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(1): process.argv.splice(2)[0] 2`] = `
+
+Message:
+> 1 | process.argv.splice(2)[0]
+    |              ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | process.argv.slice(2)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(10): class ArraySubclass extends Array {} new ArraySubclass().splice(0)[0] 1`] = `
+
+  1 | class ArraySubclass extends Array {} new ArraySubclass().splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(10): class ArraySubclass extends Array {} new ArraySubclass().splice(0)[0] 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array {} new ArraySubclass().splice(0)[0]
+    |                                                          ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | class ArraySubclass extends Array {} new ArraySubclass().slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(10): const array = array; array.splice(index)[0] 1`] = `
+
+  1 | const array = array; array.splice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(10): const array = array; array.splice(index)[0] 2`] = `
+
+Message:
+> 1 | const array = array; array.splice(index)[0]
+    |                            ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | const array = array; array.slice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(11): class ArraySubclass extends Array {} const array = new ArraySubclass(); array.splice(0)[0] 1`] = `
+
+  1 | class ArraySubclass extends Array {} const array = new ArraySubclass(); array.splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(11): class ArraySubclass extends Array {} const array = new ArraySubclass(); array.splice(0)[0] 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array {} const array = new ArraySubclass(); array.splice(0)[0]
+    |                                                                               ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | class ArraySubclass extends Array {} const array = new ArraySubclass(); array.slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(11): function method(this: string[]) { return this.splice(0)[0]; } 1`] = `
+
+  1 | function method(this: string[]) { return this.splice(0)[0]; }
+
+`;
+
+exports[`prefer-array-slice > invalid(11): function method(this: string[]) { return this.splice(0)[0]; } 2`] = `
+
+Message:
+> 1 | function method(this: string[]) { return this.splice(0)[0]; }
+    |                                               ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | function method(this: string[]) { return this.slice(0)[0]; }
+
+`;
+
+exports[`prefer-array-slice > invalid(12): class ArraySubclass extends Array { method() { return this.splice(0)[0]; } } 1`] = `
+
+  1 | class ArraySubclass extends Array { method() { return this.splice(0)[0]; } }
+
+`;
+
+exports[`prefer-array-slice > invalid(12): class ArraySubclass extends Array { method() { return this.splice(0)[0]; } } 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array { method() { return this.splice(0)[0]; } }
+    |                                                            ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | class ArraySubclass extends Array { method() { return this.slice(0)[0]; } }
+
+`;
+
+exports[`prefer-array-slice > invalid(12): class ArraySubclass extends Array<number> {} declare const array: ArraySubclass; array.splice(0)[0] 1`] = `
+
+  1 | class ArraySubclass extends Array<number> {} declare const array: ArraySubclass; array.splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(12): class ArraySubclass extends Array<number> {} declare const array: ArraySubclass; array.splice(0)[0] 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array<number> {} declare const array: ArraySubclass; array.splice(0)[0]
+    |                                                                                        ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | class ArraySubclass extends Array<number> {} declare const array: ArraySubclass; array.slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(13): const BaseArray = Array; class ArraySubclass extends BaseArray {} declare const array: ArraySubclass; array.splice(0)[0] 1`] = `
+
+  1 | const BaseArray = Array; class ArraySubclass extends BaseArray {} declare const array: ArraySubclass; array.splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(13): const BaseArray = Array; class ArraySubclass extends BaseArray {} declare const array: ArraySubclass; array.splice(0)[0] 2`] = `
+
+Message:
+> 1 | const BaseArray = Array; class ArraySubclass extends BaseArray {} declare const array: ArraySubclass; array.splice(0)[0]
+    |                                                                                                             ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | const BaseArray = Array; class ArraySubclass extends BaseArray {} declare const array: ArraySubclass; array.slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(14): class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0] 1`] = `
+
+  1 | class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(14): class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0] 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0]
+    |                                                                                       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(2): array.splice(<number>index)[0] 1`] = `
+
+  1 | array.splice(<number>index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(2): array.splice(<number>index)[0] 2`] = `
+
+Message:
+> 1 | array.splice(<number>index)[0]
+    |       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | array.slice(<number>index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(2): array.splice(index)[0] 1`] = `
+
+  1 | array.splice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(2): array.splice(index)[0] 2`] = `
+
+Message:
+> 1 | array.splice(index)[0]
+    |       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | array.slice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(2): declare const ArrayConstructor: typeof Array; new ArrayConstructor().splice(0)[0] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const ArrayConstructor: typeof Array; new ArrayConstructor().splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(2): declare const ArrayConstructor: typeof Array; new ArrayConstructor().splice(0)[0] 2`] = `
+
+Message:
+> 1 | declare const ArrayConstructor: typeof Array; new ArrayConstructor().splice(0)[0]
+    |                                                                      ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | declare const ArrayConstructor: typeof Array; new ArrayConstructor().slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(3): array.splice(index!)[0] 1`] = `
+
+  1 | array.splice(index!)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(3): array.splice(index!)[0] 2`] = `
+
+Message:
+> 1 | array.splice(index!)[0]
+    |       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | array.slice(index!)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(3): array.splice(index)[offset] 1`] = `
+
+  1 | array.splice(index)[offset]
+
+`;
+
+exports[`prefer-array-slice > invalid(3): array.splice(index)[offset] 2`] = `
+
+Message:
+> 1 | array.splice(index)[offset]
+    |       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | array.slice(index)[offset]
+
+`;
+
+exports[`prefer-array-slice > invalid(3): class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0] 1`] = `
+
+Filename: file.ts
+
+  1 | class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(3): class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0] 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0]
+    |                                                                                       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(4): array.splice(index satisfies number)[0] 1`] = `
+
+  1 | array.splice(index satisfies number)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(4): array.splice(index satisfies number)[0] 2`] = `
+
+Message:
+> 1 | array.splice(index satisfies number)[0]
+    |       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | array.slice(index satisfies number)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(4): array.splice(index).at(0) 1`] = `
+
+  1 | array.splice(index).at(0)
+
+`;
+
+exports[`prefer-array-slice > invalid(4): array.splice(index).at(0) 2`] = `
+
+Message:
+> 1 | array.splice(index).at(0)
+    |       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | array.slice(index).at(0)
+
+`;
+
+exports[`prefer-array-slice > invalid(5): (array as string[]).splice(index)[0] 1`] = `
+
+  1 | (array as string[]).splice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(5): (array as string[]).splice(index)[0] 2`] = `
+
+Message:
+> 1 | (array as string[]).splice(index)[0]
+    |                     ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | (array as string[]).slice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(5): object.array.splice(index)[0] 1`] = `
+
+  1 | object.array.splice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(5): object.array.splice(index)[0] 2`] = `
+
+Message:
+> 1 | object.array.splice(index)[0]
+    |              ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | object.array.slice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(6): array.splice(/* comment */ index)[0] 1`] = `
+
+  1 | array.splice(/* comment */ index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(6): array.splice(/* comment */ index)[0] 2`] = `
+
+Message:
+> 1 | array.splice(/* comment */ index)[0]
+    |       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | array.slice(/* comment */ index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(6): declare const array: string[]; array.splice(index)[0] 1`] = `
+
+  1 | declare const array: string[]; array.splice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(6): declare const array: string[]; array.splice(index)[0] 2`] = `
+
+Message:
+> 1 | declare const array: string[]; array.splice(index)[0]
+    |                                      ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | declare const array: string[]; array.slice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(7): const array = []; array.splice(index)[0] 1`] = `
+
+  1 | const array = []; array.splice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(7): const array = []; array.splice(index)[0] 2`] = `
+
+Message:
+> 1 | const array = []; array.splice(index)[0]
+    |                         ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | const array = []; array.slice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(7): type Strings = string[]; declare const array: Strings; array.splice(index)[0] 1`] = `
+
+  1 | type Strings = string[]; declare const array: Strings; array.splice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(7): type Strings = string[]; declare const array: Strings; array.splice(index)[0] 2`] = `
+
+Message:
+> 1 | type Strings = string[]; declare const array: Strings; array.splice(index)[0]
+    |                                                              ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | type Strings = string[]; declare const array: Strings; array.slice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(8): const BaseArray = Array; class ArraySubclass extends BaseArray {} new ArraySubclass().splice(0)[0] 1`] = `
+
+  1 | const BaseArray = Array; class ArraySubclass extends BaseArray {} new ArraySubclass().splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(8): const BaseArray = Array; class ArraySubclass extends BaseArray {} new ArraySubclass().splice(0)[0] 2`] = `
+
+Message:
+> 1 | const BaseArray = Array; class ArraySubclass extends BaseArray {} new ArraySubclass().splice(0)[0]
+    |                                                                                       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | const BaseArray = Array; class ArraySubclass extends BaseArray {} new ArraySubclass().slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(8): declare const value: unknown; value.splice(index)[0] 1`] = `
+
+  1 | declare const value: unknown; value.splice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(8): declare const value: unknown; value.splice(index)[0] 2`] = `
+
+Message:
+> 1 | declare const value: unknown; value.splice(index)[0]
+    |                                     ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | declare const value: unknown; value.slice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(9): const ArraySubclass = class extends Array {}; new ArraySubclass().splice(0)[0] 1`] = `
+
+  1 | const ArraySubclass = class extends Array {}; new ArraySubclass().splice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(9): const ArraySubclass = class extends Array {}; new ArraySubclass().splice(0)[0] 2`] = `
+
+Message:
+> 1 | const ArraySubclass = class extends Array {}; new ArraySubclass().splice(0)[0]
+    |                                                                   ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | const ArraySubclass = class extends Array {}; new ArraySubclass().slice(0)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(9): type Value = Value; declare const value: Value; value.splice(index)[0] 1`] = `
+
+  1 | type Value = Value; declare const value: Value; value.splice(index)[0]
+
+`;
+
+exports[`prefer-array-slice > invalid(9): type Value = Value; declare const value: Value; value.splice(index)[0] 2`] = `
+
+Message:
+> 1 | type Value = Value; declare const value: Value; value.splice(index)[0]
+    |                                                       ^^^^^^ Prefer \`Array#slice()\` over \`Array#splice()\` when reading from the returned array.
+
+Suggestion 1/1: Use \`Array#slice()\`.:
+  1 | type Value = Value; declare const value: Value; value.slice(index)[0]
+
+`;

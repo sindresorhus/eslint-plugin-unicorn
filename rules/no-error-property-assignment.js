@@ -123,23 +123,15 @@ const isTransparentFrame = frame =>
 	&& transparentBlockParentTypes.has(frame.node.parent.type)
 	&& !frame.isFunctionBoundary;
 
-const canPropagateToFrame = (knownErrorVariableFrames, targetFrame) => {
-	for (const frame of knownErrorVariableFrames.toReversed()) {
-		if (frame === targetFrame) {
-			return true;
-		}
+// The root `Program` frame is never transparent, so a frame that is not on the stack cannot be reached
+const canPropagateToFrame = (knownErrorVariableFrames, targetFrame) =>
+	knownErrorVariableFrames
+		.slice(knownErrorVariableFrames.indexOf(targetFrame) + 1)
+		.every(frame => isTransparentFrame(frame));
 
-		if (!isTransparentFrame(frame)) {
-			return false;
-		}
-	}
-
-	return false;
-};
-
+// The root `Program` frame is never transparent, so this always finds a frame
 const getLocalUpdateFrame = knownErrorVariableFrames =>
-	knownErrorVariableFrames.findLast(frame => !isTransparentFrame(frame))
-	?? knownErrorVariableFrames.at(-1);
+	knownErrorVariableFrames.findLast(frame => !isTransparentFrame(frame));
 
 const updateExistingKnownErrorVariable = (knownErrorVariableFrames, variable, constructorName) => {
 	let isCrossesFunctionBoundary = false;

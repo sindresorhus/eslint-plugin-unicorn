@@ -548,6 +548,9 @@ test({
 				return {type, id, body, parent};
 			}
 		`,
+		// The destructured variable is not visible outside its block
+		'{ const {a} = foo; }\nconsole.log(foo.a);',
+		'function bar() { const {a} = foo; }\nconsole.log(foo.a);',
 	],
 	invalid: [
 		invalidTestCase({
@@ -1099,6 +1102,28 @@ test({
 		{
 			code: 'const {a} = o; const f = () => mutate(o); console.log(o.a);',
 			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [
+		// Writes through destructuring assignment targets
+		'const {a} = foo;\n[foo.a = 1] = list;\nconsole.log(foo.a);',
+		'const {a} = foo;\n({...foo.a} = bar);\nconsole.log(foo.a);',
+		// The `in` guard is the right operand of `&&`
+		'const {a} = foo;\nconst value = \'b\' in foo && \'a\' in foo ? foo.a : undefined;',
+	],
+	invalid: [
+		// A write to a deeper member is not a write to `foo.a`
+		invalidTestCase({
+			code: 'const {a} = foo;\nfoo.b.a = 1;\nconsole.log(foo.a);',
+			suggestions: ['const {a} = foo;\nfoo.b.a = 1;\nconsole.log(a);'],
+		}),
+		// A nested member expression has no suggestion
+		{
+			code: 'const {a} = foo;\nconsole.log(foo.a.b);',
+			errors: [{messageId: 'consistentDestructuring', suggestions: []}],
 		},
 	],
 });

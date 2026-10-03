@@ -509,6 +509,30 @@ test.snapshot({
 		reported('BigInt64Array.from([]).reduce((a, b) => a + b)'),
 		reported('BigUint64Array.of(1n).reduce((a, b) => a + b)'),
 		reportedTypeScript('function sum(values: BigInt64Array | Int8Array) { return values.reduce((a, b) => a + b); }'),
+
+		// Autofix edge cases
+		// A callback with no parameters
+		'const array = [1]; const result = array.reduce(() => compute(), 0);',
+		// The accumulator as a computed key is not a member access on it
+		'const array = [1]; const result = array.reduce((accumulator, element) => element[accumulator], 0);',
+		// A non-shorthand property keeps its key
+		'const array = [1]; const result = array.reduce((accumulator, element) => ({key: accumulator, element}), {});',
+		// An extra `;` (empty statement) after the declaration is replaced too
+		'const array = [1]; const result = array.reduce((a, b) => Math.max(a, b), 0);;',
+		// No autofix: the accumulator is read in a getter, a different scope
+		'const array = [1]; const result = array.reduce((accumulator, element) => ({get value() { return accumulator; }}), {});',
+		// No autofix: a shorthand property would change its key
+		'const array = [1]; const result = array.reduce((accumulator, element) => ({accumulator, element}), {});',
+		// No autofix: the accumulator escapes, read from a default parameter and from a nested function
+		'const array = [1]; const result = array.reduce((accumulator, element = accumulator) => [() => accumulator], array);',
+		// No autofix: unsupported callbacks
+		'const array = [1]; const result = array.reduce(async (a, b) => Math.max(a, b), 0);',
+		'const array = [1]; const result = array.reduce((a, b) => Math.max(a, compute(() => b)), 0);',
+		'const array = [1]; const result = array.reduce((a, b) => a.concat(b), []);',
+		// No autofix: a callback variable reads its array parameter
+		'const array = [1]; const callback = (total, item, index, list) => Math.max(total, list.length); const result = array.reduce(callback, 0);',
+		// No autofix: the array is reassigned inside the call (a runtime `TypeError` for a `const`)
+		'const array = [1]; const result = array.reduce((a, b) => Math.max(a, array = b), 0);',
 	],
 });
 

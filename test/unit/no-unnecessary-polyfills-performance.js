@@ -1,7 +1,7 @@
 import path from 'node:path';
 import url from 'node:url';
 import {execFileSync} from 'node:child_process';
-import test from 'ava';
+import test from 'node:test';
 
 test('No unnecessary polyfills avoids scanning every pattern for unrelated imports', t => {
 	const testFile = url.fileURLToPath(import.meta.url);
@@ -53,8 +53,8 @@ test('No unnecessary polyfills avoids scanning every pattern for unrelated impor
 	const output = execFileSync(process.execPath, ['--input-type=module', '-e', script], {cwd, encoding: 'utf8'});
 	const testCounts = JSON.parse(output.trim());
 
-	t.true(Number.isFinite(testCounts.normalImport), `Expected numeric count output, got ${output}.`);
-	t.true(Number.isFinite(testCounts.polyfillPrefixImport), `Expected numeric count output, got ${output}.`);
-	t.true(testCounts.normalImport < 10, `Expected fewer than 10 polyfill regex checks for normal import, got ${testCounts.normalImport}.`);
-	t.true(testCounts.polyfillPrefixImport < 20, `Expected fewer than 20 polyfill regex checks for polyfill-prefix import, got ${testCounts.polyfillPrefixImport}.`);
+	t.assert.strictEqual(Number.isFinite(testCounts.normalImport), true, `Expected numeric count output, got ${output}.`);
+	t.assert.strictEqual(Number.isFinite(testCounts.polyfillPrefixImport), true, `Expected numeric count output, got ${output}.`);
+	t.assert.strictEqual(testCounts.normalImport < 10, true, `Expected fewer than 10 polyfill regex checks for normal import, got ${testCounts.normalImport}.`);
+	t.assert.strictEqual(testCounts.polyfillPrefixImport < 20, true, `Expected fewer than 20 polyfill regex checks for polyfill-prefix import, got ${testCounts.polyfillPrefixImport}.`);
 });

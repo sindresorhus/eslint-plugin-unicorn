@@ -516,6 +516,18 @@ test({
 	],
 });
 
+// Unresolvable bindings
+test({
+	valid: [
+		// More than one definition is uncertain
+		'var array = {}; var array = []; array.map(fn);',
+	],
+	invalid: [
+		// A cyclic alias stops resolving instead of looping
+		{code: 'const first = second; const second = first; first.map(fn);', errors: 1},
+	],
+});
+
 test.typescript({
 	valid: [
 		'const set = new Set(); void (set.has(value) as boolean);',

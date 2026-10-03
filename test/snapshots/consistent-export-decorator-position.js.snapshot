@@ -1,0 +1,653 @@
+exports[`consistent-export-decorator-position > invalid(1): export default @decorator class Foo {} 1`] = `
+
+  1 | export default @decorator class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(1): export default @decorator class Foo {} 2`] = `
+
+Message:
+> 1 | export default @decorator class Foo {}
+    |                ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`after\`.
+
+Output:
+  1 | @decorator
+  2 | export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(10): @foo\n@bar export class Foo {} 1`] = `
+
+  1 | @foo
+  2 | @bar export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(10): @foo\n@bar export class Foo {} 2`] = `
+
+Message:
+  1 | @foo
+> 2 | @bar export class Foo {}
+    | ^^^^ Expected export decorators to be positioned \`above\`, but found \`mixed\`.
+
+Output:
+  1 | @foo
+  2 | @bar
+  3 | export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(11): @foo export @bar class Foo {} 1`] = `
+
+  1 | @foo export @bar class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(11): @foo export @bar class Foo {} 2`] = `
+
+Message:
+> 1 | @foo export @bar class Foo {}
+    | ^^^^ Expected export decorators to be positioned \`above\`, but found \`mixed\`.
+
+Output:
+  1 | @foo
+  2 | @bar
+  3 | export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(12): @foo export default @bar class Foo {} 1`] = `
+
+  1 | @foo export default @bar class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(12): @foo export default @bar class Foo {} 2`] = `
+
+Message:
+> 1 | @foo export default @bar class Foo {}
+    | ^^^^ Expected export decorators to be positioned \`above\`, but found \`mixed\`.
+
+Output:
+  1 | @foo
+  2 | @bar
+  3 | export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(13): @decorator(\n\tfoo\n) export class Foo {} 1`] = `
+
+  1 | @decorator(
+  2 | 	foo
+  3 | ) export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(13): @decorator(\n\tfoo\n) export class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator(
+    | ^^^^^^^^^^^
+> 2 | 	foo
+    | ^^^^
+> 3 | ) export class Foo {}
+    | ^ Expected export decorators to be positioned \`above\`, but found \`before\`.
+
+Output:
+  1 | @decorator(
+  2 | 	foo
+  3 | )
+  4 | export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(14): namespace N {\n\t@decorator export class Foo {}\n} 1`] = `
+
+  1 | namespace N {
+  2 | 	@decorator export class Foo {}
+  3 | }
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(14): namespace N {\n\t@decorator export class Foo {}\n} 2`] = `
+
+Message:
+  1 | namespace N {
+> 2 | 	@decorator export class Foo {}
+    | 	^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`before\`.
+  3 | }
+
+Output:
+  1 | namespace N {
+  2 | 	@decorator
+  3 | 	export class Foo {}
+  4 | }
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(15): @decorator\nexport default class Foo {} 1`] = `
+
+Options:
+- 'before'
+
+Code:
+  1 | @decorator
+  2 | export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(15): @decorator\nexport default class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`before\`, but found \`above\`.
+  2 | export default class Foo {}
+
+Output:
+  1 | @decorator export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(16): @foo\n@bar export class Foo {} 1`] = `
+
+Options:
+- 'before'
+
+Code:
+  1 | @foo
+  2 | @bar export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(16): @foo\n@bar export class Foo {} 2`] = `
+
+Message:
+> 1 | @foo
+    | ^^^^ Expected export decorators to be positioned \`before\`, but found \`mixed\`.
+  2 | @bar export class Foo {}
+
+Output:
+  1 | @foo @bar export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(17): @foo export @bar class Foo {} 1`] = `
+
+Options:
+- 'before'
+
+Code:
+  1 | @foo export @bar class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(17): @foo export @bar class Foo {} 2`] = `
+
+Message:
+> 1 | @foo export @bar class Foo {}
+    |             ^^^^ Expected export decorators to be positioned \`before\`, but found \`mixed\`.
+
+Output:
+  1 | @foo @bar export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(18): @foo export default @bar class Foo {} 1`] = `
+
+Options:
+- 'before'
+
+Code:
+  1 | @foo export default @bar class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(18): @foo export default @bar class Foo {} 2`] = `
+
+Message:
+> 1 | @foo export default @bar class Foo {}
+    |                     ^^^^ Expected export decorators to be positioned \`before\`, but found \`mixed\`.
+
+Output:
+  1 | @foo @bar export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(19): export default @decorator class Foo {} 1`] = `
+
+Options:
+- 'before'
+
+Code:
+  1 | export default @decorator class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(19): export default @decorator class Foo {} 2`] = `
+
+Message:
+> 1 | export default @decorator class Foo {}
+    |                ^^^^^^^^^^ Expected export decorators to be positioned \`before\`, but found \`after\`.
+
+Output:
+  1 | @decorator export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(2): export default @decorator class {} 1`] = `
+
+  1 | export default @decorator class {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(2): export default @decorator class {} 2`] = `
+
+Message:
+> 1 | export default @decorator class {}
+    |                ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`after\`.
+
+Output:
+  1 | @decorator
+  2 | export default class {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(20): @decorator\nexport class Foo {} 1`] = `
+
+Options:
+- 'before'
+
+Code:
+  1 | @decorator
+  2 | export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(20): @decorator\nexport class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`before\`, but found \`above\`.
+  2 | export class Foo {}
+
+Output:
+  1 | @decorator export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(21): export @decorator class Foo {} 1`] = `
+
+Options:
+- 'before'
+
+Code:
+  1 | export @decorator class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(21): export @decorator class Foo {} 2`] = `
+
+Message:
+> 1 | export @decorator class Foo {}
+    |        ^^^^^^^^^^ Expected export decorators to be positioned \`before\`, but found \`after\`.
+
+Output:
+  1 | @decorator export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(22): @decorator\nexport default class Foo {} 1`] = `
+
+Options:
+- 'after'
+
+Code:
+  1 | @decorator
+  2 | export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(22): @decorator\nexport default class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`after\`, but found \`above\`.
+  2 | export default class Foo {}
+
+Output:
+  1 | export default @decorator class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(23): @decorator export default class Foo {} 1`] = `
+
+Options:
+- 'after'
+
+Code:
+  1 | @decorator export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(23): @decorator export default class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator export default class Foo {}
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`after\`, but found \`before\`.
+
+Output:
+  1 | export default @decorator class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(24): @decorator\nexport class Foo {} 1`] = `
+
+Options:
+- 'after'
+
+Code:
+  1 | @decorator
+  2 | export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(24): @decorator\nexport class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`after\`, but found \`above\`.
+  2 | export class Foo {}
+
+Output:
+  1 | export @decorator class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(25): @decorator export class Foo {} 1`] = `
+
+Options:
+- 'after'
+
+Code:
+  1 | @decorator export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(25): @decorator export class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator export class Foo {}
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`after\`, but found \`before\`.
+
+Output:
+  1 | export @decorator class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(26): @foo export @bar class Foo {} 1`] = `
+
+Options:
+- 'after'
+
+Code:
+  1 | @foo export @bar class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(26): @foo export @bar class Foo {} 2`] = `
+
+Message:
+> 1 | @foo export @bar class Foo {}
+    | ^^^^ Expected export decorators to be positioned \`after\`, but found \`mixed\`.
+
+Output:
+  1 | export @foo @bar class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(27): @foo export default @bar class Foo {} 1`] = `
+
+Options:
+- 'after'
+
+Code:
+  1 | @foo export default @bar class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(27): @foo export default @bar class Foo {} 2`] = `
+
+Message:
+> 1 | @foo export default @bar class Foo {}
+    | ^^^^ Expected export decorators to be positioned \`after\`, but found \`mixed\`.
+
+Output:
+  1 | export default @foo @bar class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(28): export default @decorator(/* comment */ value) class Foo {} 1`] = `
+
+  1 | export default @decorator(/* comment */ value) class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(28): export default @decorator(/* comment */ value) class Foo {} 2`] = `
+
+Message:
+> 1 | export default @decorator(/* comment */ value) class Foo {}
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`after\`.
+
+Output:
+  1 | @decorator(/* comment */ value)
+  2 | export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(29): export default /* comment */ @decorator class Foo {} 1`] = `
+
+  1 | export default /* comment */ @decorator class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(29): export default /* comment */ @decorator class Foo {} 2`] = `
+
+Message:
+> 1 | export default /* comment */ @decorator class Foo {}
+    |                              ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`after\`.
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(3): @decorator export default class Foo {} 1`] = `
+
+  1 | @decorator export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(3): @decorator export default class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator export default class Foo {}
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`before\`.
+
+Output:
+  1 | @decorator
+  2 | export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(30): @decorator /* comment */ export default class Foo {} 1`] = `
+
+  1 | @decorator /* comment */ export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(30): @decorator /* comment */ export default class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator /* comment */ export default class Foo {}
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`before\`.
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(31): @decorator\nexport default abstract class Foo {} 1`] = `
+
+Options:
+- 'after'
+
+Code:
+  1 | @decorator
+  2 | export default abstract class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(31): @decorator\nexport default abstract class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`after\`, but found \`above\`.
+  2 | export default abstract class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(32): export default @decorator class Foo {\n\tmethod() {}\n} 1`] = `
+
+  1 | export default @decorator class Foo {
+  2 | 	method() {}
+  3 | }
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(32): export default @decorator class Foo {\n\tmethod() {}\n} 2`] = `
+
+Message:
+> 1 | export default @decorator class Foo {
+    |                ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`after\`.
+  2 | 	method() {}
+  3 | }
+
+Output:
+  1 | @decorator
+  2 | export default class Foo {
+  3 | 	method() {}
+  4 | }
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(4): export @decorator class Foo {} 1`] = `
+
+  1 | export @decorator class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(4): export @decorator class Foo {} 2`] = `
+
+Message:
+> 1 | export @decorator class Foo {}
+    |        ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`after\`.
+
+Output:
+  1 | @decorator
+  2 | export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(5): @decorator export class Foo {} 1`] = `
+
+  1 | @decorator export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(5): @decorator export class Foo {} 2`] = `
+
+Message:
+> 1 | @decorator export class Foo {}
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`before\`.
+
+Output:
+  1 | @decorator
+  2 | export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(6): export default\n@decorator\nclass Foo {} 1`] = `
+
+  1 | export default
+  2 | @decorator
+  3 | class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(6): export default\n@decorator\nclass Foo {} 2`] = `
+
+Message:
+  1 | export default
+> 2 | @decorator
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`after\`.
+  3 | class Foo {}
+
+Output:
+  1 | @decorator
+  2 | export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(7): export\n@decorator\nclass Foo {} 1`] = `
+
+  1 | export
+  2 | @decorator
+  3 | class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(7): export\n@decorator\nclass Foo {} 2`] = `
+
+Message:
+  1 | export
+> 2 | @decorator
+    | ^^^^^^^^^^ Expected export decorators to be positioned \`above\`, but found \`after\`.
+  3 | class Foo {}
+
+Output:
+  1 | @decorator
+  2 | export class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(8): export default @foo @bar(options) class Foo {} 1`] = `
+
+  1 | export default @foo @bar(options) class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(8): export default @foo @bar(options) class Foo {} 2`] = `
+
+Message:
+> 1 | export default @foo @bar(options) class Foo {}
+    |                ^^^^ Expected export decorators to be positioned \`above\`, but found \`after\`.
+
+Output:
+  1 | @foo
+  2 | @bar(options)
+  3 | export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(9): @foo @bar(options) export default class Foo {} 1`] = `
+
+  1 | @foo @bar(options) export default class Foo {}
+
+`;
+
+exports[`consistent-export-decorator-position > invalid(9): @foo @bar(options) export default class Foo {} 2`] = `
+
+Message:
+> 1 | @foo @bar(options) export default class Foo {}
+    | ^^^^ Expected export decorators to be positioned \`above\`, but found \`before\`.
+
+Output:
+  1 | @foo
+  2 | @bar(options)
+  3 | export default class Foo {}
+
+`;

@@ -59,18 +59,10 @@ export default function getParentSyntaxOpeningParenthesis(node, context) {
 			return;
 		}
 
-		case 'SwitchStatement': {
-			if (parent.discriminant === node) {
-				return context.sourceCode.getFirstToken(parent, 1);
-			}
-
-			return;
-		}
-
+		// `switch (node) {}` and `with (node) {}`. Their other children, `SwitchCase` and the body statement, never directly follow an opening parenthesis.
+		case 'SwitchStatement':
 		case 'WithStatement': {
-			if (parent.object === node) {
-				return context.sourceCode.getFirstToken(parent, 1);
-			}
+			return context.sourceCode.getFirstToken(parent, 1);
 		}
 
 		// No default

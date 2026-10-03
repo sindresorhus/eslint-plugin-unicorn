@@ -1,0 +1,518 @@
+exports[`prefer-array-from-range > invalid(1): [...Array(length).keys()]; 1`] = `
+
+  1 | [...Array(length).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(1): [...Array(length).keys()]; 2`] = `
+
+Message:
+> 1 | [...Array(length).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(10): Array.from((Array(length).keys())); 1`] = `
+
+  1 | Array.from((Array(length).keys()));
+
+`;
+
+exports[`prefer-array-from-range > invalid(10): Array.from((Array(length).keys())); 2`] = `
+
+Message:
+> 1 | Array.from((Array(length).keys()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(11): [...(Array(length).keys())]; 1`] = `
+
+  1 | [...(Array(length).keys())];
+
+`;
+
+exports[`prefer-array-from-range > invalid(11): [...(Array(length).keys())]; 2`] = `
+
+Message:
+> 1 | [...(Array(length).keys())];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(12): [\n\t...Array(\n\t\tlength\n\t).keys()\n]; 1`] = `
+
+  1 | [
+  2 | 	...Array(
+  3 | 		length
+  4 | 	).keys()
+  5 | ];
+
+`;
+
+exports[`prefer-array-from-range > invalid(12): [\n\t...Array(\n\t\tlength\n\t).keys()\n]; 2`] = `
+
+Message:
+> 1 | [
+    | ^
+> 2 | 	...Array(
+    | ^^^^^^^^^^
+> 3 | 		length
+    | ^^^^^^^^
+> 4 | 	).keys()
+    | ^^^^^^^^^
+> 5 | ];
+    | ^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(13): Array.from(\n\tArray(\n\t\tlength\n\t).keys()\n); 1`] = `
+
+  1 | Array.from(
+  2 | 	Array(
+  3 | 		length
+  4 | 	).keys()
+  5 | );
+
+`;
+
+exports[`prefer-array-from-range > invalid(13): Array.from(\n\tArray(\n\t\tlength\n\t).keys()\n); 2`] = `
+
+Message:
+> 1 | Array.from(
+    | ^^^^^^^^^^^
+> 2 | 	Array(
+    | ^^^^^^^
+> 3 | 		length
+    | ^^^^^^^^
+> 4 | 	).keys()
+    | ^^^^^^^^^
+> 5 | );
+    | ^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(14): [...Array(/* keep */ length).keys()]; 1`] = `
+
+  1 | [...Array(/* keep */ length).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(14): [...Array(/* keep */ length).keys()]; 2`] = `
+
+Message:
+> 1 | [...Array(/* keep */ length).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+`;
+
+exports[`prefer-array-from-range > invalid(15): [.../* keep */Array(length).keys()]; 1`] = `
+
+  1 | [.../* keep */Array(length).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(15): [.../* keep */Array(length).keys()]; 2`] = `
+
+Message:
+> 1 | [.../* keep */Array(length).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+`;
+
+exports[`prefer-array-from-range > invalid(16): [...Array(length)/* keep */.keys()]; 1`] = `
+
+  1 | [...Array(length)/* keep */.keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(16): [...Array(length)/* keep */.keys()]; 2`] = `
+
+Message:
+> 1 | [...Array(length)/* keep */.keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+`;
+
+exports[`prefer-array-from-range > invalid(17): [...Array(length).keys(/* keep */)]; 1`] = `
+
+  1 | [...Array(length).keys(/* keep */)];
+
+`;
+
+exports[`prefer-array-from-range > invalid(17): [...Array(length).keys(/* keep */)]; 2`] = `
+
+Message:
+> 1 | [...Array(length).keys(/* keep */)];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+`;
+
+exports[`prefer-array-from-range > invalid(18): Array.from(/* keep */ Array(length).keys()); 1`] = `
+
+  1 | Array.from(/* keep */ Array(length).keys());
+
+`;
+
+exports[`prefer-array-from-range > invalid(18): Array.from(/* keep */ Array(length).keys()); 2`] = `
+
+Message:
+> 1 | Array.from(/* keep */ Array(length).keys());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+`;
+
+exports[`prefer-array-from-range > invalid(19): [...Array<number>(length).keys()]; 1`] = `
+
+  1 | [...Array<number>(length).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(19): [...Array<number>(length).keys()]; 2`] = `
+
+Message:
+> 1 | [...Array<number>(length).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(2): [...new Array(length).keys()]; 1`] = `
+
+  1 | [...new Array(length).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(2): [...new Array(length).keys()]; 2`] = `
+
+Message:
+> 1 | [...new Array(length).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(20): [...new Array<number>(length).keys()]; 1`] = `
+
+  1 | [...new Array<number>(length).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(20): [...new Array<number>(length).keys()]; 2`] = `
+
+Message:
+> 1 | [...new Array<number>(length).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(21): [...Array(length as number).keys()]; 1`] = `
+
+  1 | [...Array(length as number).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(21): [...Array(length as number).keys()]; 2`] = `
+
+Message:
+> 1 | [...Array(length as number).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length: length as number}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(22): [...(Array(length) as number[]).keys()]; 1`] = `
+
+  1 | [...(Array(length) as number[]).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(22): [...(Array(length) as number[]).keys()]; 2`] = `
+
+Message:
+> 1 | [...(Array(length) as number[]).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(23): [...(new Array(length) as number[]).keys()]; 1`] = `
+
+  1 | [...(new Array(length) as number[]).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(23): [...(new Array(length) as number[]).keys()]; 2`] = `
+
+Message:
+> 1 | [...(new Array(length) as number[]).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(24): [...(Array(length)!).keys()]; 1`] = `
+
+  1 | [...(Array(length)!).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(24): [...(Array(length)!).keys()]; 2`] = `
+
+Message:
+> 1 | [...(Array(length)!).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(25): [...(Array(length) satisfies number[]).keys()]; 1`] = `
+
+  1 | [...(Array(length) satisfies number[]).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(25): [...(Array(length) satisfies number[]).keys()]; 2`] = `
+
+Message:
+> 1 | [...(Array(length) satisfies number[]).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(26): Array.from((Array(length) as number[]).keys()); 1`] = `
+
+  1 | Array.from((Array(length) as number[]).keys());
+
+`;
+
+exports[`prefer-array-from-range > invalid(26): Array.from((Array(length) as number[]).keys()); 2`] = `
+
+Message:
+> 1 | Array.from((Array(length) as number[]).keys());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(27): [...(Array(length).keys() as Iterable<number>)]; 1`] = `
+
+  1 | [...(Array(length).keys() as Iterable<number>)];
+
+`;
+
+exports[`prefer-array-from-range > invalid(27): [...(Array(length).keys() as Iterable<number>)]; 2`] = `
+
+Message:
+> 1 | [...(Array(length).keys() as Iterable<number>)];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(28): [...(Array(length).keys()!)]; 1`] = `
+
+  1 | [...(Array(length).keys()!)];
+
+`;
+
+exports[`prefer-array-from-range > invalid(28): [...(Array(length).keys()!)]; 2`] = `
+
+Message:
+> 1 | [...(Array(length).keys()!)];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(29): [...(<Iterable<number>>Array(length).keys())]; 1`] = `
+
+  1 | [...(<Iterable<number>>Array(length).keys())];
+
+`;
+
+exports[`prefer-array-from-range > invalid(29): [...(<Iterable<number>>Array(length).keys())]; 2`] = `
+
+Message:
+> 1 | [...(<Iterable<number>>Array(length).keys())];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(3): Array.from(Array(length).keys()); 1`] = `
+
+  1 | Array.from(Array(length).keys());
+
+`;
+
+exports[`prefer-array-from-range > invalid(3): Array.from(Array(length).keys()); 2`] = `
+
+Message:
+> 1 | Array.from(Array(length).keys());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(30): Array.from(Array(length).keys() as Iterable<number>); 1`] = `
+
+  1 | Array.from(Array(length).keys() as Iterable<number>);
+
+`;
+
+exports[`prefer-array-from-range > invalid(30): Array.from(Array(length).keys() as Iterable<number>); 2`] = `
+
+Message:
+> 1 | Array.from(Array(length).keys() as Iterable<number>);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(4): Array.from(new Array(length).keys()); 1`] = `
+
+  1 | Array.from(new Array(length).keys());
+
+`;
+
+exports[`prefer-array-from-range > invalid(4): Array.from(new Array(length).keys()); 2`] = `
+
+Message:
+> 1 | Array.from(new Array(length).keys());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(5): Array.from(Array(length).keys(),); 1`] = `
+
+  1 | Array.from(Array(length).keys(),);
+
+`;
+
+exports[`prefer-array-from-range > invalid(5): Array.from(Array(length).keys(),); 2`] = `
+
+Message:
+> 1 | Array.from(Array(length).keys(),);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(6): [...Array(count + 1).keys()]; 1`] = `
+
+  1 | [...Array(count + 1).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(6): [...Array(count + 1).keys()]; 2`] = `
+
+Message:
+> 1 | [...Array(count + 1).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length: count + 1}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(7): Array.from(Array(count + 1).keys()); 1`] = `
+
+  1 | Array.from(Array(count + 1).keys());
+
+`;
+
+exports[`prefer-array-from-range > invalid(7): Array.from(Array(count + 1).keys()); 2`] = `
+
+Message:
+> 1 | Array.from(Array(count + 1).keys());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length: count + 1}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(8): [...Array((count + 1)).keys()]; 1`] = `
+
+  1 | [...Array((count + 1)).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(8): [...Array((count + 1)).keys()]; 2`] = `
+
+Message:
+> 1 | [...Array((count + 1)).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length: (count + 1)}, (_, index) => index);
+
+`;
+
+exports[`prefer-array-from-range > invalid(9): [...Array((count, fallback)).keys()]; 1`] = `
+
+  1 | [...Array((count, fallback)).keys()];
+
+`;
+
+exports[`prefer-array-from-range > invalid(9): [...Array((count, fallback)).keys()]; 2`] = `
+
+Message:
+> 1 | [...Array((count, fallback)).keys()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.from({length}, …)\` when creating range arrays.
+
+Output:
+  1 | Array.from({length: (count, fallback)}, (_, index) => index);
+
+`;

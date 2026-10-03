@@ -1,4 +1,5 @@
 import {isFunction} from '../ast/index.js';
+import getVisitorChildNodes from './get-visitor-child-nodes.js';
 
 /**
 Check whether `node` or any of its descendants, excluding nested functions, is a suspension point (`await`, `for await…of`, or `yield`).
@@ -22,14 +23,5 @@ export default function containsSuspensionPoint(node, visitorKeys) {
 		return false;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		for (const childNode of Array.isArray(child) ? child : [child]) {
-			if (childNode?.type && containsSuspensionPoint(childNode, visitorKeys)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(child => containsSuspensionPoint(child, visitorKeys));
 }

@@ -1,5 +1,5 @@
+import test from 'node:test';
 import {Linter} from 'eslint';
-import test from 'ava';
 import outdent from 'outdent';
 import getIndentUnit from '../../rules/utils/get-indent-unit.js';
 import parsers from '../utils/parsers.js';
@@ -44,7 +44,7 @@ const getIndentUnitOf = (code, {jsx = false} = {}) => {
 };
 
 test('detects tabs', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		function foo() {
 		\tif (bar) {
 		\t\tbaz();
@@ -54,7 +54,7 @@ test('detects tabs', t => {
 });
 
 test('detects two spaces', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		function foo() {
 		  if (bar) {
 		    baz();
@@ -64,7 +64,7 @@ test('detects two spaces', t => {
 });
 
 test('detects four spaces', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		function foo() {
 		    if (bar) {
 		        baz();
@@ -74,7 +74,7 @@ test('detects four spaces', t => {
 });
 
 test('detects an unusual space count', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		function foo() {
 		   if (bar) {
 		      baz();
@@ -84,14 +84,14 @@ test('detects an unusual space count', t => {
 });
 
 test('falls back to a tab when nothing is indented', t => {
-	t.is(getIndentUnitOf(''), '\t');
-	t.is(getIndentUnitOf('foo();'), '\t');
-	t.is(getIndentUnitOf('foo();\nbar();\n'), '\t');
-	t.is(getIndentUnitOf('function foo() { bar(); }'), '\t');
+	t.assert.strictEqual(getIndentUnitOf(''), '\t');
+	t.assert.strictEqual(getIndentUnitOf('foo();'), '\t');
+	t.assert.strictEqual(getIndentUnitOf('foo();\nbar();\n'), '\t');
+	t.assert.strictEqual(getIndentUnitOf('function foo() { bar(); }'), '\t');
 });
 
 test('picks the most common unit in a mixed file', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		function foo() {
 		  if (bar) {
 		    baz();
@@ -104,7 +104,7 @@ test('picks the most common unit in a mixed file', t => {
 		\tbar();
 		}
 	`), '  ');
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		function spaced() {
 		  bar();
 		}
@@ -120,7 +120,7 @@ test('picks the most common unit in a mixed file', t => {
 });
 
 test('keeps a single tab when tab-indented lines jump two levels', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		switch (foo) {
 		\t\tcase 1:
 		\t\t\t\tbar();
@@ -129,7 +129,7 @@ test('keeps a single tab when tab-indented lines jump two levels', t => {
 });
 
 test('reports the step it sees when space-indented lines jump two levels', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		switch (foo) {
 		    case 1:
 		        bar();
@@ -138,7 +138,7 @@ test('reports the step it sees when space-indented lines jump two levels', t => 
 });
 
 test('ignores the inside of template literals', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		function foo() {
 		  return \`
 		\t\t\tone
@@ -148,7 +148,7 @@ test('ignores the inside of template literals', t => {
 		  \`;
 		}
 	`), '  ');
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		const text = \`
 		    one
 		    two
@@ -158,7 +158,7 @@ test('ignores the inside of template literals', t => {
 });
 
 test('ignores the inside of block comments', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		/*
 		    one
 		    two
@@ -169,7 +169,7 @@ test('ignores the inside of block comments', t => {
 		\tbar();
 		}
 	`), '\t');
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		/**
 		    Documentation.
 		    More documentation.
@@ -182,7 +182,7 @@ test('ignores the inside of block comments', t => {
 });
 
 test('ignores the inside of multi-line strings', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		const text = 'one \\
 		    two \\
 		    three \\
@@ -194,7 +194,7 @@ test('ignores the inside of multi-line strings', t => {
 });
 
 test('ignores the inside of JSX text', t => {
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		const element = <p>
 		    one
 		    two
@@ -209,7 +209,7 @@ test('ignores the inside of JSX text', t => {
 
 test('does not count code that lies on a token-continuation line as indentation', t => {
 	// The closing backtick sits on an indented line, but that line belongs to the template literal.
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		const text = \`
 		    one
 		    two
@@ -223,7 +223,7 @@ test('does not count code that lies on a token-continuation line as indentation'
 
 test('uses the first line of a multi-line token', t => {
 	// The opening line of a template literal or comment follows the file's indentation.
-	t.is(getIndentUnitOf(outdent`
+	t.assert.strictEqual(getIndentUnitOf(outdent`
 		function foo() {
 		  const text = \`
 		\t\tone
@@ -237,8 +237,8 @@ test('uses the first line of a multi-line token', t => {
 });
 
 test('handles CRLF line endings', t => {
-	t.is(getIndentUnitOf('function foo() {\r\n  if (bar) {\r\n    baz();\r\n  }\r\n}\r\n'), '  ');
-	t.is(getIndentUnitOf('function foo() {\r\n\tif (bar) {\r\n\t\tbaz();\r\n\t}\r\n}\r\n'), '\t');
+	t.assert.strictEqual(getIndentUnitOf('function foo() {\r\n  if (bar) {\r\n    baz();\r\n  }\r\n}\r\n'), '  ');
+	t.assert.strictEqual(getIndentUnitOf('function foo() {\r\n\tif (bar) {\r\n\t\tbaz();\r\n\t}\r\n}\r\n'), '\t');
 });
 
 test('detects indentation in TypeScript', t => {
@@ -269,5 +269,5 @@ test('detects indentation in TypeScript', t => {
 			'test/capture': 'error',
 		},
 	});
-	t.deepEqual(results, ['  ']);
+	t.assert.deepStrictEqual(results, ['  ']);
 });

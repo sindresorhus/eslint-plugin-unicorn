@@ -12,7 +12,6 @@ import {
 	getStaticRegExp,
 	getStaticValueIfNoSideEffects,
 	hasNonDirectiveComment,
-	hasPotentiallyMutableMemberAccess,
 } from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
@@ -71,7 +70,7 @@ const getLoopData = node => {
 
 const getPreviousLetDeclaration = (node, matchIdentifierName) => {
 	const {parent} = node;
-	if (!parent || !Array.isArray(parent.body)) {
+	if (!Array.isArray(parent.body)) {
 		return;
 	}
 
@@ -122,12 +121,8 @@ const isStaticConstStringIdentifier = (node, context) => {
 		return false;
 	}
 
-	const staticResult = getStaticValueIfNoSideEffects(node, context);
-	if (staticResult && definition.node.init && hasPotentiallyMutableMemberAccess(definition.node.init, context)) {
-		return false;
-	}
-
-	return typeof staticResult?.value === 'string';
+	// This also rejects potentially mutable member reads in the initializer
+	return typeof getStaticValueIfNoSideEffects(node, context)?.value === 'string';
 };
 
 const isGlobalRegExpDefinition = (variable, context) => {
@@ -164,7 +159,8 @@ const canMatchEmptyString = regexp => {
 
 	try {
 		tree = parseRegExp(regexp.source, regexp.flags, {
-			unicodePropertyEscape: regexp.flags.includes('u'),
+			// Property escapes like `\p{L}` are valid with both the `u` and the `v` flag
+			unicodePropertyEscape: regexp.flags.includes('u') || regexp.flags.includes('v'),
 			unicodeSet: regexp.flags.includes('v'),
 			namedGroups: true,
 			lookbehind: true,
@@ -203,6 +199,7 @@ const isRegExpNodeNullable = node => {
 		}
 
 		case 'value':
+		case 'characterClassRange':
 		case 'characterClassEscape':
 		case 'unicodePropertyEscape':
 		case 'dot': {

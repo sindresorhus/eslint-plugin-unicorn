@@ -39,6 +39,10 @@ test.snapshot({
 			code: 'const [,,,] = parts;',
 			options: [{maximumIgnoredElements: 3}],
 		},
+		// Object pattern targets are not checked
+		'[{property: object.property}] = array;',
+		'[{[object.key]: value}] = array;',
+		'const foo = {property: object.property};',
 	],
 	invalid: [
 		'const [,, foo] = parts;',

@@ -1,0 +1,2027 @@
+exports[`no-unsafe-property-key > invalid(1): declare const key: unique symbol | {id: string}; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: unique symbol | {id: string}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(1): declare const key: unique symbol | {id: string}; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: unique symbol | {id: string}; object[key]
+    |                                                         ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(1): object[({} as Foo)] 1`] = `
+
+  1 | object[({} as Foo)]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(1): object[({} as Foo)] 2`] = `
+
+Message:
+> 1 | object[({} as Foo)]
+    |         ^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(1): object[{}] 1`] = `
+
+  1 | object[{}]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(1): object[{}] 2`] = `
+
+Message:
+> 1 | object[{}]
+    |        ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(10): const key: Record<string, unknown> = {}; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | const key: Record<string, unknown> = {}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(10): const key: Record<string, unknown> = {}; object[key] 2`] = `
+
+Message:
+> 1 | const key: Record<string, unknown> = {}; object[key]
+    |                                                 ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(10): declare const key: {id: string}; object[key] 1`] = `
+
+  1 | declare const key: {id: string}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(10): declare const key: {id: string}; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: {id: string}; object[key]
+    |                                         ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(10): object[-Infinity] 1`] = `
+
+  1 | object[-Infinity]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(10): object[-Infinity] 2`] = `
+
+Message:
+> 1 | object[-Infinity]
+    |        ^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(11): declare const key: string[] | string; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: string[] | string; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(11): declare const key: string[] | string; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: string[] | string; object[key]
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(11): interface Key {id: string} declare const key: Key; object[key] 1`] = `
+
+  1 | interface Key {id: string} declare const key: Key; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(11): interface Key {id: string} declare const key: Key; object[key] 2`] = `
+
+Message:
+> 1 | interface Key {id: string} declare const key: Key; object[key]
+    |                                                           ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(11): object[9007199254740992] 1`] = `
+
+  1 | object[9007199254740992]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(11): object[9007199254740992] 2`] = `
+
+Message:
+> 1 | object[9007199254740992]
+    |        ^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(12): declare const key: ReturnType<() => string[] | string>; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: ReturnType<() => string[] | string>; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(12): declare const key: ReturnType<() => string[] | string>; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: ReturnType<() => string[] | string>; object[key]
+    |                                                                ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(12): object[-9007199254740992] 1`] = `
+
+  1 | object[-9007199254740992]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(12): object[-9007199254740992] 2`] = `
+
+Message:
+> 1 | object[-9007199254740992]
+    |        ^^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(12): type Key = {id: string}; declare const key: Key; object[key] 1`] = `
+
+  1 | type Key = {id: string}; declare const key: Key; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(12): type Key = {id: string}; declare const key: Key; object[key] 2`] = `
+
+Message:
+> 1 | type Key = {id: string}; declare const key: Key; object[key]
+    |                                                         ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(13): declare const key: ReturnType<() => bigint | string>; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: ReturnType<() => bigint | string>; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(13): declare const key: ReturnType<() => bigint | string>; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: ReturnType<() => bigint | string>; object[key]
+    |                                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(13): object[Date] 1`] = `
+
+  1 | object[Date]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(13): object[Date] 2`] = `
+
+Message:
+> 1 | object[Date]
+    |        ^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(13): type Key = {id: string}; declare const key: Key; { type Key = string; object[key] } 1`] = `
+
+  1 | type Key = {id: string}; declare const key: Key; { type Key = string; object[key] }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(13): type Key = {id: string}; declare const key: Key; { type Key = string; object[key] } 2`] = `
+
+Message:
+> 1 | type Key = {id: string}; declare const key: Key; { type Key = string; object[key] }
+    |                                                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(14): declare const key: ReturnType<() => {id: string} | string>; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: ReturnType<() => {id: string} | string>; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(14): declare const key: ReturnType<() => {id: string} | string>; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: ReturnType<() => {id: string} | string>; object[key]
+    |                                                                    ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(14): object[globalThis] 1`] = `
+
+  1 | object[globalThis]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(14): object[globalThis] 2`] = `
+
+Message:
+> 1 | object[globalThis]
+    |        ^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(14): type Foo = {id: string}; type Key = Foo; { type Foo = string; declare const key: Key; object[key] } 1`] = `
+
+  1 | type Foo = {id: string}; type Key = Foo; { type Foo = string; declare const key: Key; object[key] }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(14): type Foo = {id: string}; type Key = Foo; { type Foo = string; declare const key: Key; object[key] } 2`] = `
+
+Message:
+> 1 | type Foo = {id: string}; type Key = Foo; { type Foo = string; declare const key: Key; object[key] }
+    |                                                                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(15): class Key {} declare const key: Key; object[key] 1`] = `
+
+  1 | class Key {} declare const key: Key; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(15): class Key {} declare const key: Key; object[key] 2`] = `
+
+Message:
+> 1 | class Key {} declare const key: Key; object[key]
+    |                                             ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(15): const unsafe = 9007199254740992; declare const key: typeof unsafe; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | const unsafe = 9007199254740992; declare const key: typeof unsafe; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(15): const unsafe = 9007199254740992; declare const key: typeof unsafe; object[key] 2`] = `
+
+Message:
+> 1 | const unsafe = 9007199254740992; declare const key: typeof unsafe; object[key]
+    |                                                                           ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(15): object[Math] 1`] = `
+
+  1 | object[Math]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(15): object[Math] 2`] = `
+
+Message:
+> 1 | object[Math]
+    |        ^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(16): class Key {} let key: Key; object[key] 1`] = `
+
+  1 | class Key {} let key: Key; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(16): class Key {} let key: Key; object[key] 2`] = `
+
+Message:
+> 1 | class Key {} let key: Key; object[key]
+    |                                   ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(16): declare const key: ReturnType<() => 9007199254740992>; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: ReturnType<() => 9007199254740992>; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(16): declare const key: ReturnType<() => 9007199254740992>; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: ReturnType<() => 9007199254740992>; object[key]
+    |                                                               ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(16): object[parseInt] 1`] = `
+
+  1 | object[parseInt]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(16): object[parseInt] 2`] = `
+
+Message:
+> 1 | object[parseInt]
+    |        ^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(17): class Key {} function foo(key: Key) { object[key] } 1`] = `
+
+  1 | class Key {} function foo(key: Key) { object[key] }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(17): class Key {} function foo(key: Key) { object[key] } 2`] = `
+
+Message:
+> 1 | class Key {} function foo(key: Key) { object[key] }
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(17): declare const key: \`feature:\${string}\` | {id: string}; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: \`feature:\${string}\` | {id: string}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(17): declare const key: \`feature:\${string}\` | {id: string}; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: \`feature:\${string}\` | {id: string}; object[key]
+    |                                                               ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(17): object[Symbol] 1`] = `
+
+  1 | object[Symbol]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(17): object[Symbol] 2`] = `
+
+Message:
+> 1 | object[Symbol]
+    |        ^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(18): const key: string[] = []; object[key] 1`] = `
+
+  1 | const key: string[] = []; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(18): const key: string[] = []; object[key] 2`] = `
+
+Message:
+> 1 | const key: string[] = []; object[key]
+    |                                  ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(18): declare const key: Lowercase<string> | {id: string}; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: Lowercase<string> | {id: string}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(18): declare const key: Lowercase<string> | {id: string}; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: Lowercase<string> | {id: string}; object[key]
+    |                                                             ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(18): object[TypeError] 1`] = `
+
+  1 | object[TypeError]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(18): object[TypeError] 2`] = `
+
+Message:
+> 1 | object[TypeError]
+    |        ^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(19): declare const key: string[] | string; object[key] 1`] = `
+
+  1 | declare const key: string[] | string; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(19): declare const key: string[] | string; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: string[] | string; object[key]
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(19): declare function tag(strings: TemplateStringsArray): {id: string}; object[tag\`feature:\${string}\`] 1`] = `
+
+Filename: file.ts
+
+  1 | declare function tag(strings: TemplateStringsArray): {id: string}; object[tag\`feature:\${string}\`]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(19): declare function tag(strings: TemplateStringsArray): {id: string}; object[tag\`feature:\${string}\`] 2`] = `
+
+Message:
+> 1 | declare function tag(strings: TemplateStringsArray): {id: string}; object[tag\`feature:\${string}\`]
+    |                                                                           ^^^^^^^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(19): object[globalThis.Array] 1`] = `
+
+  1 | object[globalThis.Array]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(19): object[globalThis.Array] 2`] = `
+
+Message:
+> 1 | object[globalThis.Array]
+    |        ^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(2): const key = Object.freeze({}); object[key] 1`] = `
+
+  1 | const key = Object.freeze({}); object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(2): const key = Object.freeze({}); object[key] 2`] = `
+
+Message:
+> 1 | const key = Object.freeze({}); object[key]
+    |                                       ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(2): declare const key: unique symbol | object; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: unique symbol | object; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(2): declare const key: unique symbol | object; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: unique symbol | object; object[key]
+    |                                                   ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(2): object[<Foo>{}] 1`] = `
+
+  1 | object[<Foo>{}]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(2): object[<Foo>{}] 2`] = `
+
+Message:
+> 1 | object[<Foo>{}]
+    |        ^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(20): declare const key: bigint | string; object[key] 1`] = `
+
+  1 | declare const key: bigint | string; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(20): declare const key: bigint | string; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: bigint | string; object[key]
+    |                                            ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(20): declare function tag(strings: TemplateStringsArray): {id: string}; const key = tag\`feature:\${string}\`; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare function tag(strings: TemplateStringsArray): {id: string}; const key = tag\`feature:\${string}\`; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(20): declare function tag(strings: TemplateStringsArray): {id: string}; const key = tag\`feature:\${string}\`; object[key] 2`] = `
+
+Message:
+> 1 | declare function tag(strings: TemplateStringsArray): {id: string}; const key = tag\`feature:\${string}\`; object[key]
+    |                                                                                                               ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(20): object[globalThis[\"Math\"]] 1`] = `
+
+  1 | object[globalThis["Math"]]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(20): object[globalThis[\"Math\"]] 2`] = `
+
+Message:
+> 1 | object[globalThis["Math"]]
+    |        ^^^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(21): declare const key: (() => void) | string; object[key] 1`] = `
+
+  1 | declare const key: (() => void) | string; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(21): declare const key: (() => void) | string; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: (() => void) | string; object[key]
+    |                                                  ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(21): declare const key: () => void; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: () => void; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(21): declare const key: () => void; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: () => void; object[key]
+    |                                       ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(21): object[new URL(url)] 1`] = `
+
+  1 | object[new URL(url)]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(21): object[new URL(url)] 2`] = `
+
+Message:
+> 1 | object[new URL(url)]
+    |        ^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(22): declare const key: Array<string> | string; object[key] 1`] = `
+
+  1 | declare const key: Array<string> | string; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(22): declare const key: Array<string> | string; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: Array<string> | string; object[key]
+    |                                                   ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(22): declare const key: new () => object; object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | declare const key: new () => object; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(22): declare const key: new () => object; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: new () => object; object[key]
+    |                                             ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(22): object[() => {}] 1`] = `
+
+  1 | object[() => {}]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(22): object[() => {}] 2`] = `
+
+Message:
+> 1 | object[() => {}]
+    |        ^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(23): const key: Array<string> = []; object[key] 1`] = `
+
+  1 | const key: Array<string> = []; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(23): const key: Array<string> = []; object[key] 2`] = `
+
+Message:
+> 1 | const key: Array<string> = []; object[key]
+    |                                       ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(23): object[function () {}] 1`] = `
+
+  1 | object[function () {}]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(23): object[function () {}] 2`] = `
+
+Message:
+> 1 | object[function () {}]
+    |        ^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(24): const key: ReadonlyArray<string> = []; object[key] 1`] = `
+
+  1 | const key: ReadonlyArray<string> = []; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(24): const key: ReadonlyArray<string> = []; object[key] 2`] = `
+
+Message:
+> 1 | const key: ReadonlyArray<string> = []; object[key]
+    |                                               ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(24): object[class {}] 1`] = `
+
+  1 | object[class {}]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(24): object[class {}] 2`] = `
+
+Message:
+> 1 | object[class {}]
+    |        ^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(25): const key: readonly string[] = []; object[key] 1`] = `
+
+  1 | const key: readonly string[] = []; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(25): const key: readonly string[] = []; object[key] 2`] = `
+
+Message:
+> 1 | const key: readonly string[] = []; object[key]
+    |                                           ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(25): object?.[{}] 1`] = `
+
+  1 | object?.[{}]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(25): object?.[{}] 2`] = `
+
+Message:
+> 1 | object?.[{}]
+    |          ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(26): const key: [string] = [\"key\"]; object[key] 1`] = `
+
+  1 | const key: [string] = ["key"]; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(26): const key: [string] = [\"key\"]; object[key] 2`] = `
+
+Message:
+> 1 | const key: [string] = ["key"]; object[key]
+    |                                       ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(26): object[(0, {})] 1`] = `
+
+  1 | object[(0, {})]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(26): object[(0, {})] 2`] = `
+
+Message:
+> 1 | object[(0, {})]
+    |         ^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(27): const key = (0, {}); object[key] 1`] = `
+
+  1 | const key = (0, {}); object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(27): const key = (0, {}); object[key] 2`] = `
+
+Message:
+> 1 | const key = (0, {}); object[key]
+    |                             ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(27): const key: readonly [string] = [\"key\"]; object[key] 1`] = `
+
+  1 | const key: readonly [string] = ["key"]; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(27): const key: readonly [string] = [\"key\"]; object[key] 2`] = `
+
+Message:
+> 1 | const key: readonly [string] = ["key"]; object[key]
+    |                                                ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(28): object[{}] = value 1`] = `
+
+  1 | object[{}] = value
+
+`;
+
+exports[`no-unsafe-property-key > invalid(28): object[{}] = value 2`] = `
+
+Message:
+> 1 | object[{}] = value
+    |        ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(28): type Key = string[]; const key: Key = []; object[key] 1`] = `
+
+  1 | type Key = string[]; const key: Key = []; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(28): type Key = string[]; const key: Key = []; object[key] 2`] = `
+
+Message:
+> 1 | type Key = string[]; const key: Key = []; object[key]
+    |                                                  ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(29): const key: () => void = () => {}; object[key] 1`] = `
+
+  1 | const key: () => void = () => {}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(29): const key: () => void = () => {}; object[key] 2`] = `
+
+Message:
+> 1 | const key: () => void = () => {}; object[key]
+    |                                          ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(29): delete object[{}] 1`] = `
+
+  1 | delete object[{}]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(29): delete object[{}] 2`] = `
+
+Message:
+> 1 | delete object[{}]
+    |               ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(3): function f<T extends object>(key: T) {object[key]} 1`] = `
+
+Filename: file.ts
+
+  1 | function f<T extends object>(key: T) {object[key]}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(3): function f<T extends object>(key: T) {object[key]} 2`] = `
+
+Message:
+> 1 | function f<T extends object>(key: T) {object[key]}
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(3): object[([] satisfies Foo)] 1`] = `
+
+  1 | object[([] satisfies Foo)]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(3): object[([] satisfies Foo)] 2`] = `
+
+Message:
+> 1 | object[([] satisfies Foo)]
+    |         ^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(3): object[[]] 1`] = `
+
+  1 | object[[]]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(3): object[[]] 2`] = `
+
+Message:
+> 1 | object[[]]
+    |        ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(30): const key: abstract new () => object = Foo; object[key] 1`] = `
+
+  1 | const key: abstract new () => object = Foo; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(30): const key: abstract new () => object = Foo; object[key] 2`] = `
+
+Message:
+> 1 | const key: abstract new () => object = Foo; object[key]
+    |                                                    ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(30): object[{}]() 1`] = `
+
+  1 | object[{}]()
+
+`;
+
+exports[`no-unsafe-property-key > invalid(30): object[{}]() 2`] = `
+
+Message:
+> 1 | object[{}]()
+    |        ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(31): const key = {}; object[key] 1`] = `
+
+  1 | const key = {}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(31): const key = {}; object[key] 2`] = `
+
+Message:
+> 1 | const key = {}; object[key]
+    |                        ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(31): const key: 9007199254740992 = 9007199254740992; object[key] 1`] = `
+
+  1 | const key: 9007199254740992 = 9007199254740992; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(31): const key: 9007199254740992 = 9007199254740992; object[key] 2`] = `
+
+Message:
+> 1 | const key: 9007199254740992 = 9007199254740992; object[key]
+    |                                                        ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(32): const key = []; object[key] 1`] = `
+
+  1 | const key = []; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(32): const key = []; object[key] 2`] = `
+
+Message:
+> 1 | const key = []; object[key]
+    |                        ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(32): declare const key: -9007199254740992; object[key] 1`] = `
+
+  1 | declare const key: -9007199254740992; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(32): declare const key: -9007199254740992; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: -9007199254740992; object[key]
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(33): const key = Array.from(iterable); object[key] 1`] = `
+
+  1 | const key = Array.from(iterable); object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(33): const key = Array.from(iterable); object[key] 2`] = `
+
+Message:
+> 1 | const key = Array.from(iterable); object[key]
+    |                                          ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(33): const key: number = 9007199254740992; object[key] 1`] = `
+
+  1 | const key: number = 9007199254740992; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(33): const key: number = 9007199254740992; object[key] 2`] = `
+
+Message:
+> 1 | const key: number = 9007199254740992; object[key]
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(34): const key = Date; object[key] 1`] = `
+
+  1 | const key = Date; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(34): const key = Date; object[key] 2`] = `
+
+Message:
+> 1 | const key = Date; object[key]
+    |                          ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(34): object[(9007199254740992 as number)] 1`] = `
+
+  1 | object[(9007199254740992 as number)]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(34): object[(9007199254740992 as number)] 2`] = `
+
+Message:
+> 1 | object[(9007199254740992 as number)]
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(35): const key = Math; object[key] 1`] = `
+
+  1 | const key = Math; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(35): const key = Math; object[key] 2`] = `
+
+Message:
+> 1 | const key = Math; object[key]
+    |                          ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(35): const key: {} = {}; object[key] 1`] = `
+
+  1 | const key: {} = {}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(35): const key: {} = {}; object[key] 2`] = `
+
+Message:
+> 1 | const key: {} = {}; object[key]
+    |                            ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(36): const key = parseInt; object[key] 1`] = `
+
+  1 | const key = parseInt; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(36): const key = parseInt; object[key] 2`] = `
+
+Message:
+> 1 | const key = parseInt; object[key]
+    |                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(36): interface Key {} const key: Key = {}; object[key] 1`] = `
+
+  1 | interface Key {} const key: Key = {}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(36): interface Key {} const key: Key = {}; object[key] 2`] = `
+
+Message:
+> 1 | interface Key {} const key: Key = {}; object[key]
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(37): class Key {} const key: Key = new Key(); object[key] 1`] = `
+
+  1 | class Key {} const key: Key = new Key(); object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(37): class Key {} const key: Key = new Key(); object[key] 2`] = `
+
+Message:
+> 1 | class Key {} const key: Key = new Key(); object[key]
+    |                                                 ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(37): const key = TypeError; object[key] 1`] = `
+
+  1 | const key = TypeError; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(37): const key = TypeError; object[key] 2`] = `
+
+Message:
+> 1 | const key = TypeError; object[key]
+    |                               ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(38): const key = globalThis.TypeError; object[key] 1`] = `
+
+  1 | const key = globalThis.TypeError; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(38): const key = globalThis.TypeError; object[key] 2`] = `
+
+Message:
+> 1 | const key = globalThis.TypeError; object[key]
+    |                                          ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(38): const key = {} as Foo; object[key] 1`] = `
+
+  1 | const key = {} as Foo; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(38): const key = {} as Foo; object[key] 2`] = `
+
+Message:
+> 1 | const key = {} as Foo; object[key]
+    |                               ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(39): const key = 4n; object[key] 1`] = `
+
+  1 | const key = 4n; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(39): const key = 4n; object[key] 2`] = `
+
+Message:
+> 1 | const key = 4n; object[key]
+    |                        ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(39): const key = [] satisfies Foo; object[key] 1`] = `
+
+  1 | const key = [] satisfies Foo; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(39): const key = [] satisfies Foo; object[key] 2`] = `
+
+Message:
+> 1 | const key = [] satisfies Foo; object[key]
+    |                                      ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(4): object[(key as string[] | string)] 1`] = `
+
+  1 | object[(key as string[] | string)]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(4): object[(key as string[] | string)] 2`] = `
+
+Message:
+> 1 | object[(key as string[] | string)]
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(4): object[Array()] 1`] = `
+
+  1 | object[Array()]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(4): object[Array()] 2`] = `
+
+Message:
+> 1 | object[Array()]
+    |        ^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(4): type Value = object | 'test';\n\nexport function example(input: Value) {\n\tif (typeof input === 'object') {\n\t\treturn object[input];\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+  1 | type Value = object | 'test';
+  2 |
+  3 | export function example(input: Value) {
+  4 | 	if (typeof input === 'object') {
+  5 | 		return object[input];
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(4): type Value = object | 'test';\n\nexport function example(input: Value) {\n\tif (typeof input === 'object') {\n\t\treturn object[input];\n\t}\n} 2`] = `
+
+Message:
+  1 | type Value = object | 'test';
+  2 |
+  3 | export function example(input: Value) {
+  4 | 	if (typeof input === 'object') {
+> 5 | 		return object[input];
+    | 		              ^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(40): const key = Number.NaN; object[key] 1`] = `
+
+  1 | const key = Number.NaN; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(40): const key = Number.NaN; object[key] 2`] = `
+
+Message:
+> 1 | const key = Number.NaN; object[key]
+    |                                ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(40): enum Key {A} object[Key] 1`] = `
+
+  1 | enum Key {A} object[Key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(40): enum Key {A} object[Key] 2`] = `
+
+Message:
+> 1 | enum Key {A} object[Key]
+    |                     ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(41): const key = Number.POSITIVE_INFINITY; object[key] 1`] = `
+
+  1 | const key = Number.POSITIVE_INFINITY; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(41): const key = Number.POSITIVE_INFINITY; object[key] 2`] = `
+
+Message:
+> 1 | const key = Number.POSITIVE_INFINITY; object[key]
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(41): declare const key: \`feature:\${string}\` | {id: string}; object[key] 1`] = `
+
+  1 | declare const key: \`feature:\${string}\` | {id: string}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(41): declare const key: \`feature:\${string}\` | {id: string}; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: \`feature:\${string}\` | {id: string}; object[key]
+    |                                                               ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(42): abstract class A { abstract [{}]: string } 1`] = `
+
+  1 | abstract class A { abstract [{}]: string }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(42): abstract class A { abstract [{}]: string } 2`] = `
+
+Message:
+> 1 | abstract class A { abstract [{}]: string }
+    |                              ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(42): const key = Number.NEGATIVE_INFINITY; object[key] 1`] = `
+
+  1 | const key = Number.NEGATIVE_INFINITY; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(42): const key = Number.NEGATIVE_INFINITY; object[key] 2`] = `
+
+Message:
+> 1 | const key = Number.NEGATIVE_INFINITY; object[key]
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(43): abstract class A { abstract [{}](): void } 1`] = `
+
+  1 | abstract class A { abstract [{}](): void }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(43): abstract class A { abstract [{}](): void } 2`] = `
+
+Message:
+> 1 | abstract class A { abstract [{}](): void }
+    |                              ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(43): const key = 9007199254740992; object[key] 1`] = `
+
+  1 | const key = 9007199254740992; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(43): const key = 9007199254740992; object[key] 2`] = `
+
+Message:
+> 1 | const key = 9007199254740992; object[key]
+    |                                      ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(44): abstract class A { abstract accessor [{}]: string } 1`] = `
+
+  1 | abstract class A { abstract accessor [{}]: string }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(44): abstract class A { abstract accessor [{}]: string } 2`] = `
+
+Message:
+> 1 | abstract class A { abstract accessor [{}]: string }
+    |                                       ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(44): const key = new URL(url); object[key] 1`] = `
+
+  1 | const key = new URL(url); object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(44): const key = new URL(url); object[key] 2`] = `
+
+Message:
+> 1 | const key = new URL(url); object[key]
+    |                                  ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(45): abstract class A { abstract 4n(): void } 1`] = `
+
+  1 | abstract class A { abstract 4n(): void }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(45): abstract class A { abstract 4n(): void } 2`] = `
+
+Message:
+> 1 | abstract class A { abstract 4n(): void }
+    |                             ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(45): const key = () => {}; object[key] 1`] = `
+
+  1 | const key = () => {}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(45): const key = () => {}; object[key] 2`] = `
+
+Message:
+> 1 | const key = () => {}; object[key]
+    |                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(46): declare const key: readonly string[]; object[key] 1`] = `
+
+  1 | declare const key: readonly string[]; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(46): declare const key: readonly string[]; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: readonly string[]; object[key]
+    |                                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(46): function key() {} object[key] 1`] = `
+
+  1 | function key() {} object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(46): function key() {} object[key] 2`] = `
+
+Message:
+> 1 | function key() {} object[key]
+    |                          ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(47): const key = class {}; object[key] 1`] = `
+
+  1 | const key = class {}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(47): const key = class {}; object[key] 2`] = `
+
+Message:
+> 1 | const key = class {}; object[key]
+    |                              ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(47): declare const key: {id: string} & {name: string}; object[key] 1`] = `
+
+  1 | declare const key: {id: string} & {name: string}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(47): declare const key: {id: string} & {name: string}; object[key] 2`] = `
+
+Message:
+> 1 | declare const key: {id: string} & {name: string}; object[key]
+    |                                                          ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(48): class Key {} object[Key] 1`] = `
+
+  1 | class Key {} object[Key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(48): class Key {} object[Key] 2`] = `
+
+Message:
+> 1 | class Key {} object[Key]
+    |                     ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(49): const key = {}; const alias = key; object[alias] 1`] = `
+
+  1 | const key = {}; const alias = key; object[alias]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(49): const key = {}; const alias = key; object[alias] 2`] = `
+
+Message:
+> 1 | const key = {}; const alias = key; object[alias]
+    |                                           ^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(5): object[(4n as const)] 1`] = `
+
+  1 | object[(4n as const)]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(5): object[(4n as const)] 2`] = `
+
+Message:
+> 1 | object[(4n as const)]
+    |         ^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(5): object[Array.from(iterable)] 1`] = `
+
+  1 | object[Array.from(iterable)]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(5): object[Array.from(iterable)] 2`] = `
+
+Message:
+> 1 | object[Array.from(iterable)]
+    |        ^^^^^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(5): type Value = object | string;\n\nfunction example(input: Value) {\n\tif (typeof input === 'object') {\n\t\treturn {[input]: value};\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+  1 | type Value = object | string;
+  2 |
+  3 | function example(input: Value) {
+  4 | 	if (typeof input === 'object') {
+  5 | 		return {[input]: value};
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(5): type Value = object | string;\n\nfunction example(input: Value) {\n\tif (typeof input === 'object') {\n\t\treturn {[input]: value};\n\t}\n} 2`] = `
+
+Message:
+  1 | type Value = object | string;
+  2 |
+  3 | function example(input: Value) {
+  4 | 	if (typeof input === 'object') {
+> 5 | 		return {[input]: value};
+    | 		         ^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(50): object[condition ? \`feature:\${from}\` : {}] 1`] = `
+
+  1 | object[condition ? \`feature:\${from}\` : {}]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(50): object[condition ? \`feature:\${from}\` : {}] 2`] = `
+
+Message:
+> 1 | object[condition ? \`feature:\${from}\` : {}]
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(51): object[condition ? {} : \"key\"] 1`] = `
+
+  1 | object[condition ? {} : "key"]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(51): object[condition ? {} : \"key\"] 2`] = `
+
+Message:
+> 1 | object[condition ? {} : "key"]
+    |        ^^^^^^^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(52): const key = {}; ({[key]: value}) 1`] = `
+
+  1 | const key = {}; ({[key]: value})
+
+`;
+
+exports[`no-unsafe-property-key > invalid(52): const key = {}; ({[key]: value}) 2`] = `
+
+Message:
+> 1 | const key = {}; ({[key]: value})
+    |                    ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(53): const key = []; class A {[key]() {}} 1`] = `
+
+  1 | const key = []; class A {[key]() {}}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(53): const key = []; class A {[key]() {}} 2`] = `
+
+Message:
+> 1 | const key = []; class A {[key]() {}}
+    |                           ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(54): const object = {[{}]: value} 1`] = `
+
+  1 | const object = {[{}]: value}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(54): const object = {[{}]: value} 2`] = `
+
+Message:
+> 1 | const object = {[{}]: value}
+    |                  ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(55): const object = {[[]]: value} 1`] = `
+
+  1 | const object = {[[]]: value}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(55): const object = {[[]]: value} 2`] = `
+
+Message:
+> 1 | const object = {[[]]: value}
+    |                  ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(56): const object = {[4n]: value} 1`] = `
+
+  1 | const object = {[4n]: value}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(56): const object = {[4n]: value} 2`] = `
+
+Message:
+> 1 | const object = {[4n]: value}
+    |                  ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(57): const object = {[9007199254740992]: value} 1`] = `
+
+  1 | const object = {[9007199254740992]: value}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(57): const object = {[9007199254740992]: value} 2`] = `
+
+Message:
+> 1 | const object = {[9007199254740992]: value}
+    |                  ^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(58): const object = {[{}]() {}} 1`] = `
+
+  1 | const object = {[{}]() {}}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(58): const object = {[{}]() {}} 2`] = `
+
+Message:
+> 1 | const object = {[{}]() {}}
+    |                  ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(59): const {[{}]: value} = object 1`] = `
+
+  1 | const {[{}]: value} = object
+
+`;
+
+exports[`no-unsafe-property-key > invalid(59): const {[{}]: value} = object 2`] = `
+
+Message:
+> 1 | const {[{}]: value} = object
+    |         ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(6): object[(9007199254740992 as const)] 1`] = `
+
+  1 | object[(9007199254740992 as const)]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(6): object[(9007199254740992 as const)] 2`] = `
+
+Message:
+> 1 | object[(9007199254740992 as const)]
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(6): object[Array] 1`] = `
+
+  1 | object[Array]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(6): object[Array] 2`] = `
+
+Message:
+> 1 | object[Array]
+    |        ^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(6): type Value = object | 9007199254740992;\n\nfunction example(input: Value) {\n\tif (typeof input === 'number') {\n\t\treturn object[input];\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+  1 | type Value = object | 9007199254740992;
+  2 |
+  3 | function example(input: Value) {
+  4 | 	if (typeof input === 'number') {
+  5 | 		return object[input];
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(6): type Value = object | 9007199254740992;\n\nfunction example(input: Value) {\n\tif (typeof input === 'number') {\n\t\treturn object[input];\n\t}\n} 2`] = `
+
+Message:
+  1 | type Value = object | 9007199254740992;
+  2 |
+  3 | function example(input: Value) {
+  4 | 	if (typeof input === 'number') {
+> 5 | 		return object[input];
+    | 		              ^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-unsafe-property-key > invalid(60): class A {[{}]() {}} 1`] = `
+
+  1 | class A {[{}]() {}}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(60): class A {[{}]() {}} 2`] = `
+
+Message:
+> 1 | class A {[{}]() {}}
+    |           ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(61): class A {[[]] = value} 1`] = `
+
+  1 | class A {[[]] = value}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(61): class A {[[]] = value} 2`] = `
+
+Message:
+> 1 | class A {[[]] = value}
+    |           ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(62): class A {[4n]() {}} 1`] = `
+
+  1 | class A {[4n]() {}}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(62): class A {[4n]() {}} 2`] = `
+
+Message:
+> 1 | class A {[4n]() {}}
+    |           ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(63): class A {[9007199254740992]() {}} 1`] = `
+
+  1 | class A {[9007199254740992]() {}}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(63): class A {[9007199254740992]() {}} 2`] = `
+
+Message:
+> 1 | class A {[9007199254740992]() {}}
+    |           ^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(64): const object = {4n: value} 1`] = `
+
+  1 | const object = {4n: value}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(64): const object = {4n: value} 2`] = `
+
+Message:
+> 1 | const object = {4n: value}
+    |                 ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(65): const object = {9007199254740992: value} 1`] = `
+
+  1 | const object = {9007199254740992: value}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(65): const object = {9007199254740992: value} 2`] = `
+
+Message:
+> 1 | const object = {9007199254740992: value}
+    |                 ^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(66): class A {4n() {}} 1`] = `
+
+  1 | class A {4n() {}}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(66): class A {4n() {}} 2`] = `
+
+Message:
+> 1 | class A {4n() {}}
+    |          ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(67): class A {9007199254740992() {}} 1`] = `
+
+  1 | class A {9007199254740992() {}}
+
+`;
+
+exports[`no-unsafe-property-key > invalid(67): class A {9007199254740992() {}} 2`] = `
+
+Message:
+> 1 | class A {9007199254740992() {}}
+    |          ^^^^^^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(68): const key = {};\nobject[key]; 1`] = `
+
+  1 | const key = {};
+  2 | object[key];
+
+`;
+
+exports[`no-unsafe-property-key > invalid(68): const key = {};\nobject[key]; 2`] = `
+
+Message:
+  1 | const key = {};
+> 2 | object[key];
+    |        ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(69): object[Object.keys] 1`] = `
+
+  1 | object[Object.keys]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(69): object[Object.keys] 2`] = `
+
+Message:
+> 1 | object[Object.keys]
+    |        ^^^^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(7): const key = new URL(\"https://example.com\"); object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | const key = new URL("https://example.com"); object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(7): const key = new URL(\"https://example.com\"); object[key] 2`] = `
+
+Message:
+> 1 | const key = new URL("https://example.com"); object[key]
+    |                                                    ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(7): object[({})!] 1`] = `
+
+  1 | object[({})!]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(7): object[({})!] 2`] = `
+
+Message:
+> 1 | object[({})!]
+    |        ^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(7): object[4n] 1`] = `
+
+  1 | object[4n]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(7): object[4n] 2`] = `
+
+Message:
+> 1 | object[4n]
+    |        ^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(70): const key = Object.keys; object[key] 1`] = `
+
+  1 | const key = Object.keys; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(70): const key = Object.keys; object[key] 2`] = `
+
+Message:
+> 1 | const key = Object.keys; object[key]
+    |                                 ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(8): const key = new Date(); object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | const key = new Date(); object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(8): const key = new Date(); object[key] 2`] = `
+
+Message:
+> 1 | const key = new Date(); object[key]
+    |                                ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(8): const key: bigint = 4n; object[key] 1`] = `
+
+  1 | const key: bigint = 4n; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(8): const key: bigint = 4n; object[key] 2`] = `
+
+Message:
+> 1 | const key: bigint = 4n; object[key]
+    |                                ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(8): object[NaN] 1`] = `
+
+  1 | object[NaN]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(8): object[NaN] 2`] = `
+
+Message:
+> 1 | object[NaN]
+    |        ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(9): const key = new Map(); object[key] 1`] = `
+
+Filename: file.ts
+
+  1 | const key = new Map(); object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(9): const key = new Map(); object[key] 2`] = `
+
+Message:
+> 1 | const key = new Map(); object[key]
+    |                               ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(9): const key: object = {}; object[key] 1`] = `
+
+  1 | const key: object = {}; object[key]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(9): const key: object = {}; object[key] 2`] = `
+
+Message:
+> 1 | const key: object = {}; object[key]
+    |                                ^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;
+
+exports[`no-unsafe-property-key > invalid(9): object[Infinity] 1`] = `
+
+  1 | object[Infinity]
+
+`;
+
+exports[`no-unsafe-property-key > invalid(9): object[Infinity] 2`] = `
+
+Message:
+> 1 | object[Infinity]
+    |        ^^^^^^^^ Do not use an unsafe value as a property key. Use an explicit string or symbol key instead.
+
+`;

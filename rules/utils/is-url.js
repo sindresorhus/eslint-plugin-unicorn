@@ -130,7 +130,7 @@ const isKnownNonUrlConstructor = (node, context) => {
 };
 
 const getDefinitionScope = (definition, context) =>
-	context.sourceCode.getScope(definition.name ?? definition.node);
+	context.sourceCode.getScope(definition.name);
 
 const getTypeReferenceType = (node, context, scope, visitedTypeReferenceNames) => {
 	if (node.typeName.type !== 'Identifier') {
@@ -305,10 +305,6 @@ const getTypeFromFunctionReturn = (node, context) => {
 };
 
 function getUrlType(node, context, visitedVariables = new Set()) {
-	if (!node) {
-		return unknown;
-	}
-
 	const scope = context.sourceCode.getScope(node);
 
 	switch (node.type) {

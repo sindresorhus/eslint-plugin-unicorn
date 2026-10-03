@@ -1,0 +1,588 @@
+exports[`no-computed-property-existence-check > invalid(1): if (object[key]) {} 1`] = `
+
+  1 | if (object[key]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(1): if (object[key]) {} 2`] = `
+
+Message:
+> 1 | if (object[key]) {}
+    |     ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (Object.hasOwn(object, key)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(10): if (object[key] && other) {} 1`] = `
+
+  1 | if (object[key] && other) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(10): if (object[key] && other) {} 2`] = `
+
+Message:
+> 1 | if (object[key] && other) {}
+    |     ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (Object.hasOwn(object, key) && other) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(11): if (other || object[key]) {} 1`] = `
+
+  1 | if (other || object[key]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(11): if (other || object[key]) {} 2`] = `
+
+Message:
+> 1 | if (other || object[key]) {}
+    |              ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (other || Object.hasOwn(object, key)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(12): if ((object)[(key)]) {} 1`] = `
+
+  1 | if ((object)[(key)]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(12): if ((object)[(key)]) {} 2`] = `
+
+Message:
+> 1 | if ((object)[(key)]) {}
+    |     ^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (Object.hasOwn((object), (key))) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(13): if (object?.[key]) {} 1`] = `
+
+  1 | if (object?.[key]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(13): if (object?.[key]) {} 2`] = `
+
+Message:
+> 1 | if (object?.[key]) {}
+    |     ^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(14): if (key in object) {} 1`] = `
+
+  1 | if (key in object) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(14): if (key in object) {} 2`] = `
+
+Message:
+> 1 | if (key in object) {}
+    |     ^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (Object.hasOwn(object, key)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(15): const exists = key in object; 1`] = `
+
+  1 | const exists = key in object;
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(15): const exists = key in object; 2`] = `
+
+Message:
+> 1 | const exists = key in object;
+    |                ^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | const exists = Object.hasOwn(object, key);
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(16): if (!(key in object)) {} 1`] = `
+
+  1 | if (!(key in object)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(16): if (!(key in object)) {} 2`] = `
+
+Message:
+> 1 | if (!(key in object)) {}
+    |       ^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (!(Object.hasOwn(object, key))) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(17): if (key in object && other) {} 1`] = `
+
+  1 | if (key in object && other) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(17): if (key in object && other) {} 2`] = `
+
+Message:
+> 1 | if (key in object && other) {}
+    |     ^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (Object.hasOwn(object, key) && other) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(18): const value = key in object ? first : second; 1`] = `
+
+  1 | const value = key in object ? first : second;
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(18): const value = key in object ? first : second; 2`] = `
+
+Message:
+> 1 | const value = key in object ? first : second;
+    |               ^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | const value = Object.hasOwn(object, key) ? first : second;
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(19): while (key in object) {} 1`] = `
+
+  1 | while (key in object) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(19): while (key in object) {} 2`] = `
+
+Message:
+> 1 | while (key in object) {}
+    |        ^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | while (Object.hasOwn(object, key)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(2): if (!object[key]) {} 1`] = `
+
+  1 | if (!object[key]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(2): if (!object[key]) {} 2`] = `
+
+Message:
+> 1 | if (!object[key]) {}
+    |      ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (!Object.hasOwn(object, key)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(20): do {} while (key in object); 1`] = `
+
+  1 | do {} while (key in object);
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(20): do {} while (key in object); 2`] = `
+
+Message:
+> 1 | do {} while (key in object);
+    |              ^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | do {} while (Object.hasOwn(object, key));
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(21): if ((key) in (object)) {} 1`] = `
+
+  1 | if ((key) in (object)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(21): if ((key) in (object)) {} 2`] = `
+
+Message:
+> 1 | if ((key) in (object)) {}
+    |     ^^^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (Object.hasOwn((object), (key))) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(22): if (key in object?.property) {} 1`] = `
+
+  1 | if (key in object?.property) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(22): if (key in object?.property) {} 2`] = `
+
+Message:
+> 1 | if (key in object?.property) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(23): if (getKey() in getObject()) {} 1`] = `
+
+  1 | if (getKey() in getObject()) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(23): if (getKey() in getObject()) {} 2`] = `
+
+Message:
+> 1 | if (getKey() in getObject()) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(24): if (object[key] in other) {} 1`] = `
+
+  1 | if (object[key] in other) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(24): if (object[key] in other) {} 2`] = `
+
+Message:
+> 1 | if (object[key] in other) {}
+    |     ^^^^^^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(25): if (object[/* comment */ key]) {} 1`] = `
+
+  1 | if (object[/* comment */ key]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(25): if (object[/* comment */ key]) {} 2`] = `
+
+Message:
+> 1 | if (object[/* comment */ key]) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(26): if (/* comment */ key in object) {} 1`] = `
+
+  1 | if (/* comment */ key in object) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(26): if (/* comment */ key in object) {} 2`] = `
+
+Message:
+> 1 | if (/* comment */ key in object) {}
+    |                   ^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(27): if (key in /* comment */ object) {} 1`] = `
+
+  1 | if (key in /* comment */ object) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(27): if (key in /* comment */ object) {} 2`] = `
+
+Message:
+> 1 | if (key in /* comment */ object) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(28): if (object[key]!) {} 1`] = `
+
+  1 | if (object[key]!) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(28): if (object[key]!) {} 2`] = `
+
+Message:
+> 1 | if (object[key]!) {}
+    |     ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(29): if ((object[key] as boolean)) {} 1`] = `
+
+  1 | if ((object[key] as boolean)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(29): if ((object[key] as boolean)) {} 2`] = `
+
+Message:
+> 1 | if ((object[key] as boolean)) {}
+    |      ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(3): if (Boolean(object[key])) {} 1`] = `
+
+  1 | if (Boolean(object[key])) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(3): if (Boolean(object[key])) {} 2`] = `
+
+Message:
+> 1 | if (Boolean(object[key])) {}
+    |             ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (Boolean(Object.hasOwn(object, key))) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(30): if ((object[key] as string)) {} 1`] = `
+
+  1 | if ((object[key] as string)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(30): if ((object[key] as string)) {} 2`] = `
+
+Message:
+> 1 | if ((object[key] as string)) {}
+    |      ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(31): if ((<string>object[key])) {} 1`] = `
+
+  1 | if ((<string>object[key])) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(31): if ((<string>object[key])) {} 2`] = `
+
+Message:
+> 1 | if ((<string>object[key])) {}
+    |              ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(32): if ((object[key] satisfies boolean)) {} 1`] = `
+
+  1 | if ((object[key] satisfies boolean)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(32): if ((object[key] satisfies boolean)) {} 2`] = `
+
+Message:
+> 1 | if ((object[key] satisfies boolean)) {}
+    |      ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(33): if ((object[key] satisfies string)) {} 1`] = `
+
+  1 | if ((object[key] satisfies string)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(33): if ((object[key] satisfies string)) {} 2`] = `
+
+Message:
+> 1 | if ((object[key] satisfies string)) {}
+    |      ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(34): declare const object: Record<string, string>;\ndeclare const key: string;\nif (object[key]) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: Record<string, string>;
+  2 | declare const key: string;
+  3 | if (object[key]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(34): declare const object: Record<string, string>;\ndeclare const key: string;\nif (object[key]) {} 2`] = `
+
+Message:
+  1 | declare const object: Record<string, string>;
+  2 | declare const key: string;
+> 3 | if (object[key]) {}
+    |     ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | declare const object: Record<string, string>;
+  2 | declare const key: string;
+  3 | if (Object.hasOwn(object, key)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(35): declare const object: {a?: boolean};\ndeclare const key: 'a';\nif (object[key]) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: {a?: boolean};
+  2 | declare const key: 'a';
+  3 | if (object[key]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(35): declare const object: {a?: boolean};\ndeclare const key: 'a';\nif (object[key]) {} 2`] = `
+
+Message:
+  1 | declare const object: {a?: boolean};
+  2 | declare const key: 'a';
+> 3 | if (object[key]) {}
+    |     ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | declare const object: {a?: boolean};
+  2 | declare const key: 'a';
+  3 | if (Object.hasOwn(object, key)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(36): if (object[first, second]) {} 1`] = `
+
+  1 | if (object[first, second]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(36): if (object[first, second]) {} 2`] = `
+
+Message:
+> 1 | if (object[first, second]) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (Object.hasOwn(object, (first, second))) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(4): if (!!Boolean(object[key])) {} 1`] = `
+
+  1 | if (!!Boolean(object[key])) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(4): if (!!Boolean(object[key])) {} 2`] = `
+
+Message:
+> 1 | if (!!Boolean(object[key])) {}
+    |               ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (!!Boolean(Object.hasOwn(object, key))) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(5): if (Boolean(object[key]) && ready) {} 1`] = `
+
+  1 | if (Boolean(object[key]) && ready) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(5): if (Boolean(object[key]) && ready) {} 2`] = `
+
+Message:
+> 1 | if (Boolean(object[key]) && ready) {}
+    |             ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | if (Boolean(Object.hasOwn(object, key)) && ready) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(6): const value = object[key] ? first : second; 1`] = `
+
+  1 | const value = object[key] ? first : second;
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(6): const value = object[key] ? first : second; 2`] = `
+
+Message:
+> 1 | const value = object[key] ? first : second;
+    |               ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | const value = Object.hasOwn(object, key) ? first : second;
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(7): while (object[key]) {} 1`] = `
+
+  1 | while (object[key]) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(7): while (object[key]) {} 2`] = `
+
+Message:
+> 1 | while (object[key]) {}
+    |        ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | while (Object.hasOwn(object, key)) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(8): do {} while (object[key]); 1`] = `
+
+  1 | do {} while (object[key]);
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(8): do {} while (object[key]); 2`] = `
+
+Message:
+> 1 | do {} while (object[key]);
+    |              ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | do {} while (Object.hasOwn(object, key));
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(9): for (; object[key];) {} 1`] = `
+
+  1 | for (; object[key];) {}
+
+`;
+
+exports[`no-computed-property-existence-check > invalid(9): for (; object[key];) {} 2`] = `
+
+Message:
+> 1 | for (; object[key];) {}
+    |        ^^^^^^^^^^^ Do not use a dynamic object property existence check.
+
+Suggestion 1/1: Use \`Object.hasOwn()\`.:
+  1 | for (; Object.hasOwn(object, key);) {}
+
+`;

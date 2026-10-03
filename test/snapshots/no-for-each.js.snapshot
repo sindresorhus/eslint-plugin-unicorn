@@ -1,0 +1,5170 @@
+exports[`no-for-each > invalid(1): foo.forEach?.(element => bar(element)) 1`] = `
+
+  1 | foo.forEach?.(element => bar(element))
+
+`;
+
+exports[`no-for-each > invalid(1): foo.forEach?.(element => bar(element)) 2`] = `
+
+Message:
+> 1 | foo.forEach?.(element => bar(element))
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(10): foo.forEach(bar) 1`] = `
+
+  1 | foo.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(10): foo.forEach(bar) 2`] = `
+
+Message:
+> 1 | foo.forEach(bar)
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(100): foo.forEach(function (element, index) {\n\tbar(element, index);\n}); 1`] = `
+
+  1 | foo.forEach(function (element, index) {
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(100): foo.forEach(function (element, index) {\n\tbar(element, index);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(function (element, index) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(101): foo?.forEach(function (element, index) {\n\tbar(element, index);\n}); 1`] = `
+
+  1 | foo?.forEach(function (element, index) {
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(101): foo?.forEach(function (element, index) {\n\tbar(element, index);\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(function (element, index) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(102): foo.forEach(function withName(element, index) {\n\tbar(element, index);\n}); 1`] = `
+
+  1 | foo.forEach(function withName(element, index) {
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(102): foo.forEach(function withName(element, index) {\n\tbar(element, index);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(function withName(element, index) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(103): foo?.forEach(function withName(element, index) {\n\tbar(element, index);\n}); 1`] = `
+
+  1 | foo?.forEach(function withName(element, index) {
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(103): foo?.forEach(function withName(element, index) {\n\tbar(element, index);\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(function withName(element, index) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(104): foo.forEach((element, index) => {\n\tbar(element, index);\n}); 1`] = `
+
+  1 | foo.forEach((element, index) => {
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(104): foo.forEach((element, index) => {\n\tbar(element, index);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach((element, index) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(105): foo?.forEach((element, index) => {\n\tbar(element, index);\n}); 1`] = `
+
+  1 | foo?.forEach((element, index) => {
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(105): foo?.forEach((element, index) => {\n\tbar(element, index);\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element, index) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element, index);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(106): foo.forEach((element, index) => bar(element, index)); 1`] = `
+
+  1 | foo.forEach((element, index) => bar(element, index));
+
+`;
+
+exports[`no-for-each > invalid(106): foo.forEach((element, index) => bar(element, index)); 2`] = `
+
+Message:
+> 1 | foo.forEach((element, index) => bar(element, index));
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(107): foo?.forEach((element, index) => bar(element, index)); 1`] = `
+
+  1 | foo?.forEach((element, index) => bar(element, index));
+
+`;
+
+exports[`no-for-each > invalid(107): foo?.forEach((element, index) => bar(element, index)); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element, index) => bar(element, index));
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(108): foo?.bar.forEach((element) => bar(element)); 1`] = `
+
+  1 | foo?.bar.forEach((element) => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(108): foo?.bar.forEach((element) => bar(element)); 2`] = `
+
+Message:
+> 1 | foo?.bar.forEach((element) => bar(element));
+    |          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(109): foo?.bar?.forEach((element) => bar(element)); 1`] = `
+
+  1 | foo?.bar?.forEach((element) => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(109): foo?.bar?.forEach((element) => bar(element)); 2`] = `
+
+Message:
+> 1 | foo?.bar?.forEach((element) => bar(element));
+    |           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(11): foo?.forEach(bar) 1`] = `
+
+  1 | foo?.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(11): foo?.forEach(bar) 2`] = `
+
+Message:
+> 1 | foo?.forEach(bar)
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(110): foo.bar.forEach((element) => log(element)) 1`] = `
+
+  1 | foo.bar.forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(110): foo.bar.forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | foo.bar.forEach((element) => log(element))
+    |         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(111): foo.bar?.forEach((element) => log(element)) 1`] = `
+
+  1 | foo.bar?.forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(111): foo.bar?.forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | foo.bar?.forEach((element) => log(element))
+    |          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(112): foo.bar().forEach((element) => log(element)) 1`] = `
+
+  1 | foo.bar().forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(112): foo.bar().forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | foo.bar().forEach((element) => log(element))
+    |           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(113): foo.bar()?.forEach((element) => log(element)) 1`] = `
+
+  1 | foo.bar()?.forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(113): foo.bar()?.forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | foo.bar()?.forEach((element) => log(element))
+    |            ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(114): (a ? b : c).forEach((element) => log(element)) 1`] = `
+
+  1 | (a ? b : c).forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(114): (a ? b : c).forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | (a ? b : c).forEach((element) => log(element))
+    |             ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(115): (a ? b : c)?.forEach((element) => log(element)) 1`] = `
+
+  1 | (a ? b : c)?.forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(115): (a ? b : c)?.forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | (a ? b : c)?.forEach((element) => log(element))
+    |              ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(116): (a ? b : c()).forEach((element) => log(element)) 1`] = `
+
+  1 | (a ? b : c()).forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(116): (a ? b : c()).forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | (a ? b : c()).forEach((element) => log(element))
+    |               ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(117): (a ? b : c())?.forEach((element) => log(element)) 1`] = `
+
+  1 | (a ? b : c())?.forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(117): (a ? b : c())?.forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | (a ? b : c())?.forEach((element) => log(element))
+    |                ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(118): (foo || bar).forEach((element) => log(element)) 1`] = `
+
+  1 | (foo || bar).forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(118): (foo || bar).forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | (foo || bar).forEach((element) => log(element))
+    |              ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(119): (foo || bar)?.forEach((element) => log(element)) 1`] = `
+
+  1 | (foo || bar)?.forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(119): (foo || bar)?.forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | (foo || bar)?.forEach((element) => log(element))
+    |               ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(12): foo.forEach(async function(element) {}) 1`] = `
+
+  1 | foo.forEach(async function(element) {})
+
+`;
+
+exports[`no-for-each > invalid(12): foo.forEach(async function(element) {}) 2`] = `
+
+Message:
+> 1 | foo.forEach(async function(element) {})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(120): (foo || bar()).forEach((element) => log(element)) 1`] = `
+
+  1 | (foo || bar()).forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(120): (foo || bar()).forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | (foo || bar()).forEach((element) => log(element))
+    |                ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(121): (foo || bar())?.forEach((element) => log(element)) 1`] = `
+
+  1 | (foo || bar())?.forEach((element) => log(element))
+
+`;
+
+exports[`no-for-each > invalid(121): (foo || bar())?.forEach((element) => log(element)) 2`] = `
+
+Message:
+> 1 | (foo || bar())?.forEach((element) => log(element))
+    |                 ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(122): (foo).forEach((element, index) => bar(element, index)) 1`] = `
+
+  1 | (foo).forEach((element, index) => bar(element, index))
+
+`;
+
+exports[`no-for-each > invalid(122): (foo).forEach((element, index) => bar(element, index)) 2`] = `
+
+Message:
+> 1 | (foo).forEach((element, index) => bar(element, index))
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(123): (foo)?.forEach((element, index) => bar(element, index)) 1`] = `
+
+  1 | (foo)?.forEach((element, index) => bar(element, index))
+
+`;
+
+exports[`no-for-each > invalid(123): (foo)?.forEach((element, index) => bar(element, index)) 2`] = `
+
+Message:
+> 1 | (foo)?.forEach((element, index) => bar(element, index))
+    |        ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(124): (0, foo).forEach((element, index) => bar(element, index)) 1`] = `
+
+  1 | (0, foo).forEach((element, index) => bar(element, index))
+
+`;
+
+exports[`no-for-each > invalid(124): (0, foo).forEach((element, index) => bar(element, index)) 2`] = `
+
+Message:
+> 1 | (0, foo).forEach((element, index) => bar(element, index))
+    |          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(125): (0, foo)?.forEach((element, index) => bar(element, index)) 1`] = `
+
+  1 | (0, foo)?.forEach((element, index) => bar(element, index))
+
+`;
+
+exports[`no-for-each > invalid(125): (0, foo)?.forEach((element, index) => bar(element, index)) 2`] = `
+
+Message:
+> 1 | (0, foo)?.forEach((element, index) => bar(element, index))
+    |           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(126): foo.forEach(function (element) {\n\tbar(element);\n},); 1`] = `
+
+  1 | foo.forEach(function (element) {
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(126): foo.forEach(function (element) {\n\tbar(element);\n},); 2`] = `
+
+Message:
+> 1 | foo.forEach(function (element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(127): foo?.forEach(function (element) {\n\tbar(element);\n},); 1`] = `
+
+  1 | foo?.forEach(function (element) {
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(127): foo?.forEach(function (element) {\n\tbar(element);\n},); 2`] = `
+
+Message:
+> 1 | foo?.forEach(function (element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(128): foo.forEach(function withName(element) {\n\tbar(element);\n},); 1`] = `
+
+  1 | foo.forEach(function withName(element) {
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(128): foo.forEach(function withName(element) {\n\tbar(element);\n},); 2`] = `
+
+Message:
+> 1 | foo.forEach(function withName(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(129): foo?.forEach(function withName(element) {\n\tbar(element);\n},); 1`] = `
+
+  1 | foo?.forEach(function withName(element) {
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(129): foo?.forEach(function withName(element) {\n\tbar(element);\n},); 2`] = `
+
+Message:
+> 1 | foo?.forEach(function withName(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(13): foo?.forEach(async function(element) {}) 1`] = `
+
+  1 | foo?.forEach(async function(element) {})
+
+`;
+
+exports[`no-for-each > invalid(13): foo?.forEach(async function(element) {}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(async function(element) {})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(130): foo.forEach((element) => {\n\tbar(element);\n},); 1`] = `
+
+  1 | foo.forEach((element) => {
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(130): foo.forEach((element) => {\n\tbar(element);\n},); 2`] = `
+
+Message:
+> 1 | foo.forEach((element) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(131): foo?.forEach((element) => {\n\tbar(element);\n},); 1`] = `
+
+  1 | foo?.forEach((element) => {
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(131): foo?.forEach((element) => {\n\tbar(element);\n},); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | },);
+
+`;
+
+exports[`no-for-each > invalid(132): foo.forEach((element) => bar(element),); 1`] = `
+
+  1 | foo.forEach((element) => bar(element),);
+
+`;
+
+exports[`no-for-each > invalid(132): foo.forEach((element) => bar(element),); 2`] = `
+
+Message:
+> 1 | foo.forEach((element) => bar(element),);
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(133): foo?.forEach((element) => bar(element),); 1`] = `
+
+  1 | foo?.forEach((element) => bar(element),);
+
+`;
+
+exports[`no-for-each > invalid(133): foo?.forEach((element) => bar(element),); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element) => bar(element),);
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(134): foo.forEach((element) => bar(element))\n;[foo].pop(); 1`] = `
+
+  1 | foo.forEach((element) => bar(element))
+  2 | ;[foo].pop();
+
+`;
+
+exports[`no-for-each > invalid(134): foo.forEach((element) => bar(element))\n;[foo].pop(); 2`] = `
+
+Message:
+> 1 | foo.forEach((element) => bar(element))
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | ;[foo].pop();
+
+`;
+
+exports[`no-for-each > invalid(135): foo?.forEach((element) => bar(element))\n;[foo].pop(); 1`] = `
+
+  1 | foo?.forEach((element) => bar(element))
+  2 | ;[foo].pop();
+
+`;
+
+exports[`no-for-each > invalid(135): foo?.forEach((element) => bar(element))\n;[foo].pop(); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element) => bar(element))
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | ;[foo].pop();
+
+`;
+
+exports[`no-for-each > invalid(136): foo.forEach((element) => {\n\tbar(element);\n});\nfunction noneRelatedFunction() {\n\twhile (element) {\n\t\treturn;\n\t}\n} 1`] = `
+
+  1 | foo.forEach((element) => {
+  2 | 	bar(element);
+  3 | });
+  4 | function noneRelatedFunction() {
+  5 | 	while (element) {
+  6 | 		return;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-for-each > invalid(136): foo.forEach((element) => {\n\tbar(element);\n});\nfunction noneRelatedFunction() {\n\twhile (element) {\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+> 1 | foo.forEach((element) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | });
+  4 | function noneRelatedFunction() {
+  5 | 	while (element) {
+  6 | 		return;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-for-each > invalid(137): foo?.forEach((element) => {\n\tbar(element);\n});\nfunction noneRelatedFunction() {\n\twhile (element) {\n\t\treturn;\n\t}\n} 1`] = `
+
+  1 | foo?.forEach((element) => {
+  2 | 	bar(element);
+  3 | });
+  4 | function noneRelatedFunction() {
+  5 | 	while (element) {
+  6 | 		return;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-for-each > invalid(137): foo?.forEach((element) => {\n\tbar(element);\n});\nfunction noneRelatedFunction() {\n\twhile (element) {\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+> 1 | foo?.forEach((element) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | });
+  4 | function noneRelatedFunction() {
+  5 | 	while (element) {
+  6 | 		return;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-for-each > invalid(138): foo.forEach(element => ({})) 1`] = `
+
+  1 | foo.forEach(element => ({}))
+
+`;
+
+exports[`no-for-each > invalid(138): foo.forEach(element => ({})) 2`] = `
+
+Message:
+> 1 | foo.forEach(element => ({}))
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(139): foo?.forEach(element => ({})) 1`] = `
+
+  1 | foo?.forEach(element => ({}))
+
+`;
+
+exports[`no-for-each > invalid(139): foo?.forEach(element => ({})) 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => ({}))
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(14): foo.forEach(function * (element) {}) 1`] = `
+
+  1 | foo.forEach(function * (element) {})
+
+`;
+
+exports[`no-for-each > invalid(14): foo.forEach(function * (element) {}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function * (element) {})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(140): foo.forEach((((((element => bar(element))))))); 1`] = `
+
+  1 | foo.forEach((((((element => bar(element)))))));
+
+`;
+
+exports[`no-for-each > invalid(140): foo.forEach((((((element => bar(element))))))); 2`] = `
+
+Message:
+> 1 | foo.forEach((((((element => bar(element)))))));
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(141): foo?.forEach((((((element => bar(element))))))); 1`] = `
+
+  1 | foo?.forEach((((((element => bar(element)))))));
+
+`;
+
+exports[`no-for-each > invalid(141): foo?.forEach((((((element => bar(element))))))); 2`] = `
+
+Message:
+> 1 | foo?.forEach((((((element => bar(element)))))));
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(142): foo.forEach((element) => {\n\tif (1) {\n\t\treturn;\n\t}\n\tif (1) {\n\t\treturn\n\t}\n\tif (1) {\n\t\treturn!true;\n\t}\n\tif (1) {\n\t\treturn!true\n\t}\n\tif (1) {\n\t\treturn bar();\n\t}\n\tif (1) {\n\t\treturn bar()\n\t\tunreachable();\n\t}\n\tif (1) {\n\t\treturn {};\n\t}\n\tif (1) {\n\t\treturn ({});\n\t}\n\tif (1) {\n\t\treturn {a} = a;\n\t}\n\tif (1) {\n\t\treturn [a] = a;\n\t}\n\tif (1) {\n\t\tfoo\n\t\treturn []\n\t}\n\tif (1) {\n\t\tfoo\n\t\treturn [foo] = bar;\n\t}\n}); 1`] = `
+
+   1 | foo.forEach((element) => {
+   2 | 	if (1) {
+   3 | 		return;
+   4 | 	}
+   5 | 	if (1) {
+   6 | 		return
+   7 | 	}
+   8 | 	if (1) {
+   9 | 		return!true;
+  10 | 	}
+  11 | 	if (1) {
+  12 | 		return!true
+  13 | 	}
+  14 | 	if (1) {
+  15 | 		return bar();
+  16 | 	}
+  17 | 	if (1) {
+  18 | 		return bar()
+  19 | 		unreachable();
+  20 | 	}
+  21 | 	if (1) {
+  22 | 		return {};
+  23 | 	}
+  24 | 	if (1) {
+  25 | 		return ({});
+  26 | 	}
+  27 | 	if (1) {
+  28 | 		return {a} = a;
+  29 | 	}
+  30 | 	if (1) {
+  31 | 		return [a] = a;
+  32 | 	}
+  33 | 	if (1) {
+  34 | 		foo
+  35 | 		return []
+  36 | 	}
+  37 | 	if (1) {
+  38 | 		foo
+  39 | 		return [foo] = bar;
+  40 | 	}
+  41 | });
+
+`;
+
+exports[`no-for-each > invalid(142): foo.forEach((element) => {\n\tif (1) {\n\t\treturn;\n\t}\n\tif (1) {\n\t\treturn\n\t}\n\tif (1) {\n\t\treturn!true;\n\t}\n\tif (1) {\n\t\treturn!true\n\t}\n\tif (1) {\n\t\treturn bar();\n\t}\n\tif (1) {\n\t\treturn bar()\n\t\tunreachable();\n\t}\n\tif (1) {\n\t\treturn {};\n\t}\n\tif (1) {\n\t\treturn ({});\n\t}\n\tif (1) {\n\t\treturn {a} = a;\n\t}\n\tif (1) {\n\t\treturn [a] = a;\n\t}\n\tif (1) {\n\t\tfoo\n\t\treturn []\n\t}\n\tif (1) {\n\t\tfoo\n\t\treturn [foo] = bar;\n\t}\n}); 2`] = `
+
+Message:
+>  1 | foo.forEach((element) => {
+     |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+   2 | 	if (1) {
+   3 | 		return;
+   4 | 	}
+   5 | 	if (1) {
+   6 | 		return
+   7 | 	}
+   8 | 	if (1) {
+   9 | 		return!true;
+  10 | 	}
+  11 | 	if (1) {
+  12 | 		return!true
+  13 | 	}
+  14 | 	if (1) {
+  15 | 		return bar();
+  16 | 	}
+  17 | 	if (1) {
+  18 | 		return bar()
+  19 | 		unreachable();
+  20 | 	}
+  21 | 	if (1) {
+  22 | 		return {};
+  23 | 	}
+  24 | 	if (1) {
+  25 | 		return ({});
+  26 | 	}
+  27 | 	if (1) {
+  28 | 		return {a} = a;
+  29 | 	}
+  30 | 	if (1) {
+  31 | 		return [a] = a;
+  32 | 	}
+  33 | 	if (1) {
+  34 | 		foo
+  35 | 		return []
+  36 | 	}
+  37 | 	if (1) {
+  38 | 		foo
+  39 | 		return [foo] = bar;
+  40 | 	}
+  41 | });
+
+`;
+
+exports[`no-for-each > invalid(143): foo?.forEach((element) => {\n\tif (1) {\n\t\treturn;\n\t}\n\tif (1) {\n\t\treturn\n\t}\n\tif (1) {\n\t\treturn!true;\n\t}\n\tif (1) {\n\t\treturn!true\n\t}\n\tif (1) {\n\t\treturn bar();\n\t}\n\tif (1) {\n\t\treturn bar()\n\t\tunreachable();\n\t}\n\tif (1) {\n\t\treturn {};\n\t}\n\tif (1) {\n\t\treturn ({});\n\t}\n\tif (1) {\n\t\treturn {a} = a;\n\t}\n\tif (1) {\n\t\treturn [a] = a;\n\t}\n\tif (1) {\n\t\tfoo\n\t\treturn []\n\t}\n\tif (1) {\n\t\tfoo\n\t\treturn [foo] = bar;\n\t}\n}); 1`] = `
+
+   1 | foo?.forEach((element) => {
+   2 | 	if (1) {
+   3 | 		return;
+   4 | 	}
+   5 | 	if (1) {
+   6 | 		return
+   7 | 	}
+   8 | 	if (1) {
+   9 | 		return!true;
+  10 | 	}
+  11 | 	if (1) {
+  12 | 		return!true
+  13 | 	}
+  14 | 	if (1) {
+  15 | 		return bar();
+  16 | 	}
+  17 | 	if (1) {
+  18 | 		return bar()
+  19 | 		unreachable();
+  20 | 	}
+  21 | 	if (1) {
+  22 | 		return {};
+  23 | 	}
+  24 | 	if (1) {
+  25 | 		return ({});
+  26 | 	}
+  27 | 	if (1) {
+  28 | 		return {a} = a;
+  29 | 	}
+  30 | 	if (1) {
+  31 | 		return [a] = a;
+  32 | 	}
+  33 | 	if (1) {
+  34 | 		foo
+  35 | 		return []
+  36 | 	}
+  37 | 	if (1) {
+  38 | 		foo
+  39 | 		return [foo] = bar;
+  40 | 	}
+  41 | });
+
+`;
+
+exports[`no-for-each > invalid(143): foo?.forEach((element) => {\n\tif (1) {\n\t\treturn;\n\t}\n\tif (1) {\n\t\treturn\n\t}\n\tif (1) {\n\t\treturn!true;\n\t}\n\tif (1) {\n\t\treturn!true\n\t}\n\tif (1) {\n\t\treturn bar();\n\t}\n\tif (1) {\n\t\treturn bar()\n\t\tunreachable();\n\t}\n\tif (1) {\n\t\treturn {};\n\t}\n\tif (1) {\n\t\treturn ({});\n\t}\n\tif (1) {\n\t\treturn {a} = a;\n\t}\n\tif (1) {\n\t\treturn [a] = a;\n\t}\n\tif (1) {\n\t\tfoo\n\t\treturn []\n\t}\n\tif (1) {\n\t\tfoo\n\t\treturn [foo] = bar;\n\t}\n}); 2`] = `
+
+Message:
+>  1 | foo?.forEach((element) => {
+     |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+   2 | 	if (1) {
+   3 | 		return;
+   4 | 	}
+   5 | 	if (1) {
+   6 | 		return
+   7 | 	}
+   8 | 	if (1) {
+   9 | 		return!true;
+  10 | 	}
+  11 | 	if (1) {
+  12 | 		return!true
+  13 | 	}
+  14 | 	if (1) {
+  15 | 		return bar();
+  16 | 	}
+  17 | 	if (1) {
+  18 | 		return bar()
+  19 | 		unreachable();
+  20 | 	}
+  21 | 	if (1) {
+  22 | 		return {};
+  23 | 	}
+  24 | 	if (1) {
+  25 | 		return ({});
+  26 | 	}
+  27 | 	if (1) {
+  28 | 		return {a} = a;
+  29 | 	}
+  30 | 	if (1) {
+  31 | 		return [a] = a;
+  32 | 	}
+  33 | 	if (1) {
+  34 | 		foo
+  35 | 		return []
+  36 | 	}
+  37 | 	if (1) {
+  38 | 		foo
+  39 | 		return [foo] = bar;
+  40 | 	}
+  41 | });
+
+`;
+
+exports[`no-for-each > invalid(144): node.children.index.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | node.children.index.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(144): node.children.index.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | node.children.index.forEach((children, index) => process(children, index))
+    |                     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(145): node.children.index?.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | node.children.index?.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(145): node.children.index?.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | node.children.index?.forEach((children, index) => process(children, index))
+    |                      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(146): (node?.children?.index).forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | (node?.children?.index).forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(146): (node?.children?.index).forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | (node?.children?.index).forEach((children, index) => process(children, index))
+    |                         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(147): (node?.children?.index)?.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | (node?.children?.index)?.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(147): (node?.children?.index)?.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | (node?.children?.index)?.forEach((children, index) => process(children, index))
+    |                          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(148): node[children].index.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | node[children].index.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(148): node[children].index.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | node[children].index.forEach((children, index) => process(children, index))
+    |                      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(149): node[children].index?.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | node[children].index?.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(149): node[children].index?.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | node[children].index?.forEach((children, index) => process(children, index))
+    |                       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(15): foo?.forEach(function * (element) {}) 1`] = `
+
+  1 | foo?.forEach(function * (element) {})
+
+`;
+
+exports[`no-for-each > invalid(15): foo?.forEach(function * (element) {}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function * (element) {})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(150): (node.children?.[index]).forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | (node.children?.[index]).forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(150): (node.children?.[index]).forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | (node.children?.[index]).forEach((children, index) => process(children, index))
+    |                          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(151): (node.children?.[index])?.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | (node.children?.[index])?.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(151): (node.children?.[index])?.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | (node.children?.[index])?.forEach((children, index) => process(children, index))
+    |                           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(152): [{children: 1, index: 1}].forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{children: 1, index: 1}].forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(152): [{children: 1, index: 1}].forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{children: 1, index: 1}].forEach((children, index) => process(children, index))
+    |                           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | for (const [index, children] of [{children: 1, index: 1}].entries()) process(children, index)
+
+`;
+
+exports[`no-for-each > invalid(153): [{children: 1, index: 1}]?.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{children: 1, index: 1}]?.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(153): [{children: 1, index: 1}]?.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{children: 1, index: 1}]?.forEach((children, index) => process(children, index))
+    |                            ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if ([{children: 1, index: 1}]) for (const [index, children] of [{children: 1, index: 1}].entries()) process(children, index)
+
+`;
+
+exports[`no-for-each > invalid(154): [{[children]: 1, index: 1}].forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{[children]: 1, index: 1}].forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(154): [{[children]: 1, index: 1}].forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{[children]: 1, index: 1}].forEach((children, index) => process(children, index))
+    |                             ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(155): [{[children]: 1, index: 1}]?.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{[children]: 1, index: 1}]?.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(155): [{[children]: 1, index: 1}]?.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{[children]: 1, index: 1}]?.forEach((children, index) => process(children, index))
+    |                              ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(156): [{[children]: 1, [index]: 1}].forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{[children]: 1, [index]: 1}].forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(156): [{[children]: 1, [index]: 1}].forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{[children]: 1, [index]: 1}].forEach((children, index) => process(children, index))
+    |                               ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(157): [{[children]: 1, [index]: 1}]?.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{[children]: 1, [index]: 1}]?.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(157): [{[children]: 1, [index]: 1}]?.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{[children]: 1, [index]: 1}]?.forEach((children, index) => process(children, index))
+    |                                ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(158): [{children, index: 1}].forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{children, index: 1}].forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(158): [{children, index: 1}].forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{children, index: 1}].forEach((children, index) => process(children, index))
+    |                        ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(159): [{children, index: 1}]?.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{children, index: 1}]?.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(159): [{children, index: 1}]?.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{children, index: 1}]?.forEach((children, index) => process(children, index))
+    |                         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(16): foo.forEach(() => bar()) 1`] = `
+
+  1 | foo.forEach(() => bar())
+
+`;
+
+exports[`no-for-each > invalid(16): foo.forEach(() => bar()) 2`] = `
+
+Message:
+> 1 | foo.forEach(() => bar())
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(160): [{children: 1, index}].forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{children: 1, index}].forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(160): [{children: 1, index}].forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{children: 1, index}].forEach((children, index) => process(children, index))
+    |                        ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(161): [{children: 1, index}]?.forEach((children, index) => process(children, index)) 1`] = `
+
+  1 | [{children: 1, index}]?.forEach((children, index) => process(children, index))
+
+`;
+
+exports[`no-for-each > invalid(161): [{children: 1, index}]?.forEach((children, index) => process(children, index)) 2`] = `
+
+Message:
+> 1 | [{children: 1, index}]?.forEach((children, index) => process(children, index))
+    |                         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(162): [function name() {}].forEach((name, index) => process(name, index)) 1`] = `
+
+  1 | [function name() {}].forEach((name, index) => process(name, index))
+
+`;
+
+exports[`no-for-each > invalid(162): [function name() {}].forEach((name, index) => process(name, index)) 2`] = `
+
+Message:
+> 1 | [function name() {}].forEach((name, index) => process(name, index))
+    |                      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | for (const [index, name] of [function name() {}].entries()) process(name, index)
+
+`;
+
+exports[`no-for-each > invalid(163): [function name() {}]?.forEach((name, index) => process(name, index)) 1`] = `
+
+  1 | [function name() {}]?.forEach((name, index) => process(name, index))
+
+`;
+
+exports[`no-for-each > invalid(163): [function name() {}]?.forEach((name, index) => process(name, index)) 2`] = `
+
+Message:
+> 1 | [function name() {}]?.forEach((name, index) => process(name, index))
+    |                       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if ([function name() {}]) for (const [index, name] of [function name() {}].entries()) process(name, index)
+
+`;
+
+exports[`no-for-each > invalid(164): [\n\tfunction () {\n\t\tfunction index() {}\n\t}\n].forEach((name, index) => process(name, index)) 1`] = `
+
+  1 | [
+  2 | 	function () {
+  3 | 		function index() {}
+  4 | 	}
+  5 | ].forEach((name, index) => process(name, index))
+
+`;
+
+exports[`no-for-each > invalid(164): [\n\tfunction () {\n\t\tfunction index() {}\n\t}\n].forEach((name, index) => process(name, index)) 2`] = `
+
+Message:
+  1 | [
+  2 | 	function () {
+  3 | 		function index() {}
+  4 | 	}
+> 5 | ].forEach((name, index) => process(name, index))
+    |   ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | for (const [index, name] of [
+  2 | 	function () {
+  3 | 		function index() {}
+  4 | 	}
+  5 | ].entries()) process(name, index)
+
+`;
+
+exports[`no-for-each > invalid(165): [\n\tfunction () {\n\t\tfunction index() {}\n\t}\n]?.forEach((name, index) => process(name, index)) 1`] = `
+
+  1 | [
+  2 | 	function () {
+  3 | 		function index() {}
+  4 | 	}
+  5 | ]?.forEach((name, index) => process(name, index))
+
+`;
+
+exports[`no-for-each > invalid(165): [\n\tfunction () {\n\t\tfunction index() {}\n\t}\n]?.forEach((name, index) => process(name, index)) 2`] = `
+
+Message:
+  1 | [
+  2 | 	function () {
+  3 | 		function index() {}
+  4 | 	}
+> 5 | ]?.forEach((name, index) => process(name, index))
+    |    ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if ([
+  2 | 	function () {
+  3 | 		function index() {}
+  4 | 	}
+  5 | ]) for (const [index, name] of [
+  6 | 	function () {
+  7 | 		function index() {}
+  8 | 	}
+  9 | ].entries()) process(name, index)
+
+`;
+
+exports[`no-for-each > invalid(166): [\n\tfunction () {\n\t\tclass index {}\n\t}\n].forEach((name, index) => process(name, index)) 1`] = `
+
+  1 | [
+  2 | 	function () {
+  3 | 		class index {}
+  4 | 	}
+  5 | ].forEach((name, index) => process(name, index))
+
+`;
+
+exports[`no-for-each > invalid(166): [\n\tfunction () {\n\t\tclass index {}\n\t}\n].forEach((name, index) => process(name, index)) 2`] = `
+
+Message:
+  1 | [
+  2 | 	function () {
+  3 | 		class index {}
+  4 | 	}
+> 5 | ].forEach((name, index) => process(name, index))
+    |   ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | for (const [index, name] of [
+  2 | 	function () {
+  3 | 		class index {}
+  4 | 	}
+  5 | ].entries()) process(name, index)
+
+`;
+
+exports[`no-for-each > invalid(167): [\n\tfunction () {\n\t\tclass index {}\n\t}\n]?.forEach((name, index) => process(name, index)) 1`] = `
+
+  1 | [
+  2 | 	function () {
+  3 | 		class index {}
+  4 | 	}
+  5 | ]?.forEach((name, index) => process(name, index))
+
+`;
+
+exports[`no-for-each > invalid(167): [\n\tfunction () {\n\t\tclass index {}\n\t}\n]?.forEach((name, index) => process(name, index)) 2`] = `
+
+Message:
+  1 | [
+  2 | 	function () {
+  3 | 		class index {}
+  4 | 	}
+> 5 | ]?.forEach((name, index) => process(name, index))
+    |    ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if ([
+  2 | 	function () {
+  3 | 		class index {}
+  4 | 	}
+  5 | ]) for (const [index, name] of [
+  6 | 	function () {
+  7 | 		class index {}
+  8 | 	}
+  9 | ].entries()) process(name, index)
+
+`;
+
+exports[`no-for-each > invalid(168): [class Foo{}].forEach((Foo, index) => process(Foo, index)) 1`] = `
+
+  1 | [class Foo{}].forEach((Foo, index) => process(Foo, index))
+
+`;
+
+exports[`no-for-each > invalid(168): [class Foo{}].forEach((Foo, index) => process(Foo, index)) 2`] = `
+
+Message:
+> 1 | [class Foo{}].forEach((Foo, index) => process(Foo, index))
+    |               ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | for (const [index, Foo] of [class Foo{}].entries()) process(Foo, index)
+
+`;
+
+exports[`no-for-each > invalid(169): [class Foo{}]?.forEach((Foo, index) => process(Foo, index)) 1`] = `
+
+  1 | [class Foo{}]?.forEach((Foo, index) => process(Foo, index))
+
+`;
+
+exports[`no-for-each > invalid(169): [class Foo{}]?.forEach((Foo, index) => process(Foo, index)) 2`] = `
+
+Message:
+> 1 | [class Foo{}]?.forEach((Foo, index) => process(Foo, index))
+    |                ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if ([class Foo{}]) for (const [index, Foo] of [class Foo{}].entries()) process(Foo, index)
+
+`;
+
+exports[`no-for-each > invalid(17): foo?.forEach(() => bar()) 1`] = `
+
+  1 | foo?.forEach(() => bar())
+
+`;
+
+exports[`no-for-each > invalid(17): foo?.forEach(() => bar()) 2`] = `
+
+Message:
+> 1 | foo?.forEach(() => bar())
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(170): [class Foo{}].forEach((X, Foo) => process(X, Foo)) 1`] = `
+
+  1 | [class Foo{}].forEach((X, Foo) => process(X, Foo))
+
+`;
+
+exports[`no-for-each > invalid(170): [class Foo{}].forEach((X, Foo) => process(X, Foo)) 2`] = `
+
+Message:
+> 1 | [class Foo{}].forEach((X, Foo) => process(X, Foo))
+    |               ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | for (const [Foo, X] of [class Foo{}].entries()) process(X, Foo)
+
+`;
+
+exports[`no-for-each > invalid(171): [class Foo{}]?.forEach((X, Foo) => process(X, Foo)) 1`] = `
+
+  1 | [class Foo{}]?.forEach((X, Foo) => process(X, Foo))
+
+`;
+
+exports[`no-for-each > invalid(171): [class Foo{}]?.forEach((X, Foo) => process(X, Foo)) 2`] = `
+
+Message:
+> 1 | [class Foo{}]?.forEach((X, Foo) => process(X, Foo))
+    |                ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if ([class Foo{}]) for (const [Foo, X] of [class Foo{}].entries()) process(X, Foo)
+
+`;
+
+exports[`no-for-each > invalid(172): [\n\tclass Foo {\n\t\tbar() {}\n\t}\n].forEach((Foo, bar) => process(Foo, bar)) 1`] = `
+
+  1 | [
+  2 | 	class Foo {
+  3 | 		bar() {}
+  4 | 	}
+  5 | ].forEach((Foo, bar) => process(Foo, bar))
+
+`;
+
+exports[`no-for-each > invalid(172): [\n\tclass Foo {\n\t\tbar() {}\n\t}\n].forEach((Foo, bar) => process(Foo, bar)) 2`] = `
+
+Message:
+  1 | [
+  2 | 	class Foo {
+  3 | 		bar() {}
+  4 | 	}
+> 5 | ].forEach((Foo, bar) => process(Foo, bar))
+    |   ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | for (const [bar, Foo] of [
+  2 | 	class Foo {
+  3 | 		bar() {}
+  4 | 	}
+  5 | ].entries()) process(Foo, bar)
+
+`;
+
+exports[`no-for-each > invalid(173): [\n\tclass Foo {\n\t\tbar() {}\n\t}\n]?.forEach((Foo, bar) => process(Foo, bar)) 1`] = `
+
+  1 | [
+  2 | 	class Foo {
+  3 | 		bar() {}
+  4 | 	}
+  5 | ]?.forEach((Foo, bar) => process(Foo, bar))
+
+`;
+
+exports[`no-for-each > invalid(173): [\n\tclass Foo {\n\t\tbar() {}\n\t}\n]?.forEach((Foo, bar) => process(Foo, bar)) 2`] = `
+
+Message:
+  1 | [
+  2 | 	class Foo {
+  3 | 		bar() {}
+  4 | 	}
+> 5 | ]?.forEach((Foo, bar) => process(Foo, bar))
+    |    ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if ([
+  2 | 	class Foo {
+  3 | 		bar() {}
+  4 | 	}
+  5 | ]) for (const [bar, Foo] of [
+  6 | 	class Foo {
+  7 | 		bar() {}
+  8 | 	}
+  9 | ].entries()) process(Foo, bar)
+
+`;
+
+exports[`no-for-each > invalid(174): foo.React.Children.forEach(bar) 1`] = `
+
+  1 | foo.React.Children.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(174): foo.React.Children.forEach(bar) 2`] = `
+
+Message:
+> 1 | foo.React.Children.forEach(bar)
+    |                    ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(175): foo.React.Children?.forEach(bar) 1`] = `
+
+  1 | foo.React.Children?.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(175): foo.React.Children?.forEach(bar) 2`] = `
+
+Message:
+> 1 | foo.React.Children?.forEach(bar)
+    |                     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(176): NotReact.Children.forEach(bar) 1`] = `
+
+  1 | NotReact.Children.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(176): NotReact.Children.forEach(bar) 2`] = `
+
+Message:
+> 1 | NotReact.Children.forEach(bar)
+    |                   ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(177): NotReact.Children?.forEach(bar) 1`] = `
+
+  1 | NotReact.Children?.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(177): NotReact.Children?.forEach(bar) 2`] = `
+
+Message:
+> 1 | NotReact.Children?.forEach(bar)
+    |                    ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(178): React.NotChildren.forEach(bar) 1`] = `
+
+  1 | React.NotChildren.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(178): React.NotChildren.forEach(bar) 2`] = `
+
+Message:
+> 1 | React.NotChildren.forEach(bar)
+    |                   ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(179): React.NotChildren?.forEach(bar) 1`] = `
+
+  1 | React.NotChildren?.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(179): React.NotChildren?.forEach(bar) 2`] = `
+
+Message:
+> 1 | React.NotChildren?.forEach(bar)
+    |                    ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(18): foo.forEach((element, index, array) => bar()) 1`] = `
+
+  1 | foo.forEach((element, index, array) => bar())
+
+`;
+
+exports[`no-for-each > invalid(18): foo.forEach((element, index, array) => bar()) 2`] = `
+
+Message:
+> 1 | foo.forEach((element, index, array) => bar())
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(180): React?.Children.forEach(bar) 1`] = `
+
+  1 | React?.Children.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(180): React?.Children.forEach(bar) 2`] = `
+
+Message:
+> 1 | React?.Children.forEach(bar)
+    |                 ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(181): React?.Children?.forEach(bar) 1`] = `
+
+  1 | React?.Children?.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(181): React?.Children?.forEach(bar) 2`] = `
+
+Message:
+> 1 | React?.Children?.forEach(bar)
+    |                  ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(182): NotChildren.forEach(bar) 1`] = `
+
+  1 | NotChildren.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(182): NotChildren.forEach(bar) 2`] = `
+
+Message:
+> 1 | NotChildren.forEach(bar)
+    |             ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(183): NotChildren?.forEach(bar) 1`] = `
+
+  1 | NotChildren?.forEach(bar)
+
+`;
+
+exports[`no-for-each > invalid(183): NotChildren?.forEach(bar) 2`] = `
+
+Message:
+> 1 | NotChildren?.forEach(bar)
+    |              ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(184): foo.forEach(element => {\n\telement ++;\n}) 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	element ++;
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(184): foo.forEach(element => {\n\telement ++;\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	element ++;
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(185): foo?.forEach(element => {\n\telement ++;\n}) 1`] = `
+
+  1 | foo?.forEach(element => {
+  2 | 	element ++;
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(185): foo?.forEach(element => {\n\telement ++;\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	element ++;
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(186): foo.forEach(element => {\n\tconst a = -- element;\n}) 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	const a = -- element;
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(186): foo.forEach(element => {\n\tconst a = -- element;\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	const a = -- element;
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(187): foo?.forEach(element => {\n\tconst a = -- element;\n}) 1`] = `
+
+  1 | foo?.forEach(element => {
+  2 | 	const a = -- element;
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(187): foo?.forEach(element => {\n\tconst a = -- element;\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	const a = -- element;
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(188): foo.forEach((element, index) => {\n\tindex ++;\n\telement = 2\n}); 1`] = `
+
+  1 | foo.forEach((element, index) => {
+  2 | 	index ++;
+  3 | 	element = 2
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(188): foo.forEach((element, index) => {\n\tindex ++;\n\telement = 2\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach((element, index) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	index ++;
+  3 | 	element = 2
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(189): foo?.forEach((element, index) => {\n\tindex ++;\n\telement = 2\n}); 1`] = `
+
+  1 | foo?.forEach((element, index) => {
+  2 | 	index ++;
+  3 | 	element = 2
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(189): foo?.forEach((element, index) => {\n\tindex ++;\n\telement = 2\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element, index) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	index ++;
+  3 | 	element = 2
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(19): foo?.forEach((element, index, array) => bar()) 1`] = `
+
+  1 | foo?.forEach((element, index, array) => bar())
+
+`;
+
+exports[`no-for-each > invalid(19): foo?.forEach((element, index, array) => bar()) 2`] = `
+
+Message:
+> 1 | foo?.forEach((element, index, array) => bar())
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(190): foo.forEach((element, index) => {\n\telement >>>= 2;\n}); 1`] = `
+
+  1 | foo.forEach((element, index) => {
+  2 | 	element >>>= 2;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(190): foo.forEach((element, index) => {\n\telement >>>= 2;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach((element, index) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	element >>>= 2;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(191): foo?.forEach((element, index) => {\n\telement >>>= 2;\n}); 1`] = `
+
+  1 | foo?.forEach((element, index) => {
+  2 | 	element >>>= 2;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(191): foo?.forEach((element, index) => {\n\telement >>>= 2;\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element, index) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	element >>>= 2;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(192): foo.forEach((element, index) => {\n\tconst a = element = 1;\n}); 1`] = `
+
+  1 | foo.forEach((element, index) => {
+  2 | 	const a = element = 1;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(192): foo.forEach((element, index) => {\n\tconst a = element = 1;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach((element, index) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	const a = element = 1;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(193): foo?.forEach((element, index) => {\n\tconst a = element = 1;\n}); 1`] = `
+
+  1 | foo?.forEach((element, index) => {
+  2 | 	const a = element = 1;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(193): foo?.forEach((element, index) => {\n\tconst a = element = 1;\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element, index) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	const a = element = 1;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(194): foo.forEach((element, index) => {\n\tlet a;\n\ta >>>= element;\n}); 1`] = `
+
+  1 | foo.forEach((element, index) => {
+  2 | 	let a;
+  3 | 	a >>>= element;
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(194): foo.forEach((element, index) => {\n\tlet a;\n\ta >>>= element;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach((element, index) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	let a;
+  3 | 	a >>>= element;
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(195): foo?.forEach((element, index) => {\n\tlet a;\n\ta >>>= element;\n}); 1`] = `
+
+  1 | foo?.forEach((element, index) => {
+  2 | 	let a;
+  3 | 	a >>>= element;
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(195): foo?.forEach((element, index) => {\n\tlet a;\n\ta >>>= element;\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element, index) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	let a;
+  3 | 	a >>>= element;
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(196): foo.forEach(({property}) => {bar(property)}) 1`] = `
+
+  1 | foo.forEach(({property}) => {bar(property)})
+
+`;
+
+exports[`no-for-each > invalid(196): foo.forEach(({property}) => {bar(property)}) 2`] = `
+
+Message:
+> 1 | foo.forEach(({property}) => {bar(property)})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(197): foo?.forEach(({property}) => {bar(property)}) 1`] = `
+
+  1 | foo?.forEach(({property}) => {bar(property)})
+
+`;
+
+exports[`no-for-each > invalid(197): foo?.forEach(({property}) => {bar(property)}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(({property}) => {bar(property)})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(198): foo.forEach(({foo: {foo: [property]}}) => {bar(property, index)}) 1`] = `
+
+  1 | foo.forEach(({foo: {foo: [property]}}) => {bar(property, index)})
+
+`;
+
+exports[`no-for-each > invalid(198): foo.forEach(({foo: {foo: [property]}}) => {bar(property, index)}) 2`] = `
+
+Message:
+> 1 | foo.forEach(({foo: {foo: [property]}}) => {bar(property, index)})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(199): foo?.forEach(({foo: {foo: [property]}}) => {bar(property, index)}) 1`] = `
+
+  1 | foo?.forEach(({foo: {foo: [property]}}) => {bar(property, index)})
+
+`;
+
+exports[`no-for-each > invalid(199): foo?.forEach(({foo: {foo: [property]}}) => {bar(property, index)}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(({foo: {foo: [property]}}) => {bar(property, index)})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(2): ((  foo.forEach(element => bar(element))  )) 1`] = `
+
+  1 | ((  foo.forEach(element => bar(element))  ))
+
+`;
+
+exports[`no-for-each > invalid(2): ((  foo.forEach(element => bar(element))  )) 2`] = `
+
+Message:
+> 1 | ((  foo.forEach(element => bar(element))  ))
+    |         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(20): property.forEach(({property}) => bar(property)) 1`] = `
+
+  1 | property.forEach(({property}) => bar(property))
+
+`;
+
+exports[`no-for-each > invalid(20): property.forEach(({property}) => bar(property)) 2`] = `
+
+Message:
+> 1 | property.forEach(({property}) => bar(property))
+    |          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(200): foo.forEach((element, {bar: {bar: [index]}}) => {bar(element, index)}) 1`] = `
+
+  1 | foo.forEach((element, {bar: {bar: [index]}}) => {bar(element, index)})
+
+`;
+
+exports[`no-for-each > invalid(200): foo.forEach((element, {bar: {bar: [index]}}) => {bar(element, index)}) 2`] = `
+
+Message:
+> 1 | foo.forEach((element, {bar: {bar: [index]}}) => {bar(element, index)})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(201): foo?.forEach((element, {bar: {bar: [index]}}) => {bar(element, index)}) 1`] = `
+
+  1 | foo?.forEach((element, {bar: {bar: [index]}}) => {bar(element, index)})
+
+`;
+
+exports[`no-for-each > invalid(201): foo?.forEach((element, {bar: {bar: [index]}}) => {bar(element, index)}) 2`] = `
+
+Message:
+> 1 | foo?.forEach((element, {bar: {bar: [index]}}) => {bar(element, index)})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(202): foo.forEach((element = elementDefaultValue, index = indexDefaultValue) => {}) 1`] = `
+
+  1 | foo.forEach((element = elementDefaultValue, index = indexDefaultValue) => {})
+
+`;
+
+exports[`no-for-each > invalid(202): foo.forEach((element = elementDefaultValue, index = indexDefaultValue) => {}) 2`] = `
+
+Message:
+> 1 | foo.forEach((element = elementDefaultValue, index = indexDefaultValue) => {})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(203): foo?.forEach((element = elementDefaultValue, index = indexDefaultValue) => {}) 1`] = `
+
+  1 | foo?.forEach((element = elementDefaultValue, index = indexDefaultValue) => {})
+
+`;
+
+exports[`no-for-each > invalid(203): foo?.forEach((element = elementDefaultValue, index = indexDefaultValue) => {}) 2`] = `
+
+Message:
+> 1 | foo?.forEach((element = elementDefaultValue, index = indexDefaultValue) => {})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(204): foo.forEach(({}) => {}) 1`] = `
+
+  1 | foo.forEach(({}) => {})
+
+`;
+
+exports[`no-for-each > invalid(204): foo.forEach(({}) => {}) 2`] = `
+
+Message:
+> 1 | foo.forEach(({}) => {})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(205): foo?.forEach(({}) => {}) 1`] = `
+
+  1 | foo?.forEach(({}) => {})
+
+`;
+
+exports[`no-for-each > invalid(205): foo?.forEach(({}) => {}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(({}) => {})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(206): foo.forEach(function foo({a, b, c, d}) {}) 1`] = `
+
+  1 | foo.forEach(function foo({a, b, c, d}) {})
+
+`;
+
+exports[`no-for-each > invalid(206): foo.forEach(function foo({a, b, c, d}) {}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function foo({a, b, c, d}) {})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(207): foo?.forEach(function foo({a, b, c, d}) {}) 1`] = `
+
+  1 | foo?.forEach(function foo({a, b, c, d}) {})
+
+`;
+
+exports[`no-for-each > invalid(207): foo?.forEach(function foo({a, b, c, d}) {}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function foo({a, b, c, d}) {})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(208): foo.forEach(function foo({a, b, c, d, foo}) {}) 1`] = `
+
+  1 | foo.forEach(function foo({a, b, c, d, foo}) {})
+
+`;
+
+exports[`no-for-each > invalid(208): foo.forEach(function foo({a, b, c, d, foo}) {}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function foo({a, b, c, d, foo}) {})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(209): foo?.forEach(function foo({a, b, c, d, foo}) {}) 1`] = `
+
+  1 | foo?.forEach(function foo({a, b, c, d, foo}) {})
+
+`;
+
+exports[`no-for-each > invalid(209): foo?.forEach(function foo({a, b, c, d, foo}) {}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function foo({a, b, c, d, foo}) {})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(21): property?.forEach(({property}) => bar(property)) 1`] = `
+
+  1 | property?.forEach(({property}) => bar(property))
+
+`;
+
+exports[`no-for-each > invalid(21): property?.forEach(({property}) => bar(property)) 2`] = `
+
+Message:
+> 1 | property?.forEach(({property}) => bar(property))
+    |           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(210): foo.forEach(({foo: property}) => {bar(property)}) 1`] = `
+
+  1 | foo.forEach(({foo: property}) => {bar(property)})
+
+`;
+
+exports[`no-for-each > invalid(210): foo.forEach(({foo: property}) => {bar(property)}) 2`] = `
+
+Message:
+> 1 | foo.forEach(({foo: property}) => {bar(property)})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(211): foo?.forEach(({foo: property}) => {bar(property)}) 1`] = `
+
+  1 | foo?.forEach(({foo: property}) => {bar(property)})
+
+`;
+
+exports[`no-for-each > invalid(211): foo?.forEach(({foo: property}) => {bar(property)}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(({foo: property}) => {bar(property)})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(212): foo.forEach(({[foo]: property}) => {bar(property)}) 1`] = `
+
+  1 | foo.forEach(({[foo]: property}) => {bar(property)})
+
+`;
+
+exports[`no-for-each > invalid(212): foo.forEach(({[foo]: property}) => {bar(property)}) 2`] = `
+
+Message:
+> 1 | foo.forEach(({[foo]: property}) => {bar(property)})
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(213): foo?.forEach(({[foo]: property}) => {bar(property)}) 1`] = `
+
+  1 | foo?.forEach(({[foo]: property}) => {bar(property)})
+
+`;
+
+exports[`no-for-each > invalid(213): foo?.forEach(({[foo]: property}) => {bar(property)}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(({[foo]: property}) => {bar(property)})
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(214): foo.forEach(({element}, index) => {\n\telement &&= 2;\n}); 1`] = `
+
+  1 | foo.forEach(({element}, index) => {
+  2 | 	element &&= 2;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(214): foo.forEach(({element}, index) => {\n\telement &&= 2;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(({element}, index) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	element &&= 2;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(215): foo?.forEach(({element}, index) => {\n\telement &&= 2;\n}); 1`] = `
+
+  1 | foo?.forEach(({element}, index) => {
+  2 | 	element &&= 2;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(215): foo?.forEach(({element}, index) => {\n\telement &&= 2;\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(({element}, index) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	element &&= 2;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(216): foo.forEach(_ => {\n\tif (true) return {};\n}) 1`] = `
+
+  1 | foo.forEach(_ => {
+  2 | 	if (true) return {};
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(216): foo.forEach(_ => {\n\tif (true) return {};\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(_ => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	if (true) return {};
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(217): foo?.forEach(_ => {\n\tif (true) return {};\n}) 1`] = `
+
+  1 | foo?.forEach(_ => {
+  2 | 	if (true) return {};
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(217): foo?.forEach(_ => {\n\tif (true) return {};\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(_ => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	if (true) return {};
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(218): foo.forEach(_ => {\n\tif (true);\n\telse return {};\n}) 1`] = `
+
+  1 | foo.forEach(_ => {
+  2 | 	if (true);
+  3 | 	else return {};
+  4 | })
+
+`;
+
+exports[`no-for-each > invalid(218): foo.forEach(_ => {\n\tif (true);\n\telse return {};\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(_ => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	if (true);
+  3 | 	else return {};
+  4 | })
+
+`;
+
+exports[`no-for-each > invalid(219): foo?.forEach(_ => {\n\tif (true);\n\telse return {};\n}) 1`] = `
+
+  1 | foo?.forEach(_ => {
+  2 | 	if (true);
+  3 | 	else return {};
+  4 | })
+
+`;
+
+exports[`no-for-each > invalid(219): foo?.forEach(_ => {\n\tif (true);\n\telse return {};\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(_ => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	if (true);
+  3 | 	else return {};
+  4 | })
+
+`;
+
+exports[`no-for-each > invalid(22): () => foo.forEach() 1`] = `
+
+  1 | () => foo.forEach()
+
+`;
+
+exports[`no-for-each > invalid(22): () => foo.forEach() 2`] = `
+
+Message:
+> 1 | () => foo.forEach()
+    |           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(220): if (true) {} else[foo].forEach((element) => {}) 1`] = `
+
+  1 | if (true) {} else[foo].forEach((element) => {})
+
+`;
+
+exports[`no-for-each > invalid(220): if (true) {} else[foo].forEach((element) => {}) 2`] = `
+
+Message:
+> 1 | if (true) {} else[foo].forEach((element) => {})
+    |                        ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if (true) {} else for (const element of [foo]) {}
+
+`;
+
+exports[`no-for-each > invalid(221): if (true) {} else[foo]?.forEach((element) => {}) 1`] = `
+
+  1 | if (true) {} else[foo]?.forEach((element) => {})
+
+`;
+
+exports[`no-for-each > invalid(221): if (true) {} else[foo]?.forEach((element) => {}) 2`] = `
+
+Message:
+> 1 | if (true) {} else[foo]?.forEach((element) => {})
+    |                         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if (true) {} else if ([foo]) for (const element of [foo]) {}
+
+`;
+
+exports[`no-for-each > invalid(222): const a = () => ((  foo.forEach(element => bar(element))  )) 1`] = `
+
+  1 | const a = () => ((  foo.forEach(element => bar(element))  ))
+
+`;
+
+exports[`no-for-each > invalid(222): const a = () => ((  foo.forEach(element => bar(element))  )) 2`] = `
+
+Message:
+> 1 | const a = () => ((  foo.forEach(element => bar(element))  ))
+    |                         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(223): const a = () => ((  foo?.forEach(element => bar(element))  )) 1`] = `
+
+  1 | const a = () => ((  foo?.forEach(element => bar(element))  ))
+
+`;
+
+exports[`no-for-each > invalid(223): const a = () => ((  foo?.forEach(element => bar(element))  )) 2`] = `
+
+Message:
+> 1 | const a = () => ((  foo?.forEach(element => bar(element))  ))
+    |                          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(224): const a = () => ((  foo.forEach(element => bar(element))  )); 1`] = `
+
+  1 | const a = () => ((  foo.forEach(element => bar(element))  ));
+
+`;
+
+exports[`no-for-each > invalid(224): const a = () => ((  foo.forEach(element => bar(element))  )); 2`] = `
+
+Message:
+> 1 | const a = () => ((  foo.forEach(element => bar(element))  ));
+    |                         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(225): const a = () => ((  foo?.forEach(element => bar(element))  )); 1`] = `
+
+  1 | const a = () => ((  foo?.forEach(element => bar(element))  ));
+
+`;
+
+exports[`no-for-each > invalid(225): const a = () => ((  foo?.forEach(element => bar(element))  )); 2`] = `
+
+Message:
+> 1 | const a = () => ((  foo?.forEach(element => bar(element))  ));
+    |                          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(226): const a = () => foo.forEach(element => bar(element)) 1`] = `
+
+  1 | const a = () => foo.forEach(element => bar(element))
+
+`;
+
+exports[`no-for-each > invalid(226): const a = () => foo.forEach(element => bar(element)) 2`] = `
+
+Message:
+> 1 | const a = () => foo.forEach(element => bar(element))
+    |                     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(227): const a = () => foo?.forEach(element => bar(element)) 1`] = `
+
+  1 | const a = () => foo?.forEach(element => bar(element))
+
+`;
+
+exports[`no-for-each > invalid(227): const a = () => foo?.forEach(element => bar(element)) 2`] = `
+
+Message:
+> 1 | const a = () => foo?.forEach(element => bar(element))
+    |                      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(228): const a = () => foo.forEach(element => bar(element)); 1`] = `
+
+  1 | const a = () => foo.forEach(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(228): const a = () => foo.forEach(element => bar(element)); 2`] = `
+
+Message:
+> 1 | const a = () => foo.forEach(element => bar(element));
+    |                     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(229): const a = () => foo?.forEach(element => bar(element)); 1`] = `
+
+  1 | const a = () => foo?.forEach(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(229): const a = () => foo?.forEach(element => bar(element)); 2`] = `
+
+Message:
+> 1 | const a = () => foo?.forEach(element => bar(element));
+    |                      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(23): () => foo?.forEach() 1`] = `
+
+  1 | () => foo?.forEach()
+
+`;
+
+exports[`no-for-each > invalid(23): () => foo?.forEach() 2`] = `
+
+Message:
+> 1 | () => foo?.forEach()
+    |            ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(230): const a = () => void foo.forEach(element => bar(element)); 1`] = `
+
+  1 | const a = () => void foo.forEach(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(230): const a = () => void foo.forEach(element => bar(element)); 2`] = `
+
+Message:
+> 1 | const a = () => void foo.forEach(element => bar(element));
+    |                          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(231): const a = () => void foo?.forEach(element => bar(element)); 1`] = `
+
+  1 | const a = () => void foo?.forEach(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(231): const a = () => void foo?.forEach(element => bar(element)); 2`] = `
+
+Message:
+> 1 | const a = () => void foo?.forEach(element => bar(element));
+    |                           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(232): 1?.forEach((a, b) => call(a, b)) 1`] = `
+
+  1 | 1?.forEach((a, b) => call(a, b))
+
+`;
+
+exports[`no-for-each > invalid(232): 1?.forEach((a, b) => call(a, b)) 2`] = `
+
+Message:
+> 1 | 1?.forEach((a, b) => call(a, b))
+    |    ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(233): array.forEach((arrayInArray) => arrayInArray.forEach(element => bar(element))); 1`] = `
+
+  1 | array.forEach((arrayInArray) => arrayInArray.forEach(element => bar(element)));
+
+`;
+
+exports[`no-for-each > invalid(233): array.forEach((arrayInArray) => arrayInArray.forEach(element => bar(element))); 2`] = `
+
+Message:
+> 1 | array.forEach((arrayInArray) => arrayInArray.forEach(element => bar(element)));
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(233): array.forEach((arrayInArray) => arrayInArray.forEach(element => bar(element))); 3`] = `
+
+Message:
+> 1 | array.forEach((arrayInArray) => arrayInArray.forEach(element => bar(element)));
+    |                                              ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(234): array.forEach((arrayInArray) => arrayInArray?.forEach(element => bar(element))); 1`] = `
+
+  1 | array.forEach((arrayInArray) => arrayInArray?.forEach(element => bar(element)));
+
+`;
+
+exports[`no-for-each > invalid(234): array.forEach((arrayInArray) => arrayInArray?.forEach(element => bar(element))); 2`] = `
+
+Message:
+> 1 | array.forEach((arrayInArray) => arrayInArray?.forEach(element => bar(element)));
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(234): array.forEach((arrayInArray) => arrayInArray?.forEach(element => bar(element))); 3`] = `
+
+Message:
+> 1 | array.forEach((arrayInArray) => arrayInArray?.forEach(element => bar(element)));
+    |                                               ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(235): foo.forEach(element => {\n\t({element} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({element} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(235): foo.forEach(element => {\n\t({element} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({element} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(236): foo.forEach(element => {\n\t({element: a} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({element: a} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(236): foo.forEach(element => {\n\t({element: a} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({element: a} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(237): foo.forEach(element => {\n\t({a: element} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({a: element} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(237): foo.forEach(element => {\n\t({a: element} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({a: element} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(238): foo.forEach(element => {\n\t({[element]: a} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({[element]: a} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(238): foo.forEach(element => {\n\t({[element]: a} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({[element]: a} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(239): foo.forEach(element => {\n\t({[a]: element} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({[a]: element} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(239): foo.forEach(element => {\n\t({[a]: element} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({[a]: element} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(24): foo.forEach((element = {}) => call(element)) 1`] = `
+
+  1 | foo.forEach((element = {}) => call(element))
+
+`;
+
+exports[`no-for-each > invalid(24): foo.forEach((element = {}) => call(element)) 2`] = `
+
+Message:
+> 1 | foo.forEach((element = {}) => call(element))
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(240): foo.forEach(element => {\n\t({element = a} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({element = a} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(240): foo.forEach(element => {\n\t({element = a} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({element = a} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(241): foo.forEach(element => {\n\t({a = element} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({a = element} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(241): foo.forEach(element => {\n\t({a = element} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({a = element} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(242): foo.forEach(element => {\n\t[element] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[element] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(242): foo.forEach(element => {\n\t[element] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[element] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(243): foo.forEach(element => {\n\t[element = a] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[element = a] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(243): foo.forEach(element => {\n\t[element = a] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[element = a] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(244): foo.forEach(element => {\n\t[a = element] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[a = element] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(244): foo.forEach(element => {\n\t[a = element] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[a = element] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(245): foo.forEach(element => {\n\t({deep: {element}} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: {element}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(245): foo.forEach(element => {\n\t({deep: {element}} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: {element}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(246): foo.forEach(element => {\n\t({deep: {element: a}} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: {element: a}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(246): foo.forEach(element => {\n\t({deep: {element: a}} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: {element: a}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(247): foo.forEach(element => {\n\t({deep: {a: element}} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: {a: element}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(247): foo.forEach(element => {\n\t({deep: {a: element}} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: {a: element}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(248): foo.forEach(element => {\n\t({deep: {[element]: a}} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: {[element]: a}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(248): foo.forEach(element => {\n\t({deep: {[element]: a}} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: {[element]: a}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(249): foo.forEach(element => {\n\t({deep: {[a]: element}} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: {[a]: element}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(249): foo.forEach(element => {\n\t({deep: {[a]: element}} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: {[a]: element}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(25): foo?.forEach((element = {}) => call(element)) 1`] = `
+
+  1 | foo?.forEach((element = {}) => call(element))
+
+`;
+
+exports[`no-for-each > invalid(25): foo?.forEach((element = {}) => call(element)) 2`] = `
+
+Message:
+> 1 | foo?.forEach((element = {}) => call(element))
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(250): foo.forEach(element => {\n\t({deep: {element = a}} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: {element = a}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(250): foo.forEach(element => {\n\t({deep: {element = a}} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: {element = a}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(251): foo.forEach(element => {\n\t({deep: {a = element}} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: {a = element}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(251): foo.forEach(element => {\n\t({deep: {a = element}} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: {a = element}} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(252): foo.forEach(element => {\n\t({deep: [element]} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: [element]} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(252): foo.forEach(element => {\n\t({deep: [element]} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: [element]} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(253): foo.forEach(element => {\n\t({deep: [element = a]} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: [element = a]} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(253): foo.forEach(element => {\n\t({deep: [element = a]} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: [element = a]} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(254): foo.forEach(element => {\n\t({deep: [a = element]} = bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	({deep: [a = element]} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(254): foo.forEach(element => {\n\t({deep: [a = element]} = bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	({deep: [a = element]} = bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(255): foo.forEach(element => {\n\t[{element}] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[{element}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(255): foo.forEach(element => {\n\t[{element}] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[{element}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(256): foo.forEach(element => {\n\t[{element: a}] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[{element: a}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(256): foo.forEach(element => {\n\t[{element: a}] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[{element: a}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(257): foo.forEach(element => {\n\t[{a: element}] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[{a: element}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(257): foo.forEach(element => {\n\t[{a: element}] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[{a: element}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(258): foo.forEach(element => {\n\t[{[element]: a}] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[{[element]: a}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(258): foo.forEach(element => {\n\t[{[element]: a}] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[{[element]: a}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(259): foo.forEach(element => {\n\t[{[a]: element}] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[{[a]: element}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(259): foo.forEach(element => {\n\t[{[a]: element}] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[{[a]: element}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(26): foo.forEach((...args) => bar(...args)) 1`] = `
+
+  1 | foo.forEach((...args) => bar(...args))
+
+`;
+
+exports[`no-for-each > invalid(26): foo.forEach((...args) => bar(...args)) 2`] = `
+
+Message:
+> 1 | foo.forEach((...args) => bar(...args))
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(260): foo.forEach(element => {\n\t[{element = a}] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[{element = a}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(260): foo.forEach(element => {\n\t[{element = a}] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[{element = a}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(261): foo.forEach(element => {\n\t[{a = element}] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[{a = element}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(261): foo.forEach(element => {\n\t[{a = element}] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[{a = element}] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(262): foo.forEach(element => {\n\t[[element]] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[[element]] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(262): foo.forEach(element => {\n\t[[element]] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[[element]] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(263): foo.forEach(element => {\n\t[[element = a]] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[[element = a]] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(263): foo.forEach(element => {\n\t[[element = a]] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[[element = a]] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(264): foo.forEach(element => {\n\t[[a = element]] = bar;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[[a = element]] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(264): foo.forEach(element => {\n\t[[a = element]] = bar;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[[a = element]] = bar;
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(265): foo.forEach(element => {\n\t[\n\t\tbar = ((element) => {\n\t\t\t[element] = array;\n\t\t})(element)\n\t] = baz;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[
+  3 | 		bar = ((element) => {
+  4 | 			[element] = array;
+  5 | 		})(element)
+  6 | 	] = baz;
+  7 | });
+
+`;
+
+exports[`no-for-each > invalid(265): foo.forEach(element => {\n\t[\n\t\tbar = ((element) => {\n\t\t\t[element] = array;\n\t\t})(element)\n\t] = baz;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[
+  3 | 		bar = ((element) => {
+  4 | 			[element] = array;
+  5 | 		})(element)
+  6 | 	] = baz;
+  7 | });
+
+`;
+
+exports[`no-for-each > invalid(266): foo.forEach(element => {\n\t[\n\t\tbar = ((element = array) => element)(element)\n\t] = baz;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[
+  3 | 		bar = ((element = array) => element)(element)
+  4 | 	] = baz;
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(266): foo.forEach(element => {\n\t[\n\t\tbar = ((element = array) => element)(element)\n\t] = baz;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[
+  3 | 		bar = ((element = array) => element)(element)
+  4 | 	] = baz;
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(267): foo.forEach(element => {\n\t[\n\t\tbar = (([element] = array) => element)(element)\n\t] = baz;\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	[
+  3 | 		bar = (([element] = array) => element)(element)
+  4 | 	] = baz;
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(267): foo.forEach(element => {\n\t[\n\t\tbar = (([element] = array) => element)(element)\n\t] = baz;\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	[
+  3 | 		bar = (([element] = array) => element)(element)
+  4 | 	] = baz;
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(268): foo.forEach(element => {\n\tfor (element in bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	for (element in bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(268): foo.forEach(element => {\n\tfor (element in bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for (element in bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(269): foo.forEach(element => {\n\tfor ([{element}] of bar);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	for ([{element}] of bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(269): foo.forEach(element => {\n\tfor ([{element}] of bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for ([{element}] of bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(27): foo?.forEach((...args) => bar(...args)) 1`] = `
+
+  1 | foo?.forEach((...args) => bar(...args))
+
+`;
+
+exports[`no-for-each > invalid(27): foo?.forEach((...args) => bar(...args)) 2`] = `
+
+Message:
+> 1 | foo?.forEach((...args) => bar(...args))
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(270): foo.forEach(element => {\n\tfor (key in element);\n\tfor (item of element);\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	for (key in element);
+  3 | 	for (item of element);
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(270): foo.forEach(element => {\n\tfor (key in element);\n\tfor (item of element);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for (key in element);
+  3 | 	for (item of element);
+  4 | });
+
+`;
+
+exports[`no-for-each > invalid(271): foo.forEach((element, index) => {\n\tfor (index of bar);\n}); 1`] = `
+
+  1 | foo.forEach((element, index) => {
+  2 | 	for (index of bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(271): foo.forEach((element, index) => {\n\tfor (index of bar);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach((element, index) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for (index of bar);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(272): array.forEach((element, index = element) => {}) 1`] = `
+
+  1 | array.forEach((element, index = element) => {})
+
+`;
+
+exports[`no-for-each > invalid(272): array.forEach((element, index = element) => {}) 2`] = `
+
+Message:
+> 1 | array.forEach((element, index = element) => {})
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(273): array.forEach(({foo}, index = foo) => {}) 1`] = `
+
+  1 | array.forEach(({foo}, index = foo) => {})
+
+`;
+
+exports[`no-for-each > invalid(273): array.forEach(({foo}, index = foo) => {}) 2`] = `
+
+Message:
+> 1 | array.forEach(({foo}, index = foo) => {})
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(274): array.forEach((element, {bar = element}) => {}) 1`] = `
+
+  1 | array.forEach((element, {bar = element}) => {})
+
+`;
+
+exports[`no-for-each > invalid(274): array.forEach((element, {bar = element}) => {}) 2`] = `
+
+Message:
+> 1 | array.forEach((element, {bar = element}) => {})
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(275): array.forEach(({foo}, {bar = foo}) => {}) 1`] = `
+
+  1 | array.forEach(({foo}, {bar = foo}) => {})
+
+`;
+
+exports[`no-for-each > invalid(275): array.forEach(({foo}, {bar = foo}) => {}) 2`] = `
+
+Message:
+> 1 | array.forEach(({foo}, {bar = foo}) => {})
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(276): const typedArray = new Uint8Array(); typedArray.forEach(value => console.log(value)); 1`] = `
+
+  1 | const typedArray = new Uint8Array(); typedArray.forEach(value => console.log(value));
+
+`;
+
+exports[`no-for-each > invalid(276): const typedArray = new Uint8Array(); typedArray.forEach(value => console.log(value)); 2`] = `
+
+Message:
+> 1 | const typedArray = new Uint8Array(); typedArray.forEach(value => console.log(value));
+    |                                                 ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(277): function foo(typedArray: Uint8Array) { typedArray.forEach(value => console.log(value)); } 1`] = `
+
+  1 | function foo(typedArray: Uint8Array) { typedArray.forEach(value => console.log(value)); }
+
+`;
+
+exports[`no-for-each > invalid(277): function foo(typedArray: Uint8Array) { typedArray.forEach(value => console.log(value)); } 2`] = `
+
+Message:
+> 1 | function foo(typedArray: Uint8Array) { typedArray.forEach(value => console.log(value)); }
+    |                                                   ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(278): const element = 5;\nconsole.log(element);\n[1, 2, 3].forEach(element => bar(element)); 1`] = `
+
+  1 | const element = 5;
+  2 | console.log(element);
+  3 | [1, 2, 3].forEach(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(278): const element = 5;\nconsole.log(element);\n[1, 2, 3].forEach(element => bar(element)); 2`] = `
+
+Message:
+  1 | const element = 5;
+  2 | console.log(element);
+> 3 | [1, 2, 3].forEach(element => bar(element));
+    |           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | const element = 5;
+  2 | console.log(element);
+  3 | for (const element of [1, 2, 3]) bar(element);
+
+`;
+
+exports[`no-for-each > invalid(279): const array = [];\narray.forEach(element => { for (const item of element) { return; } }); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(element => { for (const item of element) { return; } });
+
+`;
+
+exports[`no-for-each > invalid(279): const array = [];\narray.forEach(element => { for (const item of element) { return; } }); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(element => { for (const item of element) { return; } });
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(28): [1, 2, 3].forEach(element => bar(element)) 1`] = `
+
+  1 | [1, 2, 3].forEach(element => bar(element))
+
+`;
+
+exports[`no-for-each > invalid(28): [1, 2, 3].forEach(element => bar(element)) 2`] = `
+
+Message:
+> 1 | [1, 2, 3].forEach(element => bar(element))
+    |           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | for (const element of [1, 2, 3]) bar(element)
+
+`;
+
+exports[`no-for-each > invalid(280): const array = [];\narray.forEach(element => { if (element) bar(); else return; }); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(element => { if (element) bar(); else return; });
+
+`;
+
+exports[`no-for-each > invalid(280): const array = [];\narray.forEach(element => { if (element) bar(); else return; }); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(element => { if (element) bar(); else return; });
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | const array = [];
+  2 | for (const element of array) { if (element) bar(); else continue; }
+
+`;
+
+exports[`no-for-each > invalid(281): const array = [];\narray.forEach(element => { element = foo(element); bar(element); }); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(element => { element = foo(element); bar(element); });
+
+`;
+
+exports[`no-for-each > invalid(281): const array = [];\narray.forEach(element => { element = foo(element); bar(element); }); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(element => { element = foo(element); bar(element); });
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | const array = [];
+  2 | for (let element of array) { element = foo(element); bar(element); }
+
+`;
+
+exports[`no-for-each > invalid(282): const array = [];\n(array).forEach(element => bar(element)); 1`] = `
+
+  1 | const array = [];
+  2 | (array).forEach(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(282): const array = [];\n(array).forEach(element => bar(element)); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | (array).forEach(element => bar(element));
+    |         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | const array = [];
+  2 | for (const element of (array)) bar(element);
+
+`;
+
+exports[`no-for-each > invalid(283): const array = [];\narray.forEach(element => {\n\tfoo()\n\treturn [element]\n}); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(element => {
+  3 | 	foo()
+  4 | 	return [element]
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(283): const array = [];\narray.forEach(element => {\n\tfoo()\n\treturn [element]\n}); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(element => {
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  3 | 	foo()
+  4 | 	return [element]
+  5 | });
+
+Output:
+  1 | const array = [];
+  2 | for (const element of array) {
+  3 | 	foo()
+  4 | 	 ;[element]; continue;
+  5 | }
+
+`;
+
+exports[`no-for-each > invalid(284): const array = [];\narray.forEach((element => bar(element))); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach((element => bar(element)));
+
+`;
+
+exports[`no-for-each > invalid(284): const array = [];\narray.forEach((element => bar(element))); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach((element => bar(element)));
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | const array = [];
+  2 | for (const element of array) bar(element);
+
+`;
+
+exports[`no-for-each > invalid(285): const array = [];\narray.forEach(/* comment */ element => bar(element)); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(/* comment */ element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(285): const array = [];\narray.forEach(/* comment */ element => bar(element)); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(/* comment */ element => bar(element));
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(286): const array = [];\narray.forEach(element => bar(element),); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(element => bar(element),);
+
+`;
+
+exports[`no-for-each > invalid(286): const array = [];\narray.forEach(element => bar(element),); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(element => bar(element),);
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | const array = [];
+  2 | for (const element of array) bar(element);
+
+`;
+
+exports[`no-for-each > invalid(287): const array = [];\nconst foo = () => array.forEach(element => bar(element)); 1`] = `
+
+  1 | const array = [];
+  2 | const foo = () => array.forEach(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(287): const array = [];\nconst foo = () => array.forEach(element => bar(element)); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | const foo = () => array.forEach(element => bar(element));
+    |                         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | const array = [];
+  2 | const foo = () => { for (const element of array) bar(element) };
+
+`;
+
+exports[`no-for-each > invalid(288): const array = [];\narray.forEach(function foo(element) { bar(element); }); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(function foo(element) { bar(element); });
+
+`;
+
+exports[`no-for-each > invalid(288): const array = [];\narray.forEach(function foo(element) { bar(element); }); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(function foo(element) { bar(element); });
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | const array = [];
+  2 | for (const element of array) { bar(element); }
+
+`;
+
+exports[`no-for-each > invalid(289): const array = [];\narray.forEach?.(element => bar(element)); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach?.(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(289): const array = [];\narray.forEach?.(element => bar(element)); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach?.(element => bar(element));
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(29): [1, 2, 3]?.forEach(element => bar(element)) 1`] = `
+
+  1 | [1, 2, 3]?.forEach(element => bar(element))
+
+`;
+
+exports[`no-for-each > invalid(29): [1, 2, 3]?.forEach(element => bar(element)) 2`] = `
+
+Message:
+> 1 | [1, 2, 3]?.forEach(element => bar(element))
+    |            ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | if ([1, 2, 3]) for (const element of [1, 2, 3]) bar(element)
+
+`;
+
+exports[`no-for-each > invalid(290): const array = [];\nconst result = array.forEach(element => bar(element)); 1`] = `
+
+  1 | const array = [];
+  2 | const result = array.forEach(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(290): const array = [];\nconst result = array.forEach(element => bar(element)); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | const result = array.forEach(element => bar(element));
+    |                      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(291): const array = [];\narray.forEach(async element => bar(element)); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(async element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(291): const array = [];\narray.forEach(async element => bar(element)); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(async element => bar(element));
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(292): const array = [];\narray.forEach(element => { with (element) return foo; }); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(element => { with (element) return foo; });
+
+`;
+
+exports[`no-for-each > invalid(292): const array = [];\narray.forEach(element => { with (element) return foo; }); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(element => { with (element) return foo; });
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Output:
+  1 | const array = [];
+  2 | for (const element of array) { with (element)  { foo; continue; } }
+
+`;
+
+exports[`no-for-each > invalid(293): const array = [];\narray.forEach(function (element) { var element; bar(element); }); 1`] = `
+
+  1 | const array = [];
+  2 | array.forEach(function (element) { var element; bar(element); });
+
+`;
+
+exports[`no-for-each > invalid(293): const array = [];\narray.forEach(function (element) { var element; bar(element); }); 2`] = `
+
+Message:
+  1 | const array = [];
+> 2 | array.forEach(function (element) { var element; bar(element); });
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(294): [foo()]?.forEach(element => bar(element)); 1`] = `
+
+  1 | [foo()]?.forEach(element => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(294): [foo()]?.forEach(element => bar(element)); 2`] = `
+
+Message:
+> 1 | [foo()]?.forEach(element => bar(element));
+    |          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+Suggestion 1/1: Switch to \`for…of\`.:
+  1 | if ([foo()]) for (const element of [foo()]) bar(element);
+
+`;
+
+exports[`no-for-each > invalid(3): ((  foo?.forEach(element => bar(element))  )) 1`] = `
+
+  1 | ((  foo?.forEach(element => bar(element))  ))
+
+`;
+
+exports[`no-for-each > invalid(3): ((  foo?.forEach(element => bar(element))  )) 2`] = `
+
+Message:
+> 1 | ((  foo?.forEach(element => bar(element))  ))
+    |          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(30): foo.forEach(element => {\n\tdo {\n\t\treturn\n\t} while (element)\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	do {
+  3 | 		return
+  4 | 	} while (element)
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(30): foo.forEach(element => {\n\tdo {\n\t\treturn\n\t} while (element)\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	do {
+  3 | 		return
+  4 | 	} while (element)
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(31): foo?.forEach(element => {\n\tdo {\n\t\treturn\n\t} while (element)\n}); 1`] = `
+
+  1 | foo?.forEach(element => {
+  2 | 	do {
+  3 | 		return
+  4 | 	} while (element)
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(31): foo?.forEach(element => {\n\tdo {\n\t\treturn\n\t} while (element)\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	do {
+  3 | 		return
+  4 | 	} while (element)
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(32): foo.forEach(element => {\n\twhile (element) {\n\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	while (element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(32): foo.forEach(element => {\n\twhile (element) {\n\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	while (element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(33): foo?.forEach(element => {\n\twhile (element) {\n\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo?.forEach(element => {
+  2 | 	while (element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(33): foo?.forEach(element => {\n\twhile (element) {\n\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	while (element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(34): foo.forEach(element => {\n\tfor (let i = 0; i < 2; i++) {\n\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	for (let i = 0; i < 2; i++) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(34): foo.forEach(element => {\n\tfor (let i = 0; i < 2; i++) {\n\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for (let i = 0; i < 2; i++) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(35): foo?.forEach(element => {\n\tfor (let i = 0; i < 2; i++) {\n\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo?.forEach(element => {
+  2 | 	for (let i = 0; i < 2; i++) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(35): foo?.forEach(element => {\n\tfor (let i = 0; i < 2; i++) {\n\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for (let i = 0; i < 2; i++) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(36): foo.forEach(element => {\n\tfor (let i in element) {\n\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	for (let i in element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(36): foo.forEach(element => {\n\tfor (let i in element) {\n\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for (let i in element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(37): foo?.forEach(element => {\n\tfor (let i in element) {\n\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo?.forEach(element => {
+  2 | 	for (let i in element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(37): foo?.forEach(element => {\n\tfor (let i in element) {\n\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for (let i in element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(38): foo.forEach(element => {\n\tfor (let i of element) {\n\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	for (let i of element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(38): foo.forEach(element => {\n\tfor (let i of element) {\n\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for (let i of element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(39): foo?.forEach(element => {\n\tfor (let i of element) {\n\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo?.forEach(element => {
+  2 | 	for (let i of element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(39): foo?.forEach(element => {\n\tfor (let i of element) {\n\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	for (let i of element) {
+  3 | 		return;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-for-each > invalid(4): foo.forEach(element => bar(element), thisArgument) 1`] = `
+
+  1 | foo.forEach(element => bar(element), thisArgument)
+
+`;
+
+exports[`no-for-each > invalid(4): foo.forEach(element => bar(element), thisArgument) 2`] = `
+
+Message:
+> 1 | foo.forEach(element => bar(element), thisArgument)
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(40): foo.forEach(element => {\n\tswitch (element) {\n\t\tcase 1:\n\t\t\tbreak;\n\t\tcase 2:\n\t\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo.forEach(element => {
+  2 | 	switch (element) {
+  3 | 		case 1:
+  4 | 			break;
+  5 | 		case 2:
+  6 | 			return;
+  7 | 	}
+  8 | });
+
+`;
+
+exports[`no-for-each > invalid(40): foo.forEach(element => {\n\tswitch (element) {\n\t\tcase 1:\n\t\t\tbreak;\n\t\tcase 2:\n\t\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(element => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	switch (element) {
+  3 | 		case 1:
+  4 | 			break;
+  5 | 		case 2:
+  6 | 			return;
+  7 | 	}
+  8 | });
+
+`;
+
+exports[`no-for-each > invalid(41): foo?.forEach(element => {\n\tswitch (element) {\n\t\tcase 1:\n\t\t\tbreak;\n\t\tcase 2:\n\t\t\treturn;\n\t}\n}); 1`] = `
+
+  1 | foo?.forEach(element => {
+  2 | 	switch (element) {
+  3 | 		case 1:
+  4 | 			break;
+  5 | 		case 2:
+  6 | 			return;
+  7 | 	}
+  8 | });
+
+`;
+
+exports[`no-for-each > invalid(41): foo?.forEach(element => {\n\tswitch (element) {\n\t\tcase 1:\n\t\t\tbreak;\n\t\tcase 2:\n\t\t\treturn;\n\t}\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	switch (element) {
+  3 | 		case 1:
+  4 | 			break;
+  5 | 		case 2:
+  6 | 			return;
+  7 | 	}
+  8 | });
+
+`;
+
+exports[`no-for-each > invalid(42): foo.forEach(foo => bar()); 1`] = `
+
+  1 | foo.forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(42): foo.forEach(foo => bar()); 2`] = `
+
+Message:
+> 1 | foo.forEach(foo => bar());
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(43): foo?.forEach(foo => bar()); 1`] = `
+
+  1 | foo?.forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(43): foo?.forEach(foo => bar()); 2`] = `
+
+Message:
+> 1 | foo?.forEach(foo => bar());
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(44): const foo = [];\nfoo.forEach(foo => bar()); 1`] = `
+
+  1 | const foo = [];
+  2 | foo.forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(44): const foo = [];\nfoo.forEach(foo => bar()); 2`] = `
+
+Message:
+  1 | const foo = [];
+> 2 | foo.forEach(foo => bar());
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(45): const foo = [];\nfoo?.forEach(foo => bar()); 1`] = `
+
+  1 | const foo = [];
+  2 | foo?.forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(45): const foo = [];\nfoo?.forEach(foo => bar()); 2`] = `
+
+Message:
+  1 | const foo = [];
+> 2 | foo?.forEach(foo => bar());
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(46): const foo = [];\nfunction unicorn() {\n\tfoo.forEach(foo => bar());\n} 1`] = `
+
+  1 | const foo = [];
+  2 | function unicorn() {
+  3 | 	foo.forEach(foo => bar());
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(46): const foo = [];\nfunction unicorn() {\n\tfoo.forEach(foo => bar());\n} 2`] = `
+
+Message:
+  1 | const foo = [];
+  2 | function unicorn() {
+> 3 | 	foo.forEach(foo => bar());
+    | 	    ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(47): const foo = [];\nfunction unicorn() {\n\tfoo?.forEach(foo => bar());\n} 1`] = `
+
+  1 | const foo = [];
+  2 | function unicorn() {
+  3 | 	foo?.forEach(foo => bar());
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(47): const foo = [];\nfunction unicorn() {\n\tfoo?.forEach(foo => bar());\n} 2`] = `
+
+Message:
+  1 | const foo = [];
+  2 | function unicorn() {
+> 3 | 	foo?.forEach(foo => bar());
+    | 	     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(48): index.forEach((a, index) => bar()); 1`] = `
+
+  1 | index.forEach((a, index) => bar());
+
+`;
+
+exports[`no-for-each > invalid(48): index.forEach((a, index) => bar()); 2`] = `
+
+Message:
+> 1 | index.forEach((a, index) => bar());
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(49): index?.forEach((a, index) => bar()); 1`] = `
+
+  1 | index?.forEach((a, index) => bar());
+
+`;
+
+exports[`no-for-each > invalid(49): index?.forEach((a, index) => bar()); 2`] = `
+
+Message:
+> 1 | index?.forEach((a, index) => bar());
+    |        ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(5): foo?.forEach(element => bar(element), thisArgument) 1`] = `
+
+  1 | foo?.forEach(element => bar(element), thisArgument)
+
+`;
+
+exports[`no-for-each > invalid(5): foo?.forEach(element => bar(element), thisArgument) 2`] = `
+
+Message:
+> 1 | foo?.forEach(element => bar(element), thisArgument)
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(50): const index = [];\nindex.forEach((a, index) => bar()); 1`] = `
+
+  1 | const index = [];
+  2 | index.forEach((a, index) => bar());
+
+`;
+
+exports[`no-for-each > invalid(50): const index = [];\nindex.forEach((a, index) => bar()); 2`] = `
+
+Message:
+  1 | const index = [];
+> 2 | index.forEach((a, index) => bar());
+    |       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(51): const index = [];\nindex?.forEach((a, index) => bar()); 1`] = `
+
+  1 | const index = [];
+  2 | index?.forEach((a, index) => bar());
+
+`;
+
+exports[`no-for-each > invalid(51): const index = [];\nindex?.forEach((a, index) => bar()); 2`] = `
+
+Message:
+  1 | const index = [];
+> 2 | index?.forEach((a, index) => bar());
+    |        ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(52): const index = [];\nfunction unicorn() {\n\tindex.forEach((a, index) => bar());\n} 1`] = `
+
+  1 | const index = [];
+  2 | function unicorn() {
+  3 | 	index.forEach((a, index) => bar());
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(52): const index = [];\nfunction unicorn() {\n\tindex.forEach((a, index) => bar());\n} 2`] = `
+
+Message:
+  1 | const index = [];
+  2 | function unicorn() {
+> 3 | 	index.forEach((a, index) => bar());
+    | 	      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(53): const index = [];\nfunction unicorn() {\n\tindex?.forEach((a, index) => bar());\n} 1`] = `
+
+  1 | const index = [];
+  2 | function unicorn() {
+  3 | 	index?.forEach((a, index) => bar());
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(53): const index = [];\nfunction unicorn() {\n\tindex?.forEach((a, index) => bar());\n} 2`] = `
+
+Message:
+  1 | const index = [];
+  2 | function unicorn() {
+> 3 | 	index?.forEach((a, index) => bar());
+    | 	       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(54): a[foo].forEach(foo => bar()); 1`] = `
+
+  1 | a[foo].forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(54): a[foo].forEach(foo => bar()); 2`] = `
+
+Message:
+> 1 | a[foo].forEach(foo => bar());
+    |        ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(55): a[foo]?.forEach(foo => bar()); 1`] = `
+
+  1 | a[foo]?.forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(55): a[foo]?.forEach(foo => bar()); 2`] = `
+
+Message:
+> 1 | a[foo]?.forEach(foo => bar());
+    |         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(56): const foo = 1;\na[foo].forEach(foo => bar()); 1`] = `
+
+  1 | const foo = 1;
+  2 | a[foo].forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(56): const foo = 1;\na[foo].forEach(foo => bar()); 2`] = `
+
+Message:
+  1 | const foo = 1;
+> 2 | a[foo].forEach(foo => bar());
+    |        ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(57): const foo = 1;\na[foo]?.forEach(foo => bar()); 1`] = `
+
+  1 | const foo = 1;
+  2 | a[foo]?.forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(57): const foo = 1;\na[foo]?.forEach(foo => bar()); 2`] = `
+
+Message:
+  1 | const foo = 1;
+> 2 | a[foo]?.forEach(foo => bar());
+    |         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(58): const foo = 1;\nfunction unicorn() {\n\ta[foo].forEach(foo => bar());\n} 1`] = `
+
+  1 | const foo = 1;
+  2 | function unicorn() {
+  3 | 	a[foo].forEach(foo => bar());
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(58): const foo = 1;\nfunction unicorn() {\n\ta[foo].forEach(foo => bar());\n} 2`] = `
+
+Message:
+  1 | const foo = 1;
+  2 | function unicorn() {
+> 3 | 	a[foo].forEach(foo => bar());
+    | 	       ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(59): const foo = 1;\nfunction unicorn() {\n\ta[foo]?.forEach(foo => bar());\n} 1`] = `
+
+  1 | const foo = 1;
+  2 | function unicorn() {
+  3 | 	a[foo]?.forEach(foo => bar());
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(59): const foo = 1;\nfunction unicorn() {\n\ta[foo]?.forEach(foo => bar());\n} 2`] = `
+
+Message:
+  1 | const foo = 1;
+  2 | function unicorn() {
+> 3 | 	a[foo]?.forEach(foo => bar());
+    | 	        ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  4 | }
+
+`;
+
+exports[`no-for-each > invalid(6): foo.forEach() 1`] = `
+
+  1 | foo.forEach()
+
+`;
+
+exports[`no-for-each > invalid(6): foo.forEach() 2`] = `
+
+Message:
+> 1 | foo.forEach()
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(60): a[index].forEach((b, index) => bar()); 1`] = `
+
+  1 | a[index].forEach((b, index) => bar());
+
+`;
+
+exports[`no-for-each > invalid(60): a[index].forEach((b, index) => bar()); 2`] = `
+
+Message:
+> 1 | a[index].forEach((b, index) => bar());
+    |          ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(61): a[index]?.forEach((b, index) => bar()); 1`] = `
+
+  1 | a[index]?.forEach((b, index) => bar());
+
+`;
+
+exports[`no-for-each > invalid(61): a[index]?.forEach((b, index) => bar()); 2`] = `
+
+Message:
+> 1 | a[index]?.forEach((b, index) => bar());
+    |           ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(62): a((foo) => foo).forEach(foo => bar()); 1`] = `
+
+  1 | a((foo) => foo).forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(62): a((foo) => foo).forEach(foo => bar()); 2`] = `
+
+Message:
+> 1 | a((foo) => foo).forEach(foo => bar());
+    |                 ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(63): a((foo) => foo)?.forEach(foo => bar()); 1`] = `
+
+  1 | a((foo) => foo)?.forEach(foo => bar());
+
+`;
+
+exports[`no-for-each > invalid(63): a((foo) => foo)?.forEach(foo => bar()); 2`] = `
+
+Message:
+> 1 | a((foo) => foo)?.forEach(foo => bar());
+    |                  ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(64): a((foo, index) => foo + index).forEach((foo, index) => bar()); 1`] = `
+
+  1 | a((foo, index) => foo + index).forEach((foo, index) => bar());
+
+`;
+
+exports[`no-for-each > invalid(64): a((foo, index) => foo + index).forEach((foo, index) => bar()); 2`] = `
+
+Message:
+> 1 | a((foo, index) => foo + index).forEach((foo, index) => bar());
+    |                                ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(65): a((foo, index) => foo + index)?.forEach((foo, index) => bar()); 1`] = `
+
+  1 | a((foo, index) => foo + index)?.forEach((foo, index) => bar());
+
+`;
+
+exports[`no-for-each > invalid(65): a((foo, index) => foo + index)?.forEach((foo, index) => bar()); 2`] = `
+
+Message:
+> 1 | a((foo, index) => foo + index)?.forEach((foo, index) => bar());
+    |                                 ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(66): const foo = [];\nconst index = 1;\na.forEach((foo, index) => foo[index]); 1`] = `
+
+  1 | const foo = [];
+  2 | const index = 1;
+  3 | a.forEach((foo, index) => foo[index]);
+
+`;
+
+exports[`no-for-each > invalid(66): const foo = [];\nconst index = 1;\na.forEach((foo, index) => foo[index]); 2`] = `
+
+Message:
+  1 | const foo = [];
+  2 | const index = 1;
+> 3 | a.forEach((foo, index) => foo[index]);
+    |   ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(67): const foo = [];\nconst index = 1;\na?.forEach((foo, index) => foo[index]); 1`] = `
+
+  1 | const foo = [];
+  2 | const index = 1;
+  3 | a?.forEach((foo, index) => foo[index]);
+
+`;
+
+exports[`no-for-each > invalid(67): const foo = [];\nconst index = 1;\na?.forEach((foo, index) => foo[index]); 2`] = `
+
+Message:
+  1 | const foo = [];
+  2 | const index = 1;
+> 3 | a?.forEach((foo, index) => foo[index]);
+    |    ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(68): foo.forEach(function a(element) {\n\tbar(a)\n}) 1`] = `
+
+  1 | foo.forEach(function a(element) {
+  2 | 	bar(a)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(68): foo.forEach(function a(element) {\n\tbar(a)\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function a(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(a)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(69): foo?.forEach(function a(element) {\n\tbar(a)\n}) 1`] = `
+
+  1 | foo?.forEach(function a(element) {
+  2 | 	bar(a)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(69): foo?.forEach(function a(element) {\n\tbar(a)\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function a(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(a)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(7): foo?.forEach() 1`] = `
+
+  1 | foo?.forEach()
+
+`;
+
+exports[`no-for-each > invalid(7): foo?.forEach() 2`] = `
+
+Message:
+> 1 | foo?.forEach()
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(70): foo.forEach(function a(element) {\n\tfunction b() {\n\t\tbar(a)\n\t}\n}) 1`] = `
+
+  1 | foo.forEach(function a(element) {
+  2 | 	function b() {
+  3 | 		bar(a)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(70): foo.forEach(function a(element) {\n\tfunction b() {\n\t\tbar(a)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function a(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	function b() {
+  3 | 		bar(a)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(71): foo?.forEach(function a(element) {\n\tfunction b() {\n\t\tbar(a)\n\t}\n}) 1`] = `
+
+  1 | foo?.forEach(function a(element) {
+  2 | 	function b() {
+  3 | 		bar(a)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(71): foo?.forEach(function a(element) {\n\tfunction b() {\n\t\tbar(a)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function a(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	function b() {
+  3 | 		bar(a)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(72): foo.forEach(function a(element) {\n\tfunction b(a) {\n\t\tbar(a)\n\t}\n}) 1`] = `
+
+  1 | foo.forEach(function a(element) {
+  2 | 	function b(a) {
+  3 | 		bar(a)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(72): foo.forEach(function a(element) {\n\tfunction b(a) {\n\t\tbar(a)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function a(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	function b(a) {
+  3 | 		bar(a)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(73): foo?.forEach(function a(element) {\n\tfunction b(a) {\n\t\tbar(a)\n\t}\n}) 1`] = `
+
+  1 | foo?.forEach(function a(element) {
+  2 | 	function b(a) {
+  3 | 		bar(a)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(73): foo?.forEach(function a(element) {\n\tfunction b(a) {\n\t\tbar(a)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function a(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	function b(a) {
+  3 | 		bar(a)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(74): foo.forEach(function(element) {\n\tbar(this)\n}) 1`] = `
+
+  1 | foo.forEach(function(element) {
+  2 | 	bar(this)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(74): foo.forEach(function(element) {\n\tbar(this)\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(this)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(75): foo?.forEach(function(element) {\n\tbar(this)\n}) 1`] = `
+
+  1 | foo?.forEach(function(element) {
+  2 | 	bar(this)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(75): foo?.forEach(function(element) {\n\tbar(this)\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(this)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(76): foo.forEach(function(element) {\n\tfunction b() {\n\t\tbar(this)\n\t}\n}) 1`] = `
+
+  1 | foo.forEach(function(element) {
+  2 | 	function b() {
+  3 | 		bar(this)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(76): foo.forEach(function(element) {\n\tfunction b() {\n\t\tbar(this)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	function b() {
+  3 | 		bar(this)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(77): foo?.forEach(function(element) {\n\tfunction b() {\n\t\tbar(this)\n\t}\n}) 1`] = `
+
+  1 | foo?.forEach(function(element) {
+  2 | 	function b() {
+  3 | 		bar(this)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(77): foo?.forEach(function(element) {\n\tfunction b() {\n\t\tbar(this)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	function b() {
+  3 | 		bar(this)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(78): foo.forEach(function(element) {\n\tconst x = b => {\n\t\tbar(this)\n\t}\n}) 1`] = `
+
+  1 | foo.forEach(function(element) {
+  2 | 	const x = b => {
+  3 | 		bar(this)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(78): foo.forEach(function(element) {\n\tconst x = b => {\n\t\tbar(this)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	const x = b => {
+  3 | 		bar(this)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(79): foo?.forEach(function(element) {\n\tconst x = b => {\n\t\tbar(this)\n\t}\n}) 1`] = `
+
+  1 | foo?.forEach(function(element) {
+  2 | 	const x = b => {
+  3 | 		bar(this)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(79): foo?.forEach(function(element) {\n\tconst x = b => {\n\t\tbar(this)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	const x = b => {
+  3 | 		bar(this)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(8): const baz = foo.forEach(element => bar(element)) 1`] = `
+
+  1 | const baz = foo.forEach(element => bar(element))
+
+`;
+
+exports[`no-for-each > invalid(8): const baz = foo.forEach(element => bar(element)) 2`] = `
+
+Message:
+> 1 | const baz = foo.forEach(element => bar(element))
+    |                 ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(80): foo.forEach((element) => {\n\tbar(this)\n}) 1`] = `
+
+  1 | foo.forEach((element) => {
+  2 | 	bar(this)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(80): foo.forEach((element) => {\n\tbar(this)\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach((element) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(this)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(81): foo?.forEach((element) => {\n\tbar(this)\n}) 1`] = `
+
+  1 | foo?.forEach((element) => {
+  2 | 	bar(this)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(81): foo?.forEach((element) => {\n\tbar(this)\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach((element) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(this)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(82): foo.forEach(function(element) {\n\tbar(arguments)\n}) 1`] = `
+
+  1 | foo.forEach(function(element) {
+  2 | 	bar(arguments)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(82): foo.forEach(function(element) {\n\tbar(arguments)\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(arguments)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(83): foo?.forEach(function(element) {\n\tbar(arguments)\n}) 1`] = `
+
+  1 | foo?.forEach(function(element) {
+  2 | 	bar(arguments)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(83): foo?.forEach(function(element) {\n\tbar(arguments)\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(arguments)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(84): foo.forEach(function(element) {\n\tfunction b() {\n\t\tbar(arguments)\n\t}\n}) 1`] = `
+
+  1 | foo.forEach(function(element) {
+  2 | 	function b() {
+  3 | 		bar(arguments)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(84): foo.forEach(function(element) {\n\tfunction b() {\n\t\tbar(arguments)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	function b() {
+  3 | 		bar(arguments)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(85): foo?.forEach(function(element) {\n\tfunction b() {\n\t\tbar(arguments)\n\t}\n}) 1`] = `
+
+  1 | foo?.forEach(function(element) {
+  2 | 	function b() {
+  3 | 		bar(arguments)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(85): foo?.forEach(function(element) {\n\tfunction b() {\n\t\tbar(arguments)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	function b() {
+  3 | 		bar(arguments)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(86): foo.forEach(function(element) {\n\tconst b = () => {\n\t\tbar(arguments)\n\t}\n}) 1`] = `
+
+  1 | foo.forEach(function(element) {
+  2 | 	const b = () => {
+  3 | 		bar(arguments)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(86): foo.forEach(function(element) {\n\tconst b = () => {\n\t\tbar(arguments)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach(function(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	const b = () => {
+  3 | 		bar(arguments)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(87): foo?.forEach(function(element) {\n\tconst b = () => {\n\t\tbar(arguments)\n\t}\n}) 1`] = `
+
+  1 | foo?.forEach(function(element) {
+  2 | 	const b = () => {
+  3 | 		bar(arguments)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(87): foo?.forEach(function(element) {\n\tconst b = () => {\n\t\tbar(arguments)\n\t}\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach(function(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	const b = () => {
+  3 | 		bar(arguments)
+  4 | 	}
+  5 | })
+
+`;
+
+exports[`no-for-each > invalid(88): foo.forEach((element) => {\n\tbar(arguments)\n}) 1`] = `
+
+  1 | foo.forEach((element) => {
+  2 | 	bar(arguments)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(88): foo.forEach((element) => {\n\tbar(arguments)\n}) 2`] = `
+
+Message:
+> 1 | foo.forEach((element) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(arguments)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(89): foo?.forEach((element) => {\n\tbar(arguments)\n}) 1`] = `
+
+  1 | foo?.forEach((element) => {
+  2 | 	bar(arguments)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(89): foo?.forEach((element) => {\n\tbar(arguments)\n}) 2`] = `
+
+Message:
+> 1 | foo?.forEach((element) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(arguments)
+  3 | })
+
+`;
+
+exports[`no-for-each > invalid(9): const baz = foo?.forEach(element => bar(element)) 1`] = `
+
+  1 | const baz = foo?.forEach(element => bar(element))
+
+`;
+
+exports[`no-for-each > invalid(9): const baz = foo?.forEach(element => bar(element)) 2`] = `
+
+Message:
+> 1 | const baz = foo?.forEach(element => bar(element))
+    |                  ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(90): a = foo?.bar.forEach((element) => bar(element)); 1`] = `
+
+  1 | a = foo?.bar.forEach((element) => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(90): a = foo?.bar.forEach((element) => bar(element)); 2`] = `
+
+Message:
+> 1 | a = foo?.bar.forEach((element) => bar(element));
+    |              ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(91): a = foo?.bar?.forEach((element) => bar(element)); 1`] = `
+
+  1 | a = foo?.bar?.forEach((element) => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(91): a = foo?.bar?.forEach((element) => bar(element)); 2`] = `
+
+Message:
+> 1 | a = foo?.bar?.forEach((element) => bar(element));
+    |               ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(92): foo.forEach(function (element) {\n\tbar(element);\n}); 1`] = `
+
+  1 | foo.forEach(function (element) {
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(92): foo.forEach(function (element) {\n\tbar(element);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(function (element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(93): foo?.forEach(function (element) {\n\tbar(element);\n}); 1`] = `
+
+  1 | foo?.forEach(function (element) {
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(93): foo?.forEach(function (element) {\n\tbar(element);\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(function (element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(94): foo.forEach(function withName(element) {\n\tbar(element);\n}); 1`] = `
+
+  1 | foo.forEach(function withName(element) {
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(94): foo.forEach(function withName(element) {\n\tbar(element);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach(function withName(element) {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(95): foo?.forEach(function withName(element) {\n\tbar(element);\n}); 1`] = `
+
+  1 | foo?.forEach(function withName(element) {
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(95): foo?.forEach(function withName(element) {\n\tbar(element);\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach(function withName(element) {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(96): foo.forEach((element) => {\n\tbar(element);\n}); 1`] = `
+
+  1 | foo.forEach((element) => {
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(96): foo.forEach((element) => {\n\tbar(element);\n}); 2`] = `
+
+Message:
+> 1 | foo.forEach((element) => {
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(97): foo?.forEach((element) => {\n\tbar(element);\n}); 1`] = `
+
+  1 | foo?.forEach((element) => {
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(97): foo?.forEach((element) => {\n\tbar(element);\n}); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element) => {
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+  2 | 	bar(element);
+  3 | });
+
+`;
+
+exports[`no-for-each > invalid(98): foo.forEach((element) => bar(element)); 1`] = `
+
+  1 | foo.forEach((element) => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(98): foo.forEach((element) => bar(element)); 2`] = `
+
+Message:
+> 1 | foo.forEach((element) => bar(element));
+    |     ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;
+
+exports[`no-for-each > invalid(99): foo?.forEach((element) => bar(element)); 1`] = `
+
+  1 | foo?.forEach((element) => bar(element));
+
+`;
+
+exports[`no-for-each > invalid(99): foo?.forEach((element) => bar(element)); 2`] = `
+
+Message:
+> 1 | foo?.forEach((element) => bar(element));
+    |      ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
+
+`;

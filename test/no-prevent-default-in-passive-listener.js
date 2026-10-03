@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
@@ -196,21 +196,21 @@ test('passive cancellation and late cancellation have separate reports', t => {
 	};
 	const code = listener('async event => { event.preventDefault(); await task(); event.preventDefault(); }');
 	const messages = linter.verify(code, config);
-	t.deepEqual(messages.map(({ruleId}) => ruleId), [
+	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), [
 		'unicorn/no-prevent-default-in-passive-listener',
 		'unicorn/no-late-event-control',
 	]);
-	t.true(messages[0].column < messages[1].column);
-	t.false(messages.some(message => message.fix));
+	t.assert.strictEqual(messages[0].column < messages[1].column, true);
+	t.assert.strictEqual(messages.some(message => message.fix), false);
 	const {range, text} = messages[0].suggestions[0].fix;
 	const suggestedCode = code.slice(0, range[0]) + text + code.slice(range[1]);
-	t.true(suggestedCode.includes('{passive: false}'));
-	t.deepEqual(linter.verify(suggestedCode, config).map(({ruleId}) => ruleId), ['unicorn/no-late-event-control']);
-	t.is(linter.verifyAndFix(suggestedCode, config).output, suggestedCode);
+	t.assert.strictEqual(suggestedCode.includes('{passive: false}'), true);
+	t.assert.deepStrictEqual(linter.verify(suggestedCode, config).map(({ruleId}) => ruleId), ['unicorn/no-late-event-control']);
+	t.assert.strictEqual(linter.verifyAndFix(suggestedCode, config).output, suggestedCode);
 });
 
 test('rule is enabled in the recommended and unopinionated presets', t => {
 	for (const name of ['recommended', 'unopinionated']) {
-		t.is(unicorn.configs[name].rules['unicorn/no-prevent-default-in-passive-listener'], 'error');
+		t.assert.strictEqual(unicorn.configs[name].rules['unicorn/no-prevent-default-in-passive-listener'], 'error');
 	}
 });

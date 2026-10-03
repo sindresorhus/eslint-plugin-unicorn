@@ -1,0 +1,131 @@
+exports[`no-canvas-to-image > invalid(1): context.drawImage(loadImage(canvas.toDataURL()), 0, 0); 1`] = `
+
+  1 | context.drawImage(loadImage(canvas.toDataURL()), 0, 0);
+
+`;
+
+exports[`no-canvas-to-image > invalid(1): context.drawImage(loadImage(canvas.toDataURL()), 0, 0); 2`] = `
+
+Message:
+> 1 | context.drawImage(loadImage(canvas.toDataURL()), 0, 0);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer drawing the canvas directly with \`drawImage()\`.
+
+`;
+
+exports[`no-canvas-to-image > invalid(2): context.drawImage(await loadImage(canvas.toDataURL()), 0, 0); 1`] = `
+
+  1 | context.drawImage(await loadImage(canvas.toDataURL()), 0, 0);
+
+`;
+
+exports[`no-canvas-to-image > invalid(2): context.drawImage(await loadImage(canvas.toDataURL()), 0, 0); 2`] = `
+
+Message:
+> 1 | context.drawImage(await loadImage(canvas.toDataURL()), 0, 0);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer drawing the canvas directly with \`drawImage()\`.
+
+`;
+
+exports[`no-canvas-to-image > invalid(3): context.drawImage(await loadImage(sourceCanvas.toDataURL()), 0, 0); 1`] = `
+
+  1 | context.drawImage(await loadImage(sourceCanvas.toDataURL()), 0, 0);
+
+`;
+
+exports[`no-canvas-to-image > invalid(3): context.drawImage(await loadImage(sourceCanvas.toDataURL()), 0, 0); 2`] = `
+
+Message:
+> 1 | context.drawImage(await loadImage(sourceCanvas.toDataURL()), 0, 0);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer drawing the canvas directly with \`drawImage()\`.
+
+`;
+
+exports[`no-canvas-to-image > invalid(4): context.drawImage(await loadImage(this.canvas.toDataURL()), 0, 0); 1`] = `
+
+  1 | context.drawImage(await loadImage(this.canvas.toDataURL()), 0, 0);
+
+`;
+
+exports[`no-canvas-to-image > invalid(4): context.drawImage(await loadImage(this.canvas.toDataURL()), 0, 0); 2`] = `
+
+Message:
+> 1 | context.drawImage(await loadImage(this.canvas.toDataURL()), 0, 0);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer drawing the canvas directly with \`drawImage()\`.
+
+`;
+
+exports[`no-canvas-to-image > invalid(5): const image = await loadImage(canvas.toDataURL());\ncontext.drawImage(image, 0, 0); 1`] = `
+
+  1 | const image = await loadImage(canvas.toDataURL());
+  2 | context.drawImage(image, 0, 0);
+
+`;
+
+exports[`no-canvas-to-image > invalid(5): const image = await loadImage(canvas.toDataURL());\ncontext.drawImage(image, 0, 0); 2`] = `
+
+Message:
+  1 | const image = await loadImage(canvas.toDataURL());
+> 2 | context.drawImage(image, 0, 0);
+    |                   ^^^^^ Prefer drawing the canvas directly with \`drawImage()\`.
+
+`;
+
+exports[`no-canvas-to-image > invalid(6): const image = loadImage(canvas.toDataURL('image/jpeg'));\ncontext.drawImage(await image, 0, 0); 1`] = `
+
+  1 | const image = loadImage(canvas.toDataURL('image/jpeg'));
+  2 | context.drawImage(await image, 0, 0);
+
+`;
+
+exports[`no-canvas-to-image > invalid(6): const image = loadImage(canvas.toDataURL('image/jpeg'));\ncontext.drawImage(await image, 0, 0); 2`] = `
+
+Message:
+  1 | const image = loadImage(canvas.toDataURL('image/jpeg'));
+> 2 | context.drawImage(await image, 0, 0);
+    |                   ^^^^^^^^^^^ Prefer drawing the canvas directly with \`drawImage()\`.
+
+`;
+
+exports[`no-canvas-to-image > invalid(7): context.putImageData(context.getImageData(0, 0, width, height), 0, 0); 1`] = `
+
+  1 | context.putImageData(context.getImageData(0, 0, width, height), 0, 0);
+
+`;
+
+exports[`no-canvas-to-image > invalid(7): context.putImageData(context.getImageData(0, 0, width, height), 0, 0); 2`] = `
+
+Message:
+> 1 | context.putImageData(context.getImageData(0, 0, width, height), 0, 0);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer drawing the canvas directly with \`drawImage()\`.
+
+`;
+
+exports[`no-canvas-to-image > invalid(8): context2.putImageData(context1.getImageData(0, 0, width, height), 0, 0); 1`] = `
+
+  1 | context2.putImageData(context1.getImageData(0, 0, width, height), 0, 0);
+
+`;
+
+exports[`no-canvas-to-image > invalid(8): context2.putImageData(context1.getImageData(0, 0, width, height), 0, 0); 2`] = `
+
+Message:
+> 1 | context2.putImageData(context1.getImageData(0, 0, width, height), 0, 0);
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer drawing the canvas directly with \`drawImage()\`.
+
+`;
+
+exports[`no-canvas-to-image > invalid(9): const imageData = context1.getImageData(0, 0, width, height);\ncontext2.putImageData(imageData, 0, 0); 1`] = `
+
+  1 | const imageData = context1.getImageData(0, 0, width, height);
+  2 | context2.putImageData(imageData, 0, 0);
+
+`;
+
+exports[`no-canvas-to-image > invalid(9): const imageData = context1.getImageData(0, 0, width, height);\ncontext2.putImageData(imageData, 0, 0); 2`] = `
+
+Message:
+  1 | const imageData = context1.getImageData(0, 0, width, height);
+> 2 | context2.putImageData(imageData, 0, 0);
+    |                       ^^^^^^^^^ Prefer drawing the canvas directly with \`drawImage()\`.
+
+`;

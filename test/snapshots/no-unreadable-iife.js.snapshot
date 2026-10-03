@@ -1,0 +1,245 @@
+exports[`no-unreadable-iife > invalid(1): const foo = (() => (a ? b : c))(); 1`] = `
+
+  1 | const foo = (() => (a ? b : c))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(1): const foo = (() => (a ? b : c))(); 2`] = `
+
+Message:
+> 1 | const foo = (() => (a ? b : c))();
+    |                    ^^^^^^^^^^^ IIFE with parenthesized arrow function body is considered unreadable.
+
+Suggestion 1/1: Use a block statement body.:
+  1 | const foo = (() => { return a ? b : c; })();
+
+`;
+
+exports[`no-unreadable-iife > invalid(10): (async () => (( {bar} )))(); 1`] = `
+
+  1 | (async () => (( {bar} )))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(10): (async () => (( {bar} )))(); 2`] = `
+
+Message:
+> 1 | (async () => (( {bar} )))();
+    |              ^^^^^^^^^^^ IIFE with parenthesized arrow function body is considered unreadable.
+
+Suggestion 1/1: Use a block statement body.:
+  1 | (async () => { return {bar}; })();
+
+`;
+
+exports[`no-unreadable-iife > invalid(11): const foo = (() => (a ? b : c /* comment */))(); 1`] = `
+
+  1 | const foo = (() => (a ? b : c /* comment */))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(11): const foo = (() => (a ? b : c /* comment */))(); 2`] = `
+
+Message:
+> 1 | const foo = (() => (a ? b : c /* comment */))();
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^ IIFE with parenthesized arrow function body is considered unreadable.
+
+`;
+
+exports[`no-unreadable-iife > invalid(12): const foo = (() => (a /* comment */ ? b : c))(); 1`] = `
+
+  1 | const foo = (() => (a /* comment */ ? b : c))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(12): const foo = (() => (a /* comment */ ? b : c))(); 2`] = `
+
+Message:
+> 1 | const foo = (() => (a /* comment */ ? b : c))();
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^ IIFE with parenthesized arrow function body is considered unreadable.
+
+Suggestion 1/1: Use a block statement body.:
+  1 | const foo = (() => { return a /* comment */ ? b : c; })();
+
+`;
+
+exports[`no-unreadable-iife > invalid(2): const foo = (() => (\n\ta ? b : c\n))(); 1`] = `
+
+  1 | const foo = (() => (
+  2 | 	a ? b : c
+  3 | ))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(2): const foo = (() => (\n\ta ? b : c\n))(); 2`] = `
+
+Message:
+> 1 | const foo = (() => (
+    |                    ^
+> 2 | 	a ? b : c
+    | ^^^^^^^^^^
+> 3 | ))();
+    | ^ IIFE with parenthesized arrow function body is considered unreadable.
+
+Suggestion 1/1: Use a block statement body.:
+  1 | const foo = (() => { return a ? b : c; })();
+
+`;
+
+exports[`no-unreadable-iife > invalid(3): const foo = (\n\t() => (\n\t\ta ? b : c\n\t)\n)(); 1`] = `
+
+  1 | const foo = (
+  2 | 	() => (
+  3 | 		a ? b : c
+  4 | 	)
+  5 | )();
+
+`;
+
+exports[`no-unreadable-iife > invalid(3): const foo = (\n\t() => (\n\t\ta ? b : c\n\t)\n)(); 2`] = `
+
+Message:
+  1 | const foo = (
+> 2 | 	() => (
+    | 	      ^
+> 3 | 		a ? b : c
+    | ^^^^^^^^^^^
+> 4 | 	)
+    | ^^ IIFE with parenthesized arrow function body is considered unreadable.
+  5 | )();
+
+Suggestion 1/1: Use a block statement body.:
+  1 | const foo = (
+  2 | 	() => { return a ? b : c; }
+  3 | )();
+
+`;
+
+exports[`no-unreadable-iife > invalid(4): const foo = (() => (/* comment */ a ? b : c))(); 1`] = `
+
+  1 | const foo = (() => (/* comment */ a ? b : c))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(4): const foo = (() => (/* comment */ a ? b : c))(); 2`] = `
+
+Message:
+> 1 | const foo = (() => (/* comment */ a ? b : c))();
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^ IIFE with parenthesized arrow function body is considered unreadable.
+
+`;
+
+exports[`no-unreadable-iife > invalid(5): const foo = (() => (\n\ta, b\n))(); 1`] = `
+
+  1 | const foo = (() => (
+  2 | 	a, b
+  3 | ))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(5): const foo = (() => (\n\ta, b\n))(); 2`] = `
+
+Message:
+> 1 | const foo = (() => (
+    |                    ^
+> 2 | 	a, b
+    | ^^^^^
+> 3 | ))();
+    | ^ IIFE with parenthesized arrow function body is considered unreadable.
+
+Suggestion 1/1: Use a block statement body.:
+  1 | const foo = (() => { return a, b; })();
+
+`;
+
+exports[`no-unreadable-iife > invalid(6): const foo = (() => ({\n\ta: b,\n}))(); 1`] = `
+
+  1 | const foo = (() => ({
+  2 | 	a: b,
+  3 | }))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(6): const foo = (() => ({\n\ta: b,\n}))(); 2`] = `
+
+Message:
+> 1 | const foo = (() => ({
+    |                    ^^
+> 2 | 	a: b,
+    | ^^^^^^
+> 3 | }))();
+    | ^^ IIFE with parenthesized arrow function body is considered unreadable.
+
+Suggestion 1/1: Use a block statement body.:
+  1 | const foo = (() => { return {
+  2 | 	a: b,
+  3 | }; })();
+
+`;
+
+exports[`no-unreadable-iife > invalid(7): const foo = (bar => (bar))(); 1`] = `
+
+  1 | const foo = (bar => (bar))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(7): const foo = (bar => (bar))(); 2`] = `
+
+Message:
+> 1 | const foo = (bar => (bar))();
+    |                     ^^^^^ IIFE with parenthesized arrow function body is considered unreadable.
+
+Suggestion 1/1: Use a block statement body.:
+  1 | const foo = (bar => { return bar; })();
+
+`;
+
+exports[`no-unreadable-iife > invalid(8): (async () => ({\n\tbar,\n}))(); 1`] = `
+
+  1 | (async () => ({
+  2 | 	bar,
+  3 | }))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(8): (async () => ({\n\tbar,\n}))(); 2`] = `
+
+Message:
+> 1 | (async () => ({
+    |              ^^
+> 2 | 	bar,
+    | ^^^^^
+> 3 | }))();
+    | ^^ IIFE with parenthesized arrow function body is considered unreadable.
+
+Suggestion 1/1: Use a block statement body.:
+  1 | (async () => { return {
+  2 | 	bar,
+  3 | }; })();
+
+`;
+
+exports[`no-unreadable-iife > invalid(9): const foo = (async (bar) => ({\n\tbar: await baz(),\n}))(); 1`] = `
+
+  1 | const foo = (async (bar) => ({
+  2 | 	bar: await baz(),
+  3 | }))();
+
+`;
+
+exports[`no-unreadable-iife > invalid(9): const foo = (async (bar) => ({\n\tbar: await baz(),\n}))(); 2`] = `
+
+Message:
+> 1 | const foo = (async (bar) => ({
+    |                             ^^
+> 2 | 	bar: await baz(),
+    | ^^^^^^^^^^^^^^^^^^
+> 3 | }))();
+    | ^^ IIFE with parenthesized arrow function body is considered unreadable.
+
+Suggestion 1/1: Use a block statement body.:
+  1 | const foo = (async (bar) => { return {
+  2 | 	bar: await baz(),
+  3 | }; })();
+
+`;

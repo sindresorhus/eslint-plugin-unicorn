@@ -1,0 +1,13 @@
+exports[`no-process-exit > invalid(1): process.exit(1); 1`] = `
+
+  1 | process.exit(1);
+
+`;
+
+exports[`no-process-exit > invalid(1): process.exit(1); 2`] = `
+
+Message:
+> 1 | process.exit(1);
+    | ^^^^^^^^^^^^^^^ Only use \`process.exit()\` in CLI apps. Throw an error instead.
+
+`;

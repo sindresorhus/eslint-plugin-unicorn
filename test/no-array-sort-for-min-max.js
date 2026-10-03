@@ -129,5 +129,7 @@ test.snapshot({
 			code: 'function f(array: Int8Array) { return array.toSorted((a, b) => a - b)[0]; }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// The iterated value of a loop is not its left-hand side
+		'for (const value of array.sort((a, b) => a - b)[0]) {}',
 	],
 });

@@ -111,11 +111,8 @@ function getStaticPropertyValues(node, context) {
 	const childNodes = node.type === 'ConditionalExpression'
 		? [node.consequent, node.alternate]
 		: [node.left, node.right];
+	// A child can not return `skipPropertyCheck`, as any side effect in it already made this whole branch skip above.
 	const propertyValues = childNodes.map(child => getStaticPropertyValues(child, context));
-	if (propertyValues.includes(skipPropertyCheck)) {
-		return skipPropertyCheck;
-	}
-
 	if (propertyValues.some(values => !values)) {
 		return;
 	}
@@ -144,13 +141,7 @@ function getProblem(node, collection, context) {
 		messageId = MESSAGE_ID_DELETE;
 		suggestionMessageId = MESSAGE_ID_SUGGESTION_DELETE;
 		replacement = `${object}.delete(${key})`;
-	} else if (
-		isLeftHandSide(node)
-		|| (
-			(parent.type === 'ForOfStatement' || parent.type === 'ForInStatement')
-			&& parent.left === outerNode
-		)
-	) {
+	} else if (isLeftHandSide(node)) {
 		messageId = MESSAGE_ID_WRITE;
 		if (
 			collection.hasSetMethod

@@ -1,0 +1,378 @@
+exports[`no-unnecessary-global-this > invalid(1): globalThis.Array.from(items) 1`] = `
+
+  1 | globalThis.Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(1): globalThis.Array.from(items) 2`] = `
+
+Message:
+> 1 | globalThis.Array.from(items)
+    | ^^^^^^^^^^^^^^^^ Use \`Array\` directly instead of \`globalThis.Array\`.
+
+Output:
+  1 | Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(10): const array = globalThis /* comment */ .Array; 1`] = `
+
+  1 | const array = globalThis /* comment */ .Array;
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(10): const array = globalThis /* comment */ .Array; 2`] = `
+
+Message:
+> 1 | const array = globalThis /* comment */ .Array;
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Array\` directly instead of \`globalThis.Array\`.
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(11): /* global myGlobal:readonly */ globalThis.myGlobal 1`] = `
+
+  1 | /* global myGlobal:readonly */ globalThis.myGlobal
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(11): /* global myGlobal:readonly */ globalThis.myGlobal 2`] = `
+
+Message:
+> 1 | /* global myGlobal:readonly */ globalThis.myGlobal
+    |                                ^^^^^^^^^^^^^^^^^^^ Use \`myGlobal\` directly instead of \`globalThis.myGlobal\`.
+
+Output:
+  1 | /* global myGlobal:readonly */ myGlobal
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(12): /* global myGlobal:readonly */ globalThis[\"myGlobal\"] 1`] = `
+
+  1 | /* global myGlobal:readonly */ globalThis["myGlobal"]
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(12): /* global myGlobal:readonly */ globalThis[\"myGlobal\"] 2`] = `
+
+Message:
+> 1 | /* global myGlobal:readonly */ globalThis["myGlobal"]
+    |                                ^^^^^^^^^^^^^^^^^^^^^^ Use \`myGlobal\` directly instead of \`globalThis.myGlobal\`.
+
+Output:
+  1 | /* global myGlobal:readonly */ myGlobal
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(13): globalThis!.Array.from(items) 1`] = `
+
+  1 | globalThis!.Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(13): globalThis!.Array.from(items) 2`] = `
+
+Message:
+> 1 | globalThis!.Array.from(items)
+    | ^^^^^^^^^^^^^^^^^ Use \`Array\` directly instead of \`globalThis.Array\`.
+
+Output:
+  1 | Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(14): (globalThis as any).Array.from(items) 1`] = `
+
+  1 | (globalThis as any).Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(14): (globalThis as any).Array.from(items) 2`] = `
+
+Message:
+> 1 | (globalThis as any).Array.from(items)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Array\` directly instead of \`globalThis.Array\`.
+
+Output:
+  1 | Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(15): (<any>globalThis).Array.from(items) 1`] = `
+
+  1 | (<any>globalThis).Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(15): (<any>globalThis).Array.from(items) 2`] = `
+
+Message:
+> 1 | (<any>globalThis).Array.from(items)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use \`Array\` directly instead of \`globalThis.Array\`.
+
+Output:
+  1 | Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(16): (globalThis satisfies any).Array.from(items) 1`] = `
+
+  1 | (globalThis satisfies any).Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(16): (globalThis satisfies any).Array.from(items) 2`] = `
+
+Message:
+> 1 | (globalThis satisfies any).Array.from(items)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Array\` directly instead of \`globalThis.Array\`.
+
+Output:
+  1 | Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(17): (globalThis.alert as any)(message) 1`] = `
+
+  1 | (globalThis.alert as any)(message)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(17): (globalThis.alert as any)(message) 2`] = `
+
+Message:
+> 1 | (globalThis.alert as any)(message)
+    |  ^^^^^^^^^^^^^^^^ Use \`alert\` directly instead of \`globalThis.alert\`.
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(18): (globalThis.alert<string>)(message) 1`] = `
+
+  1 | (globalThis.alert<string>)(message)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(18): (globalThis.alert<string>)(message) 2`] = `
+
+Message:
+> 1 | (globalThis.alert<string>)(message)
+    |  ^^^^^^^^^^^^^^^^ Use \`alert\` directly instead of \`globalThis.alert\`.
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(19): globalThis.alert\`message\` 1`] = `
+
+  1 | globalThis.alert\`message\`
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(19): globalThis.alert\`message\` 2`] = `
+
+Message:
+> 1 | globalThis.alert\`message\`
+    | ^^^^^^^^^^^^^^^^ Use \`alert\` directly instead of \`globalThis.alert\`.
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(2): globalThis.JSON.stringify(value) 1`] = `
+
+  1 | globalThis.JSON.stringify(value)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(2): globalThis.JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | globalThis.JSON.stringify(value)
+    | ^^^^^^^^^^^^^^^ Use \`JSON\` directly instead of \`globalThis.JSON\`.
+
+Output:
+  1 | JSON.stringify(value)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(20): typeof globalThis.navigation 1`] = `
+
+  1 | typeof globalThis.navigation
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(20): typeof globalThis.navigation 2`] = `
+
+Message:
+> 1 | typeof globalThis.navigation
+    |        ^^^^^^^^^^^^^^^^^^^^^ Use \`navigation\` directly instead of \`globalThis.navigation\`.
+
+Output:
+  1 | typeof navigation
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(21): globalThis.navigation === void 0 1`] = `
+
+  1 | globalThis.navigation === void 0
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(21): globalThis.navigation === void 0 2`] = `
+
+Message:
+> 1 | globalThis.navigation === void 0
+    | ^^^^^^^^^^^^^^^^^^^^^ Use \`navigation\` directly instead of \`globalThis.navigation\`.
+
+Output:
+  1 | navigation === void 0
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(22): void 0 !== globalThis.navigation 1`] = `
+
+  1 | void 0 !== globalThis.navigation
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(22): void 0 !== globalThis.navigation 2`] = `
+
+Message:
+> 1 | void 0 !== globalThis.navigation
+    |            ^^^^^^^^^^^^^^^^^^^^^ Use \`navigation\` directly instead of \`globalThis.navigation\`.
+
+Output:
+  1 | void 0 !== navigation
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(23): if (globalThis.Array.isArray(value)) {\n\tconsole.log(value);\n} 1`] = `
+
+  1 | if (globalThis.Array.isArray(value)) {
+  2 | 	console.log(value);
+  3 | }
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(23): if (globalThis.Array.isArray(value)) {\n\tconsole.log(value);\n} 2`] = `
+
+Message:
+> 1 | if (globalThis.Array.isArray(value)) {
+    |     ^^^^^^^^^^^^^^^^ Use \`Array\` directly instead of \`globalThis.Array\`.
+  2 | 	console.log(value);
+  3 | }
+
+Output:
+  1 | if (Array.isArray(value)) {
+  2 | 	console.log(value);
+  3 | }
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(3): new globalThis.RegExp(pattern) 1`] = `
+
+  1 | new globalThis.RegExp(pattern)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(3): new globalThis.RegExp(pattern) 2`] = `
+
+Message:
+> 1 | new globalThis.RegExp(pattern)
+    |     ^^^^^^^^^^^^^^^^^ Use \`RegExp\` directly instead of \`globalThis.RegExp\`.
+
+Output:
+  1 | new RegExp(pattern)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(4): globalThis.globalThis 1`] = `
+
+  1 | globalThis.globalThis
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(4): globalThis.globalThis 2`] = `
+
+Message:
+> 1 | globalThis.globalThis
+    | ^^^^^^^^^^^^^^^^^^^^^ Use \`globalThis\` directly instead of \`globalThis.globalThis\`.
+
+Output:
+  1 | globalThis
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(5): globalThis.fetch(url) 1`] = `
+
+  1 | globalThis.fetch(url)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(5): globalThis.fetch(url) 2`] = `
+
+Message:
+> 1 | globalThis.fetch(url)
+    | ^^^^^^^^^^^^^^^^ Use \`fetch\` directly instead of \`globalThis.fetch\`.
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(6): globalThis.alert(message) 1`] = `
+
+  1 | globalThis.alert(message)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(6): globalThis.alert(message) 2`] = `
+
+Message:
+> 1 | globalThis.alert(message)
+    | ^^^^^^^^^^^^^^^^ Use \`alert\` directly instead of \`globalThis.alert\`.
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(7): new globalThis.Image() 1`] = `
+
+  1 | new globalThis.Image()
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(7): new globalThis.Image() 2`] = `
+
+Message:
+> 1 | new globalThis.Image()
+    |     ^^^^^^^^^^^^^^^^ Use \`Image\` directly instead of \`globalThis.Image\`.
+
+Output:
+  1 | new Image()
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(8): globalThis[\"Array\"].from(items) 1`] = `
+
+  1 | globalThis["Array"].from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(8): globalThis[\"Array\"].from(items) 2`] = `
+
+Message:
+> 1 | globalThis["Array"].from(items)
+    | ^^^^^^^^^^^^^^^^^^^ Use \`Array\` directly instead of \`globalThis.Array\`.
+
+Output:
+  1 | Array.from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(9): globalThis[\`JSON\`].stringify(value) 1`] = `
+
+  1 | globalThis[\`JSON\`].stringify(value)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(9): globalThis[\`JSON\`].stringify(value) 2`] = `
+
+Message:
+> 1 | globalThis[\`JSON\`].stringify(value)
+    | ^^^^^^^^^^^^^^^^^^ Use \`JSON\` directly instead of \`globalThis.JSON\`.
+
+Output:
+  1 | JSON.stringify(value)
+
+`;

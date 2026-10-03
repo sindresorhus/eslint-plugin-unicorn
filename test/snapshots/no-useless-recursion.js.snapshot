@@ -1,0 +1,123 @@
+exports[`no-useless-recursion > invalid(1): function foo(bar) {\n\tif (bar.baz) {\n\t\treturn foo(bar.baz);\n\t}\n\n\treturn bar;\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	if (bar.baz) {
+  3 | 		return foo(bar.baz);
+  4 | 	}
+  5 |
+  6 | 	return bar;
+  7 | }
+
+`;
+
+exports[`no-useless-recursion > invalid(1): function foo(bar) {\n\tif (bar.baz) {\n\t\treturn foo(bar.baz);\n\t}\n\n\treturn bar;\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+  2 | 	if (bar.baz) {
+> 3 | 		return foo(bar.baz);
+    | 		       ^^^ Use a loop instead of this recursive function call.
+  4 | 	}
+  5 |
+  6 | 	return bar;
+  7 | }
+
+`;
+
+exports[`no-useless-recursion > invalid(1): function foo(bar: Bar) {\n\treturn foo(bar.baz as Bar);\n} 1`] = `
+
+  1 | function foo(bar: Bar) {
+  2 | 	return foo(bar.baz as Bar);
+  3 | }
+
+`;
+
+exports[`no-useless-recursion > invalid(1): function foo(bar: Bar) {\n\treturn foo(bar.baz as Bar);\n} 2`] = `
+
+Message:
+  1 | function foo(bar: Bar) {
+> 2 | 	return foo(bar.baz as Bar);
+    | 	       ^^^ Use a loop instead of this recursive function call.
+  3 | }
+
+`;
+
+exports[`no-useless-recursion > invalid(2): const bar = function foo(value) {\n\treturn foo(value.next);\n}; 1`] = `
+
+  1 | const bar = function foo(value) {
+  2 | 	return foo(value.next);
+  3 | };
+
+`;
+
+exports[`no-useless-recursion > invalid(2): const bar = function foo(value) {\n\treturn foo(value.next);\n}; 2`] = `
+
+Message:
+  1 | const bar = function foo(value) {
+> 2 | 	return foo(value.next);
+    | 	       ^^^ Use a loop instead of this recursive function call.
+  3 | };
+
+`;
+
+exports[`no-useless-recursion > invalid(3): function foo(first, second) {\n\treturn foo(first.next, second.next);\n} 1`] = `
+
+  1 | function foo(first, second) {
+  2 | 	return foo(first.next, second.next);
+  3 | }
+
+`;
+
+exports[`no-useless-recursion > invalid(3): function foo(first, second) {\n\treturn foo(first.next, second.next);\n} 2`] = `
+
+Message:
+  1 | function foo(first, second) {
+> 2 | 	return foo(first.next, second.next);
+    | 	       ^^^ Use a loop instead of this recursive function call.
+  3 | }
+
+`;
+
+exports[`no-useless-recursion > invalid(4): function foo() {\n\treturn foo();\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return foo();
+  3 | }
+
+`;
+
+exports[`no-useless-recursion > invalid(4): function foo() {\n\treturn foo();\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return foo();
+    | 	       ^^^ Use a loop instead of this recursive function call.
+  3 | }
+
+`;
+
+exports[`no-useless-recursion > invalid(5): async function foo(value) {\n\tif (value) {\n\t\treturn foo(value.next);\n\t}\n\n\treturn value;\n} 1`] = `
+
+  1 | async function foo(value) {
+  2 | 	if (value) {
+  3 | 		return foo(value.next);
+  4 | 	}
+  5 |
+  6 | 	return value;
+  7 | }
+
+`;
+
+exports[`no-useless-recursion > invalid(5): async function foo(value) {\n\tif (value) {\n\t\treturn foo(value.next);\n\t}\n\n\treturn value;\n} 2`] = `
+
+Message:
+  1 | async function foo(value) {
+  2 | 	if (value) {
+> 3 | 		return foo(value.next);
+    | 		       ^^^ Use a loop instead of this recursive function call.
+  4 | 	}
+  5 |
+  6 | 	return value;
+  7 | }
+
+`;

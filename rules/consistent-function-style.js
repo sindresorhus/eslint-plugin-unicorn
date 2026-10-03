@@ -160,9 +160,9 @@ const isReassignedVariable = (node, sourceCode) => {
 
 	const variable = findVariable(sourceCode.getScope(node.parent.id), node.parent.id);
 
-	return variable?.references.some(reference =>
+	return variable.references.some(reference =>
 		!reference.init
-		&& reference.isWrite()) ?? false;
+		&& reference.isWrite());
 };
 
 const getActualStyle = node => {
@@ -292,14 +292,13 @@ const create = context => {
 			// A destructuring or parameter default, `const {parse = function () {}} = object`, has no role a function declaration could take, so no style applies
 			|| node.parent.type === 'AssignmentPattern'
 			|| isIife(node)
-			|| node.decorators?.length > 0
 			|| !node.body
 		) {
 			return;
 		}
 
 		const role = getRole(node, sourceCode, options);
-		const expectedStyle = options[role] ?? options.default;
+		const expectedStyle = options[role];
 		const actualStyle = getActualStyle(node);
 
 		if (

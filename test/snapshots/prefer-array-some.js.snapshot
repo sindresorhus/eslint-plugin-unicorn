@@ -1,0 +1,785 @@
+exports[`prefer-array-some > invalid(1): array.filter(fn).length > 0 1`] = `
+
+  1 | array.filter(fn).length > 0
+
+`;
+
+exports[`prefer-array-some > invalid(1): array.filter(fn).length > 0 2`] = `
+
+Message:
+> 1 | array.filter(fn).length > 0
+    |       ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
+
+Output:
+  1 | array.some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(1): foo.find(fn) == null 1`] = `
+
+  1 | foo.find(fn) == null
+
+`;
+
+exports[`prefer-array-some > invalid(1): foo.find(fn) == null 2`] = `
+
+Message:
+> 1 | foo.find(fn) == null
+    |     ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | !foo.some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(1): foo.findIndex(bar) !== -1 1`] = `
+
+  1 | foo.findIndex(bar) !== -1
+
+`;
+
+exports[`prefer-array-some > invalid(1): foo.findIndex(bar) !== -1 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar) !== -1
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(1): if (array.find(element => element === \"🦄\")) {} 1`] = `
+
+  1 | if (array.find(element => element === "🦄")) {}
+
+`;
+
+exports[`prefer-array-some > invalid(1): if (array.find(element => element === \"🦄\")) {} 2`] = `
+
+Message:
+> 1 | if (array.find(element => element === "🦄")) {}
+    |           ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | if (array.some(element => element === "🦄")) {}
+
+`;
+
+exports[`prefer-array-some > invalid(10): foo.findLastIndex(bar) == - 1 1`] = `
+
+  1 | foo.findLastIndex(bar) == - 1
+
+`;
+
+exports[`prefer-array-some > invalid(10): foo.findLastIndex(bar) == - 1 2`] = `
+
+Message:
+> 1 | foo.findLastIndex(bar) == - 1
+    |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
+
+Output:
+  1 | !foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(11): foo.findIndex(bar) >= 0 1`] = `
+
+  1 | foo.findIndex(bar) >= 0
+
+`;
+
+exports[`prefer-array-some > invalid(11): foo.findIndex(bar) >= 0 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar) >= 0
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(12): foo.findLastIndex(bar) >= 0 1`] = `
+
+  1 | foo.findLastIndex(bar) >= 0
+
+`;
+
+exports[`prefer-array-some > invalid(12): foo.findLastIndex(bar) >= 0 2`] = `
+
+Message:
+> 1 | foo.findLastIndex(bar) >= 0
+    |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
+
+Output:
+  1 | foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(13): foo.findIndex(bar) < 0 1`] = `
+
+  1 | foo.findIndex(bar) < 0
+
+`;
+
+exports[`prefer-array-some > invalid(13): foo.findIndex(bar) < 0 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar) < 0
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | !foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(14): foo.findLastIndex(bar) < 0 1`] = `
+
+  1 | foo.findLastIndex(bar) < 0
+
+`;
+
+exports[`prefer-array-some > invalid(14): foo.findLastIndex(bar) < 0 2`] = `
+
+Message:
+> 1 | foo.findLastIndex(bar) < 0
+    |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
+
+Output:
+  1 | !foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(15): foo.findIndex(bar) !== (( - 1 )) 1`] = `
+
+  1 | foo.findIndex(bar) !== (( - 1 ))
+
+`;
+
+exports[`prefer-array-some > invalid(15): foo.findIndex(bar) !== (( - 1 )) 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar) !== (( - 1 ))
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(16): foo.findIndex(element => element.bar === 1) !== (( - 1 )) 1`] = `
+
+  1 | foo.findIndex(element => element.bar === 1) !== (( - 1 ))
+
+`;
+
+exports[`prefer-array-some > invalid(16): foo.findIndex(element => element.bar === 1) !== (( - 1 )) 2`] = `
+
+Message:
+> 1 | foo.findIndex(element => element.bar === 1) !== (( - 1 ))
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | foo.some(element => element.bar === 1)
+
+`;
+
+exports[`prefer-array-some > invalid(17): foo.findIndex(bar) !== /* keep */ -1 1`] = `
+
+  1 | foo.findIndex(bar) !== /* keep */ -1
+
+`;
+
+exports[`prefer-array-some > invalid(17): foo.findIndex(bar) !== /* keep */ -1 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar) !== /* keep */ -1
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+`;
+
+exports[`prefer-array-some > invalid(18): type Collection = {findIndex(predicate: Function): number}; ([] satisfies Collection).findIndex(fn) !== -1 1`] = `
+
+  1 | type Collection = {findIndex(predicate: Function): number}; ([] satisfies Collection).findIndex(fn) !== -1
+
+`;
+
+exports[`prefer-array-some > invalid(18): type Collection = {findIndex(predicate: Function): number}; ([] satisfies Collection).findIndex(fn) !== -1 2`] = `
+
+Message:
+> 1 | type Collection = {findIndex(predicate: Function): number}; ([] satisfies Collection).findIndex(fn) !== -1
+    |                                                                                       ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | type Collection = {findIndex(predicate: Function): number}; ([] satisfies Collection).some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(19): type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.findIndex(fn) !== -1; } 1`] = `
+
+  1 | type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.findIndex(fn) !== -1; }
+
+`;
+
+exports[`prefer-array-some > invalid(19): type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.findIndex(fn) !== -1; } 2`] = `
+
+Message:
+> 1 | type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.findIndex(fn) !== -1; }
+    |                                                                                                      ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.some(fn); }
+
+`;
+
+exports[`prefer-array-some > invalid(2): array.filter(fn).length !== 0 1`] = `
+
+  1 | array.filter(fn).length !== 0
+
+`;
+
+exports[`prefer-array-some > invalid(2): array.filter(fn).length !== 0 2`] = `
+
+Message:
+> 1 | array.filter(fn).length !== 0
+    |       ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
+
+Output:
+  1 | array.some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(2): const foo = array.find(element => element === \"🦄\") ? bar : baz; 1`] = `
+
+  1 | const foo = array.find(element => element === "🦄") ? bar : baz;
+
+`;
+
+exports[`prefer-array-some > invalid(2): const foo = array.find(element => element === \"🦄\") ? bar : baz; 2`] = `
+
+Message:
+> 1 | const foo = array.find(element => element === "🦄") ? bar : baz;
+    |                   ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | const foo = array.some(element => element === "🦄") ? bar : baz;
+
+`;
+
+exports[`prefer-array-some > invalid(2): foo.find(fn) == undefined 1`] = `
+
+  1 | foo.find(fn) == undefined
+
+`;
+
+exports[`prefer-array-some > invalid(2): foo.find(fn) == undefined 2`] = `
+
+Message:
+> 1 | foo.find(fn) == undefined
+    |     ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | !foo.some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(2): foo.findLastIndex(bar) !== -1 1`] = `
+
+  1 | foo.findLastIndex(bar) !== -1
+
+`;
+
+exports[`prefer-array-some > invalid(2): foo.findLastIndex(bar) !== -1 2`] = `
+
+Message:
+> 1 | foo.findLastIndex(bar) !== -1
+    |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
+
+Output:
+  1 | foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(20): declare function getItems(): string[]; getItems().findIndex(fn) !== -1; 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getItems(): string[]; getItems().findIndex(fn) !== -1;
+
+`;
+
+exports[`prefer-array-some > invalid(20): declare function getItems(): string[]; getItems().findIndex(fn) !== -1; 2`] = `
+
+Message:
+> 1 | declare function getItems(): string[]; getItems().findIndex(fn) !== -1;
+    |                                                   ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | declare function getItems(): string[]; getItems().some(fn);
+
+`;
+
+exports[`prefer-array-some > invalid(21): foo.findIndex(bar, thisArgument) !== -1; 1`] = `
+
+  1 | foo.findIndex(bar, thisArgument) !== -1;
+
+`;
+
+exports[`prefer-array-some > invalid(21): foo.findIndex(bar, thisArgument) !== -1; 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar, thisArgument) !== -1;
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | foo.some(bar, thisArgument);
+
+`;
+
+exports[`prefer-array-some > invalid(22): foo.findLastIndex(bar, thisArgument) !== -1; 1`] = `
+
+  1 | foo.findLastIndex(bar, thisArgument) !== -1;
+
+`;
+
+exports[`prefer-array-some > invalid(22): foo.findLastIndex(bar, thisArgument) !== -1; 2`] = `
+
+Message:
+> 1 | foo.findLastIndex(bar, thisArgument) !== -1;
+    |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
+
+Output:
+  1 | foo.some(bar, thisArgument);
+
+`;
+
+exports[`prefer-array-some > invalid(3): array.filter(fn).length /* keep */ > 0 1`] = `
+
+  1 | array.filter(fn).length /* keep */ > 0
+
+`;
+
+exports[`prefer-array-some > invalid(3): array.filter(fn).length /* keep */ > 0 2`] = `
+
+Message:
+> 1 | array.filter(fn).length /* keep */ > 0
+    |       ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
+
+`;
+
+exports[`prefer-array-some > invalid(3): foo.find(fn) === undefined 1`] = `
+
+  1 | foo.find(fn) === undefined
+
+`;
+
+exports[`prefer-array-some > invalid(3): foo.find(fn) === undefined 2`] = `
+
+Message:
+> 1 | foo.find(fn) === undefined
+    |     ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | !foo.some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(3): foo.findIndex(bar) != -1 1`] = `
+
+  1 | foo.findIndex(bar) != -1
+
+`;
+
+exports[`prefer-array-some > invalid(3): foo.findIndex(bar) != -1 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar) != -1
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(3): if (\n\tarray\n\t\t.find(element => Array.isArray(element))\n\t// ^^^^ This should NOT report\n\t\t.find(x => x === 0)\n\t// ^^^^ This should report\n) {\n} 1`] = `
+
+  1 | if (
+  2 | 	array
+  3 | 		.find(element => Array.isArray(element))
+  4 | 	// ^^^^ This should NOT report
+  5 | 		.find(x => x === 0)
+  6 | 	// ^^^^ This should report
+  7 | ) {
+  8 | }
+
+`;
+
+exports[`prefer-array-some > invalid(3): if (\n\tarray\n\t\t.find(element => Array.isArray(element))\n\t// ^^^^ This should NOT report\n\t\t.find(x => x === 0)\n\t// ^^^^ This should report\n) {\n} 2`] = `
+
+Message:
+  1 | if (
+  2 | 	array
+  3 | 		.find(element => Array.isArray(element))
+  4 | 	// ^^^^ This should NOT report
+> 5 | 		.find(x => x === 0)
+    | 		 ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+  6 | 	// ^^^^ This should report
+  7 | ) {
+  8 | }
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | if (
+  2 | 	array
+  3 | 		.find(element => Array.isArray(element))
+  4 | 	// ^^^^ This should NOT report
+  5 | 		.some(x => x === 0)
+  6 | 	// ^^^^ This should report
+  7 | ) {
+  8 | }
+
+`;
+
+exports[`prefer-array-some > invalid(4): foo.find(fn) != null 1`] = `
+
+  1 | foo.find(fn) != null
+
+`;
+
+exports[`prefer-array-some > invalid(4): foo.find(fn) != null 2`] = `
+
+Message:
+> 1 | foo.find(fn) != null
+    |     ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | foo.some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(4): foo.findLastIndex(bar) != -1 1`] = `
+
+  1 | foo.findLastIndex(bar) != -1
+
+`;
+
+exports[`prefer-array-some > invalid(4): foo.findLastIndex(bar) != -1 2`] = `
+
+Message:
+> 1 | foo.findLastIndex(bar) != -1
+    |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
+
+Output:
+  1 | foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(4): module$.filter(fn).length > 0 1`] = `
+
+  1 | module$.filter(fn).length > 0
+
+`;
+
+exports[`prefer-array-some > invalid(4): module$.filter(fn).length > 0 2`] = `
+
+Message:
+> 1 | module$.filter(fn).length > 0
+    |         ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
+
+Output:
+  1 | module$.some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(5): foo.find(fn) != undefined 1`] = `
+
+  1 | foo.find(fn) != undefined
+
+`;
+
+exports[`prefer-array-some > invalid(5): foo.find(fn) != undefined 2`] = `
+
+Message:
+> 1 | foo.find(fn) != undefined
+    |     ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | foo.some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(5): foo.findIndex(bar) > - 1 1`] = `
+
+  1 | foo.findIndex(bar) > - 1
+
+`;
+
+exports[`prefer-array-some > invalid(5): foo.findIndex(bar) > - 1 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar) > - 1
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(5): type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).filter(fn).length > 0 1`] = `
+
+  1 | type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).filter(fn).length > 0
+
+`;
+
+exports[`prefer-array-some > invalid(5): type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).filter(fn).length > 0 2`] = `
+
+Message:
+> 1 | type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).filter(fn).length > 0
+    |                                                                                              ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
+
+Output:
+  1 | type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(6): foo.find(fn) !== undefined 1`] = `
+
+  1 | foo.find(fn) !== undefined
+
+`;
+
+exports[`prefer-array-some > invalid(6): foo.find(fn) !== undefined 2`] = `
+
+Message:
+> 1 | foo.find(fn) !== undefined
+    |     ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | foo.some(fn)
+
+`;
+
+exports[`prefer-array-some > invalid(6): foo.findLastIndex(bar) > - 1 1`] = `
+
+  1 | foo.findLastIndex(bar) > - 1
+
+`;
+
+exports[`prefer-array-some > invalid(6): foo.findLastIndex(bar) > - 1 2`] = `
+
+Message:
+> 1 | foo.findLastIndex(bar) > - 1
+    |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
+
+Output:
+  1 | foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(6): type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; } 1`] = `
+
+  1 | type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; }
+
+`;
+
+exports[`prefer-array-some > invalid(6): type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; } 2`] = `
+
+Message:
+> 1 | type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; }
+    |                                                                                                             ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
+
+Output:
+  1 | type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.some(fn); }
+
+`;
+
+exports[`prefer-array-some > invalid(7): a = (( ((foo.find(fn))) == ((null)) )) ? \"no\" : \"yes\"; 1`] = `
+
+  1 | a = (( ((foo.find(fn))) == ((null)) )) ? "no" : "yes";
+
+`;
+
+exports[`prefer-array-some > invalid(7): a = (( ((foo.find(fn))) == ((null)) )) ? \"no\" : \"yes\"; 2`] = `
+
+Message:
+> 1 | a = (( ((foo.find(fn))) == ((null)) )) ? "no" : "yes";
+    |              ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | a = (( !((foo.some(fn))) )) ? "no" : "yes";
+
+`;
+
+exports[`prefer-array-some > invalid(7): declare function getItems(): string[]; getItems().filter(fn).length > 0; 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getItems(): string[]; getItems().filter(fn).length > 0;
+
+`;
+
+exports[`prefer-array-some > invalid(7): declare function getItems(): string[]; getItems().filter(fn).length > 0; 2`] = `
+
+Message:
+> 1 | declare function getItems(): string[]; getItems().filter(fn).length > 0;
+    |                                                   ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
+
+Output:
+  1 | declare function getItems(): string[]; getItems().some(fn);
+
+`;
+
+exports[`prefer-array-some > invalid(7): foo.findIndex(bar) === -1 1`] = `
+
+  1 | foo.findIndex(bar) === -1
+
+`;
+
+exports[`prefer-array-some > invalid(7): foo.findIndex(bar) === -1 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar) === -1
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | !foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(8): foo.find(fn) === /* keep */ undefined 1`] = `
+
+  1 | foo.find(fn) === /* keep */ undefined
+
+`;
+
+exports[`prefer-array-some > invalid(8): foo.find(fn) === /* keep */ undefined 2`] = `
+
+Message:
+> 1 | foo.find(fn) === /* keep */ undefined
+    |     ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+`;
+
+exports[`prefer-array-some > invalid(8): foo.findLastIndex(bar) === -1 1`] = `
+
+  1 | foo.findLastIndex(bar) === -1
+
+`;
+
+exports[`prefer-array-some > invalid(8): foo.findLastIndex(bar) === -1 2`] = `
+
+Message:
+> 1 | foo.findLastIndex(bar) === -1
+    |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
+
+Output:
+  1 | !foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(8): if (\n\t((\n\t\t((\n\t\t\t((\n\t\t\t\t((\n\t\t\t\t\tarray\n\t\t\t\t))\n\t\t\t\t\t.filter(what_ever_here)\n\t\t\t))\n\t\t\t\t.length\n\t\t))\n\t\t>\n\t\t(( 0 ))\n\t))\n); 1`] = `
+
+   1 | if (
+   2 | 	((
+   3 | 		((
+   4 | 			((
+   5 | 				((
+   6 | 					array
+   7 | 				))
+   8 | 					.filter(what_ever_here)
+   9 | 			))
+  10 | 				.length
+  11 | 		))
+  12 | 		>
+  13 | 		(( 0 ))
+  14 | 	))
+  15 | );
+
+`;
+
+exports[`prefer-array-some > invalid(8): if (\n\t((\n\t\t((\n\t\t\t((\n\t\t\t\t((\n\t\t\t\t\tarray\n\t\t\t\t))\n\t\t\t\t\t.filter(what_ever_here)\n\t\t\t))\n\t\t\t\t.length\n\t\t))\n\t\t>\n\t\t(( 0 ))\n\t))\n); 2`] = `
+
+Message:
+   1 | if (
+   2 | 	((
+   3 | 		((
+   4 | 			((
+   5 | 				((
+   6 | 					array
+   7 | 				))
+>  8 | 					.filter(what_ever_here)
+     | 					 ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
+   9 | 			))
+  10 | 				.length
+  11 | 		))
+  12 | 		>
+  13 | 		(( 0 ))
+  14 | 	))
+  15 | );
+
+Output:
+   1 | if (
+   2 | 	((
+   3 | 		((
+   4 | 			((
+   5 | 				((
+   6 | 					array
+   7 | 				))
+   8 | 					.some(what_ever_here)
+   9 | 			))
+  10 | 		))
+  11 | 	))
+  12 | );
+
+`;
+
+exports[`prefer-array-some > invalid(9): foo.find(fn, thisArgument) !== undefined 1`] = `
+
+  1 | foo.find(fn, thisArgument) !== undefined
+
+`;
+
+exports[`prefer-array-some > invalid(9): foo.find(fn, thisArgument) !== undefined 2`] = `
+
+Message:
+> 1 | foo.find(fn, thisArgument) !== undefined
+    |     ^^^^ Prefer \`.some(…)\` over \`.find(…)\`.
+
+Suggestion 1/1: Replace \`.find(…)\` with \`.some(…)\`.:
+  1 | foo.some(fn, thisArgument)
+
+`;
+
+exports[`prefer-array-some > invalid(9): foo.findIndex(bar) == - 1 1`] = `
+
+  1 | foo.findIndex(bar) == - 1
+
+`;
+
+exports[`prefer-array-some > invalid(9): foo.findIndex(bar) == - 1 2`] = `
+
+Message:
+> 1 | foo.findIndex(bar) == - 1
+    |     ^^^^^^^^^ Prefer \`.some(…)\` over \`.findIndex(…)\`.
+
+Output:
+  1 | !foo.some(bar)
+
+`;
+
+exports[`prefer-array-some > invalid(9): function f(array: Int8Array) { return array.filter(fn).length > 0; } 1`] = `
+
+  1 | function f(array: Int8Array) { return array.filter(fn).length > 0; }
+
+`;
+
+exports[`prefer-array-some > invalid(9): function f(array: Int8Array) { return array.filter(fn).length > 0; } 2`] = `
+
+Message:
+> 1 | function f(array: Int8Array) { return array.filter(fn).length > 0; }
+    |                                             ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
+
+Output:
+  1 | function f(array: Int8Array) { return array.some(fn); }
+
+`;

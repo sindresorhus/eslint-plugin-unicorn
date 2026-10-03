@@ -1,0 +1,721 @@
+exports[`no-error-property-assignment > invalid(1): Object.assign(new Error(), {name}) 1`] = `
+
+  1 | Object.assign(new Error(), {name})
+
+`;
+
+exports[`no-error-property-assignment > invalid(1): Object.assign(new Error(), {name}) 2`] = `
+
+Message:
+> 1 | Object.assign(new Error(), {name})
+    |                             ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(1): const error = new Error() as Error;\nerror.name = 'Custom'; 1`] = `
+
+  1 | const error = new Error() as Error;
+  2 | error.name = 'Custom';
+
+`;
+
+exports[`no-error-property-assignment > invalid(1): const error = new Error() as Error;\nerror.name = 'Custom'; 2`] = `
+
+Message:
+  1 | const error = new Error() as Error;
+> 2 | error.name = 'Custom';
+    |       ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(10): const error = new Error();\nObject.assign(error, {name}); 1`] = `
+
+  1 | const error = new Error();
+  2 | Object.assign(error, {name});
+
+`;
+
+exports[`no-error-property-assignment > invalid(10): const error = new Error();\nObject.assign(error, {name}); 2`] = `
+
+Message:
+  1 | const error = new Error();
+> 2 | Object.assign(error, {name});
+    |                       ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(11): let error;\nerror = new TypeError();\nObject.assign(error, {'stack': stack}); 1`] = `
+
+  1 | let error;
+  2 | error = new TypeError();
+  3 | Object.assign(error, {'stack': stack});
+
+`;
+
+exports[`no-error-property-assignment > invalid(11): let error;\nerror = new TypeError();\nObject.assign(error, {'stack': stack}); 2`] = `
+
+Message:
+  1 | let error;
+  2 | error = new TypeError();
+> 3 | Object.assign(error, {'stack': stack});
+    |                       ^^^^^^^ Do not assign to \`stack\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(12): const error = new Error();\nerror.name = 'Custom'; 1`] = `
+
+  1 | const error = new Error();
+  2 | error.name = 'Custom';
+
+`;
+
+exports[`no-error-property-assignment > invalid(12): const error = new Error();\nerror.name = 'Custom'; 2`] = `
+
+Message:
+  1 | const error = new Error();
+> 2 | error.name = 'Custom';
+    |       ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(13): let error;\nerror = new TypeError();\nerror.stack = stack; 1`] = `
+
+  1 | let error;
+  2 | error = new TypeError();
+  3 | error.stack = stack;
+
+`;
+
+exports[`no-error-property-assignment > invalid(13): let error;\nerror = new TypeError();\nerror.stack = stack; 2`] = `
+
+Message:
+  1 | let error;
+  2 | error = new TypeError();
+> 3 | error.stack = stack;
+    |       ^^^^^ Do not assign to \`stack\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(14): const error = new Error();\nerror['name'] = name; 1`] = `
+
+  1 | const error = new Error();
+  2 | error['name'] = name;
+
+`;
+
+exports[`no-error-property-assignment > invalid(14): const error = new Error();\nerror['name'] = name; 2`] = `
+
+Message:
+  1 | const error = new Error();
+> 2 | error['name'] = name;
+    |       ^^^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(15): if (condition) {\n\tconst error = new Error();\n\terror.name = name;\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	const error = new Error();
+  3 | 	error.name = name;
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(15): if (condition) {\n\tconst error = new Error();\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | if (condition) {
+  2 | 	const error = new Error();
+> 3 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(16): let error;\nif (condition) {\n\terror = new Error();\n\terror.name = name;\n} 1`] = `
+
+  1 | let error;
+  2 | if (condition) {
+  3 | 	error = new Error();
+  4 | 	error.name = name;
+  5 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(16): let error;\nif (condition) {\n\terror = new Error();\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | let error;
+  2 | if (condition) {
+  3 | 	error = new Error();
+> 4 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  5 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(17): let error;\nif (condition) {\n\t{\n\t\terror = new Error();\n\t}\n\terror.name = name;\n} 1`] = `
+
+  1 | let error;
+  2 | if (condition) {
+  3 | 	{
+  4 | 		error = new Error();
+  5 | 	}
+  6 | 	error.name = name;
+  7 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(17): let error;\nif (condition) {\n\t{\n\t\terror = new Error();\n\t}\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | let error;
+  2 | if (condition) {
+  3 | 	{
+  4 | 		error = new Error();
+  5 | 	}
+> 6 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  7 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(18): let error;\nfunction setup() {\n\terror = new Error();\n\terror.name = name;\n} 1`] = `
+
+  1 | let error;
+  2 | function setup() {
+  3 | 	error = new Error();
+  4 | 	error.name = name;
+  5 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(18): let error;\nfunction setup() {\n\terror = new Error();\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | let error;
+  2 | function setup() {
+  3 | 	error = new Error();
+> 4 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  5 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(19): if (condition) {\n\tvar error = new Error();\n\terror.name = name;\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	var error = new Error();
+  3 | 	error.name = name;
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(19): if (condition) {\n\tvar error = new Error();\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | if (condition) {
+  2 | 	var error = new Error();
+> 3 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(2): (new Error() as Error).stack = stack 1`] = `
+
+  1 | (new Error() as Error).stack = stack
+
+`;
+
+exports[`no-error-property-assignment > invalid(2): (new Error() as Error).stack = stack 2`] = `
+
+Message:
+> 1 | (new Error() as Error).stack = stack
+    |                        ^^^^^ Do not assign to \`stack\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(2): Object.assign(Error(), {stack}) 1`] = `
+
+  1 | Object.assign(Error(), {stack})
+
+`;
+
+exports[`no-error-property-assignment > invalid(2): Object.assign(Error(), {stack}) 2`] = `
+
+Message:
+> 1 | Object.assign(Error(), {stack})
+    |                         ^^^^^ Do not assign to \`stack\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(20): if (condition) {\n\t{\n\t\tvar error = new Error();\n\t}\n\terror.name = name;\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	{
+  3 | 		var error = new Error();
+  4 | 	}
+  5 | 	error.name = name;
+  6 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(20): if (condition) {\n\t{\n\t\tvar error = new Error();\n\t}\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | if (condition) {
+  2 | 	{
+  3 | 		var error = new Error();
+  4 | 	}
+> 5 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  6 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(21): {\n\tvar error = new Error();\n}\nerror.name = name; 1`] = `
+
+  1 | {
+  2 | 	var error = new Error();
+  3 | }
+  4 | error.name = name;
+
+`;
+
+exports[`no-error-property-assignment > invalid(21): {\n\tvar error = new Error();\n}\nerror.name = name; 2`] = `
+
+Message:
+  1 | {
+  2 | 	var error = new Error();
+  3 | }
+> 4 | error.name = name;
+    |       ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(22): let error;\n{\n\terror = new Error();\n}\nerror.name = name; 1`] = `
+
+  1 | let error;
+  2 | {
+  3 | 	error = new Error();
+  4 | }
+  5 | error.name = name;
+
+`;
+
+exports[`no-error-property-assignment > invalid(22): let error;\n{\n\terror = new Error();\n}\nerror.name = name; 2`] = `
+
+Message:
+  1 | let error;
+  2 | {
+  3 | 	error = new Error();
+  4 | }
+> 5 | error.name = name;
+    |       ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(23): switch (kind) {\n\tcase 'error':\n\t\tconst error = new Error();\n\t\terror.name = name;\n} 1`] = `
+
+  1 | switch (kind) {
+  2 | 	case 'error':
+  3 | 		const error = new Error();
+  4 | 		error.name = name;
+  5 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(23): switch (kind) {\n\tcase 'error':\n\t\tconst error = new Error();\n\t\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | switch (kind) {
+  2 | 	case 'error':
+  3 | 		const error = new Error();
+> 4 | 		error.name = name;
+    | 		      ^^^^ Do not assign to \`name\` on a built-in error.
+  5 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(24): let error;\nswitch (kind) {\n\tcase 'error':\n\t\t{\n\t\t\terror = new Error();\n\t\t}\n\t\terror.name = name;\n} 1`] = `
+
+  1 | let error;
+  2 | switch (kind) {
+  3 | 	case 'error':
+  4 | 		{
+  5 | 			error = new Error();
+  6 | 		}
+  7 | 		error.name = name;
+  8 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(24): let error;\nswitch (kind) {\n\tcase 'error':\n\t\t{\n\t\t\terror = new Error();\n\t\t}\n\t\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | let error;
+  2 | switch (kind) {
+  3 | 	case 'error':
+  4 | 		{
+  5 | 			error = new Error();
+  6 | 		}
+> 7 | 		error.name = name;
+    | 		      ^^^^ Do not assign to \`name\` on a built-in error.
+  8 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(25): for (const error = new Error(); condition;) {\n\terror.name = name;\n} 1`] = `
+
+  1 | for (const error = new Error(); condition;) {
+  2 | 	error.name = name;
+  3 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(25): for (const error = new Error(); condition;) {\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | for (const error = new Error(); condition;) {
+> 2 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  3 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(26): for (const error = new AggregateError([]); condition;) {\n\terror.errors = errors;\n} 1`] = `
+
+  1 | for (const error = new AggregateError([]); condition;) {
+  2 | 	error.errors = errors;
+  3 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(26): for (const error = new AggregateError([]); condition;) {\n\terror.errors = errors;\n} 2`] = `
+
+Message:
+  1 | for (const error = new AggregateError([]); condition;) {
+> 2 | 	error.errors = errors;
+    | 	      ^^^^^^ Do not assign to \`errors\` on a built-in error.
+  3 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(27): let error;\nfor (error = new Error(); condition;) {\n\terror.name = name;\n} 1`] = `
+
+  1 | let error;
+  2 | for (error = new Error(); condition;) {
+  3 | 	error.name = name;
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(27): let error;\nfor (error = new Error(); condition;) {\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | let error;
+  2 | for (error = new Error(); condition;) {
+> 3 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(28): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nerror.errors = errors; 1`] = `
+
+  1 | let error = new Error();
+  2 | {
+  3 | 	error = new AggregateError([]);
+  4 | }
+  5 | error.errors = errors;
+
+`;
+
+exports[`no-error-property-assignment > invalid(28): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nerror.errors = errors; 2`] = `
+
+Message:
+  1 | let error = new Error();
+  2 | {
+  3 | 	error = new AggregateError([]);
+  4 | }
+> 5 | error.errors = errors;
+    |       ^^^^^^ Do not assign to \`errors\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(29): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nObject.assign(error, {errors}); 1`] = `
+
+  1 | let error = new Error();
+  2 | {
+  3 | 	error = new AggregateError([]);
+  4 | }
+  5 | Object.assign(error, {errors});
+
+`;
+
+exports[`no-error-property-assignment > invalid(29): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nObject.assign(error, {errors}); 2`] = `
+
+Message:
+  1 | let error = new Error();
+  2 | {
+  3 | 	error = new AggregateError([]);
+  4 | }
+> 5 | Object.assign(error, {errors});
+    |                       ^^^^^^ Do not assign to \`errors\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(3): Object.assign(new Error() as Error, {name}) 1`] = `
+
+  1 | Object.assign(new Error() as Error, {name})
+
+`;
+
+exports[`no-error-property-assignment > invalid(3): Object.assign(new Error() as Error, {name}) 2`] = `
+
+Message:
+> 1 | Object.assign(new Error() as Error, {name})
+    |                                      ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(3): Object.assign(new TypeError(), {cause}) 1`] = `
+
+  1 | Object.assign(new TypeError(), {cause})
+
+`;
+
+exports[`no-error-property-assignment > invalid(3): Object.assign(new TypeError(), {cause}) 2`] = `
+
+Message:
+> 1 | Object.assign(new TypeError(), {cause})
+    |                                 ^^^^^ Do not assign to \`cause\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(30): new Error().stack = stack 1`] = `
+
+  1 | new Error().stack = stack
+
+`;
+
+exports[`no-error-property-assignment > invalid(30): new Error().stack = stack 2`] = `
+
+Message:
+> 1 | new Error().stack = stack
+    |             ^^^^^ Do not assign to \`stack\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(31): Error().cause = cause 1`] = `
+
+  1 | Error().cause = cause
+
+`;
+
+exports[`no-error-property-assignment > invalid(31): Error().cause = cause 2`] = `
+
+Message:
+> 1 | Error().cause = cause
+    |         ^^^^^ Do not assign to \`cause\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(32): new AggregateError([], \"message\").errors = errors 1`] = `
+
+  1 | new AggregateError([], "message").errors = errors
+
+`;
+
+exports[`no-error-property-assignment > invalid(32): new AggregateError([], \"message\").errors = errors 2`] = `
+
+Message:
+> 1 | new AggregateError([], "message").errors = errors
+    |                                   ^^^^^^ Do not assign to \`errors\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(33): function setup() {\n\tconst error = new Error();\n\terror.name = name;\n} 1`] = `
+
+  1 | function setup() {
+  2 | 	const error = new Error();
+  3 | 	error.name = name;
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(33): function setup() {\n\tconst error = new Error();\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | function setup() {
+  2 | 	const error = new Error();
+> 3 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(4): Object.assign(new AggregateError([], \"message\") satisfies AggregateError, {errors}) 1`] = `
+
+  1 | Object.assign(new AggregateError([], "message") satisfies AggregateError, {errors})
+
+`;
+
+exports[`no-error-property-assignment > invalid(4): Object.assign(new AggregateError([], \"message\") satisfies AggregateError, {errors}) 2`] = `
+
+Message:
+> 1 | Object.assign(new AggregateError([], "message") satisfies AggregateError, {errors})
+    |                                                                            ^^^^^^ Do not assign to \`errors\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(4): Object.assign(new AggregateError([], \"message\"), {errors}) 1`] = `
+
+  1 | Object.assign(new AggregateError([], "message"), {errors})
+
+`;
+
+exports[`no-error-property-assignment > invalid(4): Object.assign(new AggregateError([], \"message\"), {errors}) 2`] = `
+
+Message:
+> 1 | Object.assign(new AggregateError([], "message"), {errors})
+    |                                                   ^^^^^^ Do not assign to \`errors\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(5): Object.assign(new AggregateError([], \"message\"), {name, stack, cause, errors}) 1`] = `
+
+  1 | Object.assign(new AggregateError([], "message"), {name, stack, cause, errors})
+
+`;
+
+exports[`no-error-property-assignment > invalid(5): Object.assign(new AggregateError([], \"message\"), {name, stack, cause, errors}) 2`] = `
+
+Message:
+> 1 | Object.assign(new AggregateError([], "message"), {name, stack, cause, errors})
+    |                                                   ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(5): Object.assign(new AggregateError([], \"message\"), {name, stack, cause, errors}) 3`] = `
+
+Message:
+> 1 | Object.assign(new AggregateError([], "message"), {name, stack, cause, errors})
+    |                                                         ^^^^^ Do not assign to \`stack\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(5): Object.assign(new AggregateError([], \"message\"), {name, stack, cause, errors}) 4`] = `
+
+Message:
+> 1 | Object.assign(new AggregateError([], "message"), {name, stack, cause, errors})
+    |                                                                ^^^^^ Do not assign to \`cause\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(5): Object.assign(new AggregateError([], \"message\"), {name, stack, cause, errors}) 5`] = `
+
+Message:
+> 1 | Object.assign(new AggregateError([], "message"), {name, stack, cause, errors})
+    |                                                                       ^^^^^^ Do not assign to \`errors\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(5): const error = new Error(); error.name++; 1`] = `
+
+  1 | const error = new Error(); error.name++;
+
+`;
+
+exports[`no-error-property-assignment > invalid(5): const error = new Error(); error.name++; 2`] = `
+
+Message:
+> 1 | const error = new Error(); error.name++;
+    |                                  ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(6): Object.assign(new Error(), {code}, {name}) 1`] = `
+
+  1 | Object.assign(new Error(), {code}, {name})
+
+`;
+
+exports[`no-error-property-assignment > invalid(6): Object.assign(new Error(), {code}, {name}) 2`] = `
+
+Message:
+> 1 | Object.assign(new Error(), {code}, {name})
+    |                                     ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(6): const error = new Error(); ++error.name; 1`] = `
+
+  1 | const error = new Error(); ++error.name;
+
+`;
+
+exports[`no-error-property-assignment > invalid(6): const error = new Error(); ++error.name; 2`] = `
+
+Message:
+> 1 | const error = new Error(); ++error.name;
+    |                                    ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(7): Object.assign(new Error(), {\"stack\": stack}) 1`] = `
+
+  1 | Object.assign(new Error(), {"stack": stack})
+
+`;
+
+exports[`no-error-property-assignment > invalid(7): Object.assign(new Error(), {\"stack\": stack}) 2`] = `
+
+Message:
+> 1 | Object.assign(new Error(), {"stack": stack})
+    |                             ^^^^^^^ Do not assign to \`stack\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(7): const error = new Error(); error.name--; 1`] = `
+
+  1 | const error = new Error(); error.name--;
+
+`;
+
+exports[`no-error-property-assignment > invalid(7): const error = new Error(); error.name--; 2`] = `
+
+Message:
+> 1 | const error = new Error(); error.name--;
+    |                                  ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(8): Object.assign(new Error(), {[\"cause\"]: cause}) 1`] = `
+
+  1 | Object.assign(new Error(), {["cause"]: cause})
+
+`;
+
+exports[`no-error-property-assignment > invalid(8): Object.assign(new Error(), {[\"cause\"]: cause}) 2`] = `
+
+Message:
+> 1 | Object.assign(new Error(), {["cause"]: cause})
+    |                              ^^^^^^^ Do not assign to \`cause\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(9): Object.assign(new Error(), {name() {}}) 1`] = `
+
+  1 | Object.assign(new Error(), {name() {}})
+
+`;
+
+exports[`no-error-property-assignment > invalid(9): Object.assign(new Error(), {name() {}}) 2`] = `
+
+Message:
+> 1 | Object.assign(new Error(), {name() {}})
+    |                             ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;

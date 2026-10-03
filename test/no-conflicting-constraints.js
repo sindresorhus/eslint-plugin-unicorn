@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import {getTester, languages, parsers} from './utils/test.js';
 
@@ -45,6 +45,8 @@ ruleTest.snapshot({
 		String.raw`@media (min-width: 10\65 3px) and (max-width: 5\65 3px) {}`,
 		String.raw`@media (min-width: 10\31 px) and (max-width: 5\31 px) {}`,
 		String.raw`@media (min-resolution: 10\65 3dpi) and (max-resolution: 5\65 3dpi) {}`,
+		'@media (1000px < width > 500px) {}',
+		'@media (width < 400px < 300px) {}',
 	].map(code => ({code, language: languages.css})),
 	invalid: [
 		'@media (1000px < width < 500px) {}',
@@ -306,14 +308,14 @@ ruleTest({
 });
 
 test('metadata and neighboring rules', t => {
-	t.deepEqual(rule.meta.languages, ['js/js', 'css/css', 'html/html']);
-	t.is(rule.meta.docs.recommended, 'unopinionated');
-	t.is(rule.meta.fixable, undefined);
-	t.is(rule.meta.hasSuggestions, undefined);
+	t.assert.deepStrictEqual(rule.meta.languages, ['js/js', 'css/css', 'html/html']);
+	t.assert.strictEqual(rule.meta.docs.recommended, 'unopinionated');
+	t.assert.strictEqual(rule.meta.fixable, undefined);
+	t.assert.strictEqual(rule.meta.hasSuggestions, undefined);
 
 	const linter = new Linter();
 	for (const code of ['<input type="number" min="10" max="5">', '<input minlength="10" maxlength="5">', '<textarea minlength="10" maxlength="5"></textarea>']) {
-		t.deepEqual(linter.verify(code, [{
+		t.assert.deepStrictEqual(linter.verify(code, [{
 			files: ['**'],
 			...languages.html,
 			rules: {'html/no-invalid-attr-value': 'error', 'html/no-ineffective-attrs': 'error'},

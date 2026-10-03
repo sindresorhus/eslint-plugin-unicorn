@@ -1539,6 +1539,57 @@ test.snapshot({
 				}
 			});
 		`,
+		outdent`
+			new Promise((resolve, reject, extra = 1 + process.exit(1)) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject, extra = new Foo(process.exit(1))) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				for (; false; resolve()) {}
+				resolve(value);
+			});
+		`,
+		// A loop that is continued across a `finally` block is not followed, like above
+		outdent`
+			new Promise(resolve => {
+				for (let index = 0; index < 1; resolve()) {
+					try {
+						continue;
+					} finally {
+						cleanup();
+					}
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					while (condition) {
+						try {
+							foo();
+						} finally {
+							cleanup();
+						}
+
+						try {
+							bar();
+						} finally {
+							cleanup();
+						}
+					}
+				} catch {}
+
+				resolve(value);
+			});
+		`,
 	],
 	invalid: [
 		outdent`

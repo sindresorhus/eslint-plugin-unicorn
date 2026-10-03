@@ -104,10 +104,6 @@ function isKnownStringKeyEntries(node, context) {
 }
 
 function getStaticPropertyName(memberExpression) {
-	if (memberExpression.optional) {
-		return;
-	}
-
 	if (!memberExpression.computed) {
 		return memberExpression.property.type === 'Identifier' ? memberExpression.property.name : undefined;
 	}
@@ -171,28 +167,18 @@ function isUpdateTarget(node) {
 }
 
 function isWithinNewExpressionCallee(node) {
-	while (node.parent) {
-		const {parent} = node;
-		if (parent.type === 'NewExpression') {
-			return parent.callee === node;
-		}
-
-		if (isUnsupportedTypeScriptExpressionWrapper(parent)) {
-			node = parent;
-			continue;
-		}
-
-		if (
-			parent.type !== 'MemberExpression'
-			|| parent.object !== node
-		) {
-			return false;
-		}
-
-		node = parent;
+	while (
+		isUnsupportedTypeScriptExpressionWrapper(node.parent)
+		|| (
+			node.parent.type === 'MemberExpression'
+			&& node.parent.object === node
+		)
+	) {
+		node = node.parent;
 	}
 
-	return false;
+	return node.parent.type === 'NewExpression'
+		&& node.parent.callee === node;
 }
 
 function isInDestructuringPattern(node) {
@@ -214,10 +200,6 @@ function isWithinChainExpression(node) {
 	while (node.parent) {
 		if (node.parent.type === 'ChainExpression') {
 			return true;
-		}
-
-		if (node.parent.type === 'Program') {
-			return false;
 		}
 
 		node = node.parent;

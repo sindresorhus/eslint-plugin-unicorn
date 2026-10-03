@@ -6,6 +6,7 @@ Workaround for https://github.com/typescript-eslint/typescript-eslint/issues/117
 import {createRequire} from 'node:module';
 import {Variable} from 'eslint-scope';
 
+// TODO: Load the parsers with `import defer` when Node.js supports it. Every test file loads all of them, but only a few test files use the Vue.js, HTML, and Svelte parsers. The exported parsers are also built with `getParser()` when this module loads, which reads the parser module, so building them must also move to first use.
 const loadModule = createRequire(import.meta.url);
 const typescriptEslintParserOriginal = loadModule('@typescript-eslint/parser');
 const vueEslintParserOriginal = loadModule('vue-eslint-parser');

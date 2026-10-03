@@ -1,0 +1,443 @@
+exports[`class-reference-in-static-methods > invalid(1): class A extends B {static foo() {return this.foo() + B.foo();}} 1`] = `
+
+Options:
+- preferThis: false
+
+Code:
+  1 | class A extends B {static foo() {return this.foo() + B.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(1): class A extends B {static foo() {return this.foo() + B.foo();}} 2`] = `
+
+Message:
+> 1 | class A extends B {static foo() {return this.foo() + B.foo();}}
+    |                                         ^^^^ Use \`A\` instead of \`this\` in static methods.
+
+Suggestion 1/1: Replace \`this\` with \`A\`.:
+  1 | class A extends B {static foo() {return A.foo() + B.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(1): class A extends B {static foo() {return this.foo() + B.foo();}} 3`] = `
+
+Message:
+> 1 | class A extends B {static foo() {return this.foo() + B.foo();}}
+    |                                                      ^ Use \`super\` instead of \`B\` in static methods.
+
+Suggestion 1/1: Replace \`B\` with \`super\`.:
+  1 | class A extends B {static foo() {return this.foo() + super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(1): class A {static foo() {return A.foo();}} 1`] = `
+
+  1 | class A {static foo() {return A.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(1): class A {static foo() {return A.foo();}} 2`] = `
+
+Message:
+> 1 | class A {static foo() {return A.foo();}}
+    |                               ^ Use \`this\` instead of \`A\` in static methods.
+
+Suggestion 1/1: Replace \`A\` with \`this\`.:
+  1 | class A {static foo() {return this.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(1): class A {static foo() {return this.foo();}} 1`] = `
+
+Options:
+- preferThis: false
+  preferSuper: false
+
+Code:
+  1 | class A {static foo() {return this.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(1): class A {static foo() {return this.foo();}} 2`] = `
+
+Message:
+> 1 | class A {static foo() {return this.foo();}}
+    |                               ^^^^ Use \`A\` instead of \`this\` in static methods.
+
+Suggestion 1/1: Replace \`this\` with \`A\`.:
+  1 | class A {static foo() {return A.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(1): class A {static foo(): unknown {return A.foo();}} 1`] = `
+
+  1 | class A {static foo(): unknown {return A.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(1): class A {static foo(): unknown {return A.foo();}} 2`] = `
+
+Message:
+> 1 | class A {static foo(): unknown {return A.foo();}}
+    |                                        ^ Use \`this\` instead of \`A\` in static methods.
+
+Suggestion 1/1: Replace \`A\` with \`this\`.:
+  1 | class A {static foo(): unknown {return this.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(2): class A extends B {static foo() {return A.foo() + super.foo();}} 1`] = `
+
+Options:
+- preferSuper: false
+
+Code:
+  1 | class A extends B {static foo() {return A.foo() + super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(2): class A extends B {static foo() {return A.foo() + super.foo();}} 2`] = `
+
+Message:
+> 1 | class A extends B {static foo() {return A.foo() + super.foo();}}
+    |                                         ^ Use \`this\` instead of \`A\` in static methods.
+
+Suggestion 1/1: Replace \`A\` with \`this\`.:
+  1 | class A extends B {static foo() {return this.foo() + super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(2): class A extends B {static foo() {return A.foo() + super.foo();}} 3`] = `
+
+Message:
+> 1 | class A extends B {static foo() {return A.foo() + super.foo();}}
+    |                                                   ^^^^^ Use \`B\` instead of \`super\` in static methods.
+
+Suggestion 1/1: Replace \`super\` with \`B\`.:
+  1 | class A extends B {static foo() {return A.foo() + B.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(2): class A {static foo() {return A;}} 1`] = `
+
+  1 | class A {static foo() {return A;}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(2): class A {static foo() {return A;}} 2`] = `
+
+Message:
+> 1 | class A {static foo() {return A;}}
+    |                               ^ Use \`this\` instead of \`A\` in static methods.
+
+Suggestion 1/1: Replace \`A\` with \`this\`.:
+  1 | class A {static foo() {return this;}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(2): class A {static foo() {return this;}} 1`] = `
+
+Options:
+- preferThis: false
+  preferSuper: false
+
+Code:
+  1 | class A {static foo() {return this;}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(2): class A {static foo() {return this;}} 2`] = `
+
+Message:
+> 1 | class A {static foo() {return this;}}
+    |                               ^^^^ Use \`A\` instead of \`this\` in static methods.
+
+Suggestion 1/1: Replace \`this\` with \`A\`.:
+  1 | class A {static foo() {return A;}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(2): class A {static foo(): A {return A.foo();}} 1`] = `
+
+  1 | class A {static foo(): A {return A.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(2): class A {static foo(): A {return A.foo();}} 2`] = `
+
+Message:
+> 1 | class A {static foo(): A {return A.foo();}}
+    |                                  ^ Use \`this\` instead of \`A\` in static methods.
+
+Suggestion 1/1: Replace \`A\` with \`this\`.:
+  1 | class A {static foo(): A {return this.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(3): class A extends B {static foo() {return B.foo();}} 1`] = `
+
+  1 | class A extends B {static foo() {return B.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(3): class A extends B {static foo() {return B.foo();}} 2`] = `
+
+Message:
+> 1 | class A extends B {static foo() {return B.foo();}}
+    |                                         ^ Use \`super\` instead of \`B\` in static methods.
+
+Suggestion 1/1: Replace \`B\` with \`super\`.:
+  1 | class A extends B {static foo() {return super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(3): class A extends B {static foo(): unknown {return B.foo();}} 1`] = `
+
+  1 | class A extends B {static foo(): unknown {return B.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(3): class A extends B {static foo(): unknown {return B.foo();}} 2`] = `
+
+Message:
+> 1 | class A extends B {static foo(): unknown {return B.foo();}}
+    |                                                  ^ Use \`super\` instead of \`B\` in static methods.
+
+Suggestion 1/1: Replace \`B\` with \`super\`.:
+  1 | class A extends B {static foo(): unknown {return super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(3): class A {static foo() {const A = other; return this.foo();}} 1`] = `
+
+Options:
+- preferThis: false
+  preferSuper: false
+
+Code:
+  1 | class A {static foo() {const A = other; return this.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(3): class A {static foo() {const A = other; return this.foo();}} 2`] = `
+
+Message:
+> 1 | class A {static foo() {const A = other; return this.foo();}}
+    |                                                ^^^^ Use the class name instead of \`this\` in static methods.
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(4): class A extends B {static foo() {const B = other; return super.foo();}} 1`] = `
+
+Options:
+- preferThis: false
+  preferSuper: false
+
+Code:
+  1 | class A extends B {static foo() {const B = other; return super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(4): class A extends B {static foo() {const B = other; return super.foo();}} 2`] = `
+
+Message:
+> 1 | class A extends B {static foo() {const B = other; return super.foo();}}
+    |                                                          ^^^^^ Use the superclass name instead of \`super\` in static methods.
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(4): class A extends B {static foo() {return B[\"foo\"]();}} 1`] = `
+
+  1 | class A extends B {static foo() {return B["foo"]();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(4): class A extends B {static foo() {return B[\"foo\"]();}} 2`] = `
+
+Message:
+> 1 | class A extends B {static foo() {return B["foo"]();}}
+    |                                         ^ Use \`super\` instead of \`B\` in static methods.
+
+Suggestion 1/1: Replace \`B\` with \`super\`.:
+  1 | class A extends B {static foo() {return super["foo"]();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(5): class A extends B {static foo() {return () => B.foo();}} 1`] = `
+
+  1 | class A extends B {static foo() {return () => B.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(5): class A extends B {static foo() {return () => B.foo();}} 2`] = `
+
+Message:
+> 1 | class A extends B {static foo() {return () => B.foo();}}
+    |                                               ^ Use \`super\` instead of \`B\` in static methods.
+
+Suggestion 1/1: Replace \`B\` with \`super\`.:
+  1 | class A extends B {static foo() {return () => super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(5): class A extends B {static foo() {return super.foo();}} 1`] = `
+
+Options:
+- preferThis: false
+  preferSuper: false
+
+Code:
+  1 | class A extends B {static foo() {return super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(5): class A extends B {static foo() {return super.foo();}} 2`] = `
+
+Message:
+> 1 | class A extends B {static foo() {return super.foo();}}
+    |                                         ^^^^^ Use \`B\` instead of \`super\` in static methods.
+
+Suggestion 1/1: Replace \`super\` with \`B\`.:
+  1 | class A extends B {static foo() {return B.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(6): class A extends B {static foo() {return () => super.foo();}} 1`] = `
+
+Options:
+- preferThis: false
+  preferSuper: false
+
+Code:
+  1 | class A extends B {static foo() {return () => super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(6): class A extends B {static foo() {return () => super.foo();}} 2`] = `
+
+Message:
+> 1 | class A extends B {static foo() {return () => super.foo();}}
+    |                                               ^^^^^ Use \`B\` instead of \`super\` in static methods.
+
+Suggestion 1/1: Replace \`super\` with \`B\`.:
+  1 | class A extends B {static foo() {return () => B.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(6): const A = class {\n\tstatic foo() {\n\t\treturn A.foo();\n\t}\n}; 1`] = `
+
+  1 | const A = class {
+  2 | 	static foo() {
+  3 | 		return A.foo();
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(6): const A = class {\n\tstatic foo() {\n\t\treturn A.foo();\n\t}\n}; 2`] = `
+
+Message:
+  1 | const A = class {
+  2 | 	static foo() {
+> 3 | 		return A.foo();
+    | 		       ^ Use \`this\` instead of \`A\` in static methods.
+  4 | 	}
+  5 | };
+
+Suggestion 1/1: Replace \`A\` with \`this\`.:
+  1 | const A = class {
+  2 | 	static foo() {
+  3 | 		return this.foo();
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(7): const A = class B {\n\tstatic foo() {\n\t\treturn B.foo();\n\t}\n}; 1`] = `
+
+  1 | const A = class B {
+  2 | 	static foo() {
+  3 | 		return B.foo();
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(7): const A = class B {\n\tstatic foo() {\n\t\treturn B.foo();\n\t}\n}; 2`] = `
+
+Message:
+  1 | const A = class B {
+  2 | 	static foo() {
+> 3 | 		return B.foo();
+    | 		       ^ Use \`this\` instead of \`B\` in static methods.
+  4 | 	}
+  5 | };
+
+Suggestion 1/1: Replace \`B\` with \`this\`.:
+  1 | const A = class B {
+  2 | 	static foo() {
+  3 | 		return this.foo();
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(7): const A = class {static foo() {return this.foo();}}; 1`] = `
+
+Options:
+- preferThis: false
+  preferSuper: false
+
+Code:
+  1 | const A = class {static foo() {return this.foo();}};
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(7): const A = class {static foo() {return this.foo();}}; 2`] = `
+
+Message:
+> 1 | const A = class {static foo() {return this.foo();}};
+    |                                       ^^^^ Use \`A\` instead of \`this\` in static methods.
+
+Suggestion 1/1: Replace \`this\` with \`A\`.:
+  1 | const A = class {static foo() {return A.foo();}};
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(8): export default class {static foo() {return this.foo();}} 1`] = `
+
+Options:
+- preferThis: false
+  preferSuper: false
+
+Code:
+  1 | export default class {static foo() {return this.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(8): export default class {static foo() {return this.foo();}} 2`] = `
+
+Message:
+> 1 | export default class {static foo() {return this.foo();}}
+    |                                            ^^^^ Use the class name instead of \`this\` in static methods.
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(9): class A extends mixin(B) {static foo() {return super.foo();}} 1`] = `
+
+Options:
+- preferThis: false
+  preferSuper: false
+
+Code:
+  1 | class A extends mixin(B) {static foo() {return super.foo();}}
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(9): class A extends mixin(B) {static foo() {return super.foo();}} 2`] = `
+
+Message:
+> 1 | class A extends mixin(B) {static foo() {return super.foo();}}
+    |                                                ^^^^^ Use the superclass name instead of \`super\` in static methods.
+
+`;

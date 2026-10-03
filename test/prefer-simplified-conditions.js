@@ -1,6 +1,6 @@
 import {runInNewContext} from 'node:vm';
+import test from 'node:test';
 import outdent from 'outdent';
-import test from 'ava';
 import {Linter} from 'eslint';
 import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -161,6 +161,9 @@ ruleTester.snapshot({
 			},
 		},
 		typeAware('declare const flags: {a: boolean; b: boolean; c: boolean}; const a = flags.a; const b = flags.b; const c = flags.c; const value = (a || c) && (b || c);'),
+		// Only parameters, function names, and `var` variables are safe to drop
+		'function foo(a) { if ((arguments && a) || a) {} }',
+		'import b from "b"; function foo(a) { if ((b && a) || a) {} }',
 	],
 	invalid: [
 		'if (!(!a && !b)) {}',
@@ -216,6 +219,17 @@ ruleTester.snapshot({
 			},
 		},
 		typeAware('declare const flags: {a: boolean; b: boolean; c: boolean}; const a = flags.a; const b = flags.b; const c = flags.c; const value = (a && b) || (a && c);'),
+		'if (!(!(a || b) || !c)) {}',
+		'function foo(a, b) { if (a || (!b && a)) {} }',
+		'if ((a !== b && c) || (a !== b && d)) {}',
+		'foo(!(a !== b && c !== d));',
+		'foo[!(a !== b && c !== d)];',
+		{
+			code: 'const value = !(a !== b && c !== d) as boolean;',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 });
 
@@ -335,9 +349,9 @@ for (const [options, code, output] of [
 			{filename: 'test.js'},
 		);
 
-		t.true(result.fixed);
-		t.is(result.output, output);
-		t.deepEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, output);
+		t.assert.deepStrictEqual(result.messages, []);
 	});
 }
 
@@ -362,8 +376,8 @@ test('expanded conditions preserve values and evaluation order', t => {
 	]) {
 		const code = `const result = ${expression}; result;`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
-		t.true(fixed);
-		t.deepEqual(messages, []);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
 
 		for (const left of values) {
 			for (const right of values) {
@@ -380,8 +394,8 @@ test('expanded conditions preserve values and evaluation order', t => {
 					},
 				});
 
-				t.is(runInNewContext(output, getContext(fixedCalls)), runInNewContext(code, getContext(originalCalls)));
-				t.deepEqual(fixedCalls, originalCalls);
+				t.assert.strictEqual(runInNewContext(output, getContext(fixedCalls)), runInNewContext(code, getContext(originalCalls)));
+				t.assert.deepStrictEqual(fixedCalls, originalCalls);
 			}
 		}
 	}
@@ -405,9 +419,9 @@ test('expanded conditions settle with related rules enabled', t => {
 		['function foo() { if (a && b) { bar(); baz(); qux(); } }', 'function foo() { if (!a || !b) {\n\treturn;\n}\n\nbar(); baz(); qux(); }'],
 	]) {
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
-		t.true(fixed);
-		t.is(output, expectedOutput);
-		t.deepEqual(messages, []);
-		t.false(linter.verifyAndFix(output, config).fixed);
+		t.assert.strictEqual(fixed, true);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
 	}
 });

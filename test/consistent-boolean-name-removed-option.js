@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 
@@ -16,12 +16,12 @@ test('consistent-boolean-name rejects the removed checkProperties option', t => 
 	});
 
 	for (const checkProperties of [false, true, 'always', undefined]) {
-		t.throws(
+		t.assert.throws(
 			() => verify({checkProperties}),
 			{message: /`checkProperties` was removed\. Use `checkMethods` and `checkFields` instead\./u},
 		);
 	}
 
-	t.throws(() => verify({checkVariables: true}));
-	t.throws(() => verify({checkMethods: 'invalid'}));
+	t.assert.throws(() => verify({checkVariables: true}), {message: /Value true should be equal to one of the allowed values/u});
+	t.assert.throws(() => verify({checkMethods: 'invalid'}), {message: /Value "invalid" should be equal to one of the allowed values/u});
 });

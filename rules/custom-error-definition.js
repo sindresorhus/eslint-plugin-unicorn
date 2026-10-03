@@ -9,6 +9,7 @@ import {
 	isNodeMatchesNameOrPath,
 	isParenthesized,
 	unwrapTypeScriptExpression,
+	getVisitorChildNodes,
 } from './utils/index.js';
 import {
 	getStaticStringValue,
@@ -155,29 +156,7 @@ const hasThisOrSuper = (node, visitorKeys) => {
 		return true;
 	}
 
-	const keys = visitorKeys[node.type] ?? [];
-
-	for (const key of keys) {
-		const value = node[key];
-
-		if (!value) {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(childNode => childNode && hasThisOrSuper(childNode, visitorKeys))) {
-				return true;
-			}
-
-			continue;
-		}
-
-		if (hasThisOrSuper(value, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(childNode => hasThisOrSuper(childNode, visitorKeys));
 };
 
 const getOptionsParameterText = firstParameter => {
@@ -389,7 +368,7 @@ function getInvalidErrorNameProblem(constructorBodyNode, constructorBody, errorD
 	}
 
 	if (getStaticStringValue(unwrapTypeScriptExpression(nameExpression.expression.right)) !== name) {
-		return createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
+		return createInvalidNameError(nameExpression.expression.right, name);
 	}
 }
 
@@ -451,9 +430,8 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 				const shouldAddOptionsParameter = constructor.value.params.length === 1
 					&& firstParameterIdentifier
 					&& !isOptionsIdentifier(firstParameter);
-				const start = messageExpressionIndex === 0
-					? sourceCode.getRange(constructorBodyNode)[0]
-					: sourceCode.getRange(constructorBody[messageExpressionIndex - 1])[1];
+				// The `super()` call is before the message assignment, so there is always a previous statement.
+				const [, start] = sourceCode.getRange(constructorBody[messageExpressionIndex - 1]);
 				const [, end] = sourceCode.getRange(expression);
 
 				if (

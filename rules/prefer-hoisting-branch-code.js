@@ -7,6 +7,7 @@ import {
 	needsSemicolon,
 	reindentText,
 	getLinebreak,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 /**
@@ -38,25 +39,7 @@ function containsTaggedTemplate(node, sourceCode) {
 		return true;
 	}
 
-	const keys = sourceCode.visitorKeys[node.type] ?? [];
-	for (const key of keys) {
-		const child = node[key];
-		if (Array.isArray(child)) {
-			for (const childNode of child) {
-				if (childNode && containsTaggedTemplate(childNode, sourceCode)) {
-					return true;
-				}
-			}
-
-			continue;
-		}
-
-		if (child && containsTaggedTemplate(child, sourceCode)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => containsTaggedTemplate(child, sourceCode));
 }
 
 const hasSideEffectOrTaggedTemplate = (node, sourceCode) =>

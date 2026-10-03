@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import unicorn from '../index.js';
@@ -116,6 +116,11 @@ testRule.snapshot({
 			code,
 			languageOptions: {sourceType: 'script'},
 		})),
+		// An uninitialized `const` is invalid code, but the TypeScript parser accepts it
+		{
+			code: 'const value: number; if (condition) { value = 1; consume(value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		...['1', '1n', 'true', 'false', 'null', '"value"', '`value`'].map(initializer => `const value = ${initializer}; if (condition) { consume(value); }`),
@@ -161,6 +166,8 @@ testRule.snapshot({
 			code: '/* exported exportedValue */ const exportedValue = 1; const value = 1; if (condition) { consume(value); }',
 			languageOptions: {sourceType: 'script'},
 		},
+		// No whitespace after the opening brace
+		'const value = 1; if (condition) {consume(value);}',
 	],
 });
 
@@ -185,9 +192,9 @@ test('literal declarations work with no-declarations-before-early-exit', t => {
 		}
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, outdent`
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, outdent`
 		function foo(bar, condition) {
 			if (!bar) {
 				return;

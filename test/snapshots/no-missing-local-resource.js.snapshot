@@ -1,0 +1,876 @@
+exports[`no-missing-local-resource > invalid(1): [Missing](./missing.md) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Missing](./missing.md)
+
+`;
+
+exports[`no-missing-local-resource > invalid(1): [Missing](./missing.md) 2`] = `
+
+Message:
+> 1 | [Missing](./missing.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Resource \`./missing.md\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(10): [Missing](./missing%) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Missing](./missing%)
+
+`;
+
+exports[`no-missing-local-resource > invalid(10): [Missing](./missing%) 2`] = `
+
+Message:
+> 1 | [Missing](./missing%)
+    | ^^^^^^^^^^^^^^^^^^^^^ Resource \`./missing%\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(11): [Logo](./Assets/logo.svg \"./Assets/logo.svg\") 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Logo](./Assets/logo.svg "./Assets/logo.svg")
+
+`;
+
+exports[`no-missing-local-resource > invalid(11): [Logo](./Assets/logo.svg \"./Assets/logo.svg\") 2`] = `
+
+Message:
+> 1 | [Logo](./Assets/logo.svg "./Assets/logo.svg")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(12): [Logo](./Assets/logo.svg \"title ]( text\") 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Logo](./Assets/logo.svg "title ]( text")
+
+`;
+
+exports[`no-missing-local-resource > invalid(12): [Logo](./Assets/logo.svg \"title ]( text\") 2`] = `
+
+Message:
+> 1 | [Logo](./Assets/logo.svg "title ]( text")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(13): [Logo](./Assets/logo\\.svg) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Logo](./Assets/logo\\.svg)
+
+`;
+
+exports[`no-missing-local-resource > invalid(13): [Logo](./Assets/logo\\.svg) 2`] = `
+
+Message:
+> 1 | [Logo](./Assets/logo\\.svg)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(14): [foo \\]( ./Assets/logo.svg](./Assets/logo.svg) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [foo \\]( ./Assets/logo.svg](./Assets/logo.svg)
+
+`;
+
+exports[`no-missing-local-resource > invalid(14): [foo \\]( ./Assets/logo.svg](./Assets/logo.svg) 2`] = `
+
+Message:
+> 1 | [foo \\]( ./Assets/logo.svg](./Assets/logo.svg)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(15): [foo \`]( ./Assets/logo.svg\` bar](./Assets/logo.svg) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [foo \`]( ./Assets/logo.svg\` bar](./Assets/logo.svg)
+
+`;
+
+exports[`no-missing-local-resource > invalid(15): [foo \`]( ./Assets/logo.svg\` bar](./Assets/logo.svg) 2`] = `
+
+Message:
+> 1 | [foo \`]( ./Assets/logo.svg\` bar](./Assets/logo.svg)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(16): [Encoded](./Encoded%20name.md) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Encoded](./Encoded%20name.md)
+
+`;
+
+exports[`no-missing-local-resource > invalid(16): [Encoded](./Encoded%20name.md) 2`] = `
+
+Message:
+> 1 | [Encoded](./Encoded%20name.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./encoded%20name.md\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(17): [Encoded hash](./Encoded%23name.md) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Encoded hash](./Encoded%23name.md)
+
+`;
+
+exports[`no-missing-local-resource > invalid(17): [Encoded hash](./Encoded%23name.md) 2`] = `
+
+Message:
+> 1 | [Encoded hash](./Encoded%23name.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./encoded%23name.md\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(18): <a href=\"./missing.html\"></a><img src=\"./assets/LOGO.svg\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <a href="./missing.html"></a><img src="./assets/LOGO.svg">
+
+`;
+
+exports[`no-missing-local-resource > invalid(18): <a href=\"./missing.html\"></a><img src=\"./assets/LOGO.svg\"> 2`] = `
+
+Message:
+> 1 | <a href="./missing.html"></a><img src="./assets/LOGO.svg">
+    |          ^^^^^^^^^^^^^^ Resource \`./missing.html\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(18): <a href=\"./missing.html\"></a><img src=\"./assets/LOGO.svg\"> 3`] = `
+
+Message:
+> 1 | <a href="./missing.html"></a><img src="./assets/LOGO.svg">
+    |                                        ^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+Output:
+  1 | <a href="./missing.html"></a><img src="./assets/logo.svg">
+
+`;
+
+exports[`no-missing-local-resource > invalid(19): <a HREF=\"./missing.html\"></a><img SRC=\"./assets/missing.png\"><video POSTER=\"./missing.jpg\"></video> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <a HREF="./missing.html"></a><img SRC="./assets/missing.png"><video POSTER="./missing.jpg"></video>
+
+`;
+
+exports[`no-missing-local-resource > invalid(19): <a HREF=\"./missing.html\"></a><img SRC=\"./assets/missing.png\"><video POSTER=\"./missing.jpg\"></video> 2`] = `
+
+Message:
+> 1 | <a HREF="./missing.html"></a><img SRC="./assets/missing.png"><video POSTER="./missing.jpg"></video>
+    |          ^^^^^^^^^^^^^^ Resource \`./missing.html\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(19): <a HREF=\"./missing.html\"></a><img SRC=\"./assets/missing.png\"><video POSTER=\"./missing.jpg\"></video> 3`] = `
+
+Message:
+> 1 | <a HREF="./missing.html"></a><img SRC="./assets/missing.png"><video POSTER="./missing.jpg"></video>
+    |                                        ^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/missing.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(19): <a HREF=\"./missing.html\"></a><img SRC=\"./assets/missing.png\"><video POSTER=\"./missing.jpg\"></video> 4`] = `
+
+Message:
+> 1 | <a HREF="./missing.html"></a><img SRC="./assets/missing.png"><video POSTER="./missing.jpg"></video>
+    |                                                                             ^^^^^^^^^^^^^ Resource \`./missing.jpg\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(2): [Missing](missing.md) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Missing](missing.md)
+
+`;
+
+exports[`no-missing-local-resource > invalid(2): [Missing](missing.md) 2`] = `
+
+Message:
+> 1 | [Missing](missing.md)
+    | ^^^^^^^^^^^^^^^^^^^^^ Resource \`missing.md\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(20): <a href=\" ./guide.md\"></a> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <a href=" ./guide.md"></a>
+
+`;
+
+exports[`no-missing-local-resource > invalid(20): <a href=\" ./guide.md\"></a> 2`] = `
+
+Message:
+> 1 | <a href=" ./guide.md"></a>
+    |          ^^^^^^^^^^^ Resource \` ./guide.md\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(21): <img src=./assets/missing.png> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img src=./assets/missing.png>
+
+`;
+
+exports[`no-missing-local-resource > invalid(21): <img src=./assets/missing.png> 2`] = `
+
+Message:
+> 1 | <img src=./assets/missing.png>
+    |          ^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/missing.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(22): <img src = ./assets/missing.png> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img src = ./assets/missing.png>
+
+`;
+
+exports[`no-missing-local-resource > invalid(22): <img src = ./assets/missing.png> 2`] = `
+
+Message:
+> 1 | <img src = ./assets/missing.png>
+    |            ^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/missing.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(23): <img src=./assets/LOGO.svg> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img src=./assets/LOGO.svg>
+
+`;
+
+exports[`no-missing-local-resource > invalid(23): <img src=./assets/LOGO.svg> 2`] = `
+
+Message:
+> 1 | <img src=./assets/LOGO.svg>
+    |          ^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+Output:
+  1 | <img src=./assets/logo.svg>
+
+`;
+
+exports[`no-missing-local-resource > invalid(24): <img src=\"./assets\\LOGO.svg\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img src="./assets\\LOGO.svg">
+
+`;
+
+exports[`no-missing-local-resource > invalid(24): <img src=\"./assets\\LOGO.svg\"> 2`] = `
+
+Message:
+> 1 | <img src="./assets\\LOGO.svg">
+    |           ^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(25): <img src=./assets/LOGO.svg?raw=1> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img src=./assets/LOGO.svg?raw=1>
+
+`;
+
+exports[`no-missing-local-resource > invalid(25): <img src=./assets/LOGO.svg?raw=1> 2`] = `
+
+Message:
+> 1 | <img src=./assets/LOGO.svg?raw=1>
+    |          ^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg?raw=1\`.
+
+Output:
+  1 | <img src=./assets/logo.svg?raw=1>
+
+`;
+
+exports[`no-missing-local-resource > invalid(26): <img srcset=./assets/logo-1x.png,./assets/missing.png> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img srcset=./assets/logo-1x.png,./assets/missing.png>
+
+`;
+
+exports[`no-missing-local-resource > invalid(26): <img srcset=./assets/logo-1x.png,./assets/missing.png> 2`] = `
+
+Message:
+> 1 | <img srcset=./assets/logo-1x.png,./assets/missing.png>
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/logo-1x.png,./assets/missing.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(27): <img srcset=\"./assets/logo-1x.png 1x, ./assets/missing.png 2x, ./assets/logo-2x.png 3x\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img srcset="./assets/logo-1x.png 1x, ./assets/missing.png 2x, ./assets/logo-2x.png 3x">
+
+`;
+
+exports[`no-missing-local-resource > invalid(27): <img srcset=\"./assets/logo-1x.png 1x, ./assets/missing.png 2x, ./assets/logo-2x.png 3x\"> 2`] = `
+
+Message:
+> 1 | <img srcset="./assets/logo-1x.png 1x, ./assets/missing.png 2x, ./assets/logo-2x.png 3x">
+    |                                       ^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/missing.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(28): <link rel=\"preload\" as=\"image\" imagesrcset=\"./assets/logo-1x.png 1x, ./assets/missing.png 2x\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <link rel="preload" as="image" imagesrcset="./assets/logo-1x.png 1x, ./assets/missing.png 2x">
+
+`;
+
+exports[`no-missing-local-resource > invalid(28): <link rel=\"preload\" as=\"image\" imagesrcset=\"./assets/logo-1x.png 1x, ./assets/missing.png 2x\"> 2`] = `
+
+Message:
+> 1 | <link rel="preload" as="image" imagesrcset="./assets/logo-1x.png 1x, ./assets/missing.png 2x">
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/missing.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(29): <img srcset=\"./assets/logo.svg&nbsp;1x\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img srcset="./assets/logo.svg&nbsp;1x">
+
+`;
+
+exports[`no-missing-local-resource > invalid(29): <img srcset=\"./assets/logo.svg&nbsp;1x\"> 2`] = `
+
+Message:
+> 1 | <img srcset="./assets/logo.svg&nbsp;1x">
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/logo.svg&nbsp;1x\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(3): [Missing](ſomething:missing.md) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Missing](ſomething:missing.md)
+
+`;
+
+exports[`no-missing-local-resource > invalid(3): [Missing](ſomething:missing.md) 2`] = `
+
+Message:
+> 1 | [Missing](ſomething:missing.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource \`ſomething:missing.md\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(30): <img srcset=\"./assets/logo-1x.png, ./assets/LOGO.svg 2x, data:image/svg+xml,%3Csvg%3E 3x\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img srcset="./assets/logo-1x.png, ./assets/LOGO.svg 2x, data:image/svg+xml,%3Csvg%3E 3x">
+
+`;
+
+exports[`no-missing-local-resource > invalid(30): <img srcset=\"./assets/logo-1x.png, ./assets/LOGO.svg 2x, data:image/svg+xml,%3Csvg%3E 3x\"> 2`] = `
+
+Message:
+> 1 | <img srcset="./assets/logo-1x.png, ./assets/LOGO.svg 2x, data:image/svg+xml,%3Csvg%3E 3x">
+    |                                    ^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+Output:
+  1 | <img srcset="./assets/logo-1x.png, ./assets/logo.svg 2x, data:image/svg+xml,%3Csvg%3E 3x">
+
+`;
+
+exports[`no-missing-local-resource > invalid(31): <a href=\"./assets/Logo&#46;svg\"></a><img srcset=\"./assets/logo&#46;svg 1x, ./assets/missing&#46;png 2x\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <a href="./assets/Logo&#46;svg"></a><img srcset="./assets/logo&#46;svg 1x, ./assets/missing&#46;png 2x">
+
+`;
+
+exports[`no-missing-local-resource > invalid(31): <a href=\"./assets/Logo&#46;svg\"></a><img srcset=\"./assets/logo&#46;svg 1x, ./assets/missing&#46;png 2x\"> 2`] = `
+
+Message:
+> 1 | <a href="./assets/Logo&#46;svg"></a><img srcset="./assets/logo&#46;svg 1x, ./assets/missing&#46;png 2x">
+    |          ^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(31): <a href=\"./assets/Logo&#46;svg\"></a><img srcset=\"./assets/logo&#46;svg 1x, ./assets/missing&#46;png 2x\"> 3`] = `
+
+Message:
+> 1 | <a href="./assets/Logo&#46;svg"></a><img srcset="./assets/logo&#46;svg 1x, ./assets/missing&#46;png 2x">
+    |                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/missing&#46;png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(32): <img src=\"./assets&sol;missing.png\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img src="./assets&sol;missing.png">
+
+`;
+
+exports[`no-missing-local-resource > invalid(32): <img src=\"./assets&sol;missing.png\"> 2`] = `
+
+Message:
+> 1 | <img src="./assets&sol;missing.png">
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^ Resource \`./assets&sol;missing.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(33): .icon { background: url(\"./assets/missing.png\"); } 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | .icon { background: url("./assets/missing.png"); }
+
+`;
+
+exports[`no-missing-local-resource > invalid(33): .icon { background: url(\"./assets/missing.png\"); } 2`] = `
+
+Message:
+> 1 | .icon { background: url("./assets/missing.png"); }
+    |                          ^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/missing.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(34): .icon { background: image-set(\"./assets/missing.png\" 1x, \"./assets/LOGO.svg\" 2x); } 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | .icon { background: image-set("./assets/missing.png" 1x, "./assets/LOGO.svg" 2x); }
+
+`;
+
+exports[`no-missing-local-resource > invalid(34): .icon { background: image-set(\"./assets/missing.png\" 1x, \"./assets/LOGO.svg\" 2x); } 2`] = `
+
+Message:
+> 1 | .icon { background: image-set("./assets/missing.png" 1x, "./assets/LOGO.svg" 2x); }
+    |                                ^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/missing.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(34): .icon { background: image-set(\"./assets/missing.png\" 1x, \"./assets/LOGO.svg\" 2x); } 3`] = `
+
+Message:
+> 1 | .icon { background: image-set("./assets/missing.png" 1x, "./assets/LOGO.svg" 2x); }
+    |                                                           ^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+Output:
+  1 | .icon { background: image-set("./assets/missing.png" 1x, "./assets/logo.svg" 2x); }
+
+`;
+
+exports[`no-missing-local-resource > invalid(35): .icon { background: url( \"./assets/LOGO.svg\" ); } 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | .icon { background: url( "./assets/LOGO.svg" ); }
+
+`;
+
+exports[`no-missing-local-resource > invalid(35): .icon { background: url( \"./assets/LOGO.svg\" ); } 2`] = `
+
+Message:
+> 1 | .icon { background: url( "./assets/LOGO.svg" ); }
+    |                           ^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+Output:
+  1 | .icon { background: url( "./assets/logo.svg" ); }
+
+`;
+
+exports[`no-missing-local-resource > invalid(36): @supports (display: grid) { .icon { background: url(\"./assets/LOGO.svg\"); } } 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | @supports (display: grid) { .icon { background: url("./assets/LOGO.svg"); } }
+
+`;
+
+exports[`no-missing-local-resource > invalid(36): @supports (display: grid) { .icon { background: url(\"./assets/LOGO.svg\"); } } 2`] = `
+
+Message:
+> 1 | @supports (display: grid) { .icon { background: url("./assets/LOGO.svg"); } }
+    |                                                      ^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+Output:
+  1 | @supports (display: grid) { .icon { background: url("./assets/logo.svg"); } }
+
+`;
+
+exports[`no-missing-local-resource > invalid(37): @import \"./Style.css\"; 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | @import "./Style.css";
+
+`;
+
+exports[`no-missing-local-resource > invalid(37): @import \"./Style.css\"; 2`] = `
+
+Message:
+> 1 | @import "./Style.css";
+    |          ^^^^^^^^^^^ Resource path has incorrect casing. Use \`./style.css\`.
+
+Output:
+  1 | @import "./style.css";
+
+`;
+
+exports[`no-missing-local-resource > invalid(38): @import url(\"./Style.css\"); 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | @import url("./Style.css");
+
+`;
+
+exports[`no-missing-local-resource > invalid(38): @import url(\"./Style.css\"); 2`] = `
+
+Message:
+> 1 | @import url("./Style.css");
+    |              ^^^^^^^^^^^ Resource path has incorrect casing. Use \`./style.css\`.
+
+Output:
+  1 | @import url("./style.css");
+
+`;
+
+exports[`no-missing-local-resource > invalid(39): @import \"./missing.css\"; 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | @import "./missing.css";
+
+`;
+
+exports[`no-missing-local-resource > invalid(39): @import \"./missing.css\"; 2`] = `
+
+Message:
+> 1 | @import "./missing.css";
+    |          ^^^^^^^^^^^^^ Resource \`./missing.css\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(4): [Logo](./Assets/logo.svg) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Logo](./Assets/logo.svg)
+
+`;
+
+exports[`no-missing-local-resource > invalid(4): [Logo](./Assets/logo.svg) 2`] = `
+
+Message:
+> 1 | [Logo](./Assets/logo.svg)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(40): @\\69mport \"./missing.css\"; 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | @\\69mport "./missing.css";
+
+`;
+
+exports[`no-missing-local-resource > invalid(40): @\\69mport \"./missing.css\"; 2`] = `
+
+Message:
+> 1 | @\\69mport "./missing.css";
+    |            ^^^^^^^^^^^^^ Resource \`./missing.css\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(41): @\\69mport url(\"./missing.css\"); 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | @\\69mport url("./missing.css");
+
+`;
+
+exports[`no-missing-local-resource > invalid(41): @\\69mport url(\"./missing.css\"); 2`] = `
+
+Message:
+> 1 | @\\69mport url("./missing.css");
+    |                ^^^^^^^^^^^^^ Resource \`./missing.css\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(42): .icon { background: url(\"./assets/logo&#46;svg\"); } 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | .icon { background: url("./assets/logo&#46;svg"); }
+
+`;
+
+exports[`no-missing-local-resource > invalid(42): .icon { background: url(\"./assets/logo&#46;svg\"); } 2`] = `
+
+Message:
+> 1 | .icon { background: url("./assets/logo&#46;svg"); }
+    |                          ^^^^^^^^^^^^^^^^^^^^^ Resource \`./assets/logo&#46;svg\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(43): .icon { background: url(\"./assets/LOG\\4F.svg\"); } 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | .icon { background: url("./assets/LOG\\4F.svg"); }
+
+`;
+
+exports[`no-missing-local-resource > invalid(43): .icon { background: url(\"./assets/LOG\\4F.svg\"); } 2`] = `
+
+Message:
+> 1 | .icon { background: url("./assets/LOG\\4F.svg"); }
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(44): <img srcset=\"./a.png?x=1&b=2 1x, ./b.png 2x\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img srcset="./a.png?x=1&b=2 1x, ./b.png 2x">
+
+`;
+
+exports[`no-missing-local-resource > invalid(44): <img srcset=\"./a.png?x=1&b=2 1x, ./b.png 2x\"> 2`] = `
+
+Message:
+> 1 | <img srcset="./a.png?x=1&b=2 1x, ./b.png 2x">
+    |              ^^^^^^^^^^^^^^^ Resource \`./a.png?x=1&b=2\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(44): <img srcset=\"./a.png?x=1&b=2 1x, ./b.png 2x\"> 3`] = `
+
+Message:
+> 1 | <img srcset="./a.png?x=1&b=2 1x, ./b.png 2x">
+    |                                  ^^^^^^^ Resource \`./b.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(45): <img srcset=\"./a.png?x=1&b=2&#32;1x, ./b.png 2x\"> 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.html
+
+  1 | <img srcset="./a.png?x=1&b=2&#32;1x, ./b.png 2x">
+
+`;
+
+exports[`no-missing-local-resource > invalid(45): <img srcset=\"./a.png?x=1&b=2&#32;1x, ./b.png 2x\"> 2`] = `
+
+Message:
+> 1 | <img srcset="./a.png?x=1&b=2&#32;1x, ./b.png 2x">
+    |              ^^^^^^^^^^^^^^^ Resource \`./a.png?x=1&b=2\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(45): <img srcset=\"./a.png?x=1&b=2&#32;1x, ./b.png 2x\"> 3`] = `
+
+Message:
+> 1 | <img srcset="./a.png?x=1&b=2&#32;1x, ./b.png 2x">
+    |                                      ^^^^^^^ Resource \`./b.png\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(46): [Missing](./missing%20name%FF%.md) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Missing](./missing%20name%FF%.md)
+
+`;
+
+exports[`no-missing-local-resource > invalid(46): [Missing](./missing%20name%FF%.md) 2`] = `
+
+Message:
+> 1 | [Missing](./missing%20name%FF%.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource \`./missing%20name%FF%.md\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(47): [Missing](./guide.md/missing.md) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Missing](./guide.md/missing.md)
+
+`;
+
+exports[`no-missing-local-resource > invalid(47): [Missing](./guide.md/missing.md) 2`] = `
+
+Message:
+> 1 | [Missing](./guide.md/missing.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource \`./guide.md/missing.md\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(48): [Missing](./guide.md/) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Missing](./guide.md/)
+
+`;
+
+exports[`no-missing-local-resource > invalid(48): [Missing](./guide.md/) 2`] = `
+
+Message:
+> 1 | [Missing](./guide.md/)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Resource \`./guide.md/\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(49): .icon { background: url(./assets/LOG\\4F.svg); } 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.css
+
+  1 | .icon { background: url(./assets/LOG\\4F.svg); }
+
+`;
+
+exports[`no-missing-local-resource > invalid(49): .icon { background: url(./assets/LOG\\4F.svg); } 2`] = `
+
+Message:
+> 1 | .icon { background: url(./assets/LOG\\4F.svg); }
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(5): ![Logo](./Assets/logo.svg) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | ![Logo](./Assets/logo.svg)
+
+`;
+
+exports[`no-missing-local-resource > invalid(5): ![Logo](./Assets/logo.svg) 2`] = `
+
+Message:
+> 1 | ![Logo](./Assets/logo.svg)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(6): [Logo](<./Assets/logo.svg> \"title\") 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Logo](<./Assets/logo.svg> "title")
+
+`;
+
+exports[`no-missing-local-resource > invalid(6): [Logo](<./Assets/logo.svg> \"title\") 2`] = `
+
+Message:
+> 1 | [Logo](<./Assets/logo.svg> "title")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(7): [Logo](./Assets/logo.svg?raw=1#title) 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Logo](./Assets/logo.svg?raw=1#title)
+
+`;
+
+exports[`no-missing-local-resource > invalid(7): [Logo](./Assets/logo.svg?raw=1#title) 2`] = `
+
+Message:
+> 1 | [Logo](./Assets/logo.svg?raw=1#title)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg?raw=1#title\`.
+
+`;
+
+exports[`no-missing-local-resource > invalid(8): [Guide][guide]\n[Guide again][guide]\n\n[guide]: ./missing.md 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Guide][guide]
+  2 | [Guide again][guide]
+  3 |
+  4 | [guide]: ./missing.md
+
+`;
+
+exports[`no-missing-local-resource > invalid(8): [Guide][guide]\n[Guide again][guide]\n\n[guide]: ./missing.md 2`] = `
+
+Message:
+  1 | [Guide][guide]
+  2 | [Guide again][guide]
+  3 |
+> 4 | [guide]: ./missing.md
+    | ^^^^^^^^^^^^^^^^^^^^^ Resource \`./missing.md\` does not exist.
+
+`;
+
+exports[`no-missing-local-resource > invalid(9): [Guide][guide]\n\n[guide]: ./Assets/logo.svg 1`] = `
+
+Filename: test/fixtures/no-missing-local-resource/document.md
+
+  1 | [Guide][guide]
+  2 |
+  3 | [guide]: ./Assets/logo.svg
+
+`;
+
+exports[`no-missing-local-resource > invalid(9): [Guide][guide]\n\n[guide]: ./Assets/logo.svg 2`] = `
+
+Message:
+  1 | [Guide][guide]
+  2 |
+> 3 | [guide]: ./Assets/logo.svg
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Resource path has incorrect casing. Use \`./assets/logo.svg\`.
+
+`;

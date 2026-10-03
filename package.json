@@ -16,7 +16,7 @@
 		"node": ">=22"
 	},
 	"scripts": {
-		"coverage": "c8 ava",
+		"coverage": "node --test --experimental-test-coverage --test-coverage-include=index.js --test-coverage-include=\"configs/**\" --test-coverage-include=\"rules/**\" --test-coverage-exclude=\"test/**\" test/*.js test/unit/*.js",
 		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"create-rules-index-file": "node ./scripts/create-rules-index-file.js",
 		"fix": "run-p --continue-on-error \"fix:*\"",
@@ -24,7 +24,7 @@
 		"fix:js": "npm run lint:js -- --fix",
 		"fix:markdown": "npm run lint:markdown -- --fix",
 		"fix:non-js-languages": "node ./scripts/create-non-js-languages-list.js",
-		"fix:snapshots": "ava --update-snapshots",
+		"fix:snapshots": "node --test --test-update-snapshots test/*.js test/unit/*.js",
 		"integration": "node ./test/integration/test.js",
 		"lint": "run-p --continue-on-error \"lint:*\"",
 		"lint:eslint-docs": "npm run fix:eslint-docs -- --check",
@@ -36,7 +36,7 @@
 		"run-rules-on-codebase": "eslint --config=./eslint.dogfooding.config.js",
 		"smoke": "eslint-remote-tester --config ./test/smoke/eslint-remote-tester.config.js",
 		"test": "npm-run-all --node-run --continue-on-error lint \"test:*\"",
-		"test:js": "ava"
+		"test:js": "node --test test/*.js test/unit/*.js"
 	},
 	"files": [
 		"index.js",
@@ -87,11 +87,8 @@
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
 		"@typescript-eslint/parser": "^8.70.1",
 		"@typescript-eslint/types": "^8.70.1",
-		"ava": "^8.0.1",
-		"c8": "^12.0.0",
 		"enquirer": "^2.4.1",
 		"eslint": "^10.11.0",
-		"eslint-ava-rule-tester": "^5.0.1",
 		"eslint-config-xo": "^4.0.1",
 		"eslint-doc-generator": "^3.7.1",
 		"eslint-package-json": "^1.0.0",
@@ -119,17 +116,5 @@
 	},
 	"peerDependencies": {
 		"eslint": ">=10.4"
-	},
-	"ava": {
-		"files": [
-			"test/*.js",
-			"test/unit/*.js"
-		]
-	},
-	"c8": {
-		"reporter": [
-			"text",
-			"lcov"
-		]
 	}
 }

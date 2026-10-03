@@ -131,13 +131,6 @@ const getAbortReference = (timeoutCall, controllerName) => {
 	return expression.callee.object;
 };
 
-const isForLoopLeftSide = node =>
-	(
-		node.parent.type === 'ForInStatement'
-		|| node.parent.type === 'ForOfStatement'
-	)
-	&& node.parent.left === node;
-
 const isReasonSensitiveProperty = (node, context) =>
 	reasonSensitiveProperties.has(getPropertyName(node, context.sourceCode.getScope(node)));
 
@@ -181,7 +174,6 @@ const getSignalMember = (identifier, context) => {
 		})
 		|| parent.object !== identifier
 		|| isLeftHandSide(parent)
-		|| isForLoopLeftSide(parent)
 		|| isReasonSensitiveRead(parent, context)
 		|| isSignalAlias(parent)
 		|| hasNonDirectiveComment(context, parent)
@@ -325,9 +317,6 @@ const createProblem = (declarator, context) => {
 	}
 
 	const variable = findVariable(sourceCode.getScope(id), id);
-	if (!variable) {
-		return;
-	}
 
 	if (findVariable(sourceCode.getScope(abortReference), abortReference) !== variable) {
 		return;

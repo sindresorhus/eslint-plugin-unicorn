@@ -1,0 +1,509 @@
+exports[`no-unsafe-string-replacement > invalid(1): template.replace(\"{url}\", htmlEscape(url)) 1`] = `
+
+  1 | template.replace("{url}", htmlEscape(url))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(1): template.replace(\"{url}\", htmlEscape(url)) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", htmlEscape(url))
+    |                           ^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(10): template.replace(\"{url}\", htmlEscape(url) as string) 1`] = `
+
+  1 | template.replace("{url}", htmlEscape(url) as string)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(10): template.replace(\"{url}\", htmlEscape(url) as string) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", htmlEscape(url) as string)
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(11): template.replace(\"{url}\", \`\${url}\`) 1`] = `
+
+  1 | template.replace("{url}", \`\${url}\`)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(11): template.replace(\"{url}\", \`\${url}\`) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", \`\${url}\`)
+    |                           ^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(12): template.replace(\"{url}\", url ? htmlEscape(url) : \"\") 1`] = `
+
+  1 | template.replace("{url}", url ? htmlEscape(url) : "")
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(12): template.replace(\"{url}\", url ? htmlEscape(url) : \"\") 2`] = `
+
+Message:
+> 1 | template.replace("{url}", url ? htmlEscape(url) : "")
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(13): template.replace(\"{url}\", {toString() { return url; }}) 1`] = `
+
+  1 | template.replace("{url}", {toString() { return url; }})
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(13): template.replace(\"{url}\", {toString() { return url; }}) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", {toString() { return url; }})
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(14): template.replace(\"{url}\", {toString: () => url}) 1`] = `
+
+  1 | template.replace("{url}", {toString: () => url})
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(14): template.replace(\"{url}\", {toString: () => url}) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", {toString: () => url})
+    |                           ^^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(15): template.replace(\"{url}\", {valueOf: () => url}) 1`] = `
+
+  1 | template.replace("{url}", {valueOf: () => url})
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(15): template.replace(\"{url}\", {valueOf: () => url}) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", {valueOf: () => url})
+    |                           ^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(16): template.replace(\"{url}\", {__proto__: {toString() { return url; }}}) 1`] = `
+
+  1 | template.replace("{url}", {__proto__: {toString() { return url; }}})
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(16): template.replace(\"{url}\", {__proto__: {toString() { return url; }}}) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", {__proto__: {toString() { return url; }}})
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(17): template.replace(\"{url}\", [url]) 1`] = `
+
+  1 | template.replace("{url}", [url])
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(17): template.replace(\"{url}\", [url]) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", [url])
+    |                           ^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(18): template.replace(\"{url}\", 1) 1`] = `
+
+  1 | template.replace("{url}", 1)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(18): template.replace(\"{url}\", 1) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", 1)
+    |                           ^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(19): template.replace(\"{url}\", (htmlEscape(url), url)) 1`] = `
+
+  1 | template.replace("{url}", (htmlEscape(url), url))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(19): template.replace(\"{url}\", (htmlEscape(url), url)) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", (htmlEscape(url), url))
+    |                            ^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(2): template.replaceAll(\"{url}\", htmlEscape(url)) 1`] = `
+
+  1 | template.replaceAll("{url}", htmlEscape(url))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(2): template.replaceAll(\"{url}\", htmlEscape(url)) 2`] = `
+
+Message:
+> 1 | template.replaceAll("{url}", htmlEscape(url))
+    |                              ^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replaceAll()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(20): template.replaceAll(\"{url}\", String(++count)) 1`] = `
+
+  1 | template.replaceAll("{url}", String(++count))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(20): template.replaceAll(\"{url}\", String(++count)) 2`] = `
+
+Message:
+> 1 | template.replaceAll("{url}", String(++count))
+    |                              ^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replaceAll()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(21): template?.replace(\"{url}\", replacement) 1`] = `
+
+  1 | template?.replace("{url}", replacement)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(21): template?.replace(\"{url}\", replacement) 2`] = `
+
+Message:
+> 1 | template?.replace("{url}", replacement)
+    |                            ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(22): template.replace?.(\"{url}\", replacement) 1`] = `
+
+  1 | template.replace?.("{url}", replacement)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(22): template.replace?.(\"{url}\", replacement) 2`] = `
+
+Message:
+> 1 | template.replace?.("{url}", replacement)
+    |                             ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(23): template.replace(\n\t\"{url}\",\n\t/* comment */ htmlEscape(url)\n) 1`] = `
+
+  1 | template.replace(
+  2 | 	"{url}",
+  3 | 	/* comment */ htmlEscape(url)
+  4 | )
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(23): template.replace(\n\t\"{url}\",\n\t/* comment */ htmlEscape(url)\n) 2`] = `
+
+Message:
+  1 | template.replace(
+  2 | 	"{url}",
+> 3 | 	/* comment */ htmlEscape(url)
+    | 	              ^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+  4 | )
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(24): text.replace(\"pattern\", replacement.repeat(4)) 1`] = `
+
+  1 | text.replace("pattern", replacement.repeat(4))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(24): text.replace(\"pattern\", replacement.repeat(4)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", replacement.repeat(4))
+    |                         ^^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(25): text.replace(\"pattern\", String.raw\` \`.repeat(4)) 1`] = `
+
+  1 | text.replace("pattern", String.raw\` \`.repeat(4))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(25): text.replace(\"pattern\", String.raw\` \`.repeat(4)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", String.raw\` \`.repeat(4))
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(26): text.replace(\"pattern\", \" \".repeat?.(4)) 1`] = `
+
+  1 | text.replace("pattern", " ".repeat?.(4))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(26): text.replace(\"pattern\", \" \".repeat?.(4)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", " ".repeat?.(4))
+    |                         ^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(27): text.replace(\"pattern\", \" \"?.repeat(4)) 1`] = `
+
+  1 | text.replace("pattern", " "?.repeat(4))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(27): text.replace(\"pattern\", \" \"?.repeat(4)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", " "?.repeat(4))
+    |                         ^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(28): text.replace(\"pattern\", \" \"[\"repeat\"](4)) 1`] = `
+
+  1 | text.replace("pattern", " "["repeat"](4))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(28): text.replace(\"pattern\", \" \"[\"repeat\"](4)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", " "["repeat"](4))
+    |                         ^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(29): text.replace(\"pattern\", \`$\`.repeat(count)) 1`] = `
+
+  1 | text.replace("pattern", \`$\`.repeat(count))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(29): text.replace(\"pattern\", \`$\`.repeat(count)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", \`$\`.repeat(count))
+    |                         ^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(3): template.replace(\"{url}\", replacement) 1`] = `
+
+  1 | template.replace("{url}", replacement)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(3): template.replace(\"{url}\", replacement) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", replacement)
+    |                           ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(30): text.replace(\"pattern\", \`\\u0024\`.repeat(2)) 1`] = `
+
+  1 | text.replace("pattern", \`\\u0024\`.repeat(2))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(30): text.replace(\"pattern\", \`\\u0024\`.repeat(2)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", \`\\u0024\`.repeat(2))
+    |                         ^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(31): text.replace(\"pattern\", \`\${prefix}\`.repeat(2)) 1`] = `
+
+  1 | text.replace("pattern", \`\${prefix}\`.repeat(2))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(31): text.replace(\"pattern\", \`\${prefix}\`.repeat(2)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", \`\${prefix}\`.repeat(2))
+    |                         ^^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(32): text.replaceAll(\"pattern\", \"$&\".repeat(2)) 1`] = `
+
+  1 | text.replaceAll("pattern", "$&".repeat(2))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(32): text.replaceAll(\"pattern\", \"$&\".repeat(2)) 2`] = `
+
+Message:
+> 1 | text.replaceAll("pattern", "$&".repeat(2))
+    |                            ^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replaceAll()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(33): text.replace(\"pattern\", \"$&\".repeat(0)) 1`] = `
+
+  1 | text.replace("pattern", "$&".repeat(0))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(33): text.replace(\"pattern\", \"$&\".repeat(0)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", "$&".repeat(0))
+    |                         ^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(34): text.replace(\"pattern\", \"&$\".repeat(2)) 1`] = `
+
+  1 | text.replace("pattern", "&$".repeat(2))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(34): text.replace(\"pattern\", \"&$\".repeat(2)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", "&$".repeat(2))
+    |                         ^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(35): text.replace(\"pattern\", \"\\u0024\".repeat(2)) 1`] = `
+
+  1 | text.replace("pattern", "\\u0024".repeat(2))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(35): text.replace(\"pattern\", \"\\u0024\".repeat(2)) 2`] = `
+
+Message:
+> 1 | text.replace("pattern", "\\u0024".repeat(2))
+    |                         ^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(36): template.replace(\"{url}\", {\"toString\": () => url}) 1`] = `
+
+  1 | template.replace("{url}", {"toString": () => url})
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(36): template.replace(\"{url}\", {\"toString\": () => url}) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", {"toString": () => url})
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(4): template.replace(\"{url}\", options.replacement) 1`] = `
+
+  1 | template.replace("{url}", options.replacement)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(4): template.replace(\"{url}\", options.replacement) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", options.replacement)
+    |                           ^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(5): template.replace(\"{url}\", options?.replacement) 1`] = `
+
+  1 | template.replace("{url}", options?.replacement)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(5): template.replace(\"{url}\", options?.replacement) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", options?.replacement)
+    |                           ^^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(6): template.replace(\"{url}\", String(url)) 1`] = `
+
+  1 | template.replace("{url}", String(url))
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(6): template.replace(\"{url}\", String(url)) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", String(url))
+    |                           ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(7): template.replace(\"{url}\", String.raw\`\${url}\`) 1`] = `
+
+  1 | template.replace("{url}", String.raw\`\${url}\`)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(7): template.replace(\"{url}\", String.raw\`\${url}\`) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", String.raw\`\${url}\`)
+    |                           ^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(8): template.replace(\"{url}\", css\`safe string\`) 1`] = `
+
+  1 | template.replace("{url}", css\`safe string\`)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(8): template.replace(\"{url}\", css\`safe string\`) 2`] = `
+
+Message:
+> 1 | template.replace("{url}", css\`safe string\`)
+    |                           ^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(9): const String = {raw: () => replacement}; template.replace(\"{url}\", String.raw\`ignored\`) 1`] = `
+
+  1 | const String = {raw: () => replacement}; template.replace("{url}", String.raw\`ignored\`)
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(9): const String = {raw: () => replacement}; template.replace(\"{url}\", String.raw\`ignored\`) 2`] = `
+
+Message:
+> 1 | const String = {raw: () => replacement}; template.replace("{url}", String.raw\`ignored\`)
+    |                                                                    ^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;

@@ -353,6 +353,27 @@ const tests = {
 				},
 			],
 		},
+		{
+			code: 'const foo = 1;',
+			options: [{extendDefaultReplacements: false, replacements: {foo: Object.fromEntries(Array.from({length: 103}, (_, index) => [`name${index}`, true]))}}],
+			errors: [
+				{
+					message: 'Please rename the variable `foo`. Suggested names are: `name0`, `name1`, `name10`, ... (99+ more omitted). A more descriptive name will do too.',
+					suggestions: 3,
+				},
+			],
+		},
+		// Replacements that are not valid identifiers are not offered as suggestions
+		{
+			code: 'this.foo = 1;',
+			options: [{checkProperties: true, extendDefaultReplacements: false, replacements: {foo: {'foo-bar': true, 'foo-baz': true}}}],
+			errors: [
+				{
+					message: 'Please rename the property `foo`. Suggested names are: `foo-bar`, `foo-baz`. A more descriptive name will do too.',
+					suggestions: [],
+				},
+			],
+		},
 
 		// All suggested names should avoid capture
 		{
@@ -931,6 +952,27 @@ const tests = {
 				module.exports = function middleware(ctx) {
 					return ctx.body;
 				};
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+
+				function middleware(ctx) {
+					return ctx.body;
+				}
+			`,
+			output: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+
+				function middleware(context) {
+					return context.body;
+				}
 			`,
 			errors: 1,
 		},

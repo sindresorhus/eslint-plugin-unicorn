@@ -1,0 +1,367 @@
+exports[`consistent-existence-index-check > invalid(1): const index = foo.indexOf(bar); index < 0 1`] = `
+
+  1 | const index = foo.indexOf(bar); index < 0
+
+`;
+
+exports[`consistent-existence-index-check > invalid(1): const index = foo.indexOf(bar); index < 0 2`] = `
+
+Message:
+> 1 | const index = foo.indexOf(bar); index < 0
+    |                                       ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+
+Output:
+  1 | const index = foo.indexOf(bar); index === -1
+
+`;
+
+exports[`consistent-existence-index-check > invalid(10): const index = foo.indexOf(bar);\nif (index === -1) {}\nif (index < 0) {} 1`] = `
+
+  1 | const index = foo.indexOf(bar);
+  2 | if (index === -1) {}
+  3 | if (index < 0) {}
+
+`;
+
+exports[`consistent-existence-index-check > invalid(10): const index = foo.indexOf(bar);\nif (index === -1) {}\nif (index < 0) {} 2`] = `
+
+Message:
+  1 | const index = foo.indexOf(bar);
+  2 | if (index === -1) {}
+> 3 | if (index < 0) {}
+    |           ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+
+Output:
+  1 | const index = foo.indexOf(bar);
+  2 | if (index === -1) {}
+  3 | if (index === -1) {}
+
+`;
+
+exports[`consistent-existence-index-check > invalid(11): const index = foo.indexOf('1');\n((\n\t/* comment 1 */\n\t((\n\t\t/* comment 2 */\n\t\tindex\n\t\t/* comment 3 */\n\t))\n\t/* comment 4 */\n\t<\n\t/* comment 5 */\n\t((\n\t\t/* comment 6 */\n\t\t0\n\t\t/* comment 7 */\n\t))\n\t/* comment 8 */\n)); 1`] = `
+
+   1 | const index = foo.indexOf('1');
+   2 | ((
+   3 | 	/* comment 1 */
+   4 | 	((
+   5 | 		/* comment 2 */
+   6 | 		index
+   7 | 		/* comment 3 */
+   8 | 	))
+   9 | 	/* comment 4 */
+  10 | 	<
+  11 | 	/* comment 5 */
+  12 | 	((
+  13 | 		/* comment 6 */
+  14 | 		0
+  15 | 		/* comment 7 */
+  16 | 	))
+  17 | 	/* comment 8 */
+  18 | ));
+
+`;
+
+exports[`consistent-existence-index-check > invalid(11): const index = foo.indexOf('1');\n((\n\t/* comment 1 */\n\t((\n\t\t/* comment 2 */\n\t\tindex\n\t\t/* comment 3 */\n\t))\n\t/* comment 4 */\n\t<\n\t/* comment 5 */\n\t((\n\t\t/* comment 6 */\n\t\t0\n\t\t/* comment 7 */\n\t))\n\t/* comment 8 */\n)); 2`] = `
+
+Message:
+   1 | const index = foo.indexOf('1');
+   2 | ((
+   3 | 	/* comment 1 */
+   4 | 	((
+   5 | 		/* comment 2 */
+   6 | 		index
+   7 | 		/* comment 3 */
+   8 | 	))
+   9 | 	/* comment 4 */
+> 10 | 	<
+     | 	^
+> 11 | 	/* comment 5 */
+     | ^^^^^^^^^^^^^^^^
+> 12 | 	((
+     | ^^^
+> 13 | 		/* comment 6 */
+     | ^^^^^^^^^^^^^^^^^
+> 14 | 		0
+     | ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+  15 | 		/* comment 7 */
+  16 | 	))
+  17 | 	/* comment 8 */
+  18 | ));
+
+Output:
+   1 | const index = foo.indexOf('1');
+   2 | ((
+   3 | 	/* comment 1 */
+   4 | 	((
+   5 | 		/* comment 2 */
+   6 | 		index
+   7 | 		/* comment 3 */
+   8 | 	))
+   9 | 	/* comment 4 */
+  10 | 	===
+  11 | 	/* comment 5 */
+  12 | 	((
+  13 | 		/* comment 6 */
+  14 | 		-1
+  15 | 		/* comment 7 */
+  16 | 	))
+  17 | 	/* comment 8 */
+  18 | ));
+
+`;
+
+exports[`consistent-existence-index-check > invalid(12): const index = foo.indexOf('1');\n((\n\t/* comment 1 */\n\t((\n\t\t/* comment 2 */\n\t\tindex\n\t\t/* comment 3 */\n\t))\n\t/* comment 4 */\n\t>\n\t((\n\t\t/* comment 5 */\n\t\t- /* comment 6 */ (( /* comment 7 */ 1 /* comment 8 */ ))\n\t\t/* comment 9 */\n\t))\n)); 1`] = `
+
+   1 | const index = foo.indexOf('1');
+   2 | ((
+   3 | 	/* comment 1 */
+   4 | 	((
+   5 | 		/* comment 2 */
+   6 | 		index
+   7 | 		/* comment 3 */
+   8 | 	))
+   9 | 	/* comment 4 */
+  10 | 	>
+  11 | 	((
+  12 | 		/* comment 5 */
+  13 | 		- /* comment 6 */ (( /* comment 7 */ 1 /* comment 8 */ ))
+  14 | 		/* comment 9 */
+  15 | 	))
+  16 | ));
+
+`;
+
+exports[`consistent-existence-index-check > invalid(12): const index = foo.indexOf('1');\n((\n\t/* comment 1 */\n\t((\n\t\t/* comment 2 */\n\t\tindex\n\t\t/* comment 3 */\n\t))\n\t/* comment 4 */\n\t>\n\t((\n\t\t/* comment 5 */\n\t\t- /* comment 6 */ (( /* comment 7 */ 1 /* comment 8 */ ))\n\t\t/* comment 9 */\n\t))\n)); 2`] = `
+
+Message:
+   1 | const index = foo.indexOf('1');
+   2 | ((
+   3 | 	/* comment 1 */
+   4 | 	((
+   5 | 		/* comment 2 */
+   6 | 		index
+   7 | 		/* comment 3 */
+   8 | 	))
+   9 | 	/* comment 4 */
+> 10 | 	>
+     | 	^
+> 11 | 	((
+     | ^^^
+> 12 | 		/* comment 5 */
+     | ^^^^^^^^^^^^^^^^^
+> 13 | 		- /* comment 6 */ (( /* comment 7 */ 1 /* comment 8 */ ))
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`!== -1\` over \`> -1\` to check existence.
+  14 | 		/* comment 9 */
+  15 | 	))
+  16 | ));
+
+Output:
+   1 | const index = foo.indexOf('1');
+   2 | ((
+   3 | 	/* comment 1 */
+   4 | 	((
+   5 | 		/* comment 2 */
+   6 | 		index
+   7 | 		/* comment 3 */
+   8 | 	))
+   9 | 	/* comment 4 */
+  10 | 	!==
+  11 | 	((
+  12 | 		/* comment 5 */
+  13 | 		- /* comment 6 */ (( /* comment 7 */ 1 /* comment 8 */ ))
+  14 | 		/* comment 9 */
+  15 | 	))
+  16 | ));
+
+`;
+
+exports[`consistent-existence-index-check > invalid(13): const index = _.indexOf([1, 2, 1, 2], 2); index < 0; 1`] = `
+
+  1 | const index = _.indexOf([1, 2, 1, 2], 2); index < 0;
+
+`;
+
+exports[`consistent-existence-index-check > invalid(13): const index = _.indexOf([1, 2, 1, 2], 2); index < 0; 2`] = `
+
+Message:
+> 1 | const index = _.indexOf([1, 2, 1, 2], 2); index < 0;
+    |                                                 ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+
+Output:
+  1 | const index = _.indexOf([1, 2, 1, 2], 2); index === -1;
+
+`;
+
+exports[`consistent-existence-index-check > invalid(2): const index = foo.indexOf(bar); index >= 0 1`] = `
+
+  1 | const index = foo.indexOf(bar); index >= 0
+
+`;
+
+exports[`consistent-existence-index-check > invalid(2): const index = foo.indexOf(bar); index >= 0 2`] = `
+
+Message:
+> 1 | const index = foo.indexOf(bar); index >= 0
+    |                                       ^^^^ Prefer \`!== -1\` over \`>= 0\` to check existence.
+
+Output:
+  1 | const index = foo.indexOf(bar); index !== -1
+
+`;
+
+exports[`consistent-existence-index-check > invalid(3): const index = foo.indexOf(bar); index > -1 1`] = `
+
+  1 | const index = foo.indexOf(bar); index > -1
+
+`;
+
+exports[`consistent-existence-index-check > invalid(3): const index = foo.indexOf(bar); index > -1 2`] = `
+
+Message:
+> 1 | const index = foo.indexOf(bar); index > -1
+    |                                       ^^^^ Prefer \`!== -1\` over \`> -1\` to check existence.
+
+Output:
+  1 | const index = foo.indexOf(bar); index !== -1
+
+`;
+
+exports[`consistent-existence-index-check > invalid(4): const index = foo.indexOf(bar); index < 0 1`] = `
+
+  1 | const index = foo.indexOf(bar); index < 0
+
+`;
+
+exports[`consistent-existence-index-check > invalid(4): const index = foo.indexOf(bar); index < 0 2`] = `
+
+Message:
+> 1 | const index = foo.indexOf(bar); index < 0
+    |                                       ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+
+Output:
+  1 | const index = foo.indexOf(bar); index === -1
+
+`;
+
+exports[`consistent-existence-index-check > invalid(5): const index = foo.lastIndexOf(bar); index < 0 1`] = `
+
+  1 | const index = foo.lastIndexOf(bar); index < 0
+
+`;
+
+exports[`consistent-existence-index-check > invalid(5): const index = foo.lastIndexOf(bar); index < 0 2`] = `
+
+Message:
+> 1 | const index = foo.lastIndexOf(bar); index < 0
+    |                                           ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+
+Output:
+  1 | const index = foo.lastIndexOf(bar); index === -1
+
+`;
+
+exports[`consistent-existence-index-check > invalid(6): const index = foo.findIndex(bar); index < 0 1`] = `
+
+  1 | const index = foo.findIndex(bar); index < 0
+
+`;
+
+exports[`consistent-existence-index-check > invalid(6): const index = foo.findIndex(bar); index < 0 2`] = `
+
+Message:
+> 1 | const index = foo.findIndex(bar); index < 0
+    |                                         ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+
+Output:
+  1 | const index = foo.findIndex(bar); index === -1
+
+`;
+
+exports[`consistent-existence-index-check > invalid(7): const index = foo.findLastIndex(bar); index < 0 1`] = `
+
+  1 | const index = foo.findLastIndex(bar); index < 0
+
+`;
+
+exports[`consistent-existence-index-check > invalid(7): const index = foo.findLastIndex(bar); index < 0 2`] = `
+
+Message:
+> 1 | const index = foo.findLastIndex(bar); index < 0
+    |                                             ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+
+Output:
+  1 | const index = foo.findLastIndex(bar); index === -1
+
+`;
+
+exports[`consistent-existence-index-check > invalid(8): const index = foo.indexOf(bar);\n\nfunction foo () {\n\tif (index < 0) {}\n} 1`] = `
+
+  1 | const index = foo.indexOf(bar);
+  2 |
+  3 | function foo () {
+  4 | 	if (index < 0) {}
+  5 | }
+
+`;
+
+exports[`consistent-existence-index-check > invalid(8): const index = foo.indexOf(bar);\n\nfunction foo () {\n\tif (index < 0) {}\n} 2`] = `
+
+Message:
+  1 | const index = foo.indexOf(bar);
+  2 |
+  3 | function foo () {
+> 4 | 	if (index < 0) {}
+    | 	          ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+  5 | }
+
+Output:
+  1 | const index = foo.indexOf(bar);
+  2 |
+  3 | function foo () {
+  4 | 	if (index === -1) {}
+  5 | }
+
+`;
+
+exports[`consistent-existence-index-check > invalid(9): const index1 = foo.indexOf(\"1\"),\n\tindex2 = foo.indexOf(\"2\");\nindex1 < 0;\nindex2 >= 0; 1`] = `
+
+  1 | const index1 = foo.indexOf("1"),
+  2 | 	index2 = foo.indexOf("2");
+  3 | index1 < 0;
+  4 | index2 >= 0;
+
+`;
+
+exports[`consistent-existence-index-check > invalid(9): const index1 = foo.indexOf(\"1\"),\n\tindex2 = foo.indexOf(\"2\");\nindex1 < 0;\nindex2 >= 0; 2`] = `
+
+Message:
+  1 | const index1 = foo.indexOf("1"),
+  2 | 	index2 = foo.indexOf("2");
+> 3 | index1 < 0;
+    |        ^^^ Prefer \`=== -1\` over \`< 0\` to check non-existence.
+  4 | index2 >= 0;
+
+Output:
+  1 | const index1 = foo.indexOf("1"),
+  2 | 	index2 = foo.indexOf("2");
+  3 | index1 === -1;
+  4 | index2 >= 0;
+
+`;
+
+exports[`consistent-existence-index-check > invalid(9): const index1 = foo.indexOf(\"1\"),\n\tindex2 = foo.indexOf(\"2\");\nindex1 < 0;\nindex2 >= 0; 3`] = `
+
+Message:
+  1 | const index1 = foo.indexOf("1"),
+  2 | 	index2 = foo.indexOf("2");
+  3 | index1 < 0;
+> 4 | index2 >= 0;
+    |        ^^^^ Prefer \`!== -1\` over \`>= 0\` to check existence.
+
+Output:
+  1 | const index1 = foo.indexOf("1"),
+  2 | 	index2 = foo.indexOf("2");
+  3 | index1 < 0;
+  4 | index2 !== -1;
+
+`;

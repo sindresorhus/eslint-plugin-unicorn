@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import unicorn from '../index.js';
@@ -209,8 +209,8 @@ ruleTest.snapshot({
 test('rules coexist in the recommended config', t => {
 	const linter = new Linter();
 	const {recommended} = unicorn.configs;
-	t.is(recommended.rules['unicorn/no-break-in-nested-loop'], 'error');
-	t.is(recommended.rules['unicorn/prefer-continue'], 'error');
+	t.assert.strictEqual(recommended.rules['unicorn/no-break-in-nested-loop'], 'error');
+	t.assert.strictEqual(recommended.rules['unicorn/prefer-continue'], 'error');
 
 	const code = outdent`
 		for (const group of groups) {
@@ -236,7 +236,7 @@ test('rules coexist in the recommended config', t => {
 		}
 	`;
 
-	t.true(result.fixed);
-	t.is(result.output, expectedOutput);
-	t.deepEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, expectedOutput);
+	t.assert.deepStrictEqual(result.messages, []);
 });

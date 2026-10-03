@@ -1,13 +1,21 @@
 import path from 'node:path';
 import url from 'node:url';
-import test from 'ava';
-import AvaRuleTester from 'eslint-ava-rule-tester';
-import {Linter} from 'eslint';
+import test, {describe, it, snapshot} from 'node:test';
+import assert from 'node:assert/strict';
+import {Linter, RuleTester} from 'eslint';
 import plugin from '../../index.js';
 import SnapshotRuleTester from './snapshot-rule-tester.js';
 import parsers from './parsers.js';
 import languages from './languages.js';
 import {DEFAULT_LANGUAGE_OPTIONS, normalizeLanguageOptions, mergeLanguageOptions} from './language-options.js';
+
+// Store the pre-formatted snapshot strings verbatim instead of the default serializer. The snapshot file is a list of template literals, which read a raw `\r` back as `\n`, so it is written as `␍` instead.
+snapshot.setDefaultSnapshotSerializers([value => value.replaceAll('\r', '␍')]);
+snapshot.setResolveSnapshotPath(testFile => path.join(path.dirname(testFile), 'snapshots', `${path.basename(testFile)}.snapshot`));
+
+RuleTester.describe = describe;
+RuleTester.it = it;
+RuleTester.itOnly = it.only;
 
 const RULES_REPORTING_EMPTY_FILE = new Set([
 	'no-empty-file',
@@ -113,7 +121,7 @@ class Tester {
 			return;
 		}
 
-		Reflect.apply(test, undefined, [`empty file: ${ruleId}`, t => {
+		test(`empty file: ${ruleId}`, () => {
 			const linter = new Linter();
 			const messages = linter.verify(
 				'',
@@ -140,8 +148,8 @@ class Tester {
 				{filename: `index.${language.name ?? 'js'}`},
 			);
 
-			t.deepEqual(messages, []);
-		}]);
+			assert.deepEqual(messages, []);
+		});
 	}
 
 	runTest(tests) {
@@ -158,7 +166,7 @@ class Tester {
 			languageOptions: mergeLanguageOptions(DEFAULT_LANGUAGE_OPTIONS, testerOptions.languageOptions),
 		};
 
-		const tester = new AvaRuleTester(test, testConfig);
+		const tester = new RuleTester(testConfig);
 
 		return tester.run(
 			ruleId,
@@ -180,8 +188,11 @@ class Tester {
 			languageOptions: mergeLanguageOptions(DEFAULT_LANGUAGE_OPTIONS, testerOptions.languageOptions),
 		};
 
-		const tester = new SnapshotRuleTester(test, testConfig);
-		return tester.run(ruleId, rule, {valid, invalid});
+		// Group every case for the rule under one suite for readable output.
+		describe(ruleId, () => {
+			const tester = new SnapshotRuleTester(test, testConfig);
+			tester.run(ruleId, rule, {valid, invalid});
+		});
 	}
 }
 

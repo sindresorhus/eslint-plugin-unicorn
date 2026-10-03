@@ -174,6 +174,11 @@ test({
 			options,
 			errors: [error],
 		},
+		{
+			code: 'class foo { #foo$; }',
+			options: optionsCheckClassFields,
+			errors: [{messageId: 'notMatchPrivate'}],
+		},
 	],
 });
 

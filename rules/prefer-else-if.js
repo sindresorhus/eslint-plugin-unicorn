@@ -1,6 +1,11 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isUndefined, isFunction} from './ast/index.js';
-import {isBoolean, isBranchExit, trackBranchExits} from './utils/index.js';
+import {
+	isBoolean,
+	isBranchExit,
+	trackBranchExits,
+	getVisitorChildNodes,
+} from './utils/index.js';
 import {
 	containsOptionalChain,
 	isSame,
@@ -36,13 +41,7 @@ const staticReferenceRootTypes = new Set([
 @param {unknown} value
 @returns {string}
 */
-const getStaticEqualityValueKey = value => {
-	if (typeof value === 'bigint') {
-		return `bigint:${value}`;
-	}
-
-	return `${typeof value}:${value}`;
-};
+const getStaticEqualityValueKey = value => `${typeof value}:${value}`;
 
 /**
 @param {ESTree.Expression} node
@@ -246,19 +245,15 @@ Returns `undefined` when the chain ends with an `else`, since the trailing `else
 @returns {ESTree.IfStatement[] | undefined}
 */
 function getIfStatementChain(ifStatement) {
-	const chain = [];
+	const chain = [ifStatement];
+	let node = ifStatement;
 
-	for (let node = ifStatement; ; node = node.alternate) {
+	while (node.alternate?.type === 'IfStatement') {
+		node = node.alternate;
 		chain.push(node);
-
-		if (!node.alternate) {
-			return chain;
-		}
-
-		if (node.alternate.type !== 'IfStatement') {
-			return;
-		}
 	}
+
+	return node.alternate ? undefined : chain;
 }
 
 /**
@@ -396,22 +391,14 @@ function * getMutationTargets(node) {
 @returns {Generator<ESTree.Node>}
 */
 function * traverse(node, visitorKeys) {
-	if (!node || isFunction(node)) {
+	if (isFunction(node)) {
 		return;
 	}
 
 	yield node;
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const child of value) {
-				yield * traverse(child, visitorKeys);
-			}
-		} else if (value) {
-			yield * traverse(value, visitorKeys);
-		}
+	for (const child of getVisitorChildNodes(node, visitorKeys)) {
+		yield * traverse(child, visitorKeys);
 	}
 }
 

@@ -170,17 +170,12 @@ const getAssignmentTargetAncestor = node => {
 const isAssignmentTarget = node => {
 	let current = node;
 
-	while (current.parent) {
+	while (current) {
 		if (isAssignmentTargetRoot(current.parent, current)) {
 			return true;
 		}
 
-		const ancestor = getAssignmentTargetAncestor(current);
-		if (!ancestor) {
-			return false;
-		}
-
-		current = ancestor;
+		current = getAssignmentTargetAncestor(current);
 	}
 
 	return false;
@@ -198,13 +193,8 @@ const isSimpleMemberAccess = node =>
 const getNodeWithTypeScriptExpressionWrappers = node => {
 	let current = node;
 
-	while (current.parent) {
-		const typeScriptExpressionWrapper = getTypeScriptExpressionWrapper(current);
-		if (!typeScriptExpressionWrapper) {
-			return current;
-		}
-
-		current = typeScriptExpressionWrapper;
+	while (isTypeScriptExpressionWrapper(current.parent, current)) {
+		current = current.parent;
 	}
 
 	return current;
@@ -262,14 +252,12 @@ const isTypeScriptTypeIdentifier = node => {
 
 const getSimpleSuperClassReferenceNode = classNode => classNode.superClass?.type === 'Identifier' ? classNode.superClass : undefined;
 
-const getReplacementRangeNode = node => node.parent.type === 'ChainExpression' ? node.parent : node;
-
 /**
 @param {ESTree.Node} node
 @param {string} replacement
 @returns {ESLint.Rule.ReportFixer}
 */
-const replaceNodeSuggestion = (node, replacement) => fixer => fixer.replaceText(getReplacementRangeNode(node), replacement);
+const replaceNodeSuggestion = (node, replacement) => fixer => fixer.replaceText(node, replacement);
 
 /**
 @param {ESTree.Node} node

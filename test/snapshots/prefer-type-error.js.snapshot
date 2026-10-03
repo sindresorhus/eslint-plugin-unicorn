@@ -1,0 +1,90 @@
+exports[`prefer-type-error > invalid(1): if (!isFinite(foo)) {\n\tthrow new Error();\n} 1`] = `
+
+  1 | if (!isFinite(foo)) {
+  2 | 	throw new Error();
+  3 | }
+
+`;
+
+exports[`prefer-type-error > invalid(1): if (!isFinite(foo)) {\n\tthrow new Error();\n} 2`] = `
+
+Message:
+  1 | if (!isFinite(foo)) {
+> 2 | 	throw new Error();
+    | 	          ^^^^^ \`new Error()\` is too unspecific for a type check. Use \`new TypeError()\` instead.
+  3 | }
+
+Output:
+  1 | if (!isFinite(foo)) {
+  2 | 	throw new TypeError();
+  3 | }
+
+`;
+
+exports[`prefer-type-error > invalid(2): if (Array.isArray(x)) throw new Error(); 1`] = `
+
+  1 | if (Array.isArray(x)) throw new Error();
+
+`;
+
+exports[`prefer-type-error > invalid(2): if (Array.isArray(x)) throw new Error(); 2`] = `
+
+Message:
+> 1 | if (Array.isArray(x)) throw new Error();
+    |                                 ^^^^^ \`new Error()\` is too unspecific for a type check. Use \`new TypeError()\` instead.
+
+Output:
+  1 | if (Array.isArray(x)) throw new TypeError();
+
+`;
+
+exports[`prefer-type-error > invalid(3): if (typeof x === \"string\") throw new Error() 1`] = `
+
+  1 | if (typeof x === "string") throw new Error()
+
+`;
+
+exports[`prefer-type-error > invalid(3): if (typeof x === \"string\") throw new Error() 2`] = `
+
+Message:
+> 1 | if (typeof x === "string") throw new Error()
+    |                                      ^^^^^ \`new Error()\` is too unspecific for a type check. Use \`new TypeError()\` instead.
+
+Output:
+  1 | if (typeof x === "string") throw new TypeError()
+
+`;
+
+exports[`prefer-type-error > invalid(4): if (Array.isArray<string>(x)) throw new Error(); 1`] = `
+
+  1 | if (Array.isArray<string>(x)) throw new Error();
+
+`;
+
+exports[`prefer-type-error > invalid(4): if (Array.isArray<string>(x)) throw new Error(); 2`] = `
+
+Message:
+> 1 | if (Array.isArray<string>(x)) throw new Error();
+    |                                         ^^^^^ \`new Error()\` is too unspecific for a type check. Use \`new TypeError()\` instead.
+
+Output:
+  1 | if (Array.isArray<string>(x)) throw new TypeError();
+
+`;
+
+exports[`prefer-type-error > invalid(5): if (foo) {} else if (isNaN(x)) throw new Error(); 1`] = `
+
+  1 | if (foo) {} else if (isNaN(x)) throw new Error();
+
+`;
+
+exports[`prefer-type-error > invalid(5): if (foo) {} else if (isNaN(x)) throw new Error(); 2`] = `
+
+Message:
+> 1 | if (foo) {} else if (isNaN(x)) throw new Error();
+    |                                          ^^^^^ \`new Error()\` is too unspecific for a type check. Use \`new TypeError()\` instead.
+
+Output:
+  1 | if (foo) {} else if (isNaN(x)) throw new TypeError();
+
+`;

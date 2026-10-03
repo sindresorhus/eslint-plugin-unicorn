@@ -12,16 +12,13 @@ import {
 	getLastTrailingCommentOnSameLine,
 	hasNonDirectiveComment,
 	getCommentSafeProblem,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const messageId = 'prefer-ternary';
 const suggestionMessageId = 'prefer-ternary/suggestion';
 
 function hasTernary(node, visitorKeys) {
-	if (!node) {
-		return false;
-	}
-
 	if (node.type === 'ConditionalExpression') {
 		return true;
 	}
@@ -31,24 +28,11 @@ function hasTernary(node, visitorKeys) {
 		return false;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		for (const childNode of Array.isArray(child) ? child : [child]) {
-			if (hasTernary(childNode, visitorKeys)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(childNode => hasTernary(childNode, visitorKeys));
 }
 
 // Preserve statement/class bodies and multiline containers, while allowing ordinary wrapped expressions.
 function hasComplexStructure(node, sourceCode) {
-	if (!node) {
-		return false;
-	}
-
 	if (node.type === 'BlockStatement' || node.type === 'ClassBody') {
 		return true;
 	}
@@ -60,16 +44,7 @@ function hasComplexStructure(node, sourceCode) {
 		return true;
 	}
 
-	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		for (const childNode of Array.isArray(child) ? child : [child]) {
-			if (hasComplexStructure(childNode, sourceCode)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(childNode => hasComplexStructure(childNode, sourceCode));
 }
 
 function getNodeBody(node) {
@@ -213,11 +188,8 @@ const create = context => {
 			return;
 		}
 
-		const scope = sourceCode.getScope(node);
-		const variable = findVariable(scope, left);
-		if (!variable) {
-			return;
-		}
+		// The `let` declaration right before the `if` declares it
+		const variable = findVariable(sourceCode.getScope(node), left);
 
 		const isReferenceInsideNode = (reference, targetNode) => {
 			const [referenceStart, referenceEnd] = sourceCode.getRange(reference.identifier);

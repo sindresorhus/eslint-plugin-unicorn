@@ -67,21 +67,14 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 		|| variableDeclarator.id.typeAnnotation
 		|| variableDeclarator.parent.type !== 'VariableDeclaration'
 		|| variableDeclarator.parent.kind !== 'const'
-		|| (
-			variableDeclarator.parent.parent.type === 'ExportNamedDeclaration'
-			&& variableDeclarator.parent.parent.declaration === variableDeclarator.parent
-		)
+		|| variableDeclarator.parent.parent.type === 'ExportNamedDeclaration'
 	) {
 		return false;
 	}
 
 	const [variable] = context.sourceCode.getDeclaredVariables(variableDeclarator);
 
-	if (
-		!variable
-		|| variable.identifiers.length !== 1
-		|| variable.identifiers[0] !== variableDeclarator.id
-	) {
+	if (variable.identifiers.length !== 1) {
 		return false;
 	}
 

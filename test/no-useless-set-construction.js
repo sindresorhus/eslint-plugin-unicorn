@@ -1,5 +1,5 @@
 import vm from 'node:vm';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -184,9 +184,9 @@ for (const expression of [
 		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
 		const code = withDeclarations(expression);
 		const result = linter.verifyAndFix(code, config);
-		t.true(result.fixed);
-		t.deepEqual(result.messages, []);
-		t.deepEqual([...vm.runInNewContext(result.output)], [...vm.runInNewContext(code)]);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.deepStrictEqual([...vm.runInNewContext(result.output)], [...vm.runInNewContext(code)]);
 	});
 }
 
@@ -211,8 +211,8 @@ for (const method of [...setReturningMethods, ...predicateMethods]) {
 		for (const expression of expressions) {
 			const code = `const selected = new Set(selectedValues); const other = new Set(otherValues); const records = new Map(otherValues.map(value => [value, {value}])); ${expression}`;
 			const result = linter.verifyAndFix(code, config);
-			t.true(result.fixed);
-			t.deepEqual(result.messages, []);
+			t.assert.strictEqual(result.fixed, true);
+			t.assert.deepStrictEqual(result.messages, []);
 
 			for (const [selectedValues, otherValues] of [
 				[[3, 1], [1, 2, 3]],
@@ -225,9 +225,9 @@ for (const method of [...setReturningMethods, ...predicateMethods]) {
 				const expected = vm.runInNewContext(code, {selectedValues, otherValues});
 				const actual = vm.runInNewContext(result.output, {selectedValues, otherValues});
 				if (typeof expected === 'boolean') {
-					t.is(actual, expected, expression);
+					t.assert.strictEqual(actual, expected, expression);
 				} else {
-					t.deepEqual([...actual], [...expected], expression);
+					t.assert.deepStrictEqual([...actual], [...expected], expression);
 				}
 			}
 		}
@@ -244,8 +244,8 @@ for (const preceding of ['previous!', 'previous<string>']) {
 		};
 		const prefix = `${declarations}\nconst preceding = ${preceding}\n`;
 		const result = linter.verifyAndFix(`${prefix}new Set(true ? selected : other).union(other);`, config);
-		t.deepEqual(result.messages, []);
-		t.is(result.output, `${prefix};(true ? selected : other).union(other);`);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, `${prefix};(true ? selected : other).union(other);`);
 	});
 }
 
@@ -254,8 +254,8 @@ test('autofix does not add unnecessary parentheses to arguments', t => {
 	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
 	const code = withDeclarations('selected.union(new Set(condition ? other : selected))');
 	const result = linter.verifyAndFix(code, config);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, withDeclarations('selected.union(condition ? other : selected)'));
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, withDeclarations('selected.union(condition ? other : selected)'));
 });
 
 test('autofix preserves tagged template precedence', t => {
@@ -263,8 +263,8 @@ test('autofix preserves tagged template precedence', t => {
 	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-useless-set-construction': 'error'}};
 	const code = withDeclarations('new new Set(selected.union(other))`x`');
 	const result = linter.verifyAndFix(code, config);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, withDeclarations('new (selected.union(other))`x`'));
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, withDeclarations('new (selected.union(other))`x`'));
 });
 
 test('related rules converge without conflicting fixes', t => {
@@ -281,7 +281,7 @@ test('related rules converge without conflicting fixes', t => {
 	};
 	const code = withDeclarations('selected.union(new Set([...other])); selected.intersection(new Set(records.keys().toArray())); new Set(new Set([...selected, ...other]));');
 	const result = linter.verifyAndFix(code, config);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, withDeclarations('selected.union(other); selected.intersection(records); selected.union(other);'));
-	t.false(linter.verifyAndFix(result.output, config).fixed);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, withDeclarations('selected.union(other); selected.intersection(records); selected.union(other);'));
+	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 });

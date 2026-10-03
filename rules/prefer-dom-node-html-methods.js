@@ -22,13 +22,6 @@ const isPlainInnerHTMLAssignment = node =>
 const hasComments = (node, sourceCode) =>
 	sourceCode.getCommentsInside(node).length > 0;
 
-const isForInOrOfLeft = node =>
-	(
-		node.parent.type === 'ForInStatement'
-		|| node.parent.type === 'ForOfStatement'
-	)
-	&& node.parent.left === node;
-
 const getParentExpression = node =>
 	node.parent.type === 'ChainExpression'
 		? node.parent
@@ -63,7 +56,6 @@ const create = context => {
 			!checkGetHTML
 			|| !isInnerHTMLMemberExpression(memberExpression)
 			|| isLeftHandSide(memberExpression)
-			|| isForInOrOfLeft(memberExpression)
 		) {
 			return;
 		}

@@ -1,0 +1,639 @@
+exports[`no-double-comparison > invalid(1): x === y || x < y 1`] = `
+
+  1 | x === y || x < y
+
+`;
+
+exports[`no-double-comparison > invalid(1): x === y || x < y 2`] = `
+
+Message:
+> 1 | x === y || x < y
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= y\`.
+
+Suggestion 1/1: Replace with \`x <= y\`.:
+  1 | x <= y
+
+`;
+
+exports[`no-double-comparison > invalid(10): x !== y && x >= y 1`] = `
+
+  1 | x !== y && x >= y
+
+`;
+
+exports[`no-double-comparison > invalid(10): x !== y && x >= y 2`] = `
+
+Message:
+> 1 | x !== y && x >= y
+    | ^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x > y\`.
+
+Suggestion 1/1: Replace with \`x > y\`.:
+  1 | x > y
+
+`;
+
+exports[`no-double-comparison > invalid(11): x < y || x > y 1`] = `
+
+  1 | x < y || x > y
+
+`;
+
+exports[`no-double-comparison > invalid(11): x < y || x > y 2`] = `
+
+Message:
+> 1 | x < y || x > y
+    | ^^^^^^^^^^^^^^ These comparisons can be simplified to \`x !== y\`.
+
+Suggestion 1/1: Replace with \`x !== y\`.:
+  1 | x !== y
+
+`;
+
+exports[`no-double-comparison > invalid(12): x > y || x < y 1`] = `
+
+  1 | x > y || x < y
+
+`;
+
+exports[`no-double-comparison > invalid(12): x > y || x < y 2`] = `
+
+Message:
+> 1 | x > y || x < y
+    | ^^^^^^^^^^^^^^ These comparisons can be simplified to \`x !== y\`.
+
+Suggestion 1/1: Replace with \`x !== y\`.:
+  1 | x !== y
+
+`;
+
+exports[`no-double-comparison > invalid(13): undefined === undefined || undefined < undefined 1`] = `
+
+  1 | undefined === undefined || undefined < undefined
+
+`;
+
+exports[`no-double-comparison > invalid(13): undefined === undefined || undefined < undefined 2`] = `
+
+Message:
+> 1 | undefined === undefined || undefined < undefined
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`undefined <= undefined\`.
+
+Suggestion 1/1: Replace with \`undefined <= undefined\`.:
+  1 | undefined <= undefined
+
+`;
+
+exports[`no-double-comparison > invalid(14): undefined <= undefined && undefined >= undefined 1`] = `
+
+  1 | undefined <= undefined && undefined >= undefined
+
+`;
+
+exports[`no-double-comparison > invalid(14): undefined <= undefined && undefined >= undefined 2`] = `
+
+Message:
+> 1 | undefined <= undefined && undefined >= undefined
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`undefined === undefined\`.
+
+Suggestion 1/1: Replace with \`undefined === undefined\`.:
+  1 | undefined === undefined
+
+`;
+
+exports[`no-double-comparison > invalid(15): const symbol = Symbol(); symbol === symbol || symbol < symbol 1`] = `
+
+  1 | const symbol = Symbol(); symbol === symbol || symbol < symbol
+
+`;
+
+exports[`no-double-comparison > invalid(15): const symbol = Symbol(); symbol === symbol || symbol < symbol 2`] = `
+
+Message:
+> 1 | const symbol = Symbol(); symbol === symbol || symbol < symbol
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`symbol <= symbol\`.
+
+Suggestion 1/1: Replace with \`symbol <= symbol\`.:
+  1 | const symbol = Symbol(); symbol <= symbol
+
+`;
+
+exports[`no-double-comparison > invalid(16): const symbol = Symbol(); symbol <= symbol && symbol >= symbol 1`] = `
+
+  1 | const symbol = Symbol(); symbol <= symbol && symbol >= symbol
+
+`;
+
+exports[`no-double-comparison > invalid(16): const symbol = Symbol(); symbol <= symbol && symbol >= symbol 2`] = `
+
+Message:
+> 1 | const symbol = Symbol(); symbol <= symbol && symbol >= symbol
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`symbol === symbol\`.
+
+Suggestion 1/1: Replace with \`symbol === symbol\`.:
+  1 | const symbol = Symbol(); symbol === symbol
+
+`;
+
+exports[`no-double-comparison > invalid(17): null <= 0 && null !== 0 1`] = `
+
+  1 | null <= 0 && null !== 0
+
+`;
+
+exports[`no-double-comparison > invalid(17): null <= 0 && null !== 0 2`] = `
+
+Message:
+> 1 | null <= 0 && null !== 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`null < 0\`.
+
+Suggestion 1/1: Replace with \`null < 0\`.:
+  1 | null < 0
+
+`;
+
+exports[`no-double-comparison > invalid(18): null >= 0 && null !== 0 1`] = `
+
+  1 | null >= 0 && null !== 0
+
+`;
+
+exports[`no-double-comparison > invalid(18): null >= 0 && null !== 0 2`] = `
+
+Message:
+> 1 | null >= 0 && null !== 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`null > 0\`.
+
+Suggestion 1/1: Replace with \`null > 0\`.:
+  1 | null > 0
+
+`;
+
+exports[`no-double-comparison > invalid(19): x === y || y < x 1`] = `
+
+  1 | x === y || y < x
+
+`;
+
+exports[`no-double-comparison > invalid(19): x === y || y < x 2`] = `
+
+Message:
+> 1 | x === y || y < x
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x >= y\`.
+
+Suggestion 1/1: Replace with \`x >= y\`.:
+  1 | x >= y
+
+`;
+
+exports[`no-double-comparison > invalid(2): x < y || x === y 1`] = `
+
+  1 | x < y || x === y
+
+`;
+
+exports[`no-double-comparison > invalid(2): x < y || x === y 2`] = `
+
+Message:
+> 1 | x < y || x === y
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= y\`.
+
+Suggestion 1/1: Replace with \`x <= y\`.:
+  1 | x <= y
+
+`;
+
+exports[`no-double-comparison > invalid(20): y < x || x === y 1`] = `
+
+  1 | y < x || x === y
+
+`;
+
+exports[`no-double-comparison > invalid(20): y < x || x === y 2`] = `
+
+Message:
+> 1 | y < x || x === y
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`y <= x\`.
+
+Suggestion 1/1: Replace with \`y <= x\`.:
+  1 | y <= x
+
+`;
+
+exports[`no-double-comparison > invalid(21): x <= y && y <= x 1`] = `
+
+  1 | x <= y && y <= x
+
+`;
+
+exports[`no-double-comparison > invalid(21): x <= y && y <= x 2`] = `
+
+Message:
+> 1 | x <= y && y <= x
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x === y\`.
+
+Suggestion 1/1: Replace with \`x === y\`.:
+  1 | x === y
+
+`;
+
+exports[`no-double-comparison > invalid(22): a.b === c || c > a.b 1`] = `
+
+  1 | a.b === c || c > a.b
+
+`;
+
+exports[`no-double-comparison > invalid(22): a.b === c || c > a.b 2`] = `
+
+Message:
+> 1 | a.b === c || c > a.b
+    | ^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`a.b <= c\`.
+
+Suggestion 1/1: Replace with \`a.b <= c\`.:
+  1 | a.b <= c
+
+`;
+
+exports[`no-double-comparison > invalid(23): x === 5 || x < 5 1`] = `
+
+  1 | x === 5 || x < 5
+
+`;
+
+exports[`no-double-comparison > invalid(23): x === 5 || x < 5 2`] = `
+
+Message:
+> 1 | x === 5 || x < 5
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= 5\`.
+
+Suggestion 1/1: Replace with \`x <= 5\`.:
+  1 | x <= 5
+
+`;
+
+exports[`no-double-comparison > invalid(24): a.b === c || a.b < c 1`] = `
+
+  1 | a.b === c || a.b < c
+
+`;
+
+exports[`no-double-comparison > invalid(24): a.b === c || a.b < c 2`] = `
+
+Message:
+> 1 | a.b === c || a.b < c
+    | ^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`a.b <= c\`.
+
+Suggestion 1/1: Replace with \`a.b <= c\`.:
+  1 | a.b <= c
+
+`;
+
+exports[`no-double-comparison > invalid(25): this.x === y || this.x > y 1`] = `
+
+  1 | this.x === y || this.x > y
+
+`;
+
+exports[`no-double-comparison > invalid(25): this.x === y || this.x > y 2`] = `
+
+Message:
+> 1 | this.x === y || this.x > y
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`this.x >= y\`.
+
+Suggestion 1/1: Replace with \`this.x >= y\`.:
+  1 | this.x >= y
+
+`;
+
+exports[`no-double-comparison > invalid(26): a[b] === c || a[b] > c 1`] = `
+
+  1 | a[b] === c || a[b] > c
+
+`;
+
+exports[`no-double-comparison > invalid(26): a[b] === c || a[b] > c 2`] = `
+
+Message:
+> 1 | a[b] === c || a[b] > c
+    | ^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`a[b] >= c\`.
+
+Suggestion 1/1: Replace with \`a[b] >= c\`.:
+  1 | a[b] >= c
+
+`;
+
+exports[`no-double-comparison > invalid(27): x === y || x < y || z 1`] = `
+
+  1 | x === y || x < y || z
+
+`;
+
+exports[`no-double-comparison > invalid(27): x === y || x < y || z 2`] = `
+
+Message:
+> 1 | x === y || x < y || z
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= y\`.
+
+Suggestion 1/1: Replace with \`x <= y\`.:
+  1 | x <= y || z
+
+`;
+
+exports[`no-double-comparison > invalid(28): x < y || x === y || x > y 1`] = `
+
+  1 | x < y || x === y || x > y
+
+`;
+
+exports[`no-double-comparison > invalid(28): x < y || x === y || x > y 2`] = `
+
+Message:
+> 1 | x < y || x === y || x > y
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= y\`.
+
+Suggestion 1/1: Replace with \`x <= y\`.:
+  1 | x <= y || x > y
+
+`;
+
+exports[`no-double-comparison > invalid(29): (x === y || x < y).foo 1`] = `
+
+  1 | (x === y || x < y).foo
+
+`;
+
+exports[`no-double-comparison > invalid(29): (x === y || x < y).foo 2`] = `
+
+Message:
+> 1 | (x === y || x < y).foo
+    |  ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= y\`.
+
+Suggestion 1/1: Replace with \`x <= y\`.:
+  1 | (x <= y).foo
+
+`;
+
+exports[`no-double-comparison > invalid(3): x === y || x > y 1`] = `
+
+  1 | x === y || x > y
+
+`;
+
+exports[`no-double-comparison > invalid(3): x === y || x > y 2`] = `
+
+Message:
+> 1 | x === y || x > y
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x >= y\`.
+
+Suggestion 1/1: Replace with \`x >= y\`.:
+  1 | x >= y
+
+`;
+
+exports[`no-double-comparison > invalid(30): if (x === y || x < y) {} 1`] = `
+
+  1 | if (x === y || x < y) {}
+
+`;
+
+exports[`no-double-comparison > invalid(30): if (x === y || x < y) {} 2`] = `
+
+Message:
+> 1 | if (x === y || x < y) {}
+    |     ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= y\`.
+
+Suggestion 1/1: Replace with \`x <= y\`.:
+  1 | if (x <= y) {}
+
+`;
+
+exports[`no-double-comparison > invalid(31): const result = x >= y && x !== y; 1`] = `
+
+  1 | const result = x >= y && x !== y;
+
+`;
+
+exports[`no-double-comparison > invalid(31): const result = x >= y && x !== y; 2`] = `
+
+Message:
+> 1 | const result = x >= y && x !== y;
+    |                ^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x > y\`.
+
+Suggestion 1/1: Replace with \`x > y\`.:
+  1 | const result = x > y;
+
+`;
+
+exports[`no-double-comparison > invalid(32): x === y || /* keep */ x < y 1`] = `
+
+  1 | x === y || /* keep */ x < y
+
+`;
+
+exports[`no-double-comparison > invalid(32): x === y || /* keep */ x < y 2`] = `
+
+Message:
+> 1 | x === y || /* keep */ x < y
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= y\`.
+
+`;
+
+exports[`no-double-comparison > invalid(33): x === y || x /* keep */ < y 1`] = `
+
+  1 | x === y || x /* keep */ < y
+
+`;
+
+exports[`no-double-comparison > invalid(33): x === y || x /* keep */ < y 2`] = `
+
+Message:
+> 1 | x === y || x /* keep */ < y
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= y\`.
+
+`;
+
+exports[`no-double-comparison > invalid(34): (a /* keep */) === c || a < c 1`] = `
+
+  1 | (a /* keep */) === c || a < c
+
+`;
+
+exports[`no-double-comparison > invalid(34): (a /* keep */) === c || a < c 2`] = `
+
+Message:
+> 1 | (a /* keep */) === c || a < c
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`(a /* keep */) <= c\`.
+
+Suggestion 1/1: Replace with \`(a /* keep */) <= c\`.:
+  1 | (a /* keep */) <= c
+
+`;
+
+exports[`no-double-comparison > invalid(35): (x === y) || (x < y) 1`] = `
+
+  1 | (x === y) || (x < y)
+
+`;
+
+exports[`no-double-comparison > invalid(35): (x === y) || (x < y) 2`] = `
+
+Message:
+> 1 | (x === y) || (x < y)
+    | ^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x <= y\`.
+
+Suggestion 1/1: Replace with \`x <= y\`.:
+  1 | x <= y
+
+`;
+
+exports[`no-double-comparison > invalid(36): (x as number) === y || (x as number) < y 1`] = `
+
+  1 | (x as number) === y || (x as number) < y
+
+`;
+
+exports[`no-double-comparison > invalid(36): (x as number) === y || (x as number) < y 2`] = `
+
+Message:
+> 1 | (x as number) === y || (x as number) < y
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`(x as number) <= y\`.
+
+Suggestion 1/1: Replace with \`(x as number) <= y\`.:
+  1 | (x as number) <= y
+
+`;
+
+exports[`no-double-comparison > invalid(37): x! === y || x! < y 1`] = `
+
+  1 | x! === y || x! < y
+
+`;
+
+exports[`no-double-comparison > invalid(37): x! === y || x! < y 2`] = `
+
+Message:
+> 1 | x! === y || x! < y
+    | ^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x! <= y\`.
+
+Suggestion 1/1: Replace with \`x! <= y\`.:
+  1 | x! <= y
+
+`;
+
+exports[`no-double-comparison > invalid(38): (x satisfies number) === y || (x satisfies number) < y 1`] = `
+
+  1 | (x satisfies number) === y || (x satisfies number) < y
+
+`;
+
+exports[`no-double-comparison > invalid(38): (x satisfies number) === y || (x satisfies number) < y 2`] = `
+
+Message:
+> 1 | (x satisfies number) === y || (x satisfies number) < y
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`(x satisfies number) <= y\`.
+
+Suggestion 1/1: Replace with \`(x satisfies number) <= y\`.:
+  1 | (x satisfies number) <= y
+
+`;
+
+exports[`no-double-comparison > invalid(4): x > y || x === y 1`] = `
+
+  1 | x > y || x === y
+
+`;
+
+exports[`no-double-comparison > invalid(4): x > y || x === y 2`] = `
+
+Message:
+> 1 | x > y || x === y
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x >= y\`.
+
+Suggestion 1/1: Replace with \`x >= y\`.:
+  1 | x >= y
+
+`;
+
+exports[`no-double-comparison > invalid(5): x <= y && x >= y 1`] = `
+
+  1 | x <= y && x >= y
+
+`;
+
+exports[`no-double-comparison > invalid(5): x <= y && x >= y 2`] = `
+
+Message:
+> 1 | x <= y && x >= y
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x === y\`.
+
+Suggestion 1/1: Replace with \`x === y\`.:
+  1 | x === y
+
+`;
+
+exports[`no-double-comparison > invalid(6): x >= y && x <= y 1`] = `
+
+  1 | x >= y && x <= y
+
+`;
+
+exports[`no-double-comparison > invalid(6): x >= y && x <= y 2`] = `
+
+Message:
+> 1 | x >= y && x <= y
+    | ^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x === y\`.
+
+Suggestion 1/1: Replace with \`x === y\`.:
+  1 | x === y
+
+`;
+
+exports[`no-double-comparison > invalid(7): x <= y && x !== y 1`] = `
+
+  1 | x <= y && x !== y
+
+`;
+
+exports[`no-double-comparison > invalid(7): x <= y && x !== y 2`] = `
+
+Message:
+> 1 | x <= y && x !== y
+    | ^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x < y\`.
+
+Suggestion 1/1: Replace with \`x < y\`.:
+  1 | x < y
+
+`;
+
+exports[`no-double-comparison > invalid(8): x !== y && x <= y 1`] = `
+
+  1 | x !== y && x <= y
+
+`;
+
+exports[`no-double-comparison > invalid(8): x !== y && x <= y 2`] = `
+
+Message:
+> 1 | x !== y && x <= y
+    | ^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x < y\`.
+
+Suggestion 1/1: Replace with \`x < y\`.:
+  1 | x < y
+
+`;
+
+exports[`no-double-comparison > invalid(9): x >= y && x !== y 1`] = `
+
+  1 | x >= y && x !== y
+
+`;
+
+exports[`no-double-comparison > invalid(9): x >= y && x !== y 2`] = `
+
+Message:
+> 1 | x >= y && x !== y
+    | ^^^^^^^^^^^^^^^^^ These comparisons can be simplified to \`x > y\`.
+
+Suggestion 1/1: Replace with \`x > y\`.:
+  1 | x > y
+
+`;

@@ -1,0 +1,988 @@
+exports[`prefer-iterator-helpers > invalid(1): [...map.values()].find(value => value) 1`] = `
+
+  1 | [...map.values()].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): [...map.values()].find(value => value) 2`] = `
+
+Message:
+> 1 | [...map.values()].find(value => value)
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | map.values().find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): [...map.values()].find(value => value) as Value 1`] = `
+
+  1 | [...map.values()].find(value => value) as Value
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): [...map.values()].find(value => value) as Value 2`] = `
+
+Message:
+> 1 | [...map.values()].find(value => value) as Value
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | map.values().find(value => value) as Value
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): declare function getIterator(): Iterator<string>; [...getIterator()].find(value => value); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getIterator(): Iterator<string>; [...getIterator()].find(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): declare function getIterator(): Iterator<string>; [...getIterator()].find(value => value); 2`] = `
+
+Message:
+> 1 | declare function getIterator(): Iterator<string>; [...getIterator()].find(value => value);
+    |                                                   ^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | declare function getIterator(): Iterator<string>; getIterator().find(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): function callback(value, index) { return value === index; } [...map.values()].some(callback); 1`] = `
+
+  1 | function callback(value, index) { return value === index; } [...map.values()].some(callback);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): function callback(value, index) { return value === index; } [...map.values()].some(callback); 2`] = `
+
+Message:
+> 1 | function callback(value, index) { return value === index; } [...map.values()].some(callback);
+    |                                                             ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | function callback(value, index) { return value === index; } map.values().some(callback);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(10): Array.from(set.values()).forEach(value => value) 1`] = `
+
+  1 | Array.from(set.values()).forEach(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(10): Array.from(set.values()).forEach(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(set.values()).forEach(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#forEach()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#forEach()\`.:
+  1 | set.values().forEach(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(11): Array.from(string.matchAll(pattern)).reduce(value => value) 1`] = `
+
+  1 | Array.from(string.matchAll(pattern)).reduce(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(11): Array.from(string.matchAll(pattern)).reduce(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(string.matchAll(pattern)).reduce(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#reduce()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#reduce()\`.:
+  1 | string.matchAll(pattern).reduce(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(12): Array.from(string.matchAll(pattern)).reduce(value => value, initialValue) 1`] = `
+
+  1 | Array.from(string.matchAll(pattern)).reduce(value => value, initialValue)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(12): Array.from(string.matchAll(pattern)).reduce(value => value, initialValue) 2`] = `
+
+Message:
+> 1 | Array.from(string.matchAll(pattern)).reduce(value => value, initialValue)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#reduce()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#reduce()\`.:
+  1 | string.matchAll(pattern).reduce(value => value, initialValue)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(13): [...Iterator.from(iterable)].find(value => value) 1`] = `
+
+  1 | [...Iterator.from(iterable)].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(13): [...Iterator.from(iterable)].find(value => value) 2`] = `
+
+Message:
+> 1 | [...Iterator.from(iterable)].find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | Iterator.from(iterable).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(14): [...globalThis.Iterator.from(iterable)].find(value => value) 1`] = `
+
+  1 | [...globalThis.Iterator.from(iterable)].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(14): [...globalThis.Iterator.from(iterable)].find(value => value) 2`] = `
+
+Message:
+> 1 | [...globalThis.Iterator.from(iterable)].find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | globalThis.Iterator.from(iterable).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(15): [...(globalThis).Iterator.zip(first, second)].some(value => value) 1`] = `
+
+  1 | [...(globalThis).Iterator.zip(first, second)].some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(15): [...(globalThis).Iterator.zip(first, second)].some(value => value) 2`] = `
+
+Message:
+> 1 | [...(globalThis).Iterator.zip(first, second)].some(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | (globalThis).Iterator.zip(first, second).some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(16): [...Iterator.concat(first, second)].some(value => value) 1`] = `
+
+  1 | [...Iterator.concat(first, second)].some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(16): [...Iterator.concat(first, second)].some(value => value) 2`] = `
+
+Message:
+> 1 | [...Iterator.concat(first, second)].some(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | Iterator.concat(first, second).some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(17): [...Iterator.zip(first, second)].every(value => value) 1`] = `
+
+  1 | [...Iterator.zip(first, second)].every(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(17): [...Iterator.zip(first, second)].every(value => value) 2`] = `
+
+Message:
+> 1 | [...Iterator.zip(first, second)].every(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#every()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#every()\`.:
+  1 | Iterator.zip(first, second).every(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(18): [...Iterator.zipKeyed({first, second})].forEach(value => value) 1`] = `
+
+  1 | [...Iterator.zipKeyed({first, second})].forEach(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(18): [...Iterator.zipKeyed({first, second})].forEach(value => value) 2`] = `
+
+Message:
+> 1 | [...Iterator.zipKeyed({first, second})].forEach(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#forEach()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#forEach()\`.:
+  1 | Iterator.zipKeyed({first, second}).forEach(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(19): [...map.values().map(value => value)].find(value => value) 1`] = `
+
+  1 | [...map.values().map(value => value)].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(19): [...map.values().map(value => value)].find(value => value) 2`] = `
+
+Message:
+> 1 | [...map.values().map(value => value)].find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | map.values().map(value => value).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): [...map!.values()].some(value => value) 1`] = `
+
+  1 | [...map!.values()].some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): [...map!.values()].some(value => value) 2`] = `
+
+Message:
+> 1 | [...map!.values()].some(value => value)
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | map!.values().some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): [...map.keys()].some(value => value) 1`] = `
+
+  1 | [...map.keys()].some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): [...map.keys()].some(value => value) 2`] = `
+
+Message:
+> 1 | [...map.keys()].some(value => value)
+    | ^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | map.keys().some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): const callback = value => value; [...map.values()].find(callback); 1`] = `
+
+  1 | const callback = value => value; [...map.values()].find(callback);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): const callback = value => value; [...map.values()].find(callback); 2`] = `
+
+Message:
+> 1 | const callback = value => value; [...map.values()].find(callback);
+    |                                  ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | const callback = value => value; map.values().find(callback);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): declare function getIterator(): Iterator<string>; Array.from(getIterator()).some(value => value); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getIterator(): Iterator<string>; Array.from(getIterator()).some(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): declare function getIterator(): Iterator<string>; Array.from(getIterator()).some(value => value); 2`] = `
+
+Message:
+> 1 | declare function getIterator(): Iterator<string>; Array.from(getIterator()).some(value => value);
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | declare function getIterator(): Iterator<string>; getIterator().some(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(20): Array.from(map.values().filter(value => value)).some(value => value) 1`] = `
+
+  1 | Array.from(map.values().filter(value => value)).some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(20): Array.from(map.values().filter(value => value)).some(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(map.values().filter(value => value)).some(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | map.values().filter(value => value).some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(21): Array.from(map.values().flatMap(value => value)).every(value => value) 1`] = `
+
+  1 | Array.from(map.values().flatMap(value => value)).every(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(21): Array.from(map.values().flatMap(value => value)).every(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(map.values().flatMap(value => value)).every(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#every()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#every()\`.:
+  1 | map.values().flatMap(value => value).every(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(22): Array.from(map.values().drop(count)).forEach(value => value) 1`] = `
+
+  1 | Array.from(map.values().drop(count)).forEach(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(22): Array.from(map.values().drop(count)).forEach(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(map.values().drop(count)).forEach(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#forEach()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#forEach()\`.:
+  1 | map.values().drop(count).forEach(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(23): Array.from(map.values().take(count)).reduce(value => value) 1`] = `
+
+  1 | Array.from(map.values().take(count)).reduce(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(23): Array.from(map.values().take(count)).reduce(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(map.values().take(count)).reduce(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#reduce()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#reduce()\`.:
+  1 | map.values().take(count).reduce(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(24): Array.from(map.values().take(count)).reduce(value => value, initialValue) 1`] = `
+
+  1 | Array.from(map.values().take(count)).reduce(value => value, initialValue)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(24): Array.from(map.values().take(count)).reduce(value => value, initialValue) 2`] = `
+
+Message:
+> 1 | Array.from(map.values().take(count)).reduce(value => value, initialValue)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#reduce()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#reduce()\`.:
+  1 | map.values().take(count).reduce(value => value, initialValue)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(25): const iterator = items.values(); [...iterator].find(value => value); 1`] = `
+
+  1 | const iterator = items.values(); [...iterator].find(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(25): const iterator = items.values(); [...iterator].find(value => value); 2`] = `
+
+Message:
+> 1 | const iterator = items.values(); [...iterator].find(value => value);
+    |                                  ^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | const iterator = items.values(); iterator.find(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(26): function * generate() { yield 1; } Array.from(generate()).some(value => value); 1`] = `
+
+  1 | function * generate() { yield 1; } Array.from(generate()).some(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(26): function * generate() { yield 1; } Array.from(generate()).some(value => value); 2`] = `
+
+Message:
+> 1 | function * generate() { yield 1; } Array.from(generate()).some(value => value);
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | function * generate() { yield 1; } generate().some(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(27): [...map.values()].find((value, index) => value === index) 1`] = `
+
+  1 | [...map.values()].find((value, index) => value === index)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(27): [...map.values()].find((value, index) => value === index) 2`] = `
+
+Message:
+> 1 | [...map.values()].find((value, index) => value === index)
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | map.values().find((value, index) => value === index)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(28): [...map.values()].some((value, index) => value === index) 1`] = `
+
+  1 | [...map.values()].some((value, index) => value === index)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(28): [...map.values()].some((value, index) => value === index) 2`] = `
+
+Message:
+> 1 | [...map.values()].some((value, index) => value === index)
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | map.values().some((value, index) => value === index)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(29): [...map.values()].every((value, index) => value === index) 1`] = `
+
+  1 | [...map.values()].every((value, index) => value === index)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(29): [...map.values()].every((value, index) => value === index) 2`] = `
+
+Message:
+> 1 | [...map.values()].every((value, index) => value === index)
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#every()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#every()\`.:
+  1 | map.values().every((value, index) => value === index)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): Array.from(map.values() satisfies Iterable<Value>).every(value => value) 1`] = `
+
+  1 | Array.from(map.values() satisfies Iterable<Value>).every(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): Array.from(map.values() satisfies Iterable<Value>).every(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(map.values() satisfies Iterable<Value>).every(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#every()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#every()\`.:
+  1 | (map.values() satisfies Iterable<Value>).every(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): [...map.entries()].every(value => value) 1`] = `
+
+  1 | [...map.entries()].every(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): [...map.entries()].every(value => value) 2`] = `
+
+Message:
+> 1 | [...map.entries()].every(value => value)
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#every()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#every()\`.:
+  1 | map.entries().every(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): const callback = function (value) { return value; }; [...map.values()].every(callback); 1`] = `
+
+  1 | const callback = function (value) { return value; }; [...map.values()].every(callback);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): const callback = function (value) { return value; }; [...map.values()].every(callback); 2`] = `
+
+Message:
+> 1 | const callback = function (value) { return value; }; [...map.values()].every(callback);
+    |                                                      ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#every()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#every()\`.:
+  1 | const callback = function (value) { return value; }; map.values().every(callback);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): declare function getIteratorObject(): IteratorObject<string>; [...getIteratorObject()].reduce(value => value, initialValue); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getIteratorObject(): IteratorObject<string>; [...getIteratorObject()].reduce(value => value, initialValue);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): declare function getIteratorObject(): IteratorObject<string>; [...getIteratorObject()].reduce(value => value, initialValue); 2`] = `
+
+Message:
+> 1 | declare function getIteratorObject(): IteratorObject<string>; [...getIteratorObject()].reduce(value => value, initialValue);
+    |                                                               ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#reduce()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#reduce()\`.:
+  1 | declare function getIteratorObject(): IteratorObject<string>; getIteratorObject().reduce(value => value, initialValue);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(30): [...map.values()].forEach((value, index) => fn(value, index)) 1`] = `
+
+  1 | [...map.values()].forEach((value, index) => fn(value, index))
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(30): [...map.values()].forEach((value, index) => fn(value, index)) 2`] = `
+
+Message:
+> 1 | [...map.values()].forEach((value, index) => fn(value, index))
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#forEach()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#forEach()\`.:
+  1 | map.values().forEach((value, index) => fn(value, index))
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(31): [...map.values()].reduce((accumulator, value, index) => accumulator + value + index) 1`] = `
+
+  1 | [...map.values()].reduce((accumulator, value, index) => accumulator + value + index)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(31): [...map.values()].reduce((accumulator, value, index) => accumulator + value + index) 2`] = `
+
+Message:
+> 1 | [...map.values()].reduce((accumulator, value, index) => accumulator + value + index)
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#reduce()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#reduce()\`.:
+  1 | map.values().reduce((accumulator, value, index) => accumulator + value + index)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(32): [...(map.values())].find(value => value) 1`] = `
+
+  1 | [...(map.values())].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(32): [...(map.values())].find(value => value) 2`] = `
+
+Message:
+> 1 | [...(map.values())].find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | (map.values()).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(33): Array.from(\n\tmap\n\t\t.values()\n\t\t.map(value => value * 2),\n).find(value => value > 0); 1`] = `
+
+  1 | Array.from(
+  2 | 	map
+  3 | 		.values()
+  4 | 		.map(value => value * 2),
+  5 | ).find(value => value > 0);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(33): Array.from(\n\tmap\n\t\t.values()\n\t\t.map(value => value * 2),\n).find(value => value > 0); 2`] = `
+
+Message:
+> 1 | Array.from(
+    | ^^^^^^^^^^^
+> 2 | 	map
+    | ^^^^
+> 3 | 		.values()
+    | ^^^^^^^^^^^
+> 4 | 		.map(value => value * 2),
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | ).find(value => value > 0);
+    | ^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | map
+  2 | 		.values()
+  3 | 		.map(value => value * 2).find(value => value > 0);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(34): [...map.values(/* comment */).map(value => value)].find(value => value) 1`] = `
+
+  1 | [...map.values(/* comment */).map(value => value)].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(34): [...map.values(/* comment */).map(value => value)].find(value => value) 2`] = `
+
+Message:
+> 1 | [...map.values(/* comment */).map(value => value)].find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | map.values(/* comment */).map(value => value).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(35): Array.from(map.values(/* comment */)).find(value => value) 1`] = `
+
+  1 | Array.from(map.values(/* comment */)).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(35): Array.from(map.values(/* comment */)).find(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(map.values(/* comment */)).find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | map.values(/* comment */).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(36): [/* comment */ ...map.values()].find(value => value) 1`] = `
+
+  1 | [/* comment */ ...map.values()].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(36): [/* comment */ ...map.values()].find(value => value) 2`] = `
+
+Message:
+> 1 | [/* comment */ ...map.values()].find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(37): [...map.values() /* comment */].find(value => value) 1`] = `
+
+  1 | [...map.values() /* comment */].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(37): [...map.values() /* comment */].find(value => value) 2`] = `
+
+Message:
+> 1 | [...map.values() /* comment */].find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(38): Array.from(/* comment */ map.values()).find(value => value) 1`] = `
+
+  1 | Array.from(/* comment */ map.values()).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(38): Array.from(/* comment */ map.values()).find(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(/* comment */ map.values()).find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(39): [...map?.values()].find(value => value) 1`] = `
+
+  1 | [...map?.values()].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(39): [...map?.values()].find(value => value) 2`] = `
+
+Message:
+> 1 | [...map?.values()].find(value => value)
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | (map?.values()).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): [...set.values()].forEach(value => value) 1`] = `
+
+  1 | [...set.values()].forEach(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): [...set.values()].forEach(value => value) 2`] = `
+
+Message:
+> 1 | [...set.values()].forEach(value => value)
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#forEach()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#forEach()\`.:
+  1 | set.values().forEach(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): function * getIterator() { yield \"\"; } [...getIterator()].find(value => value); 1`] = `
+
+Filename: file.ts
+
+  1 | function * getIterator() { yield ""; } [...getIterator()].find(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): function * getIterator() { yield \"\"; } [...getIterator()].find(value => value); 2`] = `
+
+Message:
+> 1 | function * getIterator() { yield ""; } [...getIterator()].find(value => value);
+    |                                        ^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | function * getIterator() { yield ""; } getIterator().find(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): function callback(accumulator, value, index) { return accumulator + index; } [...map.values()].reduce(callback, 0); 1`] = `
+
+  1 | function callback(accumulator, value, index) { return accumulator + index; } [...map.values()].reduce(callback, 0);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): function callback(accumulator, value, index) { return accumulator + index; } [...map.values()].reduce(callback, 0); 2`] = `
+
+Message:
+> 1 | function callback(accumulator, value, index) { return accumulator + index; } [...map.values()].reduce(callback, 0);
+    |                                                                              ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#reduce()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#reduce()\`.:
+  1 | function callback(accumulator, value, index) { return accumulator + index; } map.values().reduce(callback, 0);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): function foo(iterator: Iterator<string>) { [...iterator].find(value => value); } 1`] = `
+
+  1 | function foo(iterator: Iterator<string>) { [...iterator].find(value => value); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): function foo(iterator: Iterator<string>) { [...iterator].find(value => value); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: Iterator<string>) { [...iterator].find(value => value); }
+    |                                            ^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | function foo(iterator: Iterator<string>) { iterator.find(value => value); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(40): [...map.values?.()].find(value => value) 1`] = `
+
+  1 | [...map.values?.()].find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(40): [...map.values?.()].find(value => value) 2`] = `
+
+Message:
+> 1 | [...map.values?.()].find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | (map.values?.()).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): [...string.matchAll(pattern)].reduce(value => value) 1`] = `
+
+  1 | [...string.matchAll(pattern)].reduce(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): [...string.matchAll(pattern)].reduce(value => value) 2`] = `
+
+Message:
+> 1 | [...string.matchAll(pattern)].reduce(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#reduce()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#reduce()\`.:
+  1 | string.matchAll(pattern).reduce(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): const callback = ((value: number) => value > 0) as Callback; [...map.values()].some(callback); 1`] = `
+
+  1 | const callback = ((value: number) => value > 0) as Callback; [...map.values()].some(callback);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): const callback = ((value: number) => value > 0) as Callback; [...map.values()].some(callback); 2`] = `
+
+Message:
+> 1 | const callback = ((value: number) => value > 0) as Callback; [...map.values()].some(callback);
+    |                                                              ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | const callback = ((value: number) => value > 0) as Callback; map.values().some(callback);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): declare const iterator: IteratorObject<number> | undefined; Array.from(iterator?.map(value => value)!).some(value => value > 0); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const iterator: IteratorObject<number> | undefined; Array.from(iterator?.map(value => value)!).some(value => value > 0);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): declare const iterator: IteratorObject<number> | undefined; Array.from(iterator?.map(value => value)!).some(value => value > 0); 2`] = `
+
+Message:
+> 1 | declare const iterator: IteratorObject<number> | undefined; Array.from(iterator?.map(value => value)!).some(value => value > 0);
+    |                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | declare const iterator: IteratorObject<number> | undefined; (iterator?.map(value => value)!).some(value => value > 0);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): function foo(iterator: IterableIterator<string>) { Array.from(iterator).some(value => value); } 1`] = `
+
+  1 | function foo(iterator: IterableIterator<string>) { Array.from(iterator).some(value => value); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): function foo(iterator: IterableIterator<string>) { Array.from(iterator).some(value => value); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: IterableIterator<string>) { Array.from(iterator).some(value => value); }
+    |                                                    ^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | function foo(iterator: IterableIterator<string>) { iterator.some(value => value); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): [...string.matchAll(pattern)].reduce(value => value, initialValue) 1`] = `
+
+  1 | [...string.matchAll(pattern)].reduce(value => value, initialValue)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): [...string.matchAll(pattern)].reduce(value => value, initialValue) 2`] = `
+
+Message:
+> 1 | [...string.matchAll(pattern)].reduce(value => value, initialValue)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#reduce()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#reduce()\`.:
+  1 | string.matchAll(pattern).reduce(value => value, initialValue)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): declare const iterator: IteratorObject<number> | undefined; [...iterator?.map(value => value)!].some(value => value > 0); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const iterator: IteratorObject<number> | undefined; [...iterator?.map(value => value)!].some(value => value > 0);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): declare const iterator: IteratorObject<number> | undefined; [...iterator?.map(value => value)!].some(value => value > 0); 2`] = `
+
+Message:
+> 1 | declare const iterator: IteratorObject<number> | undefined; [...iterator?.map(value => value)!].some(value => value > 0);
+    |                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | declare const iterator: IteratorObject<number> | undefined; (iterator?.map(value => value)!).some(value => value > 0);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): previous\nArray.from(map.values() satisfies Iterable<Value>).every(value => value); 1`] = `
+
+  1 | previous
+  2 | Array.from(map.values() satisfies Iterable<Value>).every(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): previous\nArray.from(map.values() satisfies Iterable<Value>).every(value => value); 2`] = `
+
+Message:
+  1 | previous
+> 2 | Array.from(map.values() satisfies Iterable<Value>).every(value => value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#every()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#every()\`.:
+  1 | previous
+  2 | ;(map.values() satisfies Iterable<Value>).every(value => value);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(7): Array.from(map.values()).find(value => value) 1`] = `
+
+  1 | Array.from(map.values()).find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(7): Array.from(map.values()).find(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(map.values()).find(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#find()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#find()\`.:
+  1 | map.values().find(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(8): Array.from(map.keys()).some(value => value) 1`] = `
+
+  1 | Array.from(map.keys()).some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(8): Array.from(map.keys()).some(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(map.keys()).some(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#some()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#some()\`.:
+  1 | map.keys().some(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(9): Array.from(map.entries()).every(value => value) 1`] = `
+
+  1 | Array.from(map.entries()).every(value => value)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(9): Array.from(map.entries()).every(value => value) 2`] = `
+
+Message:
+> 1 | Array.from(map.entries()).every(value => value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#every()\` over materializing an array.
+
+Suggestion 1/1: Use \`Iterator#every()\`.:
+  1 | map.entries().every(value => value)
+
+`;

@@ -173,7 +173,6 @@ function classifyOperands(operands) {
 }
 
 function findRedundantComparison({equalities, disequalities, comparisons, context}) {
-	const {sourceCode} = context;
 	// `a === b` makes a comparison redundant when another comparison on the same equality class implies it.
 	for (const equalityClass of buildEqualityClasses(equalities)) {
 		const predicates = comparisons
@@ -182,19 +181,12 @@ function findRedundantComparison({equalities, disequalities, comparisons, contex
 
 		for (const [index, first] of predicates.entries()) {
 			for (const second of predicates.slice(index + 1)) {
-				const firstImpliesSecond = entails(first, second, context);
-				const secondImpliesFirst = entails(second, first, context);
-
-				if (firstImpliesSecond && secondImpliesFirst) {
-					// Equivalent comparisons: report the later one.
-					return sourceCode.getRange(first.node)[0] > sourceCode.getRange(second.node)[0] ? first.node : second.node;
-				}
-
-				if (firstImpliesSecond) {
+				// Predicates are in source order, so equivalent comparisons report the later one.
+				if (entails(first, second, context)) {
 					return second.node;
 				}
 
-				if (secondImpliesFirst) {
+				if (entails(second, first, context)) {
 					return first.node;
 				}
 			}

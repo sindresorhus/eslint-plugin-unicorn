@@ -1,12 +1,11 @@
 import {isCallExpression, isMethodCall} from './ast/index.js';
 import {
-	getParenthesizedText,
 	isGlobalIdentifier,
 	isUrl,
 	isFreshUrl,
 	isParenthesized,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-url-href';
@@ -17,9 +16,7 @@ const messages = {
 const canFix = (node, context) => context.sourceCode.getCommentsInside(node).length === 0;
 
 const getHrefText = (node, context) => {
-	const nodeText = getParenthesizedText(node, context);
-	const objectText = !isParenthesized(node, context) && shouldAddParenthesesToMemberExpressionObject(node, context) ? `(${nodeText})` : nodeText;
-	const text = `${objectText}.href`;
+	const text = `${getMemberExpressionObjectText(node, context)}.href`;
 	const semicolon = needsSemicolon(context.sourceCode.getTokenBefore(node.parent), context, text) ? ';' : '';
 	return semicolon + text;
 };

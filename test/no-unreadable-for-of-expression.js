@@ -62,6 +62,7 @@ test.snapshot({
 		typescript('for (const pair of Iterator.zip([names, scores] satisfies Iterable<unknown>[])) {}'),
 		typescript('for (const pair of Iterator.zip(([names, scores])!)) {}'),
 		typescript('for (const pair of Iterator.zip([names as string[], scores!])) {}'),
+		'class Foo { #items; method() { for (const item of this.#items) {} } }',
 	],
 	invalid: [
 		'for (const pair of Iterator.zip([names, getScores(seed)])) {}',

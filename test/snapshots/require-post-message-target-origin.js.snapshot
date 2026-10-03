@@ -1,0 +1,234 @@
+exports[`require-post-message-target-origin > invalid(1): window.postMessage(message) 1`] = `
+
+  1 | window.postMessage(message)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(1): window.postMessage(message) 2`] = `
+
+Message:
+> 1 | window.postMessage(message)
+    |                           ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/2: Use \`window.location.origin\`.:
+  1 | window.postMessage(message, window.location.origin)
+
+Suggestion 2/2: Use \`'*'\`.:
+  1 | window.postMessage(message, '*')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(10): document.defaultView.postMessage(message) 1`] = `
+
+  1 | document.defaultView.postMessage(message)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(10): document.defaultView.postMessage(message) 2`] = `
+
+Message:
+> 1 | document.defaultView.postMessage(message)
+    |                                         ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/2: Use \`self.location.origin\`.:
+  1 | document.defaultView.postMessage(message, self.location.origin)
+
+Suggestion 2/2: Use \`'*'\`.:
+  1 | document.defaultView.postMessage(message, '*')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(11): getWindow().postMessage(message) 1`] = `
+
+  1 | getWindow().postMessage(message)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(11): getWindow().postMessage(message) 2`] = `
+
+Message:
+> 1 | getWindow().postMessage(message)
+    |                                ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/2: Use \`self.location.origin\`.:
+  1 | getWindow().postMessage(message, self.location.origin)
+
+Suggestion 2/2: Use \`'*'\`.:
+  1 | getWindow().postMessage(message, '*')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(2): self.postMessage(message) 1`] = `
+
+  1 | self.postMessage(message)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(2): self.postMessage(message) 2`] = `
+
+Message:
+> 1 | self.postMessage(message)
+    |                         ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/2: Use \`self.location.origin\`.:
+  1 | self.postMessage(message, self.location.origin)
+
+Suggestion 2/2: Use \`'*'\`.:
+  1 | self.postMessage(message, '*')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(3): globalThis.postMessage(message) 1`] = `
+
+  1 | globalThis.postMessage(message)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(3): globalThis.postMessage(message) 2`] = `
+
+Message:
+> 1 | globalThis.postMessage(message)
+    |                               ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/2: Use \`globalThis.location.origin\`.:
+  1 | globalThis.postMessage(message, globalThis.location.origin)
+
+Suggestion 2/2: Use \`'*'\`.:
+  1 | globalThis.postMessage(message, '*')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(4): foo.postMessage(message ) 1`] = `
+
+  1 | foo.postMessage(message )
+
+`;
+
+exports[`require-post-message-target-origin > invalid(4): foo.postMessage(message ) 2`] = `
+
+Message:
+> 1 | foo.postMessage(message )
+    |                        ^^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/3: Use \`foo.location.origin\`.:
+  1 | foo.postMessage(message , foo.location.origin)
+
+Suggestion 2/3: Use \`self.location.origin\`.:
+  1 | foo.postMessage(message , self.location.origin)
+
+Suggestion 3/3: Use \`'*'\`.:
+  1 | foo.postMessage(message , '*')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(5): foo?.postMessage(message ) 1`] = `
+
+  1 | foo?.postMessage(message )
+
+`;
+
+exports[`require-post-message-target-origin > invalid(5): foo?.postMessage(message ) 2`] = `
+
+Message:
+> 1 | foo?.postMessage(message )
+    |                         ^^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/3: Use \`foo.location.origin\`.:
+  1 | foo?.postMessage(message , foo.location.origin)
+
+Suggestion 2/3: Use \`self.location.origin\`.:
+  1 | foo?.postMessage(message , self.location.origin)
+
+Suggestion 3/3: Use \`'*'\`.:
+  1 | foo?.postMessage(message , '*')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(6): foo.postMessage( ((message)) ) 1`] = `
+
+  1 | foo.postMessage( ((message)) )
+
+`;
+
+exports[`require-post-message-target-origin > invalid(6): foo.postMessage( ((message)) ) 2`] = `
+
+Message:
+> 1 | foo.postMessage( ((message)) )
+    |                             ^^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/3: Use \`foo.location.origin\`.:
+  1 | foo.postMessage( ((message)) , foo.location.origin)
+
+Suggestion 2/3: Use \`self.location.origin\`.:
+  1 | foo.postMessage( ((message)) , self.location.origin)
+
+Suggestion 3/3: Use \`'*'\`.:
+  1 | foo.postMessage( ((message)) , '*')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(7): foo.postMessage(message,) 1`] = `
+
+  1 | foo.postMessage(message,)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(7): foo.postMessage(message,) 2`] = `
+
+Message:
+> 1 | foo.postMessage(message,)
+    |                         ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/3: Use \`foo.location.origin\`.:
+  1 | foo.postMessage(message, foo.location.origin,)
+
+Suggestion 2/3: Use \`self.location.origin\`.:
+  1 | foo.postMessage(message, self.location.origin,)
+
+Suggestion 3/3: Use \`'*'\`.:
+  1 | foo.postMessage(message, '*',)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(8): foo.postMessage(message , ) 1`] = `
+
+  1 | foo.postMessage(message , )
+
+`;
+
+exports[`require-post-message-target-origin > invalid(8): foo.postMessage(message , ) 2`] = `
+
+Message:
+> 1 | foo.postMessage(message , )
+    |                          ^^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/3: Use \`foo.location.origin\`.:
+  1 | foo.postMessage(message ,  foo.location.origin,)
+
+Suggestion 2/3: Use \`self.location.origin\`.:
+  1 | foo.postMessage(message ,  self.location.origin,)
+
+Suggestion 3/3: Use \`'*'\`.:
+  1 | foo.postMessage(message ,  '*',)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(9): foo.window.postMessage(message) 1`] = `
+
+  1 | foo.window.postMessage(message)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(9): foo.window.postMessage(message) 2`] = `
+
+Message:
+> 1 | foo.window.postMessage(message)
+    |                               ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/2: Use \`self.location.origin\`.:
+  1 | foo.window.postMessage(message, self.location.origin)
+
+Suggestion 2/2: Use \`'*'\`.:
+  1 | foo.window.postMessage(message, '*')
+
+`;

@@ -23,21 +23,15 @@ const shouldAddNullishSuggestion = problem =>
 	&& problem.data?.operator === LOGICAL_OR_ASSIGNMENT_OPERATOR
 	&& typeof getFix(problem) === 'function';
 
+// The base rule's fix is a generator that inserts the `||` of `||=` before the `=`
 function createNullishFix(fix) {
-	return fixer => fix(new Proxy(fixer, {
-		get(target, property) {
-			if (property !== 'insertTextBefore') {
-				const value = Reflect.get(target, property, target);
-
-				return typeof value === 'function' ? value.bind(target) : value;
-			}
-
-			return (nodeOrToken, text) => target.insertTextBefore(
-				nodeOrToken,
-				text === LOGICAL_OR_OPERATOR ? NULLISH_COALESCING_OPERATOR : text,
-			);
-		},
-	}));
+	return function * (fixer) {
+		for (const fixObject of fix(fixer)) {
+			yield fixObject.text === LOGICAL_OR_OPERATOR
+				? {...fixObject, text: NULLISH_COALESCING_OPERATOR}
+				: fixObject;
+		}
+	};
 }
 
 function withoutFixes(problem) {

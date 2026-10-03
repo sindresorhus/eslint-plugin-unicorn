@@ -1,0 +1,367 @@
+exports[`no-await-expression-member > invalid(1): (await promise)[0] 1`] = `
+
+  1 | (await promise)[0]
+
+`;
+
+exports[`no-await-expression-member > invalid(1): (await promise)[0] 2`] = `
+
+Message:
+> 1 | (await promise)[0]
+    |                 ^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(10): const {propertyOfFirstElement} = (await getArray())[0] 1`] = `
+
+  1 | const {propertyOfFirstElement} = (await getArray())[0]
+
+`;
+
+exports[`no-await-expression-member > invalid(10): const {propertyOfFirstElement} = (await getArray())[0] 2`] = `
+
+Message:
+> 1 | const {propertyOfFirstElement} = (await getArray())[0]
+    |                                                     ^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(11): const [firstElementOfFirstElement] = (await getArray())[0] 1`] = `
+
+  1 | const [firstElementOfFirstElement] = (await getArray())[0]
+
+`;
+
+exports[`no-await-expression-member > invalid(11): const [firstElementOfFirstElement] = (await getArray())[0] 2`] = `
+
+Message:
+> 1 | const [firstElementOfFirstElement] = (await getArray())[0]
+    |                                                         ^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(12): let foo, firstElement = (await getArray())[0] 1`] = `
+
+  1 | let foo, firstElement = (await getArray())[0]
+
+`;
+
+exports[`no-await-expression-member > invalid(12): let foo, firstElement = (await getArray())[0] 2`] = `
+
+Message:
+> 1 | let foo, firstElement = (await getArray())[0]
+    |                                            ^ Do not access a member directly from an await expression.
+
+Output:
+  1 | let foo, [firstElement] = await getArray()
+
+`;
+
+exports[`no-await-expression-member > invalid(13): var firstElement = (await getArray())[0], bar 1`] = `
+
+  1 | var firstElement = (await getArray())[0], bar
+
+`;
+
+exports[`no-await-expression-member > invalid(13): var firstElement = (await getArray())[0], bar 2`] = `
+
+Message:
+> 1 | var firstElement = (await getArray())[0], bar
+    |                                       ^ Do not access a member directly from an await expression.
+
+Output:
+  1 | var [firstElement] = await getArray(), bar
+
+`;
+
+exports[`no-await-expression-member > invalid(14): const property = (await getObject()).property 1`] = `
+
+  1 | const property = (await getObject()).property
+
+`;
+
+exports[`no-await-expression-member > invalid(14): const property = (await getObject()).property 2`] = `
+
+Message:
+> 1 | const property = (await getObject()).property
+    |                                      ^^^^^^^^ Do not access a member directly from an await expression.
+
+Output:
+  1 | const {property} = await getObject()
+
+`;
+
+exports[`no-await-expression-member > invalid(15): let property = (await getObject()).property 1`] = `
+
+  1 | let property = (await getObject()).property
+
+`;
+
+exports[`no-await-expression-member > invalid(15): let property = (await getObject()).property 2`] = `
+
+Message:
+> 1 | let property = (await getObject()).property
+    |                                    ^^^^^^^^ Do not access a member directly from an await expression.
+
+Output:
+  1 | let {property} = await getObject()
+
+`;
+
+exports[`no-await-expression-member > invalid(16): const renamed = (await getObject()).property 1`] = `
+
+  1 | const renamed = (await getObject()).property
+
+`;
+
+exports[`no-await-expression-member > invalid(16): const renamed = (await getObject()).property 2`] = `
+
+Message:
+> 1 | const renamed = (await getObject()).property
+    |                                     ^^^^^^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(17): (await promise).foo.bar 1`] = `
+
+  1 | (await promise).foo.bar
+
+`;
+
+exports[`no-await-expression-member > invalid(17): (await promise).foo.bar 2`] = `
+
+Message:
+> 1 | (await promise).foo.bar
+    |                 ^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(18): const property = (await getObject())[property] 1`] = `
+
+  1 | const property = (await getObject())[property]
+
+`;
+
+exports[`no-await-expression-member > invalid(18): const property = (await getObject())[property] 2`] = `
+
+Message:
+> 1 | const property = (await getObject())[property]
+    |                                      ^^^^^^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(19): const property = (await getObject())?.property 1`] = `
+
+  1 | const property = (await getObject())?.property
+
+`;
+
+exports[`no-await-expression-member > invalid(19): const property = (await getObject())?.property 2`] = `
+
+Message:
+> 1 | const property = (await getObject())?.property
+    |                                       ^^^^^^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(2): (await promise).property 1`] = `
+
+  1 | (await promise).property
+
+`;
+
+exports[`no-await-expression-member > invalid(2): (await promise).property 2`] = `
+
+Message:
+> 1 | (await promise).property
+    |                 ^^^^^^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(20): const {propertyOfProperty} = (await getObject()).property 1`] = `
+
+  1 | const {propertyOfProperty} = (await getObject()).property
+
+`;
+
+exports[`no-await-expression-member > invalid(20): const {propertyOfProperty} = (await getObject()).property 2`] = `
+
+Message:
+> 1 | const {propertyOfProperty} = (await getObject()).property
+    |                                                  ^^^^^^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(21): const {propertyOfProperty} = (await getObject()).propertyOfProperty 1`] = `
+
+  1 | const {propertyOfProperty} = (await getObject()).propertyOfProperty
+
+`;
+
+exports[`no-await-expression-member > invalid(21): const {propertyOfProperty} = (await getObject()).propertyOfProperty 2`] = `
+
+Message:
+> 1 | const {propertyOfProperty} = (await getObject()).propertyOfProperty
+    |                                                  ^^^^^^^^^^^^^^^^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(22): const [firstElementOfProperty] = (await getObject()).property 1`] = `
+
+  1 | const [firstElementOfProperty] = (await getObject()).property
+
+`;
+
+exports[`no-await-expression-member > invalid(22): const [firstElementOfProperty] = (await getObject()).property 2`] = `
+
+Message:
+> 1 | const [firstElementOfProperty] = (await getObject()).property
+    |                                                      ^^^^^^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(23): const [firstElementOfProperty] = (await getObject()).firstElementOfProperty 1`] = `
+
+  1 | const [firstElementOfProperty] = (await getObject()).firstElementOfProperty
+
+`;
+
+exports[`no-await-expression-member > invalid(23): const [firstElementOfProperty] = (await getObject()).firstElementOfProperty 2`] = `
+
+Message:
+> 1 | const [firstElementOfProperty] = (await getObject()).firstElementOfProperty
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(24): firstElement = (await getArray())[0] 1`] = `
+
+  1 | firstElement = (await getArray())[0]
+
+`;
+
+exports[`no-await-expression-member > invalid(24): firstElement = (await getArray())[0] 2`] = `
+
+Message:
+> 1 | firstElement = (await getArray())[0]
+    |                                   ^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(25): property = (await getArray()).property 1`] = `
+
+  1 | property = (await getArray()).property
+
+`;
+
+exports[`no-await-expression-member > invalid(25): property = (await getArray()).property 2`] = `
+
+Message:
+> 1 | property = (await getArray()).property
+    |                               ^^^^^^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(3): const foo = (await promise).bar() 1`] = `
+
+  1 | const foo = (await promise).bar()
+
+`;
+
+exports[`no-await-expression-member > invalid(3): const foo = (await promise).bar() 2`] = `
+
+Message:
+> 1 | const foo = (await promise).bar()
+    |                             ^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(4): const foo = (await promise).bar?.() 1`] = `
+
+  1 | const foo = (await promise).bar?.()
+
+`;
+
+exports[`no-await-expression-member > invalid(4): const foo = (await promise).bar?.() 2`] = `
+
+Message:
+> 1 | const foo = (await promise).bar?.()
+    |                             ^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(5): const foo = (await promise)?.bar() 1`] = `
+
+  1 | const foo = (await promise)?.bar()
+
+`;
+
+exports[`no-await-expression-member > invalid(5): const foo = (await promise)?.bar() 2`] = `
+
+Message:
+> 1 | const foo = (await promise)?.bar()
+    |                              ^^^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(6): const firstElement = (await getArray())[0] 1`] = `
+
+  1 | const firstElement = (await getArray())[0]
+
+`;
+
+exports[`no-await-expression-member > invalid(6): const firstElement = (await getArray())[0] 2`] = `
+
+Message:
+> 1 | const firstElement = (await getArray())[0]
+    |                                         ^ Do not access a member directly from an await expression.
+
+Output:
+  1 | const [firstElement] = await getArray()
+
+`;
+
+exports[`no-await-expression-member > invalid(7): const secondElement = (await getArray())[1] 1`] = `
+
+  1 | const secondElement = (await getArray())[1]
+
+`;
+
+exports[`no-await-expression-member > invalid(7): const secondElement = (await getArray())[1] 2`] = `
+
+Message:
+> 1 | const secondElement = (await getArray())[1]
+    |                                          ^ Do not access a member directly from an await expression.
+
+Output:
+  1 | const [, secondElement] = await getArray()
+
+`;
+
+exports[`no-await-expression-member > invalid(8): const thirdElement = (await getArray())[2] 1`] = `
+
+  1 | const thirdElement = (await getArray())[2]
+
+`;
+
+exports[`no-await-expression-member > invalid(8): const thirdElement = (await getArray())[2] 2`] = `
+
+Message:
+> 1 | const thirdElement = (await getArray())[2]
+    |                                         ^ Do not access a member directly from an await expression.
+
+`;
+
+exports[`no-await-expression-member > invalid(9): const optionalFirstElement = (await getArray())?.[0] 1`] = `
+
+  1 | const optionalFirstElement = (await getArray())?.[0]
+
+`;
+
+exports[`no-await-expression-member > invalid(9): const optionalFirstElement = (await getArray())?.[0] 2`] = `
+
+Message:
+> 1 | const optionalFirstElement = (await getArray())?.[0]
+    |                                                   ^ Do not access a member directly from an await expression.
+
+`;

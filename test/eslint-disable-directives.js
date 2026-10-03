@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {testDisableDirectives} from './utils/test-disable-directives.js';
@@ -65,19 +65,19 @@ test('no-empty-file does not count disable directives as allowed comments', t =>
 		linterOptions: {reportUnusedDisableDirectives: 'error'},
 	};
 	const baselineMessages = linter.verify('', config);
-	t.is(baselineMessages.length, 1);
-	t.is(baselineMessages[0].ruleId, ruleId);
+	t.assert.strictEqual(baselineMessages.length, 1);
+	t.assert.strictEqual(baselineMessages[0].ruleId, ruleId);
 	const code = `/* eslint-disable ${ruleId} -- Generated file. */`;
-	t.deepEqual(linter.verify(code, config), []);
-	t.is(linter.getSuppressedMessages().length, 1);
+	t.assert.deepStrictEqual(linter.verify(code, config), []);
+	t.assert.strictEqual(linter.getSuppressedMessages().length, 1);
 	for (const allowComments of [true, false]) {
-		t.deepEqual(linter.verify(`\n\n  ${code}`, {...config, rules: {[ruleId]: ['error', {allowComments}]}}), []);
-		t.is(linter.getSuppressedMessages().length, 1);
+		t.assert.deepStrictEqual(linter.verify(`\n\n  ${code}`, {...config, rules: {[ruleId]: ['error', {allowComments}]}}), []);
+		t.assert.strictEqual(linter.getSuppressedMessages().length, 1);
 	}
 
-	t.deepEqual(linter.verify('/* Explanation. */', config), []);
-	t.deepEqual(linter.verify(`${code}\n/* Explanation. */`, {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}}), []);
+	t.assert.deepStrictEqual(linter.verify('/* Explanation. */', config), []);
+	t.assert.deepStrictEqual(linter.verify(`${code}\n/* Explanation. */`, {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}}), []);
 	const unrelatedMessages = linter.verify('/* eslint-disable no-alert */', {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}});
-	t.is(unrelatedMessages.length, 1);
-	t.is(unrelatedMessages[0].ruleId, ruleId);
+	t.assert.strictEqual(unrelatedMessages.length, 1);
+	t.assert.strictEqual(unrelatedMessages[0].ruleId, ruleId);
 });

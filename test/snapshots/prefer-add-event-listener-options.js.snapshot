@@ -1,0 +1,181 @@
+exports[`prefer-add-event-listener-options > invalid(1): window.addEventListener(\"click\", listener, true) 1`] = `
+
+  1 | window.addEventListener("click", listener, true)
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(1): window.addEventListener(\"click\", listener, true) 2`] = `
+
+Message:
+> 1 | window.addEventListener("click", listener, true)
+    |                                            ^^^^ Prefer \`{capture: true}\` over \`true\`.
+
+Output:
+  1 | window.addEventListener("click", listener, {capture: true})
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(10): window.addEventListener(\n\t\"click\",\n\tlistener,\n\ttrue\n) 1`] = `
+
+  1 | window.addEventListener(
+  2 | 	"click",
+  3 | 	listener,
+  4 | 	true
+  5 | )
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(10): window.addEventListener(\n\t\"click\",\n\tlistener,\n\ttrue\n) 2`] = `
+
+Message:
+  1 | window.addEventListener(
+  2 | 	"click",
+  3 | 	listener,
+> 4 | 	true
+    | 	^^^^ Prefer \`{capture: true}\` over \`true\`.
+  5 | )
+
+Output:
+  1 | window.addEventListener(
+  2 | 	"click",
+  3 | 	listener,
+  4 | 	{capture: true}
+  5 | )
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(2): window.addEventListener(\"click\", listener, false) 1`] = `
+
+  1 | window.addEventListener("click", listener, false)
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(2): window.addEventListener(\"click\", listener, false) 2`] = `
+
+Message:
+> 1 | window.addEventListener("click", listener, false)
+    |                                            ^^^^^ Prefer \`{capture: false}\` over \`false\`.
+
+Output:
+  1 | window.addEventListener("click", listener, {capture: false})
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(3): window.addEventListener(\"click\", listener, (true)) 1`] = `
+
+  1 | window.addEventListener("click", listener, (true))
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(3): window.addEventListener(\"click\", listener, (true)) 2`] = `
+
+Message:
+> 1 | window.addEventListener("click", listener, (true))
+    |                                             ^^^^ Prefer \`{capture: true}\` over \`true\`.
+
+Output:
+  1 | window.addEventListener("click", listener, ({capture: true}))
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(4): window.addEventListener(\"click\", () => {}, true) 1`] = `
+
+  1 | window.addEventListener("click", () => {}, true)
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(4): window.addEventListener(\"click\", () => {}, true) 2`] = `
+
+Message:
+> 1 | window.addEventListener("click", () => {}, true)
+    |                                            ^^^^ Prefer \`{capture: true}\` over \`true\`.
+
+Output:
+  1 | window.addEventListener("click", () => {}, {capture: true})
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(5): window.addEventListener(\"click\", function () {}, false) 1`] = `
+
+  1 | window.addEventListener("click", function () {}, false)
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(5): window.addEventListener(\"click\", function () {}, false) 2`] = `
+
+Message:
+> 1 | window.addEventListener("click", function () {}, false)
+    |                                                  ^^^^^ Prefer \`{capture: false}\` over \`false\`.
+
+Output:
+  1 | window.addEventListener("click", function () {}, {capture: false})
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(6): document.body.addEventListener(\"click\", listener, true) 1`] = `
+
+  1 | document.body.addEventListener("click", listener, true)
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(6): document.body.addEventListener(\"click\", listener, true) 2`] = `
+
+Message:
+> 1 | document.body.addEventListener("click", listener, true)
+    |                                                   ^^^^ Prefer \`{capture: true}\` over \`true\`.
+
+Output:
+  1 | document.body.addEventListener("click", listener, {capture: true})
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(7): (window).addEventListener(\"click\", listener, false) 1`] = `
+
+  1 | (window).addEventListener("click", listener, false)
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(7): (window).addEventListener(\"click\", listener, false) 2`] = `
+
+Message:
+> 1 | (window).addEventListener("click", listener, false)
+    |                                              ^^^^^ Prefer \`{capture: false}\` over \`false\`.
+
+Output:
+  1 | (window).addEventListener("click", listener, {capture: false})
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(8): window.addEventListener(\"click\", listener, /* useCapture */ true) 1`] = `
+
+  1 | window.addEventListener("click", listener, /* useCapture */ true)
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(8): window.addEventListener(\"click\", listener, /* useCapture */ true) 2`] = `
+
+Message:
+> 1 | window.addEventListener("click", listener, /* useCapture */ true)
+    |                                                             ^^^^ Prefer \`{capture: true}\` over \`true\`.
+
+Output:
+  1 | window.addEventListener("click", listener, /* useCapture */ {capture: true})
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(9): window.addEventListener(\"click\", listener, true /* useCapture */) 1`] = `
+
+  1 | window.addEventListener("click", listener, true /* useCapture */)
+
+`;
+
+exports[`prefer-add-event-listener-options > invalid(9): window.addEventListener(\"click\", listener, true /* useCapture */) 2`] = `
+
+Message:
+> 1 | window.addEventListener("click", listener, true /* useCapture */)
+    |                                            ^^^^ Prefer \`{capture: true}\` over \`true\`.
+
+Output:
+  1 | window.addEventListener("click", listener, {capture: true} /* useCapture */)
+
+`;

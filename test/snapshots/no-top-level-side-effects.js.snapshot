@@ -1,0 +1,329 @@
+exports[`no-top-level-side-effects > invalid(1): export {};\ninit(); 1`] = `
+
+  1 | export {};
+  2 | init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(1): export {};\ninit(); 2`] = `
+
+Message:
+  1 | export {};
+> 2 | init();
+    | ^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(10): export {type Foo, bar};\ninit(); 1`] = `
+
+  1 | export {type Foo, bar};
+  2 | init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(10): export {type Foo, bar};\ninit(); 2`] = `
+
+Message:
+  1 | export {type Foo, bar};
+> 2 | init();
+    | ^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(11): export {};\n\n(class extends init() {}); 1`] = `
+
+  1 | export {};
+  2 |
+  3 | (class extends init() {});
+
+`;
+
+exports[`no-top-level-side-effects > invalid(11): export {};\n\n(class extends init() {}); 2`] = `
+
+Message:
+  1 | export {};
+  2 |
+> 3 | (class extends init() {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(12): export {}; await init(); 1`] = `
+
+  1 | export {}; await init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(12): export {}; await init(); 2`] = `
+
+Message:
+> 1 | export {}; await init();
+    |            ^^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(13): export {}; void init(); 1`] = `
+
+  1 | export {}; void init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(13): export {}; void init(); 2`] = `
+
+Message:
+> 1 | export {}; void init();
+    |            ^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(14): export {}; import(\"./setup.js\"); 1`] = `
+
+  1 | export {}; import("./setup.js");
+
+`;
+
+exports[`no-top-level-side-effects > invalid(14): export {}; import(\"./setup.js\"); 2`] = `
+
+Message:
+> 1 | export {}; import("./setup.js");
+    |            ^^^^^^^^^^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(15): export {}; counter++; 1`] = `
+
+  1 | export {}; counter++;
+
+`;
+
+exports[`no-top-level-side-effects > invalid(15): export {}; counter++; 2`] = `
+
+Message:
+> 1 | export {}; counter++;
+    |            ^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(16): export {}; delete object.property; 1`] = `
+
+  1 | export {}; delete object.property;
+
+`;
+
+exports[`no-top-level-side-effects > invalid(16): export {}; delete object.property; 2`] = `
+
+Message:
+> 1 | export {}; delete object.property;
+    |            ^^^^^^^^^^^^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(17): export {}; app?.init(); 1`] = `
+
+  1 | export {}; app?.init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(17): export {}; app?.init(); 2`] = `
+
+Message:
+> 1 | export {}; app?.init();
+    |            ^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(18): export {}; app.init?.(); 1`] = `
+
+  1 | export {}; app.init?.();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(18): export {}; app.init?.(); 2`] = `
+
+Message:
+> 1 | export {}; app.init?.();
+    |            ^^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(19): export {}; tag\`value\`; 1`] = `
+
+  1 | export {}; tag\`value\`;
+
+`;
+
+exports[`no-top-level-side-effects > invalid(19): export {}; tag\`value\`; 2`] = `
+
+Message:
+> 1 | export {}; tag\`value\`;
+    |            ^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(2): export {}; new App(); 1`] = `
+
+  1 | export {}; new App();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(2): export {}; new App(); 2`] = `
+
+Message:
+> 1 | export {}; new App();
+    |            ^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(20): export {}; (tag\`value\`) as string; 1`] = `
+
+  1 | export {}; (tag\`value\`) as string;
+
+`;
+
+exports[`no-top-level-side-effects > invalid(20): export {}; (tag\`value\`) as string; 2`] = `
+
+Message:
+> 1 | export {}; (tag\`value\`) as string;
+    |            ^^^^^^^^^^^^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(3): export default function init() {}\ninit(); 1`] = `
+
+  1 | export default function init() {}
+  2 | init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(3): export default function init() {}\ninit(); 2`] = `
+
+Message:
+  1 | export default function init() {}
+> 2 | init();
+    | ^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(4): const value = 1;\nexport {value};\ninit(); 1`] = `
+
+  1 | const value = 1;
+  2 | export {value};
+  3 | init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(4): const value = 1;\nexport {value};\ninit(); 2`] = `
+
+Message:
+  1 | const value = 1;
+  2 | export {value};
+> 3 | init();
+    | ^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(5): export * from \"./module.js\";\ninit(); 1`] = `
+
+  1 | export * from "./module.js";
+  2 | init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(5): export * from \"./module.js\";\ninit(); 2`] = `
+
+Message:
+  1 | export * from "./module.js";
+> 2 | init();
+    | ^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(6): export type Foo = string;\nexport const value = 1;\ninit(); 1`] = `
+
+  1 | export type Foo = string;
+  2 | export const value = 1;
+  3 | init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(6): export type Foo = string;\nexport const value = 1;\ninit(); 2`] = `
+
+Message:
+  1 | export type Foo = string;
+  2 | export const value = 1;
+> 3 | init();
+    | ^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;
+
+exports[`no-top-level-side-effects > invalid(7): <script>\n\trunSideEffectOnce();\n\texport default {};\n</script>\n<script setup>\n\twatch(source, callback);\n</script> 1`] = `
+
+  1 | <script>
+  2 | 	runSideEffectOnce();
+  3 | 	export default {};
+  4 | </script>
+  5 | <script setup>
+  6 | 	watch(source, callback);
+  7 | </script>
+
+`;
+
+exports[`no-top-level-side-effects > invalid(7): <script>\n\trunSideEffectOnce();\n\texport default {};\n</script>\n<script setup>\n\twatch(source, callback);\n</script> 2`] = `
+
+Message:
+  1 | <script>
+> 2 | 	runSideEffectOnce();
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+  3 | 	export default {};
+  4 | </script>
+  5 | <script setup>
+  6 | 	watch(source, callback);
+  7 | </script>
+
+`;
+
+exports[`no-top-level-side-effects > invalid(8): <script setup>\n\twatch(source, callback);\n</script>\n<script>\n\trunSideEffectOnce();\n\texport default {};\n</script> 1`] = `
+
+  1 | <script setup>
+  2 | 	watch(source, callback);
+  3 | </script>
+  4 | <script>
+  5 | 	runSideEffectOnce();
+  6 | 	export default {};
+  7 | </script>
+
+`;
+
+exports[`no-top-level-side-effects > invalid(8): <script setup>\n\twatch(source, callback);\n</script>\n<script>\n\trunSideEffectOnce();\n\texport default {};\n</script> 2`] = `
+
+Message:
+  1 | <script setup>
+  2 | 	watch(source, callback);
+  3 | </script>
+  4 | <script>
+> 5 | 	runSideEffectOnce();
+    | 	^^^^^^^^^^^^^^^^^^^^ Do not use top-level side effects in exported modules.
+  6 | 	export default {};
+  7 | </script>
+
+`;
+
+exports[`no-top-level-side-effects > invalid(9): export enum Enum {\n\tA,\n}\ninit(); 1`] = `
+
+  1 | export enum Enum {
+  2 | 	A,
+  3 | }
+  4 | init();
+
+`;
+
+exports[`no-top-level-side-effects > invalid(9): export enum Enum {\n\tA,\n}\ninit(); 2`] = `
+
+Message:
+  1 | export enum Enum {
+  2 | 	A,
+  3 | }
+> 4 | init();
+    | ^^^^^^^ Do not use top-level side effects in exported modules.
+
+`;

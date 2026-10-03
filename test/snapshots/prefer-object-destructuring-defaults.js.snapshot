@@ -1,0 +1,224 @@
+exports[`prefer-object-destructuring-defaults > invalid(1): const {foo, bar} = {foo: false, bar: 1, ...options}; 1`] = `
+
+  1 | const {foo, bar} = {foo: false, bar: 1, ...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(1): const {foo, bar} = {foo: false, bar: 1, ...options}; 2`] = `
+
+Message:
+> 1 | const {foo, bar} = {foo: false, bar: 1, ...options};
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {foo = false, bar = 1} = {...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(10): const {foo, bar} = {foo: false, bar: 1, ...(options, defaults)}; 1`] = `
+
+  1 | const {foo, bar} = {foo: false, bar: 1, ...(options, defaults)};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(10): const {foo, bar} = {foo: false, bar: 1, ...(options, defaults)}; 2`] = `
+
+Message:
+> 1 | const {foo, bar} = {foo: false, bar: 1, ...(options, defaults)};
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {foo = false, bar = 1} = {...(options, defaults)};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(11): let {foo, bar} = {foo: false, bar: 1, ...options}; 1`] = `
+
+  1 | let {foo, bar} = {foo: false, bar: 1, ...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(11): let {foo, bar} = {foo: false, bar: 1, ...options}; 2`] = `
+
+Message:
+> 1 | let {foo, bar} = {foo: false, bar: 1, ...options};
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | let {foo = false, bar = 1} = {...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(12): var {foo, bar} = {foo: false, bar: 1, ...options}; 1`] = `
+
+  1 | var {foo, bar} = {foo: false, bar: 1, ...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(12): var {foo, bar} = {foo: false, bar: 1, ...options}; 2`] = `
+
+Message:
+> 1 | var {foo, bar} = {foo: false, bar: 1, ...options};
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | var {foo = false, bar = 1} = {...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(2): const {\n\tfoo,\n\tbar,\n} = {\n\tfoo: false,\n\tbar: 1,\n\t...options,\n}; 1`] = `
+
+  1 | const {
+  2 | 	foo,
+  3 | 	bar,
+  4 | } = {
+  5 | 	foo: false,
+  6 | 	bar: 1,
+  7 | 	...options,
+  8 | };
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(2): const {\n\tfoo,\n\tbar,\n} = {\n\tfoo: false,\n\tbar: 1,\n\t...options,\n}; 2`] = `
+
+Message:
+> 1 | const {
+    |       ^
+> 2 | 	foo,
+    | ^^^^^
+> 3 | 	bar,
+    | ^^^^^
+> 4 | } = {
+    | ^^^^^
+> 5 | 	foo: false,
+    | ^^^^^^^^^^^^
+> 6 | 	bar: 1,
+    | ^^^^^^^^
+> 7 | 	...options,
+    | ^^^^^^^^^^^^
+> 8 | };
+    | ^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {foo = false, bar = 1} = {...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(3): const {foo: localFoo, bar} = {foo: false, bar: 1, ...options}; 1`] = `
+
+  1 | const {foo: localFoo, bar} = {foo: false, bar: 1, ...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(3): const {foo: localFoo, bar} = {foo: false, bar: 1, ...options}; 2`] = `
+
+Message:
+> 1 | const {foo: localFoo, bar} = {foo: false, bar: 1, ...options};
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {foo: localFoo = false, bar = 1} = {...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(4): const {\"\": empty} = {\"\": false, ...options}; 1`] = `
+
+  1 | const {"": empty} = {"": false, ...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(4): const {\"\": empty} = {\"\": false, ...options}; 2`] = `
+
+Message:
+> 1 | const {"": empty} = {"": false, ...options};
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {"": empty = false} = {...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(5): const {\"foo\": localFoo} = {\"foo\": false, ...options}; 1`] = `
+
+  1 | const {"foo": localFoo} = {"foo": false, ...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(5): const {\"foo\": localFoo} = {\"foo\": false, ...options}; 2`] = `
+
+Message:
+> 1 | const {"foo": localFoo} = {"foo": false, ...options};
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {"foo": localFoo = false} = {...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(6): const {0: first} = {0: \"default\", ...options}; 1`] = `
+
+  1 | const {0: first} = {0: "default", ...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(6): const {0: first} = {0: \"default\", ...options}; 2`] = `
+
+Message:
+> 1 | const {0: first} = {0: "default", ...options};
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {0: first = "default"} = {...options};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(7): const {foo, bar} = {foo: false, bar: 1, ...options || defaults}; 1`] = `
+
+  1 | const {foo, bar} = {foo: false, bar: 1, ...options || defaults};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(7): const {foo, bar} = {foo: false, bar: 1, ...options || defaults}; 2`] = `
+
+Message:
+> 1 | const {foo, bar} = {foo: false, bar: 1, ...options || defaults};
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {foo = false, bar = 1} = {...options || defaults};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(8): const {foo, bar} = {foo: false, bar: 1, ...(options || defaults)}; 1`] = `
+
+  1 | const {foo, bar} = {foo: false, bar: 1, ...(options || defaults)};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(8): const {foo, bar} = {foo: false, bar: 1, ...(options || defaults)}; 2`] = `
+
+Message:
+> 1 | const {foo, bar} = {foo: false, bar: 1, ...(options || defaults)};
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {foo = false, bar = 1} = {...(options || defaults)};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(9): const {foo, bar} = {foo: false, bar: 1, ...(condition ? options : defaults)}; 1`] = `
+
+  1 | const {foo, bar} = {foo: false, bar: 1, ...(condition ? options : defaults)};
+
+`;
+
+exports[`prefer-object-destructuring-defaults > invalid(9): const {foo, bar} = {foo: false, bar: 1, ...(condition ? options : defaults)}; 2`] = `
+
+Message:
+> 1 | const {foo, bar} = {foo: false, bar: 1, ...(condition ? options : defaults)};
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer object destructuring defaults over default object literals with spread.
+
+Suggestion 1/1: Use object destructuring defaults.:
+  1 | const {foo = false, bar = 1} = {...(condition ? options : defaults)};
+
+`;

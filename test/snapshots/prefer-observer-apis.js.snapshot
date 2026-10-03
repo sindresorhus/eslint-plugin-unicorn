@@ -1,0 +1,1121 @@
+exports[`prefer-observer-apis > invalid(1): let config = {};\nwindow.addEventListener('resize', () => {\n\tconsole.log(config.clientWidth);\n}); 1`] = `
+
+  1 | let config = {};
+  2 | window.addEventListener('resize', () => {
+  3 | 	console.log(config.clientWidth);
+  4 | });
+
+`;
+
+exports[`prefer-observer-apis > invalid(1): let config = {};\nwindow.addEventListener('resize', () => {\n\tconsole.log(config.clientWidth);\n}); 2`] = `
+
+Message:
+  1 | let config = {};
+> 2 | window.addEventListener('resize', () => {
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  3 | 	console.log(config.clientWidth);
+  4 | });
+
+`;
+
+exports[`prefer-observer-apis > invalid(1): window.addEventListener('resize', () => {\n\tconst {clientWidth} = element;\n\tconsole.log(clientWidth);\n}); 1`] = `
+
+  1 | window.addEventListener('resize', () => {
+  2 | 	const {clientWidth} = element;
+  3 | 	console.log(clientWidth);
+  4 | });
+
+`;
+
+exports[`prefer-observer-apis > invalid(1): window.addEventListener('resize', () => {\n\tconst {clientWidth} = element;\n\tconsole.log(clientWidth);\n}); 2`] = `
+
+Message:
+> 1 | window.addEventListener('resize', () => {
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  2 | 	const {clientWidth} = element;
+  3 | 	console.log(clientWidth);
+  4 | });
+
+`;
+
+exports[`prefer-observer-apis > invalid(1): window.addEventListener(\"resize\", () => element.offsetWidth) 1`] = `
+
+  1 | window.addEventListener("resize", () => element.offsetWidth)
+
+`;
+
+exports[`prefer-observer-apis > invalid(1): window.addEventListener(\"resize\", () => element.offsetWidth) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => element.offsetWidth)
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(10): window.addEventListener(\"scroll\", () => document.documentElement.getBoundingClientRect()) 1`] = `
+
+  1 | window.addEventListener("scroll", () => document.documentElement.getBoundingClientRect())
+
+`;
+
+exports[`prefer-observer-apis > invalid(10): window.addEventListener(\"scroll\", () => document.documentElement.getBoundingClientRect()) 2`] = `
+
+Message:
+> 1 | window.addEventListener("scroll", () => document.documentElement.getBoundingClientRect())
+    |                         ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(11): window.addEventListener(\"scroll\", () => element?.getBoundingClientRect()) 1`] = `
+
+  1 | window.addEventListener("scroll", () => element?.getBoundingClientRect())
+
+`;
+
+exports[`prefer-observer-apis > invalid(11): window.addEventListener(\"scroll\", () => element?.getBoundingClientRect()) 2`] = `
+
+Message:
+> 1 | window.addEventListener("scroll", () => element?.getBoundingClientRect())
+    |                         ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(12): window.addEventListener(\"scroll\", () => element[\"getBoundingClientRect\"]()) 1`] = `
+
+  1 | window.addEventListener("scroll", () => element["getBoundingClientRect"]())
+
+`;
+
+exports[`prefer-observer-apis > invalid(12): window.addEventListener(\"scroll\", () => element[\"getBoundingClientRect\"]()) 2`] = `
+
+Message:
+> 1 | window.addEventListener("scroll", () => element["getBoundingClientRect"]())
+    |                         ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(13): window.addEventListener(\"scroll\", () => element[\`getBoundingClientRect\`]()) 1`] = `
+
+  1 | window.addEventListener("scroll", () => element[\`getBoundingClientRect\`]())
+
+`;
+
+exports[`prefer-observer-apis > invalid(13): window.addEventListener(\"scroll\", () => element[\`getBoundingClientRect\`]()) 2`] = `
+
+Message:
+> 1 | window.addEventListener("scroll", () => element[\`getBoundingClientRect\`]())
+    |                         ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(14): window.addEventListener(\"scroll\", () => element.getBoundingClientRect(ignored)) 1`] = `
+
+  1 | window.addEventListener("scroll", () => element.getBoundingClientRect(ignored))
+
+`;
+
+exports[`prefer-observer-apis > invalid(14): window.addEventListener(\"scroll\", () => element.getBoundingClientRect(ignored)) 2`] = `
+
+Message:
+> 1 | window.addEventListener("scroll", () => element.getBoundingClientRect(ignored))
+    |                         ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(15): window.addEventListener(\"scroll\", () => element.getClientRects()) 1`] = `
+
+  1 | window.addEventListener("scroll", () => element.getClientRects())
+
+`;
+
+exports[`prefer-observer-apis > invalid(15): window.addEventListener(\"scroll\", () => element.getClientRects()) 2`] = `
+
+Message:
+> 1 | window.addEventListener("scroll", () => element.getClientRects())
+    |                         ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(16): window.addEventListener(\"scroll\", () => element?.[\"getClientRects\"]()) 1`] = `
+
+  1 | window.addEventListener("scroll", () => element?.["getClientRects"]())
+
+`;
+
+exports[`prefer-observer-apis > invalid(16): window.addEventListener(\"scroll\", () => element?.[\"getClientRects\"]()) 2`] = `
+
+Message:
+> 1 | window.addEventListener("scroll", () => element?.["getClientRects"]())
+    |                         ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(17): window.addEventListener(\"resize\", () => element[\"clientWidth\"]) 1`] = `
+
+  1 | window.addEventListener("resize", () => element["clientWidth"])
+
+`;
+
+exports[`prefer-observer-apis > invalid(17): window.addEventListener(\"resize\", () => element[\"clientWidth\"]) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => element["clientWidth"])
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(18): window.addEventListener(\"resize\", () => element[\`clientWidth\`]) 1`] = `
+
+  1 | window.addEventListener("resize", () => element[\`clientWidth\`])
+
+`;
+
+exports[`prefer-observer-apis > invalid(18): window.addEventListener(\"resize\", () => element[\`clientWidth\`]) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => element[\`clientWidth\`])
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(19): window.addEventListener(\"resize\", () => { const {[\"clientWidth\"]: width} = element; }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { const {["clientWidth"]: width} = element; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(19): window.addEventListener(\"resize\", () => { const {[\"clientWidth\"]: width} = element; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { const {["clientWidth"]: width} = element; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(2): window.addEventListener('resize', () => {\n\tconsole.log(element.clientWidth);\n}); 1`] = `
+
+  1 | window.addEventListener('resize', () => {
+  2 | 	console.log(element.clientWidth);
+  3 | });
+
+`;
+
+exports[`prefer-observer-apis > invalid(2): window.addEventListener('resize', () => {\n\tconsole.log(element.clientWidth);\n}); 2`] = `
+
+Message:
+> 1 | window.addEventListener('resize', () => {
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  2 | 	console.log(element.clientWidth);
+  3 | });
+
+`;
+
+exports[`prefer-observer-apis > invalid(2): window.addEventListener(\"resize\", function () { return element.offsetWidth; }) 1`] = `
+
+  1 | window.addEventListener("resize", function () { return element.offsetWidth; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(2): window.addEventListener(\"resize\", function () { return element.offsetWidth; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", function () { return element.offsetWidth; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(20): window.addEventListener(\"resize\", () => { ({\"offsetWidth\": width} = element); }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { ({"offsetWidth": width} = element); })
+
+`;
+
+exports[`prefer-observer-apis > invalid(20): window.addEventListener(\"resize\", () => { ({\"offsetWidth\": width} = element); }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { ({"offsetWidth": width} = element); })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(21): window.addEventListener(\"resize\", () => { const {[\"innerWidth\"]: width} = window; }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { const {["innerWidth"]: width} = window; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(21): window.addEventListener(\"resize\", () => { const {[\"innerWidth\"]: width} = window; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { const {["innerWidth"]: width} = window; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(22): window.addEventListener(\"resize\", () => { const {offsetWidth} = element; }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { const {offsetWidth} = element; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(22): window.addEventListener(\"resize\", () => { const {offsetWidth} = element; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { const {offsetWidth} = element; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(23): window.addEventListener(\"resize\", () => { ({offsetWidth} = element); }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { ({offsetWidth} = element); })
+
+`;
+
+exports[`prefer-observer-apis > invalid(23): window.addEventListener(\"resize\", () => { ({offsetWidth} = element); }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { ({offsetWidth} = element); })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(24): window.addEventListener(\"resize\", () => { const {innerWidth} = window; }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { const {innerWidth} = window; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(24): window.addEventListener(\"resize\", () => { const {innerWidth} = window; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { const {innerWidth} = window; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(25): window.addEventListener(\"resize\", () => { ({innerWidth} = window); }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { ({innerWidth} = window); })
+
+`;
+
+exports[`prefer-observer-apis > invalid(25): window.addEventListener(\"resize\", () => { ({innerWidth} = window); }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { ({innerWidth} = window); })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(26): window.addEventListener(\"resize\", () => { const {width} = visualViewport; }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { const {width} = visualViewport; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(26): window.addEventListener(\"resize\", () => { const {width} = visualViewport; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { const {width} = visualViewport; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(27): window.addEventListener(\"resize\", () => window.innerWidth) 1`] = `
+
+  1 | window.addEventListener("resize", () => window.innerWidth)
+
+`;
+
+exports[`prefer-observer-apis > invalid(27): window.addEventListener(\"resize\", () => window.innerWidth) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => window.innerWidth)
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(28): window.addEventListener(\"resize\", () => innerHeight) 1`] = `
+
+  1 | window.addEventListener("resize", () => innerHeight)
+
+`;
+
+exports[`prefer-observer-apis > invalid(28): window.addEventListener(\"resize\", () => innerHeight) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => innerHeight)
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(29): window.addEventListener(\"resize\", () => globalThis.innerWidth) 1`] = `
+
+  1 | window.addEventListener("resize", () => globalThis.innerWidth)
+
+`;
+
+exports[`prefer-observer-apis > invalid(29): window.addEventListener(\"resize\", () => globalThis.innerWidth) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => globalThis.innerWidth)
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(3): window.addEventListener(\"resize\", () => element.offsetWidth, {passive: true}) 1`] = `
+
+  1 | window.addEventListener("resize", () => element.offsetWidth, {passive: true})
+
+`;
+
+exports[`prefer-observer-apis > invalid(3): window.addEventListener(\"resize\", () => element.offsetWidth, {passive: true}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => element.offsetWidth, {passive: true})
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(30): window.addEventListener(\"resize\", () => self.innerHeight) 1`] = `
+
+  1 | window.addEventListener("resize", () => self.innerHeight)
+
+`;
+
+exports[`prefer-observer-apis > invalid(30): window.addEventListener(\"resize\", () => self.innerHeight) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => self.innerHeight)
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(31): window.addEventListener(\"resize\", () => visualViewport.width) 1`] = `
+
+  1 | window.addEventListener("resize", () => visualViewport.width)
+
+`;
+
+exports[`prefer-observer-apis > invalid(31): window.addEventListener(\"resize\", () => visualViewport.width) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => visualViewport.width)
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(32): window.addEventListener(\"resize\", () => window.visualViewport.height) 1`] = `
+
+  1 | window.addEventListener("resize", () => window.visualViewport.height)
+
+`;
+
+exports[`prefer-observer-apis > invalid(32): window.addEventListener(\"resize\", () => window.visualViewport.height) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => window.visualViewport.height)
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(33): addEventListener(\"resize\", () => window.innerWidth) 1`] = `
+
+  1 | addEventListener("resize", () => window.innerWidth)
+
+`;
+
+exports[`prefer-observer-apis > invalid(33): addEventListener(\"resize\", () => window.innerWidth) 2`] = `
+
+Message:
+> 1 | addEventListener("resize", () => window.innerWidth)
+    |                  ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(34): addEventListener(\"scroll\", () => element.getBoundingClientRect()) 1`] = `
+
+  1 | addEventListener("scroll", () => element.getBoundingClientRect())
+
+`;
+
+exports[`prefer-observer-apis > invalid(34): addEventListener(\"scroll\", () => element.getBoundingClientRect()) 2`] = `
+
+Message:
+> 1 | addEventListener("scroll", () => element.getBoundingClientRect())
+    |                  ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(35): scroller.addEventListener(\"scroll\", () => target.getBoundingClientRect()) 1`] = `
+
+  1 | scroller.addEventListener("scroll", () => target.getBoundingClientRect())
+
+`;
+
+exports[`prefer-observer-apis > invalid(35): scroller.addEventListener(\"scroll\", () => target.getBoundingClientRect()) 2`] = `
+
+Message:
+> 1 | scroller.addEventListener("scroll", () => target.getBoundingClientRect())
+    |                           ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(36): function handler() {\n\treturn element.offsetHeight;\n}\n\nwindow.addEventListener(\"resize\", handler); 1`] = `
+
+  1 | function handler() {
+  2 | 	return element.offsetHeight;
+  3 | }
+  4 |
+  5 | window.addEventListener("resize", handler);
+
+`;
+
+exports[`prefer-observer-apis > invalid(36): function handler() {\n\treturn element.offsetHeight;\n}\n\nwindow.addEventListener(\"resize\", handler); 2`] = `
+
+Message:
+  1 | function handler() {
+  2 | 	return element.offsetHeight;
+  3 | }
+  4 |
+> 5 | window.addEventListener("resize", handler);
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(37): function handler() {\n\treturn element.offsetHeight;\n}\n\nwindow.addEventListener(\"resize\", handler);\nhandler = () => {}; 1`] = `
+
+  1 | function handler() {
+  2 | 	return element.offsetHeight;
+  3 | }
+  4 |
+  5 | window.addEventListener("resize", handler);
+  6 | handler = () => {};
+
+`;
+
+exports[`prefer-observer-apis > invalid(37): function handler() {\n\treturn element.offsetHeight;\n}\n\nwindow.addEventListener(\"resize\", handler);\nhandler = () => {}; 2`] = `
+
+Message:
+  1 | function handler() {
+  2 | 	return element.offsetHeight;
+  3 | }
+  4 |
+> 5 | window.addEventListener("resize", handler);
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  6 | handler = () => {};
+
+`;
+
+exports[`prefer-observer-apis > invalid(38): const handler = () => {\n\treturn element.scrollHeight;\n};\n\nwindow.addEventListener(\"resize\", handler); 1`] = `
+
+  1 | const handler = () => {
+  2 | 	return element.scrollHeight;
+  3 | };
+  4 |
+  5 | window.addEventListener("resize", handler);
+
+`;
+
+exports[`prefer-observer-apis > invalid(38): const handler = () => {\n\treturn element.scrollHeight;\n};\n\nwindow.addEventListener(\"resize\", handler); 2`] = `
+
+Message:
+  1 | const handler = () => {
+  2 | 	return element.scrollHeight;
+  3 | };
+  4 |
+> 5 | window.addEventListener("resize", handler);
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(39): const handler = function () {\n\treturn element.offsetWidth;\n};\n\nwindow.addEventListener(\"resize\", handler); 1`] = `
+
+  1 | const handler = function () {
+  2 | 	return element.offsetWidth;
+  3 | };
+  4 |
+  5 | window.addEventListener("resize", handler);
+
+`;
+
+exports[`prefer-observer-apis > invalid(39): const handler = function () {\n\treturn element.offsetWidth;\n};\n\nwindow.addEventListener(\"resize\", handler); 2`] = `
+
+Message:
+  1 | const handler = function () {
+  2 | 	return element.offsetWidth;
+  3 | };
+  4 |
+> 5 | window.addEventListener("resize", handler);
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(4): window.addEventListener(\`resize\`, () => element.offsetWidth) 1`] = `
+
+  1 | window.addEventListener(\`resize\`, () => element.offsetWidth)
+
+`;
+
+exports[`prefer-observer-apis > invalid(4): window.addEventListener(\`resize\`, () => element.offsetWidth) 2`] = `
+
+Message:
+> 1 | window.addEventListener(\`resize\`, () => element.offsetWidth)
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(40): function listen(element: Element) {\n\twindow.addEventListener(\"scroll\", () => element.getBoundingClientRect());\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen(element: Element) {
+  2 | 	window.addEventListener("scroll", () => element.getBoundingClientRect());
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(40): function listen(element: Element) {\n\twindow.addEventListener(\"scroll\", () => element.getBoundingClientRect());\n} 2`] = `
+
+Message:
+  1 | function listen(element: Element) {
+> 2 | 	window.addEventListener("scroll", () => element.getBoundingClientRect());
+    | 	                        ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(41): function listen(element: HTMLElement) {\n\twindow.addEventListener(\"resize\", () => element.offsetWidth);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen(element: HTMLElement) {
+  2 | 	window.addEventListener("resize", () => element.offsetWidth);
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(41): function listen(element: HTMLElement) {\n\twindow.addEventListener(\"resize\", () => element.offsetWidth);\n} 2`] = `
+
+Message:
+  1 | function listen(element: HTMLElement) {
+> 2 | 	window.addEventListener("resize", () => element.offsetWidth);
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(42): class MyElement extends HTMLElement {}\n\nfunction listen(element: MyElement) {\n\twindow.addEventListener(\"resize\", () => element.offsetWidth);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | class MyElement extends HTMLElement {}
+  2 |
+  3 | function listen(element: MyElement) {
+  4 | 	window.addEventListener("resize", () => element.offsetWidth);
+  5 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(42): class MyElement extends HTMLElement {}\n\nfunction listen(element: MyElement) {\n\twindow.addEventListener(\"resize\", () => element.offsetWidth);\n} 2`] = `
+
+Message:
+  1 | class MyElement extends HTMLElement {}
+  2 |
+  3 | function listen(element: MyElement) {
+> 4 | 	window.addEventListener("resize", () => element.offsetWidth);
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  5 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(43): interface MyElement extends HTMLElement {}\n\nfunction listen(element: MyElement) {\n\twindow.addEventListener(\"resize\", () => element.offsetWidth);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | interface MyElement extends HTMLElement {}
+  2 |
+  3 | function listen(element: MyElement) {
+  4 | 	window.addEventListener("resize", () => element.offsetWidth);
+  5 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(43): interface MyElement extends HTMLElement {}\n\nfunction listen(element: MyElement) {\n\twindow.addEventListener(\"resize\", () => element.offsetWidth);\n} 2`] = `
+
+Message:
+  1 | interface MyElement extends HTMLElement {}
+  2 |
+  3 | function listen(element: MyElement) {
+> 4 | 	window.addEventListener("resize", () => element.offsetWidth);
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  5 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(44): type Size = {\n\toffsetWidth: number;\n};\n\nfunction listen(size: Size) {\n\twindow.addEventListener(\"resize\", () => (size as unknown as HTMLElement).offsetWidth);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | type Size = {
+  2 | 	offsetWidth: number;
+  3 | };
+  4 |
+  5 | function listen(size: Size) {
+  6 | 	window.addEventListener("resize", () => (size as unknown as HTMLElement).offsetWidth);
+  7 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(44): type Size = {\n\toffsetWidth: number;\n};\n\nfunction listen(size: Size) {\n\twindow.addEventListener(\"resize\", () => (size as unknown as HTMLElement).offsetWidth);\n} 2`] = `
+
+Message:
+  1 | type Size = {
+  2 | 	offsetWidth: number;
+  3 | };
+  4 |
+  5 | function listen(size: Size) {
+> 6 | 	window.addEventListener("resize", () => (size as unknown as HTMLElement).offsetWidth);
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  7 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(45): type Size = {\n\toffsetWidth: number;\n};\n\nfunction listen(size: Size) {\n\twindow.addEventListener(\"resize\", () => {\n\t\tconst {offsetWidth} = size as unknown as HTMLElement;\n\t\treturn offsetWidth;\n\t});\n} 1`] = `
+
+Filename: file.ts
+
+   1 | type Size = {
+   2 | 	offsetWidth: number;
+   3 | };
+   4 |
+   5 | function listen(size: Size) {
+   6 | 	window.addEventListener("resize", () => {
+   7 | 		const {offsetWidth} = size as unknown as HTMLElement;
+   8 | 		return offsetWidth;
+   9 | 	});
+  10 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(45): type Size = {\n\toffsetWidth: number;\n};\n\nfunction listen(size: Size) {\n\twindow.addEventListener(\"resize\", () => {\n\t\tconst {offsetWidth} = size as unknown as HTMLElement;\n\t\treturn offsetWidth;\n\t});\n} 2`] = `
+
+Message:
+   1 | type Size = {
+   2 | 	offsetWidth: number;
+   3 | };
+   4 |
+   5 | function listen(size: Size) {
+>  6 | 	window.addEventListener("resize", () => {
+     | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+   7 | 		const {offsetWidth} = size as unknown as HTMLElement;
+   8 | 		return offsetWidth;
+   9 | 	});
+  10 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(46): function listen(window_: Window) {\n\twindow_.addEventListener(\"resize\", () => window_.innerWidth);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen(window_: Window) {
+  2 | 	window_.addEventListener("resize", () => window_.innerWidth);
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(46): function listen(window_: Window) {\n\twindow_.addEventListener(\"resize\", () => window_.innerWidth);\n} 2`] = `
+
+Message:
+  1 | function listen(window_: Window) {
+> 2 | 	window_.addEventListener("resize", () => window_.innerWidth);
+    | 	                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(47): function listen(window_: Window) {\n\twindow.addEventListener(\"resize\", () => {\n\t\tconst {innerWidth} = window_;\n\t\treturn innerWidth;\n\t});\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen(window_: Window) {
+  2 | 	window.addEventListener("resize", () => {
+  3 | 		const {innerWidth} = window_;
+  4 | 		return innerWidth;
+  5 | 	});
+  6 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(47): function listen(window_: Window) {\n\twindow.addEventListener(\"resize\", () => {\n\t\tconst {innerWidth} = window_;\n\t\treturn innerWidth;\n\t});\n} 2`] = `
+
+Message:
+  1 | function listen(window_: Window) {
+> 2 | 	window.addEventListener("resize", () => {
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  3 | 		const {innerWidth} = window_;
+  4 | 		return innerWidth;
+  5 | 	});
+  6 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(48): function listen(window_: Window | undefined) {\n\twindow.addEventListener(\"resize\", () => window_?.innerWidth);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen(window_: Window | undefined) {
+  2 | 	window.addEventListener("resize", () => window_?.innerWidth);
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(48): function listen(window_: Window | undefined) {\n\twindow.addEventListener(\"resize\", () => window_?.innerWidth);\n} 2`] = `
+
+Message:
+  1 | function listen(window_: Window | undefined) {
+> 2 | 	window.addEventListener("resize", () => window_?.innerWidth);
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(49): function listen<T extends Window>(window_: T) {\n\twindow.addEventListener(\"resize\", () => window_.innerHeight);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen<T extends Window>(window_: T) {
+  2 | 	window.addEventListener("resize", () => window_.innerHeight);
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(49): function listen<T extends Window>(window_: T) {\n\twindow.addEventListener(\"resize\", () => window_.innerHeight);\n} 2`] = `
+
+Message:
+  1 | function listen<T extends Window>(window_: T) {
+> 2 | 	window.addEventListener("resize", () => window_.innerHeight);
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(5): window.addEventListener(\"resize\", () => { element.offsetWidth += 1; }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { element.offsetWidth += 1; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(5): window.addEventListener(\"resize\", () => { element.offsetWidth += 1; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { element.offsetWidth += 1; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(50): function listen(visualViewport_: VisualViewport) {\n\twindow.addEventListener(\"resize\", () => visualViewport_.width);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen(visualViewport_: VisualViewport) {
+  2 | 	window.addEventListener("resize", () => visualViewport_.width);
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(50): function listen(visualViewport_: VisualViewport) {\n\twindow.addEventListener(\"resize\", () => visualViewport_.width);\n} 2`] = `
+
+Message:
+  1 | function listen(visualViewport_: VisualViewport) {
+> 2 | 	window.addEventListener("resize", () => visualViewport_.width);
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(51): function listen(visualViewport_: VisualViewport) {\n\twindow.addEventListener(\"resize\", () => {\n\t\tconst {height} = visualViewport_;\n\t\treturn height;\n\t});\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen(visualViewport_: VisualViewport) {
+  2 | 	window.addEventListener("resize", () => {
+  3 | 		const {height} = visualViewport_;
+  4 | 		return height;
+  5 | 	});
+  6 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(51): function listen(visualViewport_: VisualViewport) {\n\twindow.addEventListener(\"resize\", () => {\n\t\tconst {height} = visualViewport_;\n\t\treturn height;\n\t});\n} 2`] = `
+
+Message:
+  1 | function listen(visualViewport_: VisualViewport) {
+> 2 | 	window.addEventListener("resize", () => {
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  3 | 		const {height} = visualViewport_;
+  4 | 		return height;
+  5 | 	});
+  6 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(52): window.addEventListener(\"resize\" as const, () => element.offsetWidth); 1`] = `
+
+Filename: file.ts
+
+  1 | window.addEventListener("resize" as const, () => element.offsetWidth);
+
+`;
+
+exports[`prefer-observer-apis > invalid(52): window.addEventListener(\"resize\" as const, () => element.offsetWidth); 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize" as const, () => element.offsetWidth);
+    |                         ^^^^^^^^^^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(53): const eventName = 'resize';\nwindow.addEventListener(eventName, () => element.offsetWidth); 1`] = `
+
+Filename: file.ts
+
+  1 | const eventName = 'resize';
+  2 | window.addEventListener(eventName, () => element.offsetWidth);
+
+`;
+
+exports[`prefer-observer-apis > invalid(53): const eventName = 'resize';\nwindow.addEventListener(eventName, () => element.offsetWidth); 2`] = `
+
+Message:
+  1 | const eventName = 'resize';
+> 2 | window.addEventListener(eventName, () => element.offsetWidth);
+    |                         ^^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(54): function listen(eventName: 'scroll') {\n\twindow.addEventListener(eventName, () => element.getBoundingClientRect());\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen(eventName: 'scroll') {
+  2 | 	window.addEventListener(eventName, () => element.getBoundingClientRect());
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(54): function listen(eventName: 'scroll') {\n\twindow.addEventListener(eventName, () => element.getBoundingClientRect());\n} 2`] = `
+
+Message:
+  1 | function listen(eventName: 'scroll') {
+> 2 | 	window.addEventListener(eventName, () => element.getBoundingClientRect());
+    | 	                        ^^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(55): window.addEventListener((\"resize\" satisfies string), () => element.offsetWidth); 1`] = `
+
+Filename: file.ts
+
+  1 | window.addEventListener(("resize" satisfies string), () => element.offsetWidth);
+
+`;
+
+exports[`prefer-observer-apis > invalid(55): window.addEventListener((\"resize\" satisfies string), () => element.offsetWidth); 2`] = `
+
+Message:
+> 1 | window.addEventListener(("resize" satisfies string), () => element.offsetWidth);
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(56): window.addEventListener(\"resize\", () => element[(\"clientWidth\" as const)]); 1`] = `
+
+Filename: file.ts
+
+  1 | window.addEventListener("resize", () => element[("clientWidth" as const)]);
+
+`;
+
+exports[`prefer-observer-apis > invalid(56): window.addEventListener(\"resize\", () => element[(\"clientWidth\" as const)]); 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => element[("clientWidth" as const)]);
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(57): window.addEventListener(\"scroll\", () => element[(\"getBoundingClientRect\" as const)]()); 1`] = `
+
+Filename: file.ts
+
+  1 | window.addEventListener("scroll", () => element[("getBoundingClientRect" as const)]());
+
+`;
+
+exports[`prefer-observer-apis > invalid(57): window.addEventListener(\"scroll\", () => element[(\"getBoundingClientRect\" as const)]()); 2`] = `
+
+Message:
+> 1 | window.addEventListener("scroll", () => element[("getBoundingClientRect" as const)]());
+    |                         ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(58): window.addEventListener(\"resize\", () => {\n\tconst {[(\"clientWidth\" as const)]: width} = element;\n\treturn width;\n}); 1`] = `
+
+Filename: file.ts
+
+  1 | window.addEventListener("resize", () => {
+  2 | 	const {[("clientWidth" as const)]: width} = element;
+  3 | 	return width;
+  4 | });
+
+`;
+
+exports[`prefer-observer-apis > invalid(58): window.addEventListener(\"resize\", () => {\n\tconst {[(\"clientWidth\" as const)]: width} = element;\n\treturn width;\n}); 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => {
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  2 | 	const {[("clientWidth" as const)]: width} = element;
+  3 | 	return width;
+  4 | });
+
+`;
+
+exports[`prefer-observer-apis > invalid(59): window.addEventListener(\"resize\", (() => element.offsetWidth) as EventListener); 1`] = `
+
+Filename: file.ts
+
+  1 | window.addEventListener("resize", (() => element.offsetWidth) as EventListener);
+
+`;
+
+exports[`prefer-observer-apis > invalid(59): window.addEventListener(\"resize\", (() => element.offsetWidth) as EventListener); 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", (() => element.offsetWidth) as EventListener);
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(6): window.addEventListener(\"resize\", () => { element.offsetWidth++; }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { element.offsetWidth++; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(6): window.addEventListener(\"resize\", () => { element.offsetWidth++; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { element.offsetWidth++; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(60): const handler = (() => element.offsetWidth) as EventListener;\nwindow.addEventListener(\"resize\", handler); 1`] = `
+
+Filename: file.ts
+
+  1 | const handler = (() => element.offsetWidth) as EventListener;
+  2 | window.addEventListener("resize", handler);
+
+`;
+
+exports[`prefer-observer-apis > invalid(60): const handler = (() => element.offsetWidth) as EventListener;\nwindow.addEventListener(\"resize\", handler); 2`] = `
+
+Message:
+  1 | const handler = (() => element.offsetWidth) as EventListener;
+> 2 | window.addEventListener("resize", handler);
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(61): function listen(window_: Window & {extra: number}) {\n\twindow.addEventListener(\"resize\", () => window_.innerWidth);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function listen(window_: Window & {extra: number}) {
+  2 | 	window.addEventListener("resize", () => window_.innerWidth);
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(61): function listen(window_: Window & {extra: number}) {\n\twindow.addEventListener(\"resize\", () => window_.innerWidth);\n} 2`] = `
+
+Message:
+  1 | function listen(window_: Window & {extra: number}) {
+> 2 | 	window.addEventListener("resize", () => window_.innerWidth);
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  3 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(62): interface MyWindow extends Window {}\n\nfunction listen(window_: MyWindow) {\n\twindow.addEventListener(\"resize\", () => window_.innerWidth);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | interface MyWindow extends Window {}
+  2 |
+  3 | function listen(window_: MyWindow) {
+  4 | 	window.addEventListener("resize", () => window_.innerWidth);
+  5 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(62): interface MyWindow extends Window {}\n\nfunction listen(window_: MyWindow) {\n\twindow.addEventListener(\"resize\", () => window_.innerWidth);\n} 2`] = `
+
+Message:
+  1 | interface MyWindow extends Window {}
+  2 |
+  3 | function listen(window_: MyWindow) {
+> 4 | 	window.addEventListener("resize", () => window_.innerWidth);
+    | 	                        ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+  5 | }
+
+`;
+
+exports[`prefer-observer-apis > invalid(7): window.addEventListener(\"resize\", () => { window.innerWidth += 1; }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { window.innerWidth += 1; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(7): window.addEventListener(\"resize\", () => { window.innerWidth += 1; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { window.innerWidth += 1; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(8): window.addEventListener(\"resize\", () => { innerWidth++; }) 1`] = `
+
+  1 | window.addEventListener("resize", () => { innerWidth++; })
+
+`;
+
+exports[`prefer-observer-apis > invalid(8): window.addEventListener(\"resize\", () => { innerWidth++; }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("resize", () => { innerWidth++; })
+    |                         ^^^^^^^^ Prefer ResizeObserver over a resize listener with layout reads.
+
+`;
+
+exports[`prefer-observer-apis > invalid(9): window.addEventListener(\"scroll\", () => element.getBoundingClientRect()) 1`] = `
+
+  1 | window.addEventListener("scroll", () => element.getBoundingClientRect())
+
+`;
+
+exports[`prefer-observer-apis > invalid(9): window.addEventListener(\"scroll\", () => element.getBoundingClientRect()) 2`] = `
+
+Message:
+> 1 | window.addEventListener("scroll", () => element.getBoundingClientRect())
+    |                         ^^^^^^^^ Prefer IntersectionObserver over a scroll listener with layout reads.
+
+`;

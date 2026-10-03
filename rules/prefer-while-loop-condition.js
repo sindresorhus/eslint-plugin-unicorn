@@ -10,6 +10,7 @@ import {
 	getReferences,
 	hasNonDirectiveComment,
 	shouldAddParenthesesToUnaryExpressionArgument,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 /**
@@ -51,31 +52,7 @@ function hasUnlabeledBreakStatement(node, sourceCode) {
 		return false;
 	}
 
-	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const element of value) {
-				if (
-					element
-					&& hasUnlabeledBreakStatement(element, sourceCode)
-				) {
-					return true;
-				}
-			}
-
-			continue;
-		}
-
-		if (
-			value
-			&& hasUnlabeledBreakStatement(value, sourceCode)
-		) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => hasUnlabeledBreakStatement(child, sourceCode));
 }
 
 const hasOtherBreakForSameLoop = (loop, sourceCode) =>
@@ -101,22 +78,14 @@ const hasUnsafeLiftReference = (loop, firstStatement, sourceCode) => {
 };
 
 const isInfiniteLoop = node => {
-	switch (node.type) {
-		case 'WhileStatement':
-		case 'DoWhileStatement': {
-			return isBooleanLiteral(node.test, true);
-		}
-
-		case 'ForStatement': {
-			return !node.init
-				&& !node.update
-				&& (!node.test || isBooleanLiteral(node.test, true));
-		}
-
-		default: {
-			return false;
-		}
+	if (node.type === 'ForStatement') {
+		return !node.init
+			&& !node.update
+			&& (!node.test || isBooleanLiteral(node.test, true));
 	}
+
+	// `WhileStatement` or `DoWhileStatement`
+	return isBooleanLiteral(node.test, true);
 };
 
 const getLoopConditionText = (test, sourceCode) => {

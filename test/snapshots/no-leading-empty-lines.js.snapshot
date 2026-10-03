@@ -1,0 +1,1062 @@
+exports[`no-leading-empty-lines > invalid(1): \n    indented code\n\n\nParagraph\n\n 1`] = `
+
+  1 |
+  2 |     indented code
+  3 |
+  4 |
+  5 | Paragraph
+  6 |
+  7 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n    indented code\n\n\nParagraph\n\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |     indented code
+    | ^ Do not use empty lines at the beginning of a file.
+  3 |
+  4 |
+  5 | Paragraph
+  6 |
+  7 |
+
+Output:
+  1 |     indented code
+  2 |
+  3 |
+  4 | Paragraph
+  5 |
+  6 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n  <!-- Comment -->\n<pre>\n\nText\n</pre>\n\n 1`] = `
+
+  1 |
+  2 |   <!-- Comment -->
+  3 | <pre>
+  4 |
+  5 | Text
+  6 | </pre>
+  7 |
+  8 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n  <!-- Comment -->\n<pre>\n\nText\n</pre>\n\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |   <!-- Comment -->
+    | ^ Do not use empty lines at the beginning of a file.
+  3 | <pre>
+  4 |
+  5 | Text
+  6 | </pre>
+  7 |
+  8 |
+
+Output:
+  1 |   <!-- Comment -->
+  2 | <pre>
+  3 |
+  4 | Text
+  5 | </pre>
+  6 |
+  7 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n  a { color: red; }\n\n 1`] = `
+
+  1 |
+  2 |   a { color: red; }
+  3 |
+  4 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n  a { color: red; }\n\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |   a { color: red; }
+    | ^ Do not use empty lines at the beginning of a file.
+  3 |
+  4 |
+
+Output:
+  1 |   a { color: red; }
+  2 |
+  3 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n  {\"value\": 1}\n\n 1`] = `
+
+  1 |
+  2 |   {"value": 1}
+  3 |
+  4 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n  {\"value\": 1}\n\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |   {"value": 1}
+    | ^ Do not use empty lines at the beginning of a file.
+  3 |
+  4 |
+
+Output:
+  1 |   {"value": 1}
+  2 |
+  3 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n# Comment\n---\nvalue: |+\n\n  Text\n\n\n 1`] = `
+
+  1 |
+  2 | # Comment
+  3 | ---
+  4 | value: |+
+  5 |
+  6 |   Text
+  7 |
+  8 |
+  9 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n# Comment\n---\nvalue: |+\n\n  Text\n\n\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | # Comment
+    | ^ Do not use empty lines at the beginning of a file.
+  3 | ---
+  4 | value: |+
+  5 |
+  6 |   Text
+  7 |
+  8 |
+  9 |
+
+Output:
+  1 | # Comment
+  2 | ---
+  3 | value: |+
+  4 |
+  5 |   Text
+  6 |
+  7 |
+  8 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n# Comment\nvalue = \"\"\"\n\nText\n\"\"\"\n\n 1`] = `
+
+  1 |
+  2 | # Comment
+  3 | value = """
+  4 |
+  5 | Text
+  6 | """
+  7 |
+  8 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n# Comment\nvalue = \"\"\"\n\nText\n\"\"\"\n\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | # Comment
+    | ^ Do not use empty lines at the beginning of a file.
+  3 | value = """
+  4 |
+  5 | Text
+  6 | """
+  7 |
+  8 |
+
+Output:
+  1 | # Comment
+  2 | value = """
+  3 |
+  4 | Text
+  5 | """
+  6 |
+  7 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n# Title\n\n- [x] Task\n\n 1`] = `
+
+  1 |
+  2 | # Title
+  3 |
+  4 | - [x] Task
+  5 |
+  6 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n# Title\n\n- [x] Task\n\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | # Title
+    | ^ Do not use empty lines at the beginning of a file.
+  3 |
+  4 | - [x] Task
+  5 |
+  6 |
+
+Output:
+  1 | # Title
+  2 |
+  3 | - [x] Task
+  4 |
+  5 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n// Comment\n\n{\"value\": 1} 1`] = `
+
+  1 |
+  2 | // Comment
+  3 |
+  4 | {"value": 1}
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n// Comment\n\n{\"value\": 1} 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | // Comment
+    | ^ Do not use empty lines at the beginning of a file.
+  3 |
+  4 | {"value": 1}
+
+Output:
+  1 | // Comment
+  2 |
+  3 | {"value": 1}
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \nconst value = 1; 1`] = `
+
+  1 |
+  2 | const value = 1;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \nconst value = 1; 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | const value = 1;
+    | ^ Do not use empty lines at the beginning of a file.
+
+Output:
+  1 | const value = 1;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n{value: \"first\\\n\\\nlast\"}\n\n 1`] = `
+
+  1 |
+  2 | {value: "first\\
+  3 | \\
+  4 | last"}
+  5 |
+  6 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(1): \n{value: \"first\\\n\\\nlast\"}\n\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | {value: "first\\
+    | ^ Do not use empty lines at the beginning of a file.
+  3 | \\
+  4 | last"}
+  5 |
+  6 |
+
+Output:
+  1 | {value: "first\\
+  2 | \\
+  3 | last"}
+  4 |
+  5 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(10): \n/*\n\nComment\n*/ 1`] = `
+
+  1 |
+  2 | /*
+  3 |
+  4 | Comment
+  5 | */
+
+`;
+
+exports[`no-leading-empty-lines > invalid(10): \n/*\n\nComment\n*/ 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | /*
+    | ^ Do not use empty lines at the beginning of a file.
+  3 |
+  4 | Comment
+  5 | */
+
+Output:
+  1 | /*
+  2 |
+  3 | Comment
+  4 | */
+
+`;
+
+exports[`no-leading-empty-lines > invalid(11): \n\`\n\nvalue\`; 1`] = `
+
+  1 |
+  2 | \`
+  3 |
+  4 | value\`;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(11): \n\`\n\nvalue\`; 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | \`
+    | ^ Do not use empty lines at the beginning of a file.
+  3 |
+  4 | value\`;
+
+Output:
+  1 | \`
+  2 |
+  3 | value\`;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(12): \n \nconst value = 1; 1`] = `
+
+  1 |
+  2 |  
+  3 | const value = 1;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(12): \n \nconst value = 1; 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |  
+    | ^ Do not use empty lines at the beginning of a file.
+  3 | const value = 1;
+
+Output:
+  1 |  
+  2 | const value = 1;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(13): \nconst value = \"value\" as string; 1`] = `
+
+  1 |
+  2 | const value = "value" as string;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(13): \nconst value = \"value\" as string; 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | const value = "value" as string;
+    | ^ Do not use empty lines at the beginning of a file.
+
+Output:
+  1 | const value = "value" as string;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(14): \n<div />; 1`] = `
+
+  1 |
+  2 | <div />;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(14): \n<div />; 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | <div />;
+    | ^ Do not use empty lines at the beginning of a file.
+
+Output:
+  1 | <div />;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(15): \n<template><div /></template>\n<script>\n\n</script> 1`] = `
+
+  1 |
+  2 | <template><div /></template>
+  3 | <script>
+  4 |
+  5 | </script>
+
+`;
+
+exports[`no-leading-empty-lines > invalid(15): \n<template><div /></template>\n<script>\n\n</script> 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | <template><div /></template>
+    | ^ Do not use empty lines at the beginning of a file.
+  3 | <script>
+  4 |
+  5 | </script>
+
+Output:
+  1 | <template><div /></template>
+  2 | <script>
+  3 |
+  4 | </script>
+
+`;
+
+exports[`no-leading-empty-lines > invalid(16): \n\n<script>\nconst value = \`\n\ntext\`;\n</script>\n<pre>\n\n{value}\n</pre> 1`] = `
+
+   1 |
+   2 |
+   3 | <script>
+   4 | const value = \`
+   5 |
+   6 | text\`;
+   7 | </script>
+   8 | <pre>
+   9 |
+  10 | {value}
+  11 | </pre>
+
+`;
+
+exports[`no-leading-empty-lines > invalid(16): \n\n<script>\nconst value = \`\n\ntext\`;\n</script>\n<pre>\n\n{value}\n</pre> 2`] = `
+
+Message:
+>  1 |
+     | ^
+>  2 |
+     | ^
+>  3 | <script>
+     | ^ Do not use empty lines at the beginning of a file.
+   4 | const value = \`
+   5 |
+   6 | text\`;
+   7 | </script>
+   8 | <pre>
+   9 |
+  10 | {value}
+  11 | </pre>
+
+Output:
+  1 | <script>
+  2 | const value = \`
+  3 |
+  4 | text\`;
+  5 | </script>
+  6 | <pre>
+  7 |
+  8 | {value}
+  9 | </pre>
+
+`;
+
+exports[`no-leading-empty-lines > invalid(17): \n<!-- Comment -->\n<div>\n\nText\n</div> 1`] = `
+
+  1 |
+  2 | <!-- Comment -->
+  3 | <div>
+  4 |
+  5 | Text
+  6 | </div>
+
+`;
+
+exports[`no-leading-empty-lines > invalid(17): \n<!-- Comment -->\n<div>\n\nText\n</div> 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | <!-- Comment -->
+    | ^ Do not use empty lines at the beginning of a file.
+  3 | <div>
+  4 |
+  5 | Text
+  6 | </div>
+
+Output:
+  1 | <!-- Comment -->
+  2 | <div>
+  3 |
+  4 | Text
+  5 | </div>
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n    indented code\n\n\nParagraph\n\n 1`] = `
+
+  1 |  	
+  2 |
+  3 |     indented code
+  4 |
+  5 |
+  6 | Paragraph
+  7 |
+  8 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n    indented code\n\n\nParagraph\n\n 2`] = `
+
+Message:
+> 1 |  	
+    | ^^
+> 2 |
+    | ^
+> 3 |     indented code
+    | ^ Do not use empty lines at the beginning of a file.
+  4 |
+  5 |
+  6 | Paragraph
+  7 |
+  8 |
+
+Output:
+  1 |     indented code
+  2 |
+  3 |
+  4 | Paragraph
+  5 |
+  6 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n  <!-- Comment -->\n<pre>\n\nText\n</pre>\n\n 1`] = `
+
+  1 |  	
+  2 |
+  3 |   <!-- Comment -->
+  4 | <pre>
+  5 |
+  6 | Text
+  7 | </pre>
+  8 |
+  9 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n  <!-- Comment -->\n<pre>\n\nText\n</pre>\n\n 2`] = `
+
+Message:
+> 1 |  	
+    | ^^
+> 2 |
+    | ^
+> 3 |   <!-- Comment -->
+    | ^ Do not use empty lines at the beginning of a file.
+  4 | <pre>
+  5 |
+  6 | Text
+  7 | </pre>
+  8 |
+  9 |
+
+Output:
+  1 |   <!-- Comment -->
+  2 | <pre>
+  3 |
+  4 | Text
+  5 | </pre>
+  6 |
+  7 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n  a { color: red; }\n\n 1`] = `
+
+  1 |  	
+  2 |
+  3 |   a { color: red; }
+  4 |
+  5 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n  a { color: red; }\n\n 2`] = `
+
+Message:
+> 1 |  	
+    | ^^
+> 2 |
+    | ^
+> 3 |   a { color: red; }
+    | ^ Do not use empty lines at the beginning of a file.
+  4 |
+  5 |
+
+Output:
+  1 |   a { color: red; }
+  2 |
+  3 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n  {\"value\": 1}\n\n 1`] = `
+
+  1 |  	
+  2 |
+  3 |   {"value": 1}
+  4 |
+  5 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n  {\"value\": 1}\n\n 2`] = `
+
+Message:
+> 1 |  	
+    | ^^
+> 2 |
+    | ^
+> 3 |   {"value": 1}
+    | ^ Do not use empty lines at the beginning of a file.
+  4 |
+  5 |
+
+Output:
+  1 |   {"value": 1}
+  2 |
+  3 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n# Comment\n---\nvalue: |+\n\n  Text\n\n\n 1`] = `
+
+   1 |  	
+   2 |
+   3 | # Comment
+   4 | ---
+   5 | value: |+
+   6 |
+   7 |   Text
+   8 |
+   9 |
+  10 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n# Comment\n---\nvalue: |+\n\n  Text\n\n\n 2`] = `
+
+Message:
+>  1 |  	
+     | ^^
+>  2 |
+     | ^
+>  3 | # Comment
+     | ^ Do not use empty lines at the beginning of a file.
+   4 | ---
+   5 | value: |+
+   6 |
+   7 |   Text
+   8 |
+   9 |
+  10 |
+
+Output:
+  1 | # Comment
+  2 | ---
+  3 | value: |+
+  4 |
+  5 |   Text
+  6 |
+  7 |
+  8 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n# Comment\nvalue = \"\"\"\n\nText\n\"\"\"\n\n 1`] = `
+
+  1 |  	
+  2 |
+  3 | # Comment
+  4 | value = """
+  5 |
+  6 | Text
+  7 | """
+  8 |
+  9 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n# Comment\nvalue = \"\"\"\n\nText\n\"\"\"\n\n 2`] = `
+
+Message:
+> 1 |  	
+    | ^^
+> 2 |
+    | ^
+> 3 | # Comment
+    | ^ Do not use empty lines at the beginning of a file.
+  4 | value = """
+  5 |
+  6 | Text
+  7 | """
+  8 |
+  9 |
+
+Output:
+  1 | # Comment
+  2 | value = """
+  3 |
+  4 | Text
+  5 | """
+  6 |
+  7 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n# Title\n\n- [x] Task\n\n 1`] = `
+
+  1 |  	
+  2 |
+  3 | # Title
+  4 |
+  5 | - [x] Task
+  6 |
+  7 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n# Title\n\n- [x] Task\n\n 2`] = `
+
+Message:
+> 1 |  	
+    | ^^
+> 2 |
+    | ^
+> 3 | # Title
+    | ^ Do not use empty lines at the beginning of a file.
+  4 |
+  5 | - [x] Task
+  6 |
+  7 |
+
+Output:
+  1 | # Title
+  2 |
+  3 | - [x] Task
+  4 |
+  5 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n// Comment\n\n{\"value\": 1} 1`] = `
+
+  1 |  	
+  2 |
+  3 | // Comment
+  4 |
+  5 | {"value": 1}
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n// Comment\n\n{\"value\": 1} 2`] = `
+
+Message:
+> 1 |  	
+    | ^^
+> 2 |
+    | ^
+> 3 | // Comment
+    | ^ Do not use empty lines at the beginning of a file.
+  4 |
+  5 | {"value": 1}
+
+Output:
+  1 | // Comment
+  2 |
+  3 | {"value": 1}
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n{value: \"first\\\n\\\nlast\"}\n\n 1`] = `
+
+  1 |  	
+  2 |
+  3 | {value: "first\\
+  4 | \\
+  5 | last"}
+  6 |
+  7 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2):  \t\r\n\r\n{value: \"first\\\n\\\nlast\"}\n\n 2`] = `
+
+Message:
+> 1 |  	
+    | ^^
+> 2 |
+    | ^
+> 3 | {value: "first\\
+    | ^ Do not use empty lines at the beginning of a file.
+  4 | \\
+  5 | last"}
+  6 |
+  7 |
+
+Output:
+  1 | {value: "first\\
+  2 | \\
+  3 | last"}
+  4 |
+  5 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2): \n\n\nconst value = 1; 1`] = `
+
+  1 |
+  2 |
+  3 |
+  4 | const value = 1;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(2): \n\n\nconst value = 1; 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |
+    | ^
+> 3 |
+    | ^
+> 4 | const value = 1;
+    | ^ Do not use empty lines at the beginning of a file.
+
+Output:
+  1 | const value = 1;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(3):  \t\n\t \n  const value = 1; 1`] = `
+
+  1 |  	
+  2 | 	 
+  3 |   const value = 1;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(3):  \t\n\t \n  const value = 1; 2`] = `
+
+Message:
+> 1 |  	
+    | ^^
+> 2 | 	 
+    | ^^
+> 3 |   const value = 1;
+    | ^ Do not use empty lines at the beginning of a file.
+
+Output:
+  1 |   const value = 1;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(4): \r\n\r\n\tconst value = 1;\r\n 1`] = `
+
+  1 |
+  2 |
+  3 | 	const value = 1;
+  4 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(4): \r\n\r\n\tconst value = 1;\r\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |
+    | ^
+> 3 | 	const value = 1;
+    | ^ Do not use empty lines at the beginning of a file.
+  4 |
+
+Output:
+  1 | 	const value = 1;
+  2 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(5):  \r\rconst value = 1;\r 1`] = `
+
+  1 |  
+  2 |
+  3 | const value = 1;
+  4 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(5):  \r\rconst value = 1;\r 2`] = `
+
+Message:
+> 1 |  
+    | ^
+> 2 |
+    | ^
+> 3 | const value = 1;
+    | ^ Do not use empty lines at the beginning of a file.
+  4 |
+
+Output:
+  1 | const value = 1;
+  2 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(6): \n\r\n\rconst value = 1;\n 1`] = `
+
+  1 |
+  2 |
+  3 |
+  4 | const value = 1;
+  5 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(6): \n\r\n\rconst value = 1;\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |
+    | ^
+> 3 |
+    | ^
+> 4 | const value = 1;
+    | ^ Do not use empty lines at the beginning of a file.
+  5 |
+
+Output:
+  1 | const value = 1;
+  2 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(7): \n\n 1`] = `
+
+  1 |
+  2 |
+  3 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(7): \n\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |
+    | ^
+> 3 |
+    | ^ Do not use empty lines at the beginning of a file.
+
+Output:
+  1 |
+
+`;
+
+exports[`no-leading-empty-lines > invalid(8):  \n\t \n   1`] = `
+
+  1 |  
+  2 | 	 
+  3 |   
+
+`;
+
+exports[`no-leading-empty-lines > invalid(8):  \n\t \n   2`] = `
+
+Message:
+> 1 |  
+    | ^
+> 2 | 	 
+    | ^^
+> 3 |   
+    | ^ Do not use empty lines at the beginning of a file.
+
+Output:
+  1 |   
+
+`;
+
+exports[`no-leading-empty-lines > invalid(9): \n// Comment\n\nconst value = 1; 1`] = `
+
+  1 |
+  2 | // Comment
+  3 |
+  4 | const value = 1;
+
+`;
+
+exports[`no-leading-empty-lines > invalid(9): \n// Comment\n\nconst value = 1; 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 | // Comment
+    | ^ Do not use empty lines at the beginning of a file.
+  3 |
+  4 | const value = 1;
+
+Output:
+  1 | // Comment
+  2 |
+  3 | const value = 1;
+
+`;

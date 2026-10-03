@@ -179,6 +179,10 @@ test.snapshot({
 		'new Foo(...(iterator.toArray()))',
 		// An iterator helper result is still an `Iterator`
 		'const iterator = set.values().map(fn); new Set(iterator.toArray());',
+		// A comment inside the `.toArray()` call disables the suggestion
+		'Promise.all(iterator.toArray(/* comment */))',
+		// No callback
+		'iterator.toArray().forEach()',
 	],
 });
 

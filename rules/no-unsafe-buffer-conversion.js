@@ -91,10 +91,6 @@ function getBufferTypeInfo(type, checker, program, allowOpaqueBuffer) {
 		return typeInfo(false);
 	}
 
-	if (isUnknownType(type)) {
-		return typeInfo(true);
-	}
-
 	const bufferType = getTypePropertyType(type, checker, 'buffer');
 	const byteOffsetType = getTypePropertyType(type, checker, 'byteOffset');
 	const byteLengthType = getTypePropertyType(type, checker, 'byteLength');
@@ -141,10 +137,6 @@ function getArrayBufferViewTypeInfo(type, checker, program) {
 	const isIntersection = type.isIntersection();
 	const types = isIntersection ? type.types : [type];
 	for (const type of types) {
-		if (isUnknownType(type)) {
-			return typeInfo(true);
-		}
-
 		const baseTypeInfo = getBaseTypes(type, checker)
 			.map(type => getArrayBufferViewTypeInfo(type, checker, program))
 			.find(typeInfo => typeInfo.shouldReport);
@@ -179,6 +171,8 @@ function getBufferViewTypeInfo(view, context) {
 			program.getTypeChecker(),
 			program,
 		);
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return typeInfo(true);
 	}

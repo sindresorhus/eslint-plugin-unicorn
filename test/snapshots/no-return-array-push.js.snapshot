@@ -1,0 +1,1463 @@
+exports[`no-return-array-push > invalid(1): const foo = (value: string) => array.push(value); 1`] = `
+
+  1 | const foo = (value: string) => array.push(value);
+
+`;
+
+exports[`no-return-array-push > invalid(1): const foo = (value: string) => array.push(value); 2`] = `
+
+Message:
+> 1 | const foo = (value: string) => array.push(value);
+    |                                      ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(1): const length = array.push(value); 1`] = `
+
+  1 | const length = array.push(value);
+
+`;
+
+exports[`no-return-array-push > invalid(1): const length = array.push(value); 2`] = `
+
+Message:
+> 1 | const length = array.push(value);
+    |                      ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(1): declare const array: number[]; function foo() { return array.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const array: number[]; function foo() { return array.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(1): declare const array: number[]; function foo() { return array.push(value); } 2`] = `
+
+Message:
+> 1 | declare const array: number[]; function foo() { return array.push(value); }
+    |                                                              ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | declare const array: number[]; function foo() { array.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(10): async function foo() { await array.unshift(value); } 1`] = `
+
+  1 | async function foo() { await array.unshift(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(10): async function foo() { await array.unshift(value); } 2`] = `
+
+Message:
+> 1 | async function foo() { await array.unshift(value); }
+    |                                    ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(10): declare const process: {stderr: string[]}; function foo() { return process.stderr.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const process: {stderr: string[]}; function foo() { return process.stderr.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(10): declare const process: {stderr: string[]}; function foo() { return process.stderr.push(value); } 2`] = `
+
+Message:
+> 1 | declare const process: {stderr: string[]}; function foo() { return process.stderr.push(value); }
+    |                                                                                   ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | declare const process: {stderr: string[]}; function foo() { process.stderr.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(10): function foo() {\n\treturn array.unshift(value) satisfies number;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.unshift(value) satisfies number;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(10): function foo() {\n\treturn array.unshift(value) satisfies number;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.unshift(value) satisfies number;
+    | 	             ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(11): (array.push(value), sideEffect()); 1`] = `
+
+  1 | (array.push(value), sideEffect());
+
+`;
+
+exports[`no-return-array-push > invalid(11): (array.push(value), sideEffect()); 2`] = `
+
+Message:
+> 1 | (array.push(value), sideEffect());
+    |        ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(11): const foo = (value: string) => array.push(value) satisfies number; 1`] = `
+
+  1 | const foo = (value: string) => array.push(value) satisfies number;
+
+`;
+
+exports[`no-return-array-push > invalid(11): const foo = (value: string) => array.push(value) satisfies number; 2`] = `
+
+Message:
+> 1 | const foo = (value: string) => array.push(value) satisfies number;
+    |                                      ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(12): (array.unshift(value), sideEffect()); 1`] = `
+
+  1 | (array.unshift(value), sideEffect());
+
+`;
+
+exports[`no-return-array-push > invalid(12): (array.unshift(value), sideEffect()); 2`] = `
+
+Message:
+> 1 | (array.unshift(value), sideEffect());
+    |        ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(12): const foo = (value: string) => array.unshift(value) satisfies number; 1`] = `
+
+  1 | const foo = (value: string) => array.unshift(value) satisfies number;
+
+`;
+
+exports[`no-return-array-push > invalid(12): const foo = (value: string) => array.unshift(value) satisfies number; 2`] = `
+
+Message:
+> 1 | const foo = (value: string) => array.unshift(value) satisfies number;
+    |                                      ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(13): (sideEffect(), array.push(value)); 1`] = `
+
+  1 | (sideEffect(), array.push(value));
+
+`;
+
+exports[`no-return-array-push > invalid(13): (sideEffect(), array.push(value)); 2`] = `
+
+Message:
+> 1 | (sideEffect(), array.push(value));
+    |                      ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(14): (sideEffect(), array.unshift(value)); 1`] = `
+
+  1 | (sideEffect(), array.unshift(value));
+
+`;
+
+exports[`no-return-array-push > invalid(14): (sideEffect(), array.unshift(value)); 2`] = `
+
+Message:
+> 1 | (sideEffect(), array.unshift(value));
+    |                      ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(15): condition && array.push(value); 1`] = `
+
+  1 | condition && array.push(value);
+
+`;
+
+exports[`no-return-array-push > invalid(15): condition && array.push(value); 2`] = `
+
+Message:
+> 1 | condition && array.push(value);
+    |                    ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(16): condition && array.unshift(value); 1`] = `
+
+  1 | condition && array.unshift(value);
+
+`;
+
+exports[`no-return-array-push > invalid(16): condition && array.unshift(value); 2`] = `
+
+Message:
+> 1 | condition && array.unshift(value);
+    |                    ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(17): array.push(value) && sideEffect(); 1`] = `
+
+  1 | array.push(value) && sideEffect();
+
+`;
+
+exports[`no-return-array-push > invalid(17): array.push(value) && sideEffect(); 2`] = `
+
+Message:
+> 1 | array.push(value) && sideEffect();
+    |       ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(18): array.unshift(value) && sideEffect(); 1`] = `
+
+  1 | array.unshift(value) && sideEffect();
+
+`;
+
+exports[`no-return-array-push > invalid(18): array.unshift(value) && sideEffect(); 2`] = `
+
+Message:
+> 1 | array.unshift(value) && sideEffect();
+    |       ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(19): condition || array.push(value); 1`] = `
+
+  1 | condition || array.push(value);
+
+`;
+
+exports[`no-return-array-push > invalid(19): condition || array.push(value); 2`] = `
+
+Message:
+> 1 | condition || array.push(value);
+    |                    ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(2): const foo = (value: string) => array.unshift(value); 1`] = `
+
+  1 | const foo = (value: string) => array.unshift(value);
+
+`;
+
+exports[`no-return-array-push > invalid(2): const foo = (value: string) => array.unshift(value); 2`] = `
+
+Message:
+> 1 | const foo = (value: string) => array.unshift(value);
+    |                                      ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(2): const length = routerItems.push(value); 1`] = `
+
+  1 | const length = routerItems.push(value);
+
+`;
+
+exports[`no-return-array-push > invalid(2): const length = routerItems.push(value); 2`] = `
+
+Message:
+> 1 | const length = routerItems.push(value);
+    |                            ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(2): function foo(stream: string[]) { return stream.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(stream: string[]) { return stream.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(2): function foo(stream: string[]) { return stream.push(value); } 2`] = `
+
+Message:
+> 1 | function foo(stream: string[]) { return stream.push(value); }
+    |                                                ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo(stream: string[]) { stream.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(20): condition || array.unshift(value); 1`] = `
+
+  1 | condition || array.unshift(value);
+
+`;
+
+exports[`no-return-array-push > invalid(20): condition || array.unshift(value); 2`] = `
+
+Message:
+> 1 | condition || array.unshift(value);
+    |                    ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(21): array.push(value) || sideEffect(); 1`] = `
+
+  1 | array.push(value) || sideEffect();
+
+`;
+
+exports[`no-return-array-push > invalid(21): array.push(value) || sideEffect(); 2`] = `
+
+Message:
+> 1 | array.push(value) || sideEffect();
+    |       ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(22): array.unshift(value) || sideEffect(); 1`] = `
+
+  1 | array.unshift(value) || sideEffect();
+
+`;
+
+exports[`no-return-array-push > invalid(22): array.unshift(value) || sideEffect(); 2`] = `
+
+Message:
+> 1 | array.unshift(value) || sideEffect();
+    |       ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(23): condition ?? array.push(value); 1`] = `
+
+  1 | condition ?? array.push(value);
+
+`;
+
+exports[`no-return-array-push > invalid(23): condition ?? array.push(value); 2`] = `
+
+Message:
+> 1 | condition ?? array.push(value);
+    |                    ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(24): condition ?? array.unshift(value); 1`] = `
+
+  1 | condition ?? array.unshift(value);
+
+`;
+
+exports[`no-return-array-push > invalid(24): condition ?? array.unshift(value); 2`] = `
+
+Message:
+> 1 | condition ?? array.unshift(value);
+    |                    ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(25): array.push(value) ?? sideEffect(); 1`] = `
+
+  1 | array.push(value) ?? sideEffect();
+
+`;
+
+exports[`no-return-array-push > invalid(25): array.push(value) ?? sideEffect(); 2`] = `
+
+Message:
+> 1 | array.push(value) ?? sideEffect();
+    |       ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(26): array.unshift(value) ?? sideEffect(); 1`] = `
+
+  1 | array.unshift(value) ?? sideEffect();
+
+`;
+
+exports[`no-return-array-push > invalid(26): array.unshift(value) ?? sideEffect(); 2`] = `
+
+Message:
+> 1 | array.unshift(value) ?? sideEffect();
+    |       ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(27): condition ? array.push(value) : sideEffect(); 1`] = `
+
+  1 | condition ? array.push(value) : sideEffect();
+
+`;
+
+exports[`no-return-array-push > invalid(27): condition ? array.push(value) : sideEffect(); 2`] = `
+
+Message:
+> 1 | condition ? array.push(value) : sideEffect();
+    |                   ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(28): condition ? array.unshift(value) : sideEffect(); 1`] = `
+
+  1 | condition ? array.unshift(value) : sideEffect();
+
+`;
+
+exports[`no-return-array-push > invalid(28): condition ? array.unshift(value) : sideEffect(); 2`] = `
+
+Message:
+> 1 | condition ? array.unshift(value) : sideEffect();
+    |                   ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(29): condition ? sideEffect() : array.push(value); 1`] = `
+
+  1 | condition ? sideEffect() : array.push(value);
+
+`;
+
+exports[`no-return-array-push > invalid(29): condition ? sideEffect() : array.push(value); 2`] = `
+
+Message:
+> 1 | condition ? sideEffect() : array.push(value);
+    |                                  ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(3): const length = array.unshift(value); 1`] = `
+
+  1 | const length = array.unshift(value);
+
+`;
+
+exports[`no-return-array-push > invalid(3): const length = array.unshift(value); 2`] = `
+
+Message:
+> 1 | const length = array.unshift(value);
+    |                      ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(3): function foo() {\n\treturn array.push(value) as number;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.push(value) as number;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(3): function foo() {\n\treturn array.push(value) as number;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.push(value) as number;
+    | 	             ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(3): function foo(this: string[]) { return this.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(this: string[]) { return this.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(3): function foo(this: string[]) { return this.push(value); } 2`] = `
+
+Message:
+> 1 | function foo(this: string[]) { return this.push(value); }
+    |                                            ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo(this: string[]) { this.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(30): condition ? sideEffect() : array.unshift(value); 1`] = `
+
+  1 | condition ? sideEffect() : array.unshift(value);
+
+`;
+
+exports[`no-return-array-push > invalid(30): condition ? sideEffect() : array.unshift(value); 2`] = `
+
+Message:
+> 1 | condition ? sideEffect() : array.unshift(value);
+    |                                  ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(31): array.push(value) ? sideEffect() : other(); 1`] = `
+
+  1 | array.push(value) ? sideEffect() : other();
+
+`;
+
+exports[`no-return-array-push > invalid(31): array.push(value) ? sideEffect() : other(); 2`] = `
+
+Message:
+> 1 | array.push(value) ? sideEffect() : other();
+    |       ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(32): array.unshift(value) ? sideEffect() : other(); 1`] = `
+
+  1 | array.unshift(value) ? sideEffect() : other();
+
+`;
+
+exports[`no-return-array-push > invalid(32): array.unshift(value) ? sideEffect() : other(); 2`] = `
+
+Message:
+> 1 | array.unshift(value) ? sideEffect() : other();
+    |       ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(33): for (array.push(value); condition; ) {} 1`] = `
+
+  1 | for (array.push(value); condition; ) {}
+
+`;
+
+exports[`no-return-array-push > invalid(33): for (array.push(value); condition; ) {} 2`] = `
+
+Message:
+> 1 | for (array.push(value); condition; ) {}
+    |            ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(34): for (; array.push(value); ) {} 1`] = `
+
+  1 | for (; array.push(value); ) {}
+
+`;
+
+exports[`no-return-array-push > invalid(34): for (; array.push(value); ) {} 2`] = `
+
+Message:
+> 1 | for (; array.push(value); ) {}
+    |              ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(35): for (; condition; array.unshift(value)) {} 1`] = `
+
+  1 | for (; condition; array.unshift(value)) {}
+
+`;
+
+exports[`no-return-array-push > invalid(35): for (; condition; array.unshift(value)) {} 2`] = `
+
+Message:
+> 1 | for (; condition; array.unshift(value)) {}
+    |                         ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(36): for (; array.unshift(value); ) {} 1`] = `
+
+  1 | for (; array.unshift(value); ) {}
+
+`;
+
+exports[`no-return-array-push > invalid(36): for (; array.unshift(value); ) {} 2`] = `
+
+Message:
+> 1 | for (; array.unshift(value); ) {}
+    |              ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(37): function foo() {\n\treturn array.push(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.push(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(37): function foo() {\n\treturn array.push(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.push(value);
+    | 	             ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo() {
+  2 | 	array.push(value); return;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(38): function foo() {\n\treturn array.unshift(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.unshift(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(38): function foo() {\n\treturn array.unshift(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.unshift(value);
+    | 	             ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+Suggestion 1/1: Separate the \`unshift()\` call from \`return\`.:
+  1 | function foo() {
+  2 | 	array.unshift(value); return;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(39): function foo() {\n\treturn (array.push(value));\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return (array.push(value));
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(39): function foo() {\n\treturn (array.push(value));\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return (array.push(value));
+    | 	              ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo() {
+  2 | 	array.push(value); return;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(4): const length = stream.unshift(chunk); 1`] = `
+
+  1 | const length = stream.unshift(chunk);
+
+`;
+
+exports[`no-return-array-push > invalid(4): const length = stream.unshift(chunk); 2`] = `
+
+Message:
+> 1 | const length = stream.unshift(chunk);
+    |                       ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(4): function foo() {\n\treturn array.unshift(value) as number;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.unshift(value) as number;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(4): function foo() {\n\treturn array.unshift(value) as number;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.unshift(value) as number;
+    | 	             ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(4): function foo(router: string[]) { return router.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(router: string[]) { return router.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(4): function foo(router: string[]) { return router.push(value); } 2`] = `
+
+Message:
+> 1 | function foo(router: string[]) { return router.push(value); }
+    |                                                ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo(router: string[]) { router.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(40): function foo() {\n\treturn (array.unshift(value));\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return (array.unshift(value));
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(40): function foo() {\n\treturn (array.unshift(value));\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return (array.unshift(value));
+    | 	              ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+Suggestion 1/1: Separate the \`unshift()\` call from \`return\`.:
+  1 | function foo() {
+  2 | 	array.unshift(value); return;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(41): function foo() {\n\treturn array?.push(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array?.push(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(41): function foo() {\n\treturn array?.push(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array?.push(value);
+    | 	              ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(42): function foo() {\n\treturn array?.unshift(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array?.unshift(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(42): function foo() {\n\treturn array?.unshift(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array?.unshift(value);
+    | 	              ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(43): function foo() {\n\treturn array.push?.(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.push?.(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(43): function foo() {\n\treturn array.push?.(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.push?.(value);
+    | 	             ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(44): function foo() {\n\treturn array.unshift?.(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.unshift?.(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(44): function foo() {\n\treturn array.unshift?.(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.unshift?.(value);
+    | 	             ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(45): async function foo() {\n\treturn await array.push(value);\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	return await array.push(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(45): async function foo() {\n\treturn await array.push(value);\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	return await array.push(value);
+    | 	                   ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(46): async function foo() {\n\treturn await array.unshift(value);\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	return await array.unshift(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(46): async function foo() {\n\treturn await array.unshift(value);\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	return await array.unshift(value);
+    | 	                   ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(47): const foo = value => array.push(value); 1`] = `
+
+  1 | const foo = value => array.push(value);
+
+`;
+
+exports[`no-return-array-push > invalid(47): const foo = value => array.push(value); 2`] = `
+
+Message:
+> 1 | const foo = value => array.push(value);
+    |                            ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(48): const foo = value => array.unshift(value); 1`] = `
+
+  1 | const foo = value => array.unshift(value);
+
+`;
+
+exports[`no-return-array-push > invalid(48): const foo = value => array.unshift(value); 2`] = `
+
+Message:
+> 1 | const foo = value => array.unshift(value);
+    |                            ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(49): const foo = async value => array.push(await value); 1`] = `
+
+  1 | const foo = async value => array.push(await value);
+
+`;
+
+exports[`no-return-array-push > invalid(49): const foo = async value => array.push(await value); 2`] = `
+
+Message:
+> 1 | const foo = async value => array.push(await value);
+    |                                  ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(5): console.log(array.push(value)); 1`] = `
+
+  1 | console.log(array.push(value));
+
+`;
+
+exports[`no-return-array-push > invalid(5): console.log(array.push(value)); 2`] = `
+
+Message:
+> 1 | console.log(array.push(value));
+    |                   ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(5): function foo() {\n\treturn <number>array.push(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return <number>array.push(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(5): function foo() {\n\treturn <number>array.push(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return <number>array.push(value);
+    | 	                     ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(5): function foo(this: {router: string[]}) { return this.router.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(this: {router: string[]}) { return this.router.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(5): function foo(this: {router: string[]}) { return this.router.push(value); } 2`] = `
+
+Message:
+> 1 | function foo(this: {router: string[]}) { return this.router.push(value); }
+    |                                                             ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo(this: {router: string[]}) { this.router.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(50): const foo = async value => array.unshift(await value); 1`] = `
+
+  1 | const foo = async value => array.unshift(await value);
+
+`;
+
+exports[`no-return-array-push > invalid(50): const foo = async value => array.unshift(await value); 2`] = `
+
+Message:
+> 1 | const foo = async value => array.unshift(await value);
+    |                                  ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(51): function foo() {\n\treturn /* comment */ array.push(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return /* comment */ array.push(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(51): function foo() {\n\treturn /* comment */ array.push(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return /* comment */ array.push(value);
+    | 	                           ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(52): function foo() {\n\treturn /* comment */ array.unshift(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return /* comment */ array.unshift(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(52): function foo() {\n\treturn /* comment */ array.unshift(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return /* comment */ array.unshift(value);
+    | 	                           ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(53): function foo() {\n\treturn array.push(/* comment */ value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.push(/* comment */ value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(53): function foo() {\n\treturn array.push(/* comment */ value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.push(/* comment */ value);
+    | 	             ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo() {
+  2 | 	array.push(/* comment */ value); return;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(54): function foo() {\n\treturn array.unshift(/* comment */ value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.unshift(/* comment */ value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(54): function foo() {\n\treturn array.unshift(/* comment */ value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.unshift(/* comment */ value);
+    | 	             ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+Suggestion 1/1: Separate the \`unshift()\` call from \`return\`.:
+  1 | function foo() {
+  2 | 	array.unshift(/* comment */ value); return;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(55): function foo() {\n\tif (condition) return array.push(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	if (condition) return array.push(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(55): function foo() {\n\tif (condition) return array.push(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	if (condition) return array.push(value);
+    | 	                            ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(56): function foo() {\n\tif (condition) return array.unshift(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	if (condition) return array.unshift(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(56): function foo() {\n\tif (condition) return array.unshift(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	if (condition) return array.unshift(value);
+    | 	                            ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(57): function foo() {\n\treturn condition && array.push(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return condition && array.push(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(57): function foo() {\n\treturn condition && array.push(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return condition && array.push(value);
+    | 	                          ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(58): function foo() {\n\treturn condition && array.unshift(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return condition && array.unshift(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(58): function foo() {\n\treturn condition && array.unshift(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return condition && array.unshift(value);
+    | 	                          ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(59): function foo() {\n\treturn condition ? array.push(value) : value;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return condition ? array.push(value) : value;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(59): function foo() {\n\treturn condition ? array.push(value) : value;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return condition ? array.push(value) : value;
+    | 	                         ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(6): console.log(array.unshift(value)); 1`] = `
+
+  1 | console.log(array.unshift(value));
+
+`;
+
+exports[`no-return-array-push > invalid(6): console.log(array.unshift(value)); 2`] = `
+
+Message:
+> 1 | console.log(array.unshift(value));
+    |                   ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(6): function foo() {\n\treturn <number>array.unshift(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return <number>array.unshift(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(6): function foo() {\n\treturn <number>array.unshift(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return <number>array.unshift(value);
+    | 	                     ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(6): function foo(this: {$router: string[]}) { return this.$router.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(this: {$router: string[]}) { return this.$router.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(6): function foo(this: {$router: string[]}) { return this.$router.push(value); } 2`] = `
+
+Message:
+> 1 | function foo(this: {$router: string[]}) { return this.$router.push(value); }
+    |                                                               ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo(this: {$router: string[]}) { this.$router.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(60): function foo() {\n\treturn condition ? array.unshift(value) : value;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return condition ? array.unshift(value) : value;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(60): function foo() {\n\treturn condition ? array.unshift(value) : value;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return condition ? array.unshift(value) : value;
+    | 	                         ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(61): function foo() {\n\treturn condition ? value : array.push(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return condition ? value : array.push(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(61): function foo() {\n\treturn condition ? value : array.push(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return condition ? value : array.push(value);
+    | 	                                 ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(62): function foo() {\n\treturn condition ? value : array.unshift(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return condition ? value : array.unshift(value);
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(62): function foo() {\n\treturn condition ? value : array.unshift(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return condition ? value : array.unshift(value);
+    | 	                                 ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(63): function foo() {\n\treturn (sideEffect(), array.push(value));\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return (sideEffect(), array.push(value));
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(63): function foo() {\n\treturn (sideEffect(), array.push(value));\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return (sideEffect(), array.push(value));
+    | 	                            ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(64): function foo() {\n\treturn (sideEffect(), array.unshift(value));\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return (sideEffect(), array.unshift(value));
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(64): function foo() {\n\treturn (sideEffect(), array.unshift(value));\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return (sideEffect(), array.unshift(value));
+    | 	                            ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(65): function foo() {\n\tfoo()\n\treturn [array].push(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	foo()
+  3 | 	return [array].push(value);
+  4 | }
+
+`;
+
+exports[`no-return-array-push > invalid(65): function foo() {\n\tfoo()\n\treturn [array].push(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+  2 | 	foo()
+> 3 | 	return [array].push(value);
+    | 	               ^^^^ Do not use the return value of \`.push(…)\`.
+  4 | }
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo() {
+  2 | 	foo()
+  3 | 	;[array].push(value); return;
+  4 | }
+
+`;
+
+exports[`no-return-array-push > invalid(66): function foo() {\n\tfoo()\n\treturn [array].unshift(value);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	foo()
+  3 | 	return [array].unshift(value);
+  4 | }
+
+`;
+
+exports[`no-return-array-push > invalid(66): function foo() {\n\tfoo()\n\treturn [array].unshift(value);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+  2 | 	foo()
+> 3 | 	return [array].unshift(value);
+    | 	               ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  4 | }
+
+Suggestion 1/1: Separate the \`unshift()\` call from \`return\`.:
+  1 | function foo() {
+  2 | 	foo()
+  3 | 	;[array].unshift(value); return;
+  4 | }
+
+`;
+
+exports[`no-return-array-push > invalid(7): const length = await array.push(value); 1`] = `
+
+  1 | const length = await array.push(value);
+
+`;
+
+exports[`no-return-array-push > invalid(7): const length = await array.push(value); 2`] = `
+
+Message:
+> 1 | const length = await array.push(value);
+    |                            ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(7): function foo() {\n\treturn array.push(value)!;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.push(value)!;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(7): function foo() {\n\treturn array.push(value)!;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.push(value)!;
+    | 	             ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(7): function foo(this: {stream: string[]}) { return this.stream.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(this: {stream: string[]}) { return this.stream.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(7): function foo(this: {stream: string[]}) { return this.stream.push(value); } 2`] = `
+
+Message:
+> 1 | function foo(this: {stream: string[]}) { return this.stream.push(value); }
+    |                                                             ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | function foo(this: {stream: string[]}) { this.stream.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(8): const length = await array.unshift(value); 1`] = `
+
+  1 | const length = await array.unshift(value);
+
+`;
+
+exports[`no-return-array-push > invalid(8): const length = await array.unshift(value); 2`] = `
+
+Message:
+> 1 | const length = await array.unshift(value);
+    |                            ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(8): declare const process: {stdin: string[]}; function foo() { return process.stdin.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const process: {stdin: string[]}; function foo() { return process.stdin.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(8): declare const process: {stdin: string[]}; function foo() { return process.stdin.push(value); } 2`] = `
+
+Message:
+> 1 | declare const process: {stdin: string[]}; function foo() { return process.stdin.push(value); }
+    |                                                                                 ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | declare const process: {stdin: string[]}; function foo() { process.stdin.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(8): function foo() {\n\treturn array.unshift(value)!;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.unshift(value)!;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(8): function foo() {\n\treturn array.unshift(value)!;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.unshift(value)!;
+    | 	             ^^^^^^^ Do not use the return value of \`.unshift(…)\`.
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(9): async function foo() { await array.push(value); } 1`] = `
+
+  1 | async function foo() { await array.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(9): async function foo() { await array.push(value); } 2`] = `
+
+Message:
+> 1 | async function foo() { await array.push(value); }
+    |                                    ^^^^ Do not use the return value of \`.push(…)\`.
+
+`;
+
+exports[`no-return-array-push > invalid(9): declare const process: {stdout: string[]}; function foo() { return process.stdout.push(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const process: {stdout: string[]}; function foo() { return process.stdout.push(value); }
+
+`;
+
+exports[`no-return-array-push > invalid(9): declare const process: {stdout: string[]}; function foo() { return process.stdout.push(value); } 2`] = `
+
+Message:
+> 1 | declare const process: {stdout: string[]}; function foo() { return process.stdout.push(value); }
+    |                                                                                   ^^^^ Do not use the return value of \`.push(…)\`.
+
+Suggestion 1/1: Separate the \`push()\` call from \`return\`.:
+  1 | declare const process: {stdout: string[]}; function foo() { process.stdout.push(value); return; }
+
+`;
+
+exports[`no-return-array-push > invalid(9): function foo() {\n\treturn array.push(value) satisfies number;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return array.push(value) satisfies number;
+  3 | }
+
+`;
+
+exports[`no-return-array-push > invalid(9): function foo() {\n\treturn array.push(value) satisfies number;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return array.push(value) satisfies number;
+    | 	             ^^^^ Do not use the return value of \`.push(…)\`.
+  3 | }
+
+`;

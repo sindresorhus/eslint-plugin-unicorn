@@ -3,6 +3,7 @@ import {
 	getIndentUnit,
 	getLinebreak,
 	getLineIndent,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-undeclared-class-members';
@@ -159,24 +160,15 @@ const getParameterPropertyName = parameter => {
 	}
 };
 
-const walkNode = (node, visitorKeys, visitor, shouldSkip = () => false) => {
-	if (!node || shouldSkip(node)) {
+const walkNode = (node, visitorKeys, visitor, shouldSkip) => {
+	if (shouldSkip(node)) {
 		return;
 	}
 
 	visitor(node);
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-		if (Array.isArray(value)) {
-			for (const child of value) {
-				if (child) {
-					walkNode(child, visitorKeys, visitor, shouldSkip);
-				}
-			}
-		} else if (value) {
-			walkNode(value, visitorKeys, visitor, shouldSkip);
-		}
+	for (const child of getVisitorChildNodes(node, visitorKeys)) {
+		walkNode(child, visitorKeys, visitor, shouldSkip);
 	}
 };
 
@@ -235,35 +227,25 @@ const getDeclaredClassMemberNames = (classBody, sourceCode) => {
 	return names;
 };
 
+// The reported access is inside a class element, so the class body always has a first member.
 const getInsertClassFieldSuggestion = (classBody, name, context) => {
 	const {sourceCode} = context;
-	const firstMember = classBody.body[0];
+	const [firstMember] = classBody.body;
+	const classIndent = getLineIndent(classBody.parent, context);
+	const memberIndent = getIndentString(firstMember, context) || `${classIndent}${getIndentUnit(context)}`;
+	const openingBrace = sourceCode.getFirstToken(classBody);
+	const insertionTarget = sourceCode.getCommentsBefore(firstMember)[0] ?? firstMember;
+	const firstMemberLocation = sourceCode.getLoc(insertionTarget).start;
 
-	if (firstMember) {
-		const classIndent = getLineIndent(classBody.parent, context);
-		const memberIndent = getIndentString(firstMember, context) || `${classIndent}${getIndentUnit(context)}`;
-		const openingBrace = sourceCode.getFirstToken(classBody);
-		const insertionTarget = sourceCode.getCommentsBefore(firstMember)[0] ?? firstMember;
-		const firstMemberLocation = sourceCode.getLoc(insertionTarget).start;
-
-		if (firstMemberLocation.line === sourceCode.getLoc(openingBrace).start.line) {
-			return;
-		}
-
-		const insertIndex = sourceCode.getIndexFromLoc({line: firstMemberLocation.line, column: 0});
-		return {
-			messageId: MESSAGE_ID_SUGGESTION,
-			data: {name},
-			fix: fixer => fixer.insertTextBeforeRange([insertIndex, insertIndex], `${memberIndent}${name};${getLinebreak(context)}`),
-		};
+	if (firstMemberLocation.line === sourceCode.getLoc(openingBrace).start.line) {
+		return;
 	}
 
-	const closingBrace = sourceCode.getLastToken(classBody);
-	const classIndent = getLineIndent(classBody.parent, context);
+	const insertIndex = sourceCode.getIndexFromLoc({line: firstMemberLocation.line, column: 0});
 	return {
 		messageId: MESSAGE_ID_SUGGESTION,
 		data: {name},
-		fix: fixer => fixer.insertTextBefore(closingBrace, `${getLinebreak(context)}${classIndent}${getIndentUnit(context)}${name};${getLinebreak(context)}${classIndent}`),
+		fix: fixer => fixer.insertTextBeforeRange([insertIndex, insertIndex], `${memberIndent}${name};${getLinebreak(context)}`),
 	};
 };
 

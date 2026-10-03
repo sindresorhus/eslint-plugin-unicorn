@@ -239,5 +239,13 @@ test.snapshot({
 		'foo.split(/a/i).join("b")',
 		'foo.split(/a/g).join("b")',
 		'foo.split(/a/gi).join("b")',
+		String.raw`foo.split(/a\b/g).join("c")`,
+		'foo.split(/ab/g).join("c")',
+		// A property of strings is not a single character, so only the method is changed
+		String.raw`foo.replace(/\p{RGI_Emoji}/gv, "b")`,
+		// A property escape with the `v` flag
+		String.raw`foo.split(/\p{L}/gv).join("b")`,
+		// `regjsparser` cannot parse this pattern, so only the method is changed
+		'foo.replace(/(?i:a)/g, "b")',
 	],
 });

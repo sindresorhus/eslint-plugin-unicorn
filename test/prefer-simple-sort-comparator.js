@@ -103,6 +103,7 @@ test.snapshot({
 		'array.sort(([a], [b]) => a > b ? 1 : -1)',
 		'array.sort((a, b) => a > b ? 1 : -1, extraArgument)',
 		'array.notSort((a, b) => a > b ? 1 : -1)',
+		'array.sort((a, b) => { if (a > b) { return 1; } return; })',
 	],
 	invalid: [
 		// Single ternary

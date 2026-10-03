@@ -79,10 +79,6 @@ const isSafeToMoveAlternate = (ifStatement, context) => {
 		? sourceCode.getTokenAfter(sourceCode.getFirstToken(alternate))
 		: sourceCode.getFirstToken(alternate);
 
-	if (!firstAlternateToken) {
-		return true;
-	}
-
 	const lastConsequentToken = sourceCode.getLastToken(consequent);
 	if (
 		consequent.type !== 'BlockStatement'

@@ -1,0 +1,652 @@
+exports[`no-ineffective-csp-directives > invalid(1): <meta http-equiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(1): <meta http-equiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`frame-ancestors\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(1): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="sandbox">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(1): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="sandbox">
+    |                                                     ^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(1): <meta httpEquiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'; sandbox; report-uri /csp\" /> 1`] = `
+
+  1 | <meta httpEquiv="Content-Security-Policy" content="frame-ancestors 'none'; sandbox; report-uri /csp" />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(1): <meta httpEquiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'; sandbox; report-uri /csp\" /> 2`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content-Security-Policy" content="frame-ancestors 'none'; sandbox; report-uri /csp" />
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`frame-ancestors\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(1): <meta httpEquiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'; sandbox; report-uri /csp\" /> 3`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content-Security-Policy" content="frame-ancestors 'none'; sandbox; report-uri /csp" />
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(1): <meta httpEquiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'; sandbox; report-uri /csp\" /> 4`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content-Security-Policy" content="frame-ancestors 'none'; sandbox; report-uri /csp" />
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`report-uri\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(10): <><meta httpEquiv=\"Content-Security-Policy\" content={/* policy */ \"sandbox\"} /></> 1`] = `
+
+  1 | <><meta httpEquiv="Content-Security-Policy" content={/* policy */ "sandbox"} /></>
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(10): <><meta httpEquiv=\"Content-Security-Policy\" content={/* policy */ \"sandbox\"} /></> 2`] = `
+
+Message:
+> 1 | <><meta httpEquiv="Content-Security-Policy" content={/* policy */ "sandbox"} /></>
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(10): <meta http-equiv=Content-Security-Policy content=sandbox> 1`] = `
+
+  1 | <meta http-equiv=Content-Security-Policy content=sandbox>
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(10): <meta http-equiv=Content-Security-Policy content=sandbox> 2`] = `
+
+Message:
+> 1 | <meta http-equiv=Content-Security-Policy content=sandbox>
+    |                                                  ^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(11): <meta http-equiv=Content-Security-Policy content=script-src&#32;https://example.com;sandbox> 1`] = `
+
+  1 | <meta http-equiv=Content-Security-Policy content=script-src&#32;https://example.com;sandbox>
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(11): <meta http-equiv=Content-Security-Policy content=script-src&#32;https://example.com;sandbox> 2`] = `
+
+Message:
+> 1 | <meta http-equiv=Content-Security-Policy content=script-src&#32;https://example.com;sandbox>
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(11): const policy = \"sandbox\" as const; <meta httpEquiv=\"Content-Security-Policy\" content={policy satisfies string} /> 1`] = `
+
+  1 | const policy = "sandbox" as const; <meta httpEquiv="Content-Security-Policy" content={policy satisfies string} />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(11): const policy = \"sandbox\" as const; <meta httpEquiv=\"Content-Security-Policy\" content={policy satisfies string} /> 2`] = `
+
+Message:
+> 1 | const policy = "sandbox" as const; <meta httpEquiv="Content-Security-Policy" content={policy satisfies string} />
+    |                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(12): <meta data-url=https://example.com http-equiv=Content-Security-Policy content=sandbox> 1`] = `
+
+  1 | <meta data-url=https://example.com http-equiv=Content-Security-Policy content=sandbox>
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(12): <meta data-url=https://example.com http-equiv=Content-Security-Policy content=sandbox> 2`] = `
+
+Message:
+> 1 | <meta data-url=https://example.com http-equiv=Content-Security-Policy content=sandbox>
+    |                                                                               ^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(12): <meta httpEquiv={(\"Content-Security-Policy\" as string)!} content={(\"sandbox\" as string)!} /> 1`] = `
+
+  1 | <meta httpEquiv={("Content-Security-Policy" as string)!} content={("sandbox" as string)!} />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(12): <meta httpEquiv={(\"Content-Security-Policy\" as string)!} content={(\"sandbox\" as string)!} /> 2`] = `
+
+Message:
+> 1 | <meta httpEquiv={("Content-Security-Policy" as string)!} content={("sandbox" as string)!} />
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(13): <meta content=report-uri&#32;/csp;sandbox http-equiv=Content-Security-Policy> 1`] = `
+
+  1 | <meta content=report-uri&#32;/csp;sandbox http-equiv=Content-Security-Policy>
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(13): <meta content=report-uri&#32;/csp;sandbox http-equiv=Content-Security-Policy> 2`] = `
+
+Message:
+> 1 | <meta content=report-uri&#32;/csp;sandbox http-equiv=Content-Security-Policy>
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`report-uri\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(13): <meta content=report-uri&#32;/csp;sandbox http-equiv=Content-Security-Policy> 3`] = `
+
+Message:
+> 1 | <meta content=report-uri&#32;/csp;sandbox http-equiv=Content-Security-Policy>
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(13): <meta httpEquiv=\"Content&#45;Security&#45;Policy\" content=\"frame&#45;ancestors &#39;none&#39;&#59; sandbox\" /> 1`] = `
+
+  1 | <meta httpEquiv="Content&#45;Security&#45;Policy" content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(13): <meta httpEquiv=\"Content&#45;Security&#45;Policy\" content=\"frame&#45;ancestors &#39;none&#39;&#59; sandbox\" /> 2`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content&#45;Security&#45;Policy" content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" />
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`frame-ancestors\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(13): <meta httpEquiv=\"Content&#45;Security&#45;Policy\" content=\"frame&#45;ancestors &#39;none&#39;&#59; sandbox\" /> 3`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content&#45;Security&#45;Policy" content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" />
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(14): <meta http-equiv=\"Content-Security-Policy\" content=\"\tsandbox\tallow-scripts\t\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="	sandbox	allow-scripts	">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(14): <meta http-equiv=\"Content-Security-Policy\" content=\"\tsandbox\tallow-scripts\t\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="	sandbox	allow-scripts	">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(15): <meta http-equiv=\"Content-Security-Policy\" content=\"\nsandbox\nallow-scripts\n\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="
+  2 | sandbox
+  3 | allow-scripts
+  4 | ">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(15): <meta http-equiv=\"Content-Security-Policy\" content=\"\nsandbox\nallow-scripts\n\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="
+    |                                                     ^
+> 2 | sandbox
+    | ^^^^^^^
+> 3 | allow-scripts
+    | ^^^^^^^^^^^^^
+> 4 | ">
+    | ^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(16): <meta http-equiv=\"Content-Security-Policy\" content=\"\fsandbox\fallow-scripts\f\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="sandboxallow-scripts">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(16): <meta http-equiv=\"Content-Security-Policy\" content=\"\fsandbox\fallow-scripts\f\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="sandboxallow-scripts">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(17): <meta http-equiv=\"Content-Security-Policy\" content=\"\rsandbox\rallow-scripts\r\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="
+  2 | sandbox
+  3 | allow-scripts
+  4 | ">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(17): <meta http-equiv=\"Content-Security-Policy\" content=\"\rsandbox\rallow-scripts\r\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+  2 | sandbox
+  3 | allow-scripts
+  4 | ">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(18): <meta http-equiv=\"Content-Security-Policy\" content=\" sandbox allow-scripts \"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content=" sandbox allow-scripts ">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(18): <meta http-equiv=\"Content-Security-Policy\" content=\" sandbox allow-scripts \"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content=" sandbox allow-scripts ">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(19): <head>\r\n  <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox;\r\n    frame-ancestors 'none'\">\r\n</head> 1`] = `
+
+  1 | <head>
+  2 |   <meta http-equiv="Content-Security-Policy" content="sandbox;
+  3 |     frame-ancestors 'none'">
+  4 | </head>
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(19): <head>\r\n  <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox;\r\n    frame-ancestors 'none'\">\r\n</head> 2`] = `
+
+Message:
+  1 | <head>
+> 2 |   <meta http-equiv="Content-Security-Policy" content="sandbox;
+    |                                                       ^^^^^^^^
+> 3 |     frame-ancestors 'none'">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+  4 | </head>
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(19): <head>\r\n  <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox;\r\n    frame-ancestors 'none'\">\r\n</head> 3`] = `
+
+Message:
+  1 | <head>
+> 2 |   <meta http-equiv="Content-Security-Policy" content="sandbox;
+    |                                                       ^^^^^^^^
+> 3 |     frame-ancestors 'none'">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`frame-ancestors\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+  4 | </head>
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(2): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox\" /> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="sandbox" />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(2): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox\" /> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="sandbox" />
+    |                                                    ^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(2): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="sandbox">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(2): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="sandbox">
+    |                                                     ^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(20): <meta data-url=https://example.com title=\"a > b\" http-equiv=\"Content-Security-Policy\" content=\"sandbox\"> 1`] = `
+
+  1 | <meta data-url=https://example.com title="a > b" http-equiv="Content-Security-Policy" content="sandbox">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(20): <meta data-url=https://example.com title=\"a > b\" http-equiv=\"Content-Security-Policy\" content=\"sandbox\"> 2`] = `
+
+Message:
+> 1 | <meta data-url=https://example.com title="a > b" http-equiv="Content-Security-Policy" content="sandbox">
+    |                                                                                                ^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(21): <meta http-equiv=Content-Security-Policy data-url=https://example.com content=\"default-src >; sandbox\"> 1`] = `
+
+  1 | <meta http-equiv=Content-Security-Policy data-url=https://example.com content="default-src >; sandbox">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(21): <meta http-equiv=Content-Security-Policy data-url=https://example.com content=\"default-src >; sandbox\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv=Content-Security-Policy data-url=https://example.com content="default-src >; sandbox">
+    |                                                                                ^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(22): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox; SANDBOX\">\n<meta http-equiv=\"Content-Security-Policy\" content=\"sandbox\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="sandbox; SANDBOX">
+  2 | <meta http-equiv="Content-Security-Policy" content="sandbox">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(22): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox; SANDBOX\">\n<meta http-equiv=\"Content-Security-Policy\" content=\"sandbox\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="sandbox; SANDBOX">
+    |                                                     ^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+  2 | <meta http-equiv="Content-Security-Policy" content="sandbox">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(22): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox; SANDBOX\">\n<meta http-equiv=\"Content-Security-Policy\" content=\"sandbox\"> 3`] = `
+
+Message:
+  1 | <meta http-equiv="Content-Security-Policy" content="sandbox; SANDBOX">
+> 2 | <meta http-equiv="Content-Security-Policy" content="sandbox">
+    |                                                     ^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(3): <meta content=\"sandbox\" httpEquiv=\"content-security-policy\" /> 1`] = `
+
+  1 | <meta content="sandbox" httpEquiv="content-security-policy" />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(3): <meta content=\"sandbox\" httpEquiv=\"content-security-policy\" /> 2`] = `
+
+Message:
+> 1 | <meta content="sandbox" httpEquiv="content-security-policy" />
+    |               ^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(3): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox allow-scripts\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="sandbox allow-scripts">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(3): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox allow-scripts\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="sandbox allow-scripts">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(4): <meta http-equiv=\"Content-Security-Policy\" content=\"report-uri /csp\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="report-uri /csp">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(4): <meta http-equiv=\"Content-Security-Policy\" content=\"report-uri /csp\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="report-uri /csp">
+    |                                                     ^^^^^^^^^^^^^^^ The CSP directive \`report-uri\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(4): <meta httpEquiv={\"Content-Security-Policy\"} content={\"sandbox\"} /> 1`] = `
+
+  1 | <meta httpEquiv={"Content-Security-Policy"} content={"sandbox"} />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(4): <meta httpEquiv={\"Content-Security-Policy\"} content={\"sandbox\"} /> 2`] = `
+
+Message:
+> 1 | <meta httpEquiv={"Content-Security-Policy"} content={"sandbox"} />
+    |                                                     ^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(5): <meta http-equiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'; sandbox; report-uri /csp\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'; sandbox; report-uri /csp">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(5): <meta http-equiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'; sandbox; report-uri /csp\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'; sandbox; report-uri /csp">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`frame-ancestors\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(5): <meta http-equiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'; sandbox; report-uri /csp\"> 3`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'; sandbox; report-uri /csp">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(5): <meta http-equiv=\"Content-Security-Policy\" content=\"frame-ancestors 'none'; sandbox; report-uri /csp\"> 4`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'; sandbox; report-uri /csp">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`report-uri\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(5): <meta httpEquiv=\"Content-Security-Policy\" content={\`sandbox\`} /> 1`] = `
+
+  1 | <meta httpEquiv="Content-Security-Policy" content={\`sandbox\`} />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(5): <meta httpEquiv=\"Content-Security-Policy\" content={\`sandbox\`} /> 2`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content-Security-Policy" content={\`sandbox\`} />
+    |                                                   ^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(6): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox; SANDBOX allow-scripts; report-uri /csp; REPORT-URI /other\"> 1`] = `
+
+  1 | <meta http-equiv="Content-Security-Policy" content="sandbox; SANDBOX allow-scripts; report-uri /csp; REPORT-URI /other">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(6): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox; SANDBOX allow-scripts; report-uri /csp; REPORT-URI /other\"> 2`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="sandbox; SANDBOX allow-scripts; report-uri /csp; REPORT-URI /other">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(6): <meta http-equiv=\"Content-Security-Policy\" content=\"sandbox; SANDBOX allow-scripts; report-uri /csp; REPORT-URI /other\"> 3`] = `
+
+Message:
+> 1 | <meta http-equiv="Content-Security-Policy" content="sandbox; SANDBOX allow-scripts; report-uri /csp; REPORT-URI /other">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`report-uri\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(6): const header = \"Content-Security-Policy\"; const policy = \"sandbox\"; <meta httpEquiv={header} content={policy} /> 1`] = `
+
+  1 | const header = "Content-Security-Policy"; const policy = "sandbox"; <meta httpEquiv={header} content={policy} />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(6): const header = \"Content-Security-Policy\"; const policy = \"sandbox\"; <meta httpEquiv={header} content={policy} /> 2`] = `
+
+Message:
+> 1 | const header = "Content-Security-Policy"; const policy = "sandbox"; <meta httpEquiv={header} content={policy} />
+    |                                                                                                      ^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(7): <META HTTP-EQUIV=\"content-SECURITY-policy\" CONTENT=\"FRAME-ANCESTORS 'none'; SaNdBoX; REPORT-URI /csp\"> 1`] = `
+
+  1 | <META HTTP-EQUIV="content-SECURITY-policy" CONTENT="FRAME-ANCESTORS 'none'; SaNdBoX; REPORT-URI /csp">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(7): <META HTTP-EQUIV=\"content-SECURITY-policy\" CONTENT=\"FRAME-ANCESTORS 'none'; SaNdBoX; REPORT-URI /csp\"> 2`] = `
+
+Message:
+> 1 | <META HTTP-EQUIV="content-SECURITY-policy" CONTENT="FRAME-ANCESTORS 'none'; SaNdBoX; REPORT-URI /csp">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`frame-ancestors\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(7): <META HTTP-EQUIV=\"content-SECURITY-policy\" CONTENT=\"FRAME-ANCESTORS 'none'; SaNdBoX; REPORT-URI /csp\"> 3`] = `
+
+Message:
+> 1 | <META HTTP-EQUIV="content-SECURITY-policy" CONTENT="FRAME-ANCESTORS 'none'; SaNdBoX; REPORT-URI /csp">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(7): <META HTTP-EQUIV=\"content-SECURITY-policy\" CONTENT=\"FRAME-ANCESTORS 'none'; SaNdBoX; REPORT-URI /csp\"> 4`] = `
+
+Message:
+> 1 | <META HTTP-EQUIV="content-SECURITY-policy" CONTENT="FRAME-ANCESTORS 'none'; SaNdBoX; REPORT-URI /csp">
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`report-uri\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(7): const directive = \"frame-ancestors\"; <meta httpEquiv=\"Content-Security-Policy\" content={\`\${directive} 'none'; sandbox\`} /> 1`] = `
+
+  1 | const directive = "frame-ancestors"; <meta httpEquiv="Content-Security-Policy" content={\`\${directive} 'none'; sandbox\`} />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(7): const directive = \"frame-ancestors\"; <meta httpEquiv=\"Content-Security-Policy\" content={\`\${directive} 'none'; sandbox\`} /> 2`] = `
+
+Message:
+> 1 | const directive = "frame-ancestors"; <meta httpEquiv="Content-Security-Policy" content={\`\${directive} 'none'; sandbox\`} />
+    |                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`frame-ancestors\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(7): const directive = \"frame-ancestors\"; <meta httpEquiv=\"Content-Security-Policy\" content={\`\${directive} 'none'; sandbox\`} /> 3`] = `
+
+Message:
+> 1 | const directive = "frame-ancestors"; <meta httpEquiv="Content-Security-Policy" content={\`\${directive} 'none'; sandbox\`} />
+    |                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(8): <meta content=\"; ; sandbox; ;\" http-equiv=\"Content-Security-Policy\"> 1`] = `
+
+  1 | <meta content="; ; sandbox; ;" http-equiv="Content-Security-Policy">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(8): <meta content=\"; ; sandbox; ;\" http-equiv=\"Content-Security-Policy\"> 2`] = `
+
+Message:
+> 1 | <meta content="; ; sandbox; ;" http-equiv="Content-Security-Policy">
+    |                ^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(8): <meta httpEquiv=\"Content-Security-Policy\" content={\"sandbox; \" + \"report-uri /csp\"} /> 1`] = `
+
+  1 | <meta httpEquiv="Content-Security-Policy" content={"sandbox; " + "report-uri /csp"} />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(8): <meta httpEquiv=\"Content-Security-Policy\" content={\"sandbox; \" + \"report-uri /csp\"} /> 2`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content-Security-Policy" content={"sandbox; " + "report-uri /csp"} />
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(8): <meta httpEquiv=\"Content-Security-Policy\" content={\"sandbox; \" + \"report-uri /csp\"} /> 3`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content-Security-Policy" content={"sandbox; " + "report-uri /csp"} />
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`report-uri\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(9): <meta content=\"frame&#45;ancestors &#39;none&#39;&#59; sandbox\" http-equiv=\"Content&#45;Security&#45;Policy\"> 1`] = `
+
+  1 | <meta content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" http-equiv="Content&#45;Security&#45;Policy">
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(9): <meta content=\"frame&#45;ancestors &#39;none&#39;&#59; sandbox\" http-equiv=\"Content&#45;Security&#45;Policy\"> 2`] = `
+
+Message:
+> 1 | <meta content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" http-equiv="Content&#45;Security&#45;Policy">
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`frame-ancestors\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(9): <meta content=\"frame&#45;ancestors &#39;none&#39;&#59; sandbox\" http-equiv=\"Content&#45;Security&#45;Policy\"> 3`] = `
+
+Message:
+> 1 | <meta content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" http-equiv="Content&#45;Security&#45;Policy">
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(9): <meta httpEquiv=\"Content-Security-Policy\" content=\"frame&#45;ancestors &#39;none&#39;&#59; sandbox\" /> 1`] = `
+
+  1 | <meta httpEquiv="Content-Security-Policy" content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" />
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(9): <meta httpEquiv=\"Content-Security-Policy\" content=\"frame&#45;ancestors &#39;none&#39;&#59; sandbox\" /> 2`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content-Security-Policy" content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" />
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`frame-ancestors\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;
+
+exports[`no-ineffective-csp-directives > invalid(9): <meta httpEquiv=\"Content-Security-Policy\" content=\"frame&#45;ancestors &#39;none&#39;&#59; sandbox\" /> 3`] = `
+
+Message:
+> 1 | <meta httpEquiv="Content-Security-Policy" content="frame&#45;ancestors &#39;none&#39;&#59; sandbox" />
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The CSP directive \`sandbox\` is ignored in \`<meta>\` elements. Deliver it through the \`Content-Security-Policy\` HTTP response header instead.
+
+`;

@@ -1,8 +1,7 @@
 import {
 	getBuiltinCollectionType,
 	isGlobalIdentifier,
-	getParenthesizedText,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-object-methods-with-collections/error';
@@ -17,11 +16,6 @@ const objectMethods = new Set([
 const messages = {
 	[MESSAGE_ID_ERROR]: '`Object.{{method}}()` does not return {{type}} contents.',
 	[MESSAGE_ID_SUGGESTION]: 'Use `Array.from({{replacement}})`.',
-};
-
-const getMemberObjectText = (node, context) => {
-	const text = getParenthesizedText(node, context);
-	return shouldAddParenthesesToMemberExpressionObject(node, context) ? `(${text})` : text;
 };
 
 const getProblem = (node, context) => {
@@ -48,7 +42,7 @@ const getProblem = (node, context) => {
 	}
 
 	const method = callee.property.name;
-	const replacement = `${getMemberObjectText(argument, context)}.${method}()`;
+	const replacement = `${getMemberExpressionObjectText(argument, context)}.${method}()`;
 	const problem = {
 		node: callee.property,
 		messageId: MESSAGE_ID_ERROR,

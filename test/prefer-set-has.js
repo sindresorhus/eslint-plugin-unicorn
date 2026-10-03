@@ -795,6 +795,14 @@ test.snapshot({
 			const foo = Iterator.concat(bar);
 			foo.includes(1) || foo.includes(2);
 		`,
+		// Calling `.length` is not a length read
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn() {
+				foo.length();
+				return foo.includes(1);
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -1281,6 +1289,19 @@ test.snapshot({
 			`,
 			options: [{minimumItems: 5}],
 		},
+		...[
+			'{...source}',
+			'{[length]: 5}',
+			'{\'size\': 5}',
+		].map(source => ({
+			code: outdent`
+				const foo = Array.from(${source}, (_, index) => index);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		})),
 	],
 	invalid: [
 		{
@@ -1382,6 +1403,25 @@ test.snapshot({
 			`,
 			options: [{minimumItems: 5}],
 		},
+		{
+			code: outdent`
+				const foo = Array.from({'length': 5}, (_, index) => index);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		// A single non-number argument creates an array with that one element
+		{
+			code: outdent`
+				const foo = new Array('a');
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 1}],
+		},
 	],
 });
 
@@ -1442,6 +1482,8 @@ test({
 		createTypeScriptSuggestionCase('Items', 'type Items = string[]'),
 		createTypeScriptSuggestionCase('[string, string]'),
 		createTypeScriptSuggestionCase('string /* comment */ []'),
+		createTypeScriptSuggestionCase('readonly /* comment */ string[]'),
+		createTypeScriptSuggestionCase('Array /* comment */ <string>'),
 		{
 			code: outdent`
 				const foo: string[] = ['a', 'b']

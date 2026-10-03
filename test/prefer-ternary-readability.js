@@ -1,5 +1,5 @@
+import test from 'node:test';
 import outdent from 'outdent';
-import test from 'ava';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
@@ -39,18 +39,18 @@ for (const [name, code] of [
 			rules: {'unicorn/prefer-ternary': 'error'},
 			linterOptions: {reportUnusedDisableDirectives: 'error'},
 		};
-		t.deepEqual(linter.verify(code, config), []);
+		t.assert.deepStrictEqual(linter.verify(code, config), []);
 
 		const suppressedMessages = linter.getSuppressedMessages();
-		t.is(suppressedMessages.length, 1);
-		t.is(suppressedMessages[0].ruleId, 'unicorn/prefer-ternary');
-		t.is(suppressedMessages[0].fix, undefined);
-		t.is(suppressedMessages[0].suggestions, undefined);
+		t.assert.strictEqual(suppressedMessages.length, 1);
+		t.assert.strictEqual(suppressedMessages[0].ruleId, 'unicorn/prefer-ternary');
+		t.assert.strictEqual(suppressedMessages[0].fix, undefined);
+		t.assert.strictEqual(suppressedMessages[0].suggestions, undefined);
 
 		const result = linter.verifyAndFix(code, config);
-		t.deepEqual(result.messages, []);
-		t.false(result.fixed);
-		t.is(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
 	});
 }
 
@@ -69,12 +69,12 @@ for (const [name, code] of [
 			linterOptions: {reportUnusedDisableDirectives: 'error'},
 		});
 
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/prefer-ternary');
-		t.is(result.messages[0].fix, undefined);
-		t.is(result.messages[0].suggestions, undefined);
-		t.false(result.fixed);
-		t.is(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/prefer-ternary');
+		t.assert.strictEqual(result.messages[0].fix, undefined);
+		t.assert.strictEqual(result.messages[0].suggestions, undefined);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
 	});
 }
 
@@ -170,9 +170,9 @@ test('preserves early returns after minimizing a ternary', t => {
 		},
 	});
 
-	t.deepEqual(result.messages, []);
-	t.false(result.fixed);
-	t.is(result.output, code);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
 });
 
 // Preserve statement bodies and multiline containers, not ordinary line wrapping.

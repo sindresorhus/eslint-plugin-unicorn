@@ -94,10 +94,6 @@ Preparing the options builds around a hundred maps and regexes, and `create` run
 const preparedOptionsCache = new WeakMap();
 
 const getPreparedOptions = options => {
-	if (!options) {
-		return prepareOptions(options);
-	}
-
 	let preparedOptions = preparedOptionsCache.get(options);
 	if (!preparedOptions) {
 		preparedOptions = prepareOptions(options);

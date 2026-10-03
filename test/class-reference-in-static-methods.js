@@ -325,6 +325,11 @@ test.snapshot({
 			code: 'class A {static foo() {this!();}}',
 			options: [{preferThis: false, preferSuper: false}],
 		},
+		'class A {static foo(): A.Type {return this.foo();}}',
+		{
+			code: 'const value = this;',
+			options: [{preferThis: false, preferSuper: false}],
+		},
 	],
 	invalid: [
 		'class A {static foo(): unknown {return A.foo();}}',

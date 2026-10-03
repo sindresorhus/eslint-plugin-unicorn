@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import removeStatement from '../../rules/fix/remove-statement.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from '../utils/language-options.js';
@@ -41,30 +41,30 @@ const fix = code => {
 };
 
 test('removes a statement and its line', t => {
-	t.is(fix('foo();\nbar();\nbaz();'), 'bar();\nbaz();');
-	t.is(fix('foo();\n\tbar();\n\tbaz();'), '\tbar();\n\tbaz();');
-	t.is(fix('if (a) {\n\tfoo();\n\tbar();\n}'), 'if (a) {\n\tbar();\n}');
+	t.assert.strictEqual(fix('foo();\nbar();\nbaz();'), 'bar();\nbaz();');
+	t.assert.strictEqual(fix('foo();\n\tbar();\n\tbaz();'), '\tbar();\n\tbaz();');
+	t.assert.strictEqual(fix('if (a) {\n\tfoo();\n\tbar();\n}'), 'if (a) {\n\tbar();\n}');
 });
 
 test('removes the whole line break, whatever it is', t => {
-	t.is(fix('foo();\r\nbar();'), 'bar();');
-	t.is(fix('foo();\rbar();'), 'bar();');
-	t.is(fix('foo();\u2028bar();'), 'bar();');
-	t.is(fix('foo();\nbar();'), 'bar();');
+	t.assert.strictEqual(fix('foo();\r\nbar();'), 'bar();');
+	t.assert.strictEqual(fix('foo();\rbar();'), 'bar();');
+	t.assert.strictEqual(fix('foo();\u2028bar();'), 'bar();');
+	t.assert.strictEqual(fix('foo();\nbar();'), 'bar();');
 });
 
 test('removes the whole preceding line break, whatever it is', t => {
-	t.is(fix('bar();\r\nfoo();\r\nbaz();'), 'bar();\r\nbaz();');
-	t.is(fix('bar();\rfoo();'), 'bar();');
-	t.is(fix('bar();\u2028foo();'), 'bar();');
-	t.is(fix('bar();\u2029\tfoo();'), 'bar();');
+	t.assert.strictEqual(fix('bar();\r\nfoo();\r\nbaz();'), 'bar();\r\nbaz();');
+	t.assert.strictEqual(fix('bar();\rfoo();'), 'bar();');
+	t.assert.strictEqual(fix('bar();\u2028foo();'), 'bar();');
+	t.assert.strictEqual(fix('bar();\u2029\tfoo();'), 'bar();');
 });
 
 test('removes the only statement', t => {
-	t.is(fix('foo();'), '');
+	t.assert.strictEqual(fix('foo();'), '');
 });
 
 test('removes an indented statement on the first line', t => {
-	t.is(fix('\tfoo();\nbar();'), 'bar();');
-	t.is(fix('  foo();\r\nbar();'), 'bar();');
+	t.assert.strictEqual(fix('\tfoo();\nbar();'), 'bar();');
+	t.assert.strictEqual(fix('  foo();\r\nbar();'), 'bar();');
 });

@@ -1,0 +1,63 @@
+exports[`no-useless-re-export > invalid(1): export * from './foo.js';\nexport {foo} from './foo.js'; 1`] = `
+
+  1 | export * from './foo.js';
+  2 | export {foo} from './foo.js';
+
+`;
+
+exports[`no-useless-re-export > invalid(1): export * from './foo.js';\nexport {foo} from './foo.js'; 2`] = `
+
+Message:
+  1 | export * from './foo.js';
+> 2 | export {foo} from './foo.js';
+    |         ^^^ This export is redundant because the same module is already exported with \`export *\`.
+
+`;
+
+exports[`no-useless-re-export > invalid(2): export {foo} from './foo.js';\nexport * from './foo.js'; 1`] = `
+
+  1 | export {foo} from './foo.js';
+  2 | export * from './foo.js';
+
+`;
+
+exports[`no-useless-re-export > invalid(2): export {foo} from './foo.js';\nexport * from './foo.js'; 2`] = `
+
+Message:
+> 1 | export {foo} from './foo.js';
+    |         ^^^ This export is redundant because the same module is already exported with \`export *\`.
+  2 | export * from './foo.js';
+
+`;
+
+exports[`no-useless-re-export > invalid(3): export * from './foo.js';\nexport type {Foo} from './foo.js'; 1`] = `
+
+  1 | export * from './foo.js';
+  2 | export type {Foo} from './foo.js';
+
+`;
+
+exports[`no-useless-re-export > invalid(3): export * from './foo.js';\nexport type {Foo} from './foo.js'; 2`] = `
+
+Message:
+  1 | export * from './foo.js';
+> 2 | export type {Foo} from './foo.js';
+    |              ^^^ This export is redundant because the same module is already exported with \`export *\`.
+
+`;
+
+exports[`no-useless-re-export > invalid(4): export * from './foo.js';\nexport {'foo'} from './foo.js'; 1`] = `
+
+  1 | export * from './foo.js';
+  2 | export {'foo'} from './foo.js';
+
+`;
+
+exports[`no-useless-re-export > invalid(4): export * from './foo.js';\nexport {'foo'} from './foo.js'; 2`] = `
+
+Message:
+  1 | export * from './foo.js';
+> 2 | export {'foo'} from './foo.js';
+    |         ^^^^^ This export is redundant because the same module is already exported with \`export *\`.
+
+`;

@@ -1,0 +1,31 @@
+exports[`template-indent > invalid(1): expect(foo).toMatchInlineSnapshot(\`\n    one\n      three\n      \`\n) 1`] = `
+
+  1 | expect(foo).toMatchInlineSnapshot(\`
+  2 |     one
+  3 |       three
+  4 |       \`
+  5 | )
+
+`;
+
+exports[`template-indent > invalid(1): expect(foo).toMatchInlineSnapshot(\`\n    one\n      three\n      \`\n) 2`] = `
+
+Message:
+> 1 | expect(foo).toMatchInlineSnapshot(\`
+    |                                   ^
+> 2 |     one
+    | ^^^^^^^
+> 3 |       three
+    | ^^^^^^^^^^^
+> 4 |       \`
+    | ^^^^^^^ Templates should be properly indented.
+  5 | )
+
+Output:
+  1 | expect(foo).toMatchInlineSnapshot(\`
+  2 |   one
+  3 |     three
+  4 | \`
+  5 | )
+
+`;

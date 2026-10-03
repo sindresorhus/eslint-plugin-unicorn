@@ -61,6 +61,11 @@ test.snapshot({
 			'import {type strict as assert} from "node:assert/strict";',
 			'import type {strict as assert} from "node:assert/strict";',
 		].flatMap(code => [code, `${code}\nassert();`]).map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		// Not the `assert` module
+		outdent`
+			import assert from 'node:fs';
+			assert(foo);
+		`,
 	],
 	invalid: [
 		// Default import

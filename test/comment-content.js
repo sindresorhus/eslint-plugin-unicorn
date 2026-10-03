@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import css from '@eslint/css';
 import json from '@eslint/json';
@@ -551,9 +551,9 @@ for (const {name, code, output, language, filename, message} of languageCases) {
 		const messages = linter.verify(code, config, {filename});
 		const result = linter.verifyAndFix(code, config, {filename});
 
-		t.true(result.fixed);
-		t.is(result.output, output);
-		t.deepEqual(
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, output);
+		t.assert.deepStrictEqual(
 			messages.map(({message, ruleId}) => ({message, ruleId})),
 			[
 				{
@@ -571,9 +571,9 @@ test('ignores comment-like JSONC string content', t => {
 	const messages = linter.verify('{"comment": "// github"}', config, {filename: 'fixture.jsonc'});
 	const result = linter.verifyAndFix('{"comment": "// github"}', config, {filename: 'fixture.jsonc'});
 
-	t.false(result.fixed);
-	t.is(result.output, '{"comment": "// github"}');
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, '{"comment": "// github"}');
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores Markdown text that is not an HTML comment', t => {
@@ -583,9 +583,9 @@ test('ignores Markdown text that is not an HTML comment', t => {
 	const messages = linter.verify(code, config, {filename: 'fixture.md'});
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.md'});
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores Markdown fenced code block content', t => {
@@ -595,9 +595,9 @@ test('ignores Markdown fenced code block content', t => {
 	const messages = linter.verify(code, config, {filename: 'fixture.md'});
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.md'});
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('does not repeatedly rescan Markdown fences for HTML comments', t => {
@@ -606,8 +606,8 @@ test('does not repeatedly rescan Markdown fences for HTML comments', t => {
 	const code = '<!-- api -->\n'.repeat(10_000);
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.md'});
 
-	t.true(result.fixed);
-	t.false(result.output.includes('api'));
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output.includes('api'), false);
 });
 
 test('ignores many Markdown HTML comments inside fenced code blocks', t => {
@@ -619,9 +619,9 @@ ${fencedComments}\`\`\`
 <!-- json -->`;
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.md'});
 
-	t.true(result.fixed);
-	t.true(result.output.includes(fencedComments));
-	t.true(result.output.endsWith('<!-- JSON -->'));
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output.includes(fencedComments), true);
+	t.assert.strictEqual(result.output.endsWith('<!-- JSON -->'), true);
 });
 
 test('does not repeatedly scan nested Markdown HTML comment starts', t => {
@@ -633,8 +633,8 @@ ${nestedCommentStarts}-->
 <!-- json -->`;
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.md'});
 
-	t.true(result.fixed);
-	t.is(result.output, `<!--
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `<!--
 ${nestedCommentStarts}-->
 <!-- JSON -->`);
 });
@@ -642,8 +642,8 @@ ${nestedCommentStarts}-->
 test('fixes multiple problems in the same comment over multiple passes', t => {
 	const result = verifyAndFixJavaScript('// nodejs uses javascript.');
 
-	t.true(result.fixed);
-	t.is(result.output, '// Node.js uses JavaScript.');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '// Node.js uses JavaScript.');
 });
 
 test('does not match default replacements inside Unicode words', t => {
@@ -653,9 +653,9 @@ test('does not match default replacements inside Unicode words', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('does not classify Unicode word suffixes as syntax', t => {
@@ -668,8 +668,8 @@ test('does not classify Unicode word suffixes as syntax', t => {
  */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/* eslinté API */
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/* eslinté API */
 /* globalé API */
 // returné API
 // > nodeé API
@@ -681,16 +681,16 @@ test('does not classify Unicode word suffixes as syntax', t => {
 test('matches default replacements beside Unicode punctuation', t => {
 	const result = verifyAndFixJavaScript('// ast—json and ast😊api');
 
-	t.true(result.fixed);
-	t.is(result.output, '// AST—JSON and AST😊API');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '// AST—JSON and AST😊API');
 });
 
 test('preserves syntax masking after Unicode characters', t => {
 	const code = '// éhttps://example.com/api and éapplication/json';
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
 });
 
 test('preserves custom replacement regex semantics', t => {
@@ -719,8 +719,8 @@ test('preserves custom replacement regex semantics', t => {
 	};
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
 
-	t.true(result.fixed);
-	t.is(result.output, '// ASTérisque\n/** @param url - See {@link url}, {@link foo\\}api}, and {@inheritdoc}.\n * @template [name=json],\n * api\n * @template {url}\n * api - Provides the API. */');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '// ASTérisque\n/** @param url - See {@link url}, {@link foo\\}api}, and {@inheritdoc}.\n * @template [name=json],\n * api\n * @template {url}\n * api - Provides the API. */');
 });
 
 test('ignores custom replacement matches that overlap masked regions', t => {
@@ -743,9 +743,9 @@ test('ignores custom replacement matches that overlap masked regions', t => {
 	const messages = linter.verify(code, config, {filename: 'fixture.js'});
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores unterminated quoted strings', t => {
@@ -753,16 +753,16 @@ test('ignores unterminated quoted strings', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores double-quoted strings after identifiers', t => {
 	const result = verifyAndFixJavaScript('// foo"json" output');
 
-	t.false(result.fixed);
-	t.is(result.output, '// foo"json" output');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, '// foo"json" output');
 });
 
 test('ignores unterminated double quotes after identifiers', t => {
@@ -770,9 +770,9 @@ test('ignores unterminated double quotes after identifiers', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores unterminated inline code', t => {
@@ -780,16 +780,16 @@ test('ignores unterminated inline code', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('continues checking prose after quoted backticks', t => {
 	const result = verifyAndFixJavaScript('// "`api" and json output.');
 
-	t.true(result.fixed);
-	t.is(result.output, '// "`api" and JSON output.');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '// "`api" and JSON output.');
 });
 
 test('fixes slash-separated acronym pairs', t => {
@@ -804,8 +804,8 @@ test('fixes slash-separated acronym pairs', t => {
 // json/yaml files.
 // tcp/udp sockets.`);
 
-	t.true(result.fixed);
-	t.is(result.output, `// CI/CD pipeline and UI/UX polish.
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// CI/CD pipeline and UI/UX polish.
 // CI/CD.
 // UI/UX.
 // JSON/XML formats.
@@ -824,8 +824,8 @@ test('fixes slash pairs holding an optionally dashed acronym', t => {
 // utf-8/json pairs.
 // utf8/somethinglongerthananacronym stays masked.`);
 
-	t.true(result.fixed);
-	t.is(result.output, `// UTF-8/JSON pairs.
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// UTF-8/JSON pairs.
 // UTF-8/JSON pairs.
 // utf8/somethinglongerthananacronym stays masked.`);
 });
@@ -833,8 +833,8 @@ test('fixes slash pairs holding an optionally dashed acronym', t => {
 test('fixes prose comments', t => {
 	const result = verifyAndFixJavaScript('// the api returns json and svg files.');
 
-	t.true(result.fixed);
-	t.is(result.output, '// the API returns JSON and SVG files.');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '// the API returns JSON and SVG files.');
 });
 
 test('fixes prose on lines that mention code-like text', t => {
@@ -856,8 +856,8 @@ test('fixes prose on lines that mention code-like text', t => {
 // if api access fails, return json.`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `// Use the API for optional chaining, like foo?.bar.
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// Use the API for optional chaining, like foo?.bar.
 // Use API. JSON output follows.
 // API: JSON is the response format.
 // See [API] docs.
@@ -915,9 +915,9 @@ api.v3(json) [docs](https://example.com)
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores standalone computed calls with spaced bracket access', t => {
@@ -941,9 +941,9 @@ test('ignores standalone computed calls with spaced bracket access', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores package specifiers without skipping slash-pair prose', t => {
@@ -955,8 +955,8 @@ test('ignores package specifiers without skipping slash-pair prose', t => {
 // ci/cd pipeline and ui/ux polish.`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `// Install @scope/api and foo/json?raw.
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// Install @scope/api and foo/json?raw.
 // Use foo/json#raw and foo/json@beta.
 // Use foo/api.
 // Use eslint/css.
@@ -968,16 +968,16 @@ test('does not repeatedly scan long slash-delimited package-like tokens', t => {
 	const code = `// ${'api/'.repeat(20_000)}api`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
 });
 
 test('does not repeatedly scan malformed slash-delimited tokens', t => {
 	const code = `// ${'api//'.repeat(20_000)}json`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
 });
 
 test('ignores compact structured data snippets', t => {
@@ -994,8 +994,8 @@ test('ignores compact structured data snippets', t => {
 // api: json is prose.`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `// api: json
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// api: json
 // - api: json
 // + api: json
 // 1. api: json
@@ -1029,8 +1029,8 @@ test('ignores prompt-prefixed command-line snippets', t => {
 // nodejs output uses json.`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `// $ nodejs --version
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// $ nodejs --version
 // $ nodejs --version.
 // > node json
 // > nodejs --version
@@ -1069,8 +1069,8 @@ test('ignores Markdown reference and chained link labels', t => {
 // api [docs](docs/setup)`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `// [api]: https://example.com/json
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// [api]: https://example.com/json
 // [json][api]
 // [api docs][json]
 // See ([api][json]) and Node.js.
@@ -1096,8 +1096,8 @@ The json response.
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 See [API](
 The JSON response.
 )
@@ -1111,8 +1111,8 @@ json output.
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 [API]:
 JSON output.
 */`);
@@ -1123,8 +1123,8 @@ test('does not mask Markdown links that start inside quoted strings or inline co
 // \` [api](x\` json output )`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `// " [api](x" JSON output )
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// " [api](x" JSON output )
 // \` [api](x\` JSON output )`);
 });
 
@@ -1132,8 +1132,8 @@ test('does not mask malformed Markdown inline link destinations', t => {
 	const code = '// See [api](x json output).';
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, '// See [API](x JSON output).');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '// See [API](x JSON output).');
 });
 
 test('does not repeatedly scan malformed Markdown inline-link starts', t => {
@@ -1143,8 +1143,8 @@ json output.
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 ${'[docs](x'.repeat(50_000)}
 JSON output.
 */`);
@@ -1157,8 +1157,8 @@ json output.
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 ${' [docs'.repeat(50_000)}
 JSON output.
 */`);
@@ -1171,8 +1171,8 @@ json output.
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 ${'example.'.repeat(50_000)}com
 JSON output.
 */`);
@@ -1184,8 +1184,8 @@ test('ignores markup tag regions', t => {
 // x < y and <api json="true">`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `// <api json="true">
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// <api json="true">
 // Use <api> and JSON output.
 // x < y and <api json="true">`);
 });
@@ -1198,8 +1198,8 @@ The json response.
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 <API
 The JSON response.
 >
@@ -1213,8 +1213,8 @@ ${'<a'.repeat(50_000)}
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 ${'<a'.repeat(50_000)}
 > JSON output.
 */`);
@@ -1223,15 +1223,15 @@ ${'<a'.repeat(50_000)}
 test('does not mask markup tags that start inside quoted strings', t => {
 	const result = verifyAndFixJavaScript('// " <api " json output >');
 
-	t.true(result.fixed);
-	t.is(result.output, '// " <api " JSON output >');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '// " <api " JSON output >');
 });
 
 test('fixes prose inside braces', t => {
 	const result = verifyAndFixJavaScript('// {api json prose}');
 
-	t.true(result.fixed);
-	t.is(result.output, '// {API JSON prose}');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '// {API JSON prose}');
 });
 
 test('ignores fenced code blocks in block comments', t => {
@@ -1243,9 +1243,9 @@ nodejs --version
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('continues checking prose after fenced code blocks with unmatched delimiters', t => {
@@ -1258,8 +1258,8 @@ The json output.
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 ~~~js
 \`api
 "json
@@ -1277,8 +1277,8 @@ The json output.
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 ~~~js
 console.log(
 ~~~
@@ -1297,9 +1297,9 @@ test('ignores indented fenced code blocks in block comments', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores fenced code blocks in JSDoc comments', t => {
@@ -1313,9 +1313,9 @@ test('ignores fenced code blocks in JSDoc comments', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores JSDoc syntax and fixes tag descriptions', t => {
@@ -1331,7 +1331,7 @@ test('ignores JSDoc syntax and fixes tag descriptions', t => {
 	 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.is(result.output, `/**
+	t.assert.strictEqual(result.output, `/**
 	 * @param url - Requested URL from the API.
 	 * @param [options.url=https://example.com] - Configure the API.
 	 * @param {{url: string}} settings - Configure the API.
@@ -1351,14 +1351,14 @@ test('ignores JSDoc type and symbol references', t => {
 	 * @see api
 	 */`;
 
-	t.deepEqual(verifyJavaScript(code), []);
+	t.assert.deepStrictEqual(verifyJavaScript(code), []);
 });
 
 test('ignores optional JSDoc types and metadata values', t => {
 	const code = '/**\n * @private {api}\n * @protected {url}\n * @public {json}\n * @author nodejs\n * @version json\n * @since api\n */';
 
-	t.is(verifyAndFixJavaScript(code).output, code);
-	t.deepEqual(verifyJavaScript(code), []);
+	t.assert.strictEqual(verifyAndFixJavaScript(code).output, code);
+	t.assert.deepStrictEqual(verifyJavaScript(code), []);
 });
 
 test('fixes JSDoc inline-link labels', t => {
@@ -1369,7 +1369,7 @@ test('fixes JSDoc inline-link labels', t => {
 		+ '{@link url|JSON output} {@linkcode api JSON output} '
 		+ '{@linkplain url JSON output} {@tutorial guide JSON output} */';
 
-	t.is(verifyAndFixJavaScript(code).output, expected);
+	t.assert.strictEqual(verifyAndFixJavaScript(code).output, expected);
 });
 
 test('fixes inline links at the start of JSDoc tag descriptions', t => {
@@ -1380,18 +1380,18 @@ test('fixes inline links at the start of JSDoc tag descriptions', t => {
 		+ ' * @throws {@link api|JSON output}\n * @exception {@link api JSON output}\n'
 		+ ' * @yields {@link api|JSON output}\n * @yield {@link api JSON output}\n */';
 
-	t.is(verifyAndFixJavaScript(code).output, expected);
-	t.deepEqual(verifyJavaScript(expected), []);
+	t.assert.strictEqual(verifyAndFixJavaScript(code).output, expected);
+	t.assert.deepStrictEqual(verifyJavaScript(expected), []);
 });
 
 test('handles single-line JSDoc tags without treating /*** as JSDoc', t => {
-	t.is(verifyAndFixJavaScript('/** @param url - See the api. */').output,
+	t.assert.strictEqual(verifyAndFixJavaScript('/** @param url - See the api. */').output,
 		'/** @param url - See the API. */');
-	t.is(verifyAndFixJavaScript('/*** @param url */').output, '/*** @param URL */');
+	t.assert.strictEqual(verifyAndFixJavaScript('/*** @param url */').output, '/*** @param URL */');
 });
 
 test('fixes free-form JSDoc @see text', t => {
-	t.is(verifyAndFixJavaScript('/** @see api is described here with json. */').output,
+	t.assert.strictEqual(verifyAndFixJavaScript('/** @see api is described here with json. */').output,
 		'/** @see API is described here with JSON. */');
 });
 
@@ -1402,7 +1402,7 @@ test('fixes free-form JSDoc @see text after a namepath', t => {
 	 * @see api is described here with json.
 	 */`;
 
-	t.is(verifyAndFixJavaScript(code).output, `/**
+	t.assert.strictEqual(verifyAndFixJavaScript(code).output, `/**
 	 * @see {@link url|JSON}
 	 * @see api - See the JSON output.
 	 * @see API is described here with JSON.
@@ -1424,14 +1424,14 @@ test('fixes JSDoc callback descriptions', t => {
 	 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.is(result.output, code.replaceAll('api.', 'API.').replaceAll('json output', 'JSON output').replace('json}\n', 'JSON}\n').replace('json values', 'JSON values'));
+	t.assert.strictEqual(result.output, code.replaceAll('api.', 'API.').replaceAll('json output', 'JSON output').replace('json}\n', 'JSON}\n').replace('json values', 'JSON values'));
 });
 
 test('continues checking prose after an unterminated JSDoc type', t => {
 	const code = '/**\n * @type {\n * @returns json output\n * @see {@link url\n * @param value - The api.\n */';
 	const result = verifyAndFixJavaScript(code);
 
-	t.is(result.output, code.replace('json', 'JSON').replace('api', 'API'));
+	t.assert.strictEqual(result.output, code.replace('json', 'JSON').replace('api', 'API'));
 });
 
 test('ignores JSDoc example sections', t => {
@@ -1445,8 +1445,8 @@ nodejs --version
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/**
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/**
 Do something.
 
 @example
@@ -1468,8 +1468,8 @@ Do something.
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/**
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/**
 Do something.
 
 @example
@@ -1491,8 +1491,8 @@ console.log(
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/**
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/**
 Do something.
 
 @example
@@ -1509,8 +1509,8 @@ const data = await api.v3('commits');
 */`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/*
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/*
 The API returns JSON.
 const data = await api.v3('commits');
 */`);
@@ -1524,9 +1524,9 @@ test('ignores commented-out multi-line bare calls', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores commented-out multi-line bare calls with spaced call parentheses', t => {
@@ -1537,9 +1537,9 @@ test('ignores commented-out multi-line bare calls with spaced call parentheses',
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores commented-out multi-line member calls', t => {
@@ -1550,9 +1550,9 @@ test('ignores commented-out multi-line member calls', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores commented-out multi-line constructor calls', t => {
@@ -1562,9 +1562,9 @@ test('ignores commented-out multi-line constructor calls', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores commented-out multi-line simple assignments', t => {
@@ -1575,9 +1575,9 @@ test('ignores commented-out multi-line simple assignments', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('ignores commented-out multi-line member assignments', t => {
@@ -1588,9 +1588,9 @@ test('ignores commented-out multi-line member assignments', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('checks prose parentheticals spanning line comments', t => {
@@ -1598,8 +1598,8 @@ test('checks prose parentheticals spanning line comments', t => {
 // should read json docs)`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `// Note (API users
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// Note (API users
 // should read JSON docs)`);
 });
 
@@ -1610,8 +1610,8 @@ test('continues checking prose after skipped regex code', t => {
 // The api output uses xml.`;
 	const result = verifyAndFixJavaScript(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `// const pattern = /(/;
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `// const pattern = /(/;
 // The HTML output uses JSON.
 // const otherPattern = /(/
 // The API output uses XML.`);
@@ -1629,9 +1629,9 @@ test('ignores brackets inside nested comments in commented-out multi-line code',
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('reports one problem per comment', t => {
@@ -1640,9 +1640,9 @@ test('reports one problem per comment', t => {
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
 
-	t.is(messages.length, 12);
-	t.true(result.fixed);
-	t.is(result.output, output);
+	t.assert.strictEqual(messages.length, 12);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, output);
 });
 
 // A stray quote must not mask the following lines
@@ -1650,35 +1650,100 @@ test('a stray quote does not mask the rest of the comment', t => {
 	const code = '/**\n * Set the margin to 2".\n * The json payload follows.\n */';
 	const messages = verifyJavaScript(code);
 
-	t.is(messages.length, 1);
-	t.is(messages[0].line, 3);
-	t.is(verifyAndFixJavaScript(code).output, '/**\n * Set the margin to 2".\n * The JSON payload follows.\n */');
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].line, 3);
+	t.assert.strictEqual(verifyAndFixJavaScript(code).output, '/**\n * Set the margin to 2".\n * The JSON payload follows.\n */');
 });
 
 test('a stray quote after inline code does not mask the rest of the comment', t => {
 	const code = '/*\n * Use `code` and the 2" rule.\n * The json payload follows.\n */';
 	const messages = verifyJavaScript(code);
 
-	t.is(messages.length, 1);
-	t.is(messages[0].line, 3);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].line, 3);
 });
 
 test('a stray quote only masks from the quote onwards', t => {
 	const messages = verifyJavaScript('/**\n * The json payload follows to the 2".\n */');
 
-	t.is(messages.length, 1);
-	t.is(messages[0].line, 2);
-	t.deepEqual(verifyJavaScript('/**\n * Set the margin to 2".\n */'), []);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].line, 2);
+	t.assert.deepStrictEqual(verifyJavaScript('/**\n * Set the margin to 2".\n */'), []);
 });
 
 test('a stray backtick does not mask the rest of the comment', t => {
 	const code = '/*\n * Press the ` key.\n * The json payload follows.\n */';
 	const messages = verifyJavaScript(code);
 
-	t.is(messages.length, 1);
-	t.is(messages[0].line, 3);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].line, 3);
 });
 
 test('a quote closed on a later line still masks the lines in between', t => {
-	t.deepEqual(verifyJavaScript('/**\n * Say "hello\n * json world".\n */'), []);
+	t.assert.deepStrictEqual(verifyJavaScript('/**\n * Say "hello\n * json world".\n */'), []);
+});
+
+test('checks unterminated Markdown HTML comments to the end of the file', t => {
+	const config = createLanguageConfig('markdown/gfm');
+	const linter = new Linter({configType: 'flat'});
+	const code = 'Text <!-- github';
+	const messages = linter.verify(code, config, {filename: 'fixture.md'});
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.md'});
+
+	t.assert.deepStrictEqual(messages.map(({message}) => message), ['Prefer `GitHub` over `github`.']);
+	t.assert.strictEqual(result.output, 'Text <!-- GitHub');
+});
+
+test('fixes prose next to ignored syntax', t => {
+	const cases = [
+		['//github', '//GitHub'],
+		[String.raw`// "a \" github" nodejs`, String.raw`// "a \" github" Node.js`],
+		['// ``a`b`` github', '// ``a`b`` GitHub'],
+		['// nodejs#a/b', '// Node.js#a/b'],
+		['// <a!b> </b> github', '// <a!b> </b> GitHub'],
+		// A quoted string spanning a masked code line
+		['/*\nSay "hello\nconst x = 1;\ngithub" nodejs\n*/', '/*\nSay "hello\nconst x = 1;\ngithub" Node.js\n*/'],
+	];
+
+	for (const [code, output] of cases) {
+		t.assert.strictEqual(verifyJavaScript(code).length, 1, code);
+		t.assert.strictEqual(verifyAndFixJavaScript(code).output, output);
+	}
+});
+
+test('ignores prose in code-like comment content', t => {
+	const cases = [
+		'// "github: nodejs',
+		'// "a"b": github',
+		'// name: github,',
+		'/*\n```\ngithub\n*/',
+		'/**\n * @example\n * github\n */',
+		String.raw`// foo("\")", [` + '\n// \tgithub,\n// ]);',
+		'// foo(/* note [\n// \tgithub,\n// );',
+	];
+
+	for (const code of cases) {
+		t.assert.deepStrictEqual(verifyJavaScript(code), [], code);
+	}
+});
+
+test('skips empty matches of custom replacements', t => {
+	const linter = new Linter({configType: 'flat'});
+	const config = {
+		...JAVASCRIPT_CONFIG,
+		rules: {
+			[RULE_ID]: [
+				'error',
+				{
+					extendDefaultReplacements: false,
+					replacements: {
+						'x*': 'y',
+					},
+				},
+			],
+		},
+	};
+	const result = linter.verifyAndFix('// x', config, {filename: 'fixture.js'});
+
+	t.assert.strictEqual(result.output, '// y');
 });

@@ -33,10 +33,6 @@ const isFunction = node =>
 	|| node.type === 'FunctionExpression';
 
 const getPropertyName = property => {
-	if (property.computed) {
-		return;
-	}
-
 	if (property.key.type === 'Identifier') {
 		return property.key.name;
 	}
@@ -71,30 +67,6 @@ const hasCommentsBeforeClosingBrace = (optionsNode, sourceCode) => {
 	return sourceCode.getTokensBetween(tokenBefore, closingBrace, {includeComments: true})
 		.some(token => token.type === 'Block' || token.type === 'Line');
 };
-
-const getCallExpression = node => {
-	if (node.parent.type === 'CallExpression' && node.parent.callee === node) {
-		return node.parent;
-	}
-
-	if (
-		node.parent.type === 'ChainExpression'
-		&& node.parent.parent.type === 'CallExpression'
-		&& node.parent.parent.callee === node.parent
-	) {
-		return node.parent.parent;
-	}
-};
-
-const isPreventDefaultCall = memberExpression =>
-	memberExpression.type === 'MemberExpression'
-	&& getMemberPropertyName(memberExpression) === 'preventDefault'
-	&& getCallExpression(memberExpression);
-
-const isDirectPreventDefaultReference = identifier =>
-	identifier.parent.type === 'MemberExpression'
-	&& identifier.parent.object === identifier
-	&& isPreventDefaultCall(identifier.parent);
 
 const getOutermostMemberExpression = memberExpression => {
 	while (
@@ -148,7 +120,8 @@ const isEventParameterSafe = (listener, context) => {
 		return false;
 	}
 
-	const [eventParameter] = listener.params;
+	// Skip the TypeScript `this` parameter
+	const [eventParameter] = listener.params[0]?.name === 'this' ? listener.params.slice(1) : listener.params;
 	if (!eventParameter) {
 		return true;
 	}
@@ -160,12 +133,8 @@ const isEventParameterSafe = (listener, context) => {
 	const eventVariable = context.sourceCode.getDeclaredVariables(listener).find(variable =>
 		variable.defs[0]?.name === eventParameter);
 
-	if (!eventVariable) {
-		return false;
-	}
-
 	for (const {identifier} of eventVariable.references) {
-		if (isDirectPreventDefaultReference(identifier) || !isSafeEventPropertyReference(identifier)) {
+		if (!isSafeEventPropertyReference(identifier)) {
 			return false;
 		}
 	}

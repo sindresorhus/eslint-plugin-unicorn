@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
@@ -154,7 +154,7 @@ test('fixes selector-style DOM names before prefer-query-selector', t => {
 			...config,
 			languageOptions: mergeLanguageOptions(config.languageOptions, languageOptions),
 		});
-		t.is(result.output, output);
-		t.deepEqual(result.messages, []);
+		t.assert.strictEqual(result.output, output);
+		t.assert.deepStrictEqual(result.messages, []);
 	}
 });

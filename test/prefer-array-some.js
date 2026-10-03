@@ -159,6 +159,15 @@ test({
 		'switch (foo.find(fn)) { case undefined: break; }',
 		'switch (foo.findLast(fn)) { case undefined: break; }',
 		'const found = foo.find(fn); switch (found) { case undefined: break; }',
+		'foo([].find(fn));',
+		'let found = [].find(fn); if (found) {}',
+		'export const found = [].find(fn); if (found) {}',
+		'const found = [].find(fn);',
+		// The type and the value share one variable
+		{
+			code: 'const found = [].find(fn); type found = string; if (found) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		...[
@@ -362,6 +371,8 @@ test.snapshot({
 		'$element.filter(":visible").length > 0',
 		'var res = $module.filter(selector.disabled).length > 0;',
 		'$module.filter(fn).length !== 0',
+		'array.filter().length > 0',
+		'array.filter("foo").length > 0',
 	],
 	invalid: [
 		'array.filter(fn).length > 0',

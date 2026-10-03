@@ -682,7 +682,8 @@ const {isTarget: isNumericReceiver} = createTypeCheckers({
 		const literal = node.literal.type === 'UnaryExpression' ? node.literal.argument : node.literal;
 		return isNumericLiteral(literal) || isBigIntLiteral(literal);
 	},
-	isTargetType: type => type.intrinsicName === 'number' || type.intrinsicName === 'bigint' || type.isNumberLiteral?.() || type.isBigIntLiteral?.(),
+	// `Type#isLiteral()` is true for string, number, and bigint literal types. TypeScript has no `Type#isBigIntLiteral()`.
+	isTargetType: type => type.intrinsicName === 'number' || type.intrinsicName === 'bigint' || (type.isLiteral() && !type.isStringLiteral()),
 	getStaticType: value => typeof value === 'number' || typeof value === 'bigint' ? target : unknownType,
 });
 

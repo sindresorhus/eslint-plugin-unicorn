@@ -1,0 +1,2918 @@
+exports[`dom-node-dataset > invalid(1): element.dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(1): element.dataset.unicorn; 2`] = `
+
+Message:
+> 1 | element.dataset.unicorn;
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | element.getAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(1): element.getAttribute(\n\t\"data-foo\", // comment\n); 1`] = `
+
+  1 | element.getAttribute(
+  2 | 	"data-foo", // comment
+  3 | );
+
+`;
+
+exports[`dom-node-dataset > invalid(1): element.getAttribute(\n\t\"data-foo\", // comment\n); 2`] = `
+
+Message:
+> 1 | element.getAttribute(
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	"data-foo", // comment
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | );
+    | ^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(1): element.hasAttribute(\n\t\"data-foo\", // comment\n); 1`] = `
+
+  1 | element.hasAttribute(
+  2 | 	"data-foo", // comment
+  3 | );
+
+`;
+
+exports[`dom-node-dataset > invalid(1): element.hasAttribute(\n\t\"data-foo\", // comment\n); 2`] = `
+
+Message:
+> 1 | element.hasAttribute(
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	"data-foo", // comment
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | );
+    | ^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(1): element.removeAttribute(\n\t\"data-foo\", // comment\n); 1`] = `
+
+  1 | element.removeAttribute(
+  2 | 	"data-foo", // comment
+  3 | );
+
+`;
+
+exports[`dom-node-dataset > invalid(1): element.removeAttribute(\n\t\"data-foo\", // comment\n); 2`] = `
+
+Message:
+> 1 | element.removeAttribute(
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	"data-foo", // comment
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | );
+    | ^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(1): element.setAttribute(\n\t'data-foo', // comment\n\t'bar' // comment\n); 1`] = `
+
+  1 | element.setAttribute(
+  2 | 	'data-foo', // comment
+  3 | 	'bar' // comment
+  4 | );
+
+`;
+
+exports[`dom-node-dataset > invalid(1): element.setAttribute(\n\t'data-foo', // comment\n\t'bar' // comment\n); 2`] = `
+
+Message:
+> 1 | element.setAttribute(
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	'data-foo', // comment
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	'bar' // comment
+    | ^^^^^^^^^^^^^^^^^
+> 4 | );
+    | ^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(10): const [y = element.dataset.fooBar] = array; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const [y = element.dataset.fooBar] = array;
+
+`;
+
+exports[`dom-node-dataset > invalid(10): const [y = element.dataset.fooBar] = array; 2`] = `
+
+Message:
+> 1 | const [y = element.dataset.fooBar] = array;
+    |            ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | const [y = element.getAttribute('data-foo-bar')] = array;
+
+`;
+
+exports[`dom-node-dataset > invalid(10): element.getAttribute(\"data-foo.bar\"); 1`] = `
+
+  1 | element.getAttribute("data-foo.bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(10): element.getAttribute(\"data-foo.bar\"); 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-foo.bar");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset["foo.bar"];
+
+`;
+
+exports[`dom-node-dataset > invalid(10): element.hasAttribute(\"data-foo-bar\"); 1`] = `
+
+  1 | element.hasAttribute("data-foo-bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(10): element.hasAttribute(\"data-foo-bar\"); 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-foo-bar");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "fooBar");
+
+`;
+
+exports[`dom-node-dataset > invalid(10): element.removeAttribute(\"data-foo-bar\"); 1`] = `
+
+  1 | element.removeAttribute("data-foo-bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(10): element.removeAttribute(\"data-foo-bar\"); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-foo-bar");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset.fooBar;
+
+`;
+
+exports[`dom-node-dataset > invalid(10): element.setAttribute('data-foo', /* comment */ 'bar'); 1`] = `
+
+  1 | element.setAttribute('data-foo', /* comment */ 'bar');
+
+`;
+
+exports[`dom-node-dataset > invalid(10): element.setAttribute('data-foo', /* comment */ 'bar'); 2`] = `
+
+Message:
+> 1 | element.setAttribute('data-foo', /* comment */ 'bar');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(11): delete element.dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | delete element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(11): delete element.dataset.unicorn; 2`] = `
+
+Message:
+> 1 | delete element.dataset.unicorn;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.removeAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(11): element.getAttribute(\"data-foo-bar\"); 1`] = `
+
+  1 | element.getAttribute("data-foo-bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(11): element.getAttribute(\"data-foo-bar\"); 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-foo-bar");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset.fooBar;
+
+`;
+
+exports[`dom-node-dataset > invalid(11): element.hasAttribute(\"data-foo\"); 1`] = `
+
+  1 | element.hasAttribute("data-foo");
+
+`;
+
+exports[`dom-node-dataset > invalid(11): element.hasAttribute(\"data-foo\"); 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-foo");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "foo");
+
+`;
+
+exports[`dom-node-dataset > invalid(11): element.querySelector('#selector').setAttribute('data-AllowAccess', true); 1`] = `
+
+  1 | element.querySelector('#selector').setAttribute('data-AllowAccess', true);
+
+`;
+
+exports[`dom-node-dataset > invalid(11): element.querySelector('#selector').setAttribute('data-AllowAccess', true); 2`] = `
+
+Message:
+> 1 | element.querySelector('#selector').setAttribute('data-AllowAccess', true);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.querySelector('#selector').dataset.allowaccess = true;
+
+`;
+
+exports[`dom-node-dataset > invalid(11): element.removeAttribute(\"data-foo\"); 1`] = `
+
+  1 | element.removeAttribute("data-foo");
+
+`;
+
+exports[`dom-node-dataset > invalid(11): element.removeAttribute(\"data-foo\"); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-foo");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset.foo;
+
+`;
+
+exports[`dom-node-dataset > invalid(12): delete element.dataset.fooBar; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | delete element.dataset.fooBar;
+
+`;
+
+exports[`dom-node-dataset > invalid(12): delete element.dataset.fooBar; 2`] = `
+
+Message:
+> 1 | delete element.dataset.fooBar;
+    |        ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.removeAttribute('data-foo-bar');
+
+`;
+
+exports[`dom-node-dataset > invalid(12): element.getAttribute(\"data-foo\"); 1`] = `
+
+  1 | element.getAttribute("data-foo");
+
+`;
+
+exports[`dom-node-dataset > invalid(12): element.getAttribute(\"data-foo\"); 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-foo");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset.foo;
+
+`;
+
+exports[`dom-node-dataset > invalid(12): element.querySelector(\"#selector\").hasAttribute(\"data-AllowAccess\"); 1`] = `
+
+  1 | element.querySelector("#selector").hasAttribute("data-AllowAccess");
+
+`;
+
+exports[`dom-node-dataset > invalid(12): element.querySelector(\"#selector\").hasAttribute(\"data-AllowAccess\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("#selector").hasAttribute("data-AllowAccess");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.querySelector("#selector").dataset, "allowaccess");
+
+`;
+
+exports[`dom-node-dataset > invalid(12): element.querySelector(\"#selector\").removeAttribute(\"data-AllowAccess\"); 1`] = `
+
+  1 | element.querySelector("#selector").removeAttribute("data-AllowAccess");
+
+`;
+
+exports[`dom-node-dataset > invalid(12): element.querySelector(\"#selector\").removeAttribute(\"data-AllowAccess\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("#selector").removeAttribute("data-AllowAccess");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.querySelector("#selector").dataset.allowaccess;
+
+`;
+
+exports[`dom-node-dataset > invalid(12): element.setAttribute(\"data-\", \"🦄\"); 1`] = `
+
+  1 | element.setAttribute("data-", "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(12): element.setAttribute(\"data-\", \"🦄\"); 2`] = `
+
+Message:
+> 1 | element.setAttribute("data-", "🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset[""] = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(13): \"unicorn\" in element.dataset 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | "unicorn" in element.dataset
+
+`;
+
+exports[`dom-node-dataset > invalid(13): \"unicorn\" in element.dataset 2`] = `
+
+Message:
+> 1 | "unicorn" in element.dataset
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.hasAttribute("data-unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(13): element.querySelector(\"#selector\").getAttribute(\"data-AllowAccess\"); 1`] = `
+
+  1 | element.querySelector("#selector").getAttribute("data-AllowAccess");
+
+`;
+
+exports[`dom-node-dataset > invalid(13): element.querySelector(\"#selector\").getAttribute(\"data-AllowAccess\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("#selector").getAttribute("data-AllowAccess");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.querySelector("#selector").dataset.allowaccess;
+
+`;
+
+exports[`dom-node-dataset > invalid(13): element.removeAttribute(\"data-\"); 1`] = `
+
+  1 | element.removeAttribute("data-");
+
+`;
+
+exports[`dom-node-dataset > invalid(13): element.removeAttribute(\"data-\"); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset[""];
+
+`;
+
+exports[`dom-node-dataset > invalid(13): element.setAttribute(\"data--foo\", \"🦄\"); 1`] = `
+
+  1 | element.setAttribute("data--foo", "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(13): element.setAttribute(\"data--foo\", \"🦄\"); 2`] = `
+
+Message:
+> 1 | element.setAttribute("data--foo", "🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset.Foo = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(13): optional?.element.hasAttribute(\"data-unicorn\"); 1`] = `
+
+  1 | optional?.element.hasAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(13): optional?.element.hasAttribute(\"data-unicorn\"); 2`] = `
+
+Message:
+> 1 | optional?.element.hasAttribute("data-unicorn");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(optional?.element.dataset, "unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(14): 'unicorn' in element.dataset 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | 'unicorn' in element.dataset
+
+`;
+
+exports[`dom-node-dataset > invalid(14): 'unicorn' in element.dataset 2`] = `
+
+Message:
+> 1 | 'unicorn' in element.dataset
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.hasAttribute('data-unicorn')
+
+`;
+
+exports[`dom-node-dataset > invalid(14): (a + b).removeAttribute(\"data-unicorn\"); 1`] = `
+
+  1 | (a + b).removeAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(14): (a + b).removeAttribute(\"data-unicorn\"); 2`] = `
+
+Message:
+> 1 | (a + b).removeAttribute("data-unicorn");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete (a + b).dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(14): element.hasAttribute(\"data-unicorn\").toString() 1`] = `
+
+  1 | element.hasAttribute("data-unicorn").toString()
+
+`;
+
+exports[`dom-node-dataset > invalid(14): element.hasAttribute(\"data-unicorn\").toString() 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-unicorn").toString()
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "unicorn").toString()
+
+`;
+
+exports[`dom-node-dataset > invalid(14): element.setAttribute(\"DATA--FOO\", \"🦄\"); 1`] = `
+
+  1 | element.setAttribute("DATA--FOO", "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(14): element.setAttribute(\"DATA--FOO\", \"🦄\"); 2`] = `
+
+Message:
+> 1 | element.setAttribute("DATA--FOO", "🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset.Foo = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(14): optional?.element.getAttribute(\"data-unicorn\"); 1`] = `
+
+  1 | optional?.element.getAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(14): optional?.element.getAttribute(\"data-unicorn\"); 2`] = `
+
+Message:
+> 1 | optional?.element.getAttribute("data-unicorn");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | optional?.element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(15): Object.hasOwn(element.dataset, \"unicorn\") 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | Object.hasOwn(element.dataset, "unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(15): Object.hasOwn(element.dataset, \"unicorn\") 2`] = `
+
+Message:
+> 1 | Object.hasOwn(element.dataset, "unicorn")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.hasAttribute("data-unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(15): element.getAttribute(\"data-unicorn\").toString() 1`] = `
+
+  1 | element.getAttribute("data-unicorn").toString()
+
+`;
+
+exports[`dom-node-dataset > invalid(15): element.getAttribute(\"data-unicorn\").toString() 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-unicorn").toString()
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset.unicorn.toString()
+
+`;
+
+exports[`dom-node-dataset > invalid(15): element.setAttribute(\"DATA- \", \"🦄\"); 1`] = `
+
+  1 | element.setAttribute("DATA- ", "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(15): element.setAttribute(\"DATA- \", \"🦄\"); 2`] = `
+
+Message:
+> 1 | element.setAttribute("DATA- ", "🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset[" "] = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(15): optional?.element.removeAttribute(\"data-unicorn\"); 1`] = `
+
+  1 | optional?.element.removeAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(15): optional?.element.removeAttribute(\"data-unicorn\"); 2`] = `
+
+Message:
+> 1 | optional?.element.removeAttribute("data-unicorn");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete optional?.element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(16): Object.hasOwn(element.dataset, 'unicorn') 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | Object.hasOwn(element.dataset, 'unicorn')
+
+`;
+
+exports[`dom-node-dataset > invalid(16): Object.hasOwn(element.dataset, 'unicorn') 2`] = `
+
+Message:
+> 1 | Object.hasOwn(element.dataset, 'unicorn')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.hasAttribute('data-unicorn')
+
+`;
+
+exports[`dom-node-dataset > invalid(16): element.removeAttribute(\"data-unicorn\")?.property 1`] = `
+
+  1 | element.removeAttribute("data-unicorn")?.property
+
+`;
+
+exports[`dom-node-dataset > invalid(16): element.removeAttribute(\"data-unicorn\")?.property 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-unicorn")?.property
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(16): element.setAttribute(\"DATA-Foo-bar\", \"🦄\"); 1`] = `
+
+  1 | element.setAttribute("DATA-Foo-bar", "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(16): element.setAttribute(\"DATA-Foo-bar\", \"🦄\"); 2`] = `
+
+Message:
+> 1 | element.setAttribute("DATA-Foo-bar", "🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset.fooBar = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(17): (a + b).setAttribute(\"data-unicorn\", \"🦄\"); 1`] = `
+
+  1 | (a + b).setAttribute("data-unicorn", "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(17): (a + b).setAttribute(\"data-unicorn\", \"🦄\"); 2`] = `
+
+Message:
+> 1 | (a + b).setAttribute("data-unicorn", "🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | (a + b).dataset.unicorn = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(17): Object.hasOwn(element.dataset, \"fooBar\") 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | Object.hasOwn(element.dataset, "fooBar")
+
+`;
+
+exports[`dom-node-dataset > invalid(17): Object.hasOwn(element.dataset, \"fooBar\") 2`] = `
+
+Message:
+> 1 | Object.hasOwn(element.dataset, "fooBar")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.hasAttribute("data-foo-bar")
+
+`;
+
+exports[`dom-node-dataset > invalid(18): element.dataset.hasOwnProperty(\"unicorn\") 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset.hasOwnProperty("unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(18): element.dataset.hasOwnProperty(\"unicorn\") 2`] = `
+
+Message:
+> 1 | element.dataset.hasOwnProperty("unicorn")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.hasAttribute("data-unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(18): element.setAttribute(\"data-unicorn\", (a, b)); 1`] = `
+
+  1 | element.setAttribute("data-unicorn", (a, b));
+
+`;
+
+exports[`dom-node-dataset > invalid(18): element.setAttribute(\"data-unicorn\", (a, b)); 2`] = `
+
+Message:
+> 1 | element.setAttribute("data-unicorn", (a, b));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset.unicorn = (a, b);
+
+`;
+
+exports[`dom-node-dataset > invalid(19): element.dataset.hasOwnProperty('unicorn') 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset.hasOwnProperty('unicorn')
+
+`;
+
+exports[`dom-node-dataset > invalid(19): element.dataset.hasOwnProperty('unicorn') 2`] = `
+
+Message:
+> 1 | element.dataset.hasOwnProperty('unicorn')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.hasAttribute('data-unicorn')
+
+`;
+
+exports[`dom-node-dataset > invalid(19): optional?.element.setAttribute(\"data-unicorn\", \"🦄\"); 1`] = `
+
+  1 | optional?.element.setAttribute("data-unicorn", "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(19): optional?.element.setAttribute(\"data-unicorn\", \"🦄\"); 2`] = `
+
+Message:
+> 1 | optional?.element.setAttribute("data-unicorn", "🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.dataset[\"unicorn\"]; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset["unicorn"];
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.dataset[\"unicorn\"]; 2`] = `
+
+Message:
+> 1 | element.dataset["unicorn"];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | element.getAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.getAttribute('data-unicorn'); 1`] = `
+
+  1 | element.getAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.getAttribute('data-unicorn'); 2`] = `
+
+Message:
+> 1 | element.getAttribute('data-unicorn');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.hasAttribute('data-unicorn'); 1`] = `
+
+  1 | element.hasAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.hasAttribute('data-unicorn'); 2`] = `
+
+Message:
+> 1 | element.hasAttribute('data-unicorn');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, 'unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.removeAttribute('data-unicorn'); 1`] = `
+
+  1 | element.removeAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.removeAttribute('data-unicorn'); 2`] = `
+
+Message:
+> 1 | element.removeAttribute('data-unicorn');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.setAttribute('data-unicorn', '🦄'); 1`] = `
+
+  1 | element.setAttribute('data-unicorn', '🦄');
+
+`;
+
+exports[`dom-node-dataset > invalid(2): element.setAttribute('data-unicorn', '🦄'); 2`] = `
+
+Message:
+> 1 | element.setAttribute('data-unicorn', '🦄');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset.unicorn = '🦄';
+
+`;
+
+exports[`dom-node-dataset > invalid(20): console.log(element.setAttribute(\"data-unicorn\", \"🦄\")) 1`] = `
+
+  1 | console.log(element.setAttribute("data-unicorn", "🦄"))
+
+`;
+
+exports[`dom-node-dataset > invalid(20): console.log(element.setAttribute(\"data-unicorn\", \"🦄\")) 2`] = `
+
+Message:
+> 1 | console.log(element.setAttribute("data-unicorn", "🦄"))
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(20): element.dataset.hasOwnProperty(\"fooBar\") 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset.hasOwnProperty("fooBar")
+
+`;
+
+exports[`dom-node-dataset > invalid(20): element.dataset.hasOwnProperty(\"fooBar\") 2`] = `
+
+Message:
+> 1 | element.dataset.hasOwnProperty("fooBar")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.hasAttribute("data-foo-bar")
+
+`;
+
+exports[`dom-node-dataset > invalid(21): element?.dataset.hasOwnProperty(\"unicorn\") 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element?.dataset.hasOwnProperty("unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(21): element?.dataset.hasOwnProperty(\"unicorn\") 2`] = `
+
+Message:
+> 1 | element?.dataset.hasOwnProperty("unicorn")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element?.hasAttribute("data-unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(22): delete element?.dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | delete element?.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(22): delete element?.dataset.unicorn; 2`] = `
+
+Message:
+> 1 | delete element?.dataset.unicorn;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element?.removeAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(23): delete element?.dataset[\"unicorn\"]; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | delete element?.dataset["unicorn"];
+
+`;
+
+exports[`dom-node-dataset > invalid(23): delete element?.dataset[\"unicorn\"]; 2`] = `
+
+Message:
+> 1 | delete element?.dataset["unicorn"];
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element?.removeAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(24): delete element?.dataset.fooBar; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | delete element?.dataset.fooBar;
+
+`;
+
+exports[`dom-node-dataset > invalid(24): delete element?.dataset.fooBar; 2`] = `
+
+Message:
+> 1 | delete element?.dataset.fooBar;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element?.removeAttribute('data-foo-bar');
+
+`;
+
+exports[`dom-node-dataset > invalid(25): delete (a + b)?.dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | delete (a + b)?.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(25): delete (a + b)?.dataset.unicorn; 2`] = `
+
+Message:
+> 1 | delete (a + b)?.dataset.unicorn;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | (a + b)?.removeAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(26): (a + b).dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | (a + b).dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(26): (a + b).dataset.unicorn; 2`] = `
+
+Message:
+> 1 | (a + b).dataset.unicorn;
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | (a + b).getAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(27): (a + b).dataset.unicorn = \"🦄\"; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | (a + b).dataset.unicorn = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(27): (a + b).dataset.unicorn = \"🦄\"; 2`] = `
+
+Message:
+> 1 | (a + b).dataset.unicorn = "🦄";
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.setAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | (a + b).setAttribute('data-unicorn', "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(28): delete (a + b).dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | delete (a + b).dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(28): delete (a + b).dataset.unicorn; 2`] = `
+
+Message:
+> 1 | delete (a + b).dataset.unicorn;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | (a + b).removeAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(29): \"unicorn\" in (a + b).dataset 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | "unicorn" in (a + b).dataset
+
+`;
+
+exports[`dom-node-dataset > invalid(29): \"unicorn\" in (a + b).dataset 2`] = `
+
+Message:
+> 1 | "unicorn" in (a + b).dataset
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | (a + b).hasAttribute("data-unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.dataset.fooBar; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset.fooBar;
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.dataset.fooBar; 2`] = `
+
+Message:
+> 1 | element.dataset.fooBar;
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | element.getAttribute('data-foo-bar');
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.getAttribute(\"data-unicorn\"); 1`] = `
+
+  1 | element.getAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.getAttribute(\"data-unicorn\"); 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-unicorn");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.hasAttribute(\"data-unicorn\"); 1`] = `
+
+  1 | element.hasAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.hasAttribute(\"data-unicorn\"); 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-unicorn");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.removeAttribute(\"data-unicorn\"); 1`] = `
+
+  1 | element.removeAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.removeAttribute(\"data-unicorn\"); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-unicorn");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.setAttribute('data-🦄', '🦄'); 1`] = `
+
+  1 | element.setAttribute('data-🦄', '🦄');
+
+`;
+
+exports[`dom-node-dataset > invalid(3): element.setAttribute('data-🦄', '🦄'); 2`] = `
+
+Message:
+> 1 | element.setAttribute('data-🦄', '🦄');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset['🦄'] = '🦄';
+
+`;
+
+exports[`dom-node-dataset > invalid(30): Object.hasOwn((a + b).dataset, \"unicorn\") 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | Object.hasOwn((a + b).dataset, "unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(30): Object.hasOwn((a + b).dataset, \"unicorn\") 2`] = `
+
+Message:
+> 1 | Object.hasOwn((a + b).dataset, "unicorn")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | (a + b).hasAttribute("data-unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(31): (a + b).dataset.hasOwnProperty(\"unicorn\") 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | (a + b).dataset.hasOwnProperty("unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(31): (a + b).dataset.hasOwnProperty(\"unicorn\") 2`] = `
+
+Message:
+> 1 | (a + b).dataset.hasOwnProperty("unicorn")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | (a + b).hasAttribute("data-unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(32): const {unicorn} = (a + b).dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const {unicorn} = (a + b).dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(32): const {unicorn} = (a + b).dataset; 2`] = `
+
+Message:
+> 1 | const {unicorn} = (a + b).dataset;
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | const unicorn = (a + b).getAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(33): ({}).dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | ({}).dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(33): ({}).dataset.unicorn; 2`] = `
+
+Message:
+> 1 | ({}).dataset.unicorn;
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | ({}).getAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(34): element.dataset.foo = (a, b); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset.foo = (a, b);
+
+`;
+
+exports[`dom-node-dataset > invalid(34): element.dataset.foo = (a, b); 2`] = `
+
+Message:
+> 1 | element.dataset.foo = (a, b);
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`.setAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.setAttribute('data-foo', (a, b));
+
+`;
+
+exports[`dom-node-dataset > invalid(35): foo()\ndelete (a + b).dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | foo()
+  2 | delete (a + b).dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(35): foo()\ndelete (a + b).dataset.unicorn; 2`] = `
+
+Message:
+  1 | foo()
+> 2 | delete (a + b).dataset.unicorn;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | foo()
+  2 | ;(a + b).removeAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(36): foo()\n\"unicorn\" in (a + b).dataset 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | foo()
+  2 | "unicorn" in (a + b).dataset
+
+`;
+
+exports[`dom-node-dataset > invalid(36): foo()\n\"unicorn\" in (a + b).dataset 2`] = `
+
+Message:
+  1 | foo()
+> 2 | "unicorn" in (a + b).dataset
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | foo()
+  2 | ;(a + b).hasAttribute("data-unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(37): foo()\nObject.hasOwn((a + b).dataset, \"unicorn\") 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | foo()
+  2 | Object.hasOwn((a + b).dataset, "unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(37): foo()\nObject.hasOwn((a + b).dataset, \"unicorn\") 2`] = `
+
+Message:
+  1 | foo()
+> 2 | Object.hasOwn((a + b).dataset, "unicorn")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | foo()
+  2 | ;(a + b).hasAttribute("data-unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(38): const {unicorn} = element.dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const {unicorn} = element.dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(38): const {unicorn} = element.dataset; 2`] = `
+
+Message:
+> 1 | const {unicorn} = element.dataset;
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | const unicorn = element.getAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(39): const {unicorn: myVar} = element.dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const {unicorn: myVar} = element.dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(39): const {unicorn: myVar} = element.dataset; 2`] = `
+
+Message:
+> 1 | const {unicorn: myVar} = element.dataset;
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | const myVar = element.getAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element.dataset[\"foo:bar\"]; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset["foo:bar"];
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element.dataset[\"foo:bar\"]; 2`] = `
+
+Message:
+> 1 | element.dataset["foo:bar"];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | element.getAttribute("data-foo:bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element.hasAttribute(\"data-unicorn\",); 1`] = `
+
+  1 | element.hasAttribute("data-unicorn",);
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element.hasAttribute(\"data-unicorn\",); 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-unicorn",);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element.removeAttribute(\"data-unicorn\",); 1`] = `
+
+  1 | element.removeAttribute("data-unicorn",);
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element.removeAttribute(\"data-unicorn\",); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-unicorn",);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element.setAttribute('data-ゆ', 'ゆ'); 1`] = `
+
+  1 | element.setAttribute('data-ゆ', 'ゆ');
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element.setAttribute('data-ゆ', 'ゆ'); 2`] = `
+
+Message:
+> 1 | element.setAttribute('data-ゆ', 'ゆ');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset.ゆ = 'ゆ';
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element?.getAttribute(\"data-unicorn\"); 1`] = `
+
+  1 | element?.getAttribute("data-unicorn");
+
+`;
+
+exports[`dom-node-dataset > invalid(4): element?.getAttribute(\"data-unicorn\"); 2`] = `
+
+Message:
+> 1 | element?.getAttribute("data-unicorn");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element?.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(40): const {foo, bar} = element.dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const {foo, bar} = element.dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(40): const {foo, bar} = element.dataset; 2`] = `
+
+Message:
+> 1 | const {foo, bar} = element.dataset;
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | const foo = element.getAttribute('data-foo');
+  2 | const bar = element.getAttribute('data-bar');
+
+`;
+
+exports[`dom-node-dataset > invalid(41): let {foo, bar} = element.dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | let {foo, bar} = element.dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(41): let {foo, bar} = element.dataset; 2`] = `
+
+Message:
+> 1 | let {foo, bar} = element.dataset;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | let foo = element.getAttribute('data-foo');
+  2 | let bar = element.getAttribute('data-bar');
+
+`;
+
+exports[`dom-node-dataset > invalid(42): const data = element.dataset; console.log(data.fooBar); console.log(data.bazQux); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; console.log(data.fooBar); console.log(data.bazQux);
+
+`;
+
+exports[`dom-node-dataset > invalid(42): const data = element.dataset; console.log(data.fooBar); console.log(data.bazQux); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; console.log(data.fooBar); console.log(data.bazQux);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 |  console.log(element.getAttribute('data-foo-bar')); console.log(element.getAttribute('data-baz-qux'));
+
+`;
+
+exports[`dom-node-dataset > invalid(43): const data = element.dataset; foo(data.fooBar); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data.fooBar);
+
+`;
+
+exports[`dom-node-dataset > invalid(43): const data = element.dataset; foo(data.fooBar); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data.fooBar);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 |  foo(element.getAttribute('data-foo-bar'));
+
+`;
+
+exports[`dom-node-dataset > invalid(44): const data = element.dataset; foo(data[\"fooBar\"]); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data["fooBar"]);
+
+`;
+
+exports[`dom-node-dataset > invalid(44): const data = element.dataset; foo(data[\"fooBar\"]); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data["fooBar"]);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 |  foo(element.getAttribute("data-foo-bar"));
+
+`;
+
+exports[`dom-node-dataset > invalid(45): const data = element.dataset; foo(data.foo.length); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data.foo.length);
+
+`;
+
+exports[`dom-node-dataset > invalid(45): const data = element.dataset; foo(data.foo.length); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data.foo.length);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 |  foo(element.getAttribute('data-foo').length);
+
+`;
+
+exports[`dom-node-dataset > invalid(46): const data = element.dataset; foo(data.fooBar); bar(data.fooBar); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data.fooBar); bar(data.fooBar);
+
+`;
+
+exports[`dom-node-dataset > invalid(46): const data = element.dataset; foo(data.fooBar); bar(data.fooBar); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data.fooBar); bar(data.fooBar);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 |  foo(element.getAttribute('data-foo-bar')); bar(element.getAttribute('data-foo-bar'));
+
+`;
+
+exports[`dom-node-dataset > invalid(47): const data = element.dataset; function inner() { foo(data.fooBar); } 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; function inner() { foo(data.fooBar); }
+
+`;
+
+exports[`dom-node-dataset > invalid(47): const data = element.dataset; function inner() { foo(data.fooBar); } 2`] = `
+
+Message:
+> 1 | const data = element.dataset; function inner() { foo(data.fooBar); }
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 |  function inner() { foo(element.getAttribute('data-foo-bar')); }
+
+`;
+
+exports[`dom-node-dataset > invalid(48): const data = element.dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(48): const data = element.dataset; 2`] = `
+
+Message:
+> 1 | const data = element.dataset;
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(49): let data = element.dataset; foo(data.fooBar); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | let data = element.dataset; foo(data.fooBar);
+
+`;
+
+exports[`dom-node-dataset > invalid(49): let data = element.dataset; foo(data.fooBar); 2`] = `
+
+Message:
+> 1 | let data = element.dataset; foo(data.fooBar);
+    |            ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.dataset['foo:bar']; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset['foo:bar'];
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.dataset['foo:bar']; 2`] = `
+
+Message:
+> 1 | element.dataset['foo:bar'];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | element.getAttribute('data-foo:bar');
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.getAttribute(\"data-unicorn\",); 1`] = `
+
+  1 | element.getAttribute("data-unicorn",);
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.getAttribute(\"data-unicorn\",); 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-unicorn",);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.hasAttribute(\"data-🦄\"); 1`] = `
+
+  1 | element.hasAttribute("data-🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.hasAttribute(\"data-🦄\"); 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.removeAttribute(\"data-🦄\"); 1`] = `
+
+  1 | element.removeAttribute("data-🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.removeAttribute(\"data-🦄\"); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset["🦄"];
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.setAttribute('data-foo2', '🦄'); 1`] = `
+
+  1 | element.setAttribute('data-foo2', '🦄');
+
+`;
+
+exports[`dom-node-dataset > invalid(5): element.setAttribute('data-foo2', '🦄'); 2`] = `
+
+Message:
+> 1 | element.setAttribute('data-foo2', '🦄');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset.foo2 = '🦄';
+
+`;
+
+exports[`dom-node-dataset > invalid(50): var data = element.dataset; foo(data.fooBar); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | var data = element.dataset; foo(data.fooBar);
+
+`;
+
+exports[`dom-node-dataset > invalid(50): var data = element.dataset; foo(data.fooBar); 2`] = `
+
+Message:
+> 1 | var data = element.dataset; foo(data.fooBar);
+    |            ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(51): const data = element.dataset; data.foo = \"x\"; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; data.foo = "x";
+
+`;
+
+exports[`dom-node-dataset > invalid(51): const data = element.dataset; data.foo = \"x\"; 2`] = `
+
+Message:
+> 1 | const data = element.dataset; data.foo = "x";
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(52): const data = element.dataset; delete data.foo; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; delete data.foo;
+
+`;
+
+exports[`dom-node-dataset > invalid(52): const data = element.dataset; delete data.foo; 2`] = `
+
+Message:
+> 1 | const data = element.dataset; delete data.foo;
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(53): const data = element.dataset; data.foo++; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; data.foo++;
+
+`;
+
+exports[`dom-node-dataset > invalid(53): const data = element.dataset; data.foo++; 2`] = `
+
+Message:
+> 1 | const data = element.dataset; data.foo++;
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(54): const data = element.dataset; [data.foo] = [\"x\"]; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; [data.foo] = ["x"];
+
+`;
+
+exports[`dom-node-dataset > invalid(54): const data = element.dataset; [data.foo] = [\"x\"]; 2`] = `
+
+Message:
+> 1 | const data = element.dataset; [data.foo] = ["x"];
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(55): const data = element.dataset; ({a: data.foo} = object); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; ({a: data.foo} = object);
+
+`;
+
+exports[`dom-node-dataset > invalid(55): const data = element.dataset; ({a: data.foo} = object); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; ({a: data.foo} = object);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(56): const data = element.dataset; [data.foo = 1] = array; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; [data.foo = 1] = array;
+
+`;
+
+exports[`dom-node-dataset > invalid(56): const data = element.dataset; [data.foo = 1] = array; 2`] = `
+
+Message:
+> 1 | const data = element.dataset; [data.foo = 1] = array;
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(57): const data = element.dataset; [...data.foo] = array; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; [...data.foo] = array;
+
+`;
+
+exports[`dom-node-dataset > invalid(57): const data = element.dataset; [...data.foo] = array; 2`] = `
+
+Message:
+> 1 | const data = element.dataset; [...data.foo] = array;
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(58): const data = element.dataset; ({...data.foo} = object); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; ({...data.foo} = object);
+
+`;
+
+exports[`dom-node-dataset > invalid(58): const data = element.dataset; ({...data.foo} = object); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; ({...data.foo} = object);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(59): const data = element.dataset; foo(data); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data);
+
+`;
+
+exports[`dom-node-dataset > invalid(59): const data = element.dataset; foo(data); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element.getAttribute(\"data-🦄\"); 1`] = `
+
+  1 | element.getAttribute("data-🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element.getAttribute(\"data-🦄\"); 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-🦄");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset["🦄"];
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element.hasAttribute(\"data-ゆ\"); 1`] = `
+
+  1 | element.hasAttribute("data-ゆ");
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element.hasAttribute(\"data-ゆ\"); 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-ゆ");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "ゆ");
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element.removeAttribute(\"data-ゆ\"); 1`] = `
+
+  1 | element.removeAttribute("data-ゆ");
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element.removeAttribute(\"data-ゆ\"); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-ゆ");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset.ゆ;
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element.setAttribute('data-foo:bar', 'zaz'); 1`] = `
+
+  1 | element.setAttribute('data-foo:bar', 'zaz');
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element.setAttribute('data-foo:bar', 'zaz'); 2`] = `
+
+Message:
+> 1 | element.setAttribute('data-foo:bar', 'zaz');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset['foo:bar'] = 'zaz';
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element?.dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element?.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(6): element?.dataset.unicorn; 2`] = `
+
+Message:
+> 1 | element?.dataset.unicorn;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | element?.getAttribute('data-unicorn');
+
+`;
+
+exports[`dom-node-dataset > invalid(60): const data = element.dataset; foo(data.foo()); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data.foo());
+
+`;
+
+exports[`dom-node-dataset > invalid(60): const data = element.dataset; foo(data.foo()); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data.foo());
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(61): const data = element.dataset; foo(data.foo\`tagged\`); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data.foo\`tagged\`);
+
+`;
+
+exports[`dom-node-dataset > invalid(61): const data = element.dataset; foo(data.foo\`tagged\`); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data.foo\`tagged\`);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(62): const data = element.dataset; foo(data[\"foo-bar\"]); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data["foo-bar"]);
+
+`;
+
+exports[`dom-node-dataset > invalid(62): const data = element.dataset; foo(data[\"foo-bar\"]); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data["foo-bar"]);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(63): const data = element.dataset; foo(data[\`fooBar\`]); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data[\`fooBar\`]);
+
+`;
+
+exports[`dom-node-dataset > invalid(63): const data = element.dataset; foo(data[\`fooBar\`]); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data[\`fooBar\`]);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(64): const data = element.dataset; foo(data[variable]); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data[variable]);
+
+`;
+
+exports[`dom-node-dataset > invalid(64): const data = element.dataset; foo(data[variable]); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data[variable]);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(65): const data = element.dataset; foo(data.toString); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data.toString);
+
+`;
+
+exports[`dom-node-dataset > invalid(65): const data = element.dataset; foo(data.toString); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data.toString);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(66): const data = element.dataset; foo(data?.foo); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data?.foo);
+
+`;
+
+exports[`dom-node-dataset > invalid(66): const data = element.dataset; foo(data?.foo); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data?.foo);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(67): const data = (a + b).dataset; foo(data.foo); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = (a + b).dataset; foo(data.foo);
+
+`;
+
+exports[`dom-node-dataset > invalid(67): const data = (a + b).dataset; foo(data.foo); 2`] = `
+
+Message:
+> 1 | const data = (a + b).dataset; foo(data.foo);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(68): const data = element.querySelector(\"#selector\").dataset; foo(data.foo); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.querySelector("#selector").dataset; foo(data.foo);
+
+`;
+
+exports[`dom-node-dataset > invalid(68): const data = element.querySelector(\"#selector\").dataset; foo(data.foo); 2`] = `
+
+Message:
+> 1 | const data = element.querySelector("#selector").dataset; foo(data.foo);
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(69): const data = element.dataset, other = 1; foo(data.foo); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset, other = 1; foo(data.foo);
+
+`;
+
+exports[`dom-node-dataset > invalid(69): const data = element.dataset, other = 1; foo(data.foo); 2`] = `
+
+Message:
+> 1 | const data = element.dataset, other = 1; foo(data.foo);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.dataset.unicorn = \"🦄\"; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset.unicorn = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.dataset.unicorn = \"🦄\"; 2`] = `
+
+Message:
+> 1 | element.dataset.unicorn = "🦄";
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.setAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.setAttribute('data-unicorn', "🦄");
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.getAttribute(\"data-ゆ\"); 1`] = `
+
+  1 | element.getAttribute("data-ゆ");
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.getAttribute(\"data-ゆ\"); 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-ゆ");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset.ゆ;
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.hasAttribute(\"data-foo2\"); 1`] = `
+
+  1 | element.hasAttribute("data-foo2");
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.hasAttribute(\"data-foo2\"); 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-foo2");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "foo2");
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.removeAttribute(\"data-foo2\"); 1`] = `
+
+  1 | element.removeAttribute("data-foo2");
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.removeAttribute(\"data-foo2\"); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-foo2");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset.foo2;
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.setAttribute(\"data-foo:bar\", \"zaz\"); 1`] = `
+
+  1 | element.setAttribute("data-foo:bar", "zaz");
+
+`;
+
+exports[`dom-node-dataset > invalid(7): element.setAttribute(\"data-foo:bar\", \"zaz\"); 2`] = `
+
+Message:
+> 1 | element.setAttribute("data-foo:bar", "zaz");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset["foo:bar"] = "zaz";
+
+`;
+
+exports[`dom-node-dataset > invalid(70): for (const data = element.dataset;;) foo(data.foo); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | for (const data = element.dataset;;) foo(data.foo);
+
+`;
+
+exports[`dom-node-dataset > invalid(70): for (const data = element.dataset;;) foo(data.foo); 2`] = `
+
+Message:
+> 1 | for (const data = element.dataset;;) foo(data.foo);
+    |                   ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(71): export const data = element.dataset; foo(data.foo); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | export const data = element.dataset; foo(data.foo);
+
+`;
+
+exports[`dom-node-dataset > invalid(71): export const data = element.dataset; foo(data.foo); 2`] = `
+
+Message:
+> 1 | export const data = element.dataset; foo(data.foo);
+    |                     ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(72): const data = element.dataset; function inner(data) { foo(data.foo); } 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; function inner(data) { foo(data.foo); }
+
+`;
+
+exports[`dom-node-dataset > invalid(72): const data = element.dataset; function inner(data) { foo(data.foo); } 2`] = `
+
+Message:
+> 1 | const data = element.dataset; function inner(data) { foo(data.foo); }
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(73): const data = element.dataset; function inner(element) { foo(data.fooBar); } 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; function inner(element) { foo(data.fooBar); }
+
+`;
+
+exports[`dom-node-dataset > invalid(73): const data = element.dataset; function inner(element) { foo(data.fooBar); } 2`] = `
+
+Message:
+> 1 | const data = element.dataset; function inner(element) { foo(data.fooBar); }
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(74): let element = a; const data = element.dataset; element = b; foo(data.fooBar); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | let element = a; const data = element.dataset; element = b; foo(data.fooBar);
+
+`;
+
+exports[`dom-node-dataset > invalid(74): let element = a; const data = element.dataset; element = b; foo(data.fooBar); 2`] = `
+
+Message:
+> 1 | let element = a; const data = element.dataset; element = b; foo(data.fooBar);
+    |                               ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(75): const data = /* comment */ element.dataset; foo(data.foo); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = /* comment */ element.dataset; foo(data.foo);
+
+`;
+
+exports[`dom-node-dataset > invalid(75): const data = /* comment */ element.dataset; foo(data.foo); 2`] = `
+
+Message:
+> 1 | const data = /* comment */ element.dataset; foo(data.foo);
+    |                            ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(76): const data = element.dataset; foo(data./* comment */foo); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = element.dataset; foo(data./* comment */foo);
+
+`;
+
+exports[`dom-node-dataset > invalid(76): const data = element.dataset; foo(data./* comment */foo); 2`] = `
+
+Message:
+> 1 | const data = element.dataset; foo(data./* comment */foo);
+    |              ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(77): element.dataset /* comment */ .unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset /* comment */ .unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(77): element.dataset /* comment */ .unicorn; 2`] = `
+
+Message:
+> 1 | element.dataset /* comment */ .unicorn;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(78): element.dataset.unicorn /* comment */ = \"🦄\"; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset.unicorn /* comment */ = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(78): element.dataset.unicorn /* comment */ = \"🦄\"; 2`] = `
+
+Message:
+> 1 | element.dataset.unicorn /* comment */ = "🦄";
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.setAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(79): delete /* comment */ element.dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | delete /* comment */ element.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(79): delete /* comment */ element.dataset.unicorn; 2`] = `
+
+Message:
+> 1 | delete /* comment */ element.dataset.unicorn;
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.dataset.fooBar = \"baz\"; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element.dataset.fooBar = "baz";
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.dataset.fooBar = \"baz\"; 2`] = `
+
+Message:
+> 1 | element.dataset.fooBar = "baz";
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.setAttribute(…)\` over \`.dataset\`.
+
+Output:
+  1 | element.setAttribute('data-foo-bar', "baz");
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.getAttribute(\"data-foo2\"); 1`] = `
+
+  1 | element.getAttribute("data-foo2");
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.getAttribute(\"data-foo2\"); 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-foo2");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset.foo2;
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.hasAttribute(\"data-foo:bar\"); 1`] = `
+
+  1 | element.hasAttribute("data-foo:bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.hasAttribute(\"data-foo:bar\"); 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-foo:bar");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "foo:bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.removeAttribute(\"data-foo:bar\"); 1`] = `
+
+  1 | element.removeAttribute("data-foo:bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.removeAttribute(\"data-foo:bar\"); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-foo:bar");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset["foo:bar"];
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.setAttribute('data-foo.bar', 'zaz'); 1`] = `
+
+  1 | element.setAttribute('data-foo.bar', 'zaz');
+
+`;
+
+exports[`dom-node-dataset > invalid(8): element.setAttribute('data-foo.bar', 'zaz'); 2`] = `
+
+Message:
+> 1 | element.setAttribute('data-foo.bar', 'zaz');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset['foo.bar'] = 'zaz';
+
+`;
+
+exports[`dom-node-dataset > invalid(80): \"unicorn\" /* comment */ in element.dataset 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | "unicorn" /* comment */ in element.dataset
+
+`;
+
+exports[`dom-node-dataset > invalid(80): \"unicorn\" /* comment */ in element.dataset 2`] = `
+
+Message:
+> 1 | "unicorn" /* comment */ in element.dataset
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(81): Object.hasOwn(element.dataset, /* comment */ \"unicorn\") 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | Object.hasOwn(element.dataset, /* comment */ "unicorn")
+
+`;
+
+exports[`dom-node-dataset > invalid(81): Object.hasOwn(element.dataset, /* comment */ \"unicorn\") 2`] = `
+
+Message:
+> 1 | Object.hasOwn(element.dataset, /* comment */ "unicorn")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.hasAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(82): const {unicorn /* comment */} = element.dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const {unicorn /* comment */} = element.dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(82): const {unicorn /* comment */} = element.dataset; 2`] = `
+
+Message:
+> 1 | const {unicorn /* comment */} = element.dataset;
+    |                                 ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(83): const result = element.dataset.unicorn = \"🦄\"; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const result = element.dataset.unicorn = "🦄";
+
+`;
+
+exports[`dom-node-dataset > invalid(83): const result = element.dataset.unicorn = \"🦄\"; 2`] = `
+
+Message:
+> 1 | const result = element.dataset.unicorn = "🦄";
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.setAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(84): if (delete element.dataset.unicorn) {} 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | if (delete element.dataset.unicorn) {}
+
+`;
+
+exports[`dom-node-dataset > invalid(84): if (delete element.dataset.unicorn) {} 2`] = `
+
+Message:
+> 1 | if (delete element.dataset.unicorn) {}
+    |            ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(85): if (delete element?.dataset.unicorn) {} 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | if (delete element?.dataset.unicorn) {}
+
+`;
+
+exports[`dom-node-dataset > invalid(85): if (delete element?.dataset.unicorn) {} 2`] = `
+
+Message:
+> 1 | if (delete element?.dataset.unicorn) {}
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.removeAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(86): const {unicorn = \"default\"} = element.dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const {unicorn = "default"} = element.dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(86): const {unicorn = \"default\"} = element.dataset; 2`] = `
+
+Message:
+> 1 | const {unicorn = "default"} = element.dataset;
+    |                               ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(87): const {...rest} = element.dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const {...rest} = element.dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(87): const {...rest} = element.dataset; 2`] = `
+
+Message:
+> 1 | const {...rest} = element.dataset;
+    |                   ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(88): const {foo, bar} = element.querySelector(\"#selector\").dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const {foo, bar} = element.querySelector("#selector").dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(88): const {foo, bar} = element.querySelector(\"#selector\").dataset; 2`] = `
+
+Message:
+> 1 | const {foo, bar} = element.querySelector("#selector").dataset;
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(89): for (const {foo} = element.dataset;;) {} 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | for (const {foo} = element.dataset;;) {}
+
+`;
+
+exports[`dom-node-dataset > invalid(89): for (const {foo} = element.dataset;;) {} 2`] = `
+
+Message:
+> 1 | for (const {foo} = element.dataset;;) {}
+    |                    ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(9): element.getAttribute(\"data-foo:bar\"); 1`] = `
+
+  1 | element.getAttribute("data-foo:bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(9): element.getAttribute(\"data-foo:bar\"); 2`] = `
+
+Message:
+> 1 | element.getAttribute("data-foo:bar");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`getAttribute(…)\`.
+
+Suggestion 1/1: Switch to \`.dataset\`.:
+  1 | element.dataset["foo:bar"];
+
+`;
+
+exports[`dom-node-dataset > invalid(9): element.hasAttribute(\"data-foo.bar\"); 1`] = `
+
+  1 | element.hasAttribute("data-foo.bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(9): element.hasAttribute(\"data-foo.bar\"); 2`] = `
+
+Message:
+> 1 | element.hasAttribute("data-foo.bar");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`hasAttribute(…)\`.
+
+Output:
+  1 | Object.hasOwn(element.dataset, "foo.bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(9): element.removeAttribute(\"data-foo.bar\"); 1`] = `
+
+  1 | element.removeAttribute("data-foo.bar");
+
+`;
+
+exports[`dom-node-dataset > invalid(9): element.removeAttribute(\"data-foo.bar\"); 2`] = `
+
+Message:
+> 1 | element.removeAttribute("data-foo.bar");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`removeAttribute(…)\`.
+
+Output:
+  1 | delete element.dataset["foo.bar"];
+
+`;
+
+exports[`dom-node-dataset > invalid(9): element.setAttribute('data-foo-bar', 'zaz'); 1`] = `
+
+  1 | element.setAttribute('data-foo-bar', 'zaz');
+
+`;
+
+exports[`dom-node-dataset > invalid(9): element.setAttribute('data-foo-bar', 'zaz'); 2`] = `
+
+Message:
+> 1 | element.setAttribute('data-foo-bar', 'zaz');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.dataset\` over \`setAttribute(…)\`.
+
+Output:
+  1 | element.dataset.fooBar = 'zaz';
+
+`;
+
+exports[`dom-node-dataset > invalid(9): function f(x = element.dataset.fooBar) {} 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | function f(x = element.dataset.fooBar) {}
+
+`;
+
+exports[`dom-node-dataset > invalid(9): function f(x = element.dataset.fooBar) {} 2`] = `
+
+Message:
+> 1 | function f(x = element.dataset.fooBar) {}
+    |                ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | function f(x = element.getAttribute('data-foo-bar')) {}
+
+`;
+
+exports[`dom-node-dataset > invalid(90): export const {foo} = element.dataset; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | export const {foo} = element.dataset;
+
+`;
+
+exports[`dom-node-dataset > invalid(90): export const {foo} = element.dataset; 2`] = `
+
+Message:
+> 1 | export const {foo} = element.dataset;
+    |                      ^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(91): const data = (element as HTMLElement).dataset; foo(data.fooBar); 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | const data = (element as HTMLElement).dataset; foo(data.fooBar);
+
+`;
+
+exports[`dom-node-dataset > invalid(91): const data = (element as HTMLElement).dataset; foo(data.fooBar); 2`] = `
+
+Message:
+> 1 | const data = (element as HTMLElement).dataset; foo(data.fooBar);
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+`;
+
+exports[`dom-node-dataset > invalid(92): element!.dataset.unicorn; 1`] = `
+
+Options:
+- preferAttributes: true
+
+Code:
+  1 | element!.dataset.unicorn;
+
+`;
+
+exports[`dom-node-dataset > invalid(92): element!.dataset.unicorn; 2`] = `
+
+Message:
+> 1 | element!.dataset.unicorn;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getAttribute(…)\` over \`.dataset\`.
+
+Suggestion 1/1: Switch to \`getAttribute()\`.:
+  1 | element!.getAttribute('data-unicorn');
+
+`;

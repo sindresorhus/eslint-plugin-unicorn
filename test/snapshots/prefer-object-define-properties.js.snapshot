@@ -1,0 +1,544 @@
+exports[`prefer-object-define-properties > invalid(1): Object.defineProperty(foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, "bar", {value: 1});
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(1): Object.defineProperty(foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, "bar", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+Output:
+  1 | Object.defineProperties(foo, {
+  2 | 	bar: {value: 1},
+  3 | 	baz: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(1): Object.defineProperty(object, 0, {value: 1});\nObject.defineProperty(object, 'value', {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(object, 0, {value: 1});
+  2 | Object.defineProperty(object, 'value', {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(1): Object.defineProperty(object, 0, {value: 1});\nObject.defineProperty(object, 'value', {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 0, {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(object, 'value', {value: 2});
+
+Output:
+  1 | Object.defineProperties(object, {
+  2 | 	0: {value: 1},
+  3 | 	value: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(10): Object.defineProperty(foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"bar\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, "bar", {value: 1});
+  2 | Object.defineProperty(foo, "bar", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(10): Object.defineProperty(foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"bar\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, "bar", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "bar", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(11): Object.defineProperty(foo, 1, {value: \"number\"});\nObject.defineProperty(foo, \"1\", {value: \"string\"}); 1`] = `
+
+  1 | Object.defineProperty(foo, 1, {value: "number"});
+  2 | Object.defineProperty(foo, "1", {value: "string"});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(11): Object.defineProperty(foo, 1, {value: \"number\"});\nObject.defineProperty(foo, \"1\", {value: \"string\"}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, 1, {value: "number"});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "1", {value: "string"});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(12): const key = \"bar\";\nObject.defineProperty(foo, key, {value: 1});\nObject.defineProperty(foo, \"bar\", {value: 2}); 1`] = `
+
+  1 | const key = "bar";
+  2 | Object.defineProperty(foo, key, {value: 1});
+  3 | Object.defineProperty(foo, "bar", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(12): const key = \"bar\";\nObject.defineProperty(foo, key, {value: 1});\nObject.defineProperty(foo, \"bar\", {value: 2}); 2`] = `
+
+Message:
+  1 | const key = "bar";
+> 2 | Object.defineProperty(foo, key, {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  3 | Object.defineProperty(foo, "bar", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(13): Object.defineProperty(foo, Symbol.iterator, {value: 1});\nObject.defineProperty(foo, Symbol.iterator, {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, Symbol.iterator, {value: 1});
+  2 | Object.defineProperty(foo, Symbol.iterator, {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(13): Object.defineProperty(foo, Symbol.iterator, {value: 1});\nObject.defineProperty(foo, Symbol.iterator, {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, Symbol.iterator, {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, Symbol.iterator, {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(14): Object.defineProperty(foo, key, {value: 1});\nObject.defineProperty(foo, key, {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, key, {value: 1});
+  2 | Object.defineProperty(foo, key, {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(14): Object.defineProperty(foo, key, {value: 1});\nObject.defineProperty(foo, key, {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, key, {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, key, {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(15): Object.defineProperty(foo, keys.name, {value: 1});\nObject.defineProperty(foo, keys.name, {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, keys.name, {value: 1});
+  2 | Object.defineProperty(foo, keys.name, {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(15): Object.defineProperty(foo, keys.name, {value: 1});\nObject.defineProperty(foo, keys.name, {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, keys.name, {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, keys.name, {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(16): const object = {value: 'bar'};\nObject.defineProperty(object, 'value', {get() { return 'baz'; }});\nObject.defineProperty(foo, object.value, {value: 1});\nObject.defineProperty(foo, 'baz', {value: 2}); 1`] = `
+
+  1 | const object = {value: 'bar'};
+  2 | Object.defineProperty(object, 'value', {get() { return 'baz'; }});
+  3 | Object.defineProperty(foo, object.value, {value: 1});
+  4 | Object.defineProperty(foo, 'baz', {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(16): const object = {value: 'bar'};\nObject.defineProperty(object, 'value', {get() { return 'baz'; }});\nObject.defineProperty(foo, object.value, {value: 1});\nObject.defineProperty(foo, 'baz', {value: 2}); 2`] = `
+
+Message:
+  1 | const object = {value: 'bar'};
+  2 | Object.defineProperty(object, 'value', {get() { return 'baz'; }});
+> 3 | Object.defineProperty(foo, object.value, {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  4 | Object.defineProperty(foo, 'baz', {value: 2});
+
+Output:
+  1 | const object = {value: 'bar'};
+  2 | Object.defineProperty(object, 'value', {get() { return 'baz'; }});
+  3 | Object.defineProperties(foo, {
+  4 | 	[object.value]: {value: 1},
+  5 | 	baz: {value: 2},
+  6 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(17): Object.defineProperty(foo as Foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo as Foo, "bar", {value: 1});
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(17): Object.defineProperty(foo as Foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo as Foo, "bar", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+Output:
+  1 | Object.defineProperties(foo as Foo, {
+  2 | 	bar: {value: 1},
+  3 | 	baz: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(18): Object.defineProperty(foo!, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo!, "bar", {value: 1});
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(18): Object.defineProperty(foo!, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo!, "bar", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+Output:
+  1 | Object.defineProperties(foo!, {
+  2 | 	bar: {value: 1},
+  3 | 	baz: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(19): Object.defineProperty(<Foo>foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(<Foo>foo, "bar", {value: 1});
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(19): Object.defineProperty(<Foo>foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(<Foo>foo, "bar", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+Output:
+  1 | Object.defineProperties(<Foo>foo, {
+  2 | 	bar: {value: 1},
+  3 | 	baz: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(2): Object.defineProperty(foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2});\nObject.defineProperty(foo, \"qux\", {value: 3}); 1`] = `
+
+  1 | Object.defineProperty(foo, "bar", {value: 1});
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+  3 | Object.defineProperty(foo, "qux", {value: 3});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(2): Object.defineProperty(foo, \"bar\", {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2});\nObject.defineProperty(foo, \"qux\", {value: 3}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, "bar", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+  3 | Object.defineProperty(foo, "qux", {value: 3});
+
+Output:
+  1 | Object.defineProperties(foo, {
+  2 | 	bar: {value: 1},
+  3 | 	baz: {value: 2},
+  4 | 	qux: {value: 3},
+  5 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(2): Object.defineProperty(object, 'value', {value: 1});\nObject.defineProperty(object, 'other', {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(object, 'value', {value: 1});
+  2 | Object.defineProperty(object, 'other', {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(2): Object.defineProperty(object, 'value', {value: 1});\nObject.defineProperty(object, 'other', {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'value', {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(object, 'other', {value: 2});
+
+Output:
+  1 | Object.defineProperties(object, {
+  2 | 	value: {value: 1},
+  3 | 	other: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(20): Object.defineProperty(foo, \"bar\", {value: 1});\n// comment\nObject.defineProperty(foo, \"baz\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, "bar", {value: 1});
+  2 | // comment
+  3 | Object.defineProperty(foo, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(20): Object.defineProperty(foo, \"bar\", {value: 1});\n// comment\nObject.defineProperty(foo, \"baz\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, "bar", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | // comment
+  3 | Object.defineProperty(foo, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(21): Object.defineProperty(foo, \"bar\", /* comment */ {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, "bar", /* comment */ {value: 1});
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(21): Object.defineProperty(foo, \"bar\", /* comment */ {value: 1});\nObject.defineProperty(foo, \"baz\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, "bar", /* comment */ {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(3): Object.defineProperty(o, '1', {value: 1});\nObject.defineProperty(o, 2, {value: 2});\nObject.defineProperty(o, 'a', {value: 3});\nObject.defineProperty(o, Symbol.iterator, {value: 4}); 1`] = `
+
+  1 | Object.defineProperty(o, '1', {value: 1});
+  2 | Object.defineProperty(o, 2, {value: 2});
+  3 | Object.defineProperty(o, 'a', {value: 3});
+  4 | Object.defineProperty(o, Symbol.iterator, {value: 4});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(3): Object.defineProperty(o, '1', {value: 1});\nObject.defineProperty(o, 2, {value: 2});\nObject.defineProperty(o, 'a', {value: 3});\nObject.defineProperty(o, Symbol.iterator, {value: 4}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(o, '1', {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(o, 2, {value: 2});
+  3 | Object.defineProperty(o, 'a', {value: 3});
+  4 | Object.defineProperty(o, Symbol.iterator, {value: 4});
+
+Output:
+  1 | Object.defineProperties(o, {
+  2 | 	'1': {value: 1},
+  3 | 	2: {value: 2},
+  4 | 	a: {value: 3},
+  5 | 	[Symbol.iterator]: {value: 4},
+  6 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(3): Object.defineProperty(this, \"bar\", {value: 1});\nObject.defineProperty(this, \"baz\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(this, "bar", {value: 1});
+  2 | Object.defineProperty(this, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(3): Object.defineProperty(this, \"bar\", {value: 1});\nObject.defineProperty(this, \"baz\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(this, "bar", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(this, "baz", {value: 2});
+
+Output:
+  1 | Object.defineProperties(this, {
+  2 | 	bar: {value: 1},
+  3 | 	baz: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(4): Object.defineProperty(Foo.prototype, \"bar\", {value: 1});\nObject.defineProperty(Foo.prototype, \"baz\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(Foo.prototype, "bar", {value: 1});
+  2 | Object.defineProperty(Foo.prototype, "baz", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(4): Object.defineProperty(Foo.prototype, \"bar\", {value: 1});\nObject.defineProperty(Foo.prototype, \"baz\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(Foo.prototype, "bar", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(Foo.prototype, "baz", {value: 2});
+
+Output:
+  1 | Object.defineProperties(Foo.prototype, {
+  2 | 	bar: {value: 1},
+  3 | 	baz: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(4): Object.defineProperty(object, key, {value: 1});\nObject.defineProperty(object, 'value', {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(object, key, {value: 1});
+  2 | Object.defineProperty(object, 'value', {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(4): Object.defineProperty(object, key, {value: 1});\nObject.defineProperty(object, 'value', {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, key, {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(object, 'value', {value: 2});
+
+Output:
+  1 | Object.defineProperties(object, {
+  2 | 	[key]: {value: 1},
+  3 | 	value: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(5): Object.defineProperty(foo, \"default\", {value: 1});\nObject.defineProperty(foo, \"not-valid-key\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, "default", {value: 1});
+  2 | Object.defineProperty(foo, "not-valid-key", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(5): Object.defineProperty(foo, \"default\", {value: 1});\nObject.defineProperty(foo, \"not-valid-key\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, "default", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "not-valid-key", {value: 2});
+
+Output:
+  1 | Object.defineProperties(foo, {
+  2 | 	default: {value: 1},
+  3 | 	"not-valid-key": {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(6): Object.defineProperty(foo, 1, {value: \"one\"});\nObject.defineProperty(foo, 2, {value: \"two\"}); 1`] = `
+
+  1 | Object.defineProperty(foo, 1, {value: "one"});
+  2 | Object.defineProperty(foo, 2, {value: "two"});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(6): Object.defineProperty(foo, 1, {value: \"one\"});\nObject.defineProperty(foo, 2, {value: \"two\"}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, 1, {value: "one"});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, 2, {value: "two"});
+
+Output:
+  1 | Object.defineProperties(foo, {
+  2 | 	1: {value: "one"},
+  3 | 	2: {value: "two"},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(7): Object.defineProperty(foo, \`bar\`, {value: 1});\nObject.defineProperty(foo, key, {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, \`bar\`, {value: 1});
+  2 | Object.defineProperty(foo, key, {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(7): Object.defineProperty(foo, \`bar\`, {value: 1});\nObject.defineProperty(foo, key, {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, \`bar\`, {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, key, {value: 2});
+
+Output:
+  1 | Object.defineProperties(foo, {
+  2 | 	[\`bar\`]: {value: 1},
+  3 | 	[key]: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(8): Object.defineProperty(foo, \"__proto__\", {value: 1});\nObject.defineProperty(foo, \"bar\", {value: 2}); 1`] = `
+
+  1 | Object.defineProperty(foo, "__proto__", {value: 1});
+  2 | Object.defineProperty(foo, "bar", {value: 2});
+
+`;
+
+exports[`prefer-object-define-properties > invalid(8): Object.defineProperty(foo, \"__proto__\", {value: 1});\nObject.defineProperty(foo, \"bar\", {value: 2}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, "__proto__", {value: 1});
+    |        ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+  2 | Object.defineProperty(foo, "bar", {value: 2});
+
+Output:
+  1 | Object.defineProperties(foo, {
+  2 | 	["__proto__"]: {value: 1},
+  3 | 	bar: {value: 2},
+  4 | });
+
+`;
+
+exports[`prefer-object-define-properties > invalid(9): if (condition) {\n\tObject.defineProperty(foo, 'bar', {\n\t\tvalue: 1,\n\t\twritable: true,\n\t});\n\tObject.defineProperty(foo, 'baz', {\n\t\tvalue: 2,\n\t\twritable: true,\n\t});\n} 1`] = `
+
+   1 | if (condition) {
+   2 | 	Object.defineProperty(foo, 'bar', {
+   3 | 		value: 1,
+   4 | 		writable: true,
+   5 | 	});
+   6 | 	Object.defineProperty(foo, 'baz', {
+   7 | 		value: 2,
+   8 | 		writable: true,
+   9 | 	});
+  10 | }
+
+`;
+
+exports[`prefer-object-define-properties > invalid(9): if (condition) {\n\tObject.defineProperty(foo, 'bar', {\n\t\tvalue: 1,\n\t\twritable: true,\n\t});\n\tObject.defineProperty(foo, 'baz', {\n\t\tvalue: 2,\n\t\twritable: true,\n\t});\n} 2`] = `
+
+Message:
+   1 | if (condition) {
+>  2 | 	Object.defineProperty(foo, 'bar', {
+     | 	       ^^^^^^^^^^^^^^ Prefer \`Object.defineProperties()\` over multiple \`Object.defineProperty()\` calls.
+   3 | 		value: 1,
+   4 | 		writable: true,
+   5 | 	});
+   6 | 	Object.defineProperty(foo, 'baz', {
+   7 | 		value: 2,
+   8 | 		writable: true,
+   9 | 	});
+  10 | }
+
+Output:
+   1 | if (condition) {
+   2 | 	Object.defineProperties(foo, {
+   3 | 		bar: {
+   4 | 			value: 1,
+   5 | 			writable: true,
+   6 | 		},
+   7 | 		baz: {
+   8 | 			value: 2,
+   9 | 			writable: true,
+  10 | 		},
+  11 | 	});
+  12 | }
+
+`;

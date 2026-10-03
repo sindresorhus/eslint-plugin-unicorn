@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -275,7 +275,7 @@ test('fixes converge with prefer-includes', t => {
 		},
 	};
 	const result = linter.verifyAndFix(withUrl('["http", "HTTPS:"].indexOf(url.protocol) !== -1'), config);
-	t.is(result.output, withUrl('["http:", "https:"].includes(url.protocol)'));
-	t.deepEqual(result.messages, []);
-	t.false(linter.verifyAndFix(result.output, config).fixed);
+	t.assert.strictEqual(result.output, withUrl('["http:", "https:"].includes(url.protocol)'));
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 });

@@ -1,0 +1,265 @@
+exports[`prefer-array-last-methods > invalid(1): array.reverse().find(logic); 1`] = `
+
+  1 | array.reverse().find(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(1): array.reverse().find(logic); 2`] = `
+
+Message:
+> 1 | array.reverse().find(logic);
+    |                 ^^^^ Prefer \`Array#findLast()\` over \`Array#reverse().find()\`.
+
+Suggestion 1/1: Replace \`.reverse().find()\` with \`.findLast()\`.:
+  1 | array.findLast(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(10): array.toReversed().findIndex(logic, thisArgument); 1`] = `
+
+  1 | array.toReversed().findIndex(logic, thisArgument);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(10): array.toReversed().findIndex(logic, thisArgument); 2`] = `
+
+Message:
+> 1 | array.toReversed().findIndex(logic, thisArgument);
+    |                    ^^^^^^^^^ Prefer \`Array#findLastIndex()\` over \`Array#toReversed().findIndex()\`.
+
+Suggestion 1/1: Replace \`.toReversed().findIndex()\` with \`.findLastIndex()\`.:
+  1 | array.findLastIndex(logic, thisArgument);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(11): array.reverse().reduce(logic, initialValue); 1`] = `
+
+  1 | array.reverse().reduce(logic, initialValue);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(11): array.reverse().reduce(logic, initialValue); 2`] = `
+
+Message:
+> 1 | array.reverse().reduce(logic, initialValue);
+    |                 ^^^^^^ Prefer \`Array#reduceRight()\` over \`Array#reverse().reduce()\`.
+
+Suggestion 1/1: Replace \`.reverse().reduce()\` with \`.reduceRight()\`.:
+  1 | array.reduceRight(logic, initialValue);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(12): array.toReversed().reduce(logic, initialValue); 1`] = `
+
+  1 | array.toReversed().reduce(logic, initialValue);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(12): array.toReversed().reduce(logic, initialValue); 2`] = `
+
+Message:
+> 1 | array.toReversed().reduce(logic, initialValue);
+    |                    ^^^^^^ Prefer \`Array#reduceRight()\` over \`Array#toReversed().reduce()\`.
+
+Suggestion 1/1: Replace \`.toReversed().reduce()\` with \`.reduceRight()\`.:
+  1 | array.reduceRight(logic, initialValue);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(13): (array.reverse()).find(logic); 1`] = `
+
+  1 | (array.reverse()).find(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(13): (array.reverse()).find(logic); 2`] = `
+
+Message:
+> 1 | (array.reverse()).find(logic);
+    |                   ^^^^ Prefer \`Array#findLast()\` over \`Array#reverse().find()\`.
+
+Suggestion 1/1: Replace \`.reverse().find()\` with \`.findLast()\`.:
+  1 | (array).findLast(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(14): (array.toReversed()).find(logic); 1`] = `
+
+  1 | (array.toReversed()).find(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(14): (array.toReversed()).find(logic); 2`] = `
+
+Message:
+> 1 | (array.toReversed()).find(logic);
+    |                      ^^^^ Prefer \`Array#findLast()\` over \`Array#toReversed().find()\`.
+
+Suggestion 1/1: Replace \`.toReversed().find()\` with \`.findLast()\`.:
+  1 | (array).findLast(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(15): array.reverse(/* comment */).find(logic); 1`] = `
+
+  1 | array.reverse(/* comment */).find(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(15): array.reverse(/* comment */).find(logic); 2`] = `
+
+Message:
+> 1 | array.reverse(/* comment */).find(logic);
+    |                              ^^^^ Prefer \`Array#findLast()\` over \`Array#reverse().find()\`.
+
+`;
+
+exports[`prefer-array-last-methods > invalid(16): array.toReversed() /* comment */ .reduce(logic); 1`] = `
+
+  1 | array.toReversed() /* comment */ .reduce(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(16): array.toReversed() /* comment */ .reduce(logic); 2`] = `
+
+Message:
+> 1 | array.toReversed() /* comment */ .reduce(logic);
+    |                                   ^^^^^^ Prefer \`Array#reduceRight()\` over \`Array#toReversed().reduce()\`.
+
+`;
+
+exports[`prefer-array-last-methods > invalid(2): array.reverse().findIndex(logic); 1`] = `
+
+  1 | array.reverse().findIndex(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(2): array.reverse().findIndex(logic); 2`] = `
+
+Message:
+> 1 | array.reverse().findIndex(logic);
+    |                 ^^^^^^^^^ Prefer \`Array#findLastIndex()\` over \`Array#reverse().findIndex()\`.
+
+Suggestion 1/1: Replace \`.reverse().findIndex()\` with \`.findLastIndex()\`.:
+  1 | array.findLastIndex(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(3): array.reverse().indexOf(logic); 1`] = `
+
+  1 | array.reverse().indexOf(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(3): array.reverse().indexOf(logic); 2`] = `
+
+Message:
+> 1 | array.reverse().indexOf(logic);
+    |                 ^^^^^^^ Prefer \`Array#lastIndexOf()\` over \`Array#reverse().indexOf()\`.
+
+Suggestion 1/1: Replace \`.reverse().indexOf()\` with \`.lastIndexOf()\`.:
+  1 | array.lastIndexOf(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(4): array.reverse().reduce(logic); 1`] = `
+
+  1 | array.reverse().reduce(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(4): array.reverse().reduce(logic); 2`] = `
+
+Message:
+> 1 | array.reverse().reduce(logic);
+    |                 ^^^^^^ Prefer \`Array#reduceRight()\` over \`Array#reverse().reduce()\`.
+
+Suggestion 1/1: Replace \`.reverse().reduce()\` with \`.reduceRight()\`.:
+  1 | array.reduceRight(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(5): array.toReversed().find(logic); 1`] = `
+
+  1 | array.toReversed().find(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(5): array.toReversed().find(logic); 2`] = `
+
+Message:
+> 1 | array.toReversed().find(logic);
+    |                    ^^^^ Prefer \`Array#findLast()\` over \`Array#toReversed().find()\`.
+
+Suggestion 1/1: Replace \`.toReversed().find()\` with \`.findLast()\`.:
+  1 | array.findLast(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(6): array.toReversed().findIndex(logic); 1`] = `
+
+  1 | array.toReversed().findIndex(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(6): array.toReversed().findIndex(logic); 2`] = `
+
+Message:
+> 1 | array.toReversed().findIndex(logic);
+    |                    ^^^^^^^^^ Prefer \`Array#findLastIndex()\` over \`Array#toReversed().findIndex()\`.
+
+Suggestion 1/1: Replace \`.toReversed().findIndex()\` with \`.findLastIndex()\`.:
+  1 | array.findLastIndex(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(7): array.toReversed().indexOf(logic); 1`] = `
+
+  1 | array.toReversed().indexOf(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(7): array.toReversed().indexOf(logic); 2`] = `
+
+Message:
+> 1 | array.toReversed().indexOf(logic);
+    |                    ^^^^^^^ Prefer \`Array#lastIndexOf()\` over \`Array#toReversed().indexOf()\`.
+
+Suggestion 1/1: Replace \`.toReversed().indexOf()\` with \`.lastIndexOf()\`.:
+  1 | array.lastIndexOf(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(8): array.toReversed().reduce(logic); 1`] = `
+
+  1 | array.toReversed().reduce(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(8): array.toReversed().reduce(logic); 2`] = `
+
+Message:
+> 1 | array.toReversed().reduce(logic);
+    |                    ^^^^^^ Prefer \`Array#reduceRight()\` over \`Array#toReversed().reduce()\`.
+
+Suggestion 1/1: Replace \`.toReversed().reduce()\` with \`.reduceRight()\`.:
+  1 | array.reduceRight(logic);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(9): array.reverse().find(logic, thisArgument); 1`] = `
+
+  1 | array.reverse().find(logic, thisArgument);
+
+`;
+
+exports[`prefer-array-last-methods > invalid(9): array.reverse().find(logic, thisArgument); 2`] = `
+
+Message:
+> 1 | array.reverse().find(logic, thisArgument);
+    |                 ^^^^ Prefer \`Array#findLast()\` over \`Array#reverse().find()\`.
+
+Suggestion 1/1: Replace \`.reverse().find()\` with \`.findLast()\`.:
+  1 | array.findLast(logic, thisArgument);
+
+`;

@@ -1,0 +1,1028 @@
+exports[`iteration-fallback-style > invalid(1): for (const item of items ?? []) {} 1`] = `
+
+  1 | for (const item of items ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(1): for (const item of items ?? []) {} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? []) {}
+    |                             ^^ Prefer an \`if\` guard over the empty array fallback.
+
+Output:
+  1 | if ((items) != null) {
+  2 | 	for (const item of items) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(1): if (items) { for (const item of items) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (items) { for (const item of items) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(1): if (items) { for (const item of items) {} } 2`] = `
+
+Message:
+> 1 | if (items) { for (const item of items) {} }
+    |     ^^^^^ Prefer an empty array fallback over the \`if\` guard.
+
+Output:
+  1 | for (const item of items || []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(10): for await (const item of items || []) {} 1`] = `
+
+  1 | for await (const item of items || []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(10): for await (const item of items || []) {} 2`] = `
+
+Message:
+> 1 | for await (const item of items || []) {}
+    |                                   ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(10): if (items) { for await (const item of items) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (items) { for await (const item of items) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(10): if (items) { for await (const item of items) {} } 2`] = `
+
+Message:
+> 1 | if (items) { for await (const item of items) {} }
+    |     ^^^^^ Prefer an empty array fallback over the \`if\` guard.
+
+`;
+
+exports[`iteration-fallback-style > invalid(11): for await (const item of Object.entries(options ?? {})) {} 1`] = `
+
+  1 | for await (const item of Object.entries(options ?? {})) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(11): for await (const item of Object.entries(options ?? {})) {} 2`] = `
+
+Message:
+> 1 | for await (const item of Object.entries(options ?? {})) {}
+    |                                                    ^^ Prefer an \`if\` guard over the empty object fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(11): if (items) { for (const item of (items as Iterable<string>)) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (items) { for (const item of (items as Iterable<string>)) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(11): if (items) { for (const item of (items as Iterable<string>)) {} } 2`] = `
+
+Message:
+> 1 | if (items) { for (const item of (items as Iterable<string>)) {} }
+    |     ^^^^^ Prefer an empty array fallback over the \`if\` guard.
+
+`;
+
+exports[`iteration-fallback-style > invalid(12): for (const item of options?.items ?? []) {} 1`] = `
+
+  1 | for (const item of options?.items ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(12): for (const item of options?.items ?? []) {} 2`] = `
+
+Message:
+> 1 | for (const item of options?.items ?? []) {}
+    |                                      ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(12): if (items) { for (const item of items) { /* Keep this comment. */ } } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (items) { for (const item of items) { /* Keep this comment. */ } }
+
+`;
+
+exports[`iteration-fallback-style > invalid(12): if (items) { for (const item of items) { /* Keep this comment. */ } } 2`] = `
+
+Message:
+> 1 | if (items) { for (const item of items) { /* Keep this comment. */ } }
+    |     ^^^^^ Prefer an empty array fallback over the \`if\` guard.
+
+`;
+
+exports[`iteration-fallback-style > invalid(13): for (const item of getItems() ?? []) {} 1`] = `
+
+  1 | for (const item of getItems() ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(13): for (const item of getItems() ?? []) {} 2`] = `
+
+Message:
+> 1 | for (const item of getItems() ?? []) {}
+    |                                  ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(13): label: if (items) { for (const item of items) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | label: if (items) { for (const item of items) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(13): label: if (items) { for (const item of items) {} } 2`] = `
+
+Message:
+> 1 | label: if (items) { for (const item of items) {} }
+    |            ^^^^^ Prefer an empty array fallback over the \`if\` guard.
+
+`;
+
+exports[`iteration-fallback-style > invalid(14): for (const [key, value] of Object.entries(getOptions() ?? {})) {} 1`] = `
+
+  1 | for (const [key, value] of Object.entries(getOptions() ?? {})) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(14): for (const [key, value] of Object.entries(getOptions() ?? {})) {} 2`] = `
+
+Message:
+> 1 | for (const [key, value] of Object.entries(getOptions() ?? {})) {}
+    |                                                           ^^ Prefer an \`if\` guard over the empty object fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(14): if (items) {\n\tfor (const item of items) {\n\t\tconst value = \`\n\t\t\tkeep\n\t\t\`;\n\t}\n} 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (items) {
+  2 | 	for (const item of items) {
+  3 | 		const value = \`
+  4 | 			keep
+  5 | 		\`;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(14): if (items) {\n\tfor (const item of items) {\n\t\tconst value = \`\n\t\t\tkeep\n\t\t\`;\n\t}\n} 2`] = `
+
+Message:
+> 1 | if (items) {
+    |     ^^^^^ Prefer an empty array fallback over the \`if\` guard.
+  2 | 	for (const item of items) {
+  3 | 		const value = \`
+  4 | 			keep
+  5 | 		\`;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(15): for (const item of items /* keep */ ?? []) {} 1`] = `
+
+  1 | for (const item of items /* keep */ ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(15): for (const item of items /* keep */ ?? []) {} 2`] = `
+
+Message:
+> 1 | for (const item of items /* keep */ ?? []) {}
+    |                                        ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(15): if (items) {\n\tfor (const item of items) {\n\t\tuse(item);\n\t}\n} 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (items) {
+  2 | 	for (const item of items) {
+  3 | 		use(item);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(15): if (items) {\n\tfor (const item of items) {\n\t\tuse(item);\n\t}\n} 2`] = `
+
+Message:
+> 1 | if (items) {
+    |     ^^^^^ Prefer an empty array fallback over the \`if\` guard.
+  2 | 	for (const item of items) {
+  3 | 		use(item);
+  4 | 	}
+  5 | }
+
+Output:
+  1 | for (const item of items || []) {
+  2 | 	use(item);
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(16): for (const item of items ?? /* keep */ []) {} 1`] = `
+
+  1 | for (const item of items ?? /* keep */ []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(16): for (const item of items ?? /* keep */ []) {} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? /* keep */ []) {}
+    |                                        ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(17): for (const item of items ?? [/* keep */]) {} 1`] = `
+
+  1 | for (const item of items ?? [/* keep */]) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(17): for (const item of items ?? [/* keep */]) {} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? [/* keep */]) {}
+    |                             ^^^^^^^^^^^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(18): for (const item of Object.entries(options.config ?? /* keep */ {})) {} 1`] = `
+
+  1 | for (const item of Object.entries(options.config ?? /* keep */ {})) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(18): for (const item of Object.entries(options.config ?? /* keep */ {})) {} 2`] = `
+
+Message:
+> 1 | for (const item of Object.entries(options.config ?? /* keep */ {})) {}
+    |                                                                ^^ Prefer an \`if\` guard over the empty object fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(19): label: for (const item of items ?? []) { break label; } 1`] = `
+
+  1 | label: for (const item of items ?? []) { break label; }
+
+`;
+
+exports[`iteration-fallback-style > invalid(19): label: for (const item of items ?? []) { break label; } 2`] = `
+
+Message:
+> 1 | label: for (const item of items ?? []) { break label; }
+    |                                    ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(2): for (const item of items || []) {} 1`] = `
+
+  1 | for (const item of items || []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(2): for (const item of items || []) {} 2`] = `
+
+Message:
+> 1 | for (const item of items || []) {}
+    |                             ^^ Prefer an \`if\` guard over the empty array fallback.
+
+Output:
+  1 | if (items) {
+  2 | 	for (const item of items) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(2): if (items) for (const item of items) {} 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (items) for (const item of items) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(2): if (items) for (const item of items) {} 2`] = `
+
+Message:
+> 1 | if (items) for (const item of items) {}
+    |     ^^^^^ Prefer an empty array fallback over the \`if\` guard.
+
+Output:
+  1 | for (const item of items || []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(20): if (condition) for (const item of items ?? []) {} else foo(); 1`] = `
+
+  1 | if (condition) for (const item of items ?? []) {} else foo();
+
+`;
+
+exports[`iteration-fallback-style > invalid(20): if (condition) for (const item of items ?? []) {} else foo(); 2`] = `
+
+Message:
+> 1 | if (condition) for (const item of items ?? []) {} else foo();
+    |                                            ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(21): for (const item of (items as Iterable<string> | undefined) ?? []) {} 1`] = `
+
+  1 | for (const item of (items as Iterable<string> | undefined) ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(21): for (const item of (items as Iterable<string> | undefined) ?? []) {} 2`] = `
+
+Message:
+> 1 | for (const item of (items as Iterable<string> | undefined) ?? []) {}
+    |                                                               ^^ Prefer an \`if\` guard over the empty array fallback.
+
+Output:
+  1 | if ((items as Iterable<string> | undefined) != null) {
+  2 | 	for (const item of items as Iterable<string> | undefined) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(22): for (const key in (options.config ?? {}) as Record<string, unknown>) {} 1`] = `
+
+  1 | for (const key in (options.config ?? {}) as Record<string, unknown>) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(22): for (const key in (options.config ?? {}) as Record<string, unknown>) {} 2`] = `
+
+Message:
+> 1 | for (const key in (options.config ?? {}) as Record<string, unknown>) {}
+    |                                      ^^ Prefer an \`if\` guard over the empty object fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(23): for (const item of (items! ?? []) as Iterable<string>) {} 1`] = `
+
+  1 | for (const item of (items! ?? []) as Iterable<string>) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(23): for (const item of (items! ?? []) as Iterable<string>) {} 2`] = `
+
+Message:
+> 1 | for (const item of (items! ?? []) as Iterable<string>) {}
+    |                               ^^ Prefer an \`if\` guard over the empty array fallback.
+
+Output:
+  1 | if ((items!) != null) {
+  2 | 	for (const item of (items!) as Iterable<string>) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(24): for (const item of (items satisfies Iterable<string> | undefined) ?? []) {} 1`] = `
+
+  1 | for (const item of (items satisfies Iterable<string> | undefined) ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(24): for (const item of (items satisfies Iterable<string> | undefined) ?? []) {} 2`] = `
+
+Message:
+> 1 | for (const item of (items satisfies Iterable<string> | undefined) ?? []) {}
+    |                                                                      ^^ Prefer an \`if\` guard over the empty array fallback.
+
+Output:
+  1 | if ((items satisfies Iterable<string> | undefined) != null) {
+  2 | 	for (const item of items satisfies Iterable<string> | undefined) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(25): for (const item of (<Iterable<string> | undefined>items) ?? []) {} 1`] = `
+
+  1 | for (const item of (<Iterable<string> | undefined>items) ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(25): for (const item of (<Iterable<string> | undefined>items) ?? []) {} 2`] = `
+
+Message:
+> 1 | for (const item of (<Iterable<string> | undefined>items) ?? []) {}
+    |                                                             ^^ Prefer an \`if\` guard over the empty array fallback.
+
+Output:
+  1 | if ((<Iterable<string> | undefined>items) != null) {
+  2 | 	for (const item of <Iterable<string> | undefined>items) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(26): for (const item of items ?? ([] as Iterable<string>)) {} 1`] = `
+
+  1 | for (const item of items ?? ([] as Iterable<string>)) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(26): for (const item of items ?? ([] as Iterable<string>)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? ([] as Iterable<string>)) {}
+    |                              ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(27): for (const item of items ?? (<Iterable<string>>[])) {} 1`] = `
+
+  1 | for (const item of items ?? (<Iterable<string>>[])) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(27): for (const item of items ?? (<Iterable<string>>[])) {} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? (<Iterable<string>>[])) {}
+    |                                                ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(28): for (const item of items ?? ([]!)) {} 1`] = `
+
+  1 | for (const item of items ?? ([]!)) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(28): for (const item of items ?? ([]!)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? ([]!)) {}
+    |                              ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(29): for (const [key, value] of Object.entries((options.config! ?? {}) as Record<string, unknown>)) {} 1`] = `
+
+  1 | for (const [key, value] of Object.entries((options.config! ?? {}) as Record<string, unknown>)) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(29): for (const [key, value] of Object.entries((options.config! ?? {}) as Record<string, unknown>)) {} 2`] = `
+
+Message:
+> 1 | for (const [key, value] of Object.entries((options.config! ?? {}) as Record<string, unknown>)) {}
+    |                                                               ^^ Prefer an \`if\` guard over the empty object fallback.
+
+Output:
+  1 | if ((options.config!) != null) {
+  2 | 	for (const [key, value] of Object.entries((options.config!) as Record<string, unknown>)) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(3): for (const item of (items ?? [])) {} 1`] = `
+
+  1 | for (const item of (items ?? [])) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(3): for (const item of (items ?? [])) {} 2`] = `
+
+Message:
+> 1 | for (const item of (items ?? [])) {}
+    |                              ^^ Prefer an \`if\` guard over the empty array fallback.
+
+Output:
+  1 | if ((items) != null) {
+  2 | 	for (const item of (items)) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(3): if (items) { for (const item of (items)) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (items) { for (const item of (items)) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(3): if (items) { for (const item of (items)) {} } 2`] = `
+
+Message:
+> 1 | if (items) { for (const item of (items)) {} }
+    |     ^^^^^ Prefer an empty array fallback over the \`if\` guard.
+
+Output:
+  1 | for (const item of (items || [])) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(30): for (const item of Object.entries(options ?? ({} satisfies Record<string, unknown>))) {} 1`] = `
+
+  1 | for (const item of Object.entries(options ?? ({} satisfies Record<string, unknown>))) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(30): for (const item of Object.entries(options ?? ({} satisfies Record<string, unknown>))) {} 2`] = `
+
+Message:
+> 1 | for (const item of Object.entries(options ?? ({} satisfies Record<string, unknown>))) {}
+    |                                               ^^ Prefer an \`if\` guard over the empty object fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(31): for (const item of Object.entries<Record<string, unknown>>(options.config ?? {})) {} 1`] = `
+
+  1 | for (const item of Object.entries<Record<string, unknown>>(options.config ?? {})) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(31): for (const item of Object.entries<Record<string, unknown>>(options.config ?? {})) {} 2`] = `
+
+Message:
+> 1 | for (const item of Object.entries<Record<string, unknown>>(options.config ?? {})) {}
+    |                                                                              ^^ Prefer an \`if\` guard over the empty object fallback.
+
+Output:
+  1 | if ((options.config) != null) {
+  2 | 	for (const item of Object.entries<Record<string, unknown>>(options.config)) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(32): for (const item of items ?? []) use(item); 1`] = `
+
+  1 | for (const item of items ?? []) use(item);
+
+`;
+
+exports[`iteration-fallback-style > invalid(32): for (const item of items ?? []) use(item); 2`] = `
+
+Message:
+> 1 | for (const item of items ?? []) use(item);
+    |                             ^^ Prefer an \`if\` guard over the empty array fallback.
+
+Output:
+  1 | if ((items) != null) {
+  2 | 	for (const item of items) use(item);
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(33): for (const item of items ?? []) {\n\t// Keep this comment.\n\tuse(item);\n} 1`] = `
+
+  1 | for (const item of items ?? []) {
+  2 | 	// Keep this comment.
+  3 | 	use(item);
+  4 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(33): for (const item of items ?? []) {\n\t// Keep this comment.\n\tuse(item);\n} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? []) {
+    |                             ^^ Prefer an \`if\` guard over the empty array fallback.
+  2 | 	// Keep this comment.
+  3 | 	use(item);
+  4 | }
+
+Output:
+  1 | if ((items) != null) {
+  2 | 	for (const item of items) {
+  3 | 		// Keep this comment.
+  4 | 		use(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(34): if (condition) {\n\tfor (const item of items ?? []) {\n\t\tuse(item);\n\t}\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	for (const item of items ?? []) {
+  3 | 		use(item);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(34): if (condition) {\n\tfor (const item of items ?? []) {\n\t\tuse(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | if (condition) {
+> 2 | 	for (const item of items ?? []) {
+    | 	                            ^^ Prefer an \`if\` guard over the empty array fallback.
+  3 | 		use(item);
+  4 | 	}
+  5 | }
+
+Output:
+  1 | if (condition) {
+  2 | 	if ((items) != null) {
+  3 | 		for (const item of items) {
+  4 | 			use(item);
+  5 | 		}
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(35): for (const item of items ?? []) {\n\tconst value = \`\n\t\tkeep\n\t\`;\n} 1`] = `
+
+  1 | for (const item of items ?? []) {
+  2 | 	const value = \`
+  3 | 		keep
+  4 | 	\`;
+  5 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(35): for (const item of items ?? []) {\n\tconst value = \`\n\t\tkeep\n\t\`;\n} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? []) {
+    |                             ^^ Prefer an \`if\` guard over the empty array fallback.
+  2 | 	const value = \`
+  3 | 		keep
+  4 | 	\`;
+  5 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(36): if (condition) {\n\tfor (const item of items ?? []) {\n\t\tconst value = 'keep\\\n\t\t\tindent';\n\t}\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	for (const item of items ?? []) {
+  3 | 		const value = 'keep\\
+  4 | 			indent';
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(36): if (condition) {\n\tfor (const item of items ?? []) {\n\t\tconst value = 'keep\\\n\t\t\tindent';\n\t}\n} 2`] = `
+
+Message:
+  1 | if (condition) {
+> 2 | 	for (const item of items ?? []) {
+    | 	                            ^^ Prefer an \`if\` guard over the empty array fallback.
+  3 | 		const value = 'keep\\
+  4 | 			indent';
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(37): for (const item of options['a\\\n\tb'] ?? []) {} 1`] = `
+
+  1 | for (const item of options['a\\
+  2 | 	b'] ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(37): for (const item of options['a\\\n\tb'] ?? []) {} 2`] = `
+
+Message:
+  1 | for (const item of options['a\\
+> 2 | 	b'] ?? []) {}
+    | 	       ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(38): for (const item of items ?? []) {\n\tconst value = <pre>\n\t\tkeep\n\t</pre>;\n} 1`] = `
+
+  1 | for (const item of items ?? []) {
+  2 | 	const value = <pre>
+  3 | 		keep
+  4 | 	</pre>;
+  5 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(38): for (const item of items ?? []) {\n\tconst value = <pre>\n\t\tkeep\n\t</pre>;\n} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? []) {
+    |                             ^^ Prefer an \`if\` guard over the empty array fallback.
+  2 | 	const value = <pre>
+  3 | 		keep
+  4 | 	</pre>;
+  5 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(39): for (const item of items ?? []) {\n\t/*\n\t\tKeep this comment.\n\t*/\n} 1`] = `
+
+  1 | for (const item of items ?? []) {
+  2 | 	/*
+  3 | 		Keep this comment.
+  4 | 	*/
+  5 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(39): for (const item of items ?? []) {\n\t/*\n\t\tKeep this comment.\n\t*/\n} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? []) {
+    |                             ^^ Prefer an \`if\` guard over the empty array fallback.
+  2 | 	/*
+  3 | 		Keep this comment.
+  4 | 	*/
+  5 | }
+
+Output:
+  1 | if ((items) != null) {
+  2 | 	for (const item of items) {
+  3 | 		/*
+  4 | 			Keep this comment.
+  5 | 		*/
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(4): for (const [key, value] of Object.entries(options.config ?? {})) {} 1`] = `
+
+  1 | for (const [key, value] of Object.entries(options.config ?? {})) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(4): for (const [key, value] of Object.entries(options.config ?? {})) {} 2`] = `
+
+Message:
+> 1 | for (const [key, value] of Object.entries(options.config ?? {})) {}
+    |                                                             ^^ Prefer an \`if\` guard over the empty object fallback.
+
+Output:
+  1 | if ((options.config) != null) {
+  2 | 	for (const [key, value] of Object.entries(options.config)) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(4): if (items != null) { for (const item of items) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (items != null) { for (const item of items) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(4): if (items != null) { for (const item of items) {} } 2`] = `
+
+Message:
+> 1 | if (items != null) { for (const item of items) {} }
+    |     ^^^^^^^^^^^^^ Prefer an empty array fallback over the \`if\` guard.
+
+Output:
+  1 | for (const item of items ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(40): for (const item of items ?? []) {} 1`] = `
+
+Options:
+- 'guard'
+
+Code:
+  1 | for (const item of items ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(40): for (const item of items ?? []) {} 2`] = `
+
+Message:
+> 1 | for (const item of items ?? []) {}
+    |                             ^^ Prefer an \`if\` guard over the empty array fallback.
+
+Output:
+  1 | if ((items) != null) {
+  2 | 	for (const item of items) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(5): for (const value of Object.values(options.config || {})) {} 1`] = `
+
+  1 | for (const value of Object.values(options.config || {})) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(5): for (const value of Object.values(options.config || {})) {} 2`] = `
+
+Message:
+> 1 | for (const value of Object.values(options.config || {})) {}
+    |                                                     ^^ Prefer an \`if\` guard over the empty object fallback.
+
+Output:
+  1 | if (options.config) {
+  2 | 	for (const value of Object.values(options.config)) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(5): if (null != items) { for (const item of items) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (null != items) { for (const item of items) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(5): if (null != items) { for (const item of items) {} } 2`] = `
+
+Message:
+> 1 | if (null != items) { for (const item of items) {} }
+    |     ^^^^^^^^^^^^^ Prefer an empty array fallback over the \`if\` guard.
+
+Output:
+  1 | for (const item of items ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(6): for (const key of Object.keys(options.config ?? ({}))) {} 1`] = `
+
+  1 | for (const key of Object.keys(options.config ?? ({}))) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(6): for (const key of Object.keys(options.config ?? ({}))) {} 2`] = `
+
+Message:
+> 1 | for (const key of Object.keys(options.config ?? ({}))) {}
+    |                                                  ^^ Prefer an \`if\` guard over the empty object fallback.
+
+Output:
+  1 | if ((options.config) != null) {
+  2 | 	for (const key of Object.keys(options.config)) {}
+  3 | }
+
+`;
+
+exports[`iteration-fallback-style > invalid(6): if (options.config) { for (const [key, value] of Object.entries(options.config)) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (options.config) { for (const [key, value] of Object.entries(options.config)) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(6): if (options.config) { for (const [key, value] of Object.entries(options.config)) {} } 2`] = `
+
+Message:
+> 1 | if (options.config) { for (const [key, value] of Object.entries(options.config)) {} }
+    |     ^^^^^^^^^^^^^^ Prefer an empty object fallback over the \`if\` guard.
+
+Output:
+  1 | for (const [key, value] of Object.entries(options.config || {})) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(7): for (const key in options.config ?? {}) {} 1`] = `
+
+  1 | for (const key in options.config ?? {}) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(7): for (const key in options.config ?? {}) {} 2`] = `
+
+Message:
+> 1 | for (const key in options.config ?? {}) {}
+    |                                     ^^ Prefer an \`if\` guard over the empty object fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(7): if (options.config != null) { for (const value of Object.values(options.config)) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (options.config != null) { for (const value of Object.values(options.config)) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(7): if (options.config != null) { for (const value of Object.values(options.config)) {} } 2`] = `
+
+Message:
+> 1 | if (options.config != null) { for (const value of Object.values(options.config)) {} }
+    |     ^^^^^^^^^^^^^^^^^^^^^^ Prefer an empty object fallback over the \`if\` guard.
+
+Output:
+  1 | for (const value of Object.values(options.config ?? {})) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(8): for (const key in options.config || {}) {} 1`] = `
+
+  1 | for (const key in options.config || {}) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(8): for (const key in options.config || {}) {} 2`] = `
+
+Message:
+> 1 | for (const key in options.config || {}) {}
+    |                                     ^^ Prefer an \`if\` guard over the empty object fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(8): if (options.config) { for (const key of Object.keys(options.config)) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (options.config) { for (const key of Object.keys(options.config)) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(8): if (options.config) { for (const key of Object.keys(options.config)) {} } 2`] = `
+
+Message:
+> 1 | if (options.config) { for (const key of Object.keys(options.config)) {} }
+    |     ^^^^^^^^^^^^^^ Prefer an empty object fallback over the \`if\` guard.
+
+Output:
+  1 | for (const key of Object.keys(options.config || {})) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(9): for await (const item of items ?? []) {} 1`] = `
+
+  1 | for await (const item of items ?? []) {}
+
+`;
+
+exports[`iteration-fallback-style > invalid(9): for await (const item of items ?? []) {} 2`] = `
+
+Message:
+> 1 | for await (const item of items ?? []) {}
+    |                                   ^^ Prefer an \`if\` guard over the empty array fallback.
+
+`;
+
+exports[`iteration-fallback-style > invalid(9): if (options.config) { for (const key in options.config) {} } 1`] = `
+
+Options:
+- 'fallback'
+
+Code:
+  1 | if (options.config) { for (const key in options.config) {} }
+
+`;
+
+exports[`iteration-fallback-style > invalid(9): if (options.config) { for (const key in options.config) {} } 2`] = `
+
+Message:
+> 1 | if (options.config) { for (const key in options.config) {} }
+    |     ^^^^^^^^^^^^^^ Prefer an empty object fallback over the \`if\` guard.
+
+`;

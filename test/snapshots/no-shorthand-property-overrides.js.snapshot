@@ -1,0 +1,287 @@
+exports[`no-shorthand-property-overrides > invalid(1): a { padding-left: 10px !important; padding: 20px !important; } 1`] = `
+
+  1 | a { padding-left: 10px !important; padding: 20px !important; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(1): a { padding-left: 10px !important; padding: 20px !important; } 2`] = `
+
+Message:
+> 1 | a { padding-left: 10px !important; padding: 20px !important; }
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`padding\` overrides the previously declared \`padding-left\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(1): a { padding-left: 10px; padding: 20px; } 1`] = `
+
+  1 | a { padding-left: 10px; padding: 20px; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(1): a { padding-left: 10px; padding: 20px; } 2`] = `
+
+Message:
+> 1 | a { padding-left: 10px; padding: 20px; }
+    |                         ^^^^^^^^^^^^^ The shorthand property \`padding\` overrides the previously declared \`padding-left\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(1): a { padding: 1px !important; & b { padding-left: 2px; padding: 3px; } } 1`] = `
+
+  1 | a { padding: 1px !important; & b { padding-left: 2px; padding: 3px; } }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(1): a { padding: 1px !important; & b { padding-left: 2px; padding: 3px; } } 2`] = `
+
+Message:
+> 1 | a { padding: 1px !important; & b { padding-left: 2px; padding: 3px; } }
+    |                                                       ^^^^^^^^^^^^ The shorthand property \`padding\` overrides the previously declared \`padding-left\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(10): a { -webkit-transition-property: opacity; -webkit-transition: opacity 1s linear; } 1`] = `
+
+  1 | a { -webkit-transition-property: opacity; -webkit-transition: opacity 1s linear; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(10): a { -webkit-transition-property: opacity; -webkit-transition: opacity 1s linear; } 2`] = `
+
+Message:
+> 1 | a { -webkit-transition-property: opacity; -webkit-transition: opacity 1s linear; }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`-webkit-transition\` overrides the previously declared \`-webkit-transition-property\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(11): a { padding-top: 10px; padding-left: 20px; padding: 30px; } 1`] = `
+
+  1 | a { padding-top: 10px; padding-left: 20px; padding: 30px; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(11): a { padding-top: 10px; padding-left: 20px; padding: 30px; } 2`] = `
+
+Message:
+> 1 | a { padding-top: 10px; padding-left: 20px; padding: 30px; }
+    |                                            ^^^^^^^^^^^^^ The shorthand property \`padding\` overrides the previously declared \`padding-top\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(11): a { padding-top: 10px; padding-left: 20px; padding: 30px; } 3`] = `
+
+Message:
+> 1 | a { padding-top: 10px; padding-left: 20px; padding: 30px; }
+    |                                            ^^^^^^^^^^^^^ The shorthand property \`padding\` overrides the previously declared \`padding-left\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(2): a { background-repeat: no-repeat; background: url(lion.png); } 1`] = `
+
+  1 | a { background-repeat: no-repeat; background: url(lion.png); }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(2): a { background-repeat: no-repeat; background: url(lion.png); } 2`] = `
+
+Message:
+> 1 | a { background-repeat: no-repeat; background: url(lion.png); }
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`background\` overrides the previously declared \`background-repeat\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(2): a { padding-left: 10px; padding: 20px !important; padding: 30px; } 1`] = `
+
+  1 | a { padding-left: 10px; padding: 20px !important; padding: 30px; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(2): a { padding-left: 10px; padding: 20px !important; padding: 30px; } 2`] = `
+
+Message:
+> 1 | a { padding-left: 10px; padding: 20px !important; padding: 30px; }
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`padding\` overrides the previously declared \`padding-left\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(2): a { padding-left: 1px; & b { padding: 2px !important; } padding: 3px; } 1`] = `
+
+  1 | a { padding-left: 1px; & b { padding: 2px !important; } padding: 3px; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(2): a { padding-left: 1px; & b { padding: 2px !important; } padding: 3px; } 2`] = `
+
+Message:
+> 1 | a { padding-left: 1px; & b { padding: 2px !important; } padding: 3px; }
+    |                                                         ^^^^^^^^^^^^ The shorthand property \`padding\` overrides the previously declared \`padding-left\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(3): a { TRANSITION-BEHAVIOR: allow-discrete; TRANSITION: opacity 1s; } 1`] = `
+
+  1 | a { TRANSITION-BEHAVIOR: allow-discrete; TRANSITION: opacity 1s; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(3): a { TRANSITION-BEHAVIOR: allow-discrete; TRANSITION: opacity 1s; } 2`] = `
+
+Message:
+> 1 | a { TRANSITION-BEHAVIOR: allow-discrete; TRANSITION: opacity 1s; }
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`TRANSITION\` overrides the previously declared \`TRANSITION-BEHAVIOR\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(3): a { border-image-source: url(border.png); border: 1px solid; } 1`] = `
+
+  1 | a { border-image-source: url(border.png); border: 1px solid; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(3): a { border-image-source: url(border.png); border: 1px solid; } 2`] = `
+
+Message:
+> 1 | a { border-image-source: url(border.png); border: 1px solid; }
+    |                                           ^^^^^^^^^^^^^^^^^ The shorthand property \`border\` overrides the previously declared \`border-image-source\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(3): a { padding: 10px !important; padding-left: 20px; padding: 30px !important; } 1`] = `
+
+  1 | a { padding: 10px !important; padding-left: 20px; padding: 30px !important; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(3): a { padding: 10px !important; padding-left: 20px; padding: 30px !important; } 2`] = `
+
+Message:
+> 1 | a { padding: 10px !important; padding-left: 20px; padding: 30px !important; }
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`padding\` overrides the previously declared \`padding-left\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(4): a { -webkit-transition-behavior: allow-discrete; -webkit-transition: opacity 1s; } 1`] = `
+
+  1 | a { -webkit-transition-behavior: allow-discrete; -webkit-transition: opacity 1s; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(4): a { -webkit-transition-behavior: allow-discrete; -webkit-transition: opacity 1s; } 2`] = `
+
+Message:
+> 1 | a { -webkit-transition-behavior: allow-discrete; -webkit-transition: opacity 1s; }
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`-webkit-transition\` overrides the previously declared \`-webkit-transition-behavior\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(4): a { font-variant-caps: small-caps; font: 1em sans-serif; } 1`] = `
+
+  1 | a { font-variant-caps: small-caps; font: 1em sans-serif; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(4): a { font-variant-caps: small-caps; font: 1em sans-serif; } 2`] = `
+
+Message:
+> 1 | a { font-variant-caps: small-caps; font: 1em sans-serif; }
+    |                                    ^^^^^^^^^^^^^^^^^^^^ The shorthand property \`font\` overrides the previously declared \`font-variant-caps\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(5): a { animation-range-start: 10%; /* Keep this comment. */ animation: fade 1s; } 1`] = `
+
+  1 | a { animation-range-start: 10%; /* Keep this comment. */ animation: fade 1s; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(5): a { animation-range-start: 10%; /* Keep this comment. */ animation: fade 1s; } 2`] = `
+
+Message:
+> 1 | a { animation-range-start: 10%; /* Keep this comment. */ animation: fade 1s; }
+    |                                                          ^^^^^^^^^^^^^^^^^^ The shorthand property \`animation\` overrides the previously declared \`animation-range-start\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(5): a { transition-property: opacity; transition: opacity 1s linear; } 1`] = `
+
+  1 | a { transition-property: opacity; transition: opacity 1s linear; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(5): a { transition-property: opacity; transition: opacity 1s linear; } 2`] = `
+
+Message:
+> 1 | a { transition-property: opacity; transition: opacity 1s linear; }
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`transition\` overrides the previously declared \`transition-property\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(6): a { & b { mask-border-source: url(border.png); mask: none; } } 1`] = `
+
+  1 | a { & b { mask-border-source: url(border.png); mask: none; } }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(6): a { & b { mask-border-source: url(border.png); mask: none; } } 2`] = `
+
+Message:
+> 1 | a { & b { mask-border-source: url(border.png); mask: none; } }
+    |                                                ^^^^^^^^^^ The shorthand property \`mask\` overrides the previously declared \`mask-border-source\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(6): a { grid-row-start: 1; grid-row: 1 / 3; } 1`] = `
+
+  1 | a { grid-row-start: 1; grid-row: 1 / 3; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(6): a { grid-row-start: 1; grid-row: 1 / 3; } 2`] = `
+
+Message:
+> 1 | a { grid-row-start: 1; grid-row: 1 / 3; }
+    |                        ^^^^^^^^^^^^^^^ The shorthand property \`grid-row\` overrides the previously declared \`grid-row-start\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(7): a { inset-block-end: 1px; inset-block: 2px; } 1`] = `
+
+  1 | a { inset-block-end: 1px; inset-block: 2px; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(7): a { inset-block-end: 1px; inset-block: 2px; } 2`] = `
+
+Message:
+> 1 | a { inset-block-end: 1px; inset-block: 2px; }
+    |                           ^^^^^^^^^^^^^^^^ The shorthand property \`inset-block\` overrides the previously declared \`inset-block-end\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(8): a { scroll-padding-left: 1px; scroll-padding: 2px; } 1`] = `
+
+  1 | a { scroll-padding-left: 1px; scroll-padding: 2px; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(8): a { scroll-padding-left: 1px; scroll-padding: 2px; } 2`] = `
+
+Message:
+> 1 | a { scroll-padding-left: 1px; scroll-padding: 2px; }
+    |                               ^^^^^^^^^^^^^^^^^^^ The shorthand property \`scroll-padding\` overrides the previously declared \`scroll-padding-left\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(9): a { PADDING-LEFT: 10px; PADDING: 20px; } 1`] = `
+
+  1 | a { PADDING-LEFT: 10px; PADDING: 20px; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(9): a { PADDING-LEFT: 10px; PADDING: 20px; } 2`] = `
+
+Message:
+> 1 | a { PADDING-LEFT: 10px; PADDING: 20px; }
+    |                         ^^^^^^^^^^^^^ The shorthand property \`PADDING\` overrides the previously declared \`PADDING-LEFT\` property.
+
+`;

@@ -242,15 +242,7 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 				return;
 			}
 
-			const callbackScope = scopeManager.acquire(callback);
-			if (
-				!callbackScope
-				|| findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterReference)
-				|| isFunctionSelfUsedInside(callback, callbackScope)
-			) {
-				return;
-			}
-
+			// The callback body is only the parameter or `Boolean(parameter)`, so it cannot use the parameter elsewhere or use `this`, `arguments`, or its own name.
 			const methodNode = callExpression.callee.property;
 			return {
 				node: methodNode,

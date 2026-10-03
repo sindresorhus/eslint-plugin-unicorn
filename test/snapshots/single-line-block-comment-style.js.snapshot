@@ -1,0 +1,563 @@
+exports[`single-line-block-comment-style > invalid(1): /* Comment. */\n{} 1`] = `
+
+  1 | /* Comment. */
+  2 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(1): /* Comment. */\n{} 2`] = `
+
+Message:
+> 1 | /* Comment. */
+    | ^^^^^^^^^^^^^^ Use a multiline block comment.
+  2 | {}
+
+Output:
+  1 | /*
+  2 | Comment.
+  3 | */
+  4 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(1): /** Get the value. */ 1`] = `
+
+  1 | /** Get the value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(1): /** Get the value. */ 2`] = `
+
+Message:
+> 1 | /** Get the value. */
+    | ^^^^^^^^^^^^^^^^^^^^^ Use a multiline block comment.
+
+Output:
+  1 | /**
+  2 | Get the value.
+  3 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(10): /*\nAnother value.\n*/ 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | /*
+  2 | Another value.
+  3 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(10): /*\nAnother value.\n*/ 2`] = `
+
+Message:
+> 1 | /*
+    | ^^
+> 2 | Another value.
+    | ^^^^^^^^^^^^^^
+> 3 | */
+    | ^^ Use a single-line block comment.
+
+Output:
+  1 | /* Another value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(11): /**\r\nCarriage return value.\r\n*/ 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | /**
+  2 | Carriage return value.
+  3 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(11): /**\r\nCarriage return value.\r\n*/ 2`] = `
+
+Message:
+> 1 | /**
+    | ^^^
+> 2 | Carriage return value.
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 3 | */
+    | ^^ Use a single-line block comment.
+
+Output:
+  1 | /** Carriage return value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(12): \t/**\r\nCarriage return value.\r\n\t*/ 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | 	/**
+  2 | Carriage return value.
+  3 | 	*/
+
+`;
+
+exports[`single-line-block-comment-style > invalid(12): \t/**\r\nCarriage return value.\r\n\t*/ 2`] = `
+
+Message:
+> 1 | 	/**
+    | 	^^^
+> 2 | Carriage return value.
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	*/
+    | ^^^ Use a single-line block comment.
+
+Output:
+  1 | 	/** Carriage return value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(13): /**\nValue. */ 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | /**
+  2 | Value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(13): /**\nValue. */ 2`] = `
+
+Message:
+> 1 | /**
+    | ^^^
+> 2 | Value. */
+    | ^^^^^^^^^ Use a single-line block comment.
+
+Output:
+  1 | /** Value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(14): /*\nValue. */ 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | /*
+  2 | Value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(14): /*\nValue. */ 2`] = `
+
+Message:
+> 1 | /*
+    | ^^
+> 2 | Value. */
+    | ^^^^^^^^^ Use a single-line block comment.
+
+Output:
+  1 | /* Value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(15): /* node:coverage report */ 1`] = `
+
+  1 | /* node:coverage report */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(15): /* node:coverage report */ 2`] = `
+
+Message:
+> 1 | /* node:coverage report */
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a multiline block comment.
+
+Output:
+  1 | /*
+  2 | node:coverage report
+  3 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(2):   /* Comment. */\r\n{} 1`] = `
+
+  1 |   /* Comment. */
+  2 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(2):   /* Comment. */\r\n{} 2`] = `
+
+Message:
+> 1 |   /* Comment. */
+    |   ^^^^^^^^^^^^^^ Use a multiline block comment.
+  2 | {}
+
+Output:
+  1 |   /*
+  2 |   Comment.
+  3 |   */
+  4 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(2): /* Get the value. */ 1`] = `
+
+  1 | /* Get the value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(2): /* Get the value. */ 2`] = `
+
+Message:
+> 1 | /* Get the value. */
+    | ^^^^^^^^^^^^^^^^^^^^ Use a multiline block comment.
+
+Output:
+  1 | /*
+  2 | Get the value.
+  3 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(3): /*\nComment.\n*/\n{} 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | /*
+  2 | Comment.
+  3 | */
+  4 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(3): /*\nComment.\n*/\n{} 2`] = `
+
+Message:
+> 1 | /*
+    | ^^
+> 2 | Comment.
+    | ^^^^^^^^
+> 3 | */
+    | ^^ Use a single-line block comment.
+  4 | {}
+
+Output:
+  1 | /* Comment. */
+  2 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(3): \t/** Get the value. */ 1`] = `
+
+  1 | 	/** Get the value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(3): \t/** Get the value. */ 2`] = `
+
+Message:
+> 1 | 	/** Get the value. */
+    | 	^^^^^^^^^^^^^^^^^^^^^ Use a multiline block comment.
+
+Output:
+  1 | 	/**
+  2 | 	Get the value.
+  3 | 	*/
+
+`;
+
+exports[`single-line-block-comment-style > invalid(4): /* Comment. */\n{} 1`] = `
+
+  1 | /* Comment. */
+  2 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(4): /* Comment. */\n{} 2`] = `
+
+Message:
+> 1 | /* Comment. */
+    | ^^^^^^^^^^^^^^ Use a multiline block comment.
+  2 | {}
+
+Output:
+  1 | /*
+  2 | Comment.
+  3 | */
+  4 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(4): /** Carriage return value. */\r\nconst value = 1; 1`] = `
+
+  1 | /** Carriage return value. */
+  2 | const value = 1;
+
+`;
+
+exports[`single-line-block-comment-style > invalid(4): /** Carriage return value. */\r\nconst value = 1; 2`] = `
+
+Message:
+> 1 | /** Carriage return value. */
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a multiline block comment.
+  2 | const value = 1;
+
+Output:
+  1 | /**
+  2 | Carriage return value.
+  3 | */
+  4 | const value = 1;
+
+`;
+
+exports[`single-line-block-comment-style > invalid(5):   /* Comment. */\r\n{} 1`] = `
+
+  1 |   /* Comment. */
+  2 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(5):   /* Comment. */\r\n{} 2`] = `
+
+Message:
+> 1 |   /* Comment. */
+    |   ^^^^^^^^^^^^^^ Use a multiline block comment.
+  2 | {}
+
+Output:
+  1 |   /*
+  2 |   Comment.
+  3 |   */
+  4 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(5): /*** Value */ 1`] = `
+
+  1 | /*** Value */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(5): /*** Value */ 2`] = `
+
+Message:
+> 1 | /*** Value */
+    | ^^^^^^^^^^^^^ Use a multiline block comment.
+
+Output:
+  1 | /*
+  2 | ** Value
+  3 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(6): /** Value.\n*/ 1`] = `
+
+  1 | /** Value.
+  2 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(6): /** Value.\n*/ 2`] = `
+
+Message:
+> 1 | /** Value.
+    | ^^^^^^^^^^
+> 2 | */
+    | ^^ Use a multiline block comment.
+
+Output:
+  1 | /**
+  2 | Value.
+  3 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(6): /*\nComment.\n*/\n{} 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | /*
+  2 | Comment.
+  3 | */
+  4 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(6): /*\nComment.\n*/\n{} 2`] = `
+
+Message:
+> 1 | /*
+    | ^^
+> 2 | Comment.
+    | ^^^^^^^^
+> 3 | */
+    | ^^ Use a single-line block comment.
+  4 | {}
+
+Output:
+  1 | /* Comment. */
+  2 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(7): /* Comment. */\na {} 1`] = `
+
+  1 | /* Comment. */
+  2 | a {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(7): /* Comment. */\na {} 2`] = `
+
+Message:
+> 1 | /* Comment. */
+    | ^^^^^^^^^^^^^^ Use a multiline block comment.
+  2 | a {}
+
+Output:
+  1 | /*
+  2 | Comment.
+  3 | */
+  4 | a {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(7): /* Value.\n*/ 1`] = `
+
+  1 | /* Value.
+  2 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(7): /* Value.\n*/ 2`] = `
+
+Message:
+> 1 | /* Value.
+    | ^^^^^^^^^
+> 2 | */
+    | ^^ Use a multiline block comment.
+
+Output:
+  1 | /*
+  2 | Value.
+  3 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(8):   /* Comment. */\r\na {} 1`] = `
+
+  1 |   /* Comment. */
+  2 | a {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(8):   /* Comment. */\r\na {} 2`] = `
+
+Message:
+> 1 |   /* Comment. */
+    |   ^^^^^^^^^^^^^^ Use a multiline block comment.
+  2 | a {}
+
+Output:
+  1 |   /*
+  2 |   Comment.
+  3 |   */
+  4 | a {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(8):  /** Value. */ const value = 1; 1`] = `
+
+  1 |
+  2 | /** Value. */
+  3 | const value = 1;
+
+`;
+
+exports[`single-line-block-comment-style > invalid(8):  /** Value. */ const value = 1; 2`] = `
+
+Message:
+  1 |
+> 2 | /** Value. */
+    | ^^^^^^^^^^^^^ Use a multiline block comment.
+  3 | const value = 1;
+
+Output:
+  1 |
+  2 | /**
+  3 | Value.
+  4 | */
+  5 | const value = 1;
+
+`;
+
+exports[`single-line-block-comment-style > invalid(9): /**\nAnother value.\n*/ 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | /**
+  2 | Another value.
+  3 | */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(9): /**\nAnother value.\n*/ 2`] = `
+
+Message:
+> 1 | /**
+    | ^^^
+> 2 | Another value.
+    | ^^^^^^^^^^^^^^
+> 3 | */
+    | ^^ Use a single-line block comment.
+
+Output:
+  1 | /** Another value. */
+
+`;
+
+exports[`single-line-block-comment-style > invalid(9): /*\nComment.\n*/\na {} 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | /*
+  2 | Comment.
+  3 | */
+  4 | a {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(9): /*\nComment.\n*/\na {} 2`] = `
+
+Message:
+> 1 | /*
+    | ^^
+> 2 | Comment.
+    | ^^^^^^^^
+> 3 | */
+    | ^^ Use a single-line block comment.
+  4 | a {}
+
+Output:
+  1 | /* Comment. */
+  2 | a {}
+
+`;

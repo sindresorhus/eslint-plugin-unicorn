@@ -1,0 +1,2756 @@
+exports[`no-invalid-intl-options > invalid(1): new (Intl.NumberFormat as typeof Intl.NumberFormat)('en', {style: 'wrong'}) 1`] = `
+
+  1 | new (Intl.NumberFormat as typeof Intl.NumberFormat)('en', {style: 'wrong'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(1): new (Intl.NumberFormat as typeof Intl.NumberFormat)('en', {style: 'wrong'}) 2`] = `
+
+Message:
+> 1 | new (Intl.NumberFormat as typeof Intl.NumberFormat)('en', {style: 'wrong'})
+    |                                                            ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(1): new Intl.Collator('en', {typo: true}) 1`] = `
+
+  1 | new Intl.Collator('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(1): new Intl.Collator('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.Collator('en', {typo: true})
+    |                          ^^^^ \`typo\` is not a recognized Intl.Collator option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(1): new Intl.NumberFormat('en', {minimumIntegerDigits: 21.1}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {minimumIntegerDigits: 21.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(1): new Intl.NumberFormat('en', {minimumIntegerDigits: 21.1}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {minimumIntegerDigits: 21.1})
+    |                              ^^^^^^^^^^^^^^^^^^^^ \`minimumIntegerDigits\` must be a number between 1 and 21.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(1): new Intl.NumberFormat('en', {style: Symbol.iterator}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {style: Symbol.iterator})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(1): new Intl.NumberFormat('en', {style: Symbol.iterator}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {style: Symbol.iterator})
+    |                              ^^^^^ \`style\` must be convertible to a string.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(10): function run(value: String | undefined) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); } 1`] = `
+
+  1 | function run(value: String | undefined) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(10): function run(value: String | undefined) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); } 2`] = `
+
+Message:
+> 1 | function run(value: String | undefined) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); }
+    |                                                                                ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(10): new Intl.NumberFormat('en', {roundingPriority: \"lessPrecision\", minimumFractionDigits: 2, maximumFractionDigits: 1}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {roundingPriority: "lessPrecision", minimumFractionDigits: 2, maximumFractionDigits: 1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(10): new Intl.NumberFormat('en', {roundingPriority: \"lessPrecision\", minimumFractionDigits: 2, maximumFractionDigits: 1}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {roundingPriority: "lessPrecision", minimumFractionDigits: 2, maximumFractionDigits: 1})
+    |                                                                                           ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` must be greater than or equal to \`minimumFractionDigits\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(10): new Intl.Segmenter('en', {typo: true}) 1`] = `
+
+  1 | new Intl.Segmenter('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(10): new Intl.Segmenter('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.Segmenter('en', {typo: true})
+    |                           ^^^^ \`typo\` is not a recognized Intl.Segmenter option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(100): new Uint8Array(2).toLocaleString(\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | new Uint8Array(2).toLocaleString("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(100): new Uint8Array(2).toLocaleString(\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | new Uint8Array(2).toLocaleString("en", {style: "wrong"})
+    |                                         ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(101): BigInt64Array.of(1n).toLocaleString(\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | BigInt64Array.of(1n).toLocaleString("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(101): BigInt64Array.of(1n).toLocaleString(\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | BigInt64Array.of(1n).toLocaleString("en", {style: "wrong"})
+    |                                            ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(102): new Date().toLocaleString(\"en\", {dateStyle: \"wrong\"}) 1`] = `
+
+  1 | new Date().toLocaleString("en", {dateStyle: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(102): new Date().toLocaleString(\"en\", {dateStyle: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | new Date().toLocaleString("en", {dateStyle: "wrong"})
+    |                                  ^^^^^^^^^ \`dateStyle\` must be one of "full", "long", "medium", "short".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(103): new Date().toLocaleDateString(\"en\", {timeStyle: \"short\"}) 1`] = `
+
+  1 | new Date().toLocaleDateString("en", {timeStyle: "short"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(103): new Date().toLocaleDateString(\"en\", {timeStyle: \"short\"}) 2`] = `
+
+Message:
+> 1 | new Date().toLocaleDateString("en", {timeStyle: "short"})
+    |                                      ^^^^^^^^^ \`timeStyle\` cannot be used with \`toLocaleDateString()\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(104): new Date().toLocaleTimeString(\"en\", {dateStyle: \"short\"}) 1`] = `
+
+  1 | new Date().toLocaleTimeString("en", {dateStyle: "short"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(104): new Date().toLocaleTimeString(\"en\", {dateStyle: \"short\"}) 2`] = `
+
+Message:
+> 1 | new Date().toLocaleTimeString("en", {dateStyle: "short"})
+    |                                      ^^^^^^^^^ \`dateStyle\` cannot be used with \`toLocaleTimeString()\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(105): const date = new Date(); date.toLocaleString(\"en\", {dateStyle: \"wrong\"}) 1`] = `
+
+  1 | const date = new Date(); date.toLocaleString("en", {dateStyle: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(105): const date = new Date(); date.toLocaleString(\"en\", {dateStyle: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | const date = new Date(); date.toLocaleString("en", {dateStyle: "wrong"})
+    |                                                     ^^^^^^^^^ \`dateStyle\` must be one of "full", "long", "medium", "short".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(106): new Intl.NumberFormat('en', {maximumFractionDigit: 0} as Intl.NumberFormatOptions) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumFractionDigit: 0} as Intl.NumberFormatOptions)
+
+`;
+
+exports[`no-invalid-intl-options > invalid(106): new Intl.NumberFormat('en', {maximumFractionDigit: 0} as Intl.NumberFormatOptions) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumFractionDigit: 0} as Intl.NumberFormatOptions)
+    |                              ^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | new Intl.NumberFormat('en', {maximumFractionDigits: 0} as Intl.NumberFormatOptions)
+
+`;
+
+exports[`no-invalid-intl-options > invalid(107): new Intl.NumberFormat('en', {maximumFractionDigit: 0} satisfies Intl.NumberFormatOptions) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumFractionDigit: 0} satisfies Intl.NumberFormatOptions)
+
+`;
+
+exports[`no-invalid-intl-options > invalid(107): new Intl.NumberFormat('en', {maximumFractionDigit: 0} satisfies Intl.NumberFormatOptions) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumFractionDigit: 0} satisfies Intl.NumberFormatOptions)
+    |                              ^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | new Intl.NumberFormat('en', {maximumFractionDigits: 0} satisfies Intl.NumberFormatOptions)
+
+`;
+
+exports[`no-invalid-intl-options > invalid(108): new Intl.NumberFormat('en', {maximumFractionDigit: 0} !) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumFractionDigit: 0} !)
+
+`;
+
+exports[`no-invalid-intl-options > invalid(108): new Intl.NumberFormat('en', {maximumFractionDigit: 0} !) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumFractionDigit: 0} !)
+    |                              ^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | new Intl.NumberFormat('en', {maximumFractionDigits: 0} !)
+
+`;
+
+exports[`no-invalid-intl-options > invalid(109): function run(value: number) { value.toLocaleString(\"en\", {style: \"wrong\"}); } 1`] = `
+
+  1 | function run(value: number) { value.toLocaleString("en", {style: "wrong"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(109): function run(value: number) { value.toLocaleString(\"en\", {style: \"wrong\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: number) { value.toLocaleString("en", {style: "wrong"}); }
+    |                                                           ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(11): Intl.Collator.supportedLocalesOf('en', {style: 'short'}) 1`] = `
+
+  1 | Intl.Collator.supportedLocalesOf('en', {style: 'short'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(11): Intl.Collator.supportedLocalesOf('en', {style: 'short'}) 2`] = `
+
+Message:
+> 1 | Intl.Collator.supportedLocalesOf('en', {style: 'short'})
+    |                                         ^^^^^ \`style\` is not a recognized Intl.Collator.supportedLocalesOf option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(11): function run(value: string | undefined) { value?.localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}); } 1`] = `
+
+Filename: file.ts
+
+  1 | function run(value: string | undefined) { value?.localeCompare("other", "en", {sensitivity: "wrong"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(11): function run(value: string | undefined) { value?.localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: string | undefined) { value?.localeCompare("other", "en", {sensitivity: "wrong"}); }
+    |                                                                                ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(11): new Intl.PluralRules('en', {minimumIntegerDigits: 21.1}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {minimumIntegerDigits: 21.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(11): new Intl.PluralRules('en', {minimumIntegerDigits: 21.1}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {minimumIntegerDigits: 21.1})
+    |                             ^^^^^^^^^^^^^^^^^^^^ \`minimumIntegerDigits\` must be a number between 1 and 21.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(110): function run(value: bigint) { value.toLocaleString(\"en\", {style: \"wrong\"}); } 1`] = `
+
+  1 | function run(value: bigint) { value.toLocaleString("en", {style: "wrong"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(110): function run(value: bigint) { value.toLocaleString(\"en\", {style: \"wrong\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: bigint) { value.toLocaleString("en", {style: "wrong"}); }
+    |                                                           ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(111): function run(value: Date) { value.toLocaleDateString(\"en\", {timeStyle: \"short\"}); } 1`] = `
+
+  1 | function run(value: Date) { value.toLocaleDateString("en", {timeStyle: "short"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(111): function run(value: Date) { value.toLocaleDateString(\"en\", {timeStyle: \"short\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: Date) { value.toLocaleDateString("en", {timeStyle: "short"}); }
+    |                                                             ^^^^^^^^^ \`timeStyle\` cannot be used with \`toLocaleDateString()\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(112): function run(value: Uint8Array) { value.toLocaleString(\"en\", {style: \"wrong\"}); } 1`] = `
+
+  1 | function run(value: Uint8Array) { value.toLocaleString("en", {style: "wrong"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(112): function run(value: Uint8Array) { value.toLocaleString(\"en\", {style: \"wrong\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: Uint8Array) { value.toLocaleString("en", {style: "wrong"}); }
+    |                                                               ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(113): const value = Math.random(); value.toLocaleString(\"en\", {style: \"wrong\"}); 1`] = `
+
+Filename: file.ts
+
+  1 | const value = Math.random(); value.toLocaleString("en", {style: "wrong"});
+
+`;
+
+exports[`no-invalid-intl-options > invalid(113): const value = Math.random(); value.toLocaleString(\"en\", {style: \"wrong\"}); 2`] = `
+
+Message:
+> 1 | const value = Math.random(); value.toLocaleString("en", {style: "wrong"});
+    |                                                          ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(114): function run(value: Date | undefined) { value?.toLocaleDateString(\"en\", {timeStyle: \"short\"}); } 1`] = `
+
+Filename: file.ts
+
+  1 | function run(value: Date | undefined) { value?.toLocaleDateString("en", {timeStyle: "short"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(114): function run(value: Date | undefined) { value?.toLocaleDateString(\"en\", {timeStyle: \"short\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: Date | undefined) { value?.toLocaleDateString("en", {timeStyle: "short"}); }
+    |                                                                          ^^^^^^^^^ \`timeStyle\` cannot be used with \`toLocaleDateString()\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(12): Intl.DateTimeFormat.supportedLocalesOf('en', {style: 'short'}) 1`] = `
+
+  1 | Intl.DateTimeFormat.supportedLocalesOf('en', {style: 'short'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(12): Intl.DateTimeFormat.supportedLocalesOf('en', {style: 'short'}) 2`] = `
+
+Message:
+> 1 | Intl.DateTimeFormat.supportedLocalesOf('en', {style: 'short'})
+    |                                               ^^^^^ \`style\` is not a recognized Intl.DateTimeFormat.supportedLocalesOf option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(12): new Intl.PluralRules('en', {minimumFractionDigits: -0.1}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {minimumFractionDigits: -0.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(12): new Intl.PluralRules('en', {minimumFractionDigits: -0.1}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {minimumFractionDigits: -0.1})
+    |                             ^^^^^^^^^^^^^^^^^^^^^ \`minimumFractionDigits\` must be a number between 0 and 100.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(13): Intl.DisplayNames.supportedLocalesOf('en', {style: 'short'}) 1`] = `
+
+  1 | Intl.DisplayNames.supportedLocalesOf('en', {style: 'short'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(13): Intl.DisplayNames.supportedLocalesOf('en', {style: 'short'}) 2`] = `
+
+Message:
+> 1 | Intl.DisplayNames.supportedLocalesOf('en', {style: 'short'})
+    |                                             ^^^^^ \`style\` is not a recognized Intl.DisplayNames.supportedLocalesOf option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(13): new Intl.PluralRules('en', {maximumSignificantDigits: 21.1}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {maximumSignificantDigits: 21.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(13): new Intl.PluralRules('en', {maximumSignificantDigits: 21.1}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {maximumSignificantDigits: 21.1})
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ \`maximumSignificantDigits\` must be a number between 1 and 21.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(14): Intl.DurationFormat.supportedLocalesOf('en', {style: 'short'}) 1`] = `
+
+  1 | Intl.DurationFormat.supportedLocalesOf('en', {style: 'short'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(14): Intl.DurationFormat.supportedLocalesOf('en', {style: 'short'}) 2`] = `
+
+Message:
+> 1 | Intl.DurationFormat.supportedLocalesOf('en', {style: 'short'})
+    |                                               ^^^^^ \`style\` is not a recognized Intl.DurationFormat.supportedLocalesOf option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(14): new Intl.PluralRules('en', {minimumSignificantDigits: 0.9}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {minimumSignificantDigits: 0.9})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(14): new Intl.PluralRules('en', {minimumSignificantDigits: 0.9}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {minimumSignificantDigits: 0.9})
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ \`minimumSignificantDigits\` must be a number between 1 and 21.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(15): Intl.ListFormat.supportedLocalesOf('en', {style: 'short'}) 1`] = `
+
+  1 | Intl.ListFormat.supportedLocalesOf('en', {style: 'short'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(15): Intl.ListFormat.supportedLocalesOf('en', {style: 'short'}) 2`] = `
+
+Message:
+> 1 | Intl.ListFormat.supportedLocalesOf('en', {style: 'short'})
+    |                                           ^^^^^ \`style\` is not a recognized Intl.ListFormat.supportedLocalesOf option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(15): new Intl.PluralRules('en', {roundingIncrement: 5000.1}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {roundingIncrement: 5000.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(15): new Intl.PluralRules('en', {roundingIncrement: 5000.1}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {roundingIncrement: 5000.1})
+    |                             ^^^^^^^^^^^^^^^^^ \`roundingIncrement\` must be a number between 1 and 5000.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(16): Intl.NumberFormat.supportedLocalesOf('en', {style: 'short'}) 1`] = `
+
+  1 | Intl.NumberFormat.supportedLocalesOf('en', {style: 'short'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(16): Intl.NumberFormat.supportedLocalesOf('en', {style: 'short'}) 2`] = `
+
+Message:
+> 1 | Intl.NumberFormat.supportedLocalesOf('en', {style: 'short'})
+    |                                             ^^^^^ \`style\` is not a recognized Intl.NumberFormat.supportedLocalesOf option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(16): new Intl.PluralRules('en', {roundingMode: \"up\"}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {roundingMode: "up"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(16): new Intl.PluralRules('en', {roundingMode: \"up\"}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {roundingMode: "up"})
+    |                             ^^^^^^^^^^^^ \`roundingMode\` must be one of "ceil", "floor", "expand", "trunc", "halfCeil", "halfFloor", "halfExpand", "halfTrunc", "halfEven".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(17): Intl.PluralRules.supportedLocalesOf('en', {style: 'short'}) 1`] = `
+
+  1 | Intl.PluralRules.supportedLocalesOf('en', {style: 'short'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(17): Intl.PluralRules.supportedLocalesOf('en', {style: 'short'}) 2`] = `
+
+Message:
+> 1 | Intl.PluralRules.supportedLocalesOf('en', {style: 'short'})
+    |                                            ^^^^^ \`style\` is not a recognized Intl.PluralRules.supportedLocalesOf option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(17): new Intl.PluralRules('en', {roundingPriority: \"both\"}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {roundingPriority: "both"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(17): new Intl.PluralRules('en', {roundingPriority: \"both\"}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {roundingPriority: "both"})
+    |                             ^^^^^^^^^^^^^^^^ \`roundingPriority\` must be one of "auto", "morePrecision", "lessPrecision".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(18): Intl.RelativeTimeFormat.supportedLocalesOf('en', {style: 'short'}) 1`] = `
+
+  1 | Intl.RelativeTimeFormat.supportedLocalesOf('en', {style: 'short'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(18): Intl.RelativeTimeFormat.supportedLocalesOf('en', {style: 'short'}) 2`] = `
+
+Message:
+> 1 | Intl.RelativeTimeFormat.supportedLocalesOf('en', {style: 'short'})
+    |                                                   ^^^^^ \`style\` is not a recognized Intl.RelativeTimeFormat.supportedLocalesOf option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(18): new Intl.PluralRules('en', {trailingZeroDisplay: \"never\"}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {trailingZeroDisplay: "never"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(18): new Intl.PluralRules('en', {trailingZeroDisplay: \"never\"}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {trailingZeroDisplay: "never"})
+    |                             ^^^^^^^^^^^^^^^^^^^ \`trailingZeroDisplay\` must be one of "auto", "stripIfInteger".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(19): Intl.Segmenter.supportedLocalesOf('en', {style: 'short'}) 1`] = `
+
+  1 | Intl.Segmenter.supportedLocalesOf('en', {style: 'short'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(19): Intl.Segmenter.supportedLocalesOf('en', {style: 'short'}) 2`] = `
+
+Message:
+> 1 | Intl.Segmenter.supportedLocalesOf('en', {style: 'short'})
+    |                                          ^^^^^ \`style\` is not a recognized Intl.Segmenter.supportedLocalesOf option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(19): new Intl.PluralRules('en', {notation: \"decimal\"}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {notation: "decimal"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(19): new Intl.PluralRules('en', {notation: \"decimal\"}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {notation: "decimal"})
+    |                             ^^^^^^^^ \`notation\` must be one of "standard", "scientific", "engineering", "compact".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(2): new (Intl.NumberFormat !)('en', {style: 'wrong'}) 1`] = `
+
+  1 | new (Intl.NumberFormat !)('en', {style: 'wrong'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(2): new (Intl.NumberFormat !)('en', {style: 'wrong'}) 2`] = `
+
+Message:
+> 1 | new (Intl.NumberFormat !)('en', {style: 'wrong'})
+    |                                  ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(2): new Intl.DateTimeFormat('en', {typo: true}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(2): new Intl.DateTimeFormat('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {typo: true})
+    |                                ^^^^ \`typo\` is not a recognized Intl.DateTimeFormat option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(2): new Intl.NumberFormat('en', {maximumFractionDigits: Symbol.iterator}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumFractionDigits: Symbol.iterator})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(2): new Intl.NumberFormat('en', {maximumFractionDigits: Symbol.iterator}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumFractionDigits: Symbol.iterator})
+    |                              ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` must be a number between 0 and 100.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(2): new Intl.NumberFormat('en', {minimumFractionDigits: -0.1}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {minimumFractionDigits: -0.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(2): new Intl.NumberFormat('en', {minimumFractionDigits: -0.1}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {minimumFractionDigits: -0.1})
+    |                              ^^^^^^^^^^^^^^^^^^^^^ \`minimumFractionDigits\` must be a number between 0 and 100.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(20): new Intl.NumberFormat('en', {maximumFractionDigit: 0}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumFractionDigit: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(20): new Intl.NumberFormat('en', {maximumFractionDigit: 0}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumFractionDigit: 0})
+    |                              ^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | new Intl.NumberFormat('en', {maximumFractionDigits: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(20): new Intl.PluralRules('en', {roundingPriority: \"lessPrecision\", minimumFractionDigits: 2, maximumFractionDigits: 1}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {roundingPriority: "lessPrecision", minimumFractionDigits: 2, maximumFractionDigits: 1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(20): new Intl.PluralRules('en', {roundingPriority: \"lessPrecision\", minimumFractionDigits: 2, maximumFractionDigits: 1}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {roundingPriority: "lessPrecision", minimumFractionDigits: 2, maximumFractionDigits: 1})
+    |                                                                                          ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` must be greater than or equal to \`minimumFractionDigits\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(21): new Intl.DateTimeFormat('en', {fractionalSecondDigits: 3.1}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {fractionalSecondDigits: 3.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(21): new Intl.DateTimeFormat('en', {fractionalSecondDigits: 3.1}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {fractionalSecondDigits: 3.1})
+    |                                ^^^^^^^^^^^^^^^^^^^^^^ \`fractionalSecondDigits\` must be a number between 1 and 3.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(21): new Intl.NumberFormat('en', {Style: \"decimal\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {Style: "decimal"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(21): new Intl.NumberFormat('en', {Style: \"decimal\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {Style: "decimal"})
+    |                              ^^^^^ \`Style\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`Style\` to \`style\`.:
+  1 | new Intl.NumberFormat('en', {style: "decimal"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(22): new Intl.DurationFormat('en', {fractionalDigits: -0.1}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {fractionalDigits: -0.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(22): new Intl.DurationFormat('en', {fractionalDigits: -0.1}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {fractionalDigits: -0.1})
+    |                                ^^^^^^^^^^^^^^^^ \`fractionalDigits\` must be a number between 0 and 9.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(22): new Intl.NumberFormat('en', {currencyDispaly: \"code\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {currencyDispaly: "code"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(22): new Intl.NumberFormat('en', {currencyDispaly: \"code\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {currencyDispaly: "code"})
+    |                              ^^^^^^^^^^^^^^^ \`currencyDispaly\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`currencyDispaly\` to \`currencyDisplay\`.:
+  1 | new Intl.NumberFormat('en', {currencyDisplay: "code"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(23): new Intl.DurationFormat('en', {hours: \"2-digit\", minutes: \"short\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {hours: "2-digit", minutes: "short"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(23): new Intl.DurationFormat('en', {hours: \"2-digit\", minutes: \"short\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {hours: "2-digit", minutes: "short"})
+    |                                                  ^^^^^^^ \`minutes\` must continue the preceding numeric or fractional unit style.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(23): new Intl.NumberFormat('en', {style: \"curreny\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {style: "curreny"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(23): new Intl.NumberFormat('en', {style: \"curreny\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {style: "curreny"})
+    |                              ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(24): new Intl.DurationFormat('en', {style: \"digital\", microsecondsDisplay: \"always\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {style: "digital", microsecondsDisplay: "always"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(24): new Intl.DurationFormat('en', {style: \"digital\", microsecondsDisplay: \"always\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {style: "digital", microsecondsDisplay: "always"})
+    |                                                  ^^^^^^^^^^^^^^^^^^^ \`microsecondsDisplay\` cannot be "always" for a fractional unit.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(24): new Intl.NumberFormat('en', {style: \"currency\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {style: "currency"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(24): new Intl.NumberFormat('en', {style: \"currency\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {style: "currency"})
+    |                              ^^^^^ The \`currency\` option is required when \`style\` is "currency".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(25): new Intl.DurationFormat('en', {seconds: \"numeric\", nanoseconds: \"long\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {seconds: "numeric", nanoseconds: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(25): new Intl.DurationFormat('en', {seconds: \"numeric\", nanoseconds: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {seconds: "numeric", nanoseconds: "long"})
+    |                                                    ^^^^^^^^^^^ \`nanoseconds\` must continue the preceding numeric or fractional unit style.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(25): new Intl.NumberFormat('en', {style: \"currency\", currency: undefined}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {style: "currency", currency: undefined})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(25): new Intl.NumberFormat('en', {style: \"currency\", currency: undefined}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {style: "currency", currency: undefined})
+    |                              ^^^^^ The \`currency\` option is required when \`style\` is "currency".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(26): new Intl.DurationFormat('en', {microseconds: \"numeric\", nanoseconds: \"short\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {microseconds: "numeric", nanoseconds: "short"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(26): new Intl.DurationFormat('en', {microseconds: \"numeric\", nanoseconds: \"short\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {microseconds: "numeric", nanoseconds: "short"})
+    |                                                         ^^^^^^^^^^^ \`nanoseconds\` must continue the preceding numeric or fractional unit style.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(26): new Intl.NumberFormat('en', {style: \"unit\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {style: "unit"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(26): new Intl.NumberFormat('en', {style: \"unit\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {style: "unit"})
+    |                              ^^^^^ The \`unit\` option is required when \`style\` is "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(27): new Intl.NumberFormat('en', {currency: \"US\", unitDisplay: \"wide\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {currency: "US", unitDisplay: "wide"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(27): new Intl.NumberFormat('en', {currency: \"US\", unitDisplay: \"wide\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {currency: "US", unitDisplay: "wide"})
+    |                              ^^^^^^^^ \`currency\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(27): new Intl.NumberFormat('en', {currency: \"US\", unitDisplay: \"wide\"}) 3`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {currency: "US", unitDisplay: "wide"})
+    |                                              ^^^^^^^^^^^ \`unitDisplay\` must be one of "short", "narrow", "long".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(27): new Intl.NumberFormat('en', {style: \"unit\", unit: \"MILE\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {style: "unit", unit: "MILE"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(27): new Intl.NumberFormat('en', {style: \"unit\", unit: \"MILE\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {style: "unit", unit: "MILE"})
+    |                                             ^^^^ \`unit\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(28): new Intl.DisplayNames('en', {type: \"region\", languageDisplay: \"wrong\"}) 1`] = `
+
+  1 | new Intl.DisplayNames('en', {type: "region", languageDisplay: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(28): new Intl.DisplayNames('en', {type: \"region\", languageDisplay: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DisplayNames('en', {type: "region", languageDisplay: "wrong"})
+    |                                              ^^^^^^^^^^^^^^^ \`languageDisplay\` must be one of "dialect", "standard".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(28): new Intl.NumberFormat('en', {style: \"unit\", unit: \"meter-per-second-per-hour\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {style: "unit", unit: "meter-per-second-per-hour"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(28): new Intl.NumberFormat('en', {style: \"unit\", unit: \"meter-per-second-per-hour\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {style: "unit", unit: "meter-per-second-per-hour"})
+    |                                             ^^^^ \`unit\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(29): new Intl.DateTimeFormat('en', {hour12: true, hourCycle: \"wrong\"}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {hour12: true, hourCycle: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(29): new Intl.DateTimeFormat('en', {hour12: true, hourCycle: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {hour12: true, hourCycle: "wrong"})
+    |                                              ^^^^^^^^^ \`hourCycle\` must be one of "h11", "h12", "h23", "h24".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(29): new Intl.NumberFormat('en', {style: \"currency\", currency: \"US\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {style: "currency", currency: "US"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(29): new Intl.NumberFormat('en', {style: \"currency\", currency: \"US\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {style: "currency", currency: "US"})
+    |                                                 ^^^^^^^^ \`currency\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(3): new (Intl.NumberFormat satisfies typeof Intl.NumberFormat)('en', {style: 'wrong'}) 1`] = `
+
+  1 | new (Intl.NumberFormat satisfies typeof Intl.NumberFormat)('en', {style: 'wrong'})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(3): new (Intl.NumberFormat satisfies typeof Intl.NumberFormat)('en', {style: 'wrong'}) 2`] = `
+
+Message:
+> 1 | new (Intl.NumberFormat satisfies typeof Intl.NumberFormat)('en', {style: 'wrong'})
+    |                                                                   ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(3): new Intl.DisplayNames('en', {typo: true}) 1`] = `
+
+  1 | new Intl.DisplayNames('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(3): new Intl.DisplayNames('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.DisplayNames('en', {typo: true})
+    |                             ^^^^^^^^^^^^ The \`type\` option is required for Intl.DisplayNames.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(3): new Intl.DisplayNames('en', {typo: true}) 3`] = `
+
+Message:
+> 1 | new Intl.DisplayNames('en', {typo: true})
+    |                              ^^^^ \`typo\` is not a recognized Intl.DisplayNames option.
+
+Suggestion 1/1: Rename \`typo\` to \`type\`.:
+  1 | new Intl.DisplayNames('en', {type: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(3): new Intl.NumberFormat('en', {maximumSignificantDigits: 21.1}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumSignificantDigits: 21.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(3): new Intl.NumberFormat('en', {maximumSignificantDigits: 21.1}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumSignificantDigits: 21.1})
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^ \`maximumSignificantDigits\` must be a number between 1 and 21.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(3): new Intl.NumberFormat('en', {useGrouping: Symbol.iterator}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {useGrouping: Symbol.iterator})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(3): new Intl.NumberFormat('en', {useGrouping: Symbol.iterator}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {useGrouping: Symbol.iterator})
+    |                              ^^^^^^^^^^^ \`useGrouping\` must be convertible to a string.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(30): new Intl.Locale('en', {variants: \"\", calendar: \"too-long-identifier\"}) 1`] = `
+
+  1 | new Intl.Locale('en', {variants: "", calendar: "too-long-identifier"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(30): new Intl.Locale('en', {variants: \"\", calendar: \"too-long-identifier\"}) 2`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {variants: "", calendar: "too-long-identifier"})
+    |                        ^^^^^^^^ \`variants\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(30): new Intl.Locale('en', {variants: \"\", calendar: \"too-long-identifier\"}) 3`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {variants: "", calendar: "too-long-identifier"})
+    |                                      ^^^^^^^^ \`calendar\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(30): new Intl.NumberFormat('en', {style: \"currency\", currency: 123}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {style: "currency", currency: 123})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(30): new Intl.NumberFormat('en', {style: \"currency\", currency: 123}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {style: "currency", currency: 123})
+    |                                                 ^^^^^^^^ \`currency\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(31): new Intl.NumberFormat('en', {currency: \"USD\", currencyDisplay: \"code\", currencySign: \"accounting\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {currency: "USD", currencyDisplay: "code", currencySign: "accounting"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(31): new Intl.NumberFormat('en', {currency: \"USD\", currencyDisplay: \"code\", currencySign: \"accounting\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {currency: "USD", currencyDisplay: "code", currencySign: "accounting"})
+    |                              ^^^^^^^^ \`currency\` is ignored unless \`style\` is "currency".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(31): new Intl.NumberFormat('en', {currency: \"USD\", currencyDisplay: \"code\", currencySign: \"accounting\"}) 3`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {currency: "USD", currencyDisplay: "code", currencySign: "accounting"})
+    |                                               ^^^^^^^^^^^^^^^ \`currencyDisplay\` is ignored unless \`style\` is "currency".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(31): new Intl.NumberFormat('en', {currency: \"USD\", currencyDisplay: \"code\", currencySign: \"accounting\"}) 4`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {currency: "USD", currencyDisplay: "code", currencySign: "accounting"})
+    |                                                                        ^^^^^^^^^^^^ \`currencySign\` is ignored unless \`style\` is "currency".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(31): new Intl.NumberFormat('en', {notation: \"compact\", roundingIncrement: 2}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {notation: "compact", roundingIncrement: 2})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(31): new Intl.NumberFormat('en', {notation: \"compact\", roundingIncrement: 2}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {notation: "compact", roundingIncrement: 2})
+    |                                                   ^^^^^^^^^^^^^^^^^ \`roundingIncrement\` requires fraction-digit rounding instead of the default compact rounding.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(32): new Intl.NumberFormat('en', {unit: \"meter\", unitDisplay: \"long\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {unit: "meter", unitDisplay: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(32): new Intl.NumberFormat('en', {unit: \"meter\", unitDisplay: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {unit: "meter", unitDisplay: "long"})
+    |                              ^^^^ \`unit\` is ignored unless \`style\` is "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(32): new Intl.NumberFormat('en', {unit: \"meter\", unitDisplay: \"long\"}) 3`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {unit: "meter", unitDisplay: "long"})
+    |                                             ^^^^^^^^^^^ \`unitDisplay\` is ignored unless \`style\` is "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(32): new Intl.PluralRules('en', {notation: \"compact\", roundingIncrement: 2}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {notation: "compact", roundingIncrement: 2})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(32): new Intl.PluralRules('en', {notation: \"compact\", roundingIncrement: 2}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {notation: "compact", roundingIncrement: 2})
+    |                                                  ^^^^^^^^^^^^^^^^^ \`roundingIncrement\` requires fraction-digit rounding instead of the default compact rounding.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(33): new Intl.Locale('en', {variants: \"fonipK\"}) 1`] = `
+
+  1 | new Intl.Locale('en', {variants: "fonipK"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(33): new Intl.Locale('en', {variants: \"fonipK\"}) 2`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {variants: "fonipK"})
+    |                        ^^^^^^^^ \`variants\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(33): new Intl.NumberFormat('en', {compactDisplay: \"long\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {compactDisplay: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(33): new Intl.NumberFormat('en', {compactDisplay: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {compactDisplay: "long"})
+    |                              ^^^^^^^^^^^^^^ \`compactDisplay\` is ignored unless \`notation\` is "compact".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(34): const key = \"style\"; new Intl.NumberFormat(\"en\", {[key]: \"wrong\"}) 1`] = `
+
+  1 | const key = "style"; new Intl.NumberFormat("en", {[key]: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(34): const key = \"style\"; new Intl.NumberFormat(\"en\", {[key]: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | const key = "style"; new Intl.NumberFormat("en", {[key]: "wrong"})
+    |                                                    ^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(34): new Intl.NumberFormat('en', {currencyDisplay: \"wrong\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {currencyDisplay: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(34): new Intl.NumberFormat('en', {currencyDisplay: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {currencyDisplay: "wrong"})
+    |                              ^^^^^^^^^^^^^^^ \`currencyDisplay\` must be one of "code", "symbol", "narrowSymbol", "name".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(35): const key = \"maximumFractionDigit\"; new Intl.NumberFormat(\"en\", {[key]: 2}) 1`] = `
+
+  1 | const key = "maximumFractionDigit"; new Intl.NumberFormat("en", {[key]: 2})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(35): const key = \"maximumFractionDigit\"; new Intl.NumberFormat(\"en\", {[key]: 2}) 2`] = `
+
+Message:
+> 1 | const key = "maximumFractionDigit"; new Intl.NumberFormat("en", {[key]: 2})
+    |                                                                   ^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | const key = "maximumFractionDigit"; new Intl.NumberFormat("en", {['maximumFractionDigits']: 2})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(35): new Intl.NumberFormat('en', {useGrouping: 1}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {useGrouping: 1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(35): new Intl.NumberFormat('en', {useGrouping: 1}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {useGrouping: 1})
+    |                              ^^^^^^^^^^^ \`useGrouping\` must be one of "min2", "auto", "always", "true", "false".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(36): const method = \"toLocaleString\"; (1)[method](\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | const method = "toLocaleString"; (1)[method]("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(36): const method = \"toLocaleString\"; (1)[method](\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | const method = "toLocaleString"; (1)[method]("en", {style: "wrong"})
+    |                                                     ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(36): new Intl.NumberFormat('en', {useGrouping: \"sometimes\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {useGrouping: "sometimes"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(36): new Intl.NumberFormat('en', {useGrouping: \"sometimes\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {useGrouping: "sometimes"})
+    |                              ^^^^^^^^^^^ \`useGrouping\` must be one of "min2", "auto", "always", "true", "false".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(37): new Intl.NumberFormat('en', {minimumIntegerDigits: 0}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {minimumIntegerDigits: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(37): new Intl.NumberFormat('en', {minimumIntegerDigits: 0}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {minimumIntegerDigits: 0})
+    |                              ^^^^^^^^^^^^^^^^^^^^ \`minimumIntegerDigits\` must be a number between 1 and 21.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(37): new String(\"a\").localeCompare(\"b\", \"en\", {sensitivity: \"wrong\"}) 1`] = `
+
+  1 | new String("a").localeCompare("b", "en", {sensitivity: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(37): new String(\"a\").localeCompare(\"b\", \"en\", {sensitivity: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | new String("a").localeCompare("b", "en", {sensitivity: "wrong"})
+    |                                           ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(38): function run(value: String) { value.localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}); } 1`] = `
+
+  1 | function run(value: String) { value.localeCompare("other", "en", {sensitivity: "wrong"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(38): function run(value: String) { value.localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: String) { value.localeCompare("other", "en", {sensitivity: "wrong"}); }
+    |                                                                   ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(38): new Intl.NumberFormat('en', {maximumFractionDigits: 100.1}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumFractionDigits: 100.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(38): new Intl.NumberFormat('en', {maximumFractionDigits: 100.1}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumFractionDigits: 100.1})
+    |                              ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` must be a number between 0 and 100.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(39): const {supportedLocalesOf: supported} = Intl.Collator; supported(\"en\", {localeMathcer: \"lookup\"}) 1`] = `
+
+  1 | const {supportedLocalesOf: supported} = Intl.Collator; supported("en", {localeMathcer: "lookup"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(39): const {supportedLocalesOf: supported} = Intl.Collator; supported(\"en\", {localeMathcer: \"lookup\"}) 2`] = `
+
+Message:
+> 1 | const {supportedLocalesOf: supported} = Intl.Collator; supported("en", {localeMathcer: "lookup"})
+    |                                                                         ^^^^^^^^^^^^^ \`localeMathcer\` is not a recognized Intl.Collator.supportedLocalesOf option.
+
+Suggestion 1/1: Rename \`localeMathcer\` to \`localeMatcher\`.:
+  1 | const {supportedLocalesOf: supported} = Intl.Collator; supported("en", {localeMatcher: "lookup"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(39): new Intl.NumberFormat('en', {maximumFractionDigits: NaN}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumFractionDigits: NaN})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(39): new Intl.NumberFormat('en', {maximumFractionDigits: NaN}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumFractionDigits: NaN})
+    |                              ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` must be a number between 0 and 100.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(4): const Formatter = Intl.NumberFormat as typeof Intl.NumberFormat; new Formatter(\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | const Formatter = Intl.NumberFormat as typeof Intl.NumberFormat; new Formatter("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(4): const Formatter = Intl.NumberFormat as typeof Intl.NumberFormat; new Formatter(\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | const Formatter = Intl.NumberFormat as typeof Intl.NumberFormat; new Formatter("en", {style: "wrong"})
+    |                                                                                       ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(4): new Intl.DateTimeFormat('en', {timeZone: Symbol.iterator}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {timeZone: Symbol.iterator})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(4): new Intl.DateTimeFormat('en', {timeZone: Symbol.iterator}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {timeZone: Symbol.iterator})
+    |                                ^^^^^^^^ \`timeZone\` must be convertible to a string.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(4): new Intl.DurationFormat('en', {typo: true}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(4): new Intl.DurationFormat('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {typo: true})
+    |                                ^^^^ \`typo\` is not a recognized Intl.DurationFormat option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(4): new Intl.NumberFormat('en', {minimumSignificantDigits: 0.9}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {minimumSignificantDigits: 0.9})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(4): new Intl.NumberFormat('en', {minimumSignificantDigits: 0.9}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {minimumSignificantDigits: 0.9})
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^ \`minimumSignificantDigits\` must be a number between 1 and 21.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(40): new Intl.NumberFormat('en', {maximumFractionDigits: Infinity}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumFractionDigits: Infinity})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(40): new Intl.NumberFormat('en', {maximumFractionDigits: Infinity}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumFractionDigits: Infinity})
+    |                              ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` must be a number between 0 and 100.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(40): new Intl.NumberFormat(\"en\", {stylee: \"decimal\", styl: \"decimal\", stxle: \"decimal\"}) 1`] = `
+
+  1 | new Intl.NumberFormat("en", {stylee: "decimal", styl: "decimal", stxle: "decimal"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(40): new Intl.NumberFormat(\"en\", {stylee: \"decimal\", styl: \"decimal\", stxle: \"decimal\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {stylee: "decimal", styl: "decimal", stxle: "decimal"})
+    |                              ^^^^^^ \`stylee\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`stylee\` to \`style\`.:
+  1 | new Intl.NumberFormat("en", {style: "decimal", styl: "decimal", stxle: "decimal"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(40): new Intl.NumberFormat(\"en\", {stylee: \"decimal\", styl: \"decimal\", stxle: \"decimal\"}) 3`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {stylee: "decimal", styl: "decimal", stxle: "decimal"})
+    |                                                 ^^^^ \`styl\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`styl\` to \`style\`.:
+  1 | new Intl.NumberFormat("en", {stylee: "decimal", style: "decimal", stxle: "decimal"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(40): new Intl.NumberFormat(\"en\", {stylee: \"decimal\", styl: \"decimal\", stxle: \"decimal\"}) 4`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {stylee: "decimal", styl: "decimal", stxle: "decimal"})
+    |                                                                  ^^^^^ \`stxle\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`stxle\` to \`style\`.:
+  1 | new Intl.NumberFormat("en", {stylee: "decimal", styl: "decimal", style: "decimal"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(41): new Intl.NumberFormat('en', {maximumFractionDigits: 1n}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumFractionDigits: 1n})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(41): new Intl.NumberFormat('en', {maximumFractionDigits: 1n}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumFractionDigits: 1n})
+    |                              ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` must be a number between 0 and 100.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(41): new Intl.NumberFormat(\"en\", {[\"maximum\" + /* keep */ \"FractionDigit\"]: 0}) 1`] = `
+
+  1 | new Intl.NumberFormat("en", {["maximum" + /* keep */ "FractionDigit"]: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(41): new Intl.NumberFormat(\"en\", {[\"maximum\" + /* keep */ \"FractionDigit\"]: 0}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {["maximum" + /* keep */ "FractionDigit"]: 0})
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(42): new Intl.NumberFormat('en', {minimumFractionDigits: 3, maximumFractionDigits: 2}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {minimumFractionDigits: 3, maximumFractionDigits: 2})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(42): new Intl.NumberFormat('en', {minimumFractionDigits: 3, maximumFractionDigits: 2}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {minimumFractionDigits: 3, maximumFractionDigits: 2})
+    |                                                        ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` must be greater than or equal to \`minimumFractionDigits\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(42): new Intl.NumberFormat(\"en\", (<Intl.NumberFormatOptions>{maximumFractionDigit: 0})) 1`] = `
+
+  1 | new Intl.NumberFormat("en", (<Intl.NumberFormatOptions>{maximumFractionDigit: 0}))
+
+`;
+
+exports[`no-invalid-intl-options > invalid(42): new Intl.NumberFormat(\"en\", (<Intl.NumberFormatOptions>{maximumFractionDigit: 0})) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", (<Intl.NumberFormatOptions>{maximumFractionDigit: 0}))
+    |                                                         ^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | new Intl.NumberFormat("en", (<Intl.NumberFormatOptions>{maximumFractionDigits: 0}))
+
+`;
+
+exports[`no-invalid-intl-options > invalid(43): function run(value: string) { value.localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}); } 1`] = `
+
+  1 | function run(value: string) { value.localeCompare("other", "en", {sensitivity: "wrong"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(43): function run(value: string) { value.localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: string) { value.localeCompare("other", "en", {sensitivity: "wrong"}); }
+    |                                                                   ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(43): new Intl.NumberFormat('en', {minimumSignificantDigits: 3, maximumSignificantDigits: 2}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {minimumSignificantDigits: 3, maximumSignificantDigits: 2})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(43): new Intl.NumberFormat('en', {minimumSignificantDigits: 3, maximumSignificantDigits: 2}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {minimumSignificantDigits: 3, maximumSignificantDigits: 2})
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^^^^ \`maximumSignificantDigits\` must be greater than or equal to \`minimumSignificantDigits\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(44): function run(value: 1) { value.toLocaleString('en', {style: 'wrong'}); } 1`] = `
+
+  1 | function run(value: 1) { value.toLocaleString('en', {style: 'wrong'}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(44): function run(value: 1) { value.toLocaleString('en', {style: 'wrong'}); } 2`] = `
+
+Message:
+> 1 | function run(value: 1) { value.toLocaleString('en', {style: 'wrong'}); }
+    |                                                      ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(44): new Intl.NumberFormat('en', {maximumSignificantDigits: 3, maximumFractionDigits: -1}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumSignificantDigits: 3, maximumFractionDigits: -1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(44): new Intl.NumberFormat('en', {maximumSignificantDigits: 3, maximumFractionDigits: -1}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumSignificantDigits: 3, maximumFractionDigits: -1})
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` is ignored when significant-digit rounding takes precedence.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(45): function run(value: 1n) { value.toLocaleString('en', {style: 'wrong'}); } 1`] = `
+
+  1 | function run(value: 1n) { value.toLocaleString('en', {style: 'wrong'}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(45): function run(value: 1n) { value.toLocaleString('en', {style: 'wrong'}); } 2`] = `
+
+Message:
+> 1 | function run(value: 1n) { value.toLocaleString('en', {style: 'wrong'}); }
+    |                                                       ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(45): new Intl.NumberFormat('en', {maximumSignificantDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 1}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumSignificantDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(45): new Intl.NumberFormat('en', {maximumSignificantDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 1}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumSignificantDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 1})
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^ \`minimumFractionDigits\` is ignored when significant-digit rounding takes precedence.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(45): new Intl.NumberFormat('en', {maximumSignificantDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 1}) 3`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumSignificantDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 1})
+    |                                                                                     ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` is ignored when significant-digit rounding takes precedence.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(46): function run(value: -1) { value.toLocaleString('en', {style: 'wrong'}); } 1`] = `
+
+  1 | function run(value: -1) { value.toLocaleString('en', {style: 'wrong'}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(46): function run(value: -1) { value.toLocaleString('en', {style: 'wrong'}); } 2`] = `
+
+Message:
+> 1 | function run(value: -1) { value.toLocaleString('en', {style: 'wrong'}); }
+    |                                                       ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(46): new Intl.NumberFormat('en', {roundingIncrement: 3}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {roundingIncrement: 3})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(46): new Intl.NumberFormat('en', {roundingIncrement: 3}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {roundingIncrement: 3})
+    |                              ^^^^^^^^^^^^^^^^^ \`roundingIncrement\` must be one of 1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(47): function run(value: -1n) { value.toLocaleString('en', {style: 'wrong'}); } 1`] = `
+
+  1 | function run(value: -1n) { value.toLocaleString('en', {style: 'wrong'}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(47): function run(value: -1n) { value.toLocaleString('en', {style: 'wrong'}); } 2`] = `
+
+Message:
+> 1 | function run(value: -1n) { value.toLocaleString('en', {style: 'wrong'}); }
+    |                                                        ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(47): new Intl.NumberFormat('en', {roundingIncrement: 2, roundingPriority: \"morePrecision\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {roundingIncrement: 2, roundingPriority: "morePrecision"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(47): new Intl.NumberFormat('en', {roundingIncrement: 2, roundingPriority: \"morePrecision\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {roundingIncrement: 2, roundingPriority: "morePrecision"})
+    |                              ^^^^^^^^^^^^^^^^^ \`roundingIncrement\` requires \`roundingPriority\` to be "auto".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(48): function run(value: number) { (value as 1).toLocaleString(\"en\", {style: \"wrong\"}); } 1`] = `
+
+  1 | function run(value: number) { (value as 1).toLocaleString("en", {style: "wrong"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(48): function run(value: number) { (value as 1).toLocaleString(\"en\", {style: \"wrong\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: number) { (value as 1).toLocaleString("en", {style: "wrong"}); }
+    |                                                                  ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(48): new Intl.NumberFormat('en', {roundingIncrement: 2, maximumSignificantDigits: 3}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {roundingIncrement: 2, maximumSignificantDigits: 3})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(48): new Intl.NumberFormat('en', {roundingIncrement: 2, maximumSignificantDigits: 3}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {roundingIncrement: 2, maximumSignificantDigits: 3})
+    |                              ^^^^^^^^^^^^^^^^^ \`roundingIncrement\` cannot be combined with significant-digit rounding.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(49): const value = \"a\".slice(0); value.localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}); 1`] = `
+
+Filename: file.ts
+
+  1 | const value = "a".slice(0); value.localeCompare("other", "en", {sensitivity: "wrong"});
+
+`;
+
+exports[`no-invalid-intl-options > invalid(49): const value = \"a\".slice(0); value.localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}); 2`] = `
+
+Message:
+> 1 | const value = "a".slice(0); value.localeCompare("other", "en", {sensitivity: "wrong"});
+    |                                                                 ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(49): new Intl.NumberFormat('en', {roundingIncrement: 2, minimumFractionDigits: 1, maximumFractionDigits: 2}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {roundingIncrement: 2, minimumFractionDigits: 1, maximumFractionDigits: 2})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(49): new Intl.NumberFormat('en', {roundingIncrement: 2, minimumFractionDigits: 1, maximumFractionDigits: 2}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {roundingIncrement: 2, minimumFractionDigits: 1, maximumFractionDigits: 2})
+    |                              ^^^^^^^^^^^^^^^^^ \`roundingIncrement\` requires equal \`minimumFractionDigits\` and \`maximumFractionDigits\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(5): const maximumFractionDigit = 2; new Intl.NumberFormat(\"en\", {maximumFractionDigit /* keep */}) 1`] = `
+
+  1 | const maximumFractionDigit = 2; new Intl.NumberFormat("en", {maximumFractionDigit /* keep */})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(5): const maximumFractionDigit = 2; new Intl.NumberFormat(\"en\", {maximumFractionDigit /* keep */}) 2`] = `
+
+Message:
+> 1 | const maximumFractionDigit = 2; new Intl.NumberFormat("en", {maximumFractionDigit /* keep */})
+    |                                                              ^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | const maximumFractionDigit = 2; new Intl.NumberFormat("en", {maximumFractionDigits: maximumFractionDigit /* keep */})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(5): new Intl.DurationFormat('en', {style: dynamicStyle, hours: \"numeric\", seconds: \"long\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {style: dynamicStyle, hours: "numeric", seconds: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(5): new Intl.DurationFormat('en', {style: dynamicStyle, hours: \"numeric\", seconds: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {style: dynamicStyle, hours: "numeric", seconds: "long"})
+    |                                                                       ^^^^^^^ \`seconds\` must continue the preceding numeric or fractional unit style.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(5): new Intl.ListFormat('en', {typo: true}) 1`] = `
+
+  1 | new Intl.ListFormat('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(5): new Intl.ListFormat('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.ListFormat('en', {typo: true})
+    |                            ^^^^ \`typo\` is not a recognized Intl.ListFormat option.
+
+Suggestion 1/1: Rename \`typo\` to \`type\`.:
+  1 | new Intl.ListFormat('en', {type: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(5): new Intl.NumberFormat('en', {roundingIncrement: 5000.1}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {roundingIncrement: 5000.1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(5): new Intl.NumberFormat('en', {roundingIncrement: 5000.1}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {roundingIncrement: 5000.1})
+    |                              ^^^^^^^^^^^^^^^^^ \`roundingIncrement\` must be a number between 1 and 5000.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(50): const value = new Uint8Array(2).slice(0); value.toLocaleString(\"en\", {style: \"wrong\"}); 1`] = `
+
+Filename: file.ts
+
+  1 | const value = new Uint8Array(2).slice(0); value.toLocaleString("en", {style: "wrong"});
+
+`;
+
+exports[`no-invalid-intl-options > invalid(50): const value = new Uint8Array(2).slice(0); value.toLocaleString(\"en\", {style: \"wrong\"}); 2`] = `
+
+Message:
+> 1 | const value = new Uint8Array(2).slice(0); value.toLocaleString("en", {style: "wrong"});
+    |                                                                       ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(50): new Intl.PluralRules('en', {minimumIntegerDigits: 22}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {minimumIntegerDigits: 22})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(50): new Intl.PluralRules('en', {minimumIntegerDigits: 22}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {minimumIntegerDigits: 22})
+    |                             ^^^^^^^^^^^^^^^^^^^^ \`minimumIntegerDigits\` must be a number between 1 and 21.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(51): new Intl.PluralRules('en', {type: \"plural\"}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {type: "plural"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(51): new Intl.PluralRules('en', {type: \"plural\"}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {type: "plural"})
+    |                             ^^^^ \`type\` must be one of "cardinal", "ordinal".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(52): new Intl.PluralRules('en', {compactDisplay: \"long\"}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {compactDisplay: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(52): new Intl.PluralRules('en', {compactDisplay: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {compactDisplay: "long"})
+    |                             ^^^^^^^^^^^^^^ \`compactDisplay\` is ignored unless \`notation\` is "compact".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(53): new Intl.DateTimeFormat('en', {dateStyle: \"short\", year: \"numeric\"}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {dateStyle: "short", year: "numeric"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(53): new Intl.DateTimeFormat('en', {dateStyle: \"short\", year: \"numeric\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {dateStyle: "short", year: "numeric"})
+    |                                                    ^^^^ \`year\` cannot be combined with \`dateStyle\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(54): new Intl.DateTimeFormat('en', {timeStyle: \"short\", fractionalSecondDigits: 3}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {timeStyle: "short", fractionalSecondDigits: 3})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(54): new Intl.DateTimeFormat('en', {timeStyle: \"short\", fractionalSecondDigits: 3}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {timeStyle: "short", fractionalSecondDigits: 3})
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^ \`fractionalSecondDigits\` cannot be combined with \`timeStyle\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(55): new Intl.DateTimeFormat('en', {dateStyle: \"short\", timeZoneName: \"long\"}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {dateStyle: "short", timeZoneName: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(55): new Intl.DateTimeFormat('en', {dateStyle: \"short\", timeZoneName: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {dateStyle: "short", timeZoneName: "long"})
+    |                                                    ^^^^^^^^^^^^ \`timeZoneName\` cannot be combined with \`dateStyle\`.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(56): new Intl.DateTimeFormat('en', {dateStyle: \"short\", formatMatcher: \"basic\"}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {dateStyle: "short", formatMatcher: "basic"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(56): new Intl.DateTimeFormat('en', {dateStyle: \"short\", formatMatcher: \"basic\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {dateStyle: "short", formatMatcher: "basic"})
+    |                                                    ^^^^^^^^^^^^^ \`formatMatcher\` is ignored when \`dateStyle\` or \`timeStyle\` is used.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(57): new Intl.DateTimeFormat('en', {hour: \"numeric\", hour12: false, hourCycle: \"h23\"}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {hour: "numeric", hour12: false, hourCycle: "h23"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(57): new Intl.DateTimeFormat('en', {hour: \"numeric\", hour12: false, hourCycle: \"h23\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {hour: "numeric", hour12: false, hourCycle: "h23"})
+    |                                                                ^^^^^^^^^ \`hourCycle\` is ignored when \`hour12\` is provided.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(58): new Intl.DateTimeFormat('en', {year: \"long\"}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {year: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(58): new Intl.DateTimeFormat('en', {year: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {year: "long"})
+    |                                ^^^^ \`year\` must be one of "numeric", "2-digit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(59): new Intl.DateTimeFormat('en', {fractionalSecondDigits: 0}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {fractionalSecondDigits: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(59): new Intl.DateTimeFormat('en', {fractionalSecondDigits: 0}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {fractionalSecondDigits: 0})
+    |                                ^^^^^^^^^^^^^^^^^^^^^^ \`fractionalSecondDigits\` must be a number between 1 and 3.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(6): function run(value: number | bigint | Uint8Array | undefined) { value?.toLocaleString(\"en\", {style: \"wrong\"}); } 1`] = `
+
+  1 | function run(value: number | bigint | Uint8Array | undefined) { value?.toLocaleString("en", {style: "wrong"}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(6): function run(value: number | bigint | Uint8Array | undefined) { value?.toLocaleString(\"en\", {style: \"wrong\"}); } 2`] = `
+
+Message:
+> 1 | function run(value: number | bigint | Uint8Array | undefined) { value?.toLocaleString("en", {style: "wrong"}); }
+    |                                                                                              ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(6): new Intl.DurationFormat('en', {style: dynamicStyle, seconds: \"numeric\", millisecondsDisplay: \"always\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {style: dynamicStyle, seconds: "numeric", millisecondsDisplay: "always"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(6): new Intl.DurationFormat('en', {style: dynamicStyle, seconds: \"numeric\", millisecondsDisplay: \"always\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {style: dynamicStyle, seconds: "numeric", millisecondsDisplay: "always"})
+    |                                                                         ^^^^^^^^^^^^^^^^^^^ \`millisecondsDisplay\` cannot be "always" for a fractional unit.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(6): new Intl.Locale('en', {typo: true}) 1`] = `
+
+  1 | new Intl.Locale('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(6): new Intl.Locale('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {typo: true})
+    |                        ^^^^ \`typo\` is not a recognized Intl.Locale option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(6): new Intl.NumberFormat('en', {roundingMode: \"up\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {roundingMode: "up"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(6): new Intl.NumberFormat('en', {roundingMode: \"up\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {roundingMode: "up"})
+    |                              ^^^^^^^^^^^^ \`roundingMode\` must be one of "ceil", "floor", "expand", "trunc", "halfCeil", "halfFloor", "halfExpand", "halfTrunc", "halfEven".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(60): new Intl.DateTimeFormat('en', {calendar: \"ab\"}) 1`] = `
+
+  1 | new Intl.DateTimeFormat('en', {calendar: "ab"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(60): new Intl.DateTimeFormat('en', {calendar: \"ab\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat('en', {calendar: "ab"})
+    |                                ^^^^^^^^ \`calendar\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(61): new Intl.Collator('en', {sensitivity: \"wrong\"}) 1`] = `
+
+  1 | new Intl.Collator('en', {sensitivity: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(61): new Intl.Collator('en', {sensitivity: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | new Intl.Collator('en', {sensitivity: "wrong"})
+    |                          ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(62): new Intl.Collator('en', {collation: \"ab\"}) 1`] = `
+
+  1 | new Intl.Collator('en', {collation: "ab"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(62): new Intl.Collator('en', {collation: \"ab\"}) 2`] = `
+
+Message:
+> 1 | new Intl.Collator('en', {collation: "ab"})
+    |                          ^^^^^^^^^ \`collation\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(63): new Intl.Locale('en', {language: \"abcd\", script: \"Latin\", region: \"USA\", variants: \"fonipa-FONIPA\"}) 1`] = `
+
+  1 | new Intl.Locale('en', {language: "abcd", script: "Latin", region: "USA", variants: "fonipa-FONIPA"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(63): new Intl.Locale('en', {language: \"abcd\", script: \"Latin\", region: \"USA\", variants: \"fonipa-FONIPA\"}) 2`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {language: "abcd", script: "Latin", region: "USA", variants: "fonipa-FONIPA"})
+    |                        ^^^^^^^^ \`language\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(63): new Intl.Locale('en', {language: \"abcd\", script: \"Latin\", region: \"USA\", variants: \"fonipa-FONIPA\"}) 3`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {language: "abcd", script: "Latin", region: "USA", variants: "fonipa-FONIPA"})
+    |                                          ^^^^^^ \`script\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(63): new Intl.Locale('en', {language: \"abcd\", script: \"Latin\", region: \"USA\", variants: \"fonipa-FONIPA\"}) 4`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {language: "abcd", script: "Latin", region: "USA", variants: "fonipa-FONIPA"})
+    |                                                           ^^^^^^ \`region\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(63): new Intl.Locale('en', {language: \"abcd\", script: \"Latin\", region: \"USA\", variants: \"fonipa-FONIPA\"}) 5`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {language: "abcd", script: "Latin", region: "USA", variants: "fonipa-FONIPA"})
+    |                                                                          ^^^^^^^^ \`variants\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(64): new Intl.Locale('en', {firstDayOfWeek: \"8\"}) 1`] = `
+
+  1 | new Intl.Locale('en', {firstDayOfWeek: "8"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(64): new Intl.Locale('en', {firstDayOfWeek: \"8\"}) 2`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {firstDayOfWeek: "8"})
+    |                        ^^^^^^^^^^^^^^ \`firstDayOfWeek\` must be a well-formed identifier.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(65): new Intl.Locale('en', {localeMatcher: \"lookup\"}) 1`] = `
+
+  1 | new Intl.Locale('en', {localeMatcher: "lookup"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(65): new Intl.Locale('en', {localeMatcher: \"lookup\"}) 2`] = `
+
+Message:
+> 1 | new Intl.Locale('en', {localeMatcher: "lookup"})
+    |                        ^^^^^^^^^^^^^ \`localeMatcher\` is not a recognized Intl.Locale option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(66): new Intl.DisplayNames('en', {}) 1`] = `
+
+  1 | new Intl.DisplayNames('en', {})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(66): new Intl.DisplayNames('en', {}) 2`] = `
+
+Message:
+> 1 | new Intl.DisplayNames('en', {})
+    |                             ^^ The \`type\` option is required for Intl.DisplayNames.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(67): new Intl.DisplayNames('en', {type: undefined}) 1`] = `
+
+  1 | new Intl.DisplayNames('en', {type: undefined})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(67): new Intl.DisplayNames('en', {type: undefined}) 2`] = `
+
+Message:
+> 1 | new Intl.DisplayNames('en', {type: undefined})
+    |                              ^^^^ The \`type\` option is required for Intl.DisplayNames.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(68): new Intl.DisplayNames('en', {type: \"languages\"}) 1`] = `
+
+  1 | new Intl.DisplayNames('en', {type: "languages"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(68): new Intl.DisplayNames('en', {type: \"languages\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DisplayNames('en', {type: "languages"})
+    |                              ^^^^ \`type\` must be one of "language", "region", "script", "currency", "calendar", "dateTimeField".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(69): new Intl.DisplayNames('en', {type: \"region\", languageDisplay: \"standard\"}) 1`] = `
+
+  1 | new Intl.DisplayNames('en', {type: "region", languageDisplay: "standard"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(69): new Intl.DisplayNames('en', {type: \"region\", languageDisplay: \"standard\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DisplayNames('en', {type: "region", languageDisplay: "standard"})
+    |                                              ^^^^^^^^^^^^^^^ \`languageDisplay\` is ignored unless \`type\` is "language".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(7): new Intl.DurationFormat('en', {style: dynamicStyle, milliseconds: \"numeric\", nanoseconds: \"long\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {style: dynamicStyle, milliseconds: "numeric", nanoseconds: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(7): new Intl.DurationFormat('en', {style: dynamicStyle, milliseconds: \"numeric\", nanoseconds: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {style: dynamicStyle, milliseconds: "numeric", nanoseconds: "long"})
+    |                                                                              ^^^^^^^^^^^ \`nanoseconds\` must continue the preceding numeric or fractional unit style.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(7): new Intl.NumberFormat('en', {maximumSignificantDigits: 3, maximumFractionDigits: Symbol.iterator}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {maximumSignificantDigits: 3, maximumFractionDigits: Symbol.iterator})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(7): new Intl.NumberFormat('en', {maximumSignificantDigits: 3, maximumFractionDigits: Symbol.iterator}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {maximumSignificantDigits: 3, maximumFractionDigits: Symbol.iterator})
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` is ignored when significant-digit rounding takes precedence.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(7): new Intl.NumberFormat('en', {roundingPriority: \"both\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {roundingPriority: "both"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(7): new Intl.NumberFormat('en', {roundingPriority: \"both\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {roundingPriority: "both"})
+    |                              ^^^^^^^^^^^^^^^^ \`roundingPriority\` must be one of "auto", "morePrecision", "lessPrecision".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(7): new Intl.NumberFormat('en', {typo: true}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(7): new Intl.NumberFormat('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {typo: true})
+    |                              ^^^^ \`typo\` is not a recognized Intl.NumberFormat option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(70): new Intl.ListFormat('en', {type: \"and\", style: \"full\"}) 1`] = `
+
+  1 | new Intl.ListFormat('en', {type: "and", style: "full"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(70): new Intl.ListFormat('en', {type: \"and\", style: \"full\"}) 2`] = `
+
+Message:
+> 1 | new Intl.ListFormat('en', {type: "and", style: "full"})
+    |                            ^^^^ \`type\` must be one of "conjunction", "disjunction", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(70): new Intl.ListFormat('en', {type: \"and\", style: \"full\"}) 3`] = `
+
+Message:
+> 1 | new Intl.ListFormat('en', {type: "and", style: "full"})
+    |                                         ^^^^^ \`style\` must be one of "long", "short", "narrow".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(71): new Intl.RelativeTimeFormat('en', {numeric: true, style: \"full\"}) 1`] = `
+
+  1 | new Intl.RelativeTimeFormat('en', {numeric: true, style: "full"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(71): new Intl.RelativeTimeFormat('en', {numeric: true, style: \"full\"}) 2`] = `
+
+Message:
+> 1 | new Intl.RelativeTimeFormat('en', {numeric: true, style: "full"})
+    |                                    ^^^^^^^ \`numeric\` must be one of "always", "auto".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(71): new Intl.RelativeTimeFormat('en', {numeric: true, style: \"full\"}) 3`] = `
+
+Message:
+> 1 | new Intl.RelativeTimeFormat('en', {numeric: true, style: "full"})
+    |                                                   ^^^^^ \`style\` must be one of "long", "short", "narrow".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(72): new Intl.Segmenter('en', {granularity: \"character\"}) 1`] = `
+
+  1 | new Intl.Segmenter('en', {granularity: "character"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(72): new Intl.Segmenter('en', {granularity: \"character\"}) 2`] = `
+
+Message:
+> 1 | new Intl.Segmenter('en', {granularity: "character"})
+    |                           ^^^^^^^^^^^ \`granularity\` must be one of "grapheme", "word", "sentence".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(73): new Intl.DurationFormat('en', {style: \"full\", fractionalDigits: 10}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {style: "full", fractionalDigits: 10})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(73): new Intl.DurationFormat('en', {style: \"full\", fractionalDigits: 10}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {style: "full", fractionalDigits: 10})
+    |                                ^^^^^ \`style\` must be one of "long", "short", "narrow", "digital".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(73): new Intl.DurationFormat('en', {style: \"full\", fractionalDigits: 10}) 3`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {style: "full", fractionalDigits: 10})
+    |                                               ^^^^^^^^^^^^^^^^ \`fractionalDigits\` must be a number between 0 and 9.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(74): new Intl.DurationFormat('en', {years: \"numeric\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {years: "numeric"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(74): new Intl.DurationFormat('en', {years: \"numeric\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {years: "numeric"})
+    |                                ^^^^^ \`years\` must be one of "long", "short", "narrow".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(75): new Intl.DurationFormat('en', {hours: \"numeric\", seconds: \"long\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {hours: "numeric", seconds: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(75): new Intl.DurationFormat('en', {hours: \"numeric\", seconds: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {hours: "numeric", seconds: "long"})
+    |                                                  ^^^^^^^ \`seconds\` must continue the preceding numeric or fractional unit style.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(76): new Intl.DurationFormat('en', {style: \"digital\", minutes: \"long\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {style: "digital", minutes: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(76): new Intl.DurationFormat('en', {style: \"digital\", minutes: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {style: "digital", minutes: "long"})
+    |                                                  ^^^^^^^ \`minutes\` must continue the preceding numeric or fractional unit style.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(77): new Intl.DurationFormat('en', {milliseconds: \"numeric\", microseconds: \"long\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {milliseconds: "numeric", microseconds: "long"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(77): new Intl.DurationFormat('en', {milliseconds: \"numeric\", microseconds: \"long\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {milliseconds: "numeric", microseconds: "long"})
+    |                                                         ^^^^^^^^^^^^ \`microseconds\` must continue the preceding numeric or fractional unit style.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(78): new Intl.DurationFormat('en', {milliseconds: \"numeric\", millisecondsDisplay: \"always\"}) 1`] = `
+
+  1 | new Intl.DurationFormat('en', {milliseconds: "numeric", millisecondsDisplay: "always"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(78): new Intl.DurationFormat('en', {milliseconds: \"numeric\", millisecondsDisplay: \"always\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DurationFormat('en', {milliseconds: "numeric", millisecondsDisplay: "always"})
+    |                                                         ^^^^^^^^^^^^^^^^^^^ \`millisecondsDisplay\` cannot be "always" for a fractional unit.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(79): Intl.NumberFormat(\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | Intl.NumberFormat("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(79): Intl.NumberFormat(\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | Intl.NumberFormat("en", {style: "wrong"})
+    |                          ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(8): declare const holder: {value: 1n}; holder.value.toLocaleString(\"en\", {style: \"wrong\"}); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const holder: {value: 1n}; holder.value.toLocaleString("en", {style: "wrong"});
+
+`;
+
+exports[`no-invalid-intl-options > invalid(8): declare const holder: {value: 1n}; holder.value.toLocaleString(\"en\", {style: \"wrong\"}); 2`] = `
+
+Message:
+> 1 | declare const holder: {value: 1n}; holder.value.toLocaleString("en", {style: "wrong"});
+    |                                                                       ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(8): function run(value: string | undefined) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); } 1`] = `
+
+  1 | function run(value: string | undefined) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(8): function run(value: string | undefined) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); } 2`] = `
+
+Message:
+> 1 | function run(value: string | undefined) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); }
+    |                                                                                ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(8): new Intl.NumberFormat('en', {trailingZeroDisplay: \"never\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {trailingZeroDisplay: "never"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(8): new Intl.NumberFormat('en', {trailingZeroDisplay: \"never\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {trailingZeroDisplay: "never"})
+    |                              ^^^^^^^^^^^^^^^^^^^ \`trailingZeroDisplay\` must be one of "auto", "stripIfInteger".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(8): new Intl.PluralRules('en', {typo: true}) 1`] = `
+
+  1 | new Intl.PluralRules('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(8): new Intl.PluralRules('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.PluralRules('en', {typo: true})
+    |                             ^^^^ \`typo\` is not a recognized Intl.PluralRules option.
+
+Suggestion 1/1: Rename \`typo\` to \`type\`.:
+  1 | new Intl.PluralRules('en', {type: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(80): Intl.DateTimeFormat(\"en\", {dateStyle: \"wrong\"}) 1`] = `
+
+  1 | Intl.DateTimeFormat("en", {dateStyle: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(80): Intl.DateTimeFormat(\"en\", {dateStyle: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | Intl.DateTimeFormat("en", {dateStyle: "wrong"})
+    |                            ^^^^^^^^^ \`dateStyle\` must be one of "full", "long", "medium", "short".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(81): Intl.Collator(\"en\", {usage: \"wrong\"}) 1`] = `
+
+  1 | Intl.Collator("en", {usage: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(81): Intl.Collator(\"en\", {usage: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | Intl.Collator("en", {usage: "wrong"})
+    |                      ^^^^^ \`usage\` must be one of "sort", "search".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(82): const {NumberFormat: Formatter} = Intl; new Formatter(\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | const {NumberFormat: Formatter} = Intl; new Formatter("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(82): const {NumberFormat: Formatter} = Intl; new Formatter(\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | const {NumberFormat: Formatter} = Intl; new Formatter("en", {style: "wrong"})
+    |                                                              ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(83): globalThis.Intl.NumberFormat(\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | globalThis.Intl.NumberFormat("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(83): globalThis.Intl.NumberFormat(\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | globalThis.Intl.NumberFormat("en", {style: "wrong"})
+    |                                     ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(84): new Intl[\"NumberFormat\"](\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | new Intl["NumberFormat"]("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(84): new Intl[\"NumberFormat\"](\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | new Intl["NumberFormat"]("en", {style: "wrong"})
+    |                                 ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(85): Intl?.NumberFormat?.(\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | Intl?.NumberFormat?.("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(85): Intl?.NumberFormat?.(\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | Intl?.NumberFormat?.("en", {style: "wrong"})
+    |                             ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(86): new Intl.NumberFormat(\"en\", {[\"maximumFractionDigit\"]: 0}) 1`] = `
+
+  1 | new Intl.NumberFormat("en", {["maximumFractionDigit"]: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(86): new Intl.NumberFormat(\"en\", {[\"maximumFractionDigit\"]: 0}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {["maximumFractionDigit"]: 0})
+    |                               ^^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | new Intl.NumberFormat("en", {['maximumFractionDigits']: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(87): new Intl.NumberFormat(\"en\", {[\`maximumFractionDigit\`]: 0}) 1`] = `
+
+  1 | new Intl.NumberFormat("en", {[\`maximumFractionDigit\`]: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(87): new Intl.NumberFormat(\"en\", {[\`maximumFractionDigit\`]: 0}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {[\`maximumFractionDigit\`]: 0})
+    |                               ^^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | new Intl.NumberFormat("en", {['maximumFractionDigits']: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(88): const maximumFractionDigit = 0; new Intl.NumberFormat(\"en\", {maximumFractionDigit}) 1`] = `
+
+  1 | const maximumFractionDigit = 0; new Intl.NumberFormat("en", {maximumFractionDigit})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(88): const maximumFractionDigit = 0; new Intl.NumberFormat(\"en\", {maximumFractionDigit}) 2`] = `
+
+Message:
+> 1 | const maximumFractionDigit = 0; new Intl.NumberFormat("en", {maximumFractionDigit})
+    |                                                              ^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | const maximumFractionDigit = 0; new Intl.NumberFormat("en", {maximumFractionDigits: maximumFractionDigit})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(89): new Intl.NumberFormat(\"en\", {maximumFractionDigit: 0, maximumFractionDigits: 2}) 1`] = `
+
+  1 | new Intl.NumberFormat("en", {maximumFractionDigit: 0, maximumFractionDigits: 2})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(89): new Intl.NumberFormat(\"en\", {maximumFractionDigit: 0, maximumFractionDigits: 2}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {maximumFractionDigit: 0, maximumFractionDigits: 2})
+    |                              ^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(9): function run(value: \"a\" | null) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); } 1`] = `
+
+  1 | function run(value: "a" | null) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); }
+
+`;
+
+exports[`no-invalid-intl-options > invalid(9): function run(value: \"a\" | null) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); } 2`] = `
+
+Message:
+> 1 | function run(value: "a" | null) { value?.localeCompare('other', 'en', {sensitivity: 'wrong'}); }
+    |                                                                        ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(9): new Intl.NumberFormat('en', {notation: \"decimal\"}) 1`] = `
+
+  1 | new Intl.NumberFormat('en', {notation: "decimal"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(9): new Intl.NumberFormat('en', {notation: \"decimal\"}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat('en', {notation: "decimal"})
+    |                              ^^^^^^^^ \`notation\` must be one of "standard", "scientific", "engineering", "compact".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(9): new Intl.RelativeTimeFormat('en', {typo: true}) 1`] = `
+
+  1 | new Intl.RelativeTimeFormat('en', {typo: true})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(9): new Intl.RelativeTimeFormat('en', {typo: true}) 2`] = `
+
+Message:
+> 1 | new Intl.RelativeTimeFormat('en', {typo: true})
+    |                                    ^^^^ \`typo\` is not a recognized Intl.RelativeTimeFormat option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(90): new Intl.DateTimeFormat(\"en\", {ear: \"numeric\"}) 1`] = `
+
+  1 | new Intl.DateTimeFormat("en", {ear: "numeric"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(90): new Intl.DateTimeFormat(\"en\", {ear: \"numeric\"}) 2`] = `
+
+Message:
+> 1 | new Intl.DateTimeFormat("en", {ear: "numeric"})
+    |                                ^^^ \`ear\` is not a recognized Intl.DateTimeFormat option.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(91): new Intl.NumberFormat(\"en\", {[/* keep */ \"maximumFractionDigit\"]: 0}) 1`] = `
+
+  1 | new Intl.NumberFormat("en", {[/* keep */ "maximumFractionDigit"]: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(91): new Intl.NumberFormat(\"en\", {[/* keep */ \"maximumFractionDigit\"]: 0}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {[/* keep */ "maximumFractionDigit"]: 0})
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | new Intl.NumberFormat("en", {[/* keep */ 'maximumFractionDigits']: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(92): new Intl.NumberFormat(\"en\", {maximumFractionDigit /* keep */: 0}) 1`] = `
+
+  1 | new Intl.NumberFormat("en", {maximumFractionDigit /* keep */: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(92): new Intl.NumberFormat(\"en\", {maximumFractionDigit /* keep */: 0}) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {maximumFractionDigit /* keep */: 0})
+    |                              ^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigit\` is not a recognized Intl.NumberFormat option.
+
+Suggestion 1/1: Rename \`maximumFractionDigit\` to \`maximumFractionDigits\`.:
+  1 | new Intl.NumberFormat("en", {maximumFractionDigits /* keep */: 0})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(93): const style = \"wrong\"; new Intl.NumberFormat(\"en\", {style}) 1`] = `
+
+  1 | const style = "wrong"; new Intl.NumberFormat("en", {style})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(93): const style = \"wrong\"; new Intl.NumberFormat(\"en\", {style}) 2`] = `
+
+Message:
+> 1 | const style = "wrong"; new Intl.NumberFormat("en", {style})
+    |                                                     ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(94): new Intl.NumberFormat(\"en\", {style: \"wrong\"}, ...extra) 1`] = `
+
+  1 | new Intl.NumberFormat("en", {style: "wrong"}, ...extra)
+
+`;
+
+exports[`no-invalid-intl-options > invalid(94): new Intl.NumberFormat(\"en\", {style: \"wrong\"}, ...extra) 2`] = `
+
+Message:
+> 1 | new Intl.NumberFormat("en", {style: "wrong"}, ...extra)
+    |                              ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(95): \"text\".localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}) 1`] = `
+
+  1 | "text".localeCompare("other", "en", {sensitivity: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(95): \"text\".localeCompare(\"other\", \"en\", {sensitivity: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | "text".localeCompare("other", "en", {sensitivity: "wrong"})
+    |                                      ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(96): \"text\"?.localeCompare?.(\"other\", \"en\", {sensitivity: \"wrong\"}) 1`] = `
+
+  1 | "text"?.localeCompare?.("other", "en", {sensitivity: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(96): \"text\"?.localeCompare?.(\"other\", \"en\", {sensitivity: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | "text"?.localeCompare?.("other", "en", {sensitivity: "wrong"})
+    |                                         ^^^^^^^^^^^ \`sensitivity\` must be one of "base", "accent", "case", "variant".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(97): (1).toLocaleString(\"en\", {style: \"currency\"}) 1`] = `
+
+  1 | (1).toLocaleString("en", {style: "currency"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(97): (1).toLocaleString(\"en\", {style: \"currency\"}) 2`] = `
+
+Message:
+> 1 | (1).toLocaleString("en", {style: "currency"})
+    |                           ^^^^^ The \`currency\` option is required when \`style\` is "currency".
+
+`;
+
+exports[`no-invalid-intl-options > invalid(98): 1n.toLocaleString(\"en\", {maximumFractionDigits: -1}) 1`] = `
+
+  1 | 1n.toLocaleString("en", {maximumFractionDigits: -1})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(98): 1n.toLocaleString(\"en\", {maximumFractionDigits: -1}) 2`] = `
+
+Message:
+> 1 | 1n.toLocaleString("en", {maximumFractionDigits: -1})
+    |                          ^^^^^^^^^^^^^^^^^^^^^ \`maximumFractionDigits\` must be a number between 0 and 100.
+
+`;
+
+exports[`no-invalid-intl-options > invalid(99): new Number(1).toLocaleString(\"en\", {style: \"wrong\"}) 1`] = `
+
+  1 | new Number(1).toLocaleString("en", {style: "wrong"})
+
+`;
+
+exports[`no-invalid-intl-options > invalid(99): new Number(1).toLocaleString(\"en\", {style: \"wrong\"}) 2`] = `
+
+Message:
+> 1 | new Number(1).toLocaleString("en", {style: "wrong"})
+    |                                     ^^^^^ \`style\` must be one of "decimal", "percent", "currency", "unit".
+
+`;

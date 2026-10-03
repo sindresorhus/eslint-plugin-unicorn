@@ -1,0 +1,779 @@
+exports[`no-late-event-control > invalid(1): async function handleClick(event: Event) { await load(); event.preventDefault(); } 1`] = `
+
+  1 | async function handleClick(event: Event) { await load(); event.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(1): async function handleClick(event: Event) { await load(); event.preventDefault(); } 2`] = `
+
+Message:
+> 1 | async function handleClick(event: Event) { await load(); event.preventDefault(); }
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(1): element.addEventListener(\"click\", async event => {\n\tawait somePromise;\n\tevent.preventDefault();\n}); 1`] = `
+
+  1 | element.addEventListener("click", async event => {
+  2 | 	await somePromise;
+  3 | 	event.preventDefault();
+  4 | });
+
+`;
+
+exports[`no-late-event-control > invalid(1): element.addEventListener(\"click\", async event => {\n\tawait somePromise;\n\tevent.preventDefault();\n}); 2`] = `
+
+Message:
+  1 | element.addEventListener("click", async event => {
+  2 | 	await somePromise;
+> 3 | 	event.preventDefault();
+    | 	^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  4 | });
+
+`;
+
+exports[`no-late-event-control > invalid(10): async function handleClick(mouseDownEvent: unknown) { await load(); mouseDownEvent.preventDefault(); } 1`] = `
+
+  1 | async function handleClick(mouseDownEvent: unknown) { await load(); mouseDownEvent.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(10): async function handleClick(mouseDownEvent: unknown) { await load(); mouseDownEvent.preventDefault(); } 2`] = `
+
+Message:
+> 1 | async function handleClick(mouseDownEvent: unknown) { await load(); mouseDownEvent.preventDefault(); }
+    |                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mouseDownEvent.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(10): element.onclick = async event => {\n\tevent.preventDefault();\n\tawait somePromise;\n\tevent.stopPropagation();\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	event.preventDefault();
+  3 | 	await somePromise;
+  4 | 	event.stopPropagation();
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(10): element.onclick = async event => {\n\tevent.preventDefault();\n\tawait somePromise;\n\tevent.stopPropagation();\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	event.preventDefault();
+  3 | 	await somePromise;
+> 4 | 	event.stopPropagation();
+    | 	^^^^^^^^^^^^^^^^^^^^^^^ \`event.stopPropagation()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(11): async function handleClick(value: Event | MouseEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | async function handleClick(value: Event | MouseEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(11): async function handleClick(value: Event | MouseEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | async function handleClick(value: Event | MouseEvent) { await load(); value.preventDefault(); }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(11): element.onclick = function * (event) { event.preventDefault(); yield somePromise; }; 1`] = `
+
+  1 | element.onclick = function * (event) { event.preventDefault(); yield somePromise; };
+
+`;
+
+exports[`no-late-event-control > invalid(11): element.onclick = function * (event) { event.preventDefault(); yield somePromise; }; 2`] = `
+
+Message:
+> 1 | element.onclick = function * (event) { event.preventDefault(); yield somePromise; };
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` is not called during event dispatch inside a generator function. Use a normal function handler instead.
+
+`;
+
+exports[`no-late-event-control > invalid(12): async function handleClick(change: PictureInPictureEvent) { await load(); change.stopPropagation(); } 1`] = `
+
+  1 | async function handleClick(change: PictureInPictureEvent) { await load(); change.stopPropagation(); }
+
+`;
+
+exports[`no-late-event-control > invalid(12): async function handleClick(change: PictureInPictureEvent) { await load(); change.stopPropagation(); } 2`] = `
+
+Message:
+> 1 | async function handleClick(change: PictureInPictureEvent) { await load(); change.stopPropagation(); }
+    |                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^ \`change.stopPropagation()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(12): element.onclick = event => setTimeout(() => event.preventDefault()); 1`] = `
+
+  1 | element.onclick = event => setTimeout(() => event.preventDefault());
+
+`;
+
+exports[`no-late-event-control > invalid(12): element.onclick = event => setTimeout(() => event.preventDefault()); 2`] = `
+
+Message:
+> 1 | element.onclick = event => setTimeout(() => event.preventDefault());
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` may run after synchronous event dispatch has finished. Call it in the outer handler before deferring work.
+
+`;
+
+exports[`no-late-event-control > invalid(13): async function handleClick(request: FetchEvent) { await load(); request.preventDefault(); } 1`] = `
+
+  1 | async function handleClick(request: FetchEvent) { await load(); request.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(13): async function handleClick(request: FetchEvent) { await load(); request.preventDefault(); } 2`] = `
+
+Message:
+> 1 | async function handleClick(request: FetchEvent) { await load(); request.preventDefault(); }
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^ \`request.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(13): element.onclick = event => {\n\tsetTimeout(() => {\n\t\tevent.stopPropagation();\n\t}, 1);\n}; 1`] = `
+
+  1 | element.onclick = event => {
+  2 | 	setTimeout(() => {
+  3 | 		event.stopPropagation();
+  4 | 	}, 1);
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(13): element.onclick = event => {\n\tsetTimeout(() => {\n\t\tevent.stopPropagation();\n\t}, 1);\n}; 2`] = `
+
+Message:
+  1 | element.onclick = event => {
+  2 | 	setTimeout(() => {
+> 3 | 		event.stopPropagation();
+    | 		^^^^^^^^^^^^^^^^^^^^^^^ \`event.stopPropagation()\` may run after synchronous event dispatch has finished. Call it in the outer handler before deferring work.
+  4 | 	}, 1);
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(14): async function handleClick(value: Event) { await load(); value!.preventDefault(); } 1`] = `
+
+  1 | async function handleClick(value: Event) { await load(); value!.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(14): async function handleClick(value: Event) { await load(); value!.preventDefault(); } 2`] = `
+
+Message:
+> 1 | async function handleClick(value: Event) { await load(); value!.preventDefault(); }
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(14): element.onclick = event => { fetch(url).then(() => event.stopImmediatePropagation()); }; 1`] = `
+
+  1 | element.onclick = event => { fetch(url).then(() => event.stopImmediatePropagation()); };
+
+`;
+
+exports[`no-late-event-control > invalid(14): element.onclick = event => { fetch(url).then(() => event.stopImmediatePropagation()); }; 2`] = `
+
+Message:
+> 1 | element.onclick = event => { fetch(url).then(() => event.stopImmediatePropagation()); };
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`event.stopImmediatePropagation()\` may run after synchronous event dispatch has finished. Call it in the outer handler before deferring work.
+
+`;
+
+exports[`no-late-event-control > invalid(15): async event => { await somePromise; event?.preventDefault(); } 1`] = `
+
+  1 | async event => { await somePromise; event?.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(15): async event => { await somePromise; event?.preventDefault(); } 2`] = `
+
+Message:
+> 1 | async event => { await somePromise; event?.preventDefault(); }
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(15): async function handleClick(value: Event) { await load(); (value as Event).stopPropagation(); } 1`] = `
+
+  1 | async function handleClick(value: Event) { await load(); (value as Event).stopPropagation(); }
+
+`;
+
+exports[`no-late-event-control > invalid(15): async function handleClick(value: Event) { await load(); (value as Event).stopPropagation(); } 2`] = `
+
+Message:
+> 1 | async function handleClick(value: Event) { await load(); (value as Event).stopPropagation(); }
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`value.stopPropagation()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(16): async event => { await somePromise; event.preventDefault?.(); } 1`] = `
+
+  1 | async event => { await somePromise; event.preventDefault?.(); }
+
+`;
+
+exports[`no-late-event-control > invalid(16): async event => { await somePromise; event.preventDefault?.(); } 2`] = `
+
+Message:
+> 1 | async event => { await somePromise; event.preventDefault?.(); }
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(16): async function handleClick(value: Event) { await load(); (<Event>value).stopImmediatePropagation(); } 1`] = `
+
+  1 | async function handleClick(value: Event) { await load(); (<Event>value).stopImmediatePropagation(); }
+
+`;
+
+exports[`no-late-event-control > invalid(16): async function handleClick(value: Event) { await load(); (<Event>value).stopImmediatePropagation(); } 2`] = `
+
+Message:
+> 1 | async function handleClick(value: Event) { await load(); (<Event>value).stopImmediatePropagation(); }
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`value.stopImmediatePropagation()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(17): async function handleClick(event) {\n\tawait somePromise;\n\tevent.preventDefault();\n} 1`] = `
+
+  1 | async function handleClick(event) {
+  2 | 	await somePromise;
+  3 | 	event.preventDefault();
+  4 | }
+
+`;
+
+exports[`no-late-event-control > invalid(17): async function handleClick(event) {\n\tawait somePromise;\n\tevent.preventDefault();\n} 2`] = `
+
+Message:
+  1 | async function handleClick(event) {
+  2 | 	await somePromise;
+> 3 | 	event.preventDefault();
+    | 	^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  4 | }
+
+`;
+
+exports[`no-late-event-control > invalid(17): import type {SyntheticEvent} from \"react\"; async function handleClick(value: SyntheticEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type {SyntheticEvent} from "react"; async function handleClick(value: SyntheticEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(17): import type {SyntheticEvent} from \"react\"; async function handleClick(value: SyntheticEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type {SyntheticEvent} from "react"; async function handleClick(value: SyntheticEvent) { await load(); value.preventDefault(); }
+    |                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(18): element.onclick = async event => {\n\tfor await (const chunk of stream) {\n\t\tlog(chunk);\n\t}\n\tevent.preventDefault();\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	for await (const chunk of stream) {
+  3 | 		log(chunk);
+  4 | 	}
+  5 | 	event.preventDefault();
+  6 | };
+
+`;
+
+exports[`no-late-event-control > invalid(18): element.onclick = async event => {\n\tfor await (const chunk of stream) {\n\t\tlog(chunk);\n\t}\n\tevent.preventDefault();\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	for await (const chunk of stream) {
+  3 | 		log(chunk);
+  4 | 	}
+> 5 | 	event.preventDefault();
+    | 	^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  6 | };
+
+`;
+
+exports[`no-late-event-control > invalid(18): import type {BaseSyntheticEvent} from \"react\"; async function handleClick(value: BaseSyntheticEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type {BaseSyntheticEvent} from "react"; async function handleClick(value: BaseSyntheticEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(18): import type {BaseSyntheticEvent} from \"react\"; async function handleClick(value: BaseSyntheticEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type {BaseSyntheticEvent} from "react"; async function handleClick(value: BaseSyntheticEvent) { await load(); value.preventDefault(); }
+    |                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(19): element.onclick = async event => {\n\tfor await (const chunk of stream) {\n\t\tevent.preventDefault();\n\t}\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	for await (const chunk of stream) {
+  3 | 		event.preventDefault();
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(19): element.onclick = async event => {\n\tfor await (const chunk of stream) {\n\t\tevent.preventDefault();\n\t}\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	for await (const chunk of stream) {
+> 3 | 		event.preventDefault();
+    | 		^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(19): import type {SyntheticEvent as SE} from \"react\"; async function handleClick(value: SE) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type {SyntheticEvent as SE} from "react"; async function handleClick(value: SE) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(19): import type {SyntheticEvent as SE} from \"react\"; async function handleClick(value: SE) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type {SyntheticEvent as SE} from "react"; async function handleClick(value: SE) { await load(); value.preventDefault(); }
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(2): async function handleClick(event: MouseEvent) { await load(); event.stopPropagation(); } 1`] = `
+
+  1 | async function handleClick(event: MouseEvent) { await load(); event.stopPropagation(); }
+
+`;
+
+exports[`no-late-event-control > invalid(2): async function handleClick(event: MouseEvent) { await load(); event.stopPropagation(); } 2`] = `
+
+Message:
+> 1 | async function handleClick(event: MouseEvent) { await load(); event.stopPropagation(); }
+    |                                                               ^^^^^^^^^^^^^^^^^^^^^^^ \`event.stopPropagation()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(2): element.addEventListener(\"click\", async event => {\n\tawait somePromise;\n\tevent.stopPropagation();\n}); 1`] = `
+
+  1 | element.addEventListener("click", async event => {
+  2 | 	await somePromise;
+  3 | 	event.stopPropagation();
+  4 | });
+
+`;
+
+exports[`no-late-event-control > invalid(2): element.addEventListener(\"click\", async event => {\n\tawait somePromise;\n\tevent.stopPropagation();\n}); 2`] = `
+
+Message:
+  1 | element.addEventListener("click", async event => {
+  2 | 	await somePromise;
+> 3 | 	event.stopPropagation();
+    | 	^^^^^^^^^^^^^^^^^^^^^^^ \`event.stopPropagation()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  4 | });
+
+`;
+
+exports[`no-late-event-control > invalid(20): element.onclick = async event => {\n\tfor (const item of await load()) {\n\t\tevent.preventDefault();\n\t}\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	for (const item of await load()) {
+  3 | 		event.preventDefault();
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(20): element.onclick = async event => {\n\tfor (const item of await load()) {\n\t\tevent.preventDefault();\n\t}\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	for (const item of await load()) {
+> 3 | 		event.preventDefault();
+    | 		^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(20): import type {InputEvent as Input} from \"react\"; async function handleClick(value: Input) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type {InputEvent as Input} from "react"; async function handleClick(value: Input) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(20): import type {InputEvent as Input} from \"react\"; async function handleClick(value: Input) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type {InputEvent as Input} from "react"; async function handleClick(value: Input) { await load(); value.preventDefault(); }
+    |                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(21): element.onclick = async event => {\n\twhile (condition) {\n\t\tevent.preventDefault();\n\t\tawait promise;\n\t}\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	while (condition) {
+  3 | 		event.preventDefault();
+  4 | 		await promise;
+  5 | 	}
+  6 | };
+
+`;
+
+exports[`no-late-event-control > invalid(21): element.onclick = async event => {\n\twhile (condition) {\n\t\tevent.preventDefault();\n\t\tawait promise;\n\t}\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	while (condition) {
+> 3 | 		event.preventDefault();
+    | 		^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  4 | 		await promise;
+  5 | 	}
+  6 | };
+
+`;
+
+exports[`no-late-event-control > invalid(21): import type {ChangeEvent} from \"react\"; async function handleClick(value: ChangeEvent<HTMLInputElement>) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type {ChangeEvent} from "react"; async function handleClick(value: ChangeEvent<HTMLInputElement>) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(21): import type {ChangeEvent} from \"react\"; async function handleClick(value: ChangeEvent<HTMLInputElement>) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type {ChangeEvent} from "react"; async function handleClick(value: ChangeEvent<HTMLInputElement>) { await load(); value.preventDefault(); }
+    |                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(22): element.onclick = async event => {\n\twhile (event.preventDefault()) {\n\t\tawait promise;\n\t}\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	while (event.preventDefault()) {
+  3 | 		await promise;
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(22): element.onclick = async event => {\n\twhile (event.preventDefault()) {\n\t\tawait promise;\n\t}\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+> 2 | 	while (event.preventDefault()) {
+    | 	       ^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  3 | 		await promise;
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-event-control > invalid(22): import type {ToggleEvent} from \"react\"; async function handleClick(value: ToggleEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type {ToggleEvent} from "react"; async function handleClick(value: ToggleEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(22): import type {ToggleEvent} from \"react\"; async function handleClick(value: ToggleEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type {ToggleEvent} from "react"; async function handleClick(value: ToggleEvent) { await load(); value.preventDefault(); }
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(23): element.onclick = async event => {\n\ttry {\n\t\tawait somePromise;\n\t} catch {}\n\tevent.preventDefault();\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	try {
+  3 | 		await somePromise;
+  4 | 	} catch {}
+  5 | 	event.preventDefault();
+  6 | };
+
+`;
+
+exports[`no-late-event-control > invalid(23): element.onclick = async event => {\n\ttry {\n\t\tawait somePromise;\n\t} catch {}\n\tevent.preventDefault();\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	try {
+  3 | 		await somePromise;
+  4 | 	} catch {}
+> 5 | 	event.preventDefault();
+    | 	^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  6 | };
+
+`;
+
+exports[`no-late-event-control > invalid(24): element.onclick = event => {\n\tsetTimeout(() => {\n\t\trequestAnimationFrame(() => {\n\t\t\tevent.preventDefault();\n\t\t});\n\t});\n}; 1`] = `
+
+  1 | element.onclick = event => {
+  2 | 	setTimeout(() => {
+  3 | 		requestAnimationFrame(() => {
+  4 | 			event.preventDefault();
+  5 | 		});
+  6 | 	});
+  7 | };
+
+`;
+
+exports[`no-late-event-control > invalid(24): element.onclick = event => {\n\tsetTimeout(() => {\n\t\trequestAnimationFrame(() => {\n\t\t\tevent.preventDefault();\n\t\t});\n\t});\n}; 2`] = `
+
+Message:
+  1 | element.onclick = event => {
+  2 | 	setTimeout(() => {
+  3 | 		requestAnimationFrame(() => {
+> 4 | 			event.preventDefault();
+    | 			^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` may run after synchronous event dispatch has finished. Call it in the outer handler before deferring work.
+  5 | 		});
+  6 | 	});
+  7 | };
+
+`;
+
+exports[`no-late-event-control > invalid(25): element.onclick = event => {\n\tbutton.addEventListener(\"click\", async () => {\n\t\tawait somePromise;\n\t\tevent.preventDefault();\n\t});\n}; 1`] = `
+
+  1 | element.onclick = event => {
+  2 | 	button.addEventListener("click", async () => {
+  3 | 		await somePromise;
+  4 | 		event.preventDefault();
+  5 | 	});
+  6 | };
+
+`;
+
+exports[`no-late-event-control > invalid(25): element.onclick = event => {\n\tbutton.addEventListener(\"click\", async () => {\n\t\tawait somePromise;\n\t\tevent.preventDefault();\n\t});\n}; 2`] = `
+
+Message:
+  1 | element.onclick = event => {
+  2 | 	button.addEventListener("click", async () => {
+  3 | 		await somePromise;
+> 4 | 		event.preventDefault();
+    | 		^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` may run after synchronous event dispatch has finished. Call it in the outer handler before deferring work.
+  5 | 	});
+  6 | };
+
+`;
+
+exports[`no-late-event-control > invalid(3): element.addEventListener(\"click\", async event => {\n\tawait somePromise;\n\tevent.stopImmediatePropagation();\n}); 1`] = `
+
+  1 | element.addEventListener("click", async event => {
+  2 | 	await somePromise;
+  3 | 	event.stopImmediatePropagation();
+  4 | });
+
+`;
+
+exports[`no-late-event-control > invalid(3): element.addEventListener(\"click\", async event => {\n\tawait somePromise;\n\tevent.stopImmediatePropagation();\n}); 2`] = `
+
+Message:
+  1 | element.addEventListener("click", async event => {
+  2 | 	await somePromise;
+> 3 | 	event.stopImmediatePropagation();
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`event.stopImmediatePropagation()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+  4 | });
+
+`;
+
+exports[`no-late-event-control > invalid(3): import React from \"react\"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import React from "react"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(3): import React from \"react\"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import React from "react"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); }
+    |                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(4): element.onclick = function * (event) {\n\tyield somePromise;\n\tevent.preventDefault();\n}; 1`] = `
+
+  1 | element.onclick = function * (event) {
+  2 | 	yield somePromise;
+  3 | 	event.preventDefault();
+  4 | };
+
+`;
+
+exports[`no-late-event-control > invalid(4): element.onclick = function * (event) {\n\tyield somePromise;\n\tevent.preventDefault();\n}; 2`] = `
+
+Message:
+  1 | element.onclick = function * (event) {
+  2 | 	yield somePromise;
+> 3 | 	event.preventDefault();
+    | 	^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` is not called during event dispatch inside a generator function. Use a normal function handler instead.
+  4 | };
+
+`;
+
+exports[`no-late-event-control > invalid(4): import type React from \"react\"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type React from "react"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(4): import type React from \"react\"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type React from "react"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); }
+    |                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(5): element.onclick = function * (event) { event.stopPropagation(yield ready); }; 1`] = `
+
+  1 | element.onclick = function * (event) { event.stopPropagation(yield ready); };
+
+`;
+
+exports[`no-late-event-control > invalid(5): element.onclick = function * (event) { event.stopPropagation(yield ready); }; 2`] = `
+
+Message:
+> 1 | element.onclick = function * (event) { event.stopPropagation(yield ready); };
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`event.stopPropagation()\` is not called during event dispatch inside a generator function. Use a normal function handler instead.
+
+`;
+
+exports[`no-late-event-control > invalid(5): import type * as React from \"react\"; async function handleClick(event: React.SyntheticEvent) { await load(); event.stopImmediatePropagation(); } 1`] = `
+
+  1 | import type * as React from "react"; async function handleClick(event: React.SyntheticEvent) { await load(); event.stopImmediatePropagation(); }
+
+`;
+
+exports[`no-late-event-control > invalid(5): import type * as React from \"react\"; async function handleClick(event: React.SyntheticEvent) { await load(); event.stopImmediatePropagation(); } 2`] = `
+
+Message:
+> 1 | import type * as React from "react"; async function handleClick(event: React.SyntheticEvent) { await load(); event.stopImmediatePropagation(); }
+    |                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`event.stopImmediatePropagation()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(6): element.onclick = async e => { await somePromise; e.preventDefault(); }; 1`] = `
+
+  1 | element.onclick = async e => { await somePromise; e.preventDefault(); };
+
+`;
+
+exports[`no-late-event-control > invalid(6): element.onclick = async e => { await somePromise; e.preventDefault(); }; 2`] = `
+
+Message:
+> 1 | element.onclick = async e => { await somePromise; e.preventDefault(); };
+    |                                                   ^^^^^^^^^^^^^^^^^^ \`e.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(6): import type * as React from \"react\"; async function handleClick(value: React.AnimationEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type * as React from "react"; async function handleClick(value: React.AnimationEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(6): import type * as React from \"react\"; async function handleClick(value: React.AnimationEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type * as React from "react"; async function handleClick(value: React.AnimationEvent) { await load(); value.preventDefault(); }
+    |                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(7): element.onclick = async mouseDownEvent => { await somePromise; mouseDownEvent.stopPropagation(); }; 1`] = `
+
+  1 | element.onclick = async mouseDownEvent => { await somePromise; mouseDownEvent.stopPropagation(); };
+
+`;
+
+exports[`no-late-event-control > invalid(7): element.onclick = async mouseDownEvent => { await somePromise; mouseDownEvent.stopPropagation(); }; 2`] = `
+
+Message:
+> 1 | element.onclick = async mouseDownEvent => { await somePromise; mouseDownEvent.stopPropagation(); };
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mouseDownEvent.stopPropagation()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(7): import type * as React from \"react\"; async function handleClick(value: React.InvalidEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type * as React from "react"; async function handleClick(value: React.InvalidEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(7): import type * as React from \"react\"; async function handleClick(value: React.InvalidEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type * as React from "react"; async function handleClick(value: React.InvalidEvent) { await load(); value.preventDefault(); }
+    |                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(8): element.onclick = async event => { log(await ready(), event.preventDefault()); }; 1`] = `
+
+  1 | element.onclick = async event => { log(await ready(), event.preventDefault()); };
+
+`;
+
+exports[`no-late-event-control > invalid(8): element.onclick = async event => { log(await ready(), event.preventDefault()); }; 2`] = `
+
+Message:
+> 1 | element.onclick = async event => { log(await ready(), event.preventDefault()); };
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(8): import type * as React from \"react\"; async function handleClick(value: React.SubmitEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type * as React from "react"; async function handleClick(value: React.SubmitEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(8): import type * as React from \"react\"; async function handleClick(value: React.SubmitEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type * as React from "react"; async function handleClick(value: React.SubmitEvent) { await load(); value.preventDefault(); }
+    |                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(9): element.onclick = async event => { event.preventDefault(await ready()); }; 1`] = `
+
+  1 | element.onclick = async event => { event.preventDefault(await ready()); };
+
+`;
+
+exports[`no-late-event-control > invalid(9): element.onclick = async event => { event.preventDefault(await ready()); }; 2`] = `
+
+Message:
+> 1 | element.onclick = async event => { event.preventDefault(await ready()); };
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`event.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;
+
+exports[`no-late-event-control > invalid(9): import type * as React from \"react\"; async function handleClick(value: React.TransitionEvent) { await load(); value.preventDefault(); } 1`] = `
+
+  1 | import type * as React from "react"; async function handleClick(value: React.TransitionEvent) { await load(); value.preventDefault(); }
+
+`;
+
+exports[`no-late-event-control > invalid(9): import type * as React from \"react\"; async function handleClick(value: React.TransitionEvent) { await load(); value.preventDefault(); } 2`] = `
+
+Message:
+> 1 | import type * as React from "react"; async function handleClick(value: React.TransitionEvent) { await load(); value.preventDefault(); }
+    |                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^ \`value.preventDefault()\` has no effect after the handler suspends. Call it before \`await\` or \`yield\` while the event is still being dispatched.
+
+`;

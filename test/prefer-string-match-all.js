@@ -326,6 +326,49 @@ test.snapshot({
 			let match;
 			while ((match = regexp.exec(string)) === null) {}
 		`,
+		// Labeled loop
+		outdent`
+			const regexp = /foo/g;
+			const string = 'foofoo';
+			let match;
+			loop: while ((match = regexp.exec(string)) !== null) {}
+		`,
+		// Undeclared string
+		outdent`
+			const regexp = /foo/g;
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		// String from a potentially mutable member
+		outdent`
+			const regexp = /foo/g;
+			const object = {text: 'foofoo'};
+			const string = object.text;
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		// Redeclared regexp
+		outdent`
+			var regexp = /foo/g;
+			var regexp = /bar/g;
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		// Pattern that the regexp parser does not support
+		outdent`
+			const regexp = new RegExp('(?i:foo)', 'g');
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		// Backreference can match an empty string
+		outdent`
+			const regexp = /(a)|\\1/g;
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -387,6 +430,31 @@ test.snapshot({
 		outdent`
 			const regexp = /(a+)+b/g;
 			const string = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {
+				console.log(match);
+			}
+		`,
+		outdent`
+			const regexp = /foo|bar/g;
+			const string = 'foobar';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {
+				console.log(match);
+			}
+		`,
+		outdent`
+			const regexp = /[a-z]+/g;
+			const string = 'foo bar';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {
+				console.log(match);
+			}
+		`,
+		// A property escape with the `v` flag
+		outdent`
+			const regexp = /\\p{L}+/gv;
+			const string = 'foo bar';
 			let match;
 			while ((match = regexp.exec(string)) !== null) {
 				console.log(match);

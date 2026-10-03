@@ -26,6 +26,7 @@ import {
 	isDefaultLibrarySymbol,
 	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID_EMPTY_OPTIONS = 'empty-options';
@@ -118,10 +119,6 @@ const hasSideEffectProperty = (property, context) =>
 function hasReferenceDeclaredAfter(node, context) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (node.type.startsWith('TS')) {
-		return false;
-	}
-
 	const {sourceCode} = context;
 	if (isReferenceIdentifier(node)) {
 		const variable = findVariable(sourceCode.getScope(node), node);
@@ -131,23 +128,7 @@ function hasReferenceDeclaredAfter(node, context) {
 			: false;
 	}
 
-	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			if (value.some(node => node && hasReferenceDeclaredAfter(node, context))) {
-				return true;
-			}
-
-			continue;
-		}
-
-		if (value?.type && hasReferenceDeclaredAfter(value, context)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => hasReferenceDeclaredAfter(child, context));
 }
 
 const isUnsafeToRemoveProperty = (property, context) =>
@@ -223,11 +204,10 @@ function getPropertyLineRemovalRange(property, context) {
 		return;
 	}
 
+	// The closing brace follows the property, so its line is never the last one
 	return [
 		sourceCode.getIndexFromLoc({line: location.start.line, column: 0}),
-		location.start.line < sourceCode.lines.length
-			? sourceCode.getIndexFromLoc({line: location.start.line + 1, column: 0})
-			: sourceCode.text.length,
+		sourceCode.getIndexFromLoc({line: location.start.line + 1, column: 0}),
 	];
 }
 
@@ -253,11 +233,8 @@ function getPropertyInlineRemovalRange(property, context) {
 	const nextToken = sourceCode.getTokenAfter(property);
 	const isLastProperty = property.parent.properties.at(-1) === property;
 
+	// There are at least two properties, so the comma after the previous property comes before the last one, and one comes after every other property
 	if (isLastProperty) {
-		if (!isCommaToken(previousToken)) {
-			return;
-		}
-
 		const previousTokenLocation = sourceCode.getLoc(previousToken);
 		if (previousTokenLocation.end.line !== location.start.line) {
 			return;
@@ -267,7 +244,7 @@ function getPropertyInlineRemovalRange(property, context) {
 			? sourceCode.getTokenAfter(nextToken)
 			: nextToken;
 
-		const end = endToken && sourceCode.getLoc(endToken).start.line === location.end.line
+		const end = sourceCode.getLoc(endToken).start.line === location.end.line
 			? sourceCode.getRange(endToken)[0]
 			: sourceCode.getRange(property)[1];
 
@@ -275,10 +252,6 @@ function getPropertyInlineRemovalRange(property, context) {
 			sourceCode.getRange(previousToken)[0],
 			end,
 		];
-	}
-
-	if (!isCommaToken(nextToken)) {
-		return;
 	}
 
 	const nextTokenLocation = sourceCode.getLoc(nextToken);
@@ -432,6 +405,8 @@ function getInputState(node, context) {
 			parserServices.program.getTypeChecker(),
 			parserServices.program,
 		);
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return unknown;
 	}
@@ -487,21 +462,9 @@ const getFix = (property, optionsNode, optionsArgument, context) => function * (
 		return abort();
 	}
 
-	if (
-		optionsNode.properties.length === 1
-		&& optionsArgument.parent.arguments.at(-1) === optionsArgument
-	) {
-		if (!canRemoveFinalArgumentWithoutComments(optionsArgument, context)) {
-			return abort();
-		}
-
-		yield removeFinalArgument(fixer, optionsArgument, context);
-		return;
-	}
-
+	// `getWholeOptionsFix()` removes a single removable property, so it only gets here when a comment blocks removing the final argument
 	if (optionsNode.properties.length === 1) {
-		yield fixer.replaceText(optionsNode, '{}');
-		return;
+		return abort();
 	}
 
 	const lineRemovalRange = getPropertyLineRemovalRange(property, context);

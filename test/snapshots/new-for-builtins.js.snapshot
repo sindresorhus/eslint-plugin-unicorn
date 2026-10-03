@@ -1,0 +1,2327 @@
+exports[`new-for-builtins > invalid(1): const foo = Date(); 1`] = `
+
+  1 | const foo = Date();
+
+`;
+
+exports[`new-for-builtins > invalid(1): const foo = Date(); 2`] = `
+
+Message:
+> 1 | const foo = Date();
+    |             ^^^^^^ Use \`String(new Date())\` instead of \`Date()\`.
+
+Output:
+  1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(1): const object = (Object)(); 1`] = `
+
+  1 | const object = (Object)();
+
+`;
+
+exports[`new-for-builtins > invalid(1): const object = (Object)(); 2`] = `
+
+Message:
+> 1 | const object = (Object)();
+    |                ^^^^^^^^^^ Use \`new Object()\` instead of \`Object()\`.
+
+Output:
+  1 | const object = new (Object)();
+
+`;
+
+exports[`new-for-builtins > invalid(10): () => {\n\treturn new // 4\n\t\tSymbol;\n} 1`] = `
+
+  1 | () => {
+  2 | 	return new // 4
+  3 | 		Symbol;
+  4 | }
+
+`;
+
+exports[`new-for-builtins > invalid(10): () => {\n\treturn new // 4\n\t\tSymbol;\n} 2`] = `
+
+Message:
+  1 | () => {
+> 2 | 	return new // 4
+    | 	       ^^^^^^^^
+> 3 | 		Symbol;
+    | ^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+  4 | }
+
+Output:
+  1 | () => {
+  2 | 	return ( // 4
+  3 | 		Symbol());
+  4 | }
+
+`;
+
+exports[`new-for-builtins > invalid(100): const foo = globalThis.WebAssembly?.JSTag() 1`] = `
+
+  1 | const foo = globalThis.WebAssembly?.JSTag()
+
+`;
+
+exports[`new-for-builtins > invalid(100): const foo = globalThis.WebAssembly?.JSTag() 2`] = `
+
+Message:
+> 1 | const foo = globalThis.WebAssembly?.JSTag()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`WebAssembly.JSTag\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(101): const foo = new globalThis.WebAssembly.JSTag() 1`] = `
+
+  1 | const foo = new globalThis.WebAssembly.JSTag()
+
+`;
+
+exports[`new-for-builtins > invalid(101): const foo = new globalThis.WebAssembly.JSTag() 2`] = `
+
+Message:
+> 1 | const foo = new globalThis.WebAssembly.JSTag()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`WebAssembly.JSTag\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(102): const foo = WebAssembly.Module(buffer) 1`] = `
+
+  1 | const foo = WebAssembly.Module(buffer)
+
+`;
+
+exports[`new-for-builtins > invalid(102): const foo = WebAssembly.Module(buffer) 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.Module(buffer)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.Module()\` instead of \`WebAssembly.Module()\`.
+
+Output:
+  1 | const foo = new WebAssembly.Module(buffer)
+
+`;
+
+exports[`new-for-builtins > invalid(103): const foo = globalThis.WebAssembly.Module(buffer) 1`] = `
+
+  1 | const foo = globalThis.WebAssembly.Module(buffer)
+
+`;
+
+exports[`new-for-builtins > invalid(103): const foo = globalThis.WebAssembly.Module(buffer) 2`] = `
+
+Message:
+> 1 | const foo = globalThis.WebAssembly.Module(buffer)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.Module()\` instead of \`WebAssembly.Module()\`.
+
+Output:
+  1 | const foo = new globalThis.WebAssembly.Module(buffer)
+
+`;
+
+exports[`new-for-builtins > invalid(104): const foo = WebAssembly.Instance(module, imports) 1`] = `
+
+  1 | const foo = WebAssembly.Instance(module, imports)
+
+`;
+
+exports[`new-for-builtins > invalid(104): const foo = WebAssembly.Instance(module, imports) 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.Instance(module, imports)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.Instance()\` instead of \`WebAssembly.Instance()\`.
+
+Output:
+  1 | const foo = new WebAssembly.Instance(module, imports)
+
+`;
+
+exports[`new-for-builtins > invalid(105): const foo = WebAssembly.Memory({initial: 1}) 1`] = `
+
+  1 | const foo = WebAssembly.Memory({initial: 1})
+
+`;
+
+exports[`new-for-builtins > invalid(105): const foo = WebAssembly.Memory({initial: 1}) 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.Memory({initial: 1})
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.Memory()\` instead of \`WebAssembly.Memory()\`.
+
+Output:
+  1 | const foo = new WebAssembly.Memory({initial: 1})
+
+`;
+
+exports[`new-for-builtins > invalid(106): const foo = WebAssembly.Table({initial: 1, element: 'anyfunc'}) 1`] = `
+
+  1 | const foo = WebAssembly.Table({initial: 1, element: 'anyfunc'})
+
+`;
+
+exports[`new-for-builtins > invalid(106): const foo = WebAssembly.Table({initial: 1, element: 'anyfunc'}) 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.Table({initial: 1, element: 'anyfunc'})
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.Table()\` instead of \`WebAssembly.Table()\`.
+
+Output:
+  1 | const foo = new WebAssembly.Table({initial: 1, element: 'anyfunc'})
+
+`;
+
+exports[`new-for-builtins > invalid(107): const foo = WebAssembly.Global({value: 'i32', mutable: true}, 0) 1`] = `
+
+  1 | const foo = WebAssembly.Global({value: 'i32', mutable: true}, 0)
+
+`;
+
+exports[`new-for-builtins > invalid(107): const foo = WebAssembly.Global({value: 'i32', mutable: true}, 0) 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.Global({value: 'i32', mutable: true}, 0)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.Global()\` instead of \`WebAssembly.Global()\`.
+
+Output:
+  1 | const foo = new WebAssembly.Global({value: 'i32', mutable: true}, 0)
+
+`;
+
+exports[`new-for-builtins > invalid(108): const foo = WebAssembly.Tag({parameters: ['i32']}) 1`] = `
+
+  1 | const foo = WebAssembly.Tag({parameters: ['i32']})
+
+`;
+
+exports[`new-for-builtins > invalid(108): const foo = WebAssembly.Tag({parameters: ['i32']}) 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.Tag({parameters: ['i32']})
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.Tag()\` instead of \`WebAssembly.Tag()\`.
+
+Output:
+  1 | const foo = new WebAssembly.Tag({parameters: ['i32']})
+
+`;
+
+exports[`new-for-builtins > invalid(109): const foo = WebAssembly.Exception(tag, [1]) 1`] = `
+
+  1 | const foo = WebAssembly.Exception(tag, [1])
+
+`;
+
+exports[`new-for-builtins > invalid(109): const foo = WebAssembly.Exception(tag, [1]) 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.Exception(tag, [1])
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.Exception()\` instead of \`WebAssembly.Exception()\`.
+
+Output:
+  1 | const foo = new WebAssembly.Exception(tag, [1])
+
+`;
+
+exports[`new-for-builtins > invalid(11): () => {\n\treturn (\n\t\tnew // 5\n\t\t\tSymbol\n\t);\n} 1`] = `
+
+  1 | () => {
+  2 | 	return (
+  3 | 		new // 5
+  4 | 			Symbol
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`new-for-builtins > invalid(11): () => {\n\treturn (\n\t\tnew // 5\n\t\t\tSymbol\n\t);\n} 2`] = `
+
+Message:
+  1 | () => {
+  2 | 	return (
+> 3 | 		new // 5
+    | 		^^^^^^^^
+> 4 | 			Symbol
+    | ^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+  5 | 	);
+  6 | }
+
+Output:
+  1 | () => {
+  2 | 	return (
+  3 | 		// 5
+  4 | 			Symbol()
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`new-for-builtins > invalid(110): const foo = WebAssembly.CompileError() 1`] = `
+
+  1 | const foo = WebAssembly.CompileError()
+
+`;
+
+exports[`new-for-builtins > invalid(110): const foo = WebAssembly.CompileError() 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.CompileError()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.CompileError()\` instead of \`WebAssembly.CompileError()\`.
+
+Output:
+  1 | const foo = new WebAssembly.CompileError()
+
+`;
+
+exports[`new-for-builtins > invalid(111): const foo = WebAssembly.LinkError() 1`] = `
+
+  1 | const foo = WebAssembly.LinkError()
+
+`;
+
+exports[`new-for-builtins > invalid(111): const foo = WebAssembly.LinkError() 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.LinkError()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.LinkError()\` instead of \`WebAssembly.LinkError()\`.
+
+Output:
+  1 | const foo = new WebAssembly.LinkError()
+
+`;
+
+exports[`new-for-builtins > invalid(112): const foo = WebAssembly.RuntimeError() 1`] = `
+
+  1 | const foo = WebAssembly.RuntimeError()
+
+`;
+
+exports[`new-for-builtins > invalid(112): const foo = WebAssembly.RuntimeError() 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.RuntimeError()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new WebAssembly.RuntimeError()\` instead of \`WebAssembly.RuntimeError()\`.
+
+Output:
+  1 | const foo = new WebAssembly.RuntimeError()
+
+`;
+
+exports[`new-for-builtins > invalid(113): const foo = new BigInt(123) 1`] = `
+
+  1 | const foo = new BigInt(123)
+
+`;
+
+exports[`new-for-builtins > invalid(113): const foo = new BigInt(123) 2`] = `
+
+Message:
+> 1 | const foo = new BigInt(123)
+    |             ^^^^^^^^^^^^^^^ Use \`BigInt()\` instead of \`new BigInt()\`.
+
+Output:
+  1 | const foo = BigInt(123)
+
+`;
+
+exports[`new-for-builtins > invalid(114): const foo = new Boolean() 1`] = `
+
+  1 | const foo = new Boolean()
+
+`;
+
+exports[`new-for-builtins > invalid(114): const foo = new Boolean() 2`] = `
+
+Message:
+> 1 | const foo = new Boolean()
+    |             ^^^^^^^^^^^^^ Use \`Boolean()\` instead of \`new Boolean()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(115): const foo = new Number() 1`] = `
+
+  1 | const foo = new Number()
+
+`;
+
+exports[`new-for-builtins > invalid(115): const foo = new Number() 2`] = `
+
+Message:
+> 1 | const foo = new Number()
+    |             ^^^^^^^^^^^^ Use \`Number()\` instead of \`new Number()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(116): const foo = new Number('123') 1`] = `
+
+  1 | const foo = new Number('123')
+
+`;
+
+exports[`new-for-builtins > invalid(116): const foo = new Number('123') 2`] = `
+
+Message:
+> 1 | const foo = new Number('123')
+    |             ^^^^^^^^^^^^^^^^^ Use \`Number()\` instead of \`new Number()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(117): const foo = new String() 1`] = `
+
+  1 | const foo = new String()
+
+`;
+
+exports[`new-for-builtins > invalid(117): const foo = new String() 2`] = `
+
+Message:
+> 1 | const foo = new String()
+    |             ^^^^^^^^^^^^ Use \`String()\` instead of \`new String()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(118): const foo = new Symbol() 1`] = `
+
+  1 | const foo = new Symbol()
+
+`;
+
+exports[`new-for-builtins > invalid(118): const foo = new Symbol() 2`] = `
+
+Message:
+> 1 | const foo = new Symbol()
+    |             ^^^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+
+Output:
+  1 | const foo = Symbol()
+
+`;
+
+exports[`new-for-builtins > invalid(119): function varCheck() {\n\t{\n\t\tvar WeakMap = function() {};\n\t}\n\t// This should not be reported\n\treturn WeakMap()\n}\nfunction constCheck() {\n\t{\n\t\tconst Array = function() {};\n\t}\n\treturn Array()\n}\nfunction letCheck() {\n\t{\n\t\tlet Map = function() {};\n\t}\n\treturn Map()\n} 1`] = `
+
+   1 | function varCheck() {
+   2 | 	{
+   3 | 		var WeakMap = function() {};
+   4 | 	}
+   5 | 	// This should not be reported
+   6 | 	return WeakMap()
+   7 | }
+   8 | function constCheck() {
+   9 | 	{
+  10 | 		const Array = function() {};
+  11 | 	}
+  12 | 	return Array()
+  13 | }
+  14 | function letCheck() {
+  15 | 	{
+  16 | 		let Map = function() {};
+  17 | 	}
+  18 | 	return Map()
+  19 | }
+
+`;
+
+exports[`new-for-builtins > invalid(119): function varCheck() {\n\t{\n\t\tvar WeakMap = function() {};\n\t}\n\t// This should not be reported\n\treturn WeakMap()\n}\nfunction constCheck() {\n\t{\n\t\tconst Array = function() {};\n\t}\n\treturn Array()\n}\nfunction letCheck() {\n\t{\n\t\tlet Map = function() {};\n\t}\n\treturn Map()\n} 2`] = `
+
+Message:
+   1 | function varCheck() {
+   2 | 	{
+   3 | 		var WeakMap = function() {};
+   4 | 	}
+   5 | 	// This should not be reported
+   6 | 	return WeakMap()
+   7 | }
+   8 | function constCheck() {
+   9 | 	{
+  10 | 		const Array = function() {};
+  11 | 	}
+> 12 | 	return Array()
+     | 	       ^^^^^^^ Use \`new Array()\` instead of \`Array()\`.
+  13 | }
+  14 | function letCheck() {
+  15 | 	{
+  16 | 		let Map = function() {};
+  17 | 	}
+  18 | 	return Map()
+  19 | }
+
+Output:
+   1 | function varCheck() {
+   2 | 	{
+   3 | 		var WeakMap = function() {};
+   4 | 	}
+   5 | 	// This should not be reported
+   6 | 	return WeakMap()
+   7 | }
+   8 | function constCheck() {
+   9 | 	{
+  10 | 		const Array = function() {};
+  11 | 	}
+  12 | 	return new Array()
+  13 | }
+  14 | function letCheck() {
+  15 | 	{
+  16 | 		let Map = function() {};
+  17 | 	}
+  18 | 	return Map()
+  19 | }
+
+`;
+
+exports[`new-for-builtins > invalid(119): function varCheck() {\n\t{\n\t\tvar WeakMap = function() {};\n\t}\n\t// This should not be reported\n\treturn WeakMap()\n}\nfunction constCheck() {\n\t{\n\t\tconst Array = function() {};\n\t}\n\treturn Array()\n}\nfunction letCheck() {\n\t{\n\t\tlet Map = function() {};\n\t}\n\treturn Map()\n} 3`] = `
+
+Message:
+   1 | function varCheck() {
+   2 | 	{
+   3 | 		var WeakMap = function() {};
+   4 | 	}
+   5 | 	// This should not be reported
+   6 | 	return WeakMap()
+   7 | }
+   8 | function constCheck() {
+   9 | 	{
+  10 | 		const Array = function() {};
+  11 | 	}
+  12 | 	return Array()
+  13 | }
+  14 | function letCheck() {
+  15 | 	{
+  16 | 		let Map = function() {};
+  17 | 	}
+> 18 | 	return Map()
+     | 	       ^^^^^ Use \`new Map()\` instead of \`Map()\`.
+  19 | }
+
+Output:
+   1 | function varCheck() {
+   2 | 	{
+   3 | 		var WeakMap = function() {};
+   4 | 	}
+   5 | 	// This should not be reported
+   6 | 	return WeakMap()
+   7 | }
+   8 | function constCheck() {
+   9 | 	{
+  10 | 		const Array = function() {};
+  11 | 	}
+  12 | 	return Array()
+  13 | }
+  14 | function letCheck() {
+  15 | 	{
+  16 | 		let Map = function() {};
+  17 | 	}
+  18 | 	return new Map()
+  19 | }
+
+`;
+
+exports[`new-for-builtins > invalid(12): () => {\n\treturn (\n\t\tnew // 6\n\t\t\t(Symbol)\n\t);\n} 1`] = `
+
+  1 | () => {
+  2 | 	return (
+  3 | 		new // 6
+  4 | 			(Symbol)
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`new-for-builtins > invalid(12): () => {\n\treturn (\n\t\tnew // 6\n\t\t\t(Symbol)\n\t);\n} 2`] = `
+
+Message:
+  1 | () => {
+  2 | 	return (
+> 3 | 		new // 6
+    | 		^^^^^^^^
+> 4 | 			(Symbol)
+    | ^^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+  5 | 	);
+  6 | }
+
+Output:
+  1 | () => {
+  2 | 	return (
+  3 | 		// 6
+  4 | 			(Symbol)()
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`new-for-builtins > invalid(120): function foo() {\n\treturn(globalThis).Map()\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return(globalThis).Map()
+  3 | }
+
+`;
+
+exports[`new-for-builtins > invalid(120): function foo() {\n\treturn(globalThis).Map()\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return(globalThis).Map()
+    | 	      ^^^^^^^^^^^^^^^^^^ Use \`new Map()\` instead of \`Map()\`.
+  3 | }
+
+Output:
+  1 | function foo() {
+  2 | 	return new (globalThis).Map()
+  3 | }
+
+`;
+
+exports[`new-for-builtins > invalid(13): () => {\n\tthrow new // 1\n\t\tSymbol();\n} 1`] = `
+
+  1 | () => {
+  2 | 	throw new // 1
+  3 | 		Symbol();
+  4 | }
+
+`;
+
+exports[`new-for-builtins > invalid(13): () => {\n\tthrow new // 1\n\t\tSymbol();\n} 2`] = `
+
+Message:
+  1 | () => {
+> 2 | 	throw new // 1
+    | 	      ^^^^^^^^
+> 3 | 		Symbol();
+    | ^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+  4 | }
+
+Output:
+  1 | () => {
+  2 | 	throw ( // 1
+  3 | 		Symbol());
+  4 | }
+
+`;
+
+exports[`new-for-builtins > invalid(14): () => {\n\treturn new /**/ Symbol;\n} 1`] = `
+
+  1 | () => {
+  2 | 	return new /**/ Symbol;
+  3 | }
+
+`;
+
+exports[`new-for-builtins > invalid(14): () => {\n\treturn new /**/ Symbol;\n} 2`] = `
+
+Message:
+  1 | () => {
+> 2 | 	return new /**/ Symbol;
+    | 	       ^^^^^^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+  3 | }
+
+Output:
+  1 | () => {
+  2 | 	return /**/ Symbol();
+  3 | }
+
+`;
+
+exports[`new-for-builtins > invalid(15): new globalThis.String() 1`] = `
+
+  1 | new globalThis.String()
+
+`;
+
+exports[`new-for-builtins > invalid(15): new globalThis.String() 2`] = `
+
+Message:
+> 1 | new globalThis.String()
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use \`String()\` instead of \`new String()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(16): new global.String() 1`] = `
+
+  1 | new global.String()
+
+`;
+
+exports[`new-for-builtins > invalid(16): new global.String() 2`] = `
+
+Message:
+> 1 | new global.String()
+    | ^^^^^^^^^^^^^^^^^^^ Use \`String()\` instead of \`new String()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(17): new self.String() 1`] = `
+
+  1 | new self.String()
+
+`;
+
+exports[`new-for-builtins > invalid(17): new self.String() 2`] = `
+
+Message:
+> 1 | new self.String()
+    | ^^^^^^^^^^^^^^^^^ Use \`String()\` instead of \`new String()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(18): new window.String() 1`] = `
+
+  1 | new window.String()
+
+`;
+
+exports[`new-for-builtins > invalid(18): new window.String() 2`] = `
+
+Message:
+> 1 | new window.String()
+    | ^^^^^^^^^^^^^^^^^^^ Use \`String()\` instead of \`new String()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(19): const {String} = globalThis;\nnew String(); 1`] = `
+
+  1 | const {String} = globalThis;
+  2 | new String();
+
+`;
+
+exports[`new-for-builtins > invalid(19): const {String} = globalThis;\nnew String(); 2`] = `
+
+Message:
+  1 | const {String} = globalThis;
+> 2 | new String();
+    | ^^^^^^^^^^^^ Use \`String()\` instead of \`new String()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(2): const foo = globalThis.Date(); 1`] = `
+
+  1 | const foo = globalThis.Date();
+
+`;
+
+exports[`new-for-builtins > invalid(2): const foo = globalThis.Date(); 2`] = `
+
+Message:
+> 1 | const foo = globalThis.Date();
+    |             ^^^^^^^^^^^^^^^^^ Use \`String(new Date())\` instead of \`Date()\`.
+
+Output:
+  1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(2): const isObject = v => Object(v) == v; 1`] = `
+
+  1 | const isObject = v => Object(v) == v;
+
+`;
+
+exports[`new-for-builtins > invalid(2): const isObject = v => Object(v) == v; 2`] = `
+
+Message:
+> 1 | const isObject = v => Object(v) == v;
+    |                       ^^^^^^^^^ Use \`new Object()\` instead of \`Object()\`.
+
+Output:
+  1 | const isObject = v => new Object(v) == v;
+
+`;
+
+exports[`new-for-builtins > invalid(20): const {String: RenamedString} = globalThis;\nnew RenamedString(); 1`] = `
+
+  1 | const {String: RenamedString} = globalThis;
+  2 | new RenamedString();
+
+`;
+
+exports[`new-for-builtins > invalid(20): const {String: RenamedString} = globalThis;\nnew RenamedString(); 2`] = `
+
+Message:
+  1 | const {String: RenamedString} = globalThis;
+> 2 | new RenamedString();
+    | ^^^^^^^^^^^^^^^^^^^ Use \`String()\` instead of \`new String()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(21): const RenamedString = globalThis.String;\nnew RenamedString(); 1`] = `
+
+  1 | const RenamedString = globalThis.String;
+  2 | new RenamedString();
+
+`;
+
+exports[`new-for-builtins > invalid(21): const RenamedString = globalThis.String;\nnew RenamedString(); 2`] = `
+
+Message:
+  1 | const RenamedString = globalThis.String;
+> 2 | new RenamedString();
+    | ^^^^^^^^^^^^^^^^^^^ Use \`String()\` instead of \`new String()\`.
+
+`;
+
+exports[`new-for-builtins > invalid(22): globalThis.Array() 1`] = `
+
+  1 | globalThis.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(22): globalThis.Array() 2`] = `
+
+Message:
+> 1 | globalThis.Array()
+    | ^^^^^^^^^^^^^^^^^^ Use \`new Array()\` instead of \`Array()\`.
+
+Output:
+  1 | new globalThis.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(23): global.Array() 1`] = `
+
+  1 | global.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(23): global.Array() 2`] = `
+
+Message:
+> 1 | global.Array()
+    | ^^^^^^^^^^^^^^ Use \`new Array()\` instead of \`Array()\`.
+
+Output:
+  1 | new global.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(24): self.Array() 1`] = `
+
+  1 | self.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(24): self.Array() 2`] = `
+
+Message:
+> 1 | self.Array()
+    | ^^^^^^^^^^^^ Use \`new Array()\` instead of \`Array()\`.
+
+Output:
+  1 | new self.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(25): window.Array() 1`] = `
+
+  1 | window.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(25): window.Array() 2`] = `
+
+Message:
+> 1 | window.Array()
+    | ^^^^^^^^^^^^^^ Use \`new Array()\` instead of \`Array()\`.
+
+Output:
+  1 | new window.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(26): const {Array: RenamedArray} = globalThis;\nRenamedArray(); 1`] = `
+
+  1 | const {Array: RenamedArray} = globalThis;
+  2 | RenamedArray();
+
+`;
+
+exports[`new-for-builtins > invalid(26): const {Array: RenamedArray} = globalThis;\nRenamedArray(); 2`] = `
+
+Message:
+  1 | const {Array: RenamedArray} = globalThis;
+> 2 | RenamedArray();
+    | ^^^^^^^^^^^^^^ Use \`new Array()\` instead of \`Array()\`.
+
+Output:
+  1 | const {Array: RenamedArray} = globalThis;
+  2 | new RenamedArray();
+
+`;
+
+exports[`new-for-builtins > invalid(27): globalThis.Array() 1`] = `
+
+  1 | globalThis.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(27): globalThis.Array() 2`] = `
+
+Message:
+> 1 | globalThis.Array()
+    | ^^^^^^^^^^^^^^^^^^ Use \`new Array()\` instead of \`Array()\`.
+
+Output:
+  1 | new globalThis.Array()
+
+`;
+
+exports[`new-for-builtins > invalid(28): const {Array} = globalThis;\nArray(); 1`] = `
+
+  1 | const {Array} = globalThis;
+  2 | Array();
+
+`;
+
+exports[`new-for-builtins > invalid(28): const {Array} = globalThis;\nArray(); 2`] = `
+
+Message:
+  1 | const {Array} = globalThis;
+> 2 | Array();
+    | ^^^^^^^ Use \`new Array()\` instead of \`Array()\`.
+
+Output:
+  1 | const {Array} = globalThis;
+  2 | new Array();
+
+`;
+
+exports[`new-for-builtins > invalid(29): const foo = Object() 1`] = `
+
+  1 | const foo = Object()
+
+`;
+
+exports[`new-for-builtins > invalid(29): const foo = Object() 2`] = `
+
+Message:
+> 1 | const foo = Object()
+    |             ^^^^^^^^ Use \`new Object()\` instead of \`Object()\`.
+
+Output:
+  1 | const foo = new Object()
+
+`;
+
+exports[`new-for-builtins > invalid(3): const symbol = new (Symbol)(\"\"); 1`] = `
+
+  1 | const symbol = new (Symbol)("");
+
+`;
+
+exports[`new-for-builtins > invalid(3): const symbol = new (Symbol)(\"\"); 2`] = `
+
+Message:
+> 1 | const symbol = new (Symbol)("");
+    |                ^^^^^^^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+
+Output:
+  1 | const symbol = (Symbol)("");
+
+`;
+
+exports[`new-for-builtins > invalid(3): function foo() {\n\treturn(globalThis).Date();\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return(globalThis).Date();
+  3 | }
+
+`;
+
+exports[`new-for-builtins > invalid(3): function foo() {\n\treturn(globalThis).Date();\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return(globalThis).Date();
+    | 	      ^^^^^^^^^^^^^^^^^^^ Use \`String(new Date())\` instead of \`Date()\`.
+  3 | }
+
+Output:
+  1 | function foo() {
+  2 | 	return String(new Date());
+  3 | }
+
+`;
+
+exports[`new-for-builtins > invalid(30): const foo = Array() 1`] = `
+
+  1 | const foo = Array()
+
+`;
+
+exports[`new-for-builtins > invalid(30): const foo = Array() 2`] = `
+
+Message:
+> 1 | const foo = Array()
+    |             ^^^^^^^ Use \`new Array()\` instead of \`Array()\`.
+
+Output:
+  1 | const foo = new Array()
+
+`;
+
+exports[`new-for-builtins > invalid(31): const foo = ArrayBuffer() 1`] = `
+
+  1 | const foo = ArrayBuffer()
+
+`;
+
+exports[`new-for-builtins > invalid(31): const foo = ArrayBuffer() 2`] = `
+
+Message:
+> 1 | const foo = ArrayBuffer()
+    |             ^^^^^^^^^^^^^ Use \`new ArrayBuffer()\` instead of \`ArrayBuffer()\`.
+
+Output:
+  1 | const foo = new ArrayBuffer()
+
+`;
+
+exports[`new-for-builtins > invalid(32): const foo = BigInt64Array() 1`] = `
+
+  1 | const foo = BigInt64Array()
+
+`;
+
+exports[`new-for-builtins > invalid(32): const foo = BigInt64Array() 2`] = `
+
+Message:
+> 1 | const foo = BigInt64Array()
+    |             ^^^^^^^^^^^^^^^ Use \`new BigInt64Array()\` instead of \`BigInt64Array()\`.
+
+Output:
+  1 | const foo = new BigInt64Array()
+
+`;
+
+exports[`new-for-builtins > invalid(33): const foo = BigUint64Array() 1`] = `
+
+  1 | const foo = BigUint64Array()
+
+`;
+
+exports[`new-for-builtins > invalid(33): const foo = BigUint64Array() 2`] = `
+
+Message:
+> 1 | const foo = BigUint64Array()
+    |             ^^^^^^^^^^^^^^^^ Use \`new BigUint64Array()\` instead of \`BigUint64Array()\`.
+
+Output:
+  1 | const foo = new BigUint64Array()
+
+`;
+
+exports[`new-for-builtins > invalid(34): const foo = DataView() 1`] = `
+
+  1 | const foo = DataView()
+
+`;
+
+exports[`new-for-builtins > invalid(34): const foo = DataView() 2`] = `
+
+Message:
+> 1 | const foo = DataView()
+    |             ^^^^^^^^^^ Use \`new DataView()\` instead of \`DataView()\`.
+
+Output:
+  1 | const foo = new DataView()
+
+`;
+
+exports[`new-for-builtins > invalid(35): const foo = Error() 1`] = `
+
+  1 | const foo = Error()
+
+`;
+
+exports[`new-for-builtins > invalid(35): const foo = Error() 2`] = `
+
+Message:
+> 1 | const foo = Error()
+    |             ^^^^^^^ Use \`new Error()\` instead of \`Error()\`.
+
+Output:
+  1 | const foo = new Error()
+
+`;
+
+exports[`new-for-builtins > invalid(36): const foo = Error('Foo bar') 1`] = `
+
+  1 | const foo = Error('Foo bar')
+
+`;
+
+exports[`new-for-builtins > invalid(36): const foo = Error('Foo bar') 2`] = `
+
+Message:
+> 1 | const foo = Error('Foo bar')
+    |             ^^^^^^^^^^^^^^^^ Use \`new Error()\` instead of \`Error()\`.
+
+Output:
+  1 | const foo = new Error('Foo bar')
+
+`;
+
+exports[`new-for-builtins > invalid(37): const foo = AggregateError([]) 1`] = `
+
+  1 | const foo = AggregateError([])
+
+`;
+
+exports[`new-for-builtins > invalid(37): const foo = AggregateError([]) 2`] = `
+
+Message:
+> 1 | const foo = AggregateError([])
+    |             ^^^^^^^^^^^^^^^^^^ Use \`new AggregateError()\` instead of \`AggregateError()\`.
+
+Output:
+  1 | const foo = new AggregateError([])
+
+`;
+
+exports[`new-for-builtins > invalid(38): const foo = EvalError() 1`] = `
+
+  1 | const foo = EvalError()
+
+`;
+
+exports[`new-for-builtins > invalid(38): const foo = EvalError() 2`] = `
+
+Message:
+> 1 | const foo = EvalError()
+    |             ^^^^^^^^^^^ Use \`new EvalError()\` instead of \`EvalError()\`.
+
+Output:
+  1 | const foo = new EvalError()
+
+`;
+
+exports[`new-for-builtins > invalid(39): const foo = RangeError() 1`] = `
+
+  1 | const foo = RangeError()
+
+`;
+
+exports[`new-for-builtins > invalid(39): const foo = RangeError() 2`] = `
+
+Message:
+> 1 | const foo = RangeError()
+    |             ^^^^^^^^^^^^ Use \`new RangeError()\` instead of \`RangeError()\`.
+
+Output:
+  1 | const foo = new RangeError()
+
+`;
+
+exports[`new-for-builtins > invalid(4): const foo = Date(/*comment*/); 1`] = `
+
+  1 | const foo = Date(/*comment*/);
+
+`;
+
+exports[`new-for-builtins > invalid(4): const foo = Date(/*comment*/); 2`] = `
+
+Message:
+> 1 | const foo = Date(/*comment*/);
+    |             ^^^^^^^^^^^^^^^^^ Use \`String(new Date())\` instead of \`Date()\`.
+
+Suggestion 1/1: Switch to \`String(new Date())\`.:
+  1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(4): const symbol = new /* comment */ Symbol(\"\"); 1`] = `
+
+  1 | const symbol = new /* comment */ Symbol("");
+
+`;
+
+exports[`new-for-builtins > invalid(4): const symbol = new /* comment */ Symbol(\"\"); 2`] = `
+
+Message:
+> 1 | const symbol = new /* comment */ Symbol("");
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+
+Output:
+  1 | const symbol = /* comment */ Symbol("");
+
+`;
+
+exports[`new-for-builtins > invalid(40): const foo = ReferenceError() 1`] = `
+
+  1 | const foo = ReferenceError()
+
+`;
+
+exports[`new-for-builtins > invalid(40): const foo = ReferenceError() 2`] = `
+
+Message:
+> 1 | const foo = ReferenceError()
+    |             ^^^^^^^^^^^^^^^^ Use \`new ReferenceError()\` instead of \`ReferenceError()\`.
+
+Output:
+  1 | const foo = new ReferenceError()
+
+`;
+
+exports[`new-for-builtins > invalid(41): const foo = SuppressedError(error, suppressed) 1`] = `
+
+  1 | const foo = SuppressedError(error, suppressed)
+
+`;
+
+exports[`new-for-builtins > invalid(41): const foo = SuppressedError(error, suppressed) 2`] = `
+
+Message:
+> 1 | const foo = SuppressedError(error, suppressed)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new SuppressedError()\` instead of \`SuppressedError()\`.
+
+Output:
+  1 | const foo = new SuppressedError(error, suppressed)
+
+`;
+
+exports[`new-for-builtins > invalid(42): const foo = SyntaxError() 1`] = `
+
+  1 | const foo = SyntaxError()
+
+`;
+
+exports[`new-for-builtins > invalid(42): const foo = SyntaxError() 2`] = `
+
+Message:
+> 1 | const foo = SyntaxError()
+    |             ^^^^^^^^^^^^^ Use \`new SyntaxError()\` instead of \`SyntaxError()\`.
+
+Output:
+  1 | const foo = new SyntaxError()
+
+`;
+
+exports[`new-for-builtins > invalid(43): const foo = TypeError() 1`] = `
+
+  1 | const foo = TypeError()
+
+`;
+
+exports[`new-for-builtins > invalid(43): const foo = TypeError() 2`] = `
+
+Message:
+> 1 | const foo = TypeError()
+    |             ^^^^^^^^^^^ Use \`new TypeError()\` instead of \`TypeError()\`.
+
+Output:
+  1 | const foo = new TypeError()
+
+`;
+
+exports[`new-for-builtins > invalid(44): const foo = URIError() 1`] = `
+
+  1 | const foo = URIError()
+
+`;
+
+exports[`new-for-builtins > invalid(44): const foo = URIError() 2`] = `
+
+Message:
+> 1 | const foo = URIError()
+    |             ^^^^^^^^^^ Use \`new URIError()\` instead of \`URIError()\`.
+
+Output:
+  1 | const foo = new URIError()
+
+`;
+
+exports[`new-for-builtins > invalid(45): const foo = DisposableStack() 1`] = `
+
+  1 | const foo = DisposableStack()
+
+`;
+
+exports[`new-for-builtins > invalid(45): const foo = DisposableStack() 2`] = `
+
+Message:
+> 1 | const foo = DisposableStack()
+    |             ^^^^^^^^^^^^^^^^^ Use \`new DisposableStack()\` instead of \`DisposableStack()\`.
+
+Output:
+  1 | const foo = new DisposableStack()
+
+`;
+
+exports[`new-for-builtins > invalid(46): const foo = AsyncDisposableStack() 1`] = `
+
+  1 | const foo = AsyncDisposableStack()
+
+`;
+
+exports[`new-for-builtins > invalid(46): const foo = AsyncDisposableStack() 2`] = `
+
+Message:
+> 1 | const foo = AsyncDisposableStack()
+    |             ^^^^^^^^^^^^^^^^^^^^^^ Use \`new AsyncDisposableStack()\` instead of \`AsyncDisposableStack()\`.
+
+Output:
+  1 | const foo = new AsyncDisposableStack()
+
+`;
+
+exports[`new-for-builtins > invalid(47): const foo = Float16Array() 1`] = `
+
+  1 | const foo = Float16Array()
+
+`;
+
+exports[`new-for-builtins > invalid(47): const foo = Float16Array() 2`] = `
+
+Message:
+> 1 | const foo = Float16Array()
+    |             ^^^^^^^^^^^^^^ Use \`new Float16Array()\` instead of \`Float16Array()\`.
+
+Output:
+  1 | const foo = new Float16Array()
+
+`;
+
+exports[`new-for-builtins > invalid(48): const foo = Float32Array() 1`] = `
+
+  1 | const foo = Float32Array()
+
+`;
+
+exports[`new-for-builtins > invalid(48): const foo = Float32Array() 2`] = `
+
+Message:
+> 1 | const foo = Float32Array()
+    |             ^^^^^^^^^^^^^^ Use \`new Float32Array()\` instead of \`Float32Array()\`.
+
+Output:
+  1 | const foo = new Float32Array()
+
+`;
+
+exports[`new-for-builtins > invalid(49): const foo = Float64Array() 1`] = `
+
+  1 | const foo = Float64Array()
+
+`;
+
+exports[`new-for-builtins > invalid(49): const foo = Float64Array() 2`] = `
+
+Message:
+> 1 | const foo = Float64Array()
+    |             ^^^^^^^^^^^^^^ Use \`new Float64Array()\` instead of \`Float64Array()\`.
+
+Output:
+  1 | const foo = new Float64Array()
+
+`;
+
+exports[`new-for-builtins > invalid(5): const foo = globalThis/*comment*/.Date(); 1`] = `
+
+  1 | const foo = globalThis/*comment*/.Date();
+
+`;
+
+exports[`new-for-builtins > invalid(5): const foo = globalThis/*comment*/.Date(); 2`] = `
+
+Message:
+> 1 | const foo = globalThis/*comment*/.Date();
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`String(new Date())\` instead of \`Date()\`.
+
+Suggestion 1/1: Switch to \`String(new Date())\`.:
+  1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(5): const symbol = new Symbol; 1`] = `
+
+  1 | const symbol = new Symbol;
+
+`;
+
+exports[`new-for-builtins > invalid(5): const symbol = new Symbol; 2`] = `
+
+Message:
+> 1 | const symbol = new Symbol;
+    |                ^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+
+Output:
+  1 | const symbol = Symbol();
+
+`;
+
+exports[`new-for-builtins > invalid(50): const foo = Function() 1`] = `
+
+  1 | const foo = Function()
+
+`;
+
+exports[`new-for-builtins > invalid(50): const foo = Function() 2`] = `
+
+Message:
+> 1 | const foo = Function()
+    |             ^^^^^^^^^^ Use \`new Function()\` instead of \`Function()\`.
+
+Output:
+  1 | const foo = new Function()
+
+`;
+
+exports[`new-for-builtins > invalid(51): const foo = Int8Array() 1`] = `
+
+  1 | const foo = Int8Array()
+
+`;
+
+exports[`new-for-builtins > invalid(51): const foo = Int8Array() 2`] = `
+
+Message:
+> 1 | const foo = Int8Array()
+    |             ^^^^^^^^^^^ Use \`new Int8Array()\` instead of \`Int8Array()\`.
+
+Output:
+  1 | const foo = new Int8Array()
+
+`;
+
+exports[`new-for-builtins > invalid(52): const foo = Int16Array() 1`] = `
+
+  1 | const foo = Int16Array()
+
+`;
+
+exports[`new-for-builtins > invalid(52): const foo = Int16Array() 2`] = `
+
+Message:
+> 1 | const foo = Int16Array()
+    |             ^^^^^^^^^^^^ Use \`new Int16Array()\` instead of \`Int16Array()\`.
+
+Output:
+  1 | const foo = new Int16Array()
+
+`;
+
+exports[`new-for-builtins > invalid(53): const foo = Int32Array() 1`] = `
+
+  1 | const foo = Int32Array()
+
+`;
+
+exports[`new-for-builtins > invalid(53): const foo = Int32Array() 2`] = `
+
+Message:
+> 1 | const foo = Int32Array()
+    |             ^^^^^^^^^^^^ Use \`new Int32Array()\` instead of \`Int32Array()\`.
+
+Output:
+  1 | const foo = new Int32Array()
+
+`;
+
+exports[`new-for-builtins > invalid(54): const foo = (( Map ))() 1`] = `
+
+  1 | const foo = (( Map ))()
+
+`;
+
+exports[`new-for-builtins > invalid(54): const foo = (( Map ))() 2`] = `
+
+Message:
+> 1 | const foo = (( Map ))()
+    |             ^^^^^^^^^^^ Use \`new Map()\` instead of \`Map()\`.
+
+Output:
+  1 | const foo = new (( Map ))()
+
+`;
+
+exports[`new-for-builtins > invalid(55): const foo = Map([['foo', 'bar'], ['unicorn', 'rainbow']]) 1`] = `
+
+  1 | const foo = Map([['foo', 'bar'], ['unicorn', 'rainbow']])
+
+`;
+
+exports[`new-for-builtins > invalid(55): const foo = Map([['foo', 'bar'], ['unicorn', 'rainbow']]) 2`] = `
+
+Message:
+> 1 | const foo = Map([['foo', 'bar'], ['unicorn', 'rainbow']])
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Map()\` instead of \`Map()\`.
+
+Output:
+  1 | const foo = new Map([['foo', 'bar'], ['unicorn', 'rainbow']])
+
+`;
+
+exports[`new-for-builtins > invalid(56): const foo = WeakMap() 1`] = `
+
+  1 | const foo = WeakMap()
+
+`;
+
+exports[`new-for-builtins > invalid(56): const foo = WeakMap() 2`] = `
+
+Message:
+> 1 | const foo = WeakMap()
+    |             ^^^^^^^^^ Use \`new WeakMap()\` instead of \`WeakMap()\`.
+
+Output:
+  1 | const foo = new WeakMap()
+
+`;
+
+exports[`new-for-builtins > invalid(57): const foo = Set() 1`] = `
+
+  1 | const foo = Set()
+
+`;
+
+exports[`new-for-builtins > invalid(57): const foo = Set() 2`] = `
+
+Message:
+> 1 | const foo = Set()
+    |             ^^^^^ Use \`new Set()\` instead of \`Set()\`.
+
+Output:
+  1 | const foo = new Set()
+
+`;
+
+exports[`new-for-builtins > invalid(58): const foo = WeakSet() 1`] = `
+
+  1 | const foo = WeakSet()
+
+`;
+
+exports[`new-for-builtins > invalid(58): const foo = WeakSet() 2`] = `
+
+Message:
+> 1 | const foo = WeakSet()
+    |             ^^^^^^^^^ Use \`new WeakSet()\` instead of \`WeakSet()\`.
+
+Output:
+  1 | const foo = new WeakSet()
+
+`;
+
+exports[`new-for-builtins > invalid(59): const foo = Promise() 1`] = `
+
+  1 | const foo = Promise()
+
+`;
+
+exports[`new-for-builtins > invalid(59): const foo = Promise() 2`] = `
+
+Message:
+> 1 | const foo = Promise()
+    |             ^^^^^^^^^ Use \`new Promise()\` instead of \`Promise()\`.
+
+Output:
+  1 | const foo = new Promise()
+
+`;
+
+exports[`new-for-builtins > invalid(6): const foo = Date(bar); 1`] = `
+
+  1 | const foo = Date(bar);
+
+`;
+
+exports[`new-for-builtins > invalid(6): const foo = Date(bar); 2`] = `
+
+Message:
+> 1 | const foo = Date(bar);
+    |             ^^^^^^^^^ Use \`String(new Date())\` instead of \`Date()\`.
+
+Suggestion 1/1: Switch to \`String(new Date())\`.:
+  1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(6): const s = new Symbol()!; 1`] = `
+
+  1 | const s = new Symbol()!;
+
+`;
+
+exports[`new-for-builtins > invalid(6): const s = new Symbol()!; 2`] = `
+
+Message:
+> 1 | const s = new Symbol()!;
+    |           ^^^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+
+Output:
+  1 | const s = Symbol()!;
+
+`;
+
+exports[`new-for-builtins > invalid(60): const foo = RegExp() 1`] = `
+
+  1 | const foo = RegExp()
+
+`;
+
+exports[`new-for-builtins > invalid(60): const foo = RegExp() 2`] = `
+
+Message:
+> 1 | const foo = RegExp()
+    |             ^^^^^^^^ Use \`new RegExp()\` instead of \`RegExp()\`.
+
+Output:
+  1 | const foo = new RegExp()
+
+`;
+
+exports[`new-for-builtins > invalid(61): const foo = Uint8Array() 1`] = `
+
+  1 | const foo = Uint8Array()
+
+`;
+
+exports[`new-for-builtins > invalid(61): const foo = Uint8Array() 2`] = `
+
+Message:
+> 1 | const foo = Uint8Array()
+    |             ^^^^^^^^^^^^ Use \`new Uint8Array()\` instead of \`Uint8Array()\`.
+
+Output:
+  1 | const foo = new Uint8Array()
+
+`;
+
+exports[`new-for-builtins > invalid(62): const foo = Uint16Array() 1`] = `
+
+  1 | const foo = Uint16Array()
+
+`;
+
+exports[`new-for-builtins > invalid(62): const foo = Uint16Array() 2`] = `
+
+Message:
+> 1 | const foo = Uint16Array()
+    |             ^^^^^^^^^^^^^ Use \`new Uint16Array()\` instead of \`Uint16Array()\`.
+
+Output:
+  1 | const foo = new Uint16Array()
+
+`;
+
+exports[`new-for-builtins > invalid(63): const foo = Uint32Array() 1`] = `
+
+  1 | const foo = Uint32Array()
+
+`;
+
+exports[`new-for-builtins > invalid(63): const foo = Uint32Array() 2`] = `
+
+Message:
+> 1 | const foo = Uint32Array()
+    |             ^^^^^^^^^^^^^ Use \`new Uint32Array()\` instead of \`Uint32Array()\`.
+
+Output:
+  1 | const foo = new Uint32Array()
+
+`;
+
+exports[`new-for-builtins > invalid(64): const foo = Uint8ClampedArray() 1`] = `
+
+  1 | const foo = Uint8ClampedArray()
+
+`;
+
+exports[`new-for-builtins > invalid(64): const foo = Uint8ClampedArray() 2`] = `
+
+Message:
+> 1 | const foo = Uint8ClampedArray()
+    |             ^^^^^^^^^^^^^^^^^^^ Use \`new Uint8ClampedArray()\` instead of \`Uint8ClampedArray()\`.
+
+Output:
+  1 | const foo = new Uint8ClampedArray()
+
+`;
+
+exports[`new-for-builtins > invalid(65): const foo = Intl.Collator() 1`] = `
+
+  1 | const foo = Intl.Collator()
+
+`;
+
+exports[`new-for-builtins > invalid(65): const foo = Intl.Collator() 2`] = `
+
+Message:
+> 1 | const foo = Intl.Collator()
+    |             ^^^^^^^^^^^^^^^ Use \`new Intl.Collator()\` instead of \`Intl.Collator()\`.
+
+Output:
+  1 | const foo = new Intl.Collator()
+
+`;
+
+exports[`new-for-builtins > invalid(66): const foo = Intl.DateTimeFormat() 1`] = `
+
+  1 | const foo = Intl.DateTimeFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(66): const foo = Intl.DateTimeFormat() 2`] = `
+
+Message:
+> 1 | const foo = Intl.DateTimeFormat()
+    |             ^^^^^^^^^^^^^^^^^^^^^ Use \`new Intl.DateTimeFormat()\` instead of \`Intl.DateTimeFormat()\`.
+
+Output:
+  1 | const foo = new Intl.DateTimeFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(67): const foo = globalThis.Intl.DateTimeFormat() 1`] = `
+
+  1 | const foo = globalThis.Intl.DateTimeFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(67): const foo = globalThis.Intl.DateTimeFormat() 2`] = `
+
+Message:
+> 1 | const foo = globalThis.Intl.DateTimeFormat()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Intl.DateTimeFormat()\` instead of \`Intl.DateTimeFormat()\`.
+
+Output:
+  1 | const foo = new globalThis.Intl.DateTimeFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(68): const foo = Intl.DisplayNames('en', {type: 'language'}) 1`] = `
+
+  1 | const foo = Intl.DisplayNames('en', {type: 'language'})
+
+`;
+
+exports[`new-for-builtins > invalid(68): const foo = Intl.DisplayNames('en', {type: 'language'}) 2`] = `
+
+Message:
+> 1 | const foo = Intl.DisplayNames('en', {type: 'language'})
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Intl.DisplayNames()\` instead of \`Intl.DisplayNames()\`.
+
+Output:
+  1 | const foo = new Intl.DisplayNames('en', {type: 'language'})
+
+`;
+
+exports[`new-for-builtins > invalid(69): const foo = Intl.DurationFormat() 1`] = `
+
+  1 | const foo = Intl.DurationFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(69): const foo = Intl.DurationFormat() 2`] = `
+
+Message:
+> 1 | const foo = Intl.DurationFormat()
+    |             ^^^^^^^^^^^^^^^^^^^^^ Use \`new Intl.DurationFormat()\` instead of \`Intl.DurationFormat()\`.
+
+Output:
+  1 | const foo = new Intl.DurationFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(7): () => {\n\treturn new // 1\n\t\tSymbol();\n} 1`] = `
+
+  1 | () => {
+  2 | 	return new // 1
+  3 | 		Symbol();
+  4 | }
+
+`;
+
+exports[`new-for-builtins > invalid(7): () => {\n\treturn new // 1\n\t\tSymbol();\n} 2`] = `
+
+Message:
+  1 | () => {
+> 2 | 	return new // 1
+    | 	       ^^^^^^^^
+> 3 | 		Symbol();
+    | ^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+  4 | }
+
+Output:
+  1 | () => {
+  2 | 	return ( // 1
+  3 | 		Symbol());
+  4 | }
+
+`;
+
+exports[`new-for-builtins > invalid(7): const foo = Date(2020, 1); 1`] = `
+
+  1 | const foo = Date(2020, 1);
+
+`;
+
+exports[`new-for-builtins > invalid(7): const foo = Date(2020, 1); 2`] = `
+
+Message:
+> 1 | const foo = Date(2020, 1);
+    |             ^^^^^^^^^^^^^ Use \`String(new Date())\` instead of \`Date()\`.
+
+Suggestion 1/1: Switch to \`String(new Date())\`.:
+  1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(70): const foo = Intl.ListFormat() 1`] = `
+
+  1 | const foo = Intl.ListFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(70): const foo = Intl.ListFormat() 2`] = `
+
+Message:
+> 1 | const foo = Intl.ListFormat()
+    |             ^^^^^^^^^^^^^^^^^ Use \`new Intl.ListFormat()\` instead of \`Intl.ListFormat()\`.
+
+Output:
+  1 | const foo = new Intl.ListFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(71): const foo = Intl.Locale('en') 1`] = `
+
+  1 | const foo = Intl.Locale('en')
+
+`;
+
+exports[`new-for-builtins > invalid(71): const foo = Intl.Locale('en') 2`] = `
+
+Message:
+> 1 | const foo = Intl.Locale('en')
+    |             ^^^^^^^^^^^^^^^^^ Use \`new Intl.Locale()\` instead of \`Intl.Locale()\`.
+
+Output:
+  1 | const foo = new Intl.Locale('en')
+
+`;
+
+exports[`new-for-builtins > invalid(72): const foo = Intl.NumberFormat() 1`] = `
+
+  1 | const foo = Intl.NumberFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(72): const foo = Intl.NumberFormat() 2`] = `
+
+Message:
+> 1 | const foo = Intl.NumberFormat()
+    |             ^^^^^^^^^^^^^^^^^^^ Use \`new Intl.NumberFormat()\` instead of \`Intl.NumberFormat()\`.
+
+Output:
+  1 | const foo = new Intl.NumberFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(73): const foo = Intl.PluralRules() 1`] = `
+
+  1 | const foo = Intl.PluralRules()
+
+`;
+
+exports[`new-for-builtins > invalid(73): const foo = Intl.PluralRules() 2`] = `
+
+Message:
+> 1 | const foo = Intl.PluralRules()
+    |             ^^^^^^^^^^^^^^^^^^ Use \`new Intl.PluralRules()\` instead of \`Intl.PluralRules()\`.
+
+Output:
+  1 | const foo = new Intl.PluralRules()
+
+`;
+
+exports[`new-for-builtins > invalid(74): const foo = Intl.RelativeTimeFormat() 1`] = `
+
+  1 | const foo = Intl.RelativeTimeFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(74): const foo = Intl.RelativeTimeFormat() 2`] = `
+
+Message:
+> 1 | const foo = Intl.RelativeTimeFormat()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Intl.RelativeTimeFormat()\` instead of \`Intl.RelativeTimeFormat()\`.
+
+Output:
+  1 | const foo = new Intl.RelativeTimeFormat()
+
+`;
+
+exports[`new-for-builtins > invalid(75): const foo = Intl.Segmenter() 1`] = `
+
+  1 | const foo = Intl.Segmenter()
+
+`;
+
+exports[`new-for-builtins > invalid(75): const foo = Intl.Segmenter() 2`] = `
+
+Message:
+> 1 | const foo = Intl.Segmenter()
+    |             ^^^^^^^^^^^^^^^^ Use \`new Intl.Segmenter()\` instead of \`Intl.Segmenter()\`.
+
+Output:
+  1 | const foo = new Intl.Segmenter()
+
+`;
+
+exports[`new-for-builtins > invalid(76): const foo = Temporal.Duration() 1`] = `
+
+  1 | const foo = Temporal.Duration()
+
+`;
+
+exports[`new-for-builtins > invalid(76): const foo = Temporal.Duration() 2`] = `
+
+Message:
+> 1 | const foo = Temporal.Duration()
+    |             ^^^^^^^^^^^^^^^^^^^ Use \`new Temporal.Duration()\` instead of \`Temporal.Duration()\`.
+
+Output:
+  1 | const foo = new Temporal.Duration()
+
+`;
+
+exports[`new-for-builtins > invalid(77): const foo = Temporal.Instant(0n) 1`] = `
+
+  1 | const foo = Temporal.Instant(0n)
+
+`;
+
+exports[`new-for-builtins > invalid(77): const foo = Temporal.Instant(0n) 2`] = `
+
+Message:
+> 1 | const foo = Temporal.Instant(0n)
+    |             ^^^^^^^^^^^^^^^^^^^^ Use \`new Temporal.Instant()\` instead of \`Temporal.Instant()\`.
+
+Output:
+  1 | const foo = new Temporal.Instant(0n)
+
+`;
+
+exports[`new-for-builtins > invalid(78): const foo = Temporal.PlainDate(2024, 1, 1) 1`] = `
+
+  1 | const foo = Temporal.PlainDate(2024, 1, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(78): const foo = Temporal.PlainDate(2024, 1, 1) 2`] = `
+
+Message:
+> 1 | const foo = Temporal.PlainDate(2024, 1, 1)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Temporal.PlainDate()\` instead of \`Temporal.PlainDate()\`.
+
+Output:
+  1 | const foo = new Temporal.PlainDate(2024, 1, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(79): const foo = globalThis.Temporal.PlainDate(2024, 1, 1) 1`] = `
+
+  1 | const foo = globalThis.Temporal.PlainDate(2024, 1, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(79): const foo = globalThis.Temporal.PlainDate(2024, 1, 1) 2`] = `
+
+Message:
+> 1 | const foo = globalThis.Temporal.PlainDate(2024, 1, 1)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Temporal.PlainDate()\` instead of \`Temporal.PlainDate()\`.
+
+Output:
+  1 | const foo = new globalThis.Temporal.PlainDate(2024, 1, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(8): () => {\n\treturn (\n\t\tnew // 2\n\t\t\tSymbol()\n\t);\n} 1`] = `
+
+  1 | () => {
+  2 | 	return (
+  3 | 		new // 2
+  4 | 			Symbol()
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`new-for-builtins > invalid(8): () => {\n\treturn (\n\t\tnew // 2\n\t\t\tSymbol()\n\t);\n} 2`] = `
+
+Message:
+  1 | () => {
+  2 | 	return (
+> 3 | 		new // 2
+    | 		^^^^^^^^
+> 4 | 			Symbol()
+    | ^^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+  5 | 	);
+  6 | }
+
+Output:
+  1 | () => {
+  2 | 	return (
+  3 | 		// 2
+  4 | 			Symbol()
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`new-for-builtins > invalid(8): const foo = Date(2020, 1, 2, 3); 1`] = `
+
+  1 | const foo = Date(2020, 1, 2, 3);
+
+`;
+
+exports[`new-for-builtins > invalid(8): const foo = Date(2020, 1, 2, 3); 2`] = `
+
+Message:
+> 1 | const foo = Date(2020, 1, 2, 3);
+    |             ^^^^^^^^^^^^^^^^^^^ Use \`String(new Date())\` instead of \`Date()\`.
+
+Suggestion 1/1: Switch to \`String(new Date())\`.:
+  1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(80): const foo = Temporal.PlainDateTime(2024, 1, 1) 1`] = `
+
+  1 | const foo = Temporal.PlainDateTime(2024, 1, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(80): const foo = Temporal.PlainDateTime(2024, 1, 1) 2`] = `
+
+Message:
+> 1 | const foo = Temporal.PlainDateTime(2024, 1, 1)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Temporal.PlainDateTime()\` instead of \`Temporal.PlainDateTime()\`.
+
+Output:
+  1 | const foo = new Temporal.PlainDateTime(2024, 1, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(81): const foo = Temporal.PlainMonthDay(1, 1) 1`] = `
+
+  1 | const foo = Temporal.PlainMonthDay(1, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(81): const foo = Temporal.PlainMonthDay(1, 1) 2`] = `
+
+Message:
+> 1 | const foo = Temporal.PlainMonthDay(1, 1)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Temporal.PlainMonthDay()\` instead of \`Temporal.PlainMonthDay()\`.
+
+Output:
+  1 | const foo = new Temporal.PlainMonthDay(1, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(82): const foo = Temporal.PlainTime() 1`] = `
+
+  1 | const foo = Temporal.PlainTime()
+
+`;
+
+exports[`new-for-builtins > invalid(82): const foo = Temporal.PlainTime() 2`] = `
+
+Message:
+> 1 | const foo = Temporal.PlainTime()
+    |             ^^^^^^^^^^^^^^^^^^^^ Use \`new Temporal.PlainTime()\` instead of \`Temporal.PlainTime()\`.
+
+Output:
+  1 | const foo = new Temporal.PlainTime()
+
+`;
+
+exports[`new-for-builtins > invalid(83): const foo = Temporal.PlainYearMonth(2024, 1) 1`] = `
+
+  1 | const foo = Temporal.PlainYearMonth(2024, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(83): const foo = Temporal.PlainYearMonth(2024, 1) 2`] = `
+
+Message:
+> 1 | const foo = Temporal.PlainYearMonth(2024, 1)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Temporal.PlainYearMonth()\` instead of \`Temporal.PlainYearMonth()\`.
+
+Output:
+  1 | const foo = new Temporal.PlainYearMonth(2024, 1)
+
+`;
+
+exports[`new-for-builtins > invalid(84): const foo = Temporal.ZonedDateTime(0n, 'UTC') 1`] = `
+
+  1 | const foo = Temporal.ZonedDateTime(0n, 'UTC')
+
+`;
+
+exports[`new-for-builtins > invalid(84): const foo = Temporal.ZonedDateTime(0n, 'UTC') 2`] = `
+
+Message:
+> 1 | const foo = Temporal.ZonedDateTime(0n, 'UTC')
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new Temporal.ZonedDateTime()\` instead of \`Temporal.ZonedDateTime()\`.
+
+Output:
+  1 | const foo = new Temporal.ZonedDateTime(0n, 'UTC')
+
+`;
+
+exports[`new-for-builtins > invalid(85): const foo = Temporal.Now() 1`] = `
+
+  1 | const foo = Temporal.Now()
+
+`;
+
+exports[`new-for-builtins > invalid(85): const foo = Temporal.Now() 2`] = `
+
+Message:
+> 1 | const foo = Temporal.Now()
+    |             ^^^^^^^^^^^^^^ \`Temporal.Now\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(86): const foo = Temporal.Now?.() 1`] = `
+
+  1 | const foo = Temporal.Now?.()
+
+`;
+
+exports[`new-for-builtins > invalid(86): const foo = Temporal.Now?.() 2`] = `
+
+Message:
+> 1 | const foo = Temporal.Now?.()
+    |             ^^^^^^^^^^^^^^^^ \`Temporal.Now\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(87): const foo = Temporal?.Now() 1`] = `
+
+  1 | const foo = Temporal?.Now()
+
+`;
+
+exports[`new-for-builtins > invalid(87): const foo = Temporal?.Now() 2`] = `
+
+Message:
+> 1 | const foo = Temporal?.Now()
+    |             ^^^^^^^^^^^^^^^ \`Temporal.Now\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(88): const foo = new Temporal.Now() 1`] = `
+
+  1 | const foo = new Temporal.Now()
+
+`;
+
+exports[`new-for-builtins > invalid(88): const foo = new Temporal.Now() 2`] = `
+
+Message:
+> 1 | const foo = new Temporal.Now()
+    |             ^^^^^^^^^^^^^^^^^^ \`Temporal.Now\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(89): const foo = globalThis.Temporal.Now() 1`] = `
+
+  1 | const foo = globalThis.Temporal.Now()
+
+`;
+
+exports[`new-for-builtins > invalid(89): const foo = globalThis.Temporal.Now() 2`] = `
+
+Message:
+> 1 | const foo = globalThis.Temporal.Now()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^ \`Temporal.Now\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(9): () => {\n\treturn new // 3\n\t\t(Symbol);\n} 1`] = `
+
+  1 | () => {
+  2 | 	return new // 3
+  3 | 		(Symbol);
+  4 | }
+
+`;
+
+exports[`new-for-builtins > invalid(9): () => {\n\treturn new // 3\n\t\t(Symbol);\n} 2`] = `
+
+Message:
+  1 | () => {
+> 2 | 	return new // 3
+    | 	       ^^^^^^^^
+> 3 | 		(Symbol);
+    | ^^^^^^^^^^ Use \`Symbol()\` instead of \`new Symbol()\`.
+  4 | }
+
+Output:
+  1 | () => {
+  2 | 	return ( // 3
+  3 | 		(Symbol)());
+  4 | }
+
+`;
+
+exports[`new-for-builtins > invalid(9): const foo = Date(...arguments); 1`] = `
+
+  1 | const foo = Date(...arguments);
+
+`;
+
+exports[`new-for-builtins > invalid(9): const foo = Date(...arguments); 2`] = `
+
+Message:
+> 1 | const foo = Date(...arguments);
+    |             ^^^^^^^^^^^^^^^^^^ Use \`String(new Date())\` instead of \`Date()\`.
+
+Suggestion 1/1: Switch to \`String(new Date())\`.:
+  1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(90): const foo = globalThis.Temporal?.Now() 1`] = `
+
+  1 | const foo = globalThis.Temporal?.Now()
+
+`;
+
+exports[`new-for-builtins > invalid(90): const foo = globalThis.Temporal?.Now() 2`] = `
+
+Message:
+> 1 | const foo = globalThis.Temporal?.Now()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Temporal.Now\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(91): const foo = globalThis?.Temporal.Now() 1`] = `
+
+  1 | const foo = globalThis?.Temporal.Now()
+
+`;
+
+exports[`new-for-builtins > invalid(91): const foo = globalThis?.Temporal.Now() 2`] = `
+
+Message:
+> 1 | const foo = globalThis?.Temporal.Now()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Temporal.Now\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(92): const foo = new globalThis.Temporal.Now() 1`] = `
+
+  1 | const foo = new globalThis.Temporal.Now()
+
+`;
+
+exports[`new-for-builtins > invalid(92): const foo = new globalThis.Temporal.Now() 2`] = `
+
+Message:
+> 1 | const foo = new globalThis.Temporal.Now()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Temporal.Now\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(93): const foo = WebAssembly() 1`] = `
+
+  1 | const foo = WebAssembly()
+
+`;
+
+exports[`new-for-builtins > invalid(93): const foo = WebAssembly() 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly()
+    |             ^^^^^^^^^^^^^ \`WebAssembly\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(94): const foo = new WebAssembly() 1`] = `
+
+  1 | const foo = new WebAssembly()
+
+`;
+
+exports[`new-for-builtins > invalid(94): const foo = new WebAssembly() 2`] = `
+
+Message:
+> 1 | const foo = new WebAssembly()
+    |             ^^^^^^^^^^^^^^^^^ \`WebAssembly\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(95): const foo = globalThis.WebAssembly() 1`] = `
+
+  1 | const foo = globalThis.WebAssembly()
+
+`;
+
+exports[`new-for-builtins > invalid(95): const foo = globalThis.WebAssembly() 2`] = `
+
+Message:
+> 1 | const foo = globalThis.WebAssembly()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^ \`WebAssembly\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(96): const foo = new globalThis.WebAssembly() 1`] = `
+
+  1 | const foo = new globalThis.WebAssembly()
+
+`;
+
+exports[`new-for-builtins > invalid(96): const foo = new globalThis.WebAssembly() 2`] = `
+
+Message:
+> 1 | const foo = new globalThis.WebAssembly()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`WebAssembly\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(97): const foo = WebAssembly.JSTag() 1`] = `
+
+  1 | const foo = WebAssembly.JSTag()
+
+`;
+
+exports[`new-for-builtins > invalid(97): const foo = WebAssembly.JSTag() 2`] = `
+
+Message:
+> 1 | const foo = WebAssembly.JSTag()
+    |             ^^^^^^^^^^^^^^^^^^^ \`WebAssembly.JSTag\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(98): const foo = new WebAssembly.JSTag() 1`] = `
+
+  1 | const foo = new WebAssembly.JSTag()
+
+`;
+
+exports[`new-for-builtins > invalid(98): const foo = new WebAssembly.JSTag() 2`] = `
+
+Message:
+> 1 | const foo = new WebAssembly.JSTag()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^ \`WebAssembly.JSTag\` is not a function or constructor.
+
+`;
+
+exports[`new-for-builtins > invalid(99): const foo = globalThis.WebAssembly.JSTag() 1`] = `
+
+  1 | const foo = globalThis.WebAssembly.JSTag()
+
+`;
+
+exports[`new-for-builtins > invalid(99): const foo = globalThis.WebAssembly.JSTag() 2`] = `
+
+Message:
+> 1 | const foo = globalThis.WebAssembly.JSTag()
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`WebAssembly.JSTag\` is not a function or constructor.
+
+`;

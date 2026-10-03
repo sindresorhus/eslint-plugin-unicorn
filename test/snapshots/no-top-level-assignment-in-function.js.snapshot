@@ -1,0 +1,405 @@
+exports[`no-top-level-assignment-in-function > invalid(1): let cache;\nfunction build() {\n\tcache = new Map();\n} 1`] = `
+
+  1 | let cache;
+  2 | function build() {
+  3 | 	cache = new Map();
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(1): let cache;\nfunction build() {\n\tcache = new Map();\n} 2`] = `
+
+Message:
+  1 | let cache;
+  2 | function build() {
+> 3 | 	cache = new Map();
+    | 	^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(10): let cache;\nfunction build(value) {\n\tcache ??= value;\n} 1`] = `
+
+  1 | let cache;
+  2 | function build(value) {
+  3 | 	cache ??= value;
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(10): let cache;\nfunction build(value) {\n\tcache ??= value;\n} 2`] = `
+
+Message:
+  1 | let cache;
+  2 | function build(value) {
+> 3 | 	cache ??= value;
+    | 	^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(11): function cache() {}\nfunction build() {\n\tcache = undefined;\n} 1`] = `
+
+  1 | function cache() {}
+  2 | function build() {
+  3 | 	cache = undefined;
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(11): function cache() {}\nfunction build() {\n\tcache = undefined;\n} 2`] = `
+
+Message:
+  1 | function cache() {}
+  2 | function build() {
+> 3 | 	cache = undefined;
+    | 	^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(12): import cache from 'cache';\nfunction build() {\n\tcache = new Map();\n} 1`] = `
+
+  1 | import cache from 'cache';
+  2 | function build() {
+  3 | 	cache = new Map();
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(12): import cache from 'cache';\nfunction build() {\n\tcache = new Map();\n} 2`] = `
+
+Message:
+  1 | import cache from 'cache';
+  2 | function build() {
+> 3 | 	cache = new Map();
+    | 	^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(13): if (enabled) {\n\tvar cache;\n}\nfunction build() {\n\tcache = new Map();\n} 1`] = `
+
+  1 | if (enabled) {
+  2 | 	var cache;
+  3 | }
+  4 | function build() {
+  5 | 	cache = new Map();
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(13): if (enabled) {\n\tvar cache;\n}\nfunction build() {\n\tcache = new Map();\n} 2`] = `
+
+Message:
+  1 | if (enabled) {
+  2 | 	var cache;
+  3 | }
+  4 | function build() {
+> 5 | 	cache = new Map();
+    | 	^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(14): let cache;\nclass Cache {\n\tfield = () => {\n\t\tcache = new Map();\n\t};\n} 1`] = `
+
+  1 | let cache;
+  2 | class Cache {
+  3 | 	field = () => {
+  4 | 		cache = new Map();
+  5 | 	};
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(14): let cache;\nclass Cache {\n\tfield = () => {\n\t\tcache = new Map();\n\t};\n} 2`] = `
+
+Message:
+  1 | let cache;
+  2 | class Cache {
+  3 | 	field = () => {
+> 4 | 		cache = new Map();
+    | 		^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  5 | 	};
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(15): let cache;\nfunction build(object) {\n\t({cache} = object);\n} 1`] = `
+
+  1 | let cache;
+  2 | function build(object) {
+  3 | 	({cache} = object);
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(15): let cache;\nfunction build(object) {\n\t({cache} = object);\n} 2`] = `
+
+Message:
+  1 | let cache;
+  2 | function build(object) {
+> 3 | 	({cache} = object);
+    | 	  ^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(16): let cache;\nfunction build(array) {\n\t[cache] = array;\n} 1`] = `
+
+  1 | let cache;
+  2 | function build(array) {
+  3 | 	[cache] = array;
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(16): let cache;\nfunction build(array) {\n\t[cache] = array;\n} 2`] = `
+
+Message:
+  1 | let cache;
+  2 | function build(array) {
+> 3 | 	[cache] = array;
+    | 	 ^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(17): let key;\nfunction build(object) {\n\tfor (key in object) {\n\t\tconsole.log(key);\n\t}\n} 1`] = `
+
+  1 | let key;
+  2 | function build(object) {
+  3 | 	for (key in object) {
+  4 | 		console.log(key);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(17): let key;\nfunction build(object) {\n\tfor (key in object) {\n\t\tconsole.log(key);\n\t}\n} 2`] = `
+
+Message:
+  1 | let key;
+  2 | function build(object) {
+> 3 | 	for (key in object) {
+    | 	     ^^^ Do not assign to top-level variable \`key\` from inside a function.
+  4 | 		console.log(key);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(18): let value;\nfunction build(values) {\n\tfor (value of values) {\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | let value;
+  2 | function build(values) {
+  3 | 	for (value of values) {
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(18): let value;\nfunction build(values) {\n\tfor (value of values) {\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | let value;
+  2 | function build(values) {
+> 3 | 	for (value of values) {
+    | 	     ^^^^^ Do not assign to top-level variable \`value\` from inside a function.
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(19): let cache;\nfunction build(value: typeof cache) {\n\tcache = value;\n} 1`] = `
+
+  1 | let cache;
+  2 | function build(value: typeof cache) {
+  3 | 	cache = value;
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(19): let cache;\nfunction build(value: typeof cache) {\n\tcache = value;\n} 2`] = `
+
+Message:
+  1 | let cache;
+  2 | function build(value: typeof cache) {
+> 3 | 	cache = value;
+    | 	^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(2): let cache;\nconst build = function () {\n\tcache = new Map();\n}; 1`] = `
+
+  1 | let cache;
+  2 | const build = function () {
+  3 | 	cache = new Map();
+  4 | };
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(2): let cache;\nconst build = function () {\n\tcache = new Map();\n}; 2`] = `
+
+Message:
+  1 | let cache;
+  2 | const build = function () {
+> 3 | 	cache = new Map();
+    | 	^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | };
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(3): let cache;\nconst build = () => {\n\tcache = new Map();\n}; 1`] = `
+
+  1 | let cache;
+  2 | const build = () => {
+  3 | 	cache = new Map();
+  4 | };
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(3): let cache;\nconst build = () => {\n\tcache = new Map();\n}; 2`] = `
+
+Message:
+  1 | let cache;
+  2 | const build = () => {
+> 3 | 	cache = new Map();
+    | 	^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | };
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(4): let cache;\nfunction build() {\n\tfunction reset() {\n\t\tcache = new Map();\n\t}\n\treset();\n} 1`] = `
+
+  1 | let cache;
+  2 | function build() {
+  3 | 	function reset() {
+  4 | 		cache = new Map();
+  5 | 	}
+  6 | 	reset();
+  7 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(4): let cache;\nfunction build() {\n\tfunction reset() {\n\t\tcache = new Map();\n\t}\n\treset();\n} 2`] = `
+
+Message:
+  1 | let cache;
+  2 | function build() {
+  3 | 	function reset() {
+> 4 | 		cache = new Map();
+    | 		^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  5 | 	}
+  6 | 	reset();
+  7 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(5): let cache;\nclass Builder {\n\tbuild() {\n\t\tcache = new Map();\n\t}\n} 1`] = `
+
+  1 | let cache;
+  2 | class Builder {
+  3 | 	build() {
+  4 | 		cache = new Map();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(5): let cache;\nclass Builder {\n\tbuild() {\n\t\tcache = new Map();\n\t}\n} 2`] = `
+
+Message:
+  1 | let cache;
+  2 | class Builder {
+  3 | 	build() {
+> 4 | 		cache = new Map();
+    | 		^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(6): let index = 0;\nfunction next() {\n\tindex++;\n} 1`] = `
+
+  1 | let index = 0;
+  2 | function next() {
+  3 | 	index++;
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(6): let index = 0;\nfunction next() {\n\tindex++;\n} 2`] = `
+
+Message:
+  1 | let index = 0;
+  2 | function next() {
+> 3 | 	index++;
+    | 	^^^^^ Do not assign to top-level variable \`index\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(7): let index = 0;\nfunction next() {\n\t--index;\n} 1`] = `
+
+  1 | let index = 0;
+  2 | function next() {
+  3 | 	--index;
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(7): let index = 0;\nfunction next() {\n\t--index;\n} 2`] = `
+
+Message:
+  1 | let index = 0;
+  2 | function next() {
+> 3 | 	--index;
+    | 	  ^^^^^ Do not assign to top-level variable \`index\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(8): let count = 0;\nfunction increment() {\n\tcount += 1;\n} 1`] = `
+
+  1 | let count = 0;
+  2 | function increment() {
+  3 | 	count += 1;
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(8): let count = 0;\nfunction increment() {\n\tcount += 1;\n} 2`] = `
+
+Message:
+  1 | let count = 0;
+  2 | function increment() {
+> 3 | 	count += 1;
+    | 	^^^^^ Do not assign to top-level variable \`count\` from inside a function.
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(9): let cache;\nfunction build(value) {\n\tcache ||= value;\n} 1`] = `
+
+  1 | let cache;
+  2 | function build(value) {
+  3 | 	cache ||= value;
+  4 | }
+
+`;
+
+exports[`no-top-level-assignment-in-function > invalid(9): let cache;\nfunction build(value) {\n\tcache ||= value;\n} 2`] = `
+
+Message:
+  1 | let cache;
+  2 | function build(value) {
+> 3 | 	cache ||= value;
+    | 	^^^^^ Do not assign to top-level variable \`cache\` from inside a function.
+  4 | }
+
+`;

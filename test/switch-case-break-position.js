@@ -80,6 +80,15 @@ test.snapshot({
 				break;
 			}
 		`,
+		// Block followed by a non-terminating statement
+		outdent`
+			switch(foo) {
+				case 1: {
+					doStuff();
+				}
+				doOtherStuff();
+			}
+		`,
 	],
 	invalid: [
 		// Basic: break after block

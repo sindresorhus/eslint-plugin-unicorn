@@ -1,0 +1,694 @@
+exports[`id-match > invalid(1): .badName {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | .badName {}
+
+`;
+
+exports[`id-match > invalid(1): .badName {} 2`] = `
+
+Message:
+> 1 | .badName {}
+    | ^^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(1): <div id=\"badName\"></div> 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | <div id="badName"></div>
+
+`;
+
+exports[`id-match > invalid(1): <div id=\"badName\"></div> 2`] = `
+
+Message:
+> 1 | <div id="badName"></div>
+    |          ^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(1): a { animation-name: --good; } 1`] = `
+
+Options:
+- '^[a-z]+$'
+
+Code:
+  1 | a { animation-name: --good; }
+
+`;
+
+exports[`id-match > invalid(1): a { animation-name: --good; } 2`] = `
+
+Message:
+> 1 | a { animation-name: --good; }
+    |                     ^^^^^^ Identifier '--good' does not match the pattern '^[a-z]+$'.
+
+`;
+
+exports[`id-match > invalid(1): a { animation-name: badName; } 1`] = `
+
+Options:
+- '^good$'
+
+Code:
+  1 | a { animation-name: badName; }
+
+`;
+
+exports[`id-match > invalid(1): a { animation-name: badName; } 2`] = `
+
+Message:
+> 1 | a { animation-name: badName; }
+    |                     ^^^^^^^ Identifier 'badName' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(1): a { container-name: normal; container: normal / inline-size; } 1`] = `
+
+Options:
+- '^good$'
+
+Code:
+  1 | a { container-name: normal; container: normal / inline-size; }
+
+`;
+
+exports[`id-match > invalid(1): a { container-name: normal; container: normal / inline-size; } 2`] = `
+
+Message:
+> 1 | a { container-name: normal; container: normal / inline-size; }
+    |                     ^^^^^^ Identifier 'normal' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(1): a { container-name: normal; container: normal / inline-size; } 3`] = `
+
+Message:
+> 1 | a { container-name: normal; container: normal / inline-size; }
+    |                                        ^^^^^^ Identifier 'normal' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(10): @keyframes badName {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @keyframes badName {}
+
+`;
+
+exports[`id-match > invalid(10): @keyframes badName {} 2`] = `
+
+Message:
+> 1 | @keyframes badName {}
+    |            ^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(11): @-webkit-keyframes \"badName\" {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @-webkit-keyframes "badName" {}
+
+`;
+
+exports[`id-match > invalid(11): @-webkit-keyframes \"badName\" {} 2`] = `
+
+Message:
+> 1 | @-webkit-keyframes "badName" {}
+    |                    ^^^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(12): @layer good.badName {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @layer good.badName {}
+
+`;
+
+exports[`id-match > invalid(12): @layer good.badName {} 2`] = `
+
+Message:
+> 1 | @layer good.badName {}
+    |             ^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(13): @import url(\"style.css\") layer(good.badName); 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @import url("style.css") layer(good.badName);
+
+`;
+
+exports[`id-match > invalid(13): @import url(\"style.css\") layer(good.badName); 2`] = `
+
+Message:
+> 1 | @import url("style.css") layer(good.badName);
+    |                                     ^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(14): @container badName (width > 1px) {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @container badName (width > 1px) {}
+
+`;
+
+exports[`id-match > invalid(14): @container badName (width > 1px) {} 2`] = `
+
+Message:
+> 1 | @container badName (width > 1px) {}
+    |            ^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(15): a { container-name: badName; } 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | a { container-name: badName; }
+
+`;
+
+exports[`id-match > invalid(15): a { container-name: badName; } 2`] = `
+
+Message:
+> 1 | a { container-name: badName; }
+    |                     ^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(16): a { container: badName otherName / inline-size; } 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | a { container: badName otherName / inline-size; }
+
+`;
+
+exports[`id-match > invalid(16): a { container: badName otherName / inline-size; } 2`] = `
+
+Message:
+> 1 | a { container: badName otherName / inline-size; }
+    |                ^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(16): a { container: badName otherName / inline-size; } 3`] = `
+
+Message:
+> 1 | a { container: badName otherName / inline-size; }
+    |                        ^^^^^^^^^ Identifier 'otherName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(17): @custom-media --badName screen; 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @custom-media --badName screen;
+
+`;
+
+exports[`id-match > invalid(17): @custom-media --badName screen; 2`] = `
+
+Message:
+> 1 | @custom-media --badName screen;
+    |               ^^^^^^^^^ Identifier '--badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(18): @media (--badName) {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @media (--badName) {}
+
+`;
+
+exports[`id-match > invalid(18): @media (--badName) {} 2`] = `
+
+Message:
+> 1 | @media (--badName) {}
+    |         ^^^^^^^^^ Identifier '--badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(19): @media (/* comment */ --bad\\4e ame) {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @media (/* comment */ --bad\\4e ame) {}
+
+`;
+
+exports[`id-match > invalid(19): @media (/* comment */ --bad\\4e ame) {} 2`] = `
+
+Message:
+> 1 | @media (/* comment */ --bad\\4e ame) {}
+    |                       ^^^^^^^^^^^^ Identifier '--badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(2): .--good {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | .--good {}
+
+`;
+
+exports[`id-match > invalid(2): .--good {} 2`] = `
+
+Message:
+> 1 | .--good {}
+    | ^^^^^^^ Identifier '--good' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(2): <div class=\"good badName\totherName\nvalid\"></div> 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | <div class="good badName	otherName
+  2 | valid"></div>
+
+`;
+
+exports[`id-match > invalid(2): <div class=\"good badName\totherName\nvalid\"></div> 2`] = `
+
+Message:
+> 1 | <div class="good badName	otherName
+    |                  ^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+  2 | valid"></div>
+
+`;
+
+exports[`id-match > invalid(2): <div class=\"good badName\totherName\nvalid\"></div> 3`] = `
+
+Message:
+> 1 | <div class="good badName	otherName
+    |                         	^^^^^^^^^ Identifier 'otherName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+  2 | valid"></div>
+
+`;
+
+exports[`id-match > invalid(2): a { animation-name: badName, \"otherName\", good; } 1`] = `
+
+Options:
+- '^good$'
+
+Code:
+  1 | a { animation-name: badName, "otherName", good; }
+
+`;
+
+exports[`id-match > invalid(2): a { animation-name: badName, \"otherName\", good; } 2`] = `
+
+Message:
+> 1 | a { animation-name: badName, "otherName", good; }
+    |                     ^^^^^^^ Identifier 'badName' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(2): a { animation-name: badName, \"otherName\", good; } 3`] = `
+
+Message:
+> 1 | a { animation-name: badName, "otherName", good; }
+    |                              ^^^^^^^^^^^ Identifier 'otherName' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(2): a { container-name: --good; } 1`] = `
+
+Options:
+- '^[a-z]+$'
+
+Code:
+  1 | a { container-name: --good; }
+
+`;
+
+exports[`id-match > invalid(2): a { container-name: --good; } 2`] = `
+
+Message:
+> 1 | a { container-name: --good; }
+    |                     ^^^^^^ Identifier '--good' does not match the pattern '^[a-z]+$'.
+
+`;
+
+exports[`id-match > invalid(20): .bad\\4e ame {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | .bad\\4e ame {}
+
+`;
+
+exports[`id-match > invalid(20): .bad\\4e ame {} 2`] = `
+
+Message:
+> 1 | .bad\\4e ame {}
+    | ^^^^^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(3): #--good {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | #--good {}
+
+`;
+
+exports[`id-match > invalid(3): #--good {} 2`] = `
+
+Message:
+> 1 | #--good {}
+    | ^^^^^^^ Identifier '--good' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(3): <div ID=badName CLASS=otherName></div> 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | <div ID=badName CLASS=otherName></div>
+
+`;
+
+exports[`id-match > invalid(3): <div ID=badName CLASS=otherName></div> 2`] = `
+
+Message:
+> 1 | <div ID=badName CLASS=otherName></div>
+    |         ^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(3): <div ID=badName CLASS=otherName></div> 3`] = `
+
+Message:
+> 1 | <div ID=badName CLASS=otherName></div>
+    |                       ^^^^^^^^^ Identifier 'otherName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(3): a { animation-name: \"none\", \"inherit\", normal; } 1`] = `
+
+Options:
+- '^good$'
+
+Code:
+  1 | a { animation-name: "none", "inherit", normal; }
+
+`;
+
+exports[`id-match > invalid(3): a { animation-name: \"none\", \"inherit\", normal; } 2`] = `
+
+Message:
+> 1 | a { animation-name: "none", "inherit", normal; }
+    |                     ^^^^^^ Identifier 'none' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(3): a { animation-name: \"none\", \"inherit\", normal; } 3`] = `
+
+Message:
+> 1 | a { animation-name: "none", "inherit", normal; }
+    |                             ^^^^^^^^^ Identifier 'inherit' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(3): a { animation-name: \"none\", \"inherit\", normal; } 4`] = `
+
+Message:
+> 1 | a { animation-name: "none", "inherit", normal; }
+    |                                        ^^^^^^ Identifier 'normal' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(4): <div id=\"bad&#78;ame\" class=\"good&#32;badName\"></div> 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | <div id="bad&#78;ame" class="good&#32;badName"></div>
+
+`;
+
+exports[`id-match > invalid(4): <div id=\"bad&#78;ame\" class=\"good&#32;badName\"></div> 2`] = `
+
+Message:
+> 1 | <div id="bad&#78;ame" class="good&#32;badName"></div>
+    |          ^^^^^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(4): <div id=\"bad&#78;ame\" class=\"good&#32;badName\"></div> 3`] = `
+
+Message:
+> 1 | <div id="bad&#78;ame" class="good&#32;badName"></div>
+    |                              ^^^^^^^^^^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(4): @layer --good; 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @layer --good;
+
+`;
+
+exports[`id-match > invalid(4): @layer --good; 2`] = `
+
+Message:
+> 1 | @layer --good;
+    |        ^^^^^^ Identifier '--good' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(4): a { animation-name: bad\\4e ame, \"bad\\4e ame\"; } 1`] = `
+
+Options:
+- '^good$'
+
+Code:
+  1 | a { animation-name: bad\\4e ame, "bad\\4e ame"; }
+
+`;
+
+exports[`id-match > invalid(4): a { animation-name: bad\\4e ame, \"bad\\4e ame\"; } 2`] = `
+
+Message:
+> 1 | a { animation-name: bad\\4e ame, "bad\\4e ame"; }
+    |                     ^^^^^^^^^^ Identifier 'badName' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(4): a { animation-name: bad\\4e ame, \"bad\\4e ame\"; } 3`] = `
+
+Message:
+> 1 | a { animation-name: bad\\4e ame, "bad\\4e ame"; }
+    |                                 ^^^^^^^^^^^^ Identifier 'badName' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(5): <div id=\"two names\"></div> 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | <div id="two names"></div>
+
+`;
+
+exports[`id-match > invalid(5): <div id=\"two names\"></div> 2`] = `
+
+Message:
+> 1 | <div id="two names"></div>
+    |          ^^^^^^^^^ Identifier 'two names' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(5): @keyframes --good {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @keyframes --good {}
+
+`;
+
+exports[`id-match > invalid(5): @keyframes --good {} 2`] = `
+
+Message:
+> 1 | @keyframes --good {}
+    |            ^^^^^^ Identifier '--good' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(5): a { ANIMATION-\\6e ame: badName; } 1`] = `
+
+Options:
+- '^good$'
+
+Code:
+  1 | a { ANIMATION-\\6e ame: badName; }
+
+`;
+
+exports[`id-match > invalid(5): a { ANIMATION-\\6e ame: badName; } 2`] = `
+
+Message:
+> 1 | a { ANIMATION-\\6e ame: badName; }
+    |                        ^^^^^^^ Identifier 'badName' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(6): #badName {} 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | #badName {}
+
+`;
+
+exports[`id-match > invalid(6): #badName {} 2`] = `
+
+Message:
+> 1 | #badName {}
+    | ^^^^^^^^ Identifier 'badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(6): a { -webkit-animation-name: badName, \"otherName\"; } 1`] = `
+
+Options:
+- '^good$'
+
+Code:
+  1 | a { -webkit-animation-name: badName, "otherName"; }
+
+`;
+
+exports[`id-match > invalid(6): a { -webkit-animation-name: badName, \"otherName\"; } 2`] = `
+
+Message:
+> 1 | a { -webkit-animation-name: badName, "otherName"; }
+    |                             ^^^^^^^ Identifier 'badName' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(6): a { -webkit-animation-name: badName, \"otherName\"; } 3`] = `
+
+Message:
+> 1 | a { -webkit-animation-name: badName, "otherName"; }
+    |                                      ^^^^^^^^^^^ Identifier 'otherName' does not match the pattern '^good$'.
+
+`;
+
+exports[`id-match > invalid(7): a { --badName: 1; } 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | a { --badName: 1; }
+
+`;
+
+exports[`id-match > invalid(7): a { --badName: 1; } 2`] = `
+
+Message:
+> 1 | a { --badName: 1; }
+    |     ^^^^^^^^^ Identifier '--badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(8): a { color: var(--badName); } 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | a { color: var(--badName); }
+
+`;
+
+exports[`id-match > invalid(8): a { color: var(--badName); } 2`] = `
+
+Message:
+> 1 | a { color: var(--badName); }
+    |                ^^^^^^^^^ Identifier '--badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;
+
+exports[`id-match > invalid(9): @property --badName { syntax: \"*\"; inherits: false; } 1`] = `
+
+Options:
+- '^[a-z]+(?:-[a-z]+)*$'
+
+Code:
+  1 | @property --badName { syntax: "*"; inherits: false; }
+
+`;
+
+exports[`id-match > invalid(9): @property --badName { syntax: \"*\"; inherits: false; } 2`] = `
+
+Message:
+> 1 | @property --badName { syntax: "*"; inherits: false; }
+    |           ^^^^^^^^^ Identifier '--badName' does not match the pattern '^[a-z]+(?:-[a-z]+)*$'.
+
+`;

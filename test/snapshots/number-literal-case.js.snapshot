@@ -1,0 +1,592 @@
+exports[`number-literal-case > invalid(1): <template><div v-if=\"0XdeEd_Beef > 0\"></div></template> 1`] = `
+
+  1 | <template><div v-if="0XdeEd_Beef > 0"></div></template>
+
+`;
+
+exports[`number-literal-case > invalid(1): <template><div v-if=\"0XdeEd_Beef > 0\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="0XdeEd_Beef > 0"></div></template>
+    |                      ^^^^^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | <template><div v-if="0xDEED_BEEF > 0"></div></template>
+
+`;
+
+exports[`number-literal-case > invalid(1): [0Xabcd, -0Xabcd, +0Xabcd] 1`] = `
+
+  1 | [0Xabcd, -0Xabcd, +0Xabcd]
+
+`;
+
+exports[`number-literal-case > invalid(1): [0Xabcd, -0Xabcd, +0Xabcd] 2`] = `
+
+Message:
+> 1 | [0Xabcd, -0Xabcd, +0Xabcd]
+    |  ^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [0xABCD, -0Xabcd, +0Xabcd]
+
+`;
+
+exports[`number-literal-case > invalid(1): [0Xabcd, -0Xabcd, +0Xabcd] 3`] = `
+
+Message:
+> 1 | [0Xabcd, -0Xabcd, +0Xabcd]
+    |          ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [0Xabcd, -0xABCD, +0Xabcd]
+
+`;
+
+exports[`number-literal-case > invalid(1): [0Xabcd, -0Xabcd, +0Xabcd] 4`] = `
+
+Message:
+> 1 | [0Xabcd, -0Xabcd, +0Xabcd]
+    |                   ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [0Xabcd, -0Xabcd, +0xABCD]
+
+`;
+
+exports[`number-literal-case > invalid(1): [1E3, -1.2E-3, 1E999] 1`] = `
+
+  1 | [1E3, -1.2E-3, 1E999]
+
+`;
+
+exports[`number-literal-case > invalid(1): [1E3, -1.2E-3, 1E999] 2`] = `
+
+Message:
+> 1 | [1E3, -1.2E-3, 1E999]
+    |  ^^^ Invalid number literal casing.
+
+Output:
+  1 | [1e3, -1.2E-3, 1E999]
+
+`;
+
+exports[`number-literal-case > invalid(1): [1E3, -1.2E-3, 1E999] 3`] = `
+
+Message:
+> 1 | [1E3, -1.2E-3, 1E999]
+    |       ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [1E3, -1.2e-3, 1E999]
+
+`;
+
+exports[`number-literal-case > invalid(1): [1E3, -1.2E-3, 1E999] 4`] = `
+
+Message:
+> 1 | [1E3, -1.2E-3, 1E999]
+    |                ^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [1E3, -1.2E-3, 1e999]
+
+`;
+
+exports[`number-literal-case > invalid(1): a { width: 1E3PX; opacity: +1E-1; height: 1E2%; } 1`] = `
+
+  1 | a { width: 1E3PX; opacity: +1E-1; height: 1E2%; }
+
+`;
+
+exports[`number-literal-case > invalid(1): a { width: 1E3PX; opacity: +1E-1; height: 1E2%; } 2`] = `
+
+Message:
+> 1 | a { width: 1E3PX; opacity: +1E-1; height: 1E2%; }
+    |            ^^^ Invalid number literal casing.
+
+Output:
+  1 | a { width: 1e3PX; opacity: +1E-1; height: 1E2%; }
+
+`;
+
+exports[`number-literal-case > invalid(1): a { width: 1E3PX; opacity: +1E-1; height: 1E2%; } 3`] = `
+
+Message:
+> 1 | a { width: 1E3PX; opacity: +1E-1; height: 1E2%; }
+    |                            ^^^^^ Invalid number literal casing.
+
+Output:
+  1 | a { width: 1E3PX; opacity: +1e-1; height: 1E2%; }
+
+`;
+
+exports[`number-literal-case > invalid(1): a { width: 1E3PX; opacity: +1E-1; height: 1E2%; } 4`] = `
+
+Message:
+> 1 | a { width: 1E3PX; opacity: +1E-1; height: 1E2%; }
+    |                                           ^^^ Invalid number literal casing.
+
+Output:
+  1 | a { width: 1E3PX; opacity: +1E-1; height: 1e2%; }
+
+`;
+
+exports[`number-literal-case > invalid(1): value = 0xaBcDeF 1`] = `
+
+Filename: example.toml
+
+  1 | value = 0xaBcDeF
+
+`;
+
+exports[`number-literal-case > invalid(1): value = 0xaBcDeF 2`] = `
+
+Message:
+> 1 | value = 0xaBcDeF
+    |         ^^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | value = 0xABCDEF
+
+`;
+
+exports[`number-literal-case > invalid(1): value: [0xaf, 1E3, -1.2E+3] # preserve 1`] = `
+
+  1 | value: [0xaf, 1E3, -1.2E+3] # preserve
+
+`;
+
+exports[`number-literal-case > invalid(1): value: [0xaf, 1E3, -1.2E+3] # preserve 2`] = `
+
+Message:
+> 1 | value: [0xaf, 1E3, -1.2E+3] # preserve
+    |         ^^^^ Invalid number literal casing.
+
+Output:
+  1 | value: [0xAF, 1E3, -1.2E+3] # preserve
+
+`;
+
+exports[`number-literal-case > invalid(1): value: [0xaf, 1E3, -1.2E+3] # preserve 3`] = `
+
+Message:
+> 1 | value: [0xaf, 1E3, -1.2E+3] # preserve
+    |               ^^^ Invalid number literal casing.
+
+Output:
+  1 | value: [0xaf, 1e3, -1.2E+3] # preserve
+
+`;
+
+exports[`number-literal-case > invalid(1): value: [0xaf, 1E3, -1.2E+3] # preserve 4`] = `
+
+Message:
+> 1 | value: [0xaf, 1E3, -1.2E+3] # preserve
+    |                    ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | value: [0xaf, 1E3, -1.2e+3] # preserve
+
+`;
+
+exports[`number-literal-case > invalid(2): <template><div v-if=\"0XdeEd_Beefn > 0n\"></div></template> 1`] = `
+
+  1 | <template><div v-if="0XdeEd_Beefn > 0n"></div></template>
+
+`;
+
+exports[`number-literal-case > invalid(2): <template><div v-if=\"0XdeEd_Beefn > 0n\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="0XdeEd_Beefn > 0n"></div></template>
+    |                      ^^^^^^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | <template><div v-if="0xDEED_BEEFn > 0n"></div></template>
+
+`;
+
+exports[`number-literal-case > invalid(2): [0XABCD, -0XABCD] 1`] = `
+
+Options:
+- hexadecimalValue: 'lowercase'
+
+Code:
+  1 | [0XABCD, -0XABCD]
+
+`;
+
+exports[`number-literal-case > invalid(2): [0XABCD, -0XABCD] 2`] = `
+
+Message:
+> 1 | [0XABCD, -0XABCD]
+    |  ^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [0xabcd, -0XABCD]
+
+`;
+
+exports[`number-literal-case > invalid(2): [0XABCD, -0XABCD] 3`] = `
+
+Message:
+> 1 | [0XABCD, -0XABCD]
+    |          ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [0XABCD, -0xabcd]
+
+`;
+
+exports[`number-literal-case > invalid(2): [1E3, -1.2E-3, 1E999] 1`] = `
+
+  1 | [1E3, -1.2E-3, 1E999]
+
+`;
+
+exports[`number-literal-case > invalid(2): [1E3, -1.2E-3, 1E999] 2`] = `
+
+Message:
+> 1 | [1E3, -1.2E-3, 1E999]
+    |  ^^^ Invalid number literal casing.
+
+Output:
+  1 | [1e3, -1.2E-3, 1E999]
+
+`;
+
+exports[`number-literal-case > invalid(2): [1E3, -1.2E-3, 1E999] 3`] = `
+
+Message:
+> 1 | [1E3, -1.2E-3, 1E999]
+    |       ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [1E3, -1.2e-3, 1E999]
+
+`;
+
+exports[`number-literal-case > invalid(2): [1E3, -1.2E-3, 1E999] 4`] = `
+
+Message:
+> 1 | [1E3, -1.2E-3, 1E999]
+    |                ^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [1E3, -1.2E-3, 1e999]
+
+`;
+
+exports[`number-literal-case > invalid(2): a { --number: -1.2E+3; --size: 1E3\\70x; } 1`] = `
+
+  1 | a { --number: -1.2E+3; --size: 1E3\\70x; }
+
+`;
+
+exports[`number-literal-case > invalid(2): a { --number: -1.2E+3; --size: 1E3\\70x; } 2`] = `
+
+Message:
+> 1 | a { --number: -1.2E+3; --size: 1E3\\70x; }
+    |               ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | a { --number: -1.2e+3; --size: 1E3\\70x; }
+
+`;
+
+exports[`number-literal-case > invalid(2): a { --number: -1.2E+3; --size: 1E3\\70x; } 3`] = `
+
+Message:
+> 1 | a { --number: -1.2E+3; --size: 1E3\\70x; }
+    |                                ^^^ Invalid number literal casing.
+
+Output:
+  1 | a { --number: -1.2E+3; --size: 1e3\\70x; }
+
+`;
+
+exports[`number-literal-case > invalid(2): value = 0x7fff_ffff_ffff_ffff 1`] = `
+
+Filename: example.toml
+
+  1 | value = 0x7fff_ffff_ffff_ffff
+
+`;
+
+exports[`number-literal-case > invalid(2): value = 0x7fff_ffff_ffff_ffff 2`] = `
+
+Message:
+> 1 | value = 0x7fff_ffff_ffff_ffff
+    |         ^^^^^^^^^^^^^^^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | value = 0x7FFF_FFFF_FFFF_FFFF
+
+`;
+
+exports[`number-literal-case > invalid(2): value: &number 1E3 1`] = `
+
+  1 | value: &number 1E3
+
+`;
+
+exports[`number-literal-case > invalid(2): value: &number 1E3 2`] = `
+
+Message:
+> 1 | value: &number 1E3
+    |                ^^^ Invalid number literal casing.
+
+Output:
+  1 | value: &number 1e3
+
+`;
+
+exports[`number-literal-case > invalid(3): <template><div>{{1.2E3}}</div></template> 1`] = `
+
+  1 | <template><div>{{1.2E3}}</div></template>
+
+`;
+
+exports[`number-literal-case > invalid(3): <template><div>{{1.2E3}}</div></template> 2`] = `
+
+Message:
+> 1 | <template><div>{{1.2E3}}</div></template>
+    |                  ^^^^^ Invalid number literal casing.
+
+Output:
+  1 | <template><div>{{1.2e3}}</div></template>
+
+`;
+
+exports[`number-literal-case > invalid(3): @media (width > 1E3px) { a { width: calc(1E2px + 1px) } } 1`] = `
+
+  1 | @media (width > 1E3px) { a { width: calc(1E2px + 1px) } }
+
+`;
+
+exports[`number-literal-case > invalid(3): @media (width > 1E3px) { a { width: calc(1E2px + 1px) } } 2`] = `
+
+Message:
+> 1 | @media (width > 1E3px) { a { width: calc(1E2px + 1px) } }
+    |                 ^^^ Invalid number literal casing.
+
+Output:
+  1 | @media (width > 1e3px) { a { width: calc(1E2px + 1px) } }
+
+`;
+
+exports[`number-literal-case > invalid(3): @media (width > 1E3px) { a { width: calc(1E2px + 1px) } } 3`] = `
+
+Message:
+> 1 | @media (width > 1E3px) { a { width: calc(1E2px + 1px) } }
+    |                                          ^^^ Invalid number literal casing.
+
+Output:
+  1 | @media (width > 1E3px) { a { width: calc(1e2px + 1px) } }
+
+`;
+
+exports[`number-literal-case > invalid(3): [1E3, -1.2E-3, 1E999] 1`] = `
+
+  1 | [1E3, -1.2E-3, 1E999]
+
+`;
+
+exports[`number-literal-case > invalid(3): [1E3, -1.2E-3, 1E999] 2`] = `
+
+Message:
+> 1 | [1E3, -1.2E-3, 1E999]
+    |  ^^^ Invalid number literal casing.
+
+Output:
+  1 | [1e3, -1.2E-3, 1E999]
+
+`;
+
+exports[`number-literal-case > invalid(3): [1E3, -1.2E-3, 1E999] 3`] = `
+
+Message:
+> 1 | [1E3, -1.2E-3, 1E999]
+    |       ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [1E3, -1.2e-3, 1E999]
+
+`;
+
+exports[`number-literal-case > invalid(3): [1E3, -1.2E-3, 1E999] 4`] = `
+
+Message:
+> 1 | [1E3, -1.2E-3, 1E999]
+    |                ^^^^^ Invalid number literal casing.
+
+Output:
+  1 | [1E3, -1.2E-3, 1e999]
+
+`;
+
+exports[`number-literal-case > invalid(3): value = 1E6 1`] = `
+
+Filename: example.toml
+
+  1 | value = 1E6
+
+`;
+
+exports[`number-literal-case > invalid(3): value = 1E6 2`] = `
+
+Message:
+> 1 | value = 1E6
+    |         ^^^ Invalid number literal casing.
+
+Output:
+  1 | value = 1e6
+
+`;
+
+exports[`number-literal-case > invalid(3): value: 0xABCD 1`] = `
+
+Options:
+- hexadecimalValue: 'lowercase'
+
+Code:
+  1 | value: 0xABCD
+
+`;
+
+exports[`number-literal-case > invalid(3): value: 0xABCD 2`] = `
+
+Message:
+> 1 | value: 0xABCD
+    |        ^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | value: 0xabcd
+
+`;
+
+exports[`number-literal-case > invalid(4): <template><div>{{0B1n}}</div></template> 1`] = `
+
+  1 | <template><div>{{0B1n}}</div></template>
+
+`;
+
+exports[`number-literal-case > invalid(4): <template><div>{{0B1n}}</div></template> 2`] = `
+
+Message:
+> 1 | <template><div>{{0B1n}}</div></template>
+    |                  ^^^^ Invalid number literal casing.
+
+Output:
+  1 | <template><div>{{0b1n}}</div></template>
+
+`;
+
+exports[`number-literal-case > invalid(4): value = -1.2E-3 1`] = `
+
+Filename: example.toml
+
+  1 | value = -1.2E-3
+
+`;
+
+exports[`number-literal-case > invalid(4): value = -1.2E-3 2`] = `
+
+Message:
+> 1 | value = -1.2E-3
+    |         ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | value = -1.2e-3
+
+`;
+
+exports[`number-literal-case > invalid(5): <script>export default {data() {return {n: 0XdeEd_Beefn}}}</script> 1`] = `
+
+  1 | <script>export default {data() {return {n: 0XdeEd_Beefn}}}</script>
+
+`;
+
+exports[`number-literal-case > invalid(5): <script>export default {data() {return {n: 0XdeEd_Beefn}}}</script> 2`] = `
+
+Message:
+> 1 | <script>export default {data() {return {n: 0XdeEd_Beefn}}}</script>
+    |                                            ^^^^^^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | <script>export default {data() {return {n: 0xDEED_BEEFn}}}</script>
+
+`;
+
+exports[`number-literal-case > invalid(5): value = +1.2E+3 1`] = `
+
+Filename: example.toml
+
+  1 | value = +1.2E+3
+
+`;
+
+exports[`number-literal-case > invalid(5): value = +1.2E+3 2`] = `
+
+Message:
+> 1 | value = +1.2E+3
+    |         ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | value = +1.2e+3
+
+`;
+
+exports[`number-literal-case > invalid(6): value = [0xff, { number = 1E3 }] # Keep comment 1`] = `
+
+Filename: example.toml
+
+  1 | value = [0xff, { number = 1E3 }] # Keep comment
+
+`;
+
+exports[`number-literal-case > invalid(6): value = [0xff, { number = 1E3 }] # Keep comment 2`] = `
+
+Message:
+> 1 | value = [0xff, { number = 1E3 }] # Keep comment
+    |          ^^^^ Invalid number literal casing.
+
+Output:
+  1 | value = [0xFF, { number = 1E3 }] # Keep comment
+
+`;
+
+exports[`number-literal-case > invalid(6): value = [0xff, { number = 1E3 }] # Keep comment 3`] = `
+
+Message:
+> 1 | value = [0xff, { number = 1E3 }] # Keep comment
+    |                           ^^^ Invalid number literal casing.
+
+Output:
+  1 | value = [0xff, { number = 1e3 }] # Keep comment
+
+`;
+
+exports[`number-literal-case > invalid(7): value = 0xAB_CD 1`] = `
+
+Filename: example.toml
+
+Options:
+- hexadecimalValue: 'lowercase'
+
+Code:
+  1 | value = 0xAB_CD
+
+`;
+
+exports[`number-literal-case > invalid(7): value = 0xAB_CD 2`] = `
+
+Message:
+> 1 | value = 0xAB_CD
+    |         ^^^^^^^ Invalid number literal casing.
+
+Output:
+  1 | value = 0xab_cd
+
+`;

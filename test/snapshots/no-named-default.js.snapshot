@@ -1,0 +1,894 @@
+exports[`no-named-default > invalid(1): const foo = 1, bar = 2;\nexport {foo as default}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {foo as default};
+
+`;
+
+exports[`no-named-default > invalid(1): const foo = 1, bar = 2;\nexport {foo as default}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+> 2 | export {foo as default};
+    |         ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | const foo = 1, bar = 2;
+  2 | export default foo;
+  3 |
+
+`;
+
+exports[`no-named-default > invalid(1): import {default as named} from \"foo\"; 1`] = `
+
+  1 | import {default as named} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(1): import {default as named} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named} from "foo";
+    |         ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo";
+
+`;
+
+exports[`no-named-default > invalid(10): const foo = 1, bar = 2;\nexport {\n\tfoo as default,\n\tbar, // keep this\n}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {
+  3 | 	foo as default,
+  4 | 	bar, // keep this
+  5 | };
+
+`;
+
+exports[`no-named-default > invalid(10): const foo = 1, bar = 2;\nexport {\n\tfoo as default,\n\tbar, // keep this\n}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+  2 | export {
+> 3 | 	foo as default,
+    | 	^^^^^^^^^^^^^^ Prefer using the default export over named export.
+  4 | 	bar, // keep this
+  5 | };
+
+Output:
+  1 | const foo = 1, bar = 2;
+  2 | export default foo;
+  3 | export {
+  4 | 	
+  5 | 	bar, // keep this
+  6 | };
+
+`;
+
+exports[`no-named-default > invalid(10): import defaultExport, {default as named, bar,} from \"foo\"; 1`] = `
+
+  1 | import defaultExport, {default as named, bar,} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(10): import defaultExport, {default as named, bar,} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import defaultExport, {default as named, bar,} from "foo";
+    |                        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo";
+  2 | import defaultExport, { bar,} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(11): const foo = 1, bar = 2;\nexport {\n\tfoo as default // comment\n}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {
+  3 | 	foo as default // comment
+  4 | };
+
+`;
+
+exports[`no-named-default > invalid(11): const foo = 1, bar = 2;\nexport {\n\tfoo as default // comment\n}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+  2 | export {
+> 3 | 	foo as default // comment
+    | 	^^^^^^^^^^^^^^ Prefer using the default export over named export.
+  4 | };
+
+`;
+
+exports[`no-named-default > invalid(11): import defaultExport, {bar, default as named} from \"foo\"; 1`] = `
+
+  1 | import defaultExport, {bar, default as named} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(11): import defaultExport, {bar, default as named} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import defaultExport, {bar, default as named} from "foo";
+    |                             ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo";
+  2 | import defaultExport, {bar, } from "foo";
+
+`;
+
+exports[`no-named-default > invalid(12): export{foo as default, bar as default}; 1`] = `
+
+  1 | export{foo as default, bar as default};
+
+`;
+
+exports[`no-named-default > invalid(12): export{foo as default, bar as default}; 2`] = `
+
+Message:
+> 1 | export{foo as default, bar as default};
+    |        ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | export default foo;
+  2 | export{ bar as default};
+
+`;
+
+exports[`no-named-default > invalid(12): export{foo as default, bar as default}; 3`] = `
+
+Message:
+> 1 | export{foo as default, bar as default};
+    |                        ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | export default bar;
+  2 | export{foo as default, };
+
+`;
+
+exports[`no-named-default > invalid(12): import {\n\tdefault as named,\n\tbar,\n} from \"foo\"; 1`] = `
+
+  1 | import {
+  2 | 	default as named,
+  3 | 	bar,
+  4 | } from "foo";
+
+`;
+
+exports[`no-named-default > invalid(12): import {\n\tdefault as named,\n\tbar,\n} from \"foo\"; 2`] = `
+
+Message:
+  1 | import {
+> 2 | 	default as named,
+    | 	^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+  3 | 	bar,
+  4 | } from "foo";
+
+Output:
+  1 | import named, {
+  2 | 	
+  3 | 	bar,
+  4 | } from "foo";
+
+`;
+
+exports[`no-named-default > invalid(13): export default foo;\nexport {foo as default}; 1`] = `
+
+  1 | export default foo;
+  2 | export {foo as default};
+
+`;
+
+exports[`no-named-default > invalid(13): export default foo;\nexport {foo as default}; 2`] = `
+
+Message:
+  1 | export default foo;
+> 2 | export {foo as default};
+    |         ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | export default foo;
+  2 | export default foo;
+  3 |
+
+`;
+
+exports[`no-named-default > invalid(13): import{default as named}from\"foo\"; 1`] = `
+
+  1 | import{default as named}from"foo";
+
+`;
+
+exports[`no-named-default > invalid(13): import{default as named}from\"foo\"; 2`] = `
+
+Message:
+> 1 | import{default as named}from"foo";
+    |        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from"foo";
+
+`;
+
+exports[`no-named-default > invalid(14): export default bar;\nexport {foo as default}; 1`] = `
+
+  1 | export default bar;
+  2 | export {foo as default};
+
+`;
+
+exports[`no-named-default > invalid(14): export default bar;\nexport {foo as default}; 2`] = `
+
+Message:
+  1 | export default bar;
+> 2 | export {foo as default};
+    |         ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | export default bar;
+  2 | export default foo;
+  3 |
+
+`;
+
+exports[`no-named-default > invalid(14): import {default as named}from\"foo\"; 1`] = `
+
+  1 | import {default as named}from"foo";
+
+`;
+
+exports[`no-named-default > invalid(14): import {default as named}from\"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named}from"foo";
+    |         ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from"foo";
+
+`;
+
+exports[`no-named-default > invalid(15): import{default as named} from\"foo\"; 1`] = `
+
+  1 | import{default as named} from"foo";
+
+`;
+
+exports[`no-named-default > invalid(15): import{default as named} from\"foo\"; 2`] = `
+
+Message:
+> 1 | import{default as named} from"foo";
+    |        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from"foo";
+
+`;
+
+exports[`no-named-default > invalid(16): import{default as named,}from\"foo\"; 1`] = `
+
+  1 | import{default as named,}from"foo";
+
+`;
+
+exports[`no-named-default > invalid(16): import{default as named,}from\"foo\"; 2`] = `
+
+Message:
+> 1 | import{default as named,}from"foo";
+    |        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from"foo";
+
+`;
+
+exports[`no-named-default > invalid(17): import/*comment*/{default as named}from\"foo\"; 1`] = `
+
+  1 | import/*comment*/{default as named}from"foo";
+
+`;
+
+exports[`no-named-default > invalid(17): import/*comment*/{default as named}from\"foo\"; 2`] = `
+
+Message:
+> 1 | import/*comment*/{default as named}from"foo";
+    |                   ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named/*comment*/from"foo";
+
+`;
+
+exports[`no-named-default > invalid(18): import /*comment*/{default as named}from\"foo\"; 1`] = `
+
+  1 | import /*comment*/{default as named}from"foo";
+
+`;
+
+exports[`no-named-default > invalid(18): import /*comment*/{default as named}from\"foo\"; 2`] = `
+
+Message:
+> 1 | import /*comment*/{default as named}from"foo";
+    |                    ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named /*comment*/from"foo";
+
+`;
+
+exports[`no-named-default > invalid(19): import {default as named, /*comment*/bar} from \"foo\"; 1`] = `
+
+  1 | import {default as named, /*comment*/bar} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(19): import {default as named, /*comment*/bar} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named, /*comment*/bar} from "foo";
+    |         ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named, { /*comment*/bar} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(2): const foo = 1, bar = 2;\nexport {foo as default,}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {foo as default,};
+
+`;
+
+exports[`no-named-default > invalid(2): const foo = 1, bar = 2;\nexport {foo as default,}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+> 2 | export {foo as default,};
+    |         ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | const foo = 1, bar = 2;
+  2 | export default foo;
+  3 |
+
+`;
+
+exports[`no-named-default > invalid(2): import {default as named,} from \"foo\"; 1`] = `
+
+  1 | import {default as named,} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(2): import {default as named,} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named,} from "foo";
+    |         ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo";
+
+`;
+
+exports[`no-named-default > invalid(20): import defaultExport/*comment*/, {default as named} from \"foo\"; 1`] = `
+
+  1 | import defaultExport/*comment*/, {default as named} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(20): import defaultExport/*comment*/, {default as named} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import defaultExport/*comment*/, {default as named} from "foo";
+    |                                   ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo";
+  2 | import defaultExport/*comment*/from "foo";
+
+`;
+
+exports[`no-named-default > invalid(21): import{default as named}/*comment*/from\"foo\"; 1`] = `
+
+  1 | import{default as named}/*comment*/from"foo";
+
+`;
+
+exports[`no-named-default > invalid(21): import{default as named}/*comment*/from\"foo\"; 2`] = `
+
+Message:
+> 1 | import{default as named}/*comment*/from"foo";
+    |        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+`;
+
+exports[`no-named-default > invalid(22): import {/*comment*/default as named} from \"foo\"; 1`] = `
+
+  1 | import {/*comment*/default as named} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(22): import {/*comment*/default as named} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {/*comment*/default as named} from "foo";
+    |                    ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+`;
+
+exports[`no-named-default > invalid(23): import {default/*comment*/as named} from \"foo\"; 1`] = `
+
+  1 | import {default/*comment*/as named} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(23): import {default/*comment*/as named} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default/*comment*/as named} from "foo";
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+`;
+
+exports[`no-named-default > invalid(24): import {default as named/*comment*/} from \"foo\"; 1`] = `
+
+  1 | import {default as named/*comment*/} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(24): import {default as named/*comment*/} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named/*comment*/} from "foo";
+    |         ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+`;
+
+exports[`no-named-default > invalid(25): import {default as named} /*comment*/from \"foo\"; 1`] = `
+
+  1 | import {default as named} /*comment*/from "foo";
+
+`;
+
+exports[`no-named-default > invalid(25): import {default as named} /*comment*/from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named} /*comment*/from "foo";
+    |         ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+`;
+
+exports[`no-named-default > invalid(26): import {default/*comment*/as named, bar} from \"foo\"; 1`] = `
+
+  1 | import {default/*comment*/as named, bar} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(26): import {default/*comment*/as named, bar} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default/*comment*/as named, bar} from "foo";
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+`;
+
+exports[`no-named-default > invalid(27): import defaultExport,/*comment*/{default as named} from \"foo\"; 1`] = `
+
+  1 | import defaultExport,/*comment*/{default as named} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(27): import defaultExport,/*comment*/{default as named} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import defaultExport,/*comment*/{default as named} from "foo";
+    |                                  ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+`;
+
+exports[`no-named-default > invalid(28): import {\n\tdefault as named,\n\tbar, // keep this\n} from \"foo\"; 1`] = `
+
+  1 | import {
+  2 | 	default as named,
+  3 | 	bar, // keep this
+  4 | } from "foo";
+
+`;
+
+exports[`no-named-default > invalid(28): import {\n\tdefault as named,\n\tbar, // keep this\n} from \"foo\"; 2`] = `
+
+Message:
+  1 | import {
+> 2 | 	default as named,
+    | 	^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+  3 | 	bar, // keep this
+  4 | } from "foo";
+
+Output:
+  1 | import named, {
+  2 | 	
+  3 | 	bar, // keep this
+  4 | } from "foo";
+
+`;
+
+exports[`no-named-default > invalid(29): import {default as named} // comment\nfrom \"foo\"; 1`] = `
+
+  1 | import {default as named} // comment
+  2 | from "foo";
+
+`;
+
+exports[`no-named-default > invalid(29): import {default as named} // comment\nfrom \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named} // comment
+    |         ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+  2 | from "foo";
+
+`;
+
+exports[`no-named-default > invalid(3): const foo = 1, bar = 2;\nexport {foo as default, bar}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {foo as default, bar};
+
+`;
+
+exports[`no-named-default > invalid(3): const foo = 1, bar = 2;\nexport {foo as default, bar}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+> 2 | export {foo as default, bar};
+    |         ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | const foo = 1, bar = 2;
+  2 | export default foo;
+  3 | export { bar};
+
+`;
+
+exports[`no-named-default > invalid(3): import {default as named, bar} from \"foo\"; 1`] = `
+
+  1 | import {default as named, bar} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(3): import {default as named, bar} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named, bar} from "foo";
+    |         ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named, { bar} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(30): import defaultExport,{default as named}from \"foo\"; 1`] = `
+
+  1 | import defaultExport,{default as named}from "foo";
+
+`;
+
+exports[`no-named-default > invalid(30): import defaultExport,{default as named}from \"foo\"; 2`] = `
+
+Message:
+> 1 | import defaultExport,{default as named}from "foo";
+    |                       ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo";
+  2 | import defaultExport from "foo";
+
+`;
+
+exports[`no-named-default > invalid(31): import defaultExport, {default as named} from \"foo\" with {type: \"json\"}; 1`] = `
+
+  1 | import defaultExport, {default as named} from "foo" with {type: "json"};
+
+`;
+
+exports[`no-named-default > invalid(31): import defaultExport, {default as named} from \"foo\" with {type: \"json\"}; 2`] = `
+
+Message:
+> 1 | import defaultExport, {default as named} from "foo" with {type: "json"};
+    |                        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo" with {type: "json"};
+  2 | import defaultExport from "foo" with {type: "json"};
+
+`;
+
+exports[`no-named-default > invalid(32): import defaultExport, {default as named} from \"foo\" with {type: \"json\"} 1`] = `
+
+  1 | import defaultExport, {default as named} from "foo" with {type: "json"}
+
+`;
+
+exports[`no-named-default > invalid(32): import defaultExport, {default as named} from \"foo\" with {type: \"json\"} 2`] = `
+
+Message:
+> 1 | import defaultExport, {default as named} from "foo" with {type: "json"}
+    |                        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo" with {type: "json"}
+  2 | import defaultExport from "foo" with {type: "json"}
+
+`;
+
+exports[`no-named-default > invalid(33): import {default as named1, default as named2,} from \"foo\"; 1`] = `
+
+  1 | import {default as named1, default as named2,} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(33): import {default as named1, default as named2,} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named1, default as named2,} from "foo";
+    |         ^^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named1, { default as named2,} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(33): import {default as named1, default as named2,} from \"foo\"; 3`] = `
+
+Message:
+> 1 | import {default as named1, default as named2,} from "foo";
+    |                            ^^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named2, {default as named1, } from "foo";
+
+`;
+
+exports[`no-named-default > invalid(34): import {type Foo, default as named} from \"foo\"; 1`] = `
+
+  1 | import {type Foo, default as named} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(34): import {type Foo, default as named} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {type Foo, default as named} from "foo";
+    |                   ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named, {type Foo, } from "foo";
+
+`;
+
+exports[`no-named-default > invalid(4): const foo = 1, bar = 2;\nexport {foo as default, bar,}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {foo as default, bar,};
+
+`;
+
+exports[`no-named-default > invalid(4): const foo = 1, bar = 2;\nexport {foo as default, bar,}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+> 2 | export {foo as default, bar,};
+    |         ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | const foo = 1, bar = 2;
+  2 | export default foo;
+  3 | export { bar,};
+
+`;
+
+exports[`no-named-default > invalid(4): import {default as named, bar,} from \"foo\"; 1`] = `
+
+  1 | import {default as named, bar,} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(4): import {default as named, bar,} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {default as named, bar,} from "foo";
+    |         ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named, { bar,} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(5): const foo = 1, bar = 2;\nexport{foo as default}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export{foo as default};
+
+`;
+
+exports[`no-named-default > invalid(5): const foo = 1, bar = 2;\nexport{foo as default}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+> 2 | export{foo as default};
+    |        ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | const foo = 1, bar = 2;
+  2 | export default foo;
+  3 |
+
+`;
+
+exports[`no-named-default > invalid(5): import {bar, default as named} from \"foo\"; 1`] = `
+
+  1 | import {bar, default as named} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(5): import {bar, default as named} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {bar, default as named} from "foo";
+    |              ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named, {bar, } from "foo";
+
+`;
+
+exports[`no-named-default > invalid(6): const foo = 1, bar = 2;\nexport {bar, foo as default}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {bar, foo as default};
+
+`;
+
+exports[`no-named-default > invalid(6): const foo = 1, bar = 2;\nexport {bar, foo as default}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+> 2 | export {bar, foo as default};
+    |              ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | const foo = 1, bar = 2;
+  2 | export default foo;
+  3 | export {bar, };
+
+`;
+
+exports[`no-named-default > invalid(6): import {bar, default as named,} from \"foo\"; 1`] = `
+
+  1 | import {bar, default as named,} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(6): import {bar, default as named,} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {bar, default as named,} from "foo";
+    |              ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named, {bar, } from "foo";
+
+`;
+
+exports[`no-named-default > invalid(7): const foo = 1, bar = 2;\nexport {foo as default, /*comment*/bar}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {foo as default, /*comment*/bar};
+
+`;
+
+exports[`no-named-default > invalid(7): const foo = 1, bar = 2;\nexport {foo as default, /*comment*/bar}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+> 2 | export {foo as default, /*comment*/bar};
+    |         ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+Output:
+  1 | const foo = 1, bar = 2;
+  2 | export default foo;
+  3 | export { /*comment*/bar};
+
+`;
+
+exports[`no-named-default > invalid(7): import defaultExport, {default as named} from \"foo\"; 1`] = `
+
+  1 | import defaultExport, {default as named} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(7): import defaultExport, {default as named} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import defaultExport, {default as named} from "foo";
+    |                        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo";
+  2 | import defaultExport from "foo";
+
+`;
+
+exports[`no-named-default > invalid(8): const foo = 1, bar = 2;\nexport {foo as default/*comment*/}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {foo as default/*comment*/};
+
+`;
+
+exports[`no-named-default > invalid(8): const foo = 1, bar = 2;\nexport {foo as default/*comment*/}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+> 2 | export {foo as default/*comment*/};
+    |         ^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+`;
+
+exports[`no-named-default > invalid(8): import defaultExport, {default as named,} from \"foo\"; 1`] = `
+
+  1 | import defaultExport, {default as named,} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(8): import defaultExport, {default as named,} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import defaultExport, {default as named,} from "foo";
+    |                        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo";
+  2 | import defaultExport from "foo";
+
+`;
+
+exports[`no-named-default > invalid(9): const foo = 1, bar = 2;\nexport {foo as/*comment*/default, bar}; 1`] = `
+
+  1 | const foo = 1, bar = 2;
+  2 | export {foo as/*comment*/default, bar};
+
+`;
+
+exports[`no-named-default > invalid(9): const foo = 1, bar = 2;\nexport {foo as/*comment*/default, bar}; 2`] = `
+
+Message:
+  1 | const foo = 1, bar = 2;
+> 2 | export {foo as/*comment*/default, bar};
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using the default export over named export.
+
+`;
+
+exports[`no-named-default > invalid(9): import defaultExport, {default as named, bar} from \"foo\"; 1`] = `
+
+  1 | import defaultExport, {default as named, bar} from "foo";
+
+`;
+
+exports[`no-named-default > invalid(9): import defaultExport, {default as named, bar} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import defaultExport, {default as named, bar} from "foo";
+    |                        ^^^^^^^^^^^^^^^^ Prefer using the default import over named import.
+
+Output:
+  1 | import named from "foo";
+  2 | import defaultExport, { bar} from "foo";
+
+`;

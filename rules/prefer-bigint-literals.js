@@ -93,12 +93,8 @@ function getReplacement(valueNode) {
 		return;
 	}
 
-	let bigint;
-	try {
-		bigint = BigInt(value);
-	} catch {
-		return;
-	}
+	// `BigInt()` does not throw for an integer
+	let bigint = BigInt(value);
 
 	let text;
 	if (canUseNumericLiteralRaw(valueNode)) {

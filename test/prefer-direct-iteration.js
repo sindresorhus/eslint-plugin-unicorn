@@ -87,6 +87,14 @@ test.snapshot({
 		'const [map] = [new Map()]; const alias = map; [...alias.values()];',
 		'const [map] = [new Map()]; [...map.entries()];',
 		typescript('const [map] = [new Map<string, string>()]; [...map.values()];'),
+
+		// Unknown type annotations
+		typescript('declare const items: string[] | Items; [...items.values()];'),
+		typescript('declare const items: keyof Items; [...items.values()];'),
+		typescript('declare const items: Collections.Items; [...items.values()];'),
+
+		// Only the first argument of a call is consumed as an iterable
+		'const items = [1, 2, 3]; Array.from(other, items.values());',
 	],
 	invalid: [
 		// Direct expressions
@@ -159,6 +167,11 @@ test.snapshot({
 
 		// Comment case reports without autofix
 		'[...new Set().values(/* keep */)]',
+
+		'for (const item of Array(3).values()) {}',
+		'for (const byte of Uint8Array.from(bytes).values()) {}',
+		// An unknown asserted type falls back to the expression type
+		typescript('const items = [1, 2, 3]; const values = [...(items as Items).values()];'),
 	],
 });
 

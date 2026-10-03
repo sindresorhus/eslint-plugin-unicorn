@@ -132,7 +132,7 @@ function isPlainArrayTypeAnnotation(node) {
 }
 
 function hasTypeParameterOrTuple(type, checker) {
-	if (type.isTypeParameter?.() || checker.isTupleType(type)) {
+	if (type.isTypeParameter() || checker.isTupleType(type)) {
 		return true;
 	}
 
@@ -151,6 +151,8 @@ function isTypeParameterOrTuple(node, context) {
 		const checker = parserServices.program.getTypeChecker();
 
 		return hasTypeParameterOrTuple(type, checker);
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}

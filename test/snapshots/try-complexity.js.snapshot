@@ -1,0 +1,555 @@
+exports[`try-complexity > invalid(1): try {\n\tif (condition) {\n\t\tdoSomething();\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	if (condition) {
+  3 | 		doSomething();
+  4 | 	}
+  5 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(1): try {\n\tif (condition) {\n\t\tdoSomething();\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	if (condition) {
+    | ^^^^^^^^^^^^^^^^^
+> 3 | 		doSomething();
+    | ^^^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(10): try {\n\tvalue &&= fallback;\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	value &&= fallback;
+  3 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(10): try {\n\tvalue &&= fallback;\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	value &&= fallback;
+    | ^^^^^^^^^^^^^^^^^^^^
+> 3 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(11): try {\n\tvalue ??= fallback;\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	value ??= fallback;
+  3 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(11): try {\n\tvalue ??= fallback;\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	value ??= fallback;
+    | ^^^^^^^^^^^^^^^^^^^^
+> 3 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(12): try {\n\tclass Foo {\n\t\tstatic field = condition ? a : b;\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	class Foo {
+  3 | 		static field = condition ? a : b;
+  4 | 	}
+  5 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(12): try {\n\tclass Foo {\n\t\tstatic field = condition ? a : b;\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	class Foo {
+    | ^^^^^^^^^^^^
+> 3 | 		static field = condition ? a : b;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(13): try {\n\tclass Foo {\n\t\t[condition ? a : b] = value;\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	class Foo {
+  3 | 		[condition ? a : b] = value;
+  4 | 	}
+  5 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(13): try {\n\tclass Foo {\n\t\t[condition ? a : b] = value;\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	class Foo {
+    | ^^^^^^^^^^^^
+> 3 | 		[condition ? a : b] = value;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(14): class Foo {\n\tfield = class {\n\t\tstatic {\n\t\t\ttry {\n\t\t\t\tif (condition) {\n\t\t\t\t\tdoSomething();\n\t\t\t\t}\n\t\t\t} catch {}\n\t\t}\n\t};\n} 1`] = `
+
+   1 | class Foo {
+   2 | 	field = class {
+   3 | 		static {
+   4 | 			try {
+   5 | 				if (condition) {
+   6 | 					doSomething();
+   7 | 				}
+   8 | 			} catch {}
+   9 | 		}
+  10 | 	};
+  11 | }
+
+`;
+
+exports[`try-complexity > invalid(14): class Foo {\n\tfield = class {\n\t\tstatic {\n\t\t\ttry {\n\t\t\t\tif (condition) {\n\t\t\t\t\tdoSomething();\n\t\t\t\t}\n\t\t\t} catch {}\n\t\t}\n\t};\n} 2`] = `
+
+Message:
+   1 | class Foo {
+   2 | 	field = class {
+   3 | 		static {
+>  4 | 			try {
+     | 			^^^^^
+>  5 | 				if (condition) {
+     | ^^^^^^^^^^^^^^^^^^^^
+>  6 | 					doSomething();
+     | ^^^^^^^^^^^^^^^^^^^
+>  7 | 				}
+     | ^^^^^
+>  8 | 			} catch {}
+     | ^^^^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+   9 | 		}
+  10 | 	};
+  11 | }
+
+`;
+
+exports[`try-complexity > invalid(15): try {\n\tclass Foo {\n\t\tstatic accessor value = condition ? a : b;\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	class Foo {
+  3 | 		static accessor value = condition ? a : b;
+  4 | 	}
+  5 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(15): try {\n\tclass Foo {\n\t\tstatic accessor value = condition ? a : b;\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	class Foo {
+    | ^^^^^^^^^^^^
+> 3 | 		static accessor value = condition ? a : b;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(16): try {\n\tswitch (value) {\n\t\tcase 1:\n\t\t\tdoSomething();\n\t\t\tbreak;\n\t\tdefault:\n\t\t\tdoSomethingElse();\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	switch (value) {
+  3 | 		case 1:
+  4 | 			doSomething();
+  5 | 			break;
+  6 | 		default:
+  7 | 			doSomethingElse();
+  8 | 	}
+  9 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(16): try {\n\tswitch (value) {\n\t\tcase 1:\n\t\t\tdoSomething();\n\t\t\tbreak;\n\t\tdefault:\n\t\t\tdoSomethingElse();\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	switch (value) {
+    | ^^^^^^^^^^^^^^^^^
+> 3 | 		case 1:
+    | ^^^^^^^^^
+> 4 | 			doSomething();
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 			break;
+    | ^^^^^^^^^
+> 6 | 		default:
+    | ^^^^^^^^^^
+> 7 | 			doSomethingElse();
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 8 | 	}
+    | ^^
+> 9 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(17): try {\n\ttry {\n\t\tdoSomething();\n\t} catch {\n\t\tdoSomethingElse();\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	try {
+  3 | 		doSomething();
+  4 | 	} catch {
+  5 | 		doSomethingElse();
+  6 | 	}
+  7 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(17): try {\n\ttry {\n\t\tdoSomething();\n\t} catch {\n\t\tdoSomethingElse();\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	try {
+    | ^^^^^^
+> 3 | 		doSomething();
+    | ^^^^^^^^^^^^^^^^
+> 4 | 	} catch {
+    | ^^^^^^^^^^
+> 5 | 		doSomethingElse();
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | 	}
+    | ^^
+> 7 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(18): try {\n\tobject?.method?.();\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	object?.method?.();
+  3 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(18): try {\n\tobject?.method?.();\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	object?.method?.();
+    | ^^^^^^^^^^^^^^^^^^^^
+> 3 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 3. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(19): try {\n\tconst doSomething = () => {\n\t\ttry {\n\t\t\tif (condition) {\n\t\t\t\tdoSomethingElse();\n\t\t\t}\n\t\t} catch {}\n\t};\n\n\tdoSomething();\n} catch {} 1`] = `
+
+   1 | try {
+   2 | 	const doSomething = () => {
+   3 | 		try {
+   4 | 			if (condition) {
+   5 | 				doSomethingElse();
+   6 | 			}
+   7 | 		} catch {}
+   8 | 	};
+   9 |
+  10 | 	doSomething();
+  11 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(19): try {\n\tconst doSomething = () => {\n\t\ttry {\n\t\t\tif (condition) {\n\t\t\t\tdoSomethingElse();\n\t\t\t}\n\t\t} catch {}\n\t};\n\n\tdoSomething();\n} catch {} 2`] = `
+
+Message:
+   1 | try {
+   2 | 	const doSomething = () => {
+>  3 | 		try {
+     | 		^^^^^
+>  4 | 			if (condition) {
+     | ^^^^^^^^^^^^^^^^^^^
+>  5 | 				doSomethingElse();
+     | ^^^^^^^^^^^^^^^^^^^^^^
+>  6 | 			}
+     | ^^^^
+>  7 | 		} catch {}
+     | ^^^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+   8 | 	};
+   9 |
+  10 | 	doSomething();
+  11 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(2): try {\n\twhile (condition) {\n\t\tdoSomething();\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	while (condition) {
+  3 | 		doSomething();
+  4 | 	}
+  5 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(2): try {\n\twhile (condition) {\n\t\tdoSomething();\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	while (condition) {
+    | ^^^^^^^^^^^^^^^^^^^^
+> 3 | 		doSomething();
+    | ^^^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(20): try {\n\tconst {value = fallback} = object;\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	const {value = fallback} = object;
+  3 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(20): try {\n\tconst {value = fallback} = object;\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	const {value = fallback} = object;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(21): try {\n\tif (condition) {\n\t\tdoSomething();\n\t} else if (otherCondition) {\n\t\tdoSomethingElse();\n\t}\n} catch {} 1`] = `
+
+Options:
+- max: 2
+
+Code:
+  1 | try {
+  2 | 	if (condition) {
+  3 | 		doSomething();
+  4 | 	} else if (otherCondition) {
+  5 | 		doSomethingElse();
+  6 | 	}
+  7 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(21): try {\n\tif (condition) {\n\t\tdoSomething();\n\t} else if (otherCondition) {\n\t\tdoSomethingElse();\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	if (condition) {
+    | ^^^^^^^^^^^^^^^^^
+> 3 | 		doSomething();
+    | ^^^^^^^^^^^^^^^^
+> 4 | 	} else if (otherCondition) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 		doSomethingElse();
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | 	}
+    | ^^
+> 7 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 3. Maximum allowed is 2.
+
+`;
+
+exports[`try-complexity > invalid(3): try {\n\tfor (const item of items) {\n\t\tdoSomething(item);\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	for (const item of items) {
+  3 | 		doSomething(item);
+  4 | 	}
+  5 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(3): try {\n\tfor (const item of items) {\n\t\tdoSomething(item);\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	for (const item of items) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		doSomething(item);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(4): try {\n\tfor (let index = 0; index < items.length; index++) {\n\t\tdoSomething(items[index]);\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	for (let index = 0; index < items.length; index++) {
+  3 | 		doSomething(items[index]);
+  4 | 	}
+  5 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(4): try {\n\tfor (let index = 0; index < items.length; index++) {\n\t\tdoSomething(items[index]);\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	for (let index = 0; index < items.length; index++) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		doSomething(items[index]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(5): try {\n\tfor (const key in object) {\n\t\tdoSomething(object[key]);\n\t}\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	for (const key in object) {
+  3 | 		doSomething(object[key]);
+  4 | 	}
+  5 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(5): try {\n\tfor (const key in object) {\n\t\tdoSomething(object[key]);\n\t}\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	for (const key in object) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		doSomething(object[key]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(6): try {\n\tdo {\n\t\tdoSomething();\n\t} while (condition);\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	do {
+  3 | 		doSomething();
+  4 | 	} while (condition);
+  5 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(6): try {\n\tdo {\n\t\tdoSomething();\n\t} while (condition);\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	do {
+    | ^^^^^
+> 3 | 		doSomething();
+    | ^^^^^^^^^^^^^^^^
+> 4 | 	} while (condition);
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 5 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(7): try {\n\tconst value = condition ? a : b;\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	const value = condition ? a : b;
+  3 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(7): try {\n\tconst value = condition ? a : b;\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	const value = condition ? a : b;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(8): try {\n\tconst value = a || b;\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	const value = a || b;
+  3 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(8): try {\n\tconst value = a || b;\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	const value = a || b;
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;
+
+exports[`try-complexity > invalid(9): try {\n\tvalue ||= fallback;\n} catch {} 1`] = `
+
+  1 | try {
+  2 | 	value ||= fallback;
+  3 | } catch {}
+
+`;
+
+exports[`try-complexity > invalid(9): try {\n\tvalue ||= fallback;\n} catch {} 2`] = `
+
+Message:
+> 1 | try {
+    | ^^^^^
+> 2 | 	value ||= fallback;
+    | ^^^^^^^^^^^^^^^^^^^^
+> 3 | } catch {}
+    | ^^^^^^^^^^ Try block has a complexity of 2. Maximum allowed is 1.
+
+`;

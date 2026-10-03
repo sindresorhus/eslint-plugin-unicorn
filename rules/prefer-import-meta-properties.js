@@ -14,7 +14,7 @@ const messages = {
 };
 
 const isParentLiteral = node => {
-	if (node?.type !== 'Literal') {
+	if (node.type !== 'Literal') {
 		return false;
 	}
 
@@ -279,12 +279,9 @@ function create(context) {
 			}
 
 			/**
-			@type {import('eslint').Scope.Variable|null}
+			@type {import('eslint').Scope.Variable}
 			*/
 			const variable = findVariable(sourceCode.getScope(parent.id), parent.id);
-			if (!variable) {
-				return;
-			}
 
 			for (const reference of variable.references) {
 				if (!reference.isReadOnly()) {

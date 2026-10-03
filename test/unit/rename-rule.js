@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import test from 'ava';
+import test from 'node:test';
 import {
 	renamableRules,
 	renameRule,
@@ -9,15 +9,15 @@ import {
 } from '../../scripts/rename-rule.js';
 
 test('only source rules with hyphens are offered for renaming', t => {
-	t.false(renamableRules.includes('indent'));
-	t.true(renamableRules.includes('prefer-array-flat'));
-	t.true(renamableRules.includes('prefer-path2d'));
-	t.false(renamableRules.includes('no-unused-array-method-return'));
+	t.assert.strictEqual(renamableRules.includes('indent'), false);
+	t.assert.strictEqual(renamableRules.includes('prefer-array-flat'), true);
+	t.assert.strictEqual(renamableRules.includes('prefer-path2d'), true);
+	t.assert.strictEqual(renamableRules.includes('no-unused-array-method-return'), false);
 });
 
-test.serial('renameRule validates names before changing files', async t => {
+test('renameRule validates names before changing files', async t => {
 	const originalRename = fs.rename;
-	t.teardown(() => {
+	t.after(() => {
 		fs.rename = originalRename;
 	});
 	fs.rename = async () => {
@@ -32,12 +32,12 @@ test.serial('renameRule validates names before changing files', async t => {
 		['prefer-array-flat', undefined, 'Invalid rule name.'],
 	]) {
 		// eslint-disable-next-line no-await-in-loop
-		await t.throwsAsync(renameRule(from, to), {message});
+		await t.assert.rejects(renameRule(from, to), {message});
 	}
 
 	for (const to of ['renamed-rule', 'prefer-path3d', 'path3d']) {
 		// eslint-disable-next-line no-await-in-loop
-		await t.throwsAsync(renameRule('prefer-path2d', to), {
+		await t.assert.rejects(renameRule('prefer-path2d', to), {
 			message: 'Attempted to rename a file.',
 		});
 	}
@@ -52,7 +52,7 @@ test('replaceRuleId only rewrites complete rule IDs', t => {
 		'no-prefer-array-flat',
 	].join('\n');
 
-	t.is(
+	t.assert.strictEqual(
 		replaceRuleId(input, 'prefer-array-flat', 'renamed-rule'),
 		[
 			'const MESSAGE_ID = \'renamed-rule\';',
@@ -70,7 +70,7 @@ test('replaceRuleIdInRulesIndex only rewrites the exact export', t => {
 		'export {default as \'prefer-array-flat\'} from \'./prefer-array-flat.js\';',
 	].join('\n');
 
-	t.is(
+	t.assert.strictEqual(
 		replaceRuleIdInRulesIndex(input, 'prefer-array-flat', 'renamed-rule'),
 		[
 			'export {default as \'prefer-array-flat-map\'} from \'./prefer-array-flat-map.js\';',
@@ -87,7 +87,7 @@ for (const [from, to, input, output] of [
 ]) {
 	test(`replaceRuleIdInRulesIndex renames ${from} to ${to}`, t => {
 		const unrelated = 'export {default as \'indent-other\'} from \'./indent-other.js\';';
-		t.is(replaceRuleIdInRulesIndex(`${input}\n${unrelated}`, from, to), `${output}\n${unrelated}`);
+		t.assert.strictEqual(replaceRuleIdInRulesIndex(`${input}\n${unrelated}`, from, to), `${output}\n${unrelated}`);
 	});
 }
 
@@ -106,7 +106,7 @@ test('sortReadmeRuleRows keeps the renamed row inside the rules table', t => {
 		'## FAQ',
 	].join('\n');
 
-	t.is(
+	t.assert.strictEqual(
 		sortReadmeRuleRows(input, 'zzz-rule'),
 		[
 			'# eslint-plugin-unicorn',

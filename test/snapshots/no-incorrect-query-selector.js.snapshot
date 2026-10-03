@@ -1,0 +1,580 @@
+exports[`no-incorrect-query-selector > invalid(1): document.querySelectorAll(\"form\")[0].addEventListener(\"submit\", submitFunction); 1`] = `
+
+  1 | document.querySelectorAll("form")[0].addEventListener("submit", submitFunction);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(1): document.querySelectorAll(\"form\")[0].addEventListener(\"submit\", submitFunction); 2`] = `
+
+Message:
+> 1 | document.querySelectorAll("form")[0].addEventListener("submit", submitFunction);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
+
+Output:
+  1 | document.querySelector("form").addEventListener("submit", submitFunction);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(10): if (!document.querySelectorAll(\".item\")) {} 1`] = `
+
+  1 | if (!document.querySelectorAll(".item")) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(10): if (!document.querySelectorAll(\".item\")) {} 2`] = `
+
+Message:
+> 1 | if (!document.querySelectorAll(".item")) {}
+    |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | if (document.querySelectorAll(".item").length === 0) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(11): while (document.querySelectorAll(\".item\")) {} 1`] = `
+
+  1 | while (document.querySelectorAll(".item")) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(11): while (document.querySelectorAll(\".item\")) {} 2`] = `
+
+Message:
+> 1 | while (document.querySelectorAll(".item")) {}
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | while (document.querySelectorAll(".item").length > 0) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(12): const hasItems = document.querySelectorAll(\".item\") ? true : false; 1`] = `
+
+  1 | const hasItems = document.querySelectorAll(".item") ? true : false;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(12): const hasItems = document.querySelectorAll(\".item\") ? true : false; 2`] = `
+
+Message:
+> 1 | const hasItems = document.querySelectorAll(".item") ? true : false;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | const hasItems = document.querySelectorAll(".item").length > 0 ? true : false;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(13): if (document.querySelectorAll(\".item\") && ready) {} 1`] = `
+
+  1 | if (document.querySelectorAll(".item") && ready) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(13): if (document.querySelectorAll(\".item\") && ready) {} 2`] = `
+
+Message:
+> 1 | if (document.querySelectorAll(".item") && ready) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | if (document.querySelectorAll(".item").length > 0 && ready) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(14): const elements = document.querySelectorAll(\".item\");\nif (elements && ready) {} 1`] = `
+
+  1 | const elements = document.querySelectorAll(".item");
+  2 | if (elements && ready) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(14): const elements = document.querySelectorAll(\".item\");\nif (elements && ready) {} 2`] = `
+
+Message:
+  1 | const elements = document.querySelectorAll(".item");
+> 2 | if (elements && ready) {}
+    |     ^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | const elements = document.querySelectorAll(".item");
+  2 | if (elements.length > 0 && ready) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(15): if (Boolean(document.querySelectorAll(\".item\"))) {} 1`] = `
+
+  1 | if (Boolean(document.querySelectorAll(".item"))) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(15): if (Boolean(document.querySelectorAll(\".item\"))) {} 2`] = `
+
+Message:
+> 1 | if (Boolean(document.querySelectorAll(".item"))) {}
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | if (document.querySelectorAll(".item").length > 0) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(16): if (!Boolean(document.querySelectorAll(\".item\"))) {} 1`] = `
+
+  1 | if (!Boolean(document.querySelectorAll(".item"))) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(16): if (!Boolean(document.querySelectorAll(\".item\"))) {} 2`] = `
+
+Message:
+> 1 | if (!Boolean(document.querySelectorAll(".item"))) {}
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | if (document.querySelectorAll(".item").length === 0) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(17): if (!!Boolean(document.querySelectorAll(\".item\"))) {} 1`] = `
+
+  1 | if (!!Boolean(document.querySelectorAll(".item"))) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(17): if (!!Boolean(document.querySelectorAll(\".item\"))) {} 2`] = `
+
+Message:
+> 1 | if (!!Boolean(document.querySelectorAll(".item"))) {}
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | if (document.querySelectorAll(".item").length > 0) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(18): const elements = document.querySelectorAll(\".item\");\nif (elements) {} 1`] = `
+
+  1 | const elements = document.querySelectorAll(".item");
+  2 | if (elements) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(18): const elements = document.querySelectorAll(\".item\");\nif (elements) {} 2`] = `
+
+Message:
+  1 | const elements = document.querySelectorAll(".item");
+> 2 | if (elements) {}
+    |     ^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | const elements = document.querySelectorAll(".item");
+  2 | if (elements.length > 0) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(19): const elements = document.querySelectorAll(\".item\");\nif (!elements) {} 1`] = `
+
+  1 | const elements = document.querySelectorAll(".item");
+  2 | if (!elements) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(19): const elements = document.querySelectorAll(\".item\");\nif (!elements) {} 2`] = `
+
+Message:
+  1 | const elements = document.querySelectorAll(".item");
+> 2 | if (!elements) {}
+    |      ^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | const elements = document.querySelectorAll(".item");
+  2 | if (elements.length === 0) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(2): document.querySelectorAll(\"form\").at(0).addEventListener(\"submit\", submitFunction); 1`] = `
+
+  1 | document.querySelectorAll("form").at(0).addEventListener("submit", submitFunction);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(2): document.querySelectorAll(\"form\").at(0).addEventListener(\"submit\", submitFunction); 2`] = `
+
+Message:
+> 1 | document.querySelectorAll("form").at(0).addEventListener("submit", submitFunction);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
+
+Output:
+  1 | document.querySelector("form").addEventListener("submit", submitFunction);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(20): if (Boolean(/* keep */ document.querySelectorAll(\".item\"))) {} 1`] = `
+
+  1 | if (Boolean(/* keep */ document.querySelectorAll(".item"))) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(20): if (Boolean(/* keep */ document.querySelectorAll(\".item\"))) {} 2`] = `
+
+Message:
+> 1 | if (Boolean(/* keep */ document.querySelectorAll(".item"))) {}
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(21): if (!/* keep */ document.querySelectorAll(\".item\")) {} 1`] = `
+
+  1 | if (!/* keep */ document.querySelectorAll(".item")) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(21): if (!/* keep */ document.querySelectorAll(\".item\")) {} 2`] = `
+
+Message:
+> 1 | if (!/* keep */ document.querySelectorAll(".item")) {}
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(22): document.querySelectorAll(\".item\") === null; 1`] = `
+
+  1 | document.querySelectorAll(".item") === null;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(22): document.querySelectorAll(\".item\") === null; 2`] = `
+
+Message:
+> 1 | document.querySelectorAll(".item") === null;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(23): document.querySelectorAll(\".item\") !== null; 1`] = `
+
+  1 | document.querySelectorAll(".item") !== null;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(23): document.querySelectorAll(\".item\") !== null; 2`] = `
+
+Message:
+> 1 | document.querySelectorAll(".item") !== null;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(24): document.querySelectorAll(\".item\") == null; 1`] = `
+
+  1 | document.querySelectorAll(".item") == null;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(24): document.querySelectorAll(\".item\") == null; 2`] = `
+
+Message:
+> 1 | document.querySelectorAll(".item") == null;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(25): document.querySelectorAll(\".item\") != null; 1`] = `
+
+  1 | document.querySelectorAll(".item") != null;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(25): document.querySelectorAll(\".item\") != null; 2`] = `
+
+Message:
+> 1 | document.querySelectorAll(".item") != null;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(26): document.querySelectorAll(\".item\") === undefined; 1`] = `
+
+  1 | document.querySelectorAll(".item") === undefined;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(26): document.querySelectorAll(\".item\") === undefined; 2`] = `
+
+Message:
+> 1 | document.querySelectorAll(".item") === undefined;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(27): document.querySelectorAll(\".item\") !== undefined; 1`] = `
+
+  1 | document.querySelectorAll(".item") !== undefined;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(27): document.querySelectorAll(\".item\") !== undefined; 2`] = `
+
+Message:
+> 1 | document.querySelectorAll(".item") !== undefined;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(28): null === document.querySelectorAll(\".item\"); 1`] = `
+
+  1 | null === document.querySelectorAll(".item");
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(28): null === document.querySelectorAll(\".item\"); 2`] = `
+
+Message:
+> 1 | null === document.querySelectorAll(".item");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(29): undefined !== document.querySelectorAll(\".item\"); 1`] = `
+
+  1 | undefined !== document.querySelectorAll(".item");
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(29): undefined !== document.querySelectorAll(\".item\"); 2`] = `
+
+Message:
+> 1 | undefined !== document.querySelectorAll(".item");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(3): document.querySelectorAll(\"form\").item(0).addEventListener(\"submit\", submitFunction); 1`] = `
+
+  1 | document.querySelectorAll("form").item(0).addEventListener("submit", submitFunction);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(3): document.querySelectorAll(\"form\").item(0).addEventListener(\"submit\", submitFunction); 2`] = `
+
+Message:
+> 1 | document.querySelectorAll("form").item(0).addEventListener("submit", submitFunction);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
+
+Output:
+  1 | document.querySelector("form").addEventListener("submit", submitFunction);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(30): document.querySelectorAll(\".item\") /* keep */ === null; 1`] = `
+
+  1 | document.querySelectorAll(".item") /* keep */ === null;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(30): document.querySelectorAll(\".item\") /* keep */ === null; 2`] = `
+
+Message:
+> 1 | document.querySelectorAll(".item") /* keep */ === null;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(31): document.querySelector(\".item\") === undefined; 1`] = `
+
+  1 | document.querySelector(".item") === undefined;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(31): document.querySelector(\".item\") === undefined; 2`] = `
+
+Message:
+> 1 | document.querySelector(".item") === undefined;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Compare the result of \`.querySelector()\` with \`null\` instead of \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(32): document.querySelector(\".item\") !== undefined; 1`] = `
+
+  1 | document.querySelector(".item") !== undefined;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(32): document.querySelector(\".item\") !== undefined; 2`] = `
+
+Message:
+> 1 | document.querySelector(".item") !== undefined;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Compare the result of \`.querySelector()\` with \`null\` instead of \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(33): undefined === document.querySelector(\".item\"); 1`] = `
+
+  1 | undefined === document.querySelector(".item");
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(33): undefined === document.querySelector(\".item\"); 2`] = `
+
+Message:
+> 1 | undefined === document.querySelector(".item");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Compare the result of \`.querySelector()\` with \`null\` instead of \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(34): const elements = document.querySelectorAll(\".item\"); elements === null; 1`] = `
+
+  1 | const elements = document.querySelectorAll(".item"); elements === null;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(34): const elements = document.querySelectorAll(\".item\"); elements === null; 2`] = `
+
+Message:
+> 1 | const elements = document.querySelectorAll(".item"); elements === null;
+    |                                                      ^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(35): const elements = document.querySelectorAll(\".item\"); elements !== undefined; 1`] = `
+
+  1 | const elements = document.querySelectorAll(".item"); elements !== undefined;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(35): const elements = document.querySelectorAll(\".item\"); elements !== undefined; 2`] = `
+
+Message:
+> 1 | const elements = document.querySelectorAll(".item"); elements !== undefined;
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of comparing the \`NodeList\` object with \`null\` or \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(36): const element = document.querySelector(\".item\"); element === undefined; 1`] = `
+
+  1 | const element = document.querySelector(".item"); element === undefined;
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(36): const element = document.querySelector(\".item\"); element === undefined; 2`] = `
+
+Message:
+> 1 | const element = document.querySelector(".item"); element === undefined;
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^ Compare the result of \`.querySelector()\` with \`null\` instead of \`undefined\`.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(37): for (const key in document.querySelectorAll(\"form\")[0]) {} 1`] = `
+
+  1 | for (const key in document.querySelectorAll("form")[0]) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(37): for (const key in document.querySelectorAll(\"form\")[0]) {} 2`] = `
+
+Message:
+> 1 | for (const key in document.querySelectorAll("form")[0]) {}
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
+
+Output:
+  1 | for (const key in document.querySelector("form")) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(4): document.querySelectorAll(\"#foo\").at(0); 1`] = `
+
+  1 | document.querySelectorAll("#foo").at(0);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(4): document.querySelectorAll(\"#foo\").at(0); 2`] = `
+
+Message:
+> 1 | document.querySelectorAll("#foo").at(0);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
+
+Output:
+  1 | document.querySelector("#foo");
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(5): (document.querySelectorAll(\"form\"))[0]; 1`] = `
+
+  1 | (document.querySelectorAll("form"))[0];
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(5): (document.querySelectorAll(\"form\"))[0]; 2`] = `
+
+Message:
+> 1 | (document.querySelectorAll("form"))[0];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
+
+Output:
+  1 | (document.querySelector("form"));
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(6): (document.querySelectorAll(\"form\")).at(0); 1`] = `
+
+  1 | (document.querySelectorAll("form")).at(0);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(6): (document.querySelectorAll(\"form\")).at(0); 2`] = `
+
+Message:
+> 1 | (document.querySelectorAll("form")).at(0);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
+
+Output:
+  1 | (document.querySelector("form"));
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(7): document.querySelectorAll(\"#foo\"); 1`] = `
+
+  1 | document.querySelectorAll("#foo");
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(7): document.querySelectorAll(\"#foo\"); 2`] = `
+
+Message:
+> 1 | document.querySelectorAll("#foo");
+    |          ^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` for a simple ID selector.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(8): document.querySelectorAll(\`#foo\`); 1`] = `
+
+  1 | document.querySelectorAll(\`#foo\`);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(8): document.querySelectorAll(\`#foo\`); 2`] = `
+
+Message:
+> 1 | document.querySelectorAll(\`#foo\`);
+    |          ^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` for a simple ID selector.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(9): if (document.querySelectorAll(\".item\")) {} 1`] = `
+
+  1 | if (document.querySelectorAll(".item")) {}
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(9): if (document.querySelectorAll(\".item\")) {} 2`] = `
+
+Message:
+> 1 | if (document.querySelectorAll(".item")) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Check \`.length\` instead of the \`NodeList\` object itself.
+
+Output:
+  1 | if (document.querySelectorAll(".item").length > 0) {}
+
+`;

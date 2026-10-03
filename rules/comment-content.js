@@ -168,7 +168,8 @@ const defaultReplacementTermPattern = new RegExp(`^(?:${acronymTermPatterns.join
 Every acronym-style pattern is a boundary-wrapped run of literal ASCII characters, where `x?` marks a character that may be absent. Such a run is never shorter than what the term can match, so a slash-pair part longer than the longest run can never be prose. Checking the length first skips the alternation for the many path segments that exceed it. A pattern of an unrecognized shape makes the bound infinite, leaving the regex authoritative.
 */
 const acronymTermWordPattern = /^\\b([\d\-?A-Za-z]+)\\b$/v;
-// The `0` floor keeps an empty table exact, since the alternation would then match only an empty part.
+// The `0` floor keeps an empty table exact, since the alternation would then match only an empty part. Every current acronym pattern has the recognized shape, so the `Infinity` fallback is only for future patterns.
+/* node:coverage ignore next */
 const maxAcronymTermLength = Math.max(0, ...acronymTermEntries.map(([pattern]) => acronymTermWordPattern.exec(pattern)?.[1]?.length ?? Infinity));
 
 /*
@@ -302,10 +303,11 @@ function getMarkdownHtmlComments(sourceCode) {
 			}
 
 			const end = text.indexOf('-->', index + 4);
+			const valueEnd = end === -1 ? text.length : end;
 			const range = [index, end === -1 ? text.length : end + 3];
 			comments.push({
 				type: 'Block',
-				value: text.slice(index + 4, range[1] - 3),
+				value: text.slice(index + 4, valueEnd),
 				range,
 			});
 
@@ -340,6 +342,8 @@ function getCommentValueStart(comment, sourceCode) {
 	const commentText = sourceCode.text.slice(...range);
 	const valueOffset = commentText.indexOf(comment.value);
 
+	// Every supported language has the comment value in the comment text. This protects against other languages.
+	/* node:coverage ignore next 3 */
 	if (valueOffset === -1) {
 		return;
 	}
@@ -1076,6 +1080,8 @@ function shouldSkipMatch(commentValue, match) {
 
 function getReplacementProblem(comment, sourceCode, replacements, checkUniformCase) {
 	const valueStart = getCommentValueStart(comment, sourceCode);
+	// See `getCommentValueStart()`.
+	/* node:coverage ignore next 3 */
 	if (valueStart === undefined) {
 		return;
 	}
@@ -1136,22 +1142,14 @@ function getReplacementProblem(comment, sourceCode, replacements, checkUniformCa
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
-	const {checkUniformCase = true} = context.options[0] ?? {};
+	const {checkUniformCase = true} = context.options[0];
 	const replacements = prepareReplacements(context.options[0]);
 
 	if (replacements.length === 0) {
 		return;
 	}
 
-	let isChecked = false;
-
 	onRoot(context, function * (node) {
-		if (isChecked) {
-			return;
-		}
-
-		isChecked = true;
-
 		const {sourceCode} = context;
 		const comments = getRuleComments(context);
 

@@ -1,0 +1,1001 @@
+exports[`prefer-toggle-attribute > invalid(1): condition ? element.setAttribute(\"hidden\", \"hidden\") : element.removeAttribute(\"hidden\") 1`] = `
+
+  1 | condition ? element.setAttribute("hidden", "hidden") : element.removeAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(1): condition ? element.setAttribute(\"hidden\", \"hidden\") : element.removeAttribute(\"hidden\") 2`] = `
+
+Message:
+> 1 | condition ? element.setAttribute("hidden", "hidden") : element.removeAttribute("hidden")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute("hidden", condition)
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(1): if (condition) {\n\telement.setAttribute('hidden', 'hidden');\n} else {\n\telement.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element.setAttribute('hidden', 'hidden');
+  3 | } else {
+  4 | 	element.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(1): if (condition) {\n\telement.setAttribute('hidden', 'hidden');\n} else {\n\telement.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute('hidden', 'hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute('hidden', condition);
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(10): element.hasAttribute(/* comment */ \"hidden\") ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"\") 1`] = `
+
+  1 | element.hasAttribute(/* comment */ "hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(10): element.hasAttribute(/* comment */ \"hidden\") ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"\") 2`] = `
+
+Message:
+> 1 | element.hasAttribute(/* comment */ "hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(10): if (condition) {\n\telement?.removeAttribute('hidden');\n} else {\n\telement?.setAttribute('hidden', '');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element?.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element?.setAttribute('hidden', '');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(10): if (condition) {\n\telement?.removeAttribute('hidden');\n} else {\n\telement?.setAttribute('hidden', '');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element?.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element?.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(11): element?.hasAttribute(\"hidden\") ? element?.removeAttribute(\"hidden\") : element?.setAttribute(\"hidden\", \"\") 1`] = `
+
+  1 | element?.hasAttribute("hidden") ? element?.removeAttribute("hidden") : element?.setAttribute("hidden", "")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(11): element?.hasAttribute(\"hidden\") ? element?.removeAttribute(\"hidden\") : element?.setAttribute(\"hidden\", \"\") 2`] = `
+
+Message:
+> 1 | element?.hasAttribute("hidden") ? element?.removeAttribute("hidden") : element?.setAttribute("hidden", "")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Output:
+  1 | element?.toggleAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(11): if (condition) {\n\telement?.setAttribute('hidden', 'hidden');\n} else {\n\telement?.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element?.setAttribute('hidden', 'hidden');
+  3 | } else {
+  4 | 	element?.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(11): if (condition) {\n\telement?.setAttribute('hidden', 'hidden');\n} else {\n\telement?.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element?.setAttribute('hidden', 'hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element?.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(12): !element.hasAttribute(\"hidden\") ? element.setAttribute(\"hidden\", \"\") : element.removeAttribute(\"hidden\") 1`] = `
+
+  1 | !element.hasAttribute("hidden") ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(12): !element.hasAttribute(\"hidden\") ? element.setAttribute(\"hidden\", \"\") : element.removeAttribute(\"hidden\") 2`] = `
+
+Message:
+> 1 | !element.hasAttribute("hidden") ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Output:
+  1 | element.toggleAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(12): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', 'hidden');\n} 1`] = `
+
+  1 | if (element.hasAttribute('hidden')) {
+  2 | 	element.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element.setAttribute('hidden', 'hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(12): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', 'hidden');\n} 2`] = `
+
+Message:
+> 1 | if (element.hasAttribute('hidden')) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.setAttribute('hidden', 'hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute('hidden');
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(13): const toggle = condition ? element.setAttribute(\"hidden\", \"\") : element.removeAttribute(\"hidden\") 1`] = `
+
+  1 | const toggle = condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(13): const toggle = condition ? element.setAttribute(\"hidden\", \"\") : element.removeAttribute(\"hidden\") 2`] = `
+
+Message:
+> 1 | const toggle = condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | const toggle = element.toggleAttribute("hidden", condition)
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(13): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', /* comment */ 'hidden');\n} 1`] = `
+
+  1 | if (element.hasAttribute('hidden')) {
+  2 | 	element.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element.setAttribute('hidden', /* comment */ 'hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(13): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', /* comment */ 'hidden');\n} 2`] = `
+
+Message:
+> 1 | if (element.hasAttribute('hidden')) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.setAttribute('hidden', /* comment */ 'hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(14): const toggle = element.hasAttribute(\"hidden\") ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"\") 1`] = `
+
+  1 | const toggle = element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(14): const toggle = element.hasAttribute(\"hidden\") ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"\") 2`] = `
+
+Message:
+> 1 | const toggle = element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | const toggle = element.toggleAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(14): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', getValue());\n} 1`] = `
+
+  1 | if (element.hasAttribute('hidden')) {
+  2 | 	element.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element.setAttribute('hidden', getValue());
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(14): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', getValue());\n} 2`] = `
+
+Message:
+> 1 | if (element.hasAttribute('hidden')) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.setAttribute('hidden', getValue());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(15): function foo() {\n\treturn!condition ? element.setAttribute('hidden', '') : element.removeAttribute('hidden')\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return!condition ? element.setAttribute('hidden', '') : element.removeAttribute('hidden')
+  3 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(15): function foo() {\n\treturn!condition ? element.setAttribute('hidden', '') : element.removeAttribute('hidden')\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return!condition ? element.setAttribute('hidden', '') : element.removeAttribute('hidden')
+    | 	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+  3 | }
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | function foo() {
+  2 | 	return element.toggleAttribute('hidden', !condition)
+  3 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(15): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', value);\n} 1`] = `
+
+  1 | if (element.hasAttribute('hidden')) {
+  2 | 	element.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element.setAttribute('hidden', value);
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(15): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', value);\n} 2`] = `
+
+Message:
+> 1 | if (element.hasAttribute('hidden')) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.setAttribute('hidden', value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(16): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', '');\n} 1`] = `
+
+  1 | if (element.hasAttribute('hidden')) {
+  2 | 	element.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element.setAttribute('hidden', '');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(16): if (element.hasAttribute('hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', '');\n} 2`] = `
+
+Message:
+> 1 | if (element.hasAttribute('hidden')) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Output:
+  1 | element.toggleAttribute('hidden');
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(17): if (element.hasAttribute(/* comment */ 'hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', '');\n} 1`] = `
+
+  1 | if (element.hasAttribute(/* comment */ 'hidden')) {
+  2 | 	element.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element.setAttribute('hidden', '');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(17): if (element.hasAttribute(/* comment */ 'hidden')) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', '');\n} 2`] = `
+
+Message:
+> 1 | if (element.hasAttribute(/* comment */ 'hidden')) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(18): if (!element.hasAttribute('hidden')) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (!element.hasAttribute('hidden')) {
+  2 | 	element.setAttribute('hidden', '');
+  3 | } else {
+  4 | 	element.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(18): if (!element.hasAttribute('hidden')) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (!element.hasAttribute('hidden')) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Output:
+  1 | element.toggleAttribute('hidden');
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(19): if (element.hasAttribute('hidden')) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (element.hasAttribute('hidden')) {
+  2 | 	element.setAttribute('hidden', '');
+  3 | } else {
+  4 | 	element.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(19): if (element.hasAttribute('hidden')) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (element.hasAttribute('hidden')) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute('hidden', element.hasAttribute('hidden'));
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(2): condition ? element.setAttribute(\"hidden\", getValue()) : element.removeAttribute(\"hidden\") 1`] = `
+
+  1 | condition ? element.setAttribute("hidden", getValue()) : element.removeAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(2): condition ? element.setAttribute(\"hidden\", getValue()) : element.removeAttribute(\"hidden\") 2`] = `
+
+Message:
+> 1 | condition ? element.setAttribute("hidden", getValue()) : element.removeAttribute("hidden")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(2): if (condition) {\n\telement.setAttribute('hidden', getValue());\n} else {\n\telement.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element.setAttribute('hidden', getValue());
+  3 | } else {
+  4 | 	element.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(2): if (condition) {\n\telement.setAttribute('hidden', getValue());\n} else {\n\telement.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute('hidden', getValue());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(20): if (condition) {\n\t(( element )).setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	(( element )).setAttribute('hidden', '');
+  3 | } else {
+  4 | 	element.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(20): if (condition) {\n\t(( element )).setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	(( element )).setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | (( element )).toggleAttribute('hidden', condition);
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(21): foo\n\nif (condition) {\n\t(( element )).setAttribute('hidden', '')\n} else {\n\telement.removeAttribute('hidden')\n} 1`] = `
+
+  1 | foo
+  2 |
+  3 | if (condition) {
+  4 | 	(( element )).setAttribute('hidden', '')
+  5 | } else {
+  6 | 	element.removeAttribute('hidden')
+  7 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(21): foo\n\nif (condition) {\n\t(( element )).setAttribute('hidden', '')\n} else {\n\telement.removeAttribute('hidden')\n} 2`] = `
+
+Message:
+  1 | foo
+  2 |
+> 3 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 4 | 	(( element )).setAttribute('hidden', '')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | } else {
+    | ^^^^^^^^
+> 6 | 	element.removeAttribute('hidden')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | foo
+  2 |
+  3 | ;(( element )).toggleAttribute('hidden', condition);
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(22): if (condition) {\n\telement.setAttribute(name, '');\n} else {\n\telement.removeAttribute(name);\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element.setAttribute(name, '');
+  3 | } else {
+  4 | 	element.removeAttribute(name);
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(22): if (condition) {\n\telement.setAttribute(name, '');\n} else {\n\telement.removeAttribute(name);\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute(name, '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute(name);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute(name, condition);
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(23): if (element?.hasAttribute('hidden')) {\n\telement?.removeAttribute('hidden');\n} else {\n\telement?.setAttribute('hidden', '');\n} 1`] = `
+
+  1 | if (element?.hasAttribute('hidden')) {
+  2 | 	element?.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element?.setAttribute('hidden', '');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(23): if (element?.hasAttribute('hidden')) {\n\telement?.removeAttribute('hidden');\n} else {\n\telement?.setAttribute('hidden', '');\n} 2`] = `
+
+Message:
+> 1 | if (element?.hasAttribute('hidden')) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element?.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element?.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Output:
+  1 | element?.toggleAttribute('hidden');
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(24): if (condition) {\n\t(element as Element).setAttribute('hidden', '');\n} else {\n\t(element as Element).removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	(element as Element).setAttribute('hidden', '');
+  3 | } else {
+  4 | 	(element as Element).removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(24): if (condition) {\n\t(element as Element).setAttribute('hidden', '');\n} else {\n\t(element as Element).removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	(element as Element).setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	(element as Element).removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | (element as Element).toggleAttribute('hidden', condition);
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(25): if (condition) {\n\telement!.setAttribute('hidden', '');\n} else {\n\telement!.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element!.setAttribute('hidden', '');
+  3 | } else {
+  4 | 	element!.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(25): if (condition) {\n\telement!.setAttribute('hidden', '');\n} else {\n\telement!.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element!.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element!.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element!.toggleAttribute('hidden', condition);
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(26): if (condition) {\n\telement.setAttribute(/* comment */ 'hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element.setAttribute(/* comment */ 'hidden', '');
+  3 | } else {
+  4 | 	element.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(26): if (condition) {\n\telement.setAttribute(/* comment */ 'hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute(/* comment */ 'hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(27): if (condition) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute(/* comment */ 'hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element.setAttribute('hidden', '');
+  3 | } else {
+  4 | 	element.removeAttribute(/* comment */ 'hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(27): if (condition) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute(/* comment */ 'hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute(/* comment */ 'hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(3): condition ? element.setAttribute(\"hidden\", value) : element.removeAttribute(\"hidden\") 1`] = `
+
+  1 | condition ? element.setAttribute("hidden", value) : element.removeAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(3): condition ? element.setAttribute(\"hidden\", value) : element.removeAttribute(\"hidden\") 2`] = `
+
+Message:
+> 1 | condition ? element.setAttribute("hidden", value) : element.removeAttribute("hidden")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(3): if (condition) {\n\telement.setAttribute('hidden', value);\n} else {\n\telement.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element.setAttribute('hidden', value);
+  3 | } else {
+  4 | 	element.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(3): if (condition) {\n\telement.setAttribute('hidden', value);\n} else {\n\telement.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute('hidden', value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(4): condition ? element.setAttribute(\"hidden\", \"\") : element.removeAttribute(\"hidden\") 1`] = `
+
+  1 | condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(4): condition ? element.setAttribute(\"hidden\", \"\") : element.removeAttribute(\"hidden\") 2`] = `
+
+Message:
+> 1 | condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute("hidden", condition)
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(4): if (condition) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element.setAttribute('hidden', '');
+  3 | } else {
+  4 | 	element.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(4): if (condition) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute('hidden', condition);
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(5): condition ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"\") 1`] = `
+
+  1 | condition ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(5): condition ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"\") 2`] = `
+
+Message:
+> 1 | condition ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute("hidden", !condition)
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(5): if (element.hasAttribute('hidden'))\n\telement.removeAttribute('hidden');\nelse\n\telement.setAttribute('hidden', ''); 1`] = `
+
+  1 | if (element.hasAttribute('hidden'))
+  2 | 	element.removeAttribute('hidden');
+  3 | else
+  4 | 	element.setAttribute('hidden', '');
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(5): if (element.hasAttribute('hidden'))\n\telement.removeAttribute('hidden');\nelse\n\telement.setAttribute('hidden', ''); 2`] = `
+
+Message:
+> 1 | if (element.hasAttribute('hidden'))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | else
+    | ^^^^
+> 4 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Output:
+  1 | element.toggleAttribute('hidden');
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(6): condition ? element?.setAttribute(\"hidden\", \"\") : element?.removeAttribute(\"hidden\") 1`] = `
+
+  1 | condition ? element?.setAttribute("hidden", "") : element?.removeAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(6): condition ? element?.setAttribute(\"hidden\", \"\") : element?.removeAttribute(\"hidden\") 2`] = `
+
+Message:
+> 1 | condition ? element?.setAttribute("hidden", "") : element?.removeAttribute("hidden")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(6): if (condition) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', '');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element.setAttribute('hidden', '');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(6): if (condition) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', '');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute('hidden', !condition);
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(7): element.hasAttribute(\"hidden\") ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"hidden\") 1`] = `
+
+  1 | element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(7): element.hasAttribute(\"hidden\") ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"hidden\") 2`] = `
+
+Message:
+> 1 | element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "hidden")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(7): if (!condition) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', '');\n} 1`] = `
+
+  1 | if (!condition) {
+  2 | 	element.removeAttribute('hidden');
+  3 | } else {
+  4 | 	element.setAttribute('hidden', '');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(7): if (!condition) {\n\telement.removeAttribute('hidden');\n} else {\n\telement.setAttribute('hidden', '');\n} 2`] = `
+
+Message:
+> 1 | if (!condition) {
+    | ^^^^^^^^^^^^^^^^^
+> 2 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute('hidden', condition);
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(8): element?.hasAttribute(\"hidden\") ? element?.removeAttribute(\"hidden\") : element?.setAttribute(\"hidden\", \"hidden\") 1`] = `
+
+  1 | element?.hasAttribute("hidden") ? element?.removeAttribute("hidden") : element?.setAttribute("hidden", "hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(8): element?.hasAttribute(\"hidden\") ? element?.removeAttribute(\"hidden\") : element?.setAttribute(\"hidden\", \"hidden\") 2`] = `
+
+Message:
+> 1 | element?.hasAttribute("hidden") ? element?.removeAttribute("hidden") : element?.setAttribute("hidden", "hidden")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element?.toggleAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(8): if (0, condition) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (0, condition) {
+  2 | 	element.setAttribute('hidden', '');
+  3 | } else {
+  4 | 	element.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(8): if (0, condition) {\n\telement.setAttribute('hidden', '');\n} else {\n\telement.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (0, condition) {
+    | ^^^^^^^^^^^^^^^^^^^
+> 2 | 	element.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Suggestion 1/1: Replace with \`Element#toggleAttribute()\`.:
+  1 | element.toggleAttribute('hidden', (0, condition));
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(9): element.hasAttribute(\"hidden\") ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"\") 1`] = `
+
+  1 | element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(9): element.hasAttribute(\"hidden\") ? element.removeAttribute(\"hidden\") : element.setAttribute(\"hidden\", \"\") 2`] = `
+
+Message:
+> 1 | element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+Output:
+  1 | element.toggleAttribute("hidden")
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(9): if (condition) {\n\telement?.setAttribute('hidden', '');\n} else {\n\telement?.removeAttribute('hidden');\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	element?.setAttribute('hidden', '');
+  3 | } else {
+  4 | 	element?.removeAttribute('hidden');
+  5 | }
+
+`;
+
+exports[`prefer-toggle-attribute > invalid(9): if (condition) {\n\telement?.setAttribute('hidden', '');\n} else {\n\telement?.removeAttribute('hidden');\n} 2`] = `
+
+Message:
+> 1 | if (condition) {
+    | ^^^^^^^^^^^^^^^^
+> 2 | 	element?.setAttribute('hidden', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | } else {
+    | ^^^^^^^^
+> 4 | 	element?.removeAttribute('hidden');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer using \`Element#toggleAttribute()\` to toggle attributes.
+
+`;

@@ -5,6 +5,7 @@ import {
 	isBoolean,
 	isParenthesized,
 	shouldAddParenthesesToUnaryExpressionArgument,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-boolean-comparison';
@@ -43,16 +44,7 @@ function containsYieldExpression(node, visitorKeys) {
 		return false;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		for (const childNode of Array.isArray(child) ? child : [child]) {
-			if (childNode?.type && containsYieldExpression(childNode, visitorKeys)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(childNode => containsYieldExpression(childNode, visitorKeys));
 }
 
 const isSafeKnownBooleanExpression = (node, context) =>

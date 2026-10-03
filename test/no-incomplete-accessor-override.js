@@ -31,6 +31,8 @@ test.snapshot({
 		'class Base { get ["Symbol(Symbol.iterator)"]() { return 1; } } class Child extends Base { set [Symbol.iterator](value) {} }',
 		'class Base { get #value() { return 1; } } class Child extends Base { set #value(value) {} }',
 		'class Base { get value() { return 1; } } class Middle extends Base { get [key]() { return 2; } } class Child extends Middle { set value(value) {} }',
+		'let Base = class { get value() { return 1; } }; class Child extends Base { set value(value) {} }',
+		'class Base { get value() { return 1; } get [Object]() { return 2; } } class Child extends Base { set value(value) {} }',
 	],
 	invalid: [
 		'class Base { get value() { return 1; } } class Child extends Base { set value(value) {} }',
@@ -92,6 +94,8 @@ test.snapshot({
 		'class Base { accessor value = 1; } class Child extends Base { get value() { return 2; } }',
 		'class Base { static accessor value = 1; } class Child extends Base { static set value(value: number) {} }',
 		'class Base { get value() { return 1; } } class Middle extends Base { declare value: number; } class Child extends Middle { set value(value: number) {} }',
+		// An overload signature is not a runtime member
+		'class Base { get value() { return 1; } } class Middle extends Base { value(): void; } class Child extends Middle { set value(value: number) {} }',
 	],
 });
 

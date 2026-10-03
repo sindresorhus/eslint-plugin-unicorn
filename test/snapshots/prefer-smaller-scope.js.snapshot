@@ -1,0 +1,1019 @@
+exports[`prefer-smaller-scope > invalid(1): const value = 1; if (condition) { consume(value); } 1`] = `
+
+  1 | const value = 1; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(1): const value = 1; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(1): let value;\n{\n\tvalue = getValue();\n\tconsole.log(value);\n} 1`] = `
+
+  1 | let value;
+  2 | {
+  3 | 	value = getValue();
+  4 | 	console.log(value);
+  5 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(1): let value;\n{\n\tvalue = getValue();\n\tconsole.log(value);\n} 2`] = `
+
+Message:
+> 1 | let value;
+    |     ^^^^^ Move \`value\` into the block where it is used.
+  2 | {
+  3 | 	value = getValue();
+  4 | 	console.log(value);
+  5 | }
+
+Output:
+  1 | {
+  2 | 	const value = getValue();
+  3 | 	console.log(value);
+  4 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(10): const value = 1; if (condition) { consume(); } else { consume(value); } 1`] = `
+
+  1 | const value = 1; if (condition) { consume(); } else { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(10): const value = 1; if (condition) { consume(); } else { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { consume(); } else { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { consume(); } else { const value = 1; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(10): function foo() {\n\tlet value;\n\tif (condition) {\n\t\t(value = getValue());\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	if (condition) {
+  4 | 		(value = getValue());
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(10): function foo() {\n\tlet value;\n\tif (condition) {\n\t\t(value = getValue());\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	if (condition) {
+  4 | 		(value = getValue());
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+Output:
+  1 | function foo() {
+  2 | 	if (condition) {
+  3 | 		const value = getValue();
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(11): const value = 1; if (condition) { consume(value); } else { const value = 2; consume(value); } 1`] = `
+
+  1 | const value = 1; if (condition) { consume(value); } else { const value = 2; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(11): const value = 1; if (condition) { consume(value); } else { const value = 2; consume(value); } 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { consume(value); } else { const value = 2; consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1; consume(value); } else { const value = 2; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(11): function foo() {\n\tlet value;\n\tif (condition) {\n\t\t(value = (foo, bar));\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	if (condition) {
+  4 | 		(value = (foo, bar));
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(11): function foo() {\n\tlet value;\n\tif (condition) {\n\t\t(value = (foo, bar));\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	if (condition) {
+  4 | 		(value = (foo, bar));
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(12): const value = 1; if (condition) { if (other) { consume(value); } } 1`] = `
+
+  1 | const value = 1; if (condition) { if (other) { consume(value); } }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(12): const value = 1; if (condition) { if (other) { consume(value); } } 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { if (other) { consume(value); } }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1; if (other) { consume(value); } }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(12): function foo() {\n\tlet value: Value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value: Value;
+  3 | 	if (condition) {
+  4 | 		value = getValue();
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(12): function foo() {\n\tlet value: Value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value: Value;
+    | 	    ^^^^^^^^^^^^ Move \`value\` into the block where it is used.
+  3 | 	if (condition) {
+  4 | 		value = getValue();
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(13): const value = (1); if (condition) { consume(value); } 1`] = `
+
+  1 | const value = (1); if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(13): const value = (1); if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = (1); if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = (1); consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(13): function foo() {\n\tlet value: Value;\n\tif (condition) {\n\t\t(value = getValue());\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value: Value;
+  3 | 	if (condition) {
+  4 | 		(value = getValue());
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(13): function foo() {\n\tlet value: Value;\n\tif (condition) {\n\t\t(value = getValue());\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value: Value;
+    | 	    ^^^^^^^^^^^^ Move \`value\` into the block where it is used.
+  3 | 	if (condition) {
+  4 | 		(value = getValue());
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(14): const value = 1; if (condition) { returnValue = <Component value={value} />; } 1`] = `
+
+  1 | const value = 1; if (condition) { returnValue = <Component value={value} />; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(14): const value = 1; if (condition) { returnValue = <Component value={value} />; } 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { returnValue = <Component value={value} />; }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1; returnValue = <Component value={value} />; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(14): type Value = string;\nfunction foo() {\n\tlet value: Value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\ttype Value = number;\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | type Value = string;
+  2 | function foo() {
+  3 | 	let value: Value;
+  4 | 	if (condition) {
+  5 | 		value = getValue();
+  6 | 		type Value = number;
+  7 | 		console.log(value);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(14): type Value = string;\nfunction foo() {\n\tlet value: Value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\ttype Value = number;\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | type Value = string;
+  2 | function foo() {
+> 3 | 	let value: Value;
+    | 	    ^^^^^^^^^^^^ Move \`value\` into the block where it is used.
+  4 | 	if (condition) {
+  5 | 		value = getValue();
+  6 | 		type Value = number;
+  7 | 		console.log(value);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(15): const value = 1; if (condition) { consume?.(value); } 1`] = `
+
+  1 | const value = 1; if (condition) { consume?.(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(15): const value = 1; if (condition) { consume?.(value); } 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { consume?.(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1; consume?.(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(15): function foo() {\n\tlet value;\n\tif (condition) {\n\t\tvalue = (getValue());\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	if (condition) {
+  4 | 		value = (getValue());
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(15): function foo() {\n\tlet value;\n\tif (condition) {\n\t\tvalue = (getValue());\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	if (condition) {
+  4 | 		value = (getValue());
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+Output:
+  1 | function foo() {
+  2 | 	if (condition) {
+  3 | 		const value = (getValue());
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(16): const value = 1\nif (condition) {\n\t[value].map(consume)\n} 1`] = `
+
+  1 | const value = 1
+  2 | if (condition) {
+  3 | 	[value].map(consume)
+  4 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(16): const value = 1\nif (condition) {\n\t[value].map(consume)\n} 2`] = `
+
+Message:
+> 1 | const value = 1
+    |       ^^^^^ Move \`value\` into the block where it is used.
+  2 | if (condition) {
+  3 | 	[value].map(consume)
+  4 | }
+
+Output:
+  1 | if (condition) {
+  2 | 	const value = 1;
+  3 | 	[value].map(consume)
+  4 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(16): function foo() {\n\tlet value;\n\tif (condition) {\n\t\tvalue = (first, second);\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	if (condition) {
+  4 | 		value = (first, second);
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(16): function foo() {\n\tlet value;\n\tif (condition) {\n\t\tvalue = (first, second);\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	if (condition) {
+  4 | 		value = (first, second);
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+Output:
+  1 | function foo() {
+  2 | 	if (condition) {
+  3 | 		const value = (first, second);
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(17): const value = \`first\nsecond\`; if (condition) { consume(value); } 1`] = `
+
+  1 | const value = \`first
+  2 | second\`; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(17): const value = \`first\nsecond\`; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = \`first
+    |       ^^^^^ Move \`value\` into the block where it is used.
+  2 | second\`; if (condition) { consume(value); }
+
+Output:
+  1 | if (condition) { const value = \`first
+  2 | second\`; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(17): function foo() {\n\tlet value;\n\tif (condition) {\n\t\t(value = ({foo: 1}));\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	if (condition) {
+  4 | 		(value = ({foo: 1}));
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(17): function foo() {\n\tlet value;\n\tif (condition) {\n\t\t(value = ({foo: 1}));\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	if (condition) {
+  4 | 		(value = ({foo: 1}));
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+Output:
+  1 | function foo() {
+  2 | 	if (condition) {
+  3 | 		const value = ({foo: 1});
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(18): const value = 1; if (condition) { \"use strict\"; consume(value); } 1`] = `
+
+  1 | const value = 1; if (condition) { "use strict"; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(18): const value = 1; if (condition) { \"use strict\"; consume(value); } 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { "use strict"; consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1; "use strict"; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(19): /* declaration */ const value = 1; if (condition) { consume(value); } 1`] = `
+
+  1 | /* declaration */ const value = 1; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(19): /* declaration */ const value = 1; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | /* declaration */ const value = 1; if (condition) { consume(value); }
+    |                         ^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(2): const value = 1n; if (condition) { consume(value); } 1`] = `
+
+  1 | const value = 1n; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(2): const value = 1n; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = 1n; if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1n; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(2): function foo() {\n\tlet value;\n\twhile (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	while (condition) {
+  4 | 		value = getValue();
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(2): function foo() {\n\tlet value;\n\twhile (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	while (condition) {
+  4 | 		value = getValue();
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+Output:
+  1 | function foo() {
+  2 | 	while (condition) {
+  3 | 		const value = getValue();
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(20): const value = /* initializer */ 1; if (condition) { consume(value); } 1`] = `
+
+  1 | const value = /* initializer */ 1; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(20): const value = /* initializer */ 1; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = /* initializer */ 1; if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(21): const value = 1; /* condition */ if (condition) { consume(value); } 1`] = `
+
+  1 | const value = 1; /* condition */ if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(21): const value = 1; /* condition */ if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = 1; /* condition */ if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(22): const value = 1; if (condition) { /* first statement */ consume(value); } 1`] = `
+
+  1 | const value = 1; if (condition) { /* first statement */ consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(22): const value = 1; if (condition) { /* first statement */ consume(value); } 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { /* first statement */ consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(23): const value: number = 1; if (condition) { consume(value); } 1`] = `
+
+  1 | const value: number = 1; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(23): const value: number = 1; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value: number = 1; if (condition) { consume(value); }
+    |       ^^^^^^^^^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(24): type Value = number; const value: Value = 1; if (condition) { type Value = string; consume(value); } 1`] = `
+
+  1 | type Value = number; const value: Value = 1; if (condition) { type Value = string; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(24): type Value = number; const value: Value = 1; if (condition) { type Value = string; consume(value); } 2`] = `
+
+Message:
+> 1 | type Value = number; const value: Value = 1; if (condition) { type Value = string; consume(value); }
+    |                            ^^^^^^^^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(25): const value = 1; if (condition) { type Value = typeof value; } 1`] = `
+
+  1 | const value = 1; if (condition) { type Value = typeof value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(25): const value = 1; if (condition) { type Value = typeof value; } 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { type Value = typeof value; }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1; type Value = typeof value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(26): type Other = string; const value = 1; if (condition) { consume(value); } export type {Other}; 1`] = `
+
+  1 | type Other = string; const value = 1; if (condition) { consume(value); } export type {Other};
+
+`;
+
+exports[`prefer-smaller-scope > invalid(26): type Other = string; const value = 1; if (condition) { consume(value); } export type {Other}; 2`] = `
+
+Message:
+> 1 | type Other = string; const value = 1; if (condition) { consume(value); } export type {Other};
+    |                            ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | type Other = string; if (condition) { const value = 1; consume(value); } export type {Other};
+
+`;
+
+exports[`prefer-smaller-scope > invalid(27): const value = 1; if (condition) { consume(value); } export type {value} from \"./module.js\"; 1`] = `
+
+  1 | const value = 1; if (condition) { consume(value); } export type {value} from "./module.js";
+
+`;
+
+exports[`prefer-smaller-scope > invalid(27): const value = 1; if (condition) { consume(value); } export type {value} from \"./module.js\"; 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { consume(value); } export type {value} from "./module.js";
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1; consume(value); } export type {value} from "./module.js";
+
+`;
+
+exports[`prefer-smaller-scope > invalid(28): /* exported exportedValue */ const exportedValue = 1; const value = 1; if (condition) { consume(value); } 1`] = `
+
+  1 | /* exported exportedValue */ const exportedValue = 1; const value = 1; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(28): /* exported exportedValue */ const exportedValue = 1; const value = 1; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | /* exported exportedValue */ const exportedValue = 1; const value = 1; if (condition) { consume(value); }
+    |                                                             ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | /* exported exportedValue */ const exportedValue = 1; if (condition) { const value = 1; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(29): const value = 1; if (condition) {consume(value);} 1`] = `
+
+  1 | const value = 1; if (condition) {consume(value);}
+
+`;
+
+exports[`prefer-smaller-scope > invalid(29): const value = 1; if (condition) {consume(value);} 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) {consume(value);}
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) {const value = 1; consume(value);}
+
+`;
+
+exports[`prefer-smaller-scope > invalid(3): const value = true; if (condition) { consume(value); } 1`] = `
+
+  1 | const value = true; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(3): const value = true; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = true; if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = true; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(3): function foo() {\n\tlet value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	if (condition) {
+  4 | 		value = getValue();
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(3): function foo() {\n\tlet value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	if (condition) {
+  4 | 		value = getValue();
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+Output:
+  1 | function foo() {
+  2 | 	if (condition) {
+  3 | 		const value = getValue();
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(4): const value = false; if (condition) { consume(value); } 1`] = `
+
+  1 | const value = false; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(4): const value = false; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = false; if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = false; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(4): function foo() {\n\tlet value;\n\t{\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	{
+  4 | 		value = getValue();
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(4): function foo() {\n\tlet value;\n\t{\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	{
+  4 | 		value = getValue();
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+Output:
+  1 | function foo() {
+  2 | 	{
+  3 | 		const value = getValue();
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(5): const value = null; if (condition) { consume(value); } 1`] = `
+
+  1 | const value = null; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(5): const value = null; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = null; if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = null; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(5): function foo() {\n\tlet value;\n\tfor (const item of items) {\n\t\tvalue = item.value;\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	for (const item of items) {
+  4 | 		value = item.value;
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(5): function foo() {\n\tlet value;\n\tfor (const item of items) {\n\t\tvalue = item.value;\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	for (const item of items) {
+  4 | 		value = item.value;
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+Output:
+  1 | function foo() {
+  2 | 	for (const item of items) {
+  3 | 		const value = item.value;
+  4 | 		console.log(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(6): const value = \"value\"; if (condition) { consume(value); } 1`] = `
+
+  1 | const value = "value"; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(6): const value = \"value\"; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = "value"; if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = "value"; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(6): function foo() {\n\tlet value;\n\tswitch (condition) {\n\t\tcase true: {\n\t\t\tvalue = getValue();\n\t\t\tconsole.log(value);\n\t\t\tbreak;\n\t\t}\n\t}\n} 1`] = `
+
+   1 | function foo() {
+   2 | 	let value;
+   3 | 	switch (condition) {
+   4 | 		case true: {
+   5 | 			value = getValue();
+   6 | 			console.log(value);
+   7 | 			break;
+   8 | 		}
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(6): function foo() {\n\tlet value;\n\tswitch (condition) {\n\t\tcase true: {\n\t\t\tvalue = getValue();\n\t\t\tconsole.log(value);\n\t\t\tbreak;\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+   1 | function foo() {
+>  2 | 	let value;
+     | 	    ^^^^^ Move \`value\` into the block where it is used.
+   3 | 	switch (condition) {
+   4 | 		case true: {
+   5 | 			value = getValue();
+   6 | 			console.log(value);
+   7 | 			break;
+   8 | 		}
+   9 | 	}
+  10 | }
+
+Output:
+  1 | function foo() {
+  2 | 	switch (condition) {
+  3 | 		case true: {
+  4 | 			const value = getValue();
+  5 | 			console.log(value);
+  6 | 			break;
+  7 | 		}
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(7): const value = \`value\`; if (condition) { consume(value); } 1`] = `
+
+  1 | const value = \`value\`; if (condition) { consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(7): const value = \`value\`; if (condition) { consume(value); } 2`] = `
+
+Message:
+> 1 | const value = \`value\`; if (condition) { consume(value); }
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = \`value\`; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(7): function foo() {\n\t// Important setup.\n\tlet value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	// Important setup.
+  3 | 	let value;
+  4 | 	if (condition) {
+  5 | 		value = getValue();
+  6 | 		console.log(value);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(7): function foo() {\n\t// Important setup.\n\tlet value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+  2 | 	// Important setup.
+> 3 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  4 | 	if (condition) {
+  5 | 		value = getValue();
+  6 | 		console.log(value);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(8): function foo() {\n\tlet value;\n\t// Keep this close to the assignment.\n\tif (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	// Keep this close to the assignment.
+  4 | 	if (condition) {
+  5 | 		value = getValue();
+  6 | 		console.log(value);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(8): function foo() {\n\tlet value;\n\t// Keep this close to the assignment.\n\tif (condition) {\n\t\tvalue = getValue();\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	// Keep this close to the assignment.
+  4 | 	if (condition) {
+  5 | 		value = getValue();
+  6 | 		console.log(value);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(8): let value = 1; if (condition) { value++; consume(value); } 1`] = `
+
+  1 | let value = 1; if (condition) { value++; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(8): let value = 1; if (condition) { value++; consume(value); } 2`] = `
+
+Message:
+> 1 | let value = 1; if (condition) { value++; consume(value); }
+    |     ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { let value = 1; value++; consume(value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(9): function foo() {\n\tlet value;\n\tif (condition) {\n\t\tvalue = getValue(); // Keep this comment.\n\t\tconsole.log(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	let value;
+  3 | 	if (condition) {
+  4 | 		value = getValue(); // Keep this comment.
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(9): function foo() {\n\tlet value;\n\tif (condition) {\n\t\tvalue = getValue(); // Keep this comment.\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	let value;
+    | 	    ^^^^^ Move \`value\` into the block where it is used.
+  3 | 	if (condition) {
+  4 | 		value = getValue(); // Keep this comment.
+  5 | 		console.log(value);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(9): let value = 1; if (condition) { ({value} = object); } 1`] = `
+
+  1 | let value = 1; if (condition) { ({value} = object); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(9): let value = 1; if (condition) { ({value} = object); } 2`] = `
+
+Message:
+> 1 | let value = 1; if (condition) { ({value} = object); }
+    |     ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { let value = 1; ({value} = object); }
+
+`;

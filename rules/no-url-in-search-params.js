@@ -2,9 +2,8 @@ import {isMemberExpression, isNewExpression} from './ast/index.js';
 import {
 	getParenthesizedText,
 	getStaticValueForControlFlow,
-	isParenthesized,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {createBuiltinTypeCheckers} from './utils/type-helpers.js';
@@ -68,11 +67,7 @@ const create = context => {
 
 		if (isUrl(argument, context)) {
 			if (!hasComments) {
-				let receiverText = getParenthesizedText(argument, context);
-				if (!isParenthesized(argument, context) && shouldAddParenthesesToMemberExpressionObject(argument, context)) {
-					receiverText = `(${receiverText})`;
-				}
-
+				const receiverText = getMemberExpressionObjectText(argument, context);
 				problem.suggest = [{
 					messageId: MESSAGE_ID_COPY,
 					fix: fixer => fixer.replaceText(node, `new URLSearchParams(${receiverText}.search)`),

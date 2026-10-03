@@ -94,10 +94,6 @@ const create = context => {
 		const callExpression = unwrapTypeScriptExpression(unaryExpression.argument);
 		const tokenStore = getTokenStore(context, unaryExpression);
 		const bangToken = tokenStore.getFirstToken(unaryExpression);
-		if (!bangToken) {
-			return;
-		}
-
 		const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
 		const afterBangRange = [sourceCode.getRange(bangToken)[1], sourceCode.getRange(tokenAfterBang)[0]];
 		if (tokenStore.getTokensBetween(bangToken, tokenAfterBang, {includeComments: true}).some(comment => !isEslintDisableOrEnableDirective(context, comment))) {

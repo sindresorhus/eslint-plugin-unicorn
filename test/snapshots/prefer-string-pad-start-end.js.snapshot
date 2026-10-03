@@ -1,0 +1,120 @@
+exports[`prefer-string-pad-start-end > invalid(1): const foo = \`*\`.repeat(10 - bar.length) + bar; 1`] = `
+
+  1 | const foo = \`*\`.repeat(10 - bar.length) + bar;
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(1): const foo = \`*\`.repeat(10 - bar.length) + bar; 2`] = `
+
+Message:
+> 1 | const foo = \`*\`.repeat(10 - bar.length) + bar;
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#padStart()\` over manual string padding.
+
+Output:
+  1 | const foo = bar.padStart(10, \`*\`);
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(2): const foo = \"\\t\".repeat(width - bar.length) + bar; 1`] = `
+
+  1 | const foo = "\\t".repeat(width - bar.length) + bar;
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(2): const foo = \"\\t\".repeat(width - bar.length) + bar; 2`] = `
+
+Message:
+> 1 | const foo = "\\t".repeat(width - bar.length) + bar;
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#padStart()\` over manual string padding.
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(3): const foo = bar + \`*\`.repeat(10 - bar.length); 1`] = `
+
+  1 | const foo = bar + \`*\`.repeat(10 - bar.length);
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(3): const foo = bar + \`*\`.repeat(10 - bar.length); 2`] = `
+
+Message:
+> 1 | const foo = bar + \`*\`.repeat(10 - bar.length);
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#padEnd()\` over manual string padding.
+
+Output:
+  1 | const foo = bar.padEnd(10, \`*\`);
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(4): const foo = (\"*\".repeat(10) + bar).slice(-10); 1`] = `
+
+  1 | const foo = ("*".repeat(10) + bar).slice(-10);
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(4): const foo = (\"*\".repeat(10) + bar).slice(-10); 2`] = `
+
+Message:
+> 1 | const foo = ("*".repeat(10) + bar).slice(-10);
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#padStart()\` over manual string padding.
+
+Suggestion 1/1: Replace with \`String#padStart()\`.:
+  1 | const foo = bar.padStart(10, "*");
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(5): const foo = (bar + \"*\".repeat(10)).slice(0, 10); 1`] = `
+
+  1 | const foo = (bar + "*".repeat(10)).slice(0, 10);
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(5): const foo = (bar + \"*\".repeat(10)).slice(0, 10); 2`] = `
+
+Message:
+> 1 | const foo = (bar + "*".repeat(10)).slice(0, 10);
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#padEnd()\` over manual string padding.
+
+Suggestion 1/1: Replace with \`String#padEnd()\`.:
+  1 | const foo = bar.padEnd(10, "*");
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(6): const foo = (\n\t\"*\"\n\t\t.repeat(\n\t\t\twidth\n\t\t\t\t-\n\t\t\t\tbar.length\n\t\t)\n\t+\n\tbar\n); 1`] = `
+
+   1 | const foo = (
+   2 | 	"*"
+   3 | 		.repeat(
+   4 | 			width
+   5 | 				-
+   6 | 				bar.length
+   7 | 		)
+   8 | 	+
+   9 | 	bar
+  10 | );
+
+`;
+
+exports[`prefer-string-pad-start-end > invalid(6): const foo = (\n\t\"*\"\n\t\t.repeat(\n\t\t\twidth\n\t\t\t\t-\n\t\t\t\tbar.length\n\t\t)\n\t+\n\tbar\n); 2`] = `
+
+Message:
+   1 | const foo = (
+>  2 | 	"*"
+     | 	^^^
+>  3 | 		.repeat(
+     | ^^^^^^^^^^
+>  4 | 			width
+     | ^^^^^^^^
+>  5 | 				-
+     | ^^^^^
+>  6 | 				bar.length
+     | ^^^^^^^^^^^^^^
+>  7 | 		)
+     | ^^^
+>  8 | 	+
+     | ^^
+>  9 | 	bar
+     | ^^^^ Prefer \`String#padStart()\` over manual string padding.
+  10 | );
+
+`;

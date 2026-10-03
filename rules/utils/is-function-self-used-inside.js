@@ -13,7 +13,7 @@ Check if `this`, `arguments`, or the function name is used inside of itself.
 @returns {boolean}
 */
 export default function isFunctionSelfUsedInside(functionNode, functionScope) {
-	/* c8 ignore next 3 */
+	/* node:coverage ignore next 3 */
 	if (functionScope.block !== functionNode) {
 		throw new Error('"functionScope" should be the scope of "functionNode".');
 	}

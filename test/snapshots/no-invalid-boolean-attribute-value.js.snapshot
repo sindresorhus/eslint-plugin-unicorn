@@ -1,0 +1,2226 @@
+exports[`no-invalid-boolean-attribute-value > invalid(1): document.createElement('iframe').setAttribute('allowfullscreen', 'true') 1`] = `
+
+  1 | document.createElement('iframe').setAttribute('allowfullscreen', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(1): document.createElement('iframe').setAttribute('allowfullscreen', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('iframe').setAttribute('allowfullscreen', 'true')
+    |                                                                  ^^^^^^ Invalid value for boolean attribute \`allowfullscreen\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`allowfullscreen\` attribute to an empty string.:
+  1 | document.createElement('iframe').setAttribute('allowfullscreen', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(10): document.createElement('video').setAttribute('controls', 'true') 1`] = `
+
+  1 | document.createElement('video').setAttribute('controls', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(10): document.createElement('video').setAttribute('controls', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('video').setAttribute('controls', 'true')
+    |                                                          ^^^^^^ Invalid value for boolean attribute \`controls\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`controls\` attribute to an empty string.:
+  1 | document.createElement('video').setAttribute('controls', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(100): document.createElement(\"button\").setAttribute(\"disabled\", \"false\" /* trailing */) 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", "false" /* trailing */)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(100): document.createElement(\"button\").setAttribute(\"disabled\", \"false\" /* trailing */) 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", "false" /* trailing */)
+    |                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(101): document.createElement(\"button\").setAttribute(\"disabled\", \"false\", /* trailing */) 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", "false", /* trailing */)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(101): document.createElement(\"button\").setAttribute(\"disabled\", \"false\", /* trailing */) 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", "false", /* trailing */)
+    |                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(102): document.createElement(\"button\").setAttribute(\"disabled\", (true /* inside */)) 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", (true /* inside */))
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(102): document.createElement(\"button\").setAttribute(\"disabled\", (true /* inside */)) 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", (true /* inside */))
+    |                                                            ^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement("button").setAttribute("disabled", ('' /* inside */))
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(103): document.createElement(\"button\").setAttribute(\"disabled\", \"tr\" /* value */ + \"ue\") 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", "tr" /* value */ + "ue")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(103): document.createElement(\"button\").setAttribute(\"disabled\", \"tr\" /* value */ + \"ue\") 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", "tr" /* value */ + "ue")
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(104): document.createElement(\"button\")\r\n  .setAttribute(\r\n    \"disabled\",\r\n    \"false\",\r\n  ) 1`] = `
+
+  1 | document.createElement("button")
+  2 |   .setAttribute(
+  3 |     "disabled",
+  4 |     "false",
+  5 |   )
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(104): document.createElement(\"button\")\r\n  .setAttribute(\r\n    \"disabled\",\r\n    \"false\",\r\n  ) 2`] = `
+
+Message:
+  1 | document.createElement("button")
+  2 |   .setAttribute(
+  3 |     "disabled",
+> 4 |     "false",
+    |     ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+  5 |   )
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement("button")
+  2 |   .removeAttribute(
+  3 |     "disabled",
+  4 |   )
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(105): function foo(button: HTMLButtonElement) {button?.setAttribute('disabled', 'false')} 1`] = `
+
+  1 | function foo(button: HTMLButtonElement) {button?.setAttribute('disabled', 'false')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(105): function foo(button: HTMLButtonElement) {button?.setAttribute('disabled', 'false')} 2`] = `
+
+Message:
+> 1 | function foo(button: HTMLButtonElement) {button?.setAttribute('disabled', 'false')}
+    |                                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(button: HTMLButtonElement) {button?.removeAttribute('disabled')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(106): function foo(button: HTMLButtonElement | null) {button?.setAttribute('disabled', 'false')} 1`] = `
+
+  1 | function foo(button: HTMLButtonElement | null) {button?.setAttribute('disabled', 'false')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(106): function foo(button: HTMLButtonElement | null) {button?.setAttribute('disabled', 'false')} 2`] = `
+
+Message:
+> 1 | function foo(button: HTMLButtonElement | null) {button?.setAttribute('disabled', 'false')}
+    |                                                                                  ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(button: HTMLButtonElement | null) {button?.removeAttribute('disabled')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(107): function foo(button: HTMLButtonElement | undefined) {button?.setAttribute('disabled', 'false')} 1`] = `
+
+  1 | function foo(button: HTMLButtonElement | undefined) {button?.setAttribute('disabled', 'false')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(107): function foo(button: HTMLButtonElement | undefined) {button?.setAttribute('disabled', 'false')} 2`] = `
+
+Message:
+> 1 | function foo(button: HTMLButtonElement | undefined) {button?.setAttribute('disabled', 'false')}
+    |                                                                                       ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(button: HTMLButtonElement | undefined) {button?.removeAttribute('disabled')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(108): function foo(button: HTMLButtonElement | HTMLInputElement) {button?.setAttribute('disabled', 'false')} 1`] = `
+
+  1 | function foo(button: HTMLButtonElement | HTMLInputElement) {button?.setAttribute('disabled', 'false')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(108): function foo(button: HTMLButtonElement | HTMLInputElement) {button?.setAttribute('disabled', 'false')} 2`] = `
+
+Message:
+> 1 | function foo(button: HTMLButtonElement | HTMLInputElement) {button?.setAttribute('disabled', 'false')}
+    |                                                                                              ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(button: HTMLButtonElement | HTMLInputElement) {button?.removeAttribute('disabled')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(109): function foo(button: HTMLButtonElement) {(button as HTMLButtonElement).setAttribute('disabled', 'false')} 1`] = `
+
+  1 | function foo(button: HTMLButtonElement) {(button as HTMLButtonElement).setAttribute('disabled', 'false')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(109): function foo(button: HTMLButtonElement) {(button as HTMLButtonElement).setAttribute('disabled', 'false')} 2`] = `
+
+Message:
+> 1 | function foo(button: HTMLButtonElement) {(button as HTMLButtonElement).setAttribute('disabled', 'false')}
+    |                                                                                                 ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(button: HTMLButtonElement) {(button as HTMLButtonElement).removeAttribute('disabled')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(11): document.createElement('img').setAttribute('controls', 'true') 1`] = `
+
+  1 | document.createElement('img').setAttribute('controls', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(11): document.createElement('img').setAttribute('controls', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('img').setAttribute('controls', 'true')
+    |                                                        ^^^^^^ Invalid value for boolean attribute \`controls\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`controls\` attribute to an empty string.:
+  1 | document.createElement('img').setAttribute('controls', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(110): function foo(button: HTMLButtonElement) {(<HTMLButtonElement>button).setAttribute('disabled', 'false')} 1`] = `
+
+  1 | function foo(button: HTMLButtonElement) {(<HTMLButtonElement>button).setAttribute('disabled', 'false')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(110): function foo(button: HTMLButtonElement) {(<HTMLButtonElement>button).setAttribute('disabled', 'false')} 2`] = `
+
+Message:
+> 1 | function foo(button: HTMLButtonElement) {(<HTMLButtonElement>button).setAttribute('disabled', 'false')}
+    |                                                                                               ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(button: HTMLButtonElement) {(<HTMLButtonElement>button).removeAttribute('disabled')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(111): function foo(button: HTMLButtonElement) {(button!).setAttribute('disabled', 'false')} 1`] = `
+
+  1 | function foo(button: HTMLButtonElement) {(button!).setAttribute('disabled', 'false')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(111): function foo(button: HTMLButtonElement) {(button!).setAttribute('disabled', 'false')} 2`] = `
+
+Message:
+> 1 | function foo(button: HTMLButtonElement) {(button!).setAttribute('disabled', 'false')}
+    |                                                                             ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(button: HTMLButtonElement) {(button!).removeAttribute('disabled')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(112): function foo(button: HTMLButtonElement) {(button satisfies HTMLButtonElement).setAttribute('disabled', 'false')} 1`] = `
+
+  1 | function foo(button: HTMLButtonElement) {(button satisfies HTMLButtonElement).setAttribute('disabled', 'false')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(112): function foo(button: HTMLButtonElement) {(button satisfies HTMLButtonElement).setAttribute('disabled', 'false')} 2`] = `
+
+Message:
+> 1 | function foo(button: HTMLButtonElement) {(button satisfies HTMLButtonElement).setAttribute('disabled', 'false')}
+    |                                                                                                        ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(button: HTMLButtonElement) {(button satisfies HTMLButtonElement).removeAttribute('disabled')}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(113): type Button = HTMLButtonElement; function foo(button: Button) {button.setAttribute(\"disabled\", \"false\")} 1`] = `
+
+  1 | type Button = HTMLButtonElement; function foo(button: Button) {button.setAttribute("disabled", "false")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(113): type Button = HTMLButtonElement; function foo(button: Button) {button.setAttribute(\"disabled\", \"false\")} 2`] = `
+
+Message:
+> 1 | type Button = HTMLButtonElement; function foo(button: Button) {button.setAttribute("disabled", "false")}
+    |                                                                                                ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | type Button = HTMLButtonElement; function foo(button: Button) {button.removeAttribute("disabled")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(114): declare const button: HTMLButtonElement; button.setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | declare const button: HTMLButtonElement; button.setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(114): declare const button: HTMLButtonElement; button.setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | declare const button: HTMLButtonElement; button.setAttribute("disabled", "false")
+    |                                                                          ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | declare const button: HTMLButtonElement; button.removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(115): type Empty = null; type Button = HTMLButtonElement | Empty; function foo(button: Button) {button?.setAttribute(\"disabled\", \"false\")} 1`] = `
+
+  1 | type Empty = null; type Button = HTMLButtonElement | Empty; function foo(button: Button) {button?.setAttribute("disabled", "false")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(115): type Empty = null; type Button = HTMLButtonElement | Empty; function foo(button: Button) {button?.setAttribute(\"disabled\", \"false\")} 2`] = `
+
+Message:
+> 1 | type Empty = null; type Button = HTMLButtonElement | Empty; function foo(button: Button) {button?.setAttribute("disabled", "false")}
+    |                                                                                                                            ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | type Empty = null; type Button = HTMLButtonElement | Empty; function foo(button: Button) {button?.removeAttribute("disabled")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(116): type Empty = undefined; function foo(button: HTMLButtonElement | Empty) {button?.setAttribute(\"disabled\", \"false\")} 1`] = `
+
+  1 | type Empty = undefined; function foo(button: HTMLButtonElement | Empty) {button?.setAttribute("disabled", "false")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(116): type Empty = undefined; function foo(button: HTMLButtonElement | Empty) {button?.setAttribute(\"disabled\", \"false\")} 2`] = `
+
+Message:
+> 1 | type Empty = undefined; function foo(button: HTMLButtonElement | Empty) {button?.setAttribute("disabled", "false")}
+    |                                                                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | type Empty = undefined; function foo(button: HTMLButtonElement | Empty) {button?.removeAttribute("disabled")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(117): const button = document.createElement(\"button\") satisfies HTMLButtonElement; button.setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | const button = document.createElement("button") satisfies HTMLButtonElement; button.setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(117): const button = document.createElement(\"button\") satisfies HTMLButtonElement; button.setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | const button = document.createElement("button") satisfies HTMLButtonElement; button.setAttribute("disabled", "false")
+    |                                                                                                              ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | const button = document.createElement("button") satisfies HTMLButtonElement; button.removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(118): function foo(button: HTMLButtonElement) {button.setAttribute(\"disabled\", false as const)} 1`] = `
+
+  1 | function foo(button: HTMLButtonElement) {button.setAttribute("disabled", false as const)}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(118): function foo(button: HTMLButtonElement) {button.setAttribute(\"disabled\", false as const)} 2`] = `
+
+Message:
+> 1 | function foo(button: HTMLButtonElement) {button.setAttribute("disabled", false as const)}
+    |                                                                          ^^^^^^^^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(button: HTMLButtonElement) {button.removeAttribute("disabled")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(119): const button = document.createElement(\"button\"); button.setAttribute(\"disabled\", \"false\") 1`] = `
+
+Filename: file.ts
+
+  1 | const button = document.createElement("button"); button.setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(119): const button = document.createElement(\"button\"); button.setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | const button = document.createElement("button"); button.setAttribute("disabled", "false")
+    |                                                                                  ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | const button = document.createElement("button"); button.removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(12): document.createElement('track').setAttribute('default', 'true') 1`] = `
+
+  1 | document.createElement('track').setAttribute('default', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(12): document.createElement('track').setAttribute('default', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('track').setAttribute('default', 'true')
+    |                                                         ^^^^^^ Invalid value for boolean attribute \`default\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`default\` attribute to an empty string.:
+  1 | document.createElement('track').setAttribute('default', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(120): document.querySelector<HTMLButtonElement>(\"button.primary\")?.setAttribute(\"disabled\", \"false\") 1`] = `
+
+Filename: file.ts
+
+  1 | document.querySelector<HTMLButtonElement>("button.primary")?.setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(120): document.querySelector<HTMLButtonElement>(\"button.primary\")?.setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document.querySelector<HTMLButtonElement>("button.primary")?.setAttribute("disabled", "false")
+    |                                                                                       ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.querySelector<HTMLButtonElement>("button.primary")?.removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(121): let button = document.createElement(\"button\"); button.setAttribute(\"disabled\", \"false\") 1`] = `
+
+Filename: file.ts
+
+  1 | let button = document.createElement("button"); button.setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(121): let button = document.createElement(\"button\"); button.setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | let button = document.createElement("button"); button.setAttribute("disabled", "false")
+    |                                                                                ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | let button = document.createElement("button"); button.removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(122): function foo(event: MouseEvent) {(event.currentTarget as HTMLButtonElement).setAttribute(\"disabled\", \"false\")} 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(event: MouseEvent) {(event.currentTarget as HTMLButtonElement).setAttribute("disabled", "false")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(122): function foo(event: MouseEvent) {(event.currentTarget as HTMLButtonElement).setAttribute(\"disabled\", \"false\")} 2`] = `
+
+Message:
+> 1 | function foo(event: MouseEvent) {(event.currentTarget as HTMLButtonElement).setAttribute("disabled", "false")}
+    |                                                                                                      ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(event: MouseEvent) {(event.currentTarget as HTMLButtonElement).removeAttribute("disabled")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(123): function foo(holder: {button: HTMLButtonElement | null}) {holder.button?.setAttribute(\"disabled\", \"false\")} 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(holder: {button: HTMLButtonElement | null}) {holder.button?.setAttribute("disabled", "false")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(123): function foo(holder: {button: HTMLButtonElement | null}) {holder.button?.setAttribute(\"disabled\", \"false\")} 2`] = `
+
+Message:
+> 1 | function foo(holder: {button: HTMLButtonElement | null}) {holder.button?.setAttribute("disabled", "false")}
+    |                                                                                                   ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(holder: {button: HTMLButtonElement | null}) {holder.button?.removeAttribute("disabled")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(124): function foo(holder: {button: HTMLButtonElement | HTMLInputElement | null}) {holder.button?.setAttribute(\"disabled\", \"false\")} 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(holder: {button: HTMLButtonElement | HTMLInputElement | null}) {holder.button?.setAttribute("disabled", "false")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(124): function foo(holder: {button: HTMLButtonElement | HTMLInputElement | null}) {holder.button?.setAttribute(\"disabled\", \"false\")} 2`] = `
+
+Message:
+> 1 | function foo(holder: {button: HTMLButtonElement | HTMLInputElement | null}) {holder.button?.setAttribute("disabled", "false")}
+    |                                                                                                                      ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function foo(holder: {button: HTMLButtonElement | HTMLInputElement | null}) {holder.button?.removeAttribute("disabled")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(125): function foo(holder: {button: HTMLButtonElement | HTMLDivElement}) {holder.button.setAttribute(\"inert\", \"false\")} 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(holder: {button: HTMLButtonElement | HTMLDivElement}) {holder.button.setAttribute("inert", "false")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(125): function foo(holder: {button: HTMLButtonElement | HTMLDivElement}) {holder.button.setAttribute(\"inert\", \"false\")} 2`] = `
+
+Message:
+> 1 | function foo(holder: {button: HTMLButtonElement | HTMLDivElement}) {holder.button.setAttribute("inert", "false")}
+    |                                                                                                         ^^^^^^^ Invalid value for boolean attribute \`inert\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`inert\` attribute.:
+  1 | function foo(holder: {button: HTMLButtonElement | HTMLDivElement}) {holder.button.removeAttribute("inert")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(126): export {}; declare global {interface HTMLButtonElement {extra: string}} function foo(holder: {button: HTMLButtonElement}) {holder.button.setAttribute(\"disabled\", \"false\")} 1`] = `
+
+Filename: file.ts
+
+  1 | export {}; declare global {interface HTMLButtonElement {extra: string}} function foo(holder: {button: HTMLButtonElement}) {holder.button.setAttribute("disabled", "false")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(126): export {}; declare global {interface HTMLButtonElement {extra: string}} function foo(holder: {button: HTMLButtonElement}) {holder.button.setAttribute(\"disabled\", \"false\")} 2`] = `
+
+Message:
+> 1 | export {}; declare global {interface HTMLButtonElement {extra: string}} function foo(holder: {button: HTMLButtonElement}) {holder.button.setAttribute("disabled", "false")}
+    |                                                                                                                                                                   ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | export {}; declare global {interface HTMLButtonElement {extra: string}} function foo(holder: {button: HTMLButtonElement}) {holder.button.removeAttribute("disabled")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(127): /** @type {HTMLButtonElement} */ const button = getButton(); button.setAttribute(\"disabled\", \"false\") 1`] = `
+
+Filename: file.js
+
+  1 | /** @type {HTMLButtonElement} */ const button = getButton(); button.setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(127): /** @type {HTMLButtonElement} */ const button = getButton(); button.setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | /** @type {HTMLButtonElement} */ const button = getButton(); button.setAttribute("disabled", "false")
+    |                                                                                              ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | /** @type {HTMLButtonElement} */ const button = getButton(); button.removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(128): function getButton(): HTMLButtonElement {return button} getButton().setAttribute(\"disabled\", \"false\") 1`] = `
+
+Filename: file.ts
+
+  1 | function getButton(): HTMLButtonElement {return button} getButton().setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(128): function getButton(): HTMLButtonElement {return button} getButton().setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | function getButton(): HTMLButtonElement {return button} getButton().setAttribute("disabled", "false")
+    |                                                                                              ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | function getButton(): HTMLButtonElement {return button} getButton().removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(129): const holder = {getButton(): HTMLButtonElement {return button}}; holder.getButton().setAttribute(\"disabled\", \"false\") 1`] = `
+
+Filename: file.ts
+
+  1 | const holder = {getButton(): HTMLButtonElement {return button}}; holder.getButton().setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(129): const holder = {getButton(): HTMLButtonElement {return button}}; holder.getButton().setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | const holder = {getButton(): HTMLButtonElement {return button}}; holder.getButton().setAttribute("disabled", "false")
+    |                                                                                                              ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | const holder = {getButton(): HTMLButtonElement {return button}}; holder.getButton().removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(13): document.createElement('script').setAttribute('defer', 'true') 1`] = `
+
+  1 | document.createElement('script').setAttribute('defer', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(13): document.createElement('script').setAttribute('defer', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('script').setAttribute('defer', 'true')
+    |                                                        ^^^^^^ Invalid value for boolean attribute \`defer\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`defer\` attribute to an empty string.:
+  1 | document.createElement('script').setAttribute('defer', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(130): function foo(doc: Document) {(doc.querySelector(\"script\") as HTMLScriptElement).setAttribute(\"async\", \"false\")} 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(doc: Document) {(doc.querySelector("script") as HTMLScriptElement).setAttribute("async", "false")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(130): function foo(doc: Document) {(doc.querySelector(\"script\") as HTMLScriptElement).setAttribute(\"async\", \"false\")} 2`] = `
+
+Message:
+> 1 | function foo(doc: Document) {(doc.querySelector("script") as HTMLScriptElement).setAttribute("async", "false")}
+    |                                                                                                       ^^^^^^^ Invalid value for boolean attribute \`async\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`async\` attribute.:
+  1 | function foo(doc: Document) {(doc.querySelector("script") as HTMLScriptElement).removeAttribute("async")}
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(14): document.createElement('button').setAttribute('disabled', 'true') 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(14): document.createElement('button').setAttribute('disabled', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', 'true')
+    |                                                           ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(15): document.createElement('input').setAttribute('disabled', 'true') 1`] = `
+
+  1 | document.createElement('input').setAttribute('disabled', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(15): document.createElement('input').setAttribute('disabled', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('input').setAttribute('disabled', 'true')
+    |                                                          ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('input').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(16): document.createElement('optgroup').setAttribute('disabled', 'true') 1`] = `
+
+  1 | document.createElement('optgroup').setAttribute('disabled', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(16): document.createElement('optgroup').setAttribute('disabled', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('optgroup').setAttribute('disabled', 'true')
+    |                                                             ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('optgroup').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(17): document.createElement('option').setAttribute('disabled', 'true') 1`] = `
+
+  1 | document.createElement('option').setAttribute('disabled', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(17): document.createElement('option').setAttribute('disabled', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('option').setAttribute('disabled', 'true')
+    |                                                           ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('option').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(18): document.createElement('select').setAttribute('disabled', 'true') 1`] = `
+
+  1 | document.createElement('select').setAttribute('disabled', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(18): document.createElement('select').setAttribute('disabled', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('select').setAttribute('disabled', 'true')
+    |                                                           ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('select').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(19): document.createElement('textarea').setAttribute('disabled', 'true') 1`] = `
+
+  1 | document.createElement('textarea').setAttribute('disabled', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(19): document.createElement('textarea').setAttribute('disabled', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('textarea').setAttribute('disabled', 'true')
+    |                                                             ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('textarea').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(2): document.createElement('input').setAttribute('alpha', 'true') 1`] = `
+
+  1 | document.createElement('input').setAttribute('alpha', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(2): document.createElement('input').setAttribute('alpha', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('input').setAttribute('alpha', 'true')
+    |                                                       ^^^^^^ Invalid value for boolean attribute \`alpha\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`alpha\` attribute to an empty string.:
+  1 | document.createElement('input').setAttribute('alpha', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(20): document.createElement('fieldset').setAttribute('disabled', 'true') 1`] = `
+
+  1 | document.createElement('fieldset').setAttribute('disabled', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(20): document.createElement('fieldset').setAttribute('disabled', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('fieldset').setAttribute('disabled', 'true')
+    |                                                             ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('fieldset').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(21): document.createElement('link').setAttribute('disabled', 'true') 1`] = `
+
+  1 | document.createElement('link').setAttribute('disabled', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(21): document.createElement('link').setAttribute('disabled', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('link').setAttribute('disabled', 'true')
+    |                                                         ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('link').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(22): document.createElement('button').setAttribute('formnovalidate', 'true') 1`] = `
+
+  1 | document.createElement('button').setAttribute('formnovalidate', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(22): document.createElement('button').setAttribute('formnovalidate', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('formnovalidate', 'true')
+    |                                                                 ^^^^^^ Invalid value for boolean attribute \`formnovalidate\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`formnovalidate\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('formnovalidate', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(23): document.createElement('input').setAttribute('formnovalidate', 'true') 1`] = `
+
+  1 | document.createElement('input').setAttribute('formnovalidate', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(23): document.createElement('input').setAttribute('formnovalidate', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('input').setAttribute('formnovalidate', 'true')
+    |                                                                ^^^^^^ Invalid value for boolean attribute \`formnovalidate\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`formnovalidate\` attribute to an empty string.:
+  1 | document.createElement('input').setAttribute('formnovalidate', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(24): document.createElement('div').setAttribute('headingreset', 'true') 1`] = `
+
+  1 | document.createElement('div').setAttribute('headingreset', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(24): document.createElement('div').setAttribute('headingreset', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('div').setAttribute('headingreset', 'true')
+    |                                                            ^^^^^^ Invalid value for boolean attribute \`headingreset\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`headingreset\` attribute to an empty string.:
+  1 | document.createElement('div').setAttribute('headingreset', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(25): document.createElement('div').setAttribute('inert', 'true') 1`] = `
+
+  1 | document.createElement('div').setAttribute('inert', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(25): document.createElement('div').setAttribute('inert', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('div').setAttribute('inert', 'true')
+    |                                                     ^^^^^^ Invalid value for boolean attribute \`inert\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`inert\` attribute to an empty string.:
+  1 | document.createElement('div').setAttribute('inert', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(26): document.createElement('span').setAttribute('inert', 'true') 1`] = `
+
+  1 | document.createElement('span').setAttribute('inert', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(26): document.createElement('span').setAttribute('inert', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('span').setAttribute('inert', 'true')
+    |                                                      ^^^^^^ Invalid value for boolean attribute \`inert\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`inert\` attribute to an empty string.:
+  1 | document.createElement('span').setAttribute('inert', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(27): document.createElement('img').setAttribute('ismap', 'true') 1`] = `
+
+  1 | document.createElement('img').setAttribute('ismap', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(27): document.createElement('img').setAttribute('ismap', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('img').setAttribute('ismap', 'true')
+    |                                                     ^^^^^^ Invalid value for boolean attribute \`ismap\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`ismap\` attribute to an empty string.:
+  1 | document.createElement('img').setAttribute('ismap', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(28): document.createElement('div').setAttribute('itemscope', 'true') 1`] = `
+
+  1 | document.createElement('div').setAttribute('itemscope', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(28): document.createElement('div').setAttribute('itemscope', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('div').setAttribute('itemscope', 'true')
+    |                                                         ^^^^^^ Invalid value for boolean attribute \`itemscope\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`itemscope\` attribute to an empty string.:
+  1 | document.createElement('div').setAttribute('itemscope', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(29): document.createElement('audio').setAttribute('loop', 'true') 1`] = `
+
+  1 | document.createElement('audio').setAttribute('loop', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(29): document.createElement('audio').setAttribute('loop', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('audio').setAttribute('loop', 'true')
+    |                                                      ^^^^^^ Invalid value for boolean attribute \`loop\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`loop\` attribute to an empty string.:
+  1 | document.createElement('audio').setAttribute('loop', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(3): document.createElement('script').setAttribute('async', 'true') 1`] = `
+
+  1 | document.createElement('script').setAttribute('async', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(3): document.createElement('script').setAttribute('async', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('script').setAttribute('async', 'true')
+    |                                                        ^^^^^^ Invalid value for boolean attribute \`async\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`async\` attribute to an empty string.:
+  1 | document.createElement('script').setAttribute('async', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(30): document.createElement('video').setAttribute('loop', 'true') 1`] = `
+
+  1 | document.createElement('video').setAttribute('loop', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(30): document.createElement('video').setAttribute('loop', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('video').setAttribute('loop', 'true')
+    |                                                      ^^^^^^ Invalid value for boolean attribute \`loop\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`loop\` attribute to an empty string.:
+  1 | document.createElement('video').setAttribute('loop', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(31): document.createElement('input').setAttribute('multiple', 'true') 1`] = `
+
+  1 | document.createElement('input').setAttribute('multiple', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(31): document.createElement('input').setAttribute('multiple', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('input').setAttribute('multiple', 'true')
+    |                                                          ^^^^^^ Invalid value for boolean attribute \`multiple\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`multiple\` attribute to an empty string.:
+  1 | document.createElement('input').setAttribute('multiple', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(32): document.createElement('select').setAttribute('multiple', 'true') 1`] = `
+
+  1 | document.createElement('select').setAttribute('multiple', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(32): document.createElement('select').setAttribute('multiple', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('select').setAttribute('multiple', 'true')
+    |                                                           ^^^^^^ Invalid value for boolean attribute \`multiple\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`multiple\` attribute to an empty string.:
+  1 | document.createElement('select').setAttribute('multiple', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(33): document.createElement('audio').setAttribute('muted', 'true') 1`] = `
+
+  1 | document.createElement('audio').setAttribute('muted', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(33): document.createElement('audio').setAttribute('muted', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('audio').setAttribute('muted', 'true')
+    |                                                       ^^^^^^ Invalid value for boolean attribute \`muted\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`muted\` attribute to an empty string.:
+  1 | document.createElement('audio').setAttribute('muted', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(34): document.createElement('video').setAttribute('muted', 'true') 1`] = `
+
+  1 | document.createElement('video').setAttribute('muted', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(34): document.createElement('video').setAttribute('muted', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('video').setAttribute('muted', 'true')
+    |                                                       ^^^^^^ Invalid value for boolean attribute \`muted\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`muted\` attribute to an empty string.:
+  1 | document.createElement('video').setAttribute('muted', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(35): document.createElement('script').setAttribute('nomodule', 'true') 1`] = `
+
+  1 | document.createElement('script').setAttribute('nomodule', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(35): document.createElement('script').setAttribute('nomodule', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('script').setAttribute('nomodule', 'true')
+    |                                                           ^^^^^^ Invalid value for boolean attribute \`nomodule\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`nomodule\` attribute to an empty string.:
+  1 | document.createElement('script').setAttribute('nomodule', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(36): document.createElement('form').setAttribute('novalidate', 'true') 1`] = `
+
+  1 | document.createElement('form').setAttribute('novalidate', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(36): document.createElement('form').setAttribute('novalidate', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('form').setAttribute('novalidate', 'true')
+    |                                                           ^^^^^^ Invalid value for boolean attribute \`novalidate\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`novalidate\` attribute to an empty string.:
+  1 | document.createElement('form').setAttribute('novalidate', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(37): document.createElement('details').setAttribute('open', 'true') 1`] = `
+
+  1 | document.createElement('details').setAttribute('open', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(37): document.createElement('details').setAttribute('open', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('details').setAttribute('open', 'true')
+    |                                                        ^^^^^^ Invalid value for boolean attribute \`open\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`open\` attribute to an empty string.:
+  1 | document.createElement('details').setAttribute('open', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(38): document.createElement('dialog').setAttribute('open', 'true') 1`] = `
+
+  1 | document.createElement('dialog').setAttribute('open', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(38): document.createElement('dialog').setAttribute('open', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('dialog').setAttribute('open', 'true')
+    |                                                       ^^^^^^ Invalid value for boolean attribute \`open\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`open\` attribute to an empty string.:
+  1 | document.createElement('dialog').setAttribute('open', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(39): document.createElement('video').setAttribute('playsinline', 'true') 1`] = `
+
+  1 | document.createElement('video').setAttribute('playsinline', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(39): document.createElement('video').setAttribute('playsinline', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('video').setAttribute('playsinline', 'true')
+    |                                                             ^^^^^^ Invalid value for boolean attribute \`playsinline\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`playsinline\` attribute to an empty string.:
+  1 | document.createElement('video').setAttribute('playsinline', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(4): document.createElement('div').setAttribute('autofocus', 'true') 1`] = `
+
+  1 | document.createElement('div').setAttribute('autofocus', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(4): document.createElement('div').setAttribute('autofocus', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('div').setAttribute('autofocus', 'true')
+    |                                                         ^^^^^^ Invalid value for boolean attribute \`autofocus\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`autofocus\` attribute to an empty string.:
+  1 | document.createElement('div').setAttribute('autofocus', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(40): document.createElement('input').setAttribute('readonly', 'true') 1`] = `
+
+  1 | document.createElement('input').setAttribute('readonly', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(40): document.createElement('input').setAttribute('readonly', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('input').setAttribute('readonly', 'true')
+    |                                                          ^^^^^^ Invalid value for boolean attribute \`readonly\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`readonly\` attribute to an empty string.:
+  1 | document.createElement('input').setAttribute('readonly', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(41): document.createElement('textarea').setAttribute('readonly', 'true') 1`] = `
+
+  1 | document.createElement('textarea').setAttribute('readonly', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(41): document.createElement('textarea').setAttribute('readonly', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('textarea').setAttribute('readonly', 'true')
+    |                                                             ^^^^^^ Invalid value for boolean attribute \`readonly\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`readonly\` attribute to an empty string.:
+  1 | document.createElement('textarea').setAttribute('readonly', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(42): document.createElement('input').setAttribute('required', 'true') 1`] = `
+
+  1 | document.createElement('input').setAttribute('required', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(42): document.createElement('input').setAttribute('required', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('input').setAttribute('required', 'true')
+    |                                                          ^^^^^^ Invalid value for boolean attribute \`required\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`required\` attribute to an empty string.:
+  1 | document.createElement('input').setAttribute('required', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(43): document.createElement('select').setAttribute('required', 'true') 1`] = `
+
+  1 | document.createElement('select').setAttribute('required', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(43): document.createElement('select').setAttribute('required', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('select').setAttribute('required', 'true')
+    |                                                           ^^^^^^ Invalid value for boolean attribute \`required\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`required\` attribute to an empty string.:
+  1 | document.createElement('select').setAttribute('required', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(44): document.createElement('textarea').setAttribute('required', 'true') 1`] = `
+
+  1 | document.createElement('textarea').setAttribute('required', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(44): document.createElement('textarea').setAttribute('required', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('textarea').setAttribute('required', 'true')
+    |                                                             ^^^^^^ Invalid value for boolean attribute \`required\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`required\` attribute to an empty string.:
+  1 | document.createElement('textarea').setAttribute('required', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(45): document.createElement('ol').setAttribute('reversed', 'true') 1`] = `
+
+  1 | document.createElement('ol').setAttribute('reversed', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(45): document.createElement('ol').setAttribute('reversed', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('ol').setAttribute('reversed', 'true')
+    |                                                       ^^^^^^ Invalid value for boolean attribute \`reversed\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`reversed\` attribute to an empty string.:
+  1 | document.createElement('ol').setAttribute('reversed', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(46): document.createElement('option').setAttribute('selected', 'true') 1`] = `
+
+  1 | document.createElement('option').setAttribute('selected', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(46): document.createElement('option').setAttribute('selected', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('option').setAttribute('selected', 'true')
+    |                                                           ^^^^^^ Invalid value for boolean attribute \`selected\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`selected\` attribute to an empty string.:
+  1 | document.createElement('option').setAttribute('selected', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(47): document.createElement('template').setAttribute('shadowrootclonable', 'true') 1`] = `
+
+  1 | document.createElement('template').setAttribute('shadowrootclonable', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(47): document.createElement('template').setAttribute('shadowrootclonable', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('template').setAttribute('shadowrootclonable', 'true')
+    |                                                                       ^^^^^^ Invalid value for boolean attribute \`shadowrootclonable\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`shadowrootclonable\` attribute to an empty string.:
+  1 | document.createElement('template').setAttribute('shadowrootclonable', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(48): document.createElement('template').setAttribute('shadowrootcustomelementregistry', 'true') 1`] = `
+
+  1 | document.createElement('template').setAttribute('shadowrootcustomelementregistry', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(48): document.createElement('template').setAttribute('shadowrootcustomelementregistry', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('template').setAttribute('shadowrootcustomelementregistry', 'true')
+    |                                                                                    ^^^^^^ Invalid value for boolean attribute \`shadowrootcustomelementregistry\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`shadowrootcustomelementregistry\` attribute to an empty string.:
+  1 | document.createElement('template').setAttribute('shadowrootcustomelementregistry', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(49): document.createElement('template').setAttribute('shadowrootdelegatesfocus', 'true') 1`] = `
+
+  1 | document.createElement('template').setAttribute('shadowrootdelegatesfocus', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(49): document.createElement('template').setAttribute('shadowrootdelegatesfocus', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('template').setAttribute('shadowrootdelegatesfocus', 'true')
+    |                                                                             ^^^^^^ Invalid value for boolean attribute \`shadowrootdelegatesfocus\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`shadowrootdelegatesfocus\` attribute to an empty string.:
+  1 | document.createElement('template').setAttribute('shadowrootdelegatesfocus', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(5): document.createElement('button').setAttribute('autofocus', 'true') 1`] = `
+
+  1 | document.createElement('button').setAttribute('autofocus', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(5): document.createElement('button').setAttribute('autofocus', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('autofocus', 'true')
+    |                                                            ^^^^^^ Invalid value for boolean attribute \`autofocus\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`autofocus\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('autofocus', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(50): document.createElement('template').setAttribute('shadowrootserializable', 'true') 1`] = `
+
+  1 | document.createElement('template').setAttribute('shadowrootserializable', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(50): document.createElement('template').setAttribute('shadowrootserializable', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('template').setAttribute('shadowrootserializable', 'true')
+    |                                                                           ^^^^^^ Invalid value for boolean attribute \`shadowrootserializable\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`shadowrootserializable\` attribute to an empty string.:
+  1 | document.createElement('template').setAttribute('shadowrootserializable', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(51): document.createElement('button').setAttribute('disabled', false) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', false)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(51): document.createElement('button').setAttribute('disabled', false) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', false)
+    |                                                           ^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement('button').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(52): document.createElement('button').setAttribute('disabled', true) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', true)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(52): document.createElement('button').setAttribute('disabled', true) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', true)
+    |                                                           ^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(53): document.createElement('button').setAttribute('disabled', 0) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', 0)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(53): document.createElement('button').setAttribute('disabled', 0) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', 0)
+    |                                                           ^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(54): document.createElement('button').setAttribute('disabled', 1) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', 1)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(54): document.createElement('button').setAttribute('disabled', 1) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', 1)
+    |                                                           ^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(55): document.createElement('button').setAttribute('disabled', 0n) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', 0n)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(55): document.createElement('button').setAttribute('disabled', 0n) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', 0n)
+    |                                                           ^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(56): document.createElement('button').setAttribute('disabled', null) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', null)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(56): document.createElement('button').setAttribute('disabled', null) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', null)
+    |                                                           ^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(57): document.createElement('button').setAttribute('disabled', undefined) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', undefined)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(57): document.createElement('button').setAttribute('disabled', undefined) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', undefined)
+    |                                                           ^^^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(58): document.createElement('button').setAttribute('disabled', \"FALSE\") 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', "FALSE")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(58): document.createElement('button').setAttribute('disabled', \"FALSE\") 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', "FALSE")
+    |                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement('button').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(59): document.createElement('button').setAttribute('disabled', \"true\") 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', "true")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(59): document.createElement('button').setAttribute('disabled', \"true\") 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', "true")
+    |                                                           ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(6): document.createElement('audio').setAttribute('autoplay', 'true') 1`] = `
+
+  1 | document.createElement('audio').setAttribute('autoplay', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(6): document.createElement('audio').setAttribute('autoplay', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('audio').setAttribute('autoplay', 'true')
+    |                                                          ^^^^^^ Invalid value for boolean attribute \`autoplay\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`autoplay\` attribute to an empty string.:
+  1 | document.createElement('audio').setAttribute('autoplay', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(60): document.createElement('button').setAttribute('disabled', \"wrong\") 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', "wrong")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(60): document.createElement('button').setAttribute('disabled', \"wrong\") 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', "wrong")
+    |                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(61): document.createElement('button').setAttribute('disabled', \" disabled \") 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', " disabled ")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(61): document.createElement('button').setAttribute('disabled', \" disabled \") 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', " disabled ")
+    |                                                           ^^^^^^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement('button').setAttribute('disabled', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(62): document.createElement('button').setAttribute('disabled', \"\" + false) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', "" + false)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(62): document.createElement('button').setAttribute('disabled', \"\" + false) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', "" + false)
+    |                                                           ^^^^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement('button').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(63): document.createElement('button').setAttribute('disabled', \`false\`) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', \`false\`)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(63): document.createElement('button').setAttribute('disabled', \`false\`) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', \`false\`)
+    |                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement('button').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(64): document.createElement('button').setAttribute('disabled', (false)) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', (false))
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(64): document.createElement('button').setAttribute('disabled', (false)) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', (false))
+    |                                                            ^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement('button').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(65): document.createElement('button').setAttribute('disabled', false && unknown) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', false && unknown)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(65): document.createElement('button').setAttribute('disabled', false && unknown) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', false && unknown)
+    |                                                           ^^^^^^^^^^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement('button').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(66): document.createElement('button').setAttribute('disabled', true ? \"false\" : unknown) 1`] = `
+
+  1 | document.createElement('button').setAttribute('disabled', true ? "false" : unknown)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(66): document.createElement('button').setAttribute('disabled', true ? \"false\" : unknown) 2`] = `
+
+Message:
+> 1 | document.createElement('button').setAttribute('disabled', true ? "false" : unknown)
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement('button').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(67): document.createElement(\"BUTTON\").setAttribute(\"DISABLED\", \"False\") 1`] = `
+
+  1 | document.createElement("BUTTON").setAttribute("DISABLED", "False")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(67): document.createElement(\"BUTTON\").setAttribute(\"DISABLED\", \"False\") 2`] = `
+
+Message:
+> 1 | document.createElement("BUTTON").setAttribute("DISABLED", "False")
+    |                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement("BUTTON").removeAttribute("DISABLED")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(68): document.createElement(\"input\").setAttribute(\"checked\", \"CHECKED\") 1`] = `
+
+  1 | document.createElement("input").setAttribute("checked", "CHECKED")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(68): document.createElement(\"input\").setAttribute(\"checked\", \"CHECKED\") 2`] = `
+
+Message:
+> 1 | document.createElement("input").setAttribute("checked", "CHECKED")
+    |                                                         ^^^^^^^^^ Invalid value for boolean attribute \`checked\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`checked\` attribute to an empty string.:
+  1 | document.createElement("input").setAttribute("checked", '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(69): document.createElement(\"button\").setAttribute(\"disabled\", \"false \") 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", "false ")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(69): document.createElement(\"button\").setAttribute(\"disabled\", \"false \") 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", "false ")
+    |                                                           ^^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement("button").setAttribute("disabled", '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(7): document.createElement('video').setAttribute('autoplay', 'true') 1`] = `
+
+  1 | document.createElement('video').setAttribute('autoplay', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(7): document.createElement('video').setAttribute('autoplay', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('video').setAttribute('autoplay', 'true')
+    |                                                          ^^^^^^ Invalid value for boolean attribute \`autoplay\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`autoplay\` attribute to an empty string.:
+  1 | document.createElement('video').setAttribute('autoplay', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(70): document.createElement(\"section\").setAttribute(\"inert\", \"false\") 1`] = `
+
+  1 | document.createElement("section").setAttribute("inert", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(70): document.createElement(\"section\").setAttribute(\"inert\", \"false\") 2`] = `
+
+Message:
+> 1 | document.createElement("section").setAttribute("inert", "false")
+    |                                                         ^^^^^^^ Invalid value for boolean attribute \`inert\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`inert\` attribute.:
+  1 | document.createElement("section").removeAttribute("inert")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(71): document.createElement(\"selectedcontent\").setAttribute(\"inert\", \"false\") 1`] = `
+
+  1 | document.createElement("selectedcontent").setAttribute("inert", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(71): document.createElement(\"selectedcontent\").setAttribute(\"inert\", \"false\") 2`] = `
+
+Message:
+> 1 | document.createElement("selectedcontent").setAttribute("inert", "false")
+    |                                                                 ^^^^^^^ Invalid value for boolean attribute \`inert\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`inert\` attribute.:
+  1 | document.createElement("selectedcontent").removeAttribute("inert")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(72): document.createElement(\"button\").setAttribute(\"disabled\", \"false\").toString() 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", "false").toString()
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(72): document.createElement(\"button\").setAttribute(\"disabled\", \"false\").toString() 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", "false").toString()
+    |                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement("button").removeAttribute("disabled").toString()
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(73): document.createElementNS(\"http://www.w3.org/1999/xhtml\", \"button\").setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | document.createElementNS("http://www.w3.org/1999/xhtml", "button").setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(73): document.createElementNS(\"http://www.w3.org/1999/xhtml\", \"button\").setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document.createElementNS("http://www.w3.org/1999/xhtml", "button").setAttribute("disabled", "false")
+    |                                                                                             ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElementNS("http://www.w3.org/1999/xhtml", "button").removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(74): document?.createElement?.(\"button\")?.setAttribute?.(\"disabled\", \"false\") 1`] = `
+
+  1 | document?.createElement?.("button")?.setAttribute?.("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(74): document?.createElement?.(\"button\")?.setAttribute?.(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document?.createElement?.("button")?.setAttribute?.("disabled", "false")
+    |                                                                 ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document?.createElement?.("button")?.removeAttribute?.("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(75): document?.querySelector?.(\"button.primary\")?.setAttribute?.(\"disabled\", \"false\") 1`] = `
+
+  1 | document?.querySelector?.("button.primary")?.setAttribute?.("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(75): document?.querySelector?.(\"button.primary\")?.setAttribute?.(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document?.querySelector?.("button.primary")?.setAttribute?.("disabled", "false")
+    |                                                                         ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document?.querySelector?.("button.primary")?.removeAttribute?.("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(76): window.document.createElement(\"button\").setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | window.document.createElement("button").setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(76): window.document.createElement(\"button\").setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | window.document.createElement("button").setAttribute("disabled", "false")
+    |                                                                  ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | window.document.createElement("button").removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(77): globalThis.document.createElement(\"button\").setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | globalThis.document.createElement("button").setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(77): globalThis.document.createElement(\"button\").setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | globalThis.document.createElement("button").setAttribute("disabled", "false")
+    |                                                                      ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | globalThis.document.createElement("button").removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(78): const documentAlias = document; const button = documentAlias.createElement(\"button\"); const alias = button; alias.setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | const documentAlias = document; const button = documentAlias.createElement("button"); const alias = button; alias.setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(78): const documentAlias = document; const button = documentAlias.createElement(\"button\"); const alias = button; alias.setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | const documentAlias = document; const button = documentAlias.createElement("button"); const alias = button; alias.setAttribute("disabled", "false")
+    |                                                                                                                                            ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | const documentAlias = document; const button = documentAlias.createElement("button"); const alias = button; alias.removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(79): const name = \"disabled\"; const value = \"false\"; document.createElement(\"button\").setAttribute(name, value) 1`] = `
+
+  1 | const name = "disabled"; const value = "false"; document.createElement("button").setAttribute(name, value)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(79): const name = \"disabled\"; const value = \"false\"; document.createElement(\"button\").setAttribute(name, value) 2`] = `
+
+Message:
+> 1 | const name = "disabled"; const value = "false"; document.createElement("button").setAttribute(name, value)
+    |                                                                                                     ^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | const name = "disabled"; const value = "false"; document.createElement("button").removeAttribute(name)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(8): document.createElement('input').setAttribute('checked', 'true') 1`] = `
+
+  1 | document.createElement('input').setAttribute('checked', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(8): document.createElement('input').setAttribute('checked', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('input').setAttribute('checked', 'true')
+    |                                                         ^^^^^^ Invalid value for boolean attribute \`checked\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`checked\` attribute to an empty string.:
+  1 | document.createElement('input').setAttribute('checked', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(80): const tag = \"button\"; document.createElement(tag).setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | const tag = "button"; document.createElement(tag).setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(80): const tag = \"button\"; document.createElement(tag).setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | const tag = "button"; document.createElement(tag).setAttribute("disabled", "false")
+    |                                                                            ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | const tag = "button"; document.createElement(tag).removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(81): document.querySelector('button').setAttribute('disabled', 'false') 1`] = `
+
+  1 | document.querySelector('button').setAttribute('disabled', 'false')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(81): document.querySelector('button').setAttribute('disabled', 'false') 2`] = `
+
+Message:
+> 1 | document.querySelector('button').setAttribute('disabled', 'false')
+    |                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.querySelector('button').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(82): document.querySelector('button.primary').setAttribute('disabled', 'false') 1`] = `
+
+  1 | document.querySelector('button.primary').setAttribute('disabled', 'false')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(82): document.querySelector('button.primary').setAttribute('disabled', 'false') 2`] = `
+
+Message:
+> 1 | document.querySelector('button.primary').setAttribute('disabled', 'false')
+    |                                                                   ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.querySelector('button.primary').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(83): document.querySelector('button#submit.primary').setAttribute('disabled', 'false') 1`] = `
+
+  1 | document.querySelector('button#submit.primary').setAttribute('disabled', 'false')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(83): document.querySelector('button#submit.primary').setAttribute('disabled', 'false') 2`] = `
+
+Message:
+> 1 | document.querySelector('button#submit.primary').setAttribute('disabled', 'false')
+    |                                                                          ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.querySelector('button#submit.primary').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(84): document.querySelector(' button ').setAttribute('disabled', 'false') 1`] = `
+
+  1 | document.querySelector(' button ').setAttribute('disabled', 'false')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(84): document.querySelector(' button ').setAttribute('disabled', 'false') 2`] = `
+
+Message:
+> 1 | document.querySelector(' button ').setAttribute('disabled', 'false')
+    |                                                             ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.querySelector(' button ').removeAttribute('disabled')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(85): const button = document.querySelector(\"button.primary\"); button?.setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | const button = document.querySelector("button.primary"); button?.setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(85): const button = document.querySelector(\"button.primary\"); button?.setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | const button = document.querySelector("button.primary"); button?.setAttribute("disabled", "false")
+    |                                                                                           ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | const button = document.querySelector("button.primary"); button?.removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(86): document.querySelector(\"b\\\\75tton\").setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | document.querySelector("b\\\\75tton").setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(86): document.querySelector(\"b\\\\75tton\").setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document.querySelector("b\\\\75tton").setAttribute("disabled", "false")
+    |                                                              ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.querySelector("b\\\\75tton").removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(87): document.createElement(\"button\").setAttribute?.(\"disabled\", \"false\") 1`] = `
+
+  1 | document.createElement("button").setAttribute?.("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(87): document.createElement(\"button\").setAttribute?.(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute?.("disabled", "false")
+    |                                                             ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement("button").removeAttribute?.("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(88): document.createElement(\"button\")[\"setAttribute\"](\"disabled\", \"false\") 1`] = `
+
+  1 | document.createElement("button")["setAttribute"]("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(88): document.createElement(\"button\")[\"setAttribute\"](\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document.createElement("button")["setAttribute"]("disabled", "false")
+    |                                                              ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement("button")['removeAttribute']("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(89): document.createElement(\"button\")[\"set\" + \"Attribute\"](\"disabled\", \"false\",) 1`] = `
+
+  1 | document.createElement("button")["set" + "Attribute"]("disabled", "false",)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(89): document.createElement(\"button\")[\"set\" + \"Attribute\"](\"disabled\", \"false\",) 2`] = `
+
+Message:
+> 1 | document.createElement("button")["set" + "Attribute"]("disabled", "false",)
+    |                                                                   ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement("button")['removeAttribute']("disabled",)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(9): document.createElement('audio').setAttribute('controls', 'true') 1`] = `
+
+  1 | document.createElement('audio').setAttribute('controls', 'true')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(9): document.createElement('audio').setAttribute('controls', 'true') 2`] = `
+
+Message:
+> 1 | document.createElement('audio').setAttribute('controls', 'true')
+    |                                                          ^^^^^^ Invalid value for boolean attribute \`controls\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`controls\` attribute to an empty string.:
+  1 | document.createElement('audio').setAttribute('controls', '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(90): document.createElement(\"button\")[\"set\" /* method */ + \"Attribute\"](\"disabled\", \"false\") 1`] = `
+
+  1 | document.createElement("button")["set" /* method */ + "Attribute"]("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(90): document.createElement(\"button\")[\"set\" /* method */ + \"Attribute\"](\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document.createElement("button")["set" /* method */ + "Attribute"]("disabled", "false")
+    |                                                                                ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(91): document.createElement(\"button\")[/* method */ \"setAttribute\"]?.(\"disabled\", \"false\") 1`] = `
+
+  1 | document.createElement("button")[/* method */ "setAttribute"]?.("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(91): document.createElement(\"button\")[/* method */ \"setAttribute\"]?.(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document.createElement("button")[/* method */ "setAttribute"]?.("disabled", "false")
+    |                                                                             ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement("button")[/* method */ 'removeAttribute']?.("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(92): const method = \"setAttribute\"; document.createElement(\"button\")[method](\"disabled\", \"false\") 1`] = `
+
+  1 | const method = "setAttribute"; document.createElement("button")[method]("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(92): const method = \"setAttribute\"; document.createElement(\"button\")[method](\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | const method = "setAttribute"; document.createElement("button")[method]("disabled", "false")
+    |                                                                                     ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | const method = "setAttribute"; document.createElement("button")['removeAttribute']("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(93): const result = document.createElement(\"button\").setAttribute(\"disabled\", \"false\") 1`] = `
+
+  1 | const result = document.createElement("button").setAttribute("disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(93): const result = document.createElement(\"button\").setAttribute(\"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | const result = document.createElement("button").setAttribute("disabled", "false")
+    |                                                                          ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | const result = document.createElement("button").removeAttribute("disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(94): ((document.createElement(\"button\"))).setAttribute(\"disabled\", ((\"false\")),) 1`] = `
+
+  1 | ((document.createElement("button"))).setAttribute("disabled", (("false")),)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(94): ((document.createElement(\"button\"))).setAttribute(\"disabled\", ((\"false\")),) 2`] = `
+
+Message:
+> 1 | ((document.createElement("button"))).setAttribute("disabled", (("false")),)
+    |                                                                 ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | ((document.createElement("button"))).removeAttribute("disabled",)
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(95): document.createElement(\"button\").setAttribute(/* name */ \"disabled\", \"false\") 1`] = `
+
+  1 | document.createElement("button").setAttribute(/* name */ "disabled", "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(95): document.createElement(\"button\").setAttribute(/* name */ \"disabled\", \"false\") 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute(/* name */ "disabled", "false")
+    |                                                                      ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Remove the \`disabled\` attribute.:
+  1 | document.createElement("button").removeAttribute(/* name */ "disabled")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(96): document.createElement(\"button\").setAttribute(\"disabled\", /* value */ \"false\") 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", /* value */ "false")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(96): document.createElement(\"button\").setAttribute(\"disabled\", /* value */ \"false\") 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", /* value */ "false")
+    |                                                                       ^^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(97): document.createElement(\"button\").setAttribute(\"disabled\", (/* inside */ false)) 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", (/* inside */ false))
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(97): document.createElement(\"button\").setAttribute(\"disabled\", (/* inside */ false)) 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", (/* inside */ false))
+    |                                                                         ^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(98): document.createElement(\"button\").setAttribute(\"disabled\", /* value */ \"true\") 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", /* value */ "true")
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(98): document.createElement(\"button\").setAttribute(\"disabled\", /* value */ \"true\") 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", /* value */ "true")
+    |                                                                       ^^^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement("button").setAttribute("disabled", /* value */ '')
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(99): document.createElement(\"button\").setAttribute(\"disabled\", (/* inside */ true)) 1`] = `
+
+  1 | document.createElement("button").setAttribute("disabled", (/* inside */ true))
+
+`;
+
+exports[`no-invalid-boolean-attribute-value > invalid(99): document.createElement(\"button\").setAttribute(\"disabled\", (/* inside */ true)) 2`] = `
+
+Message:
+> 1 | document.createElement("button").setAttribute("disabled", (/* inside */ true))
+    |                                                                         ^^^^ Invalid value for boolean attribute \`disabled\`. Use an empty string or the attribute name; remove the attribute to represent false.
+
+Suggestion 1/1: Set the \`disabled\` attribute to an empty string.:
+  1 | document.createElement("button").setAttribute("disabled", (/* inside */ ''))
+
+`;

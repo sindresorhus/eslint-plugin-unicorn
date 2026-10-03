@@ -72,6 +72,11 @@ test.snapshot({
 		// Inconsistent casts across accesses can't be unified into a single argument
 		typescript('Object.keys(object).map(key => foo((object as A)[key], object[key]));'),
 		typescript('Object.keys(object).map(key => foo((object as A)[key], (object as B)[key]));'),
+		'for (var key of Object.keys(object)) {\n\tfoo(object[key]);\n}',
+		'let object = {};\nfor (const key of Object.keys(object)) {\n\tfoo(object[key]);\n\tobject = {};\n}',
+		'for (let key of Object.keys(object)) {\n\tfoo(object[key]);\n\tkey = "other";\n}',
+		'for (const key of Object.keys(object.data)) {\n\tfoo(object.other[key]);\n}',
+		'for (const [key, value] of Object.entries(object)) {\n\tfoo(key, key, value);\n}',
 	],
 	invalid: [
 		'for (const key of Object.keys(object)) {\n\tfoo(object[key]);\n}',
@@ -154,6 +159,10 @@ test.snapshot({
 			}
 		`,
 		'Object.entries(object).every(([key /* Keep this. */]) => key);',
+		// Nested functions and classes are not searched for value reads
+		'for (const key of Object.keys(object)) {\n\tfoo(object[key]);\n\tconst read = () => object[key];\n\tconst Reader = class {\n\t\tread() {\n\t\t\treturn object[key];\n\t\t}\n\t};\n}',
+		// `arguments` in a nested function does not refer to the callback arguments
+		'Object.entries(object).map(function ([key, value]) {\n\tconst read = function () {\n\t\treturn arguments;\n\t};\n\treturn read(key);\n});',
 	],
 });
 

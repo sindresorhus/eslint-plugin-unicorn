@@ -1,0 +1,353 @@
+exports[`no-useless-boolean-cast > invalid(1): const example = records.filter(({fieldname}) => Boolean(fieldname)); 1`] = `
+
+  1 | const example = records.filter(({fieldname}) => Boolean(fieldname));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(1): const example = records.filter(({fieldname}) => Boolean(fieldname)); 2`] = `
+
+Message:
+> 1 | const example = records.filter(({fieldname}) => Boolean(fieldname));
+    |                                                 ^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | const example = records.filter(({fieldname}) => fieldname);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(10): array.some(value => Boolean(value?.active || false)); 1`] = `
+
+  1 | array.some(value => Boolean(value?.active || false));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(10): array.some(value => Boolean(value?.active || false)); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean(value?.active || false));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => value?.active || false);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(11): array.some(value => Boolean({active: value.active})); 1`] = `
+
+  1 | array.some(value => Boolean({active: value.active}));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(11): array.some(value => Boolean({active: value.active})); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean({active: value.active}));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => ({active: value.active}));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(12): array.some(value => Boolean((value.active, value.enabled))); 1`] = `
+
+  1 | array.some(value => Boolean((value.active, value.enabled)));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(12): array.some(value => Boolean((value.active, value.enabled))); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean((value.active, value.enabled)));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => (value.active, value.enabled));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(13): array.some(value => Boolean(({active} = record))); 1`] = `
+
+  1 | array.some(value => Boolean(({active} = record)));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(13): array.some(value => Boolean(({active} = record))); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean(({active} = record)));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => ({active} = record));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(14): array.some(value => Boolean((value?.method)())); 1`] = `
+
+  1 | array.some(value => Boolean((value?.method)()));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(14): array.some(value => Boolean((value?.method)())); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean((value?.method)()));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => (value?.method)());
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(15): array.some(value => Boolean((value?.method).property)); 1`] = `
+
+  1 | array.some(value => Boolean((value?.method).property));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(15): array.some(value => Boolean((value?.method).property)); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean((value?.method).property));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => (value?.method).property);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(16): array.some(value => Boolean(value.active), thisArgument); 1`] = `
+
+  1 | array.some(value => Boolean(value.active), thisArgument);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(16): array.some(value => Boolean(value.active), thisArgument); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean(value.active), thisArgument);
+    |                     ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => value.active, thisArgument);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(17): array.some(value => {\n\treturn Boolean(value.active);\n}); 1`] = `
+
+  1 | array.some(value => {
+  2 | 	return Boolean(value.active);
+  3 | });
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(17): array.some(value => {\n\treturn Boolean(value.active);\n}); 2`] = `
+
+Message:
+  1 | array.some(value => {
+> 2 | 	return Boolean(value.active);
+    | 	       ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+  3 | });
+
+Output:
+  1 | array.some(value => {
+  2 | 	return value.active;
+  3 | });
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(18): array.some(function (value) {\n\treturn Boolean(value.active);\n}); 1`] = `
+
+  1 | array.some(function (value) {
+  2 | 	return Boolean(value.active);
+  3 | });
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(18): array.some(function (value) {\n\treturn Boolean(value.active);\n}); 2`] = `
+
+Message:
+  1 | array.some(function (value) {
+> 2 | 	return Boolean(value.active);
+    | 	       ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+  3 | });
+
+Output:
+  1 | array.some(function (value) {
+  2 | 	return value.active;
+  3 | });
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(19): array.some(value => Boolean({active: value.active} as Record<string, boolean>)); 1`] = `
+
+  1 | array.some(value => Boolean({active: value.active} as Record<string, boolean>));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(19): array.some(value => Boolean({active: value.active} as Record<string, boolean>)); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean({active: value.active} as Record<string, boolean>));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => ({active: value.active} as Record<string, boolean>));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(2): const example = records.every(record => Boolean(record.fieldname)); 1`] = `
+
+  1 | const example = records.every(record => Boolean(record.fieldname));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(2): const example = records.every(record => Boolean(record.fieldname)); 2`] = `
+
+Message:
+> 1 | const example = records.every(record => Boolean(record.fieldname));
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#every()\` callbacks.
+
+Output:
+  1 | const example = records.every(record => record.fieldname);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(20): [{active: true}].some((value: {active: boolean}) => Boolean(value.active)); 1`] = `
+
+Filename: file.ts
+
+  1 | [{active: true}].some((value: {active: boolean}) => Boolean(value.active));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(20): [{active: true}].some((value: {active: boolean}) => Boolean(value.active)); 2`] = `
+
+Message:
+> 1 | [{active: true}].some((value: {active: boolean}) => Boolean(value.active));
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | [{active: true}].some((value: {active: boolean}) => value.active);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(3): const example = records.some(record => Boolean(record.fieldname)); 1`] = `
+
+  1 | const example = records.some(record => Boolean(record.fieldname));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(3): const example = records.some(record => Boolean(record.fieldname)); 2`] = `
+
+Message:
+> 1 | const example = records.some(record => Boolean(record.fieldname));
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | const example = records.some(record => record.fieldname);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(4): const example = records.find(record => Boolean(record.fieldname)); 1`] = `
+
+  1 | const example = records.find(record => Boolean(record.fieldname));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(4): const example = records.find(record => Boolean(record.fieldname)); 2`] = `
+
+Message:
+> 1 | const example = records.find(record => Boolean(record.fieldname));
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#find()\` callbacks.
+
+Output:
+  1 | const example = records.find(record => record.fieldname);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(5): const example = records.findLast(record => Boolean(record.fieldname)); 1`] = `
+
+  1 | const example = records.findLast(record => Boolean(record.fieldname));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(5): const example = records.findLast(record => Boolean(record.fieldname)); 2`] = `
+
+Message:
+> 1 | const example = records.findLast(record => Boolean(record.fieldname));
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#findLast()\` callbacks.
+
+Output:
+  1 | const example = records.findLast(record => record.fieldname);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(6): const example = records.findIndex(record => Boolean(record.fieldname)); 1`] = `
+
+  1 | const example = records.findIndex(record => Boolean(record.fieldname));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(6): const example = records.findIndex(record => Boolean(record.fieldname)); 2`] = `
+
+Message:
+> 1 | const example = records.findIndex(record => Boolean(record.fieldname));
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#findIndex()\` callbacks.
+
+Output:
+  1 | const example = records.findIndex(record => record.fieldname);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(7): const example = records.findLastIndex(record => Boolean(record.fieldname)); 1`] = `
+
+  1 | const example = records.findLastIndex(record => Boolean(record.fieldname));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(7): const example = records.findLastIndex(record => Boolean(record.fieldname)); 2`] = `
+
+Message:
+> 1 | const example = records.findLastIndex(record => Boolean(record.fieldname));
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#findLastIndex()\` callbacks.
+
+Output:
+  1 | const example = records.findLastIndex(record => record.fieldname);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(8): array.some(value => Boolean(value.active || value.enabled)); 1`] = `
+
+  1 | array.some(value => Boolean(value.active || value.enabled));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(8): array.some(value => Boolean(value.active || value.enabled)); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean(value.active || value.enabled));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => value.active || value.enabled);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(9): array.some(value => Boolean(value?.active ?? false)); 1`] = `
+
+  1 | array.some(value => Boolean(value?.active ?? false));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(9): array.some(value => Boolean(value?.active ?? false)); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean(value?.active ?? false));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => value?.active ?? false);
+
+`;

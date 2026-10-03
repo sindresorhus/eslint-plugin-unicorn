@@ -8,7 +8,7 @@ import {
 	isSameIdentifier,
 	isTypeScriptExpressionWrapper,
 	isTypeScriptFile,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {createTypeCheckers, target, unknown} from './utils/type-helpers.js';
@@ -160,19 +160,6 @@ function getArrowBodyText(node, context) {
 	return shouldParenthesizeArrowBody(node, context)
 		? `(${text})`
 		: text;
-}
-
-function getMemberExpressionObjectText(node, context) {
-	if (node.type === 'Super') {
-		return 'super';
-	}
-
-	if (isParenthesized(node, context)) {
-		return getParenthesizedText(node, context);
-	}
-
-	const text = context.sourceCode.getText(node);
-	return shouldAddParenthesesToMemberExpressionObject(node, context) ? `(${text})` : text;
 }
 
 function getArrowParameterText(callback, context) {

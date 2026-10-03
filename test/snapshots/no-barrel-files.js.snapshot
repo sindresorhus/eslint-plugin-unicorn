@@ -1,0 +1,339 @@
+exports[`no-barrel-files > invalid(1): export {foo} from \"foo\"; 1`] = `
+
+  1 | export {foo} from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(1): export {foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {foo} from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(10): export default foo; import foo from \"foo\"; 1`] = `
+
+  1 | export default foo; import foo from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(10): export default foo; import foo from \"foo\"; 2`] = `
+
+Message:
+> 1 | export default foo; import foo from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(11): import * as namespace from \"foo\"; export {namespace as default}; 1`] = `
+
+  1 | import * as namespace from "foo"; export {namespace as default};
+
+`;
+
+exports[`no-barrel-files > invalid(11): import * as namespace from \"foo\"; export {namespace as default}; 2`] = `
+
+Message:
+> 1 | import * as namespace from "foo"; export {namespace as default};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(12): export {foo}; import {foo} from \"foo\"; 1`] = `
+
+  1 | export {foo}; import {foo} from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(12): export {foo}; import {foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {foo}; import {foo} from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(13): import {foo} from './foo.js';\nexport {foo};\nexport {bar} from './bar.js'; 1`] = `
+
+  1 | import {foo} from './foo.js';
+  2 | export {foo};
+  3 | export {bar} from './bar.js';
+
+`;
+
+exports[`no-barrel-files > invalid(13): import {foo} from './foo.js';\nexport {foo};\nexport {bar} from './bar.js'; 2`] = `
+
+Message:
+> 1 | import {foo} from './foo.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | export {foo};
+    | ^^^^^^^^^^^^^
+> 3 | export {bar} from './bar.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(14): // This is still a barrel file.\nexport {};\nexport {foo} from './foo.js';\nexport {bar} from './bar.js'; 1`] = `
+
+  1 | // This is still a barrel file.
+  2 | export {};
+  3 | export {foo} from './foo.js';
+  4 | export {bar} from './bar.js';
+
+`;
+
+exports[`no-barrel-files > invalid(14): // This is still a barrel file.\nexport {};\nexport {foo} from './foo.js';\nexport {bar} from './bar.js'; 2`] = `
+
+Message:
+> 1 | // This is still a barrel file.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | export {};
+    | ^^^^^^^^^^
+> 3 | export {foo} from './foo.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | export {bar} from './bar.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(15): export type {Foo} from \"foo\"; 1`] = `
+
+  1 | export type {Foo} from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(15): export type {Foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export type {Foo} from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(16): export type * from \"foo\"; 1`] = `
+
+  1 | export type * from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(16): export type * from \"foo\"; 2`] = `
+
+Message:
+> 1 | export type * from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(17): export type * as Namespace from \"foo\"; 1`] = `
+
+  1 | export type * as Namespace from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(17): export type * as Namespace from \"foo\"; 2`] = `
+
+Message:
+> 1 | export type * as Namespace from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(18): import foo from \"foo\"; export default foo as Foo; 1`] = `
+
+  1 | import foo from "foo"; export default foo as Foo;
+
+`;
+
+exports[`no-barrel-files > invalid(18): import foo from \"foo\"; export default foo as Foo; 2`] = `
+
+Message:
+> 1 | import foo from "foo"; export default foo as Foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(19): import foo from \"foo\"; export default foo satisfies Foo; 1`] = `
+
+  1 | import foo from "foo"; export default foo satisfies Foo;
+
+`;
+
+exports[`no-barrel-files > invalid(19): import foo from \"foo\"; export default foo satisfies Foo; 2`] = `
+
+Message:
+> 1 | import foo from "foo"; export default foo satisfies Foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(2): export {foo as bar} from \"foo\"; 1`] = `
+
+  1 | export {foo as bar} from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(2): export {foo as bar} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {foo as bar} from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(20): import foo from \"foo\"; export default foo!; 1`] = `
+
+  1 | import foo from "foo"; export default foo!;
+
+`;
+
+exports[`no-barrel-files > invalid(20): import foo from \"foo\"; export default foo!; 2`] = `
+
+Message:
+> 1 | import foo from "foo"; export default foo!;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(21): import foo from \"foo\"; export default foo<string>; 1`] = `
+
+  1 | import foo from "foo"; export default foo<string>;
+
+`;
+
+exports[`no-barrel-files > invalid(21): import foo from \"foo\"; export default foo<string>; 2`] = `
+
+Message:
+> 1 | import foo from "foo"; export default foo<string>;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(22): import foo from \"foo\"; export default <Foo>foo; 1`] = `
+
+  1 | import foo from "foo"; export default <Foo>foo;
+
+`;
+
+exports[`no-barrel-files > invalid(22): import foo from \"foo\"; export default <Foo>foo; 2`] = `
+
+Message:
+> 1 | import foo from "foo"; export default <Foo>foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(23): import type {Foo} from './foo.js';\nexport type {Foo}; 1`] = `
+
+  1 | import type {Foo} from './foo.js';
+  2 | export type {Foo};
+
+`;
+
+exports[`no-barrel-files > invalid(23): import type {Foo} from './foo.js';\nexport type {Foo}; 2`] = `
+
+Message:
+> 1 | import type {Foo} from './foo.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | export type {Foo};
+    | ^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(3): export {default} from \"foo\"; 1`] = `
+
+  1 | export {default} from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(3): export {default} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {default} from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(4): export * from \"foo\"; 1`] = `
+
+  1 | export * from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(4): export * from \"foo\"; 2`] = `
+
+Message:
+> 1 | export * from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(5): export * as namespace from \"foo\"; 1`] = `
+
+  1 | export * as namespace from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(5): export * as namespace from \"foo\"; 2`] = `
+
+Message:
+> 1 | export * as namespace from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(6): export {}; export {foo} from \"foo\"; 1`] = `
+
+  1 | export {}; export {foo} from "foo";
+
+`;
+
+exports[`no-barrel-files > invalid(6): export {}; export {foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {}; export {foo} from "foo";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(7): import {foo} from \"foo\"; export {foo}; 1`] = `
+
+  1 | import {foo} from "foo"; export {foo};
+
+`;
+
+exports[`no-barrel-files > invalid(7): import {foo} from \"foo\"; export {foo}; 2`] = `
+
+Message:
+> 1 | import {foo} from "foo"; export {foo};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(8): import {foo as bar} from \"foo\"; export {bar}; 1`] = `
+
+  1 | import {foo as bar} from "foo"; export {bar};
+
+`;
+
+exports[`no-barrel-files > invalid(8): import {foo as bar} from \"foo\"; export {bar}; 2`] = `
+
+Message:
+> 1 | import {foo as bar} from "foo"; export {bar};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;
+
+exports[`no-barrel-files > invalid(9): import foo from \"foo\"; export default foo; 1`] = `
+
+  1 | import foo from "foo"; export default foo;
+
+`;
+
+exports[`no-barrel-files > invalid(9): import foo from \"foo\"; export default foo; 2`] = `
+
+Message:
+> 1 | import foo from "foo"; export default foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Barrel files are not allowed.
+
+`;

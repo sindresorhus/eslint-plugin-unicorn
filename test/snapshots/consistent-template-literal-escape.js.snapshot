@@ -1,0 +1,146 @@
+exports[`consistent-template-literal-escape > invalid(1): const foo = \`$\\{a}\` 1`] = `
+
+  1 | const foo = \`$\\{a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(1): const foo = \`$\\{a}\` 2`] = `
+
+Message:
+> 1 | const foo = \`$\\{a}\`
+    |             ^^^^^^^ Use \`\\\${\` instead of \`$\\{\` to escape in template literals.
+
+Output:
+  1 | const foo = \`\\\${a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(2): const foo = \`\\$\\{a}\` 1`] = `
+
+  1 | const foo = \`\\$\\{a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(2): const foo = \`\\$\\{a}\` 2`] = `
+
+Message:
+> 1 | const foo = \`\\$\\{a}\`
+    |             ^^^^^^^^ Use \`\\\${\` instead of \`$\\{\` to escape in template literals.
+
+Output:
+  1 | const foo = \`\\\${a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(3): const foo = \`$\\{a} and $\\{b}\` 1`] = `
+
+  1 | const foo = \`$\\{a} and $\\{b}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(3): const foo = \`$\\{a} and $\\{b}\` 2`] = `
+
+Message:
+> 1 | const foo = \`$\\{a} and $\\{b}\`
+    |             ^^^^^^^^^^^^^^^^^ Use \`\\\${\` instead of \`$\\{\` to escape in template literals.
+
+Output:
+  1 | const foo = \`\\\${a} and \\\${b}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(4): const foo = \`\\\\$\\{a}\` 1`] = `
+
+  1 | const foo = \`\\\\$\\{a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(4): const foo = \`\\\\$\\{a}\` 2`] = `
+
+Message:
+> 1 | const foo = \`\\\\$\\{a}\`
+    |             ^^^^^^^^^ Use \`\\\${\` instead of \`$\\{\` to escape in template literals.
+
+Output:
+  1 | const foo = \`\\\\\\\${a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(5): const foo = \`\\\\\\$\\{a}\` 1`] = `
+
+  1 | const foo = \`\\\\\\$\\{a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(5): const foo = \`\\\\\\$\\{a}\` 2`] = `
+
+Message:
+> 1 | const foo = \`\\\\\\$\\{a}\`
+    |             ^^^^^^^^^^ Use \`\\\${\` instead of \`$\\{\` to escape in template literals.
+
+Output:
+  1 | const foo = \`\\\\\\\${a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(6): const foo = \`$\\{a}\${expr}\` 1`] = `
+
+  1 | const foo = \`$\\{a}\${expr}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(6): const foo = \`$\\{a}\${expr}\` 2`] = `
+
+Message:
+> 1 | const foo = \`$\\{a}\${expr}\`
+    |             ^^^^^^^^ Use \`\\\${\` instead of \`$\\{\` to escape in template literals.
+
+Output:
+  1 | const foo = \`\\\${a}\${expr}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(7): const foo = \`\${expr}$\\{a}\` 1`] = `
+
+  1 | const foo = \`\${expr}$\\{a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(7): const foo = \`\${expr}$\\{a}\` 2`] = `
+
+Message:
+> 1 | const foo = \`\${expr}$\\{a}\`
+    |                    ^^^^^^^ Use \`\\\${\` instead of \`$\\{\` to escape in template literals.
+
+Output:
+  1 | const foo = \`\${expr}\\\${a}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(8): const foo = \`$\\{a}\${expr}$\\{b}\` 1`] = `
+
+  1 | const foo = \`$\\{a}\${expr}$\\{b}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(8): const foo = \`$\\{a}\${expr}$\\{b}\` 2`] = `
+
+Message:
+> 1 | const foo = \`$\\{a}\${expr}$\\{b}\`
+    |             ^^^^^^^^ Use \`\\\${\` instead of \`$\\{\` to escape in template literals.
+
+Output:
+  1 | const foo = \`\\\${a}\${expr}$\\{b}\`
+
+`;
+
+exports[`consistent-template-literal-escape > invalid(8): const foo = \`$\\{a}\${expr}$\\{b}\` 3`] = `
+
+Message:
+> 1 | const foo = \`$\\{a}\${expr}$\\{b}\`
+    |                         ^^^^^^^ Use \`\\\${\` instead of \`$\\{\` to escape in template literals.
+
+Output:
+  1 | const foo = \`$\\{a}\${expr}\\\${b}\`
+
+`;

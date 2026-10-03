@@ -10,13 +10,13 @@ import {
 	getParenthesizedText,
 	hasNonDirectiveComment,
 	getTypeSymbol,
+	needsSemicolon,
 	isBooleanExpression,
 	isControlFlowTest,
 	isDefaultLibrarySymbol,
-	isParenthesized,
 	isNullishType,
 	isUnknownType,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	getStaticValueIfNoSideEffects,
 } from './utils/index.js';
 
@@ -69,11 +69,6 @@ const unsupportedBooleanTypeNames = new Set([
 	'void',
 ]);
 
-const transparentTypeAnnotationTypes = new Set([
-	'TSTypeAnnotation',
-	'TSParenthesizedType',
-]);
-
 const unsupportedValueTypeAnnotationTypes = new Set([
 	'TSAnyKeyword',
 	'TSNeverKeyword',
@@ -124,10 +119,7 @@ const unwrapExpression = node => {
 };
 
 const getTransparentExpressionAncestor = node => {
-	while (
-		transparentExpressionTypes.has(node.parent?.type)
-		&& node.parent.expression === node
-	) {
+	while (transparentExpressionTypes.has(node.parent.type)) {
 		node = node.parent;
 	}
 
@@ -137,21 +129,8 @@ const getTransparentExpressionAncestor = node => {
 // Keep the parentheses, a sequence expression is only one argument while it has them
 const getSingleArgumentText = (callExpression, context) => getParenthesizedText(callExpression.arguments[0], context);
 
-const getMemberExpressionObjectText = (node, context) => {
-	const text = getParenthesizedText(node, context);
-	return !isParenthesized(node, context) && shouldAddParenthesesToMemberExpressionObject(node, context) ? `(${text})` : text;
-};
-
-const getTypeReferenceName = typeName => {
-	if (typeName.type === 'Identifier') {
-		return typeName.name;
-	}
-
-	if (typeName.type === 'TSQualifiedName') {
-		const left = getTypeReferenceName(typeName.left);
-		return left ? `${left}.${typeName.right.name}` : undefined;
-	}
-};
+// Qualified names like `Namespace.Type` are not resolved
+const getTypeReferenceName = typeName => typeName.type === 'Identifier' ? typeName.name : undefined;
 
 const getTypeReferenceArguments = node =>
 	node.typeArguments?.params ?? node.typeParameters?.params ?? [];
@@ -232,8 +211,7 @@ const getCollectionInfoFromTypeName = (typeName, valueType) => {
 
 const getCollectionInfoFromTypeAnnotation = (node, scope, visitedTypeReferenceNames = new Set()) => {
 	switch (node?.type) {
-		case 'TSTypeAnnotation':
-		case 'TSParenthesizedType': {
+		case 'TSTypeAnnotation': {
 			return getCollectionInfoFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames);
 		}
 
@@ -346,19 +324,17 @@ const getCollectionInfoFromType = (type, checker, program) => {
 				return collectionInfo;
 			}
 
-			const valueTypes = collectionInfos.map(collectionInfo => collectionInfo?.valueType);
 			return {
 				...collectionInfo,
-				valueType: valueTypes.every(Boolean) ? checker.getUnionType(valueTypes) : undefined,
+				valueType: checker.getUnionType(collectionInfos.map(collectionInfo => collectionInfo.valueType)),
 			};
 		}
 
 		if (collectionInfos.every(collectionInfo => collectionInfo?.kind === 'map')) {
-			const valueTypes = collectionInfos.map(collectionInfo => collectionInfo.valueType);
 			return {
 				kind: 'map',
 				typeName: 'Map',
-				valueType: valueTypes.every(Boolean) ? checker.getUnionType(valueTypes) : undefined,
+				valueType: checker.getUnionType(collectionInfos.map(collectionInfo => collectionInfo.valueType)),
 			};
 		}
 
@@ -398,7 +374,11 @@ const getCollectionInfoFromTypeInformation = (node, context) => {
 			program.getTypeChecker(),
 			program,
 		);
-	} catch {}
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
+	} catch {
+		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
+	}
 };
 
 const getCollectionInfo = (node, context) =>
@@ -410,21 +390,13 @@ const getLiteralTypeValue = node => {
 		return node.value;
 	}
 
-	if (
-		node.type === 'TemplateLiteral'
-		&& node.expressions.length === 0
-	) {
+	// Template literal types with substitutions are `TSTemplateLiteralType`
+	if (node.type === 'TemplateLiteral') {
 		return node.quasis[0].value.cooked;
 	}
 
-	if (
-		node.type === 'UnaryExpression'
-		&& (node.operator === '-' || node.operator === '+')
-		&& node.argument.type === 'Literal'
-		&& (typeof node.argument.value === 'number' || typeof node.argument.value === 'bigint')
-	) {
-		return node.operator === '-' ? -node.argument.value : node.argument.value;
-	}
+	// The only other literal type is a negative number or bigint, like `-1` or `-1n`
+	return -node.argument.value;
 };
 
 const getTypeAnnotationDefinition = (typeReferenceName, scope) => {
@@ -493,10 +465,6 @@ const hasSafeValueTypeAnnotation = (node, context, kind, visitedTypeReferenceNam
 		return false;
 	}
 
-	if (transparentTypeAnnotationTypes.has(node.type)) {
-		return hasSafeValueTypeAnnotation(node.typeAnnotation, context, kind, visitedTypeReferenceNames);
-	}
-
 	if (node.type === 'TSTypeOperator') {
 		return node.operator === 'readonly'
 			&& hasSafeValueTypeAnnotation(node.typeAnnotation, context, kind, visitedTypeReferenceNames);
@@ -523,8 +491,7 @@ const hasSafeValueTypeAnnotation = (node, context, kind, visitedTypeReferenceNam
 	}
 
 	if (node.type === 'TSLiteralType') {
-		const value = getLiteralTypeValue(node.literal);
-		return value === undefined ? false : isDefinitelySafeLiteralValue(value, kind);
+		return isDefinitelySafeLiteralValue(getLiteralTypeValue(node.literal), kind);
 	}
 
 	return node.type === 'TSTypeReference'
@@ -608,10 +575,6 @@ const isDefinitelyTruthyType = (type, checker, program) => {
 		return type.value !== 0;
 	}
 
-	if (type.isBigIntLiteral?.()) {
-		return type.value.negative || type.value.base10Value !== '0';
-	}
-
 	const typeText = checker.typeToString(type);
 	if (/^-?\d+n$/u.test(typeText)) {
 		return !/^-?0n$/u.test(typeText);
@@ -666,7 +629,7 @@ const getMapConstructorValueSafety = (node, context, kind) => {
 		&& isDefinitelySafeExpression(element.elements[1], context, kind));
 };
 
-const getMapNewExpressionValueSafety = (node, context, kind, checkConstructorValues) => {
+const getMapNewExpressionValueSafety = (node, context, kind) => {
 	if (
 		!isNewExpression(node)
 		|| node.callee.type !== 'Identifier'
@@ -674,13 +637,6 @@ const getMapNewExpressionValueSafety = (node, context, kind, checkConstructorVal
 		|| !isUnshadowedGlobalIdentifier(node.callee, context)
 	) {
 		return;
-	}
-
-	if (checkConstructorValues) {
-		const constructorValueSafety = getMapConstructorValueSafety(node, context, kind);
-		if (constructorValueSafety !== undefined) {
-			return constructorValueSafety;
-		}
 	}
 
 	const valueType = getTypeReferenceArguments(node).at(-1);
@@ -725,16 +681,10 @@ const hasSafeMapValueTypeFromDefinition = (definition, context, kind, visitedVar
 		return false;
 	}
 
-	return hasSafeMapValueTypeFromSyntax(definition.node.init, context, kind, {
-		visitedVariables,
-		checkConstructorValues: false,
-	});
+	return hasSafeMapValueTypeFromSyntax(definition.node.init, context, kind, visitedVariables);
 };
 
-function hasSafeMapValueTypeFromSyntax(node, context, kind, options = {}) {
-	const visitedVariables = options.visitedVariables ?? new Set();
-	const checkConstructorValues = options.checkConstructorValues ?? true;
-
+function hasSafeMapValueTypeFromSyntax(node, context, kind, visitedVariables = new Set()) {
 	const collectionInfo = getCollectionInfoFromExpressionAnnotation(node, context);
 	if (collectionInfo?.kind === 'map') {
 		return collectionInfo.valueType
@@ -744,7 +694,7 @@ function hasSafeMapValueTypeFromSyntax(node, context, kind, options = {}) {
 
 	node = unwrapExpression(node);
 
-	const mapNewExpressionValueSafety = getMapNewExpressionValueSafety(node, context, kind, checkConstructorValues);
+	const mapNewExpressionValueSafety = getMapNewExpressionValueSafety(node, context, kind);
 	if (mapNewExpressionValueSafety !== undefined) {
 		return mapNewExpressionValueSafety;
 	}
@@ -867,7 +817,8 @@ const getComparisonFix = (callExpression, comparison, context) => {
 	}
 
 	const replacement = `${isPositiveComparison(comparison) ? '' : '!'}${getMemberExpressionObjectText(callExpression.callee.object, context)}.has(${getSingleArgumentText(callExpression, context)})`;
-	return fixer => fixer.replaceText(comparison.node, replacement);
+	const semicolon = needsSemicolon(context.sourceCode.getTokenBefore(comparison.node), context, replacement) ? ';' : '';
+	return fixer => fixer.replaceText(comparison.node, semicolon + replacement);
 };
 
 const isSafeBooleanMapCall = (callExpression, context) =>

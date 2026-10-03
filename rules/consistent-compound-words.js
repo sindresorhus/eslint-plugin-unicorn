@@ -147,8 +147,9 @@ const defaultPreparedOptions = prepareOptions();
 
 const getReplacementForPart = (part, replacements) => {
 	const replacement = replacements.get(part) ?? replacements.get(lowerFirst(part));
+	// A discouraged name whose first letter does not round-trip through case conversion, for example `ıtem`, can match a part it is not the key for.
 	if (!replacement) {
-		return;
+		return part;
 	}
 
 	return isUpperFirst(part) ? upperFirst(replacement) : lowerFirst(replacement);

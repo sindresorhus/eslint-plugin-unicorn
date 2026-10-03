@@ -2679,6 +2679,139 @@ test.svelte({
 	valid: [
 		'<script>let items = [];</script>{#each items as item}{item}{/each}',
 		'<script>let entries = [];</script>{#each entries as [key, value]}{key}{value}{/each}',
+		'<script>let items = [];</script>{#each items as isItem}{isItem}{/each}',
 	],
 	invalid: [],
+});
+
+const nonBooleanPrefixError = {messageId: 'non-boolean-prefix'};
+const checkMembersOptions = [{checkMethods: 'always', checkFields: 'always'}];
+
+test({
+	valid: [
+		'function foo(...items) { const enabled = items; }',
+		'var check = async () => true; var check; const value = check;',
+		'let count = 1; const isBar = (count += 1);',
+		'async function foo() { const isFoo = await bar; }',
+		typescript('const isFoo = bar!;'),
+		// `null` is a placeholder before a boolean is assigned, like `undefined`
+		'let isReady = null; isReady = true;',
+		'const {value} = object; const isValue = value;',
+		'let isFirst = isSecond; let isSecond = isFirst;',
+		{
+			code: 'const object = {isFoo};',
+			options: [{checkFields: 'always'}],
+		},
+		typeAware('declare function load(): Promise<boolean | undefined>; type Value = ReturnType<typeof load>; declare const value: Value;'),
+		typeAware('declare function load(): Promise<boolean> | undefined; type Value = ReturnType<typeof load>; async function isLoad(): Value { return value; }'),
+		typeAware('declare function load(): Promise<boolean | undefined>; type Inner = ReturnType<typeof load>; type Value<T> = Inner; declare const value: Value<string>;'),
+		typescript('interface Loader { (): Promise<boolean>; name: string } declare function load(): Loader; const value = load();'),
+		typescript({
+			code: 'interface Loader extends Loader {} interface Holder { check(): Loader }',
+			options: [{checkMethods: 'always'}],
+		}),
+		typescript('type Base = { (): number }; interface Loader extends Base {} declare function load(): Loader; const value = load();'),
+		typescript('type Base = { () }; interface Loader extends Base {} declare function load(): Loader; const value = load();'),
+		typescript('type Generic<T> = () => T; type Base = Generic; interface Loader extends Base {} declare function load(): Loader; const value = load();'),
+		typescript('type Base = (() => Promise<boolean>) & {name: string}; interface Loader extends Base {} declare function load(): Loader; const value = load();'),
+		typescript('namespace ns { export interface Base {} } interface Inner extends ns.Base { (): Promise<boolean> } type Alias = Inner; interface Loader extends Alias {} declare function load(): Loader; const value = load();'),
+		typescript('type Self = Self; interface Loader extends Self {} declare function load(): Loader; const value = load();'),
+		typescript({
+			code: 'type Self = Self; interface Holder { check(): Self }',
+			options: [{checkMethods: 'always'}],
+		}),
+		typescript('interface Generic<T> { (): Promise<T> } interface Loader extends Generic {} declare function load(): Loader; const value = load();'),
+		typescript('interface Loader { (): Loader } declare function load(): Loader; const value = load();'),
+		typescript('declare const value: () => Missing;'),
+		typescript({
+			code: 'type Box<T> = T; interface Holder { check(): Box }',
+			options: [{checkMethods: 'always'}],
+		}),
+		typescript('type Box<T> = () => T; declare function load(): Box<boolean>; const value = load();'),
+		typescript('declare function load(): (() => Promise<boolean>) & (() => Promise<boolean>); const value = load();'),
+		typescript('type Box<T> = T; declare const box: Box; const value = box;'),
+		typescript('type Box<T> = T; declare const isValue: Box;'),
+		typescript('interface Loader extends Loader {} declare const value: Loader;'),
+		typescript('namespace ns { export interface Base {} } interface Loader extends ns.Base { (): boolean } declare const isValue: Loader;'),
+		typescript('type Self<T> = Self<T>; async function load(): Self<boolean> { return value; }'),
+		typescript('interface Loader { name: string } async function load(): Loader { return value; }'),
+		typescript('type Box<T> = T; async function load(): Box { return value; }'),
+		typescript('async function load(): (() => Promise<boolean>) & (() => Promise<boolean>) { return value; }'),
+		typescript('async function load(): {} { return value; }'),
+		typescript('function isCheck(): {}; function isCheck(value: string): {}; function isCheck(value?: string): any {}'),
+		typescript('type Callback<A = B, B = A> = () => A; declare const isValue: Callback;'),
+		typescript({
+			code: 'class Foo { constructor(public isFoo: string, isFoo: string) {} }',
+			options: [{checkFields: 'always'}],
+		}),
+		typescript({
+			code: 'class Foo { enabled: string = !value; }',
+			options: [{checkFields: 'always'}],
+		}),
+		typescript('type Base<T> = T; interface Loader extends Base<() => Promise<boolean>> {} declare function load(): Loader; const value = load();'),
+		typescript('type Base = string; interface Loader extends Base {} declare function load(): Loader; const value = load();'),
+		// A type argument that references an outer type parameter with the same name as the alias type parameter must not expand forever
+		typescript('type Box<T> = T; type Callback<B> = () => Box<B>; function foo<B>() { interface Loader extends Callback<Box<B>> {} let value: Loader; }'),
+		typescript('type Box<T> = T; type Callback<B> = () => Promise<Box<B>>; function foo<B>() { interface Loader extends Callback<Box<B>> {} let value: Loader; }'),
+		'const isFoo = undeclared.value;',
+	],
+	invalid: [
+		{
+			code: 'const isFoo = new Foo();',
+			errors: [nonBooleanPrefixError],
+		},
+		// An outer type parameter with the same name as the alias type parameter is still resolved through the type argument
+		typescript({
+			code: 'type Box<T> = T; type Callback<B> = () => Box<B>; function foo<B>() { let isValue: Callback<B[]>; }',
+			errors: [nonBooleanPrefixError],
+		}),
+		typescript({
+			code: 'declare const isValue: ((() => boolean) & {name: string}) | string;',
+			errors: [nonBooleanPrefixError],
+		}),
+		typescript({
+			code: 'function isCheck(): (() => boolean) & {name: string} { return value; }',
+			errors: [nonBooleanPrefixError],
+		}),
+		typescript({
+			code: 'async function isLoad(): { (): boolean } { return value; }',
+			errors: [nonBooleanPrefixError],
+		}),
+		{
+			code: 'const isOpenRef = 1;',
+			errors: [nonBooleanPrefixError],
+		},
+		{
+			code: 'let isReady = null; isReady = 1;',
+			errors: [nonBooleanPrefixError],
+		},
+		{
+			code: 'function outer() { function check() {} function check() {} function isCheck() { return check; } }',
+			errors: [nonBooleanPrefixError],
+		},
+		typescript({
+			code: 'type Both = {first: 1} & {second: 2}; interface Holder { isCheck(): Both; isProperty: Both }',
+			options: checkMembersOptions,
+			errors: [nonBooleanPrefixError, nonBooleanPrefixError],
+		}),
+		typescript({
+			code: 'interface Foo { isFoo(): string; isFoo(value: string): string }',
+			options: [{checkMethods: 'always'}],
+			errors: [nonBooleanPrefixError],
+		}),
+		typeAware({
+			code: 'async function isLoad() { return Math.random() > 0.5 ? \'a\' : undefined; }',
+			errors: [nonBooleanPrefixError],
+		}),
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		typescript('function isValid(value: string): Promise<boolean>; function isValid(value: number): Promise<boolean>; async function isValid(value: any) { return true; } const check = isValid;'),
+		'function outer() { function check() { return true; } function check() { return false; } }',
+		typescript('function useFlag(value: string): boolean; function useFlag(value: number): boolean; function useFlag(value: any) { return true; }'),
+		typescript('type Base = () => Promise<boolean>; interface Loader extends Base {} declare const value: Loader;'),
+	],
 });

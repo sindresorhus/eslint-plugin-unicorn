@@ -109,5 +109,10 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: 1,
 		},
+		{
+			code: 'foo\na || b ? (c ? x : y) : y',
+			output: 'foo\n;(a || b) && c ? x : y',
+			errors: 1,
+		},
 	],
 });

@@ -1,5 +1,5 @@
+import test from 'node:test';
 import {Linter} from 'eslint';
-import test from 'ava';
 import * as rules from '../../rules/index.js';
 import {toEslintRules} from '../../rules/rule/index.js';
 import parsers from '../utils/parsers.js';
@@ -36,10 +36,11 @@ const check = (t, ruleName, template, {typedArray}) => {
 		['an unknown receiver', 'declare const foo: any;', true],
 	]) {
 		const code = `${declaration} ${template.replaceAll('RECEIVER', 'foo')}`;
-		t.is(isReported(ruleName, code), expected, `${ruleName} with ${label}: ${code}`);
+		t.assert.strictEqual(isReported(ruleName, code), expected, `${ruleName} with ${label}: ${code}`);
 	}
 };
 
+// eslint-disable-next-line node-test/require-assertion -- `check()` asserts.
 test('rules that report a typed array receiver', t => {
 	for (const [ruleName, template] of [
 		['no-array-callback-reference', 'RECEIVER.map(callback);'],
@@ -75,6 +76,7 @@ test('rules that report a typed array receiver', t => {
 	}
 });
 
+// eslint-disable-next-line node-test/require-assertion -- `check()` asserts.
 test('rules that skip a typed array receiver', t => {
 	for (const [ruleName, template] of [
 		// `TypedArray#fill()` coerces the value to a number, so no element can share the reference
@@ -94,14 +96,14 @@ test('a class that extends `Array` is only resolved by rules that opt into class
 	const subclass = 'class Foo extends Array {} const foo = new Foo();';
 
 	// `no-array-callback-reference` passes `checkClassSyntax` and `checkClassHeritage`, so it resolves the heritage
-	t.true(isReported('no-array-callback-reference', `${subclass} foo.map(callback);`));
-	t.false(isReported('no-array-callback-reference', 'class Foo extends Set {} const foo = new Foo(); foo.forEach(callback);'));
+	t.assert.strictEqual(isReported('no-array-callback-reference', `${subclass} foo.map(callback);`), true);
+	t.assert.strictEqual(isReported('no-array-callback-reference', 'class Foo extends Set {} const foo = new Foo(); foo.forEach(callback);'), false);
 
 	/*
 	`shouldSkipKnownNonArrayReceiver` does not, so it counts every `new Foo()` other than `new Array()` as a non-array and skips the call. `Array` subclasses are out of scope, see the philosophy section in `AGENTS.md`.
 	*/
-	t.false(isReported('prefer-single-call', `${subclass} foo.push(1); foo.push(2);`));
-	t.false(isReported('no-array-sort', `${subclass} const bar = foo.sort();`));
+	t.assert.strictEqual(isReported('prefer-single-call', `${subclass} foo.push(1); foo.push(2);`), false);
+	t.assert.strictEqual(isReported('no-array-sort', `${subclass} const bar = foo.sort();`), false);
 });
 
 test('rules whose target is not limited to arrays skip nothing', t => {
@@ -118,7 +120,7 @@ test('rules whose target is not limited to arrays skip nothing', t => {
 			['an unknown receiver', 'declare const foo: any;'],
 		]) {
 			const code = `${declaration} ${template.replaceAll('RECEIVER', 'foo')}`;
-			t.true(isReported(ruleName, code), `${ruleName} with ${label}: ${code}`);
+			t.assert.strictEqual(isReported(ruleName, code), true, `${ruleName} with ${label}: ${code}`);
 		}
 	}
 });

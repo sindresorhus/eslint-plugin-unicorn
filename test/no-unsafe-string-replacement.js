@@ -144,5 +144,6 @@ test.snapshot({
 		'text.replace("pattern", "$&".repeat(0))',
 		'text.replace("pattern", "&$".repeat(2))',
 		String.raw`text.replace("pattern", "\u0024".repeat(2))`,
+		'template.replace("{url}", {"toString": () => url})',
 	],
 });

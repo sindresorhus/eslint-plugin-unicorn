@@ -1,0 +1,1271 @@
+exports[`prefer-uint8array-hex > invalid(1): [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(1): [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(10): Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase() 1`] = `
+
+  1 | Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(10): Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase() 2`] = `
+
+Message:
+> 1 | Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase()
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | bytes.toHex().toUpperCase()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(11): Array.from((condition ? left : right), byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | Array.from((condition ? left : right), byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(11): Array.from((condition ? left : right), byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from((condition ? left : right), byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | (condition ? left : right).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(12): Array.from((sideEffect(), bytes), byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | Array.from((sideEffect(), bytes), byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(12): Array.from((sideEffect(), bytes), byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from((sideEffect(), bytes), byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | (sideEffect(), bytes).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(13): const bytes = new Uint8Array(); const alias = bytes; Array.from(alias, byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | const bytes = new Uint8Array(); const alias = bytes; Array.from(alias, byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(13): const bytes = new Uint8Array(); const alias = bytes; Array.from(alias, byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | const bytes = new Uint8Array(); const alias = bytes; Array.from(alias, byte => byte.toString(16).padStart(2, '0')).join('')
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | const bytes = new Uint8Array(); const alias = bytes; alias.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(14): const bytes = Uint8Array.of(1, 255); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | const bytes = Uint8Array.of(1, 255); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(14): const bytes = Uint8Array.of(1, 255); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | const bytes = Uint8Array.of(1, 255); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | const bytes = Uint8Array.of(1, 255); bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(15): const bytes = Uint8Array.from([1, 255]); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | const bytes = Uint8Array.from([1, 255]); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(15): const bytes = Uint8Array.from([1, 255]); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | const bytes = Uint8Array.from([1, 255]); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | const bytes = Uint8Array.from([1, 255]); bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(16): const bytes = Buffer.alloc(2); [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | const bytes = Buffer.alloc(2); [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(16): const bytes = Buffer.alloc(2); [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | const bytes = Buffer.alloc(2); [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('')
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | const bytes = Buffer.alloc(2); bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(17): Array.from(/* keep */ bytes, byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | Array.from(/* keep */ bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(17): Array.from(/* keep */ bytes, byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from(/* keep */ bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(18): Array.from(bytes, byte => byte.toString(16).padStart(2, /* keep */ '0')).join('') 1`] = `
+
+  1 | Array.from(bytes, byte => byte.toString(16).padStart(2, /* keep */ '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(18): Array.from(bytes, byte => byte.toString(16).padStart(2, /* keep */ '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from(bytes, byte => byte.toString(16).padStart(2, /* keep */ '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(19): foo()\nArray.from((condition ? new Uint8Array() : new Uint8Array()), byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | foo()
+  2 | Array.from((condition ? new Uint8Array() : new Uint8Array()), byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(19): foo()\nArray.from((condition ? new Uint8Array() : new Uint8Array()), byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+  1 | foo()
+> 2 | Array.from((condition ? new Uint8Array() : new Uint8Array()), byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | foo()
+  2 | ;(condition ? new Uint8Array() : new Uint8Array()).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(2): const bytes = new Uint8Array([0, 15, 255]); [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | const bytes = new Uint8Array([0, 15, 255]); [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(2): const bytes = new Uint8Array([0, 15, 255]); [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | const bytes = new Uint8Array([0, 15, 255]); [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('')
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | const bytes = new Uint8Array([0, 15, 255]); bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(20): function hex() { return[...bytes].map(byte => byte.toString(16).padStart(2, '0')).join(''); } 1`] = `
+
+  1 | function hex() { return[...bytes].map(byte => byte.toString(16).padStart(2, '0')).join(''); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(20): function hex() { return[...bytes].map(byte => byte.toString(16).padStart(2, '0')).join(''); } 2`] = `
+
+Message:
+> 1 | function hex() { return[...bytes].map(byte => byte.toString(16).padStart(2, '0')).join(''); }
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | function hex() { return bytes.toHex(); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(21): const element = <span>{Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')}</span> 1`] = `
+
+  1 | const element = <span>{Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')}</span>
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(21): const element = <span>{Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')}</span> 2`] = `
+
+Message:
+> 1 | const element = <span>{Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')}</span>
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | const element = <span>{bytes.toHex()}</span>
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(22): Array.from((bytes as Uint8Array), byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | Array.from((bytes as Uint8Array), byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(22): Array.from((bytes as Uint8Array), byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from((bytes as Uint8Array), byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | (bytes as Uint8Array).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(23): Array.from((<Uint8Array>bytes), byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | Array.from((<Uint8Array>bytes), byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(23): Array.from((<Uint8Array>bytes), byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from((<Uint8Array>bytes), byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | (<Uint8Array>bytes).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(24): Array.from((bytes!), byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | Array.from((bytes!), byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(24): Array.from((bytes!), byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from((bytes!), byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | (bytes!).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(25): Array.from((bytes satisfies Uint8Array), byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | Array.from((bytes satisfies Uint8Array), byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(25): Array.from((bytes satisfies Uint8Array), byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from((bytes satisfies Uint8Array), byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | (bytes satisfies Uint8Array).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(26): function hex(bytes: Uint8Array<ArrayBuffer>) { return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join(''); } 1`] = `
+
+  1 | function hex(bytes: Uint8Array<ArrayBuffer>) { return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join(''); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(26): function hex(bytes: Uint8Array<ArrayBuffer>) { return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join(''); } 2`] = `
+
+Message:
+> 1 | function hex(bytes: Uint8Array<ArrayBuffer>) { return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join(''); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | function hex(bytes: Uint8Array<ArrayBuffer>) { return bytes.toHex(); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(27): import {Buffer as Bytes} from 'node:buffer'; function hex(bytes: Bytes) { return [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join(''); } 1`] = `
+
+  1 | import {Buffer as Bytes} from 'node:buffer'; function hex(bytes: Bytes) { return [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join(''); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(27): import {Buffer as Bytes} from 'node:buffer'; function hex(bytes: Bytes) { return [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join(''); } 2`] = `
+
+Message:
+> 1 | import {Buffer as Bytes} from 'node:buffer'; function hex(bytes: Bytes) { return [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join(''); }
+    |                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | import {Buffer as Bytes} from 'node:buffer'; function hex(bytes: Bytes) { return bytes.toHex(); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(28): function hex(value: {bytes: Uint8Array}) { return Array.from(value.bytes, byte => byte.toString(16).padStart(2, '0')).join(''); } 1`] = `
+
+Filename: file.ts
+
+  1 | function hex(value: {bytes: Uint8Array}) { return Array.from(value.bytes, byte => byte.toString(16).padStart(2, '0')).join(''); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(28): function hex(value: {bytes: Uint8Array}) { return Array.from(value.bytes, byte => byte.toString(16).padStart(2, '0')).join(''); } 2`] = `
+
+Message:
+> 1 | function hex(value: {bytes: Uint8Array}) { return Array.from(value.bytes, byte => byte.toString(16).padStart(2, '0')).join(''); }
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | function hex(value: {bytes: Uint8Array}) { return value.bytes.toHex(); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(29): function hex(value: any) { return value.toString('hex'); } 1`] = `
+
+Filename: file.ts
+
+  1 | function hex(value: any) { return value.toString('hex'); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(29): function hex(value: any) { return value.toString('hex'); } 2`] = `
+
+Message:
+> 1 | function hex(value: any) { return value.toString('hex'); }
+    |                                   ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | function hex(value: any) { return value.toHex(); }
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(3): Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(3): Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(30): buffer.toString('hex') 1`] = `
+
+  1 | buffer.toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(30): buffer.toString('hex') 2`] = `
+
+Message:
+> 1 | buffer.toString('hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | buffer.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(31): getBuffer().toString('HEX') 1`] = `
+
+  1 | getBuffer().toString('HEX')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(31): getBuffer().toString('HEX') 2`] = `
+
+Message:
+> 1 | getBuffer().toString('HEX')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | getBuffer().toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(32): Buffer.from(bytes).toString('hex') 1`] = `
+
+  1 | Buffer.from(bytes).toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(32): Buffer.from(bytes).toString('hex') 2`] = `
+
+Message:
+> 1 | Buffer.from(bytes).toString('hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | Buffer.from(bytes).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(33): Buffer.from(text, 'utf8').toString('hex') 1`] = `
+
+  1 | Buffer.from(text, 'utf8').toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(33): Buffer.from(text, 'utf8').toString('hex') 2`] = `
+
+Message:
+> 1 | Buffer.from(text, 'utf8').toString('hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | Buffer.from(text, 'utf8').toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(34): Buffer.from([256, -1]).toString('hex') 1`] = `
+
+  1 | Buffer.from([256, -1]).toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(34): Buffer.from([256, -1]).toString('hex') 2`] = `
+
+Message:
+> 1 | Buffer.from([256, -1]).toString('hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | Buffer.from([256, -1]).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(35): Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('hex') 1`] = `
+
+  1 | Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(35): Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('hex') 2`] = `
+
+Message:
+> 1 | Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(36): Buffer.alloc(10).toString('hex') 1`] = `
+
+  1 | Buffer.alloc(10).toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(36): Buffer.alloc(10).toString('hex') 2`] = `
+
+Message:
+> 1 | Buffer.alloc(10).toString('hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | Buffer.alloc(10).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(37): const buffer = Buffer.from(bytes); buffer.toString('hex') 1`] = `
+
+  1 | const buffer = Buffer.from(bytes); buffer.toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(37): const buffer = Buffer.from(bytes); buffer.toString('hex') 2`] = `
+
+Message:
+> 1 | const buffer = Buffer.from(bytes); buffer.toString('hex')
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | const buffer = Buffer.from(bytes); buffer.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(38): Buffer.from(bytes).toString(/* keep */ 'hex') 1`] = `
+
+  1 | Buffer.from(bytes).toString(/* keep */ 'hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(38): Buffer.from(bytes).toString(/* keep */ 'hex') 2`] = `
+
+Message:
+> 1 | Buffer.from(bytes).toString(/* keep */ 'hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(39): Buffer.from(/* keep */ new Uint8Array()).toString('hex') 1`] = `
+
+  1 | Buffer.from(/* keep */ new Uint8Array()).toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(39): Buffer.from(/* keep */ new Uint8Array()).toString('hex') 2`] = `
+
+Message:
+> 1 | Buffer.from(/* keep */ new Uint8Array()).toString('hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(4): const bytes = new Uint8Array([0, 15, 255]); Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | const bytes = new Uint8Array([0, 15, 255]); Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(4): const bytes = new Uint8Array([0, 15, 255]); Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | const bytes = new Uint8Array([0, 15, 255]); Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('')
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | const bytes = new Uint8Array([0, 15, 255]); bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(40): (buffer as Buffer).toString('hex') 1`] = `
+
+  1 | (buffer as Buffer).toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(40): (buffer as Buffer).toString('hex') 2`] = `
+
+Message:
+> 1 | (buffer as Buffer).toString('hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | (buffer as Buffer).toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(41): Buffer.from(text, 'hEx') 1`] = `
+
+  1 | Buffer.from(text, 'hEx')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(41): Buffer.from(text, 'hEx') 2`] = `
+
+Message:
+> 1 | Buffer.from(text, 'hEx')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(42): globalThis.Buffer.from(text, 'hEx') 1`] = `
+
+  1 | globalThis.Buffer.from(text, 'hEx')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(42): globalThis.Buffer.from(text, 'hEx') 2`] = `
+
+Message:
+> 1 | globalThis.Buffer.from(text, 'hEx')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(43): global.Buffer.from(text, 'hEx') 1`] = `
+
+  1 | global.Buffer.from(text, 'hEx')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(43): global.Buffer.from(text, 'hEx') 2`] = `
+
+Message:
+> 1 | global.Buffer.from(text, 'hEx')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(44): window.Buffer.from(text, 'hEx') 1`] = `
+
+  1 | window.Buffer.from(text, 'hEx')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(44): window.Buffer.from(text, 'hEx') 2`] = `
+
+Message:
+> 1 | window.Buffer.from(text, 'hEx')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(45): self.Buffer.from(text, 'hEx') 1`] = `
+
+  1 | self.Buffer.from(text, 'hEx')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(45): self.Buffer.from(text, 'hEx') 2`] = `
+
+Message:
+> 1 | self.Buffer.from(text, 'hEx')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(46): import {Buffer} from 'buffer'; Buffer.from(text, 'hex') 1`] = `
+
+  1 | import {Buffer} from 'buffer'; Buffer.from(text, 'hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(46): import {Buffer} from 'buffer'; Buffer.from(text, 'hex') 2`] = `
+
+Message:
+> 1 | import {Buffer} from 'buffer'; Buffer.from(text, 'hex')
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | import {Buffer} from 'buffer'; Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(47): import {Buffer as Bytes} from 'buffer'; Bytes.from(new Uint8Array()).toString('hex') 1`] = `
+
+  1 | import {Buffer as Bytes} from 'buffer'; Bytes.from(new Uint8Array()).toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(47): import {Buffer as Bytes} from 'buffer'; Bytes.from(new Uint8Array()).toString('hex') 2`] = `
+
+Message:
+> 1 | import {Buffer as Bytes} from 'buffer'; Bytes.from(new Uint8Array()).toString('hex')
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | import {Buffer as Bytes} from 'buffer'; new Uint8Array().toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(48): import {Buffer} from 'node:buffer'; Buffer.from(text, 'hex') 1`] = `
+
+  1 | import {Buffer} from 'node:buffer'; Buffer.from(text, 'hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(48): import {Buffer} from 'node:buffer'; Buffer.from(text, 'hex') 2`] = `
+
+Message:
+> 1 | import {Buffer} from 'node:buffer'; Buffer.from(text, 'hex')
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | import {Buffer} from 'node:buffer'; Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(49): import {Buffer as Bytes} from 'node:buffer'; Bytes.from(new Uint8Array()).toString('hex') 1`] = `
+
+  1 | import {Buffer as Bytes} from 'node:buffer'; Bytes.from(new Uint8Array()).toString('hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(49): import {Buffer as Bytes} from 'node:buffer'; Bytes.from(new Uint8Array()).toString('hex') 2`] = `
+
+Message:
+> 1 | import {Buffer as Bytes} from 'node:buffer'; Bytes.from(new Uint8Array()).toString('hex')
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | import {Buffer as Bytes} from 'node:buffer'; new Uint8Array().toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(5): Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(5): Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(50): Buffer.from(text, 'hex').toString() 1`] = `
+
+  1 | Buffer.from(text, 'hex').toString()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(50): Buffer.from(text, 'hex').toString() 2`] = `
+
+Message:
+> 1 | Buffer.from(text, 'hex').toString()
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(51): Buffer.from(text, 'hex').length 1`] = `
+
+  1 | Buffer.from(text, 'hex').length
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(51): Buffer.from(text, 'hex').length 2`] = `
+
+Message:
+> 1 | Buffer.from(text, 'hex').length
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(52): (Buffer.from(text, 'hex') as Buffer).toString() 1`] = `
+
+  1 | (Buffer.from(text, 'hex') as Buffer).toString()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(52): (Buffer.from(text, 'hex') as Buffer).toString() 2`] = `
+
+Message:
+> 1 | (Buffer.from(text, 'hex') as Buffer).toString()
+    |  ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(53): Buffer.from(text, /* keep */ 'hex') 1`] = `
+
+  1 | Buffer.from(text, /* keep */ 'hex')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(53): Buffer.from(text, /* keep */ 'hex') 2`] = `
+
+Message:
+> 1 | Buffer.from(text, /* keep */ 'hex')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(54): Buffer.from(text, 'hex',) 1`] = `
+
+  1 | Buffer.from(text, 'hex',)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(54): Buffer.from(text, 'hex',) 2`] = `
+
+Message:
+> 1 | Buffer.from(text, 'hex',)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(55): new Uint8Array(text.match(/../g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/../g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(55): new Uint8Array(text.match(/../g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/../g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(56): new Uint8Array(text.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(56): new Uint8Array(text.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(57): new Uint8Array(text.match(/.{1,2}/g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/.{1,2}/g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(57): new Uint8Array(text.match(/.{1,2}/g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/.{1,2}/g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(58): new Uint8Array(text.match(/[0-9a-f]{2}/gi).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/[0-9a-f]{2}/gi).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(58): new Uint8Array(text.match(/[0-9a-f]{2}/gi).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/[0-9a-f]{2}/gi).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(59): new Uint8Array(text.match(/[\\da-f]{2}/gi).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/[\\da-f]{2}/gi).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(59): new Uint8Array(text.match(/[\\da-f]{2}/gi).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/[\\da-f]{2}/gi).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(6): const bytes = new Uint8Array([0, 15, 255]); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('') 1`] = `
+
+  1 | const bytes = new Uint8Array([0, 15, 255]); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(6): const bytes = new Uint8Array([0, 15, 255]); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('') 2`] = `
+
+Message:
+> 1 | const bytes = new Uint8Array([0, 15, 255]); Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Output:
+  1 | const bytes = new Uint8Array([0, 15, 255]); bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(60): new Uint8Array(text.match(/.{2}/gsu).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/.{2}/gsu).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(60): new Uint8Array(text.match(/.{2}/gsu).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/.{2}/gsu).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(61): new Uint8Array(text.match(/.{2}/gv).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/.{2}/gv).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(61): new Uint8Array(text.match(/.{2}/gv).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/.{2}/gv).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(62): Uint8Array.from(text.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | Uint8Array.from(text.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(62): Uint8Array.from(text.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | Uint8Array.from(text.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(63): Uint8Array.from(text.match(/.{2}/g), pair => Number.parseInt(pair, 16)) 1`] = `
+
+  1 | Uint8Array.from(text.match(/.{2}/g), pair => Number.parseInt(pair, 16))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(63): Uint8Array.from(text.match(/.{2}/g), pair => Number.parseInt(pair, 16)) 2`] = `
+
+Message:
+> 1 | Uint8Array.from(text.match(/.{2}/g), pair => Number.parseInt(pair, 16))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(64): new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(64): new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(65): new Uint8Array(text.match(/.{2}/g).map(function (pair) { return parseInt(pair, 16); })) 1`] = `
+
+  1 | new Uint8Array(text.match(/.{2}/g).map(function (pair) { return parseInt(pair, 16); }))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(65): new Uint8Array(text.match(/.{2}/g).map(function (pair) { return parseInt(pair, 16); })) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/.{2}/g).map(function (pair) { return parseInt(pair, 16); }))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(66): new Uint8Array((text.match(/.{2}/g) ?? []).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array((text.match(/.{2}/g) ?? []).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(66): new Uint8Array((text.match(/.{2}/g) ?? []).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array((text.match(/.{2}/g) ?? []).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(67): Uint8Array.from((text.match(/.{2}/g) || []), pair => Number.parseInt(pair, 16)) 1`] = `
+
+  1 | Uint8Array.from((text.match(/.{2}/g) || []), pair => Number.parseInt(pair, 16))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(67): Uint8Array.from((text.match(/.{2}/g) || []), pair => Number.parseInt(pair, 16)) 2`] = `
+
+Message:
+> 1 | Uint8Array.from((text.match(/.{2}/g) || []), pair => Number.parseInt(pair, 16))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(68): new Uint8Array((getText()).match(/.{2}/g).map(pair => Number.parseInt(pair, 16))).buffer 1`] = `
+
+  1 | new Uint8Array((getText()).match(/.{2}/g).map(pair => Number.parseInt(pair, 16))).buffer
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(68): new Uint8Array((getText()).match(/.{2}/g).map(pair => Number.parseInt(pair, 16))).buffer 2`] = `
+
+Message:
+> 1 | new Uint8Array((getText()).match(/.{2}/g).map(pair => Number.parseInt(pair, 16))).buffer
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex((getText())).buffer
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(69): new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(/* keep */ pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(/* keep */ pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(69): new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(/* keep */ pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(/* keep */ pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(7): Array.from(bytes, function (byte) { return byte.toString(16).padStart(2, '0'); }).join('') 1`] = `
+
+  1 | Array.from(bytes, function (byte) { return byte.toString(16).padStart(2, '0'); }).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(7): Array.from(bytes, function (byte) { return byte.toString(16).padStart(2, '0'); }).join('') 2`] = `
+
+Message:
+> 1 | Array.from(bytes, function (byte) { return byte.toString(16).padStart(2, '0'); }).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(70): new Uint8Array(''.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(''.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(70): new Uint8Array(''.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(''.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(71): new Uint8Array('AaFf'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array('AaFf'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(71): new Uint8Array('AaFf'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array('AaFf'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex('AaFf')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(72): new Uint8Array('f'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array('f'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(72): new Uint8Array('f'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array('f'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex('f')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(73): new Uint8Array('aag1'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array('aag1'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(73): new Uint8Array('aag1'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array('aag1'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex('aag1')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(74): new Uint8Array('aa bb'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array('aa bb'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(74): new Uint8Array('aa bb'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array('aa bb'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex('aa bb')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(75): new Uint8Array('0xff'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array('0xff'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(75): new Uint8Array('0xff'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array('0xff'.match(/.{2}/g).map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex('0xff')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(76): new Uint8Array(text.match(/.{2}/g)!.map(pair => Number.parseInt(pair, 16))) 1`] = `
+
+  1 | new Uint8Array(text.match(/.{2}/g)!.map(pair => Number.parseInt(pair, 16)))
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(76): new Uint8Array(text.match(/.{2}/g)!.map(pair => Number.parseInt(pair, 16))) 2`] = `
+
+Message:
+> 1 | new Uint8Array(text.match(/.{2}/g)!.map(pair => Number.parseInt(pair, 16)))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array.fromHex()\` over this hex decoding.
+
+Suggestion 1/1: Replace with \`Uint8Array.fromHex()\`.:
+  1 | Uint8Array.fromHex(text)
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(8): Array.from(bytes, byte => { return byte.toString(16).padStart(2, '0'); }).join('') 1`] = `
+
+  1 | Array.from(bytes, byte => { return byte.toString(16).padStart(2, '0'); }).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(8): Array.from(bytes, byte => { return byte.toString(16).padStart(2, '0'); }).join('') 2`] = `
+
+Message:
+> 1 | Array.from(bytes, byte => { return byte.toString(16).padStart(2, '0'); }).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | bytes.toHex()
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(9): Array.from(bytes, (byte) => ((byte).toString(0x10).padStart(2, '0'))).join('') 1`] = `
+
+  1 | Array.from(bytes, (byte) => ((byte).toString(0x10).padStart(2, '0'))).join('')
+
+`;
+
+exports[`prefer-uint8array-hex > invalid(9): Array.from(bytes, (byte) => ((byte).toString(0x10).padStart(2, '0'))).join('') 2`] = `
+
+Message:
+> 1 | Array.from(bytes, (byte) => ((byte).toString(0x10).padStart(2, '0'))).join('')
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toHex()\` over this hex encoding.
+
+Suggestion 1/1: Replace with \`Uint8Array#toHex()\`.:
+  1 | bytes.toHex()
+
+`;

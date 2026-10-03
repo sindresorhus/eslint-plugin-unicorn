@@ -10,6 +10,7 @@ import {
 	isGlobalIdentifier,
 	isSameIdentifier,
 	unwrapTypeScriptExpression,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-url-can-parse';
@@ -123,19 +124,7 @@ const containsNodeMatching = (node, visitorKeys, predicate) => {
 		return true;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			if (value.some(node => node?.type && containsNodeMatching(node, visitorKeys, predicate))) {
-				return true;
-			}
-		} else if (value?.type && containsNodeMatching(value, visitorKeys, predicate)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(child => containsNodeMatching(child, visitorKeys, predicate));
 };
 
 const hasUnsafeUrlArgument = (newUrlExpression, context) =>

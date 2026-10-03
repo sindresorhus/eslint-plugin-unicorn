@@ -1,0 +1,412 @@
+exports[`import-style > invalid(1): import util from 'util' 1`] = `
+
+  1 | import util from 'util'
+
+`;
+
+exports[`import-style > invalid(1): import util from 'util' 2`] = `
+
+Message:
+> 1 | import util from 'util'
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use named import for module \`util\`.
+
+`;
+
+exports[`import-style > invalid(10): async () => {\n\tconst {red} = await import('chalk');\n} 1`] = `
+
+  1 | async () => {
+  2 | 	const {red} = await import('chalk');
+  3 | }
+
+`;
+
+exports[`import-style > invalid(10): async () => {\n\tconst {red} = await import('chalk');\n} 2`] = `
+
+Message:
+  1 | async () => {
+> 2 | 	const {red} = await import('chalk');
+    | 	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use default import for module \`chalk\`.
+  3 | }
+
+`;
+
+exports[`import-style > invalid(11): import 'banned' 1`] = `
+
+Options:
+- styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | import 'banned'
+
+`;
+
+exports[`import-style > invalid(11): import 'banned' 2`] = `
+
+Message:
+> 1 | import 'banned'
+    | ^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(12): import foo from 'banned' 1`] = `
+
+Options:
+- styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | import foo from 'banned'
+
+`;
+
+exports[`import-style > invalid(12): import foo from 'banned' 2`] = `
+
+Message:
+> 1 | import foo from 'banned'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(13): import * as foo from 'banned' 1`] = `
+
+Options:
+- styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | import * as foo from 'banned'
+
+`;
+
+exports[`import-style > invalid(13): import * as foo from 'banned' 2`] = `
+
+Message:
+> 1 | import * as foo from 'banned'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(14): import {foo} from 'banned' 1`] = `
+
+Options:
+- styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | import {foo} from 'banned'
+
+`;
+
+exports[`import-style > invalid(14): import {foo} from 'banned' 2`] = `
+
+Message:
+> 1 | import {foo} from 'banned'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(15): async () => {\n\tconst foo = await import('banned');\n} 1`] = `
+
+Options:
+- styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | async () => {
+  2 | 	const foo = await import('banned');
+  3 | }
+
+`;
+
+exports[`import-style > invalid(15): async () => {\n\tconst foo = await import('banned');\n} 2`] = `
+
+Message:
+  1 | async () => {
+> 2 | 	const foo = await import('banned');
+    | 	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+  3 | }
+
+`;
+
+exports[`import-style > invalid(16): import('banned') 1`] = `
+
+Options:
+- styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | import('banned')
+
+`;
+
+exports[`import-style > invalid(16): import('banned') 2`] = `
+
+Message:
+> 1 | import('banned')
+    | ^^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(17): const foo = require('banned') 1`] = `
+
+Options:
+- styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | const foo = require('banned')
+
+`;
+
+exports[`import-style > invalid(17): const foo = require('banned') 2`] = `
+
+Message:
+> 1 | const foo = require('banned')
+    |       ^^^^^^^^^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(18): require('banned') 1`] = `
+
+Options:
+- styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | require('banned')
+
+`;
+
+exports[`import-style > invalid(18): require('banned') 2`] = `
+
+Message:
+> 1 | require('banned')
+    | ^^^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(19): export {foo} from 'banned' 1`] = `
+
+Options:
+- checkExportFrom: true
+  styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | export {foo} from 'banned'
+
+`;
+
+exports[`import-style > invalid(19): export {foo} from 'banned' 2`] = `
+
+Message:
+> 1 | export {foo} from 'banned'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(2): import * as util from 'util' 1`] = `
+
+  1 | import * as util from 'util'
+
+`;
+
+exports[`import-style > invalid(2): import * as util from 'util' 2`] = `
+
+Message:
+> 1 | import * as util from 'util'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use named import for module \`util\`.
+
+`;
+
+exports[`import-style > invalid(20): export * from 'banned' 1`] = `
+
+Options:
+- checkExportFrom: true
+  styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+  extendDefaultStyles: false
+
+Code:
+  1 | export * from 'banned'
+
+`;
+
+exports[`import-style > invalid(20): export * from 'banned' 2`] = `
+
+Message:
+> 1 | export * from 'banned'
+    | ^^^^^^^^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(21): import 'banned' 1`] = `
+
+Options:
+- styles:
+    banned:
+      unassigned: false
+      default: false
+      namespace: false
+      named: false
+
+Code:
+  1 | import 'banned'
+
+`;
+
+exports[`import-style > invalid(21): import 'banned' 2`] = `
+
+Message:
+> 1 | import 'banned'
+    | ^^^^^^^^^^^^^^^ All import styles are disabled for module \`banned\`. Use the \`no-restricted-imports\` rule to disallow a module.
+
+`;
+
+exports[`import-style > invalid(3): import util from 'node:util' 1`] = `
+
+  1 | import util from 'node:util'
+
+`;
+
+exports[`import-style > invalid(3): import util from 'node:util' 2`] = `
+
+Message:
+> 1 | import util from 'node:util'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use named import for module \`node:util\`.
+
+`;
+
+exports[`import-style > invalid(4): const util = require('util') 1`] = `
+
+  1 | const util = require('util')
+
+`;
+
+exports[`import-style > invalid(4): const util = require('util') 2`] = `
+
+Message:
+> 1 | const util = require('util')
+    |       ^^^^^^^^^^^^^^^^^^^^^^ Use named import for module \`util\`.
+
+`;
+
+exports[`import-style > invalid(5): const util = require('node:util') 1`] = `
+
+  1 | const util = require('node:util')
+
+`;
+
+exports[`import-style > invalid(5): const util = require('node:util') 2`] = `
+
+Message:
+> 1 | const util = require('node:util')
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use named import for module \`node:util\`.
+
+`;
+
+exports[`import-style > invalid(6): require('util') 1`] = `
+
+  1 | require('util')
+
+`;
+
+exports[`import-style > invalid(6): require('util') 2`] = `
+
+Message:
+> 1 | require('util')
+    | ^^^^^^^^^^^^^^^ Use named import for module \`util\`.
+
+`;
+
+exports[`import-style > invalid(7): require('node:util') 1`] = `
+
+  1 | require('node:util')
+
+`;
+
+exports[`import-style > invalid(7): require('node:util') 2`] = `
+
+Message:
+> 1 | require('node:util')
+    | ^^^^^^^^^^^^^^^^^^^^ Use named import for module \`node:util\`.
+
+`;
+
+exports[`import-style > invalid(8): import {red} from 'chalk' 1`] = `
+
+  1 | import {red} from 'chalk'
+
+`;
+
+exports[`import-style > invalid(8): import {red} from 'chalk' 2`] = `
+
+Message:
+> 1 | import {red} from 'chalk'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Use default import for module \`chalk\`.
+
+`;
+
+exports[`import-style > invalid(9): import {red as green} from 'chalk' 1`] = `
+
+  1 | import {red as green} from 'chalk'
+
+`;
+
+exports[`import-style > invalid(9): import {red as green} from 'chalk' 2`] = `
+
+Message:
+> 1 | import {red as green} from 'chalk'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use default import for module \`chalk\`.
+
+`;

@@ -1,0 +1,680 @@
+exports[`prefer-literal-ascii > invalid(1): const value = '\\x41'; 1`] = `
+
+  1 | const value = '\\x41';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(1): const value = '\\x41'; 2`] = `
+
+Message:
+> 1 | const value = '\\x41';
+    |               ^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = 'A';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(10): const value = '\\x6a\\u007e\\u{7a}'; 1`] = `
+
+  1 | const value = '\\x6a\\u007e\\u{7a}';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(10): const value = '\\x6a\\u007e\\u{7a}'; 2`] = `
+
+Message:
+> 1 | const value = '\\x6a\\u007e\\u{7a}';
+    |               ^^^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = 'j~z';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(11): const value = '\\x41\\u0042\\u{43}'; 1`] = `
+
+  1 | const value = '\\x41\\u0042\\u{43}';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(11): const value = '\\x41\\u0042\\u{43}'; 2`] = `
+
+Message:
+> 1 | const value = '\\x41\\u0042\\u{43}';
+    |               ^^^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = 'ABC';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(12): const value = '\\x41\\xA9'; 1`] = `
+
+  1 | const value = '\\x41\\xA9';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(12): const value = '\\x41\\xA9'; 2`] = `
+
+Message:
+> 1 | const value = '\\x41\\xA9';
+    |               ^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = 'A\\xA9';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(13): const value = '\\\\\\x41'; 1`] = `
+
+  1 | const value = '\\\\\\x41';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(13): const value = '\\\\\\x41'; 2`] = `
+
+Message:
+> 1 | const value = '\\\\\\x41';
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '\\\\A';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(14): const value = \"\\u0022\"; 1`] = `
+
+  1 | const value = "\\u0022";
+
+`;
+
+exports[`prefer-literal-ascii > invalid(14): const value = \"\\u0022\"; 2`] = `
+
+Message:
+> 1 | const value = "\\u0022";
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = "\\"";
+
+`;
+
+exports[`prefer-literal-ascii > invalid(15): const value = '\\u0027'; 1`] = `
+
+  1 | const value = '\\u0027';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(15): const value = '\\u0027'; 2`] = `
+
+Message:
+> 1 | const value = '\\u0027';
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '\\'';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(16): const value = '\\u0022'; 1`] = `
+
+  1 | const value = '\\u0022';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(16): const value = '\\u0022'; 2`] = `
+
+Message:
+> 1 | const value = '\\u0022';
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '"';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(17): const value = \"\\u0027\"; 1`] = `
+
+  1 | const value = "\\u0027";
+
+`;
+
+exports[`prefer-literal-ascii > invalid(17): const value = \"\\u0027\"; 2`] = `
+
+Message:
+> 1 | const value = "\\u0027";
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = "'";
+
+`;
+
+exports[`prefer-literal-ascii > invalid(18): const value = '\\u005C'; 1`] = `
+
+  1 | const value = '\\u005C';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(18): const value = '\\u005C'; 2`] = `
+
+Message:
+> 1 | const value = '\\u005C';
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '\\\\';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(19): const value = \`\\x41\\u0042\\u{43}\`; 1`] = `
+
+  1 | const value = \`\\x41\\u0042\\u{43}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(19): const value = \`\\x41\\u0042\\u{43}\`; 2`] = `
+
+Message:
+> 1 | const value = \`\\x41\\u0042\\u{43}\`;
+    |               ^^^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = \`ABC\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(2): const value = '\\u0041'; 1`] = `
+
+  1 | const value = '\\u0041';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(2): const value = '\\u0041'; 2`] = `
+
+Message:
+> 1 | const value = '\\u0041';
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = 'A';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(20): const value = \`\\u0060\`; 1`] = `
+
+  1 | const value = \`\\u0060\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(20): const value = \`\\u0060\`; 2`] = `
+
+Message:
+> 1 | const value = \`\\u0060\`;
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = \`\\\`\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(21): const value = \`\\u0024{value}\`; 1`] = `
+
+  1 | const value = \`\\u0024{value}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(21): const value = \`\\u0024{value}\`; 2`] = `
+
+Message:
+> 1 | const value = \`\\u0024{value}\`;
+    |               ^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = \`\\\${value}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(22): const value = \`$\\u007Bvalue}\`; 1`] = `
+
+  1 | const value = \`$\\u007Bvalue}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(22): const value = \`$\\u007Bvalue}\`; 2`] = `
+
+Message:
+> 1 | const value = \`$\\u007Bvalue}\`;
+    |               ^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = \`\\\${value}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(23): const value = \`\\u0024\\u007Bvalue}\`; 1`] = `
+
+  1 | const value = \`\\u0024\\u007Bvalue}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(23): const value = \`\\u0024\\u007Bvalue}\`; 2`] = `
+
+Message:
+> 1 | const value = \`\\u0024\\u007Bvalue}\`;
+    |               ^^^^^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = \`\\\${value}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(24): const value = \`\\\\\\u0024\\u007Bvalue}\`; 1`] = `
+
+  1 | const value = \`\\\\\\u0024\\u007Bvalue}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(24): const value = \`\\\\\\u0024\\u007Bvalue}\`; 2`] = `
+
+Message:
+> 1 | const value = \`\\\\\\u0024\\u007Bvalue}\`;
+    |               ^^^^^^^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = \`\\\\\\\${value}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(25): const value = \`\\u0024\${value}\`; 1`] = `
+
+  1 | const value = \`\\u0024\${value}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(25): const value = \`\\u0024\${value}\`; 2`] = `
+
+Message:
+> 1 | const value = \`\\u0024\${value}\`;
+    |               ^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = \`$\${value}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(26): const value = \`\\x41\${value}\\u0042\`; 1`] = `
+
+  1 | const value = \`\\x41\${value}\\u0042\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(26): const value = \`\\x41\${value}\\u0042\`; 2`] = `
+
+Message:
+> 1 | const value = \`\\x41\${value}\\u0042\`;
+    |               ^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = \`A\${value}\\u0042\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(26): const value = \`\\x41\${value}\\u0042\`; 3`] = `
+
+Message:
+> 1 | const value = \`\\x41\${value}\\u0042\`;
+    |                           ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = \`\\x41\${value}B\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(27): const element = <Component value={'\\u0041'} />; 1`] = `
+
+  1 | const element = <Component value={'\\u0041'} />;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(27): const element = <Component value={'\\u0041'} />; 2`] = `
+
+Message:
+> 1 | const element = <Component value={'\\u0041'} />;
+    |                                   ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const element = <Component value={'A'} />;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(28): type Value<T extends string> = \`\\u0024\\u007BT}\`; 1`] = `
+
+  1 | type Value<T extends string> = \`\\u0024\\u007BT}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(28): type Value<T extends string> = \`\\u0024\\u007BT}\`; 2`] = `
+
+Message:
+> 1 | type Value<T extends string> = \`\\u0024\\u007BT}\`;
+    |                                ^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | type Value<T extends string> = \`\\\${T}\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(29): '\\u0075se strict'; 1`] = `
+
+  1 | '\\u0075se strict';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(29): '\\u0075se strict'; 2`] = `
+
+Message:
+> 1 | '\\u0075se strict';
+    | ^^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+`;
+
+exports[`prefer-literal-ascii > invalid(3): const value = '\\u{41}'; 1`] = `
+
+  1 | const value = '\\u{41}';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(3): const value = '\\u{41}'; 2`] = `
+
+Message:
+> 1 | const value = '\\u{41}';
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = 'A';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(30): function function_() {'\\u0075se strict';} 1`] = `
+
+  1 | function function_() {'\\u0075se strict';}
+
+`;
+
+exports[`prefer-literal-ascii > invalid(30): function function_() {'\\u0075se strict';} 2`] = `
+
+Message:
+> 1 | function function_() {'\\u0075se strict';}
+    |                       ^^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+`;
+
+exports[`prefer-literal-ascii > invalid(31): const value = '\\0\\u0031'; 1`] = `
+
+  1 | const value = '\\0\\u0031';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(31): const value = '\\0\\u0031'; 2`] = `
+
+Message:
+> 1 | const value = '\\0\\u0031';
+    |               ^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+`;
+
+exports[`prefer-literal-ascii > invalid(32): const value = '\\0\\u0038'; 1`] = `
+
+  1 | const value = '\\0\\u0038';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(32): const value = '\\0\\u0038'; 2`] = `
+
+Message:
+> 1 | const value = '\\0\\u0038';
+    |               ^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+`;
+
+exports[`prefer-literal-ascii > invalid(33): const value = '\\1\\u0032'; 1`] = `
+
+  1 | const value = '\\1\\u0032';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(33): const value = '\\1\\u0032'; 2`] = `
+
+Message:
+> 1 | const value = '\\1\\u0032';
+    |               ^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+`;
+
+exports[`prefer-literal-ascii > invalid(34): const value = '\\1\\u0037'; 1`] = `
+
+  1 | const value = '\\1\\u0037';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(34): const value = '\\1\\u0037'; 2`] = `
+
+Message:
+> 1 | const value = '\\1\\u0037';
+    |               ^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+`;
+
+exports[`prefer-literal-ascii > invalid(35): const value = '\\00\\u0031'; 1`] = `
+
+  1 | const value = '\\00\\u0031';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(35): const value = '\\00\\u0031'; 2`] = `
+
+Message:
+> 1 | const value = '\\00\\u0031';
+    |               ^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+`;
+
+exports[`prefer-literal-ascii > invalid(36): const value = '\\\\0\\u0031'; 1`] = `
+
+  1 | const value = '\\\\0\\u0031';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(36): const value = '\\\\0\\u0031'; 2`] = `
+
+Message:
+> 1 | const value = '\\\\0\\u0031';
+    |               ^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '\\\\01';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(37): const value = '\\1\\u0038'; 1`] = `
+
+  1 | const value = '\\1\\u0038';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(37): const value = '\\1\\u0038'; 2`] = `
+
+Message:
+> 1 | const value = '\\1\\u0038';
+    |               ^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '\\18';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(38): const value = \`\\0\\u0031\`; 1`] = `
+
+  1 | const value = \`\\0\\u0031\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(38): const value = \`\\0\\u0031\`; 2`] = `
+
+Message:
+> 1 | const value = \`\\0\\u0031\`;
+    |               ^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+`;
+
+exports[`prefer-literal-ascii > invalid(39): const value = '\\123\\u0034'; 1`] = `
+
+  1 | const value = '\\123\\u0034';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(39): const value = '\\123\\u0034'; 2`] = `
+
+Message:
+> 1 | const value = '\\123\\u0034';
+    |               ^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '\\1234';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(4): const value = '\\u{000041}'; 1`] = `
+
+  1 | const value = '\\u{000041}';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(4): const value = '\\u{000041}'; 2`] = `
+
+Message:
+> 1 | const value = '\\u{000041}';
+    |               ^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = 'A';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(40): const value = '\\40\\u0031'; 1`] = `
+
+  1 | const value = '\\40\\u0031';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(40): const value = '\\40\\u0031'; 2`] = `
+
+Message:
+> 1 | const value = '\\40\\u0031';
+    |               ^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '\\401';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(41): const value = '\\37\\u0031'; 1`] = `
+
+  1 | const value = '\\37\\u0031';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(41): const value = '\\37\\u0031'; 2`] = `
+
+Message:
+> 1 | const value = '\\37\\u0031';
+    |               ^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+`;
+
+exports[`prefer-literal-ascii > invalid(5): const value = '\\u{00000041}'; 1`] = `
+
+  1 | const value = '\\u{00000041}';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(5): const value = '\\u{00000041}'; 2`] = `
+
+Message:
+> 1 | const value = '\\u{00000041}';
+    |               ^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = 'A';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(6): const value = '\\x20'; 1`] = `
+
+  1 | const value = '\\x20';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(6): const value = '\\x20'; 2`] = `
+
+Message:
+> 1 | const value = '\\x20';
+    |               ^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = ' ';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(7): const value = '\\u007E'; 1`] = `
+
+  1 | const value = '\\u007E';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(7): const value = '\\u007E'; 2`] = `
+
+Message:
+> 1 | const value = '\\u007E';
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '~';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(8): const value = '\\x2F'; 1`] = `
+
+  1 | const value = '\\x2F';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(8): const value = '\\x2F'; 2`] = `
+
+Message:
+> 1 | const value = '\\x2F';
+    |               ^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '/';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(9): const value = '\\u0039'; 1`] = `
+
+  1 | const value = '\\u0039';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(9): const value = '\\u0039'; 2`] = `
+
+Message:
+> 1 | const value = '\\u0039';
+    |               ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | const value = '9';
+
+`;

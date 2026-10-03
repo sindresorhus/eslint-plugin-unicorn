@@ -149,5 +149,7 @@ test.snapshot({
 			code: 'function foo(value: string) { value.trim().endsWith("-" satisfies string); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'import {string as z} from "zod"; z.string().trim().startsWith("-")',
+		'z.string().trim().startsWith("-")',
 	],
 });

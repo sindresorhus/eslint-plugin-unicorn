@@ -133,6 +133,10 @@ test.snapshot({
 			declare const value: Buffer | Custom;
 			value.toString('base64');
 		`),
+		// `Buffer` on an object that is not a global object
+		'this.Buffer.from(string, \'base64\')',
+		// A `Buffer` input is copied and the encoding is ignored
+		{code: 'Buffer.from(value as Buffer, \'base64\')', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
 		// `atob`/`btoa`
@@ -203,6 +207,13 @@ test.snapshot({
 		typeAware('interface Buffer extends Uint8Array { toString(encoding: string): string } function foo<T extends Buffer>(value: T) { return value.toString(\'base64\'); }'),
 		// `any` cannot be ruled out, so it is still reported
 		typeAware('function foo(value: any) { return value.toString(\'base64\'); }'),
+		'Buffer.from(await value, \'base64\')',
+		'Buffer.from(foo?.bar, \'base64\')',
+		{code: 'Buffer.from(value as unknown, \'base64\')', languageOptions: {parser: parsers.typescript}},
+		'(condition ? value : Buffer.from(string, \'base64\')).toString()',
+		'Buffer.from(string, \'base64\') ? foo : bar',
+		'foo.Array.toString(\'base64\')',
+		'const globalThis = {}; globalThis.Array.toString(\'base64\')',
 	],
 });
 

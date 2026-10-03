@@ -38,6 +38,7 @@ test.snapshot({
 			code: 'function foo(array: string[]) { array.some<string>(element => element.length > 1) || array.some<string>(element => element.length < 10); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'array.some(element => element === 1) ?? array.some(element => element === 2);',
 	],
 	invalid: [
 		outdent`

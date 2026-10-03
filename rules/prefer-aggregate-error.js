@@ -22,14 +22,6 @@ const errorConstructorNames = new Set(builtinErrors);
 
 const isErrorCollectionName = name => errorCollectionNamePattern.test(name);
 
-function unwrapExpression(node) {
-	while (node?.type === 'ParenthesizedExpression') {
-		node = node.expression;
-	}
-
-	return unwrapTypeScriptExpression(node);
-}
-
 const isAvailableGlobalName = (name, node, context) => {
 	const variable = getVariableByName(name, context.sourceCode.getScope(node));
 	return !variable || variable.defs.length === 0;
@@ -38,16 +30,10 @@ const isAvailableGlobalName = (name, node, context) => {
 const isLocallyDefined = variable =>
 	(variable?.defs.length ?? 0) > 0;
 
-function getTypeName(typeName) {
-	if (typeName.type === 'Identifier') {
-		return typeName.name;
-	}
-
-	if (typeName.type === 'TSQualifiedName') {
-		const left = getTypeName(typeName.left);
-		return left ? `${left}.${typeName.right.name}` : undefined;
-	}
-}
+// `TSTypeReference#typeName` is an `Identifier` or a `TSQualifiedName`, `this.Foo` is a parse error
+const getTypeName = typeName => typeName.type === 'TSQualifiedName'
+	? `${getTypeName(typeName.left)}.${typeName.right.name}`
+	: typeName.name;
 
 function unwrapTypeAnnotation(node) {
 	node = node?.type === 'TSTypeAnnotation'
@@ -55,21 +41,11 @@ function unwrapTypeAnnotation(node) {
 		: node;
 
 	if (node?.type === 'TSTypeOperator' && node.operator === 'readonly') {
-		node = node.typeAnnotation;
+		return node.typeAnnotation;
 	}
 
-	return node?.type === 'TSParenthesizedType'
-		? unwrapTypeAnnotation(node.typeAnnotation)
-		: node;
-}
-
-function getTupleElementTypeAnnotation(node) {
-	if (node.type === 'TSNamedTupleMember') {
-		return node.elementType;
-	}
-
-	return node.type === 'TSRestType'
-		? node.typeAnnotation
+	return node?.type === 'TSNamedTupleMember'
+		? node.elementType
 		: node;
 }
 
@@ -79,10 +55,6 @@ function isErrorTypeAnnotation(node, scope, context, visitedTypeNames = new Set(
 	switch (node?.type) {
 		case 'TSTypeReference': {
 			const typeName = getTypeName(node.typeName);
-			if (!typeName) {
-				return false;
-			}
-
 			const variable = getVariableByName(typeName, scope);
 			if (
 				errorConstructorNames.has(typeName)
@@ -126,7 +98,7 @@ function isErrorTypeAnnotation(node, scope, context, visitedTypeNames = new Set(
 
 function isErrorArrayTypeReferenceAnnotation(node, scope, context, visitedTypeNames) {
 	const typeName = getTypeName(node.typeName);
-	const typeArguments = node.typeArguments?.params ?? node.typeParameters?.params;
+	const typeArguments = node.typeArguments?.params;
 	if (
 		(typeName === 'Array' || typeName === 'ReadonlyArray')
 		&& typeArguments?.length === 1
@@ -134,7 +106,7 @@ function isErrorArrayTypeReferenceAnnotation(node, scope, context, visitedTypeNa
 		return isErrorTypeAnnotation(typeArguments[0], scope, context, visitedTypeNames);
 	}
 
-	if (!typeName || visitedTypeNames.has(typeName)) {
+	if (visitedTypeNames.has(typeName)) {
 		return false;
 	}
 
@@ -164,7 +136,9 @@ function isErrorArrayTypeAnnotation(node, scope, context, visitedTypeNames = new
 
 		case 'TSTupleType': {
 			return node.elementTypes.length > 0
-				&& node.elementTypes.every(elementType => isErrorTypeAnnotation(getTupleElementTypeAnnotation(elementType), scope, context, visitedTypeNames));
+				&& node.elementTypes.every(elementType => elementType.type === 'TSRestType'
+					? isErrorArrayTypeAnnotation(elementType.typeAnnotation, scope, context, visitedTypeNames)
+					: isErrorTypeAnnotation(elementType, scope, context, visitedTypeNames));
 		}
 
 		case 'TSTypeReference': {
@@ -186,7 +160,7 @@ function isErrorArrayTypeAnnotation(node, scope, context, visitedTypeNames = new
 }
 
 function isErrorType(type, checker, program, visitedTypes = new Set()) {
-	if (!type || visitedTypes.has(type)) {
+	if (visitedTypes.has(type)) {
 		return false;
 	}
 
@@ -217,7 +191,9 @@ function isErrorType(type, checker, program, visitedTypes = new Set()) {
 }
 
 function isErrorArrayType(type, checker, program, visitedTypes = new Set()) {
-	if (!type || visitedTypes.has(type)) {
+	// Defensive: guards against cyclic types, unions, intersections, and resolved constraints do not lead back to a visited type in practice
+	/* node:coverage ignore next 3 */
+	if (visitedTypes.has(type)) {
 		return false;
 	}
 
@@ -258,6 +234,8 @@ function isErrorArrayTypeFromTypeInformation(node, context) {
 			program.getTypeChecker(),
 			program,
 		);
+		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}
@@ -287,7 +265,7 @@ const getLoneThrowStatement = node => {
 };
 
 function getLengthObject(node, context) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (!(
 		isMemberExpression(node, {
@@ -299,7 +277,7 @@ function getLengthObject(node, context) {
 	}
 
 	// `errors!.length` and `(errors as Error[]).length`, the wrappers have no runtime effect
-	const object = unwrapExpression(node.object);
+	const object = unwrapTypeScriptExpression(node.object);
 	if (
 		object.type !== 'Identifier'
 		|| !isErrorCollectionName(object.name)
@@ -313,12 +291,12 @@ function getLengthObject(node, context) {
 }
 
 const isNumberLiteral = (node, value) =>
-	isLiteral(unwrapExpression(node), value);
+	isLiteral(unwrapTypeScriptExpression(node), value);
 
 const getNumberLiteralValue = node => {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
-	return node?.type === 'Literal' && typeof node.value === 'number'
+	return node.type === 'Literal' && typeof node.value === 'number'
 		? node.value
 		: undefined;
 };
@@ -350,7 +328,7 @@ const isPositiveLengthComparison = (operator, valueNode, lengthOnLeft) => {
 };
 
 function getPositiveLengthCheckObject(node, context) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	const lengthObject = getLengthObject(node, context);
 	if (lengthObject) {
@@ -379,7 +357,7 @@ function getPositiveLengthCheckObject(node, context) {
 }
 
 const getAndOperands = node => {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (
 		node.type !== 'LogicalExpression'

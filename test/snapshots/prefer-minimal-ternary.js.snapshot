@@ -1,0 +1,2426 @@
+exports[`prefer-minimal-ternary > invalid(1): change() ? call(a) : call(b); 1`] = `
+
+  1 | change() ? call(a) : call(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(1): change() ? call(a) : call(b); 2`] = `
+
+Message:
+> 1 | change() ? call(a) : call(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(1): test ? call(a) : call(b); 1`] = `
+
+  1 | test ? call(a) : call(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(1): test ? call(a) : call(b); 2`] = `
+
+Message:
+> 1 | test ? call(a) : call(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | call(test ? a : b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(1): test ? object[\"a\"] : object[\"b\"]; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? object["a"] : object["b"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(1): test ? object[\"a\"] : object[\"b\"]; 2`] = `
+
+Message:
+> 1 | test ? object["a"] : object["b"];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? "a" : "b"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(1): test ? {a: 1} : {a: 2}; 1`] = `
+
+  1 | test ? {a: 1} : {a: 2};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(1): test ? {a: 1} : {a: 2}; 2`] = `
+
+Message:
+> 1 | test ? {a: 1} : {a: 2};
+    | ^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({a: test ? 1 : 2});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(10): check() ? object[a] : object[b]; 1`] = `
+
+  1 | check() ? object[a] : object[b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(10): check() ? object[a] : object[b]; 2`] = `
+
+Message:
+> 1 | check() ? object[a] : object[b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(10): class Foo extends Bar {\n\tmethod(test) {\n\t\treturn test ? super.foo : super.bar;\n\t}\n} 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | class Foo extends Bar {
+  2 | 	method(test) {
+  3 | 		return test ? super.foo : super.bar;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(10): class Foo extends Bar {\n\tmethod(test) {\n\t\treturn test ? super.foo : super.bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo extends Bar {
+  2 | 	method(test) {
+> 3 | 		return test ? super.foo : super.bar;
+    | 		       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class Foo extends Bar {
+  2 | 	method(test) {
+  3 | 		return super[test ? "foo" : "bar"];
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(10): test ? c[x!] : c[y!]; 1`] = `
+
+  1 | test ? c[x!] : c[y!];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(10): test ? c[x!] : c[y!]; 2`] = `
+
+Message:
+> 1 | test ? c[x!] : c[y!];
+    | ^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | c[test ? x! : y!];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(10): test ? {a: /* first */ 1} : {a: /* second */ 2}; 1`] = `
+
+  1 | test ? {a: /* first */ 1} : {a: /* second */ 2};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(10): test ? {a: /* first */ 1} : {a: /* second */ 2}; 2`] = `
+
+Message:
+> 1 | test ? {a: /* first */ 1} : {a: /* second */ 2};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(11): check() ? [1, shared, a] : [1, shared, b]; 1`] = `
+
+  1 | check() ? [1, shared, a] : [1, shared, b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(11): check() ? [1, shared, a] : [1, shared, b]; 2`] = `
+
+Message:
+> 1 | check() ? [1, shared, a] : [1, shared, b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(11): test ? [1] : [2]; 1`] = `
+
+  1 | test ? [1] : [2];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(11): test ? [1] : [2]; 2`] = `
+
+Message:
+> 1 | test ? [1] : [2];
+    | ^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [test ? 1 : 2];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(11): test ? a() : b(); 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | test ? a() : b();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(11): test ? a() : b(); 2`] = `
+
+Message:
+> 1 | test ? a() : b();
+    | ^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (test ? a : b)();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(11): test ? object[first] : object[second]; 1`] = `
+
+Options:
+- checkComputedMemberAccess: false
+
+Code:
+  1 | test ? object[first] : object[second];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(11): test ? object[first] : object[second]; 2`] = `
+
+Message:
+> 1 | test ? object[first] : object[second];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? first : second];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(12): check() ? [shared, 1, a] : [shared, 1, b]; 1`] = `
+
+  1 | check() ? [shared, 1, a] : [shared, 1, b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(12): check() ? [shared, 1, a] : [shared, 1, b]; 2`] = `
+
+Message:
+> 1 | check() ? [shared, 1, a] : [shared, 1, b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(12): declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(12): declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b; 2`] = `
+
+Message:
+> 1 | declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b;
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | declare const object: {a: number; b: number}, test: boolean; object[test ? "a" : "b"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(12): test ? [1, 2] : [1, 3]; 1`] = `
+
+  1 | test ? [1, 2] : [1, 3];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(12): test ? [1, 2] : [1, 3]; 2`] = `
+
+Message:
+> 1 | test ? [1, 2] : [1, 3];
+    | ^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [1, test ? 2 : 3];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(12): test ? a(value) : b(value); 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | test ? a(value) : b(value);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(12): test ? a(value) : b(value); 2`] = `
+
+Message:
+> 1 | test ? a(value) : b(value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (test ? a : b)(value);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(13): check() ? [\"fixed\", null, false, 1n, a] : [\"fixed\", null, false, 1n, b]; 1`] = `
+
+  1 | check() ? ["fixed", null, false, 1n, a] : ["fixed", null, false, 1n, b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(13): check() ? [\"fixed\", null, false, 1n, a] : [\"fixed\", null, false, 1n, b]; 2`] = `
+
+Message:
+> 1 | check() ? ["fixed", null, false, 1n, a] : ["fixed", null, false, 1n, b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ["fixed", null, false, 1n, check() ? a : b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(13): const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(13): const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B; 2`] = `
+
+Message:
+> 1 | const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;
+    |                                                      ^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | const enum Foo { A, B } declare const test: boolean; Foo[test ? "A" : "B"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(13): test ? [a, 1, b] : [a, 2, b]; 1`] = `
+
+  1 | test ? [a, 1, b] : [a, 2, b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(13): test ? [a, 1, b] : [a, 2, b]; 2`] = `
+
+Message:
+> 1 | test ? [a, 1, b] : [a, 2, b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [a, test ? 1 : 2, b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(13): test ? first.method(value) : second.method(value); 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | test ? first.method(value) : second.method(value);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(13): test ? first.method(value) : second.method(value); 2`] = `
+
+Message:
+> 1 | test ? first.method(value) : second.method(value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (test ? first : second).method(value);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(14): check() ? [/pattern/, a] : [/pattern/, b]; 1`] = `
+
+  1 | check() ? [/pattern/, a] : [/pattern/, b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(14): check() ? [/pattern/, a] : [/pattern/, b]; 2`] = `
+
+Message:
+> 1 | check() ? [/pattern/, a] : [/pattern/, b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [/pattern/, check() ? a : b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(14): enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B; 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(14): enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B; 2`] = `
+
+Message:
+> 1 | enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;
+    |                                                ^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | enum Foo { A, B } declare const test: boolean; Foo[test ? "A" : "B"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(14): test ? [1, call()] : [2, call()]; 1`] = `
+
+  1 | test ? [1, call()] : [2, call()];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(14): test ? [1, call()] : [2, call()]; 2`] = `
+
+Message:
+> 1 | test ? [1, call()] : [2, call()];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [test ? 1 : 2, call()];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(14): test ? a.value : b.value; 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | test ? a.value : b.value;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(14): test ? a.value : b.value; 2`] = `
+
+Message:
+> 1 | test ? a.value : b.value;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (test ? a : b).value;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(15): (value = other) ? [value] : [fallback]; 1`] = `
+
+  1 | (value = other) ? [value] : [fallback];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(15): (value = other) ? [value] : [fallback]; 2`] = `
+
+Message:
+> 1 | (value = other) ? [value] : [fallback];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [(value = other) ? value : fallback];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(15): declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b; 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(15): declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b; 2`] = `
+
+Message:
+> 1 | declare const object: {a: number; b: number}, test: boolean; test ? object.a : object.b;
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | declare const object: {a: number; b: number}, test: boolean; object[test ? "a" : "b"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(15): test ? ([((a))]) : ([(b)]); 1`] = `
+
+  1 | test ? ([((a))]) : ([(b)]);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(15): test ? ([((a))]) : ([(b)]); 2`] = `
+
+Message:
+> 1 | test ? ([((a))]) : ([(b)]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [((test ? ((a)) : (b)))];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(15): test ? a[\"x\"] : b[\"x\"]; 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | test ? a["x"] : b["x"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(15): test ? a[\"x\"] : b[\"x\"]; 2`] = `
+
+Message:
+> 1 | test ? a["x"] : b["x"];
+    | ^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (test ? a : b)["x"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(16): tag\`condition\` ? a + 1 : b + 1; 1`] = `
+
+  1 | tag\`condition\` ? a + 1 : b + 1;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(16): tag\`condition\` ? a + 1 : b + 1; 2`] = `
+
+Message:
+> 1 | tag\`condition\` ? a + 1 : b + 1;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (tag\`condition\` ? a : b) + 1;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(16): test ? Promise.allSettled(values) : Promise.all(values); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? Promise.allSettled(values) : Promise.all(values);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(16): test ? Promise.allSettled(values) : Promise.all(values); 2`] = `
+
+Message:
+> 1 | test ? Promise.allSettled(values) : Promise.all(values);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | Promise[test ? "allSettled" : "all"](values);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(16): test ? [/* first */ 1] : [/* second */ 2]; 1`] = `
+
+  1 | test ? [/* first */ 1] : [/* second */ 2];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(16): test ? [/* first */ 1] : [/* second */ 2]; 2`] = `
+
+Message:
+> 1 | test ? [/* first */ 1] : [/* second */ 2];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(17): async function run() { return (await condition) ? [a] : [b]; } 1`] = `
+
+  1 | async function run() { return (await condition) ? [a] : [b]; }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(17): async function run() { return (await condition) ? [a] : [b]; } 2`] = `
+
+Message:
+> 1 | async function run() { return (await condition) ? [a] : [b]; }
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | async function run() { return [(await condition) ? a : b]; }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(17): consume(test ? [1] : [2]); 1`] = `
+
+  1 | consume(test ? [1] : [2]);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(17): consume(test ? [1] : [2]); 2`] = `
+
+Message:
+> 1 | consume(test ? [1] : [2]);
+    |         ^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | consume([test ? 1 : 2]);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(17): test ? Math.min(a, 100) : Math.max(a, 100); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? Math.min(a, 100) : Math.max(a, 100);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(17): test ? Math.min(a, 100) : Math.max(a, 100); 2`] = `
+
+Message:
+> 1 | test ? Math.min(a, 100) : Math.max(a, 100);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | Math[test ? "min" : "max"](a, 100);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(18): function* run() { return (yield condition) ? [a] : [b]; } 1`] = `
+
+  1 | function* run() { return (yield condition) ? [a] : [b]; }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(18): function* run() { return (yield condition) ? [a] : [b]; } 2`] = `
+
+Message:
+> 1 | function* run() { return (yield condition) ? [a] : [b]; }
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | function* run() { return [(yield condition) ? a : b]; }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(18): test ? c.a() : c.b(); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? c.a() : c.b();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(18): test ? c.a() : c.b(); 2`] = `
+
+Message:
+> 1 | test ? c.a() : c.b();
+    | ^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | c[test ? "a" : "b"]();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(18): test ? new Foo(a) : new Foo(b); 1`] = `
+
+  1 | test ? new Foo(a) : new Foo(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(18): test ? new Foo(a) : new Foo(b); 2`] = `
+
+Message:
+> 1 | test ? new Foo(a) : new Foo(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | new Foo(test ? a : b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(19): test ? Promise[\"allSettled\"](values) : Promise[\"all\"](values); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? Promise["allSettled"](values) : Promise["all"](values);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(19): test ? Promise[\"allSettled\"](values) : Promise[\"all\"](values); 2`] = `
+
+Message:
+> 1 | test ? Promise["allSettled"](values) : Promise["all"](values);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | Promise[test ? "allSettled" : "all"](values);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(19): test ? call(change(), a) : call(change(), b); 1`] = `
+
+  1 | test ? call(change(), a) : call(change(), b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(19): test ? call(change(), a) : call(change(), b); 2`] = `
+
+Message:
+> 1 | test ? call(change(), a) : call(change(), b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(19): test ? new Date(2026, 1) : new Date(2026, 2); 1`] = `
+
+  1 | test ? new Date(2026, 1) : new Date(2026, 2);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(19): test ? new Date(2026, 1) : new Date(2026, 2); 2`] = `
+
+Message:
+> 1 | test ? new Date(2026, 1) : new Date(2026, 2);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | new Date(2026, test ? 1 : 2);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(2): (value = other) ? [value, a] : [value, b]; 1`] = `
+
+  1 | (value = other) ? [value, a] : [value, b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(2): (value = other) ? [value, a] : [value, b]; 2`] = `
+
+Message:
+> 1 | (value = other) ? [value, a] : [value, b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(2): test ? call(a, b) : call(a, c); 1`] = `
+
+  1 | test ? call(a, b) : call(a, c);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(2): test ? call(a, b) : call(a, c); 2`] = `
+
+Message:
+> 1 | test ? call(a, b) : call(a, c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | call(a, test ? b : c);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(2): test ? object.a : object[\"b\"]; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? object.a : object["b"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(2): test ? object.a : object[\"b\"]; 2`] = `
+
+Message:
+> 1 | test ? object.a : object["b"];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? "a" : "b"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(2): test ? {a: 1, b: 2} : {a: 1, b: 3}; 1`] = `
+
+  1 | test ? {a: 1, b: 2} : {a: 1, b: 3};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(2): test ? {a: 1, b: 2} : {a: 1, b: 3}; 2`] = `
+
+Message:
+> 1 | test ? {a: 1, b: 2} : {a: 1, b: 3};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({a: 1, b: test ? 2 : 3});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(20): await (\n\tdelayRejection\n\t\t? Promise.allSettled([\n\t\t\tpromise,\n\t\t\tdelay(minimumDelay),\n\t\t])\n\t\t: Promise.all([\n\t\t\tpromise,\n\t\t\tdelay(minimumDelay),\n\t\t])\n); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+   1 | await (
+   2 | 	delayRejection
+   3 | 		? Promise.allSettled([
+   4 | 			promise,
+   5 | 			delay(minimumDelay),
+   6 | 		])
+   7 | 		: Promise.all([
+   8 | 			promise,
+   9 | 			delay(minimumDelay),
+  10 | 		])
+  11 | );
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(20): await (\n\tdelayRejection\n\t\t? Promise.allSettled([\n\t\t\tpromise,\n\t\t\tdelay(minimumDelay),\n\t\t])\n\t\t: Promise.all([\n\t\t\tpromise,\n\t\t\tdelay(minimumDelay),\n\t\t])\n); 2`] = `
+
+Message:
+   1 | await (
+>  2 | 	delayRejection
+     | 	^^^^^^^^^^^^^^
+>  3 | 		? Promise.allSettled([
+     | ^^^^^^^^^^^^^^^^^^^^^^^^
+>  4 | 			promise,
+     | ^^^^^^^^^^^
+>  5 | 			delay(minimumDelay),
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+>  6 | 		])
+     | ^^^^
+>  7 | 		: Promise.all([
+     | ^^^^^^^^^^^^^^^^^
+>  8 | 			promise,
+     | ^^^^^^^^^^^
+>  9 | 			delay(minimumDelay),
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 10 | 		])
+     | ^^^^ Move the ternary into the varying part of the expression.
+  11 | );
+
+Output:
+  1 | await (
+  2 | 	Promise[delayRejection ? "allSettled" : "all"]([
+  3 | 			promise,
+  4 | 			delay(minimumDelay),
+  5 | 		])
+  6 | );
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(20): test ? call(value++, a) : call(value++, b); 1`] = `
+
+  1 | test ? call(value++, a) : call(value++, b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(20): test ? call(value++, a) : call(value++, b); 2`] = `
+
+Message:
+> 1 | test ? call(value++, a) : call(value++, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(20): test ? new Foo(a, call()) : new Foo(b, call()); 1`] = `
+
+  1 | test ? new Foo(a, call()) : new Foo(b, call());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(20): test ? new Foo(a, call()) : new Foo(b, call()); 2`] = `
+
+Message:
+> 1 | test ? new Foo(a, call()) : new Foo(b, call());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | new Foo(test ? a : b, call());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(21): test ? Promise.allSettled<T>(values) : Promise.all<T>(values); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? Promise.allSettled<T>(values) : Promise.all<T>(values);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(21): test ? Promise.allSettled<T>(values) : Promise.all<T>(values); 2`] = `
+
+Message:
+> 1 | test ? Promise.allSettled<T>(values) : Promise.all<T>(values);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | Promise[test ? "allSettled" : "all"]<T>(values);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(21): test ? call(tag\`value\`, a) : call(tag\`value\`, b); 1`] = `
+
+  1 | test ? call(tag\`value\`, a) : call(tag\`value\`, b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(21): test ? call(tag\`value\`, a) : call(tag\`value\`, b); 2`] = `
+
+Message:
+> 1 | test ? call(tag\`value\`, a) : call(tag\`value\`, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(21): test ? new (Foo)((a)) : new (Foo)((b)); 1`] = `
+
+  1 | test ? new (Foo)((a)) : new (Foo)((b));
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(21): test ? new (Foo)((a)) : new (Foo)((b)); 2`] = `
+
+Message:
+> 1 | test ? new (Foo)((a)) : new (Foo)((b));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | new (Foo)((test ? (a) : (b)));
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(22): enum Email { MFA_CODE } enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE; 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | enum Email { MFA_CODE } enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(22): enum Email { MFA_CODE } enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE; 2`] = `
+
+Message:
+> 1 | enum Email { MFA_CODE } enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE;
+    |                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | enum Email { MFA_CODE } enum Sms { MFA_CODE } declare const test: boolean; (test ? Email : Sms).MFA_CODE;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(22): tag\`condition\` ? call(a) : call(b); 1`] = `
+
+  1 | tag\`condition\` ? call(a) : call(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(22): tag\`condition\` ? call(a) : call(b); 2`] = `
+
+Message:
+> 1 | tag\`condition\` ? call(a) : call(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(22): test ? new Foo(/* first */ a) : new Foo(/* second */ b); 1`] = `
+
+  1 | test ? new Foo(/* first */ a) : new Foo(/* second */ b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(22): test ? new Foo(/* first */ a) : new Foo(/* second */ b); 2`] = `
+
+Message:
+> 1 | test ? new Foo(/* first */ a) : new Foo(/* second */ b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(23): !tag\`condition\` ? call(a) : call(b); 1`] = `
+
+  1 | !tag\`condition\` ? call(a) : call(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(23): !tag\`condition\` ? call(a) : call(b); 2`] = `
+
+Message:
+> 1 | !tag\`condition\` ? call(a) : call(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(23): declare const a: {value: number}, b: {value: number}, test: boolean; test ? a.value : b.value; 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | declare const a: {value: number}, b: {value: number}, test: boolean; test ? a.value : b.value;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(23): declare const a: {value: number}, b: {value: number}, test: boolean; test ? a.value : b.value; 2`] = `
+
+Message:
+> 1 | declare const a: {value: number}, b: {value: number}, test: boolean; test ? a.value : b.value;
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | declare const a: {value: number}, b: {value: number}, test: boolean; (test ? a : b).value;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(23): test ? new Foo<Value>(a) : new Foo<Value>(b); 1`] = `
+
+  1 | test ? new Foo<Value>(a) : new Foo<Value>(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(23): test ? new Foo<Value>(a) : new Foo<Value>(b); 2`] = `
+
+Message:
+> 1 | test ? new Foo<Value>(a) : new Foo<Value>(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | new Foo<Value>(test ? a : b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(24): async function run() { return (await condition) ? call(a) : call(b); } 1`] = `
+
+  1 | async function run() { return (await condition) ? call(a) : call(b); }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(24): async function run() { return (await condition) ? call(a) : call(b); } 2`] = `
+
+Message:
+> 1 | async function run() { return (await condition) ? call(a) : call(b); }
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(24): test ? new Foo<A, B>(a) : new Foo<A, B>(b); 1`] = `
+
+  1 | test ? new Foo<A, B>(a) : new Foo<A, B>(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(24): test ? new Foo<A, B>(a) : new Foo<A, B>(b); 2`] = `
+
+Message:
+> 1 | test ? new Foo<A, B>(a) : new Foo<A, B>(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | new Foo<A, B>(test ? a : b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(24): test ? object.a : object.b; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? object.a : object.b;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(24): test ? object.a : object.b; 2`] = `
+
+Message:
+> 1 | test ? object.a : object.b;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? "a" : "b"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(25): isMac ? event.metaKey : event.ctrlKey; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | isMac ? event.metaKey : event.ctrlKey;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(25): isMac ? event.metaKey : event.ctrlKey; 2`] = `
+
+Message:
+> 1 | isMac ? event.metaKey : event.ctrlKey;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | event[isMac ? "metaKey" : "ctrlKey"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(25): test ? call(a(), later()) : call(b(), later()); 1`] = `
+
+  1 | test ? call(a(), later()) : call(b(), later());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(25): test ? call(a(), later()) : call(b(), later()); 2`] = `
+
+Message:
+> 1 | test ? call(a(), later()) : call(b(), later());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | call(test ? a() : b(), later());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(25): test ? {a: value as A} : {a: other as A}; 1`] = `
+
+  1 | test ? {a: value as A} : {a: other as A};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(25): test ? {a: value as A} : {a: other as A}; 2`] = `
+
+Message:
+> 1 | test ? {a: value as A} : {a: other as A};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({a: test ? value as A : other as A});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(26): test ? [value!] : [other!]; 1`] = `
+
+  1 | test ? [value!] : [other!];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(26): test ? [value!] : [other!]; 2`] = `
+
+Message:
+> 1 | test ? [value!] : [other!];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [test ? value! : other!];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(26): test ? a() + later() : b() + later(); 1`] = `
+
+  1 | test ? a() + later() : b() + later();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(26): test ? a() + later() : b() + later(); 2`] = `
+
+Message:
+> 1 | test ? a() + later() : b() + later();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (test ? a() : b()) + later();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(27): test ? call(shared, a()) : call(shared, b()); 1`] = `
+
+  1 | test ? call(shared, a()) : call(shared, b());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(27): test ? call(shared, a()) : call(shared, b()); 2`] = `
+
+Message:
+> 1 | test ? call(shared, a()) : call(shared, b());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | call(shared, test ? a() : b());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(27): test ? new Foo(value satisfies A) : new Foo(other satisfies A); 1`] = `
+
+  1 | test ? new Foo(value satisfies A) : new Foo(other satisfies A);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(27): test ? new Foo(value satisfies A) : new Foo(other satisfies A); 2`] = `
+
+Message:
+> 1 | test ? new Foo(value satisfies A) : new Foo(other satisfies A);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | new Foo(test ? value satisfies A : other satisfies A);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(28): test /* keep */ ? call(a) : call(b); 1`] = `
+
+  1 | test /* keep */ ? call(a) : call(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(28): test /* keep */ ? call(a) : call(b); 2`] = `
+
+Message:
+> 1 | test /* keep */ ? call(a) : call(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(28): test ? {__proto__, a: 1} : {__proto__, a: 2}; 1`] = `
+
+  1 | test ? {__proto__, a: 1} : {__proto__, a: 2};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(28): test ? {__proto__, a: 1} : {__proto__, a: 2}; 2`] = `
+
+Message:
+> 1 | test ? {__proto__, a: 1} : {__proto__, a: 2};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({__proto__, a: test ? 1 : 2});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(29): test ? [a, other ? b : c] : [d, other ? b : c]; 1`] = `
+
+  1 | test ? [a, other ? b : c] : [d, other ? b : c];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(29): test ? [a, other ? b : c] : [d, other ? b : c]; 2`] = `
+
+Message:
+> 1 | test ? [a, other ? b : c] : [d, other ? b : c];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [test ? a : d, other ? b : c];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(29): test ? call(a) : call(/* keep */ b); 1`] = `
+
+  1 | test ? call(a) : call(/* keep */ b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(29): test ? call(a) : call(/* keep */ b); 2`] = `
+
+Message:
+> 1 | test ? call(a) : call(/* keep */ b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(3): test ? a + 1 : b + 1; 1`] = `
+
+  1 | test ? a + 1 : b + 1;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(3): test ? a + 1 : b + 1; 2`] = `
+
+Message:
+> 1 | test ? a + 1 : b + 1;
+    | ^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (test ? a : b) + 1;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(3): test ? object[0] : object[1]; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? object[0] : object[1];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(3): test ? object[0] : object[1]; 2`] = `
+
+Message:
+> 1 | test ? object[0] : object[1];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? 0 : 1];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(3): test ? {a} : {a: b}; 1`] = `
+
+  1 | test ? {a} : {a: b};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(3): test ? {a} : {a: b}; 2`] = `
+
+Message:
+> 1 | test ? {a} : {a: b};
+    | ^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({a: test ? a : b});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(3): value++ ? value + a : value + b; 1`] = `
+
+  1 | value++ ? value + a : value + b;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(3): value++ ? value + a : value + b; 2`] = `
+
+Message:
+> 1 | value++ ? value + a : value + b;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(30): test ? /* keep */ [a] : [b]; 1`] = `
+
+  1 | test ? /* keep */ [a] : [b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(30): test ? /* keep */ [a] : [b]; 2`] = `
+
+Message:
+> 1 | test ? /* keep */ [a] : [b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(31): (first ? second : third) ? call((a, b)) : call(c); 1`] = `
+
+  1 | (first ? second : third) ? call((a, b)) : call(c);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(31): (first ? second : third) ? call((a, b)) : call(c); 2`] = `
+
+Message:
+> 1 | (first ? second : third) ? call((a, b)) : call(c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | call(((first ? second : third) ? (a, b) : c));
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(32): previous()\ntest ? [a] : [b]; 1`] = `
+
+  1 | previous()
+  2 | test ? [a] : [b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(32): previous()\ntest ? [a] : [b]; 2`] = `
+
+Message:
+  1 | previous()
+> 2 | test ? [a] : [b];
+    | ^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | previous()
+  2 | ;[test ? a : b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(33): previous()\ntest ? a + 1 : b + 1; 1`] = `
+
+  1 | previous()
+  2 | test ? a + 1 : b + 1;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(33): previous()\ntest ? a + 1 : b + 1; 2`] = `
+
+Message:
+  1 | previous()
+> 2 | test ? a + 1 : b + 1;
+    | ^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | previous()
+  2 | ;(test ? a : b) + 1;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(34): () => test ? {a: 1} : {a: 2}; 1`] = `
+
+  1 | () => test ? {a: 1} : {a: 2};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(34): () => test ? {a: 1} : {a: 2}; 2`] = `
+
+Message:
+> 1 | () => test ? {a: 1} : {a: 2};
+    |       ^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | () => ({a: test ? 1 : 2});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(35): function run() { return test ? {a: 1} : {a: 2}; } 1`] = `
+
+  1 | function run() { return test ? {a: 1} : {a: 2}; }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(35): function run() { return test ? {a: 1} : {a: 2}; } 2`] = `
+
+Message:
+> 1 | function run() { return test ? {a: 1} : {a: 2}; }
+    |                         ^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | function run() { return ({a: test ? 1 : 2}); }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(36): test ? call({a: 1}) : call({a: 2}); 1`] = `
+
+  1 | test ? call({a: 1}) : call({a: 2});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(36): test ? call({a: 1}) : call({a: 2}); 2`] = `
+
+Message:
+> 1 | test ? call({a: 1}) : call({a: 2});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | call(test ? {a: 1} : {a: 2});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(37): test ? call(() => a) : call(() => b); 1`] = `
+
+  1 | test ? call(() => a) : call(() => b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(37): test ? call(() => a) : call(() => b); 2`] = `
+
+Message:
+> 1 | test ? call(() => a) : call(() => b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | call(test ? () => a : () => b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(38): test ? {method: () => a} : {method: () => b}; 1`] = `
+
+  1 | test ? {method: () => a} : {method: () => b};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(38): test ? {method: () => a} : {method: () => b}; 2`] = `
+
+Message:
+> 1 | test ? {method: () => a} : {method: () => b};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(39): test ? {method: function() { return a; }} : {method: function() { return b; }}; 1`] = `
+
+  1 | test ? {method: function() { return a; }} : {method: function() { return b; }};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(39): test ? {method: function() { return a; }} : {method: function() { return b; }}; 2`] = `
+
+Message:
+> 1 | test ? {method: function() { return a; }} : {method: function() { return b; }};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(4): +value ? call(a) : call(b); 1`] = `
+
+  1 | +value ? call(a) : call(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(4): +value ? call(a) : call(b); 2`] = `
+
+Message:
+> 1 | +value ? call(a) : call(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(4): test ? 1 + a : 1 + b; 1`] = `
+
+  1 | test ? 1 + a : 1 + b;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(4): test ? 1 + a : 1 + b; 2`] = `
+
+Message:
+> 1 | test ? 1 + a : 1 + b;
+    | ^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | 1 + (test ? a : b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(4): test ? object[\`a\`] : object[\`b\`]; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? object[\`a\`] : object[\`b\`];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(4): test ? object[\`a\`] : object[\`b\`]; 2`] = `
+
+Message:
+> 1 | test ? object[\`a\`] : object[\`b\`];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? \`a\` : \`b\`];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(4): test ? {a: b} : {a}; 1`] = `
+
+  1 | test ? {a: b} : {a};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(4): test ? {a: b} : {a}; 2`] = `
+
+Message:
+> 1 | test ? {a: b} : {a};
+    | ^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({a: test ? b : a});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(40): test ? {constructor: class {}} : {constructor: other}; 1`] = `
+
+  1 | test ? {constructor: class {}} : {constructor: other};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(40): test ? {constructor: class {}} : {constructor: other}; 2`] = `
+
+Message:
+> 1 | test ? {constructor: class {}} : {constructor: other};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(41): test ? object[a?.key] : object[b?.key]; 1`] = `
+
+  1 | test ? object[a?.key] : object[b?.key];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(41): test ? object[a?.key] : object[b?.key]; 2`] = `
+
+Message:
+> 1 | test ? object[a?.key] : object[b?.key];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? a?.key : b?.key];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(42): test ? first.method(change()) : second.method(change()); 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | test ? first.method(change()) : second.method(change());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(42): test ? first.method(change()) : second.method(change()); 2`] = `
+
+Message:
+> 1 | test ? first.method(change()) : second.method(change());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (test ? first : second).method(change());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(43): test ? object.first(change()) : object.second(change()); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? object.first(change()) : object.second(change());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(43): test ? object.first(change()) : object.second(change()); 2`] = `
+
+Message:
+> 1 | test ? object.first(change()) : object.second(change());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? "first" : "second"](change());
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(44): test ? eval(code) : other(code); 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | test ? eval(code) : other(code);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(44): test ? eval(code) : other(code); 2`] = `
+
+Message:
+> 1 | test ? eval(code) : other(code);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(45): (test ? first.method : second.method)(); 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | (test ? first.method : second.method)();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(45): (test ? first.method : second.method)(); 2`] = `
+
+Message:
+> 1 | (test ? first.method : second.method)();
+    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(46): (test ? object.first : object.second)\`value\`; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | (test ? object.first : object.second)\`value\`;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(46): (test ? object.first : object.second)\`value\`; 2`] = `
+
+Message:
+> 1 | (test ? object.first : object.second)\`value\`;
+    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(47): (test ? object.first : object.second)?.(); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | (test ? object.first : object.second)?.();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(47): (test ? object.first : object.second)?.(); 2`] = `
+
+Message:
+> 1 | (test ? object.first : object.second)?.();
+    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(48): previous()\ntest ? first(value) : second(value); 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | previous()
+  2 | test ? first(value) : second(value);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(48): previous()\ntest ? first(value) : second(value); 2`] = `
+
+Message:
+  1 | previous()
+> 2 | test ? first(value) : second(value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | previous()
+  2 | ;(test ? first : second)(value);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(49): delete (test ? object.first : object.second); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | delete (test ? object.first : object.second);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(49): delete (test ? object.first : object.second); 2`] = `
+
+Message:
+> 1 | delete (test ? object.first : object.second);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(5): test ? \"value\".length : \"value\".constructor; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? "value".length : "value".constructor;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(5): test ? \"value\".length : \"value\".constructor; 2`] = `
+
+Message:
+> 1 | test ? "value".length : "value".constructor;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | "value"[test ? "length" : "constructor"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(5): test ? c[x] : c[y]; 1`] = `
+
+  1 | test ? c[x] : c[y];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(5): test ? c[x] : c[y]; 2`] = `
+
+Message:
+> 1 | test ? c[x] : c[y];
+    | ^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | c[test ? x : y];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(5): test ? {a, b: 1} : {a, b: 2}; 1`] = `
+
+  1 | test ? {a, b: 1} : {a, b: 2};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(5): test ? {a, b: 1} : {a, b: 2}; 2`] = `
+
+Message:
+> 1 | test ? {a, b: 1} : {a, b: 2};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({a, b: test ? 1 : 2});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(5): value == 1 ? [shared, a] : [shared, b]; 1`] = `
+
+  1 | value == 1 ? [shared, a] : [shared, b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(5): value == 1 ? [shared, a] : [shared, b]; 2`] = `
+
+Message:
+> 1 | value == 1 ? [shared, a] : [shared, b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(50): test ? object[(change(), \"a\")] : object[(change(), \"b\")]; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? object[(change(), "a")] : object[(change(), "b")];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(50): test ? object[(change(), \"a\")] : object[(change(), \"b\")]; 2`] = `
+
+Message:
+> 1 | test ? object[(change(), "a")] : object[(change(), "b")];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? (change(), "a") : (change(), "b")];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(51): test ? first[(change(), \"method\")] : second.method; 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | test ? first[(change(), "method")] : second.method;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(51): test ? first[(change(), \"method\")] : second.method; 2`] = `
+
+Message:
+> 1 | test ? first[(change(), "method")] : second.method;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(52): test ? first.method : second[(change(), \"method\")]; 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | test ? first.method : second[(change(), "method")];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(52): test ? first.method : second[(change(), \"method\")]; 2`] = `
+
+Message:
+> 1 | test ? first.method : second[(change(), "method")];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(53): (test ? first.method : second.method)!(); 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | (test ? first.method : second.method)!();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(53): (test ? first.method : second.method)!(); 2`] = `
+
+Message:
+> 1 | (test ? first.method : second.method)!();
+    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(54): ((test ? first.method : second.method) as Function)(); 1`] = `
+
+Options:
+- checkVaryingBase: true
+
+Code:
+  1 | ((test ? first.method : second.method) as Function)();
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(54): ((test ? first.method : second.method) as Function)(); 2`] = `
+
+Message:
+> 1 | ((test ? first.method : second.method) as Function)();
+    |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(55): const element = <div>{test ? call(a) : call(b)}</div>; 1`] = `
+
+  1 | const element = <div>{test ? call(a) : call(b)}</div>;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(55): const element = <div>{test ? call(a) : call(b)}</div>; 2`] = `
+
+Message:
+> 1 | const element = <div>{test ? call(a) : call(b)}</div>;
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | const element = <div>{call(test ? a : b)}</div>;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(56): (<div />) ? [a] : [b]; 1`] = `
+
+  1 | (<div />) ? [a] : [b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(56): (<div />) ? [a] : [b]; 2`] = `
+
+Message:
+> 1 | (<div />) ? [a] : [b];
+    | ^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [(<div />) ? a : b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(57): (<></>) ? [a] : [b]; 1`] = `
+
+  1 | (<></>) ? [a] : [b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(57): (<></>) ? [a] : [b]; 2`] = `
+
+Message:
+> 1 | (<></>) ? [a] : [b];
+    | ^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [(<></>) ? a : b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(58): (test as boolean) ? call(a) : call(b); 1`] = `
+
+  1 | (test as boolean) ? call(a) : call(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(58): (test as boolean) ? call(a) : call(b); 2`] = `
+
+Message:
+> 1 | (test as boolean) ? call(a) : call(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | call((test as boolean) ? a : b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(59): test! ? call(a) : call(b); 1`] = `
+
+  1 | test! ? call(a) : call(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(59): test! ? call(a) : call(b); 2`] = `
+
+Message:
+> 1 | test! ? call(a) : call(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | call(test! ? a : b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(6): test ? call(value ** 1, a) : call(value ** 1, b); 1`] = `
+
+  1 | test ? call(value ** 1, a) : call(value ** 1, b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(6): test ? call(value ** 1, a) : call(value ** 1, b); 2`] = `
+
+Message:
+> 1 | test ? call(value ** 1, a) : call(value ** 1, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(6): test ? object[method] : object[otherMethod]; 1`] = `
+
+  1 | test ? object[method] : object[otherMethod];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(6): test ? object[method] : object[otherMethod]; 2`] = `
+
+Message:
+> 1 | test ? object[method] : object[otherMethod];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | object[test ? method : otherMethod];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(6): test ? this.maxWidth : this.maxHeight; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? this.maxWidth : this.maxHeight;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(6): test ? this.maxWidth : this.maxHeight; 2`] = `
+
+Message:
+> 1 | test ? this.maxWidth : this.maxHeight;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | this[test ? "maxWidth" : "maxHeight"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(6): test ? {\"a\": 1} : {a: 2}; 1`] = `
+
+  1 | test ? {"a": 1} : {a: 2};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(6): test ? {\"a\": 1} : {a: 2}; 2`] = `
+
+Message:
+> 1 | test ? {"a": 1} : {a: 2};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({"a": test ? 1 : 2});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(60): test ? call<A>(a) : call<B>(b); 1`] = `
+
+  1 | test ? call<A>(a) : call<B>(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(60): test ? call<A>(a) : call<B>(b); 2`] = `
+
+Message:
+> 1 | test ? call<A>(a) : call<B>(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(61): (test ? [a] : [b])!; 1`] = `
+
+  1 | (test ? [a] : [b])!;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(61): (test ? [a] : [b])!; 2`] = `
+
+Message:
+> 1 | (test ? [a] : [b])!;
+    |  ^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ([test ? a : b])!;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(62): (test ? a + 1 : b + 1)!; 1`] = `
+
+  1 | (test ? a + 1 : b + 1)!;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(62): (test ? a + 1 : b + 1)!; 2`] = `
+
+Message:
+> 1 | (test ? a + 1 : b + 1)!;
+    |  ^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ((test ? a : b) + 1)!;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(63): test ? {value: (1 as number)} : {value: (2 as number)}; 1`] = `
+
+  1 | test ? {value: (1 as number)} : {value: (2 as number)};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(63): test ? {value: (1 as number)} : {value: (2 as number)}; 2`] = `
+
+Message:
+> 1 | test ? {value: (1 as number)} : {value: (2 as number)};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({value: (test ? (1 as number) : (2 as number))});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(64): (class { @decorator method() {} }) ? [a] : [b]; 1`] = `
+
+  1 | (class { @decorator method() {} }) ? [a] : [b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(64): (class { @decorator method() {} }) ? [a] : [b]; 2`] = `
+
+Message:
+> 1 | (class { @decorator method() {} }) ? [a] : [b];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | [(class { @decorator method() {} }) ? a : b];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(65): async function run() { return test ? [await a] : [await b]; } 1`] = `
+
+  1 | async function run() { return test ? [await a] : [await b]; }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(65): async function run() { return test ? [await a] : [await b]; } 2`] = `
+
+Message:
+> 1 | async function run() { return test ? [await a] : [await b]; }
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | async function run() { return [test ? await a : await b]; }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(66): function* run() { return test ? [yield a] : [yield b]; } 1`] = `
+
+  1 | function* run() { return test ? [yield a] : [yield b]; }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(66): function* run() { return test ? [yield a] : [yield b]; } 2`] = `
+
+Message:
+> 1 | function* run() { return test ? [yield a] : [yield b]; }
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | function* run() { return [test ? yield a : yield b]; }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(7): test ? ((object).a) : (object.b); 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? ((object).a) : (object.b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(7): test ? ((object).a) : (object.b); 2`] = `
+
+Message:
+> 1 | test ? ((object).a) : (object.b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | (object)[test ? "a" : "b"];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(7): test ? c[f()] : c[g()]; 1`] = `
+
+  1 | test ? c[f()] : c[g()];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(7): test ? c[f()] : c[g()]; 2`] = `
+
+Message:
+> 1 | test ? c[f()] : c[g()];
+    | ^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | c[test ? f() : g()];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(7): test ? call(value instanceof Constructor, a) : call(value instanceof Constructor, b); 1`] = `
+
+  1 | test ? call(value instanceof Constructor, a) : call(value instanceof Constructor, b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(7): test ? call(value instanceof Constructor, a) : call(value instanceof Constructor, b); 2`] = `
+
+Message:
+> 1 | test ? call(value instanceof Constructor, a) : call(value instanceof Constructor, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(7): test ? {0: a} : {0: b}; 1`] = `
+
+  1 | test ? {0: a} : {0: b};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(7): test ? {0: a} : {0: b}; 2`] = `
+
+Message:
+> 1 | test ? {0: a} : {0: b};
+    | ^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({0: test ? a : b});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(8): check() ? new Foo(a) : new Foo(b); 1`] = `
+
+  1 | check() ? new Foo(a) : new Foo(b);
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(8): check() ? new Foo(a) : new Foo(b); 2`] = `
+
+Message:
+> 1 | check() ? new Foo(a) : new Foo(b);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(8): test ? object./* first */ a : object./* second */ b; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | test ? object./* first */ a : object./* second */ b;
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(8): test ? object./* first */ a : object./* second */ b; 2`] = `
+
+Message:
+> 1 | test ? object./* first */ a : object./* second */ b;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(8): test ? this[x] : this[y]; 1`] = `
+
+  1 | test ? this[x] : this[y];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(8): test ? this[x] : this[y]; 2`] = `
+
+Message:
+> 1 | test ? this[x] : this[y];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | this[test ? x : y];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(8): test ? {a: 1, b: call()} : {a: 2, b: call()}; 1`] = `
+
+  1 | test ? {a: 1, b: call()} : {a: 2, b: call()};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(8): test ? {a: 1, b: call()} : {a: 2, b: call()}; 2`] = `
+
+Message:
+> 1 | test ? {a: 1, b: call()} : {a: 2, b: call()};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({a: test ? 1 : 2, b: call()});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(9): check() ? {shared, value: a} : {shared, value: b}; 1`] = `
+
+  1 | check() ? {shared, value: a} : {shared, value: b};
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(9): check() ? {shared, value: a} : {shared, value: b}; 2`] = `
+
+Message:
+> 1 | check() ? {shared, value: a} : {shared, value: b};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(9): class Foo extends Bar {\n\tmethod() {\n\t\treturn test ? super[x] : super[y];\n\t}\n} 1`] = `
+
+  1 | class Foo extends Bar {
+  2 | 	method() {
+  3 | 		return test ? super[x] : super[y];
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(9): class Foo extends Bar {\n\tmethod() {\n\t\treturn test ? super[x] : super[y];\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo extends Bar {
+  2 | 	method() {
+> 3 | 		return test ? super[x] : super[y];
+    | 		       ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class Foo extends Bar {
+  2 | 	method() {
+  3 | 		return super[test ? x : y];
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(9): const first = \"a\", second = \"b\"; test ? object[first] : object[second]; 1`] = `
+
+Options:
+- checkComputedMemberAccess: true
+
+Code:
+  1 | const first = "a", second = "b"; test ? object[first] : object[second];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(9): const first = \"a\", second = \"b\"; test ? object[first] : object[second]; 2`] = `
+
+Message:
+> 1 | const first = "a", second = "b"; test ? object[first] : object[second];
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | const first = "a", second = "b"; object[test ? first : second];
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(9): test ? ({a: (1)}) : ({a: (2)}); 1`] = `
+
+  1 | test ? ({a: (1)}) : ({a: (2)});
+
+`;
+
+exports[`prefer-minimal-ternary > invalid(9): test ? ({a: (1)}) : ({a: (2)}); 2`] = `
+
+Message:
+> 1 | test ? ({a: (1)}) : ({a: (2)});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the ternary into the varying part of the expression.
+
+Output:
+  1 | ({a: (test ? (1) : (2))});
+
+`;

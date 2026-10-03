@@ -130,15 +130,7 @@ const create = context => {
 		ignoredUrls.add(value);
 	}
 
-	let isChecked = false;
-
 	onRoot(context, node => {
-		if (isChecked) {
-			return;
-		}
-
-		isChecked = true;
-
 		const {sourceCode} = context;
 		const {text} = sourceCode;
 

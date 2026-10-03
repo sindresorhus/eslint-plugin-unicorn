@@ -352,6 +352,22 @@ test.snapshot({
 			setTimeout(() => abortController.abort(), delay);
 			fetch(url, {signal: abortController.signal});
 		`,
+		outdent`
+			export const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay);
+			abortController = otherAbortController;
+			fetch(url, {signal: abortController.signal});
+		`,
+		// The signal is never used
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay);
+		`,
 	],
 	invalid: [
 		outdent`
@@ -460,6 +476,20 @@ test.snapshot({
 			const controller = new AbortController();
 			setTimeout(() => controller.abort(), delay);
 			fetch(url, {signal: controller.signal});
+		`,
+		outdent`
+			const requestController = new AbortController();
+			setTimeout(() => requestController.abort(), delay);
+			fetch(url, {signal: requestController.signal});
+		`,
+		outdent`
+			switch (value) {
+				case 'fetch':
+					const abortController = new AbortController();
+					setTimeout(() => abortController.abort(), delay);
+					fetch(url, {signal: abortController.signal});
+					break;
+			}
 		`,
 	],
 });

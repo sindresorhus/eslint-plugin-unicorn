@@ -89,6 +89,8 @@ test.snapshot({
 		'const {descriptor} = {descriptor: {get: 1}}; Object.defineProperty(object, "property", descriptor);',
 		'const descriptor = {get: 1}; const descriptors = {property: descriptor}; mutate(descriptors); Object.defineProperties(object, descriptors);',
 		'const descriptor = {get: 1}; const container = {property: descriptor}; Object.defineProperty(object, "property", descriptor);',
+		'const descriptor = {get: 1}; consume({property: descriptor}); Object.defineProperty(object, "property", descriptor);',
+		'class Foo { static #defineProperty() {} static bar() { Object.#defineProperty(object, "property", {get: 1}); } }',
 	],
 	invalid: [
 		...[

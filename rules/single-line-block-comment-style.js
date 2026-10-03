@@ -18,6 +18,7 @@ const DIRECTIVE_PATTERNS = [
 	/^\s*::?/v,
 	/^\s*flow-include(?:\s|$)/v,
 	/^\s*(?:c8|istanbul|nyc|v8)\s+ignore(?:\s|$)/v,
+	/^\s*node:coverage\s+(?:ignore\s+next|disable|enable)(?:\s|$)/v,
 	/^\s*(?:biome|deno|dprint|oxlint|prettier)-(?:ignore|lint-ignore|disable|enable)(?:-(?:line|next-line|start|end|file|all))?(?:\s|$)/v,
 	/^\s*(?:cspell|spell-checker):/v,
 ];
@@ -180,7 +181,7 @@ const getProblem = (context, comment, style, ignorePatterns) => {
 */
 const create = context => {
 	const style = context.options[0];
-	const ignorePatterns = getIgnorePatterns(context.options[1]?.ignore ?? []);
+	const ignorePatterns = getIgnorePatterns(context.options[1].ignore);
 
 	onRoot(context, function * () {
 		for (const comment of getComments(context)) {

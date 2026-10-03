@@ -1,0 +1,465 @@
+exports[`prefer-get-or-insert-computed > invalid(1): map.getOrInsert(key, call()) 1`] = `
+
+  1 | map.getOrInsert(key, call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(1): map.getOrInsert(key, call()) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, call())
+    |                      ^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(10): map.getOrInsert(key, class { [tag\`value\`]() {} }) 1`] = `
+
+  1 | map.getOrInsert(key, class { [tag\`value\`]() {} })
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(10): map.getOrInsert(key, class { [tag\`value\`]() {} }) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, class { [tag\`value\`]() {} })
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => class { [tag\`value\`]() {} })
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(11): map.getOrInsert(key, class { static field = tag\`value\`; }) 1`] = `
+
+  1 | map.getOrInsert(key, class { static field = tag\`value\`; })
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(11): map.getOrInsert(key, class { static field = tag\`value\`; }) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, class { static field = tag\`value\`; })
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => class { static field = tag\`value\`; })
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(12): map.getOrInsert(key, class { static { tag\`value\`; } }) 1`] = `
+
+  1 | map.getOrInsert(key, class { static { tag\`value\`; } })
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(12): map.getOrInsert(key, class { static { tag\`value\`; } }) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, class { static { tag\`value\`; } })
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => class { static { tag\`value\`; } })
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(13): map.getOrInsert(key, tag\`value\`) 1`] = `
+
+  1 | map.getOrInsert(key, tag\`value\`)
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(13): map.getOrInsert(key, tag\`value\`) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, tag\`value\`)
+    |                      ^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => tag\`value\`)
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(14): map.getOrInsert(key, (call(), value)) 1`] = `
+
+  1 | map.getOrInsert(key, (call(), value))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(14): map.getOrInsert(key, (call(), value)) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, (call(), value))
+    |                       ^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => (call(), value))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(15): map?.getOrInsert(key, call()) 1`] = `
+
+  1 | map?.getOrInsert(key, call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(15): map?.getOrInsert(key, call()) 2`] = `
+
+Message:
+> 1 | map?.getOrInsert(key, call())
+    |                       ^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map?.getOrInsertComputed(key, () => call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(16): map.getOrInsert?.(key, call()) 1`] = `
+
+  1 | map.getOrInsert?.(key, call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(16): map.getOrInsert?.(key, call()) 2`] = `
+
+Message:
+> 1 | map.getOrInsert?.(key, call())
+    |                        ^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed?.(key, () => call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(17): weakMap.getOrInsert(key, call()) 1`] = `
+
+  1 | weakMap.getOrInsert(key, call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(17): weakMap.getOrInsert(key, call()) 2`] = `
+
+Message:
+> 1 | weakMap.getOrInsert(key, call())
+    |                          ^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | weakMap.getOrInsertComputed(key, () => call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(18): new WeakMap().getOrInsert(key, call()) 1`] = `
+
+  1 | new WeakMap().getOrInsert(key, call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(18): new WeakMap().getOrInsert(key, call()) 2`] = `
+
+Message:
+> 1 | new WeakMap().getOrInsert(key, call())
+    |                                ^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | new WeakMap().getOrInsertComputed(key, () => call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(19): async function foo() { map.getOrInsert(key, await call()); } 1`] = `
+
+  1 | async function foo() { map.getOrInsert(key, await call()); }
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(19): async function foo() { map.getOrInsert(key, await call()); } 2`] = `
+
+Message:
+> 1 | async function foo() { map.getOrInsert(key, await call()); }
+    |                                             ^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(2): map.getOrInsert(key, call(key)) 1`] = `
+
+  1 | map.getOrInsert(key, call(key))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(2): map.getOrInsert(key, call(key)) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, call(key))
+    |                      ^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, call)
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(20): function * foo() { map.getOrInsert(key, yield call()); } 1`] = `
+
+  1 | function * foo() { map.getOrInsert(key, yield call()); }
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(20): function * foo() { map.getOrInsert(key, yield call()); } 2`] = `
+
+Message:
+> 1 | function * foo() { map.getOrInsert(key, yield call()); }
+    |                                         ^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(21): map.getOrInsert(key, eval(key)) 1`] = `
+
+  1 | map.getOrInsert(key, eval(key))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(21): map.getOrInsert(key, eval(key)) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, eval(key))
+    |                      ^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(22): map.getOrInsert(key, eval?.(key)) 1`] = `
+
+  1 | map.getOrInsert(key, eval?.(key))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(22): map.getOrInsert(key, eval?.(key)) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, eval?.(key))
+    |                      ^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(23): map.getOrInsert(key, call(eval(key))) 1`] = `
+
+  1 | map.getOrInsert(key, call(eval(key)))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(23): map.getOrInsert(key, call(eval(key))) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, call(eval(key)))
+    |                      ^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(24): map.getOrInsert(key, class extends eval(key) {}) 1`] = `
+
+  1 | map.getOrInsert(key, class extends eval(key) {})
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(24): map.getOrInsert(key, class extends eval(key) {}) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, class extends eval(key) {})
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(25): map.getOrInsert(key, class { [eval(key)]() {} }) 1`] = `
+
+  1 | map.getOrInsert(key, class { [eval(key)]() {} })
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(25): map.getOrInsert(key, class { [eval(key)]() {} }) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, class { [eval(key)]() {} })
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(26): map.getOrInsert(key, (/* comment */ call())) 1`] = `
+
+  1 | map.getOrInsert(key, (/* comment */ call()))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(26): map.getOrInsert(key, (/* comment */ call())) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, (/* comment */ call()))
+    |                                     ^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(27): map.getOrInsert(key, call(/* comment */ key)) 1`] = `
+
+  1 | map.getOrInsert(key, call(/* comment */ key))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(27): map.getOrInsert(key, call(/* comment */ key)) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, call(/* comment */ key))
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(28): map.getOrInsert(key, class { [call()] = value; }) 1`] = `
+
+  1 | map.getOrInsert(key, class { [call()] = value; })
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(28): map.getOrInsert(key, class { [call()] = value; }) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, class { [call()] = value; })
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => class { [call()] = value; })
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(29): map.getOrInsert(key, delete object.value) 1`] = `
+
+  1 | map.getOrInsert(key, delete object.value)
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(29): map.getOrInsert(key, delete object.value) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, delete object.value)
+    |                      ^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => delete object.value)
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(3): map.getOrInsert(key, new Value()) 1`] = `
+
+  1 | map.getOrInsert(key, new Value())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(3): map.getOrInsert(key, new Value()) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, new Value())
+    |                      ^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => new Value())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(4): map.getOrInsert(key, value = call()) 1`] = `
+
+  1 | map.getOrInsert(key, value = call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(4): map.getOrInsert(key, value = call()) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, value = call())
+    |                      ^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => value = call())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(5): map.getOrInsert(key, value++) 1`] = `
+
+  1 | map.getOrInsert(key, value++)
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(5): map.getOrInsert(key, value++) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, value++)
+    |                      ^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => value++)
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(6): map.getOrInsert(key, {value: call()}) 1`] = `
+
+  1 | map.getOrInsert(key, {value: call()})
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(6): map.getOrInsert(key, {value: call()}) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, {value: call()})
+    |                      ^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => ({value: call()}))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(7): map.getOrInsert(key, {value: tag\`value\`}) 1`] = `
+
+  1 | map.getOrInsert(key, {value: tag\`value\`})
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(7): map.getOrInsert(key, {value: tag\`value\`}) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, {value: tag\`value\`})
+    |                      ^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => ({value: tag\`value\`}))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(8): map.getOrInsert(key, {...call()}) 1`] = `
+
+  1 | map.getOrInsert(key, {...call()})
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(8): map.getOrInsert(key, {...call()}) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, {...call()})
+    |                      ^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => ({...call()}))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(9): map.getOrInsert(key, class extends tag\`value\` {}) 1`] = `
+
+  1 | map.getOrInsert(key, class extends tag\`value\` {})
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(9): map.getOrInsert(key, class extends tag\`value\` {}) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, class extends tag\`value\` {})
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+Output:
+  1 | map.getOrInsertComputed(key, () => class extends tag\`value\` {})
+
+`;

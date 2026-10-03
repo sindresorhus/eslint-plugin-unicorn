@@ -1,0 +1,465 @@
+exports[`prefer-import-meta-properties > invalid(1): import path from \"path\";\nimport { fileURLToPath } from \"url\";\nconst dirname = path.dirname(fileURLToPath(import.meta.url)); 1`] = `
+
+  1 | import path from "path";
+  2 | import { fileURLToPath } from "url";
+  3 | const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(1): import path from \"path\";\nimport { fileURLToPath } from \"url\";\nconst dirname = path.dirname(fileURLToPath(import.meta.url)); 2`] = `
+
+Message:
+  1 | import path from "path";
+  2 | import { fileURLToPath } from "url";
+> 3 | const dirname = path.dirname(fileURLToPath(import.meta.url));
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | import path from "path";
+  2 | import { fileURLToPath } from "url";
+  3 | const dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(10): import url from \"node:url\";\nconst filename = url.fileURLToPath(import.meta.url); 1`] = `
+
+  1 | import url from "node:url";
+  2 | const filename = url.fileURLToPath(import.meta.url);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(10): import url from \"node:url\";\nconst filename = url.fileURLToPath(import.meta.url); 2`] = `
+
+Message:
+  1 | import url from "node:url";
+> 2 | const filename = url.fileURLToPath(import.meta.url);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+
+Output:
+  1 | import url from "node:url";
+  2 | const filename = import.meta.filename;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(11): import path from \"node:path\";\nimport { fileURLToPath } from \"node:url\";\nconst __filename = fileURLToPath(import.meta.url);\nconst __dirname = path.dirname(__filename); 1`] = `
+
+  1 | import path from "node:path";
+  2 | import { fileURLToPath } from "node:url";
+  3 | const __filename = fileURLToPath(import.meta.url);
+  4 | const __dirname = path.dirname(__filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(11): import path from \"node:path\";\nimport { fileURLToPath } from \"node:url\";\nconst __filename = fileURLToPath(import.meta.url);\nconst __dirname = path.dirname(__filename); 2`] = `
+
+Message:
+  1 | import path from "node:path";
+  2 | import { fileURLToPath } from "node:url";
+> 3 | const __filename = fileURLToPath(import.meta.url);
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+  4 | const __dirname = path.dirname(__filename);
+
+Output:
+  1 | import path from "node:path";
+  2 | import { fileURLToPath } from "node:url";
+  3 | const __filename = import.meta.filename;
+  4 | const __dirname = path.dirname(__filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(11): import path from \"node:path\";\nimport { fileURLToPath } from \"node:url\";\nconst __filename = fileURLToPath(import.meta.url);\nconst __dirname = path.dirname(__filename); 3`] = `
+
+Message:
+  1 | import path from "node:path";
+  2 | import { fileURLToPath } from "node:url";
+  3 | const __filename = fileURLToPath(import.meta.url);
+> 4 | const __dirname = path.dirname(__filename);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | import path from "node:path";
+  2 | import { fileURLToPath } from "node:url";
+  3 | const __filename = fileURLToPath(import.meta.url);
+  4 | const __dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(12): import path from \"node:path\";\nconst __filename = import.meta.filename;\nconst __dirname = path.dirname(__filename); 1`] = `
+
+  1 | import path from "node:path";
+  2 | const __filename = import.meta.filename;
+  3 | const __dirname = path.dirname(__filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(12): import path from \"node:path\";\nconst __filename = import.meta.filename;\nconst __dirname = path.dirname(__filename); 2`] = `
+
+Message:
+  1 | import path from "node:path";
+  2 | const __filename = import.meta.filename;
+> 3 | const __dirname = path.dirname(__filename);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | import path from "node:path";
+  2 | const __filename = import.meta.filename;
+  3 | const __dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(13): const path = process.getBuiltinModule(\"node:path\");\nconst { fileURLToPath } = process.getBuiltinModule(\"node:url\");\nconst filename = fileURLToPath(import.meta.url);\nconst dirname = path.dirname(filename); 1`] = `
+
+  1 | const path = process.getBuiltinModule("node:path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("node:url");
+  3 | const filename = fileURLToPath(import.meta.url);
+  4 | const dirname = path.dirname(filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(13): const path = process.getBuiltinModule(\"node:path\");\nconst { fileURLToPath } = process.getBuiltinModule(\"node:url\");\nconst filename = fileURLToPath(import.meta.url);\nconst dirname = path.dirname(filename); 2`] = `
+
+Message:
+  1 | const path = process.getBuiltinModule("node:path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("node:url");
+> 3 | const filename = fileURLToPath(import.meta.url);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+  4 | const dirname = path.dirname(filename);
+
+Output:
+  1 | const path = process.getBuiltinModule("node:path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("node:url");
+  3 | const filename = import.meta.filename;
+  4 | const dirname = path.dirname(filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(13): const path = process.getBuiltinModule(\"node:path\");\nconst { fileURLToPath } = process.getBuiltinModule(\"node:url\");\nconst filename = fileURLToPath(import.meta.url);\nconst dirname = path.dirname(filename); 3`] = `
+
+Message:
+  1 | const path = process.getBuiltinModule("node:path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("node:url");
+  3 | const filename = fileURLToPath(import.meta.url);
+> 4 | const dirname = path.dirname(filename);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | const path = process.getBuiltinModule("node:path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("node:url");
+  3 | const filename = fileURLToPath(import.meta.url);
+  4 | const dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(14): const { fileURLToPath: renamed } = process.getBuiltinModule(\"node:url\");\nconst filename = renamed(import.meta.url); 1`] = `
+
+  1 | const { fileURLToPath: renamed } = process.getBuiltinModule("node:url");
+  2 | const filename = renamed(import.meta.url);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(14): const { fileURLToPath: renamed } = process.getBuiltinModule(\"node:url\");\nconst filename = renamed(import.meta.url); 2`] = `
+
+Message:
+  1 | const { fileURLToPath: renamed } = process.getBuiltinModule("node:url");
+> 2 | const filename = renamed(import.meta.url);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+
+Output:
+  1 | const { fileURLToPath: renamed } = process.getBuiltinModule("node:url");
+  2 | const filename = import.meta.filename;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(15): import { fileURLToPath as renamed } from \"node:url\";\nconst filename = renamed(import.meta.url); 1`] = `
+
+  1 | import { fileURLToPath as renamed } from "node:url";
+  2 | const filename = renamed(import.meta.url);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(15): import { fileURLToPath as renamed } from \"node:url\";\nconst filename = renamed(import.meta.url); 2`] = `
+
+Message:
+  1 | import { fileURLToPath as renamed } from "node:url";
+> 2 | const filename = renamed(import.meta.url);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+
+Output:
+  1 | import { fileURLToPath as renamed } from "node:url";
+  2 | const filename = import.meta.filename;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(16): const path = process.getBuiltinModule(\"path\");\nconst { fileURLToPath } = process.getBuiltinModule(\"url\");\nconst filename = fileURLToPath(import.meta.url);\nconst dirname = path.dirname(filename); 1`] = `
+
+  1 | const path = process.getBuiltinModule("path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("url");
+  3 | const filename = fileURLToPath(import.meta.url);
+  4 | const dirname = path.dirname(filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(16): const path = process.getBuiltinModule(\"path\");\nconst { fileURLToPath } = process.getBuiltinModule(\"url\");\nconst filename = fileURLToPath(import.meta.url);\nconst dirname = path.dirname(filename); 2`] = `
+
+Message:
+  1 | const path = process.getBuiltinModule("path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("url");
+> 3 | const filename = fileURLToPath(import.meta.url);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+  4 | const dirname = path.dirname(filename);
+
+Output:
+  1 | const path = process.getBuiltinModule("path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("url");
+  3 | const filename = import.meta.filename;
+  4 | const dirname = path.dirname(filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(16): const path = process.getBuiltinModule(\"path\");\nconst { fileURLToPath } = process.getBuiltinModule(\"url\");\nconst filename = fileURLToPath(import.meta.url);\nconst dirname = path.dirname(filename); 3`] = `
+
+Message:
+  1 | const path = process.getBuiltinModule("path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("url");
+  3 | const filename = fileURLToPath(import.meta.url);
+> 4 | const dirname = path.dirname(filename);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | const path = process.getBuiltinModule("path");
+  2 | const { fileURLToPath } = process.getBuiltinModule("url");
+  3 | const filename = fileURLToPath(import.meta.url);
+  4 | const dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(17): const filename = process.getBuiltinModule(\"node:url\").fileURLToPath(import.meta.url);\nconst dirname = process.getBuiltinModule(\"node:path\").dirname(filename); 1`] = `
+
+  1 | const filename = process.getBuiltinModule("node:url").fileURLToPath(import.meta.url);
+  2 | const dirname = process.getBuiltinModule("node:path").dirname(filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(17): const filename = process.getBuiltinModule(\"node:url\").fileURLToPath(import.meta.url);\nconst dirname = process.getBuiltinModule(\"node:path\").dirname(filename); 2`] = `
+
+Message:
+> 1 | const filename = process.getBuiltinModule("node:url").fileURLToPath(import.meta.url);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+  2 | const dirname = process.getBuiltinModule("node:path").dirname(filename);
+
+Output:
+  1 | const filename = import.meta.filename;
+  2 | const dirname = process.getBuiltinModule("node:path").dirname(filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(17): const filename = process.getBuiltinModule(\"node:url\").fileURLToPath(import.meta.url);\nconst dirname = process.getBuiltinModule(\"node:path\").dirname(filename); 3`] = `
+
+Message:
+  1 | const filename = process.getBuiltinModule("node:url").fileURLToPath(import.meta.url);
+> 2 | const dirname = process.getBuiltinModule("node:path").dirname(filename);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | const filename = process.getBuiltinModule("node:url").fileURLToPath(import.meta.url);
+  2 | const dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(18): import {fileURLToPath} from 'node:url';\nconst filename = fileURLToPath(/* comment */ import.meta.url); 1`] = `
+
+  1 | import {fileURLToPath} from 'node:url';
+  2 | const filename = fileURLToPath(/* comment */ import.meta.url);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(18): import {fileURLToPath} from 'node:url';\nconst filename = fileURLToPath(/* comment */ import.meta.url); 2`] = `
+
+Message:
+  1 | import {fileURLToPath} from 'node:url';
+> 2 | const filename = fileURLToPath(/* comment */ import.meta.url);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(19): import {dirname} from 'node:path';\nconst directory = dirname(import.meta.filename /* comment */); 1`] = `
+
+  1 | import {dirname} from 'node:path';
+  2 | const directory = dirname(import.meta.filename /* comment */);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(19): import {dirname} from 'node:path';\nconst directory = dirname(import.meta.filename /* comment */); 2`] = `
+
+Message:
+  1 | import {dirname} from 'node:path';
+> 2 | const directory = dirname(import.meta.filename /* comment */);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(2): import path from \"path\";\nconst dirname = path.dirname(import.meta.filename); 1`] = `
+
+  1 | import path from "path";
+  2 | const dirname = path.dirname(import.meta.filename);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(2): import path from \"path\";\nconst dirname = path.dirname(import.meta.filename); 2`] = `
+
+Message:
+  1 | import path from "path";
+> 2 | const dirname = path.dirname(import.meta.filename);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | import path from "path";
+  2 | const dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(3): import { fileURLToPath } from \"url\";\nconst dirname = fileURLToPath(new URL(\".\", import.meta.url)); 1`] = `
+
+  1 | import { fileURLToPath } from "url";
+  2 | const dirname = fileURLToPath(new URL(".", import.meta.url));
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(3): import { fileURLToPath } from \"url\";\nconst dirname = fileURLToPath(new URL(\".\", import.meta.url)); 2`] = `
+
+Message:
+  1 | import { fileURLToPath } from "url";
+> 2 | const dirname = fileURLToPath(new URL(".", import.meta.url));
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | import { fileURLToPath } from "url";
+  2 | const dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(4): import { fileURLToPath } from \"url\";\nconst dirname = fileURLToPath(new URL(\"./\", import.meta.url)); 1`] = `
+
+  1 | import { fileURLToPath } from "url";
+  2 | const dirname = fileURLToPath(new URL("./", import.meta.url));
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(4): import { fileURLToPath } from \"url\";\nconst dirname = fileURLToPath(new URL(\"./\", import.meta.url)); 2`] = `
+
+Message:
+  1 | import { fileURLToPath } from "url";
+> 2 | const dirname = fileURLToPath(new URL("./", import.meta.url));
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | import { fileURLToPath } from "url";
+  2 | const dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(5): import { fileURLToPath } from \"url\";\nconst filename = fileURLToPath(import.meta.url); 1`] = `
+
+  1 | import { fileURLToPath } from "url";
+  2 | const filename = fileURLToPath(import.meta.url);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(5): import { fileURLToPath } from \"url\";\nconst filename = fileURLToPath(import.meta.url); 2`] = `
+
+Message:
+  1 | import { fileURLToPath } from "url";
+> 2 | const filename = fileURLToPath(import.meta.url);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+
+Output:
+  1 | import { fileURLToPath } from "url";
+  2 | const filename = import.meta.filename;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(6): import { fileURLToPath } from \"url\";\nconst filename = fileURLToPath(new URL(import.meta.url)); 1`] = `
+
+  1 | import { fileURLToPath } from "url";
+  2 | const filename = fileURLToPath(new URL(import.meta.url));
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(6): import { fileURLToPath } from \"url\";\nconst filename = fileURLToPath(new URL(import.meta.url)); 2`] = `
+
+Message:
+  1 | import { fileURLToPath } from "url";
+> 2 | const filename = fileURLToPath(new URL(import.meta.url));
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+
+Output:
+  1 | import { fileURLToPath } from "url";
+  2 | const filename = import.meta.filename;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(7): import path from \"node:path\";\nimport { fileURLToPath } from \"node:url\";\nconst dirname = path.dirname(fileURLToPath(import.meta.url)); 1`] = `
+
+  1 | import path from "node:path";
+  2 | import { fileURLToPath } from "node:url";
+  3 | const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(7): import path from \"node:path\";\nimport { fileURLToPath } from \"node:url\";\nconst dirname = path.dirname(fileURLToPath(import.meta.url)); 2`] = `
+
+Message:
+  1 | import path from "node:path";
+  2 | import { fileURLToPath } from "node:url";
+> 3 | const dirname = path.dirname(fileURLToPath(import.meta.url));
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | import path from "node:path";
+  2 | import { fileURLToPath } from "node:url";
+  3 | const dirname = import.meta.dirname;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(8): import { fileURLToPath } from \"node:url\";\nconst filename = fileURLToPath(import.meta.url); 1`] = `
+
+  1 | import { fileURLToPath } from "node:url";
+  2 | const filename = fileURLToPath(import.meta.url);
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(8): import { fileURLToPath } from \"node:url\";\nconst filename = fileURLToPath(import.meta.url); 2`] = `
+
+Message:
+  1 | import { fileURLToPath } from "node:url";
+> 2 | const filename = fileURLToPath(import.meta.url);
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct filename using \`fileURLToPath()\`.
+
+Output:
+  1 | import { fileURLToPath } from "node:url";
+  2 | const filename = import.meta.filename;
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(9): import * as path from \"node:path\";\nimport url from \"node:url\";\nconst dirname = path.dirname(url.fileURLToPath(import.meta.url)); 1`] = `
+
+  1 | import * as path from "node:path";
+  2 | import url from "node:url";
+  3 | const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+
+`;
+
+exports[`prefer-import-meta-properties > invalid(9): import * as path from \"node:path\";\nimport url from \"node:url\";\nconst dirname = path.dirname(url.fileURLToPath(import.meta.url)); 2`] = `
+
+Message:
+  1 | import * as path from "node:path";
+  2 | import url from "node:url";
+> 3 | const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not construct dirname.
+
+Output:
+  1 | import * as path from "node:path";
+  2 | import url from "node:url";
+  3 | const dirname = import.meta.dirname;
+
+`;

@@ -1,7 +1,9 @@
+import nodeTest from 'node:test';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers, languages} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 // A plain-text parser like `eslint-parser-plain` (used for files like `.gitignore` and `.editorconfig`) produces an empty `Program` regardless of the file's content.
 const parserPlain = {
@@ -213,4 +215,23 @@ test.typescript({
 		{code: '"";', filename: 'example.ts', errors: 1},
 		{code: '"use strict";', filename: 'example.ts', errors: 1},
 	],
+});
+
+nodeTest('ignores empty virtual files from processors', t => {
+	const linter = new Linter();
+	const messages = linter.verify('Physical file', [
+		{
+			files: ['**/*.txt'],
+			processor: {
+				preprocess: () => [{text: '', filename: 'block.js'}],
+				postprocess: messages => messages.flat(),
+			},
+		},
+		{
+			files: ['**/*.js'],
+			plugins: {unicorn: {rules: {'no-empty-file': rule}}},
+			rules: {'unicorn/no-empty-file': 'error'},
+		},
+	], {filename: 'document.txt'});
+	t.assert.deepStrictEqual(messages, []);
 });

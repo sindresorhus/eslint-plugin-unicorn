@@ -96,6 +96,10 @@ test({
 			`,
 			errors,
 		},
+		invalidCase('function unicorn() { if (!test) { return true; } return false; }', 'function unicorn() { return !test; }'),
+		invalidCase('function unicorn() { if (delete object.key) { return true; } return false; }', 'function unicorn() { return delete object.key; }'),
+		invalidCase('function unicorn() { if (typeof value) { return true; } return false; }', 'function unicorn() { return Boolean(typeof value); }'),
+		invalidCase('function unicorn() { if (a === b || false) { return true; } return false; }', 'function unicorn() { return a === b || false; }'),
 	],
 });
 

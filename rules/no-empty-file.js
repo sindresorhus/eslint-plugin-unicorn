@@ -151,6 +151,8 @@ const create = context => {
 			return;
 		}
 
+		// `@eslint/json` currently fails to parse empty and comment-only documents, so this is kept for parsers that allow them.
+		/* node:coverage ignore next 10 */
 		if (node.body !== null && node.body !== undefined) {
 			return;
 		}

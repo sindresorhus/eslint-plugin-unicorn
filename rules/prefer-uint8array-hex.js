@@ -12,11 +12,10 @@ import {
 	getParenthesizedText,
 	isArrayPrototypeProperty,
 	isGlobalIdentifier,
-	isParenthesized,
 	isString,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {createTypeCheckers, nonTarget, target} from './utils/type-helpers.js';
@@ -335,12 +334,9 @@ function getProblem(node, input, context, {decoding = false, autofix = false, ca
 		}
 
 		// Preserve existing grouping, including parentheses that keep sequence expressions as a single argument.
-		let inputText = getParenthesizedText(input, context);
-		if (!decoding && shouldAddParenthesesToMemberExpressionObject(input, context) && !isParenthesized(input, context)) {
-			inputText = `(${inputText})`;
-		}
-
-		let text = decoding ? `Uint8Array.fromHex(${inputText})` : `${inputText}.toHex()`;
+		let text = decoding
+			? `Uint8Array.fromHex(${getParenthesizedText(input, context)})`
+			: `${getMemberExpressionObjectText(input, context)}.toHex()`;
 		if (needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {
 			text = `;${text}`;
 		}

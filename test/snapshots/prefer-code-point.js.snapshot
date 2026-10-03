@@ -1,0 +1,501 @@
+exports[`prefer-code-point > invalid(1): string.charCodeAt(index) 1`] = `
+
+  1 | string.charCodeAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(1): string.charCodeAt(index) 2`] = `
+
+Message:
+> 1 | string.charCodeAt(index)
+    |        ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | string.codePointAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(10): (hash << 5) - hash + string.charCodeAt(index) 1`] = `
+
+  1 | (hash << 5) - hash + string.charCodeAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(10): (hash << 5) - hash + string.charCodeAt(index) 2`] = `
+
+Message:
+> 1 | (hash << 5) - hash + string.charCodeAt(index)
+    |                             ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(11): sum += string.charCodeAt(index) 1`] = `
+
+  1 | sum += string.charCodeAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(11): sum += string.charCodeAt(index) 2`] = `
+
+Message:
+> 1 | sum += string.charCodeAt(index)
+    |               ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(12): sum += condition ? string.charCodeAt(index) : 0 1`] = `
+
+  1 | sum += condition ? string.charCodeAt(index) : 0
+
+`;
+
+exports[`prefer-code-point > invalid(12): sum += condition ? string.charCodeAt(index) : 0 2`] = `
+
+Message:
+> 1 | sum += condition ? string.charCodeAt(index) : 0
+    |                           ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(13): sum += string.charCodeAt(index) || 0 1`] = `
+
+  1 | sum += string.charCodeAt(index) || 0
+
+`;
+
+exports[`prefer-code-point > invalid(13): sum += string.charCodeAt(index) || 0 2`] = `
+
+Message:
+> 1 | sum += string.charCodeAt(index) || 0
+    |               ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(14): string?.charCodeAt(index) + 1 1`] = `
+
+  1 | string?.charCodeAt(index) + 1
+
+`;
+
+exports[`prefer-code-point > invalid(14): string?.charCodeAt(index) + 1 2`] = `
+
+Message:
+> 1 | string?.charCodeAt(index) + 1
+    |         ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(15): ~string.charCodeAt(index) 1`] = `
+
+  1 | ~string.charCodeAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(15): ~string.charCodeAt(index) 2`] = `
+
+Message:
+> 1 | ~string.charCodeAt(index)
+    |         ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(16): -string.charCodeAt(index) 1`] = `
+
+  1 | -string.charCodeAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(16): -string.charCodeAt(index) 2`] = `
+
+Message:
+> 1 | -string.charCodeAt(index)
+    |         ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(17): string.charCodeAt(index).toString(16) 1`] = `
+
+  1 | string.charCodeAt(index).toString(16)
+
+`;
+
+exports[`prefer-code-point > invalid(17): string.charCodeAt(index).toString(16) 2`] = `
+
+Message:
+> 1 | string.charCodeAt(index).toString(16)
+    |        ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | string.codePointAt(index).toString(16)
+
+`;
+
+exports[`prefer-code-point > invalid(18): string.charCodeAt(index) > 127 1`] = `
+
+  1 | string.charCodeAt(index) > 127
+
+`;
+
+exports[`prefer-code-point > invalid(18): string.charCodeAt(index) > 127 2`] = `
+
+Message:
+> 1 | string.charCodeAt(index) > 127
+    |        ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | string.codePointAt(index) > 127
+
+`;
+
+exports[`prefer-code-point > invalid(19): foo(string.charCodeAt(index)) 1`] = `
+
+  1 | foo(string.charCodeAt(index))
+
+`;
+
+exports[`prefer-code-point > invalid(19): foo(string.charCodeAt(index)) 2`] = `
+
+Message:
+> 1 | foo(string.charCodeAt(index))
+    |            ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | foo(string.codePointAt(index))
+
+`;
+
+exports[`prefer-code-point > invalid(2): string?.charCodeAt(index) 1`] = `
+
+  1 | string?.charCodeAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(2): string?.charCodeAt(index) 2`] = `
+
+Message:
+> 1 | string?.charCodeAt(index)
+    |         ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | string?.codePointAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(20): const x = string.charCodeAt(index) 1`] = `
+
+  1 | const x = string.charCodeAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(20): const x = string.charCodeAt(index) 2`] = `
+
+Message:
+> 1 | const x = string.charCodeAt(index)
+    |                  ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | const x = string.codePointAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(21): string.charCodeAt(index) === 65 1`] = `
+
+  1 | string.charCodeAt(index) === 65
+
+`;
+
+exports[`prefer-code-point > invalid(21): string.charCodeAt(index) === 65 2`] = `
+
+Message:
+> 1 | string.charCodeAt(index) === 65
+    |        ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | string.codePointAt(index) === 65
+
+`;
+
+exports[`prefer-code-point > invalid(22): string.charCodeAt(index) || 0 1`] = `
+
+  1 | string.charCodeAt(index) || 0
+
+`;
+
+exports[`prefer-code-point > invalid(22): string.charCodeAt(index) || 0 2`] = `
+
+Message:
+> 1 | string.charCodeAt(index) || 0
+    |        ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | string.codePointAt(index) || 0
+
+`;
+
+exports[`prefer-code-point > invalid(23): !string.charCodeAt(index) 1`] = `
+
+  1 | !string.charCodeAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(23): !string.charCodeAt(index) 2`] = `
+
+Message:
+> 1 | !string.charCodeAt(index)
+    |         ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | !string.codePointAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(24): String.fromCharCode( code ) 1`] = `
+
+  1 | String.fromCharCode( code )
+
+`;
+
+exports[`prefer-code-point > invalid(24): String.fromCharCode( code ) 2`] = `
+
+Message:
+> 1 | String.fromCharCode( code )
+    |        ^^^^^^^^^^^^ Prefer \`String.fromCodePoint()\` over \`String.fromCharCode()\`.
+
+Suggestion 1/1: Use \`String.fromCodePoint()\`.:
+  1 | String.fromCodePoint( code )
+
+`;
+
+exports[`prefer-code-point > invalid(25): (( (( String )).fromCharCode( ((code)), ) )) 1`] = `
+
+  1 | (( (( String )).fromCharCode( ((code)), ) ))
+
+`;
+
+exports[`prefer-code-point > invalid(25): (( (( String )).fromCharCode( ((code)), ) )) 2`] = `
+
+Message:
+> 1 | (( (( String )).fromCharCode( ((code)), ) ))
+    |                 ^^^^^^^^^^^^ Prefer \`String.fromCodePoint()\` over \`String.fromCharCode()\`.
+
+Suggestion 1/1: Use \`String.fromCodePoint()\`.:
+  1 | (( (( String )).fromCodePoint( ((code)), ) ))
+
+`;
+
+exports[`prefer-code-point > invalid(26): String.fromCharCode.bind(String) 1`] = `
+
+  1 | String.fromCharCode.bind(String)
+
+`;
+
+exports[`prefer-code-point > invalid(26): String.fromCharCode.bind(String) 2`] = `
+
+Message:
+> 1 | String.fromCharCode.bind(String)
+    |        ^^^^^^^^^^^^ Prefer \`String.fromCodePoint()\` over \`String.fromCharCode()\`.
+
+Suggestion 1/1: Use \`String.fromCodePoint()\`.:
+  1 | String.fromCodePoint.bind(String)
+
+`;
+
+exports[`prefer-code-point > invalid(27): const x = String.fromCharCode 1`] = `
+
+  1 | const x = String.fromCharCode
+
+`;
+
+exports[`prefer-code-point > invalid(27): const x = String.fromCharCode 2`] = `
+
+Message:
+> 1 | const x = String.fromCharCode
+    |                  ^^^^^^^^^^^^ Prefer \`String.fromCodePoint()\` over \`String.fromCharCode()\`.
+
+Suggestion 1/1: Use \`String.fromCodePoint()\`.:
+  1 | const x = String.fromCodePoint
+
+`;
+
+exports[`prefer-code-point > invalid(28): String.fromCharCode(65, 66, 67) 1`] = `
+
+  1 | String.fromCharCode(65, 66, 67)
+
+`;
+
+exports[`prefer-code-point > invalid(28): String.fromCharCode(65, 66, 67) 2`] = `
+
+Message:
+> 1 | String.fromCharCode(65, 66, 67)
+    |        ^^^^^^^^^^^^ Prefer \`String.fromCodePoint()\` over \`String.fromCharCode()\`.
+
+Suggestion 1/1: Use \`String.fromCodePoint()\`.:
+  1 | String.fromCodePoint(65, 66, 67)
+
+`;
+
+exports[`prefer-code-point > invalid(29): foo!.charCodeAt(0) 1`] = `
+
+  1 | foo!.charCodeAt(0)
+
+`;
+
+exports[`prefer-code-point > invalid(29): foo!.charCodeAt(0) 2`] = `
+
+Message:
+> 1 | foo!.charCodeAt(0)
+    |      ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | foo!.codePointAt(0)
+
+`;
+
+exports[`prefer-code-point > invalid(3): (( (( string )).charCodeAt( ((index)), ))) 1`] = `
+
+  1 | (( (( string )).charCodeAt( ((index)), )))
+
+`;
+
+exports[`prefer-code-point > invalid(3): (( (( string )).charCodeAt( ((index)), ))) 2`] = `
+
+Message:
+> 1 | (( (( string )).charCodeAt( ((index)), )))
+    |                 ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | (( (( string )).codePointAt( ((index)), )))
+
+`;
+
+exports[`prefer-code-point > invalid(30): (str as string).charCodeAt(0) 1`] = `
+
+  1 | (str as string).charCodeAt(0)
+
+`;
+
+exports[`prefer-code-point > invalid(30): (str as string).charCodeAt(0) 2`] = `
+
+Message:
+> 1 | (str as string).charCodeAt(0)
+    |                 ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | (str as string).codePointAt(0)
+
+`;
+
+exports[`prefer-code-point > invalid(31): sum += condition ? 0 : string.charCodeAt(index) 1`] = `
+
+  1 | sum += condition ? 0 : string.charCodeAt(index)
+
+`;
+
+exports[`prefer-code-point > invalid(31): sum += condition ? 0 : string.charCodeAt(index) 2`] = `
+
+Message:
+> 1 | sum += condition ? 0 : string.charCodeAt(index)
+    |                               ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(32): sum += string.charCodeAt(index) ? 1 : 0 1`] = `
+
+  1 | sum += string.charCodeAt(index) ? 1 : 0
+
+`;
+
+exports[`prefer-code-point > invalid(32): sum += string.charCodeAt(index) ? 1 : 0 2`] = `
+
+Message:
+> 1 | sum += string.charCodeAt(index) ? 1 : 0
+    |               ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+Suggestion 1/1: Use \`String#codePointAt()\`.:
+  1 | sum += string.codePointAt(index) ? 1 : 0
+
+`;
+
+exports[`prefer-code-point > invalid(4): hash = (((hash * 31) | 0) + string.charCodeAt(offset)) | 0 1`] = `
+
+  1 | hash = (((hash * 31) | 0) + string.charCodeAt(offset)) | 0
+
+`;
+
+exports[`prefer-code-point > invalid(4): hash = (((hash * 31) | 0) + string.charCodeAt(offset)) | 0 2`] = `
+
+Message:
+> 1 | hash = (((hash * 31) | 0) + string.charCodeAt(offset)) | 0
+    |                                    ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(5): string.charCodeAt(index) + 1 1`] = `
+
+  1 | string.charCodeAt(index) + 1
+
+`;
+
+exports[`prefer-code-point > invalid(5): string.charCodeAt(index) + 1 2`] = `
+
+Message:
+> 1 | string.charCodeAt(index) + 1
+    |        ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(6): string.charCodeAt(index) * 31 1`] = `
+
+  1 | string.charCodeAt(index) * 31
+
+`;
+
+exports[`prefer-code-point > invalid(6): string.charCodeAt(index) * 31 2`] = `
+
+Message:
+> 1 | string.charCodeAt(index) * 31
+    |        ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(7): string.charCodeAt(index) - 48 1`] = `
+
+  1 | string.charCodeAt(index) - 48
+
+`;
+
+exports[`prefer-code-point > invalid(7): string.charCodeAt(index) - 48 2`] = `
+
+Message:
+> 1 | string.charCodeAt(index) - 48
+    |        ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(8): (string.charCodeAt(index) | 0) 1`] = `
+
+  1 | (string.charCodeAt(index) | 0)
+
+`;
+
+exports[`prefer-code-point > invalid(8): (string.charCodeAt(index) | 0) 2`] = `
+
+Message:
+> 1 | (string.charCodeAt(index) | 0)
+    |         ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;
+
+exports[`prefer-code-point > invalid(9): string.charCodeAt(index) ^ hash 1`] = `
+
+  1 | string.charCodeAt(index) ^ hash
+
+`;
+
+exports[`prefer-code-point > invalid(9): string.charCodeAt(index) ^ hash 2`] = `
+
+Message:
+> 1 | string.charCodeAt(index) ^ hash
+    |        ^^^^^^^^^^ Prefer \`String#codePointAt()\` over \`String#charCodeAt()\`.
+
+`;

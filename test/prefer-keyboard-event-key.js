@@ -791,6 +791,11 @@ test({
 				});
 			`)],
 		},
+		// Not a valid code point, so there is no key to suggest
+		{
+			code: 'foo.addEventListener("keydown", event => { if (event.keyCode === 1.5) {} });',
+			errors: [{...error('keyCode'), suggestions: []}],
+		},
 	],
 });
 

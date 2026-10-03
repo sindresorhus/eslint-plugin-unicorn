@@ -13,8 +13,7 @@ function checkFiles(ruleId) {
 		`docs/rules/${ruleId}.md`,
 		`rules/${ruleId}.js`,
 		`test/${ruleId}.js`,
-		`test/snapshots/${ruleId}.js.md`,
-		`test/snapshots/${ruleId}.js.snap`,
+		`test/snapshots/${ruleId}.js.snapshot`,
 	];
 
 	for (const file of files) {

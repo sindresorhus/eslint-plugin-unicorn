@@ -59,7 +59,8 @@ function reportMemberExpression(report, node, options) {
 		return;
 	}
 
-	const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
+	// `parent` is always a `MemberExpression` here
+	const effectiveParent = parent.parent;
 
 	if (
 		effectiveParent.type === 'AssignmentExpression'

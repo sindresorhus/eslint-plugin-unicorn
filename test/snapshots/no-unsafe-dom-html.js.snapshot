@@ -1,0 +1,707 @@
+exports[`no-unsafe-dom-html > invalid(1): element.innerHTML = html; 1`] = `
+
+  1 | element.innerHTML = html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(1): element.innerHTML = html; 2`] = `
+
+Message:
+> 1 | element.innerHTML = html;
+    |         ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(10): iframe[\"srcdoc\"] = trustedHTML; 1`] = `
+
+  1 | iframe["srcdoc"] = trustedHTML;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(10): iframe[\"srcdoc\"] = trustedHTML; 2`] = `
+
+Message:
+> 1 | iframe["srcdoc"] = trustedHTML;
+    |        ^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(11): iframe[\`srcdoc\`] = html; 1`] = `
+
+  1 | iframe[\`srcdoc\`] = html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(11): iframe[\`srcdoc\`] = html; 2`] = `
+
+Message:
+> 1 | iframe[\`srcdoc\`] = html;
+    |        ^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(12): element.insertAdjacentHTML(\"beforeend\", html); 1`] = `
+
+  1 | element.insertAdjacentHTML("beforeend", html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(12): element.insertAdjacentHTML(\"beforeend\", html); 2`] = `
+
+Message:
+> 1 | element.insertAdjacentHTML("beforeend", html);
+    |         ^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(13): element?.insertAdjacentHTML(\"beforeend\", html); 1`] = `
+
+  1 | element?.insertAdjacentHTML("beforeend", html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(13): element?.insertAdjacentHTML(\"beforeend\", html); 2`] = `
+
+Message:
+> 1 | element?.insertAdjacentHTML("beforeend", html);
+    |          ^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(14): element[\"insertAdjacentHTML\"](\"beforeend\", html); 1`] = `
+
+  1 | element["insertAdjacentHTML"]("beforeend", html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(14): element[\"insertAdjacentHTML\"](\"beforeend\", html); 2`] = `
+
+Message:
+> 1 | element["insertAdjacentHTML"]("beforeend", html);
+    |         ^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(15): element[\`insertAdjacentHTML\`](\"beforeend\", html); 1`] = `
+
+  1 | element[\`insertAdjacentHTML\`]("beforeend", html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(15): element[\`insertAdjacentHTML\`](\"beforeend\", html); 2`] = `
+
+Message:
+> 1 | element[\`insertAdjacentHTML\`]("beforeend", html);
+    |         ^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(16): element.setHTMLUnsafe(html); 1`] = `
+
+  1 | element.setHTMLUnsafe(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(16): element.setHTMLUnsafe(html); 2`] = `
+
+Message:
+> 1 | element.setHTMLUnsafe(html);
+    |         ^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(17): element.setHTMLUnsafe(trustedHTML); 1`] = `
+
+  1 | element.setHTMLUnsafe(trustedHTML);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(17): element.setHTMLUnsafe(trustedHTML); 2`] = `
+
+Message:
+> 1 | element.setHTMLUnsafe(trustedHTML);
+    |         ^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(18): element[\"setHTMLUnsafe\"](html); 1`] = `
+
+  1 | element["setHTMLUnsafe"](html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(18): element[\"setHTMLUnsafe\"](html); 2`] = `
+
+Message:
+> 1 | element["setHTMLUnsafe"](html);
+    |         ^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(19): Document.parseHTMLUnsafe(html); 1`] = `
+
+  1 | Document.parseHTMLUnsafe(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(19): Document.parseHTMLUnsafe(html); 2`] = `
+
+Message:
+> 1 | Document.parseHTMLUnsafe(html);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(2): element.innerHTML = trustedHTML; 1`] = `
+
+  1 | element.innerHTML = trustedHTML;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(2): element.innerHTML = trustedHTML; 2`] = `
+
+Message:
+> 1 | element.innerHTML = trustedHTML;
+    |         ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(20): window.Document.parseHTMLUnsafe(html); 1`] = `
+
+  1 | window.Document.parseHTMLUnsafe(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(20): window.Document.parseHTMLUnsafe(html); 2`] = `
+
+Message:
+> 1 | window.Document.parseHTMLUnsafe(html);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(21): globalThis.Document.parseHTMLUnsafe(html); 1`] = `
+
+  1 | globalThis.Document.parseHTMLUnsafe(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(21): globalThis.Document.parseHTMLUnsafe(html); 2`] = `
+
+Message:
+> 1 | globalThis.Document.parseHTMLUnsafe(html);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(22): Document[\"parseHTMLUnsafe\"](trustedHTML); 1`] = `
+
+  1 | Document["parseHTMLUnsafe"](trustedHTML);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(22): Document[\"parseHTMLUnsafe\"](trustedHTML); 2`] = `
+
+Message:
+> 1 | Document["parseHTMLUnsafe"](trustedHTML);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(23): Document[\`parseHTMLUnsafe\`](html); 1`] = `
+
+  1 | Document[\`parseHTMLUnsafe\`](html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(23): Document[\`parseHTMLUnsafe\`](html); 2`] = `
+
+Message:
+> 1 | Document[\`parseHTMLUnsafe\`](html);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(24): const parseHTMLUnsafe = Document.parseHTMLUnsafe; parseHTMLUnsafe(html); 1`] = `
+
+  1 | const parseHTMLUnsafe = Document.parseHTMLUnsafe; parseHTMLUnsafe(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(24): const parseHTMLUnsafe = Document.parseHTMLUnsafe; parseHTMLUnsafe(html); 2`] = `
+
+Message:
+> 1 | const parseHTMLUnsafe = Document.parseHTMLUnsafe; parseHTMLUnsafe(html);
+    |                                                   ^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(25): range.createContextualFragment(html); 1`] = `
+
+  1 | range.createContextualFragment(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(25): range.createContextualFragment(html); 2`] = `
+
+Message:
+> 1 | range.createContextualFragment(html);
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(26): range?.createContextualFragment(html); 1`] = `
+
+  1 | range?.createContextualFragment(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(26): range?.createContextualFragment(html); 2`] = `
+
+Message:
+> 1 | range?.createContextualFragment(html);
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(27): range[\"createContextualFragment\"](trustedHTML); 1`] = `
+
+  1 | range["createContextualFragment"](trustedHTML);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(27): range[\"createContextualFragment\"](trustedHTML); 2`] = `
+
+Message:
+> 1 | range["createContextualFragment"](trustedHTML);
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(28): iframe.setAttribute(\"srcdoc\", html); 1`] = `
+
+  1 | iframe.setAttribute("srcdoc", html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(28): iframe.setAttribute(\"srcdoc\", html); 2`] = `
+
+Message:
+> 1 | iframe.setAttribute("srcdoc", html);
+    |        ^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(29): iframe?.setAttribute(\"srcdoc\", html); 1`] = `
+
+  1 | iframe?.setAttribute("srcdoc", html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(29): iframe?.setAttribute(\"srcdoc\", html); 2`] = `
+
+Message:
+> 1 | iframe?.setAttribute("srcdoc", html);
+    |         ^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(3): element.innerHTML += html; 1`] = `
+
+  1 | element.innerHTML += html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(3): element.innerHTML += html; 2`] = `
+
+Message:
+> 1 | element.innerHTML += html;
+    |         ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(30): iframe.setAttribute(\"srcDoc\", html); 1`] = `
+
+  1 | iframe.setAttribute("srcDoc", html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(30): iframe.setAttribute(\"srcDoc\", html); 2`] = `
+
+Message:
+> 1 | iframe.setAttribute("srcDoc", html);
+    |        ^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(31): iframe.setAttribute(\`srcdoc\`, html); 1`] = `
+
+  1 | iframe.setAttribute(\`srcdoc\`, html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(31): iframe.setAttribute(\`srcdoc\`, html); 2`] = `
+
+Message:
+> 1 | iframe.setAttribute(\`srcdoc\`, html);
+    |        ^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(32): document.write(html); 1`] = `
+
+  1 | document.write(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(32): document.write(html); 2`] = `
+
+Message:
+> 1 | document.write(html);
+    | ^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(33): document.writeln(html); 1`] = `
+
+  1 | document.writeln(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(33): document.writeln(html); 2`] = `
+
+Message:
+> 1 | document.writeln(html);
+    | ^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(34): document?.write(html); 1`] = `
+
+  1 | document?.write(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(34): document?.write(html); 2`] = `
+
+Message:
+> 1 | document?.write(html);
+    | ^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(35): document?.writeln(html); 1`] = `
+
+  1 | document?.writeln(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(35): document?.writeln(html); 2`] = `
+
+Message:
+> 1 | document?.writeln(html);
+    | ^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(36): window.document.write(html); 1`] = `
+
+  1 | window.document.write(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(36): window.document.write(html); 2`] = `
+
+Message:
+> 1 | window.document.write(html);
+    | ^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(37): globalThis.document.writeln(html); 1`] = `
+
+  1 | globalThis.document.writeln(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(37): globalThis.document.writeln(html); 2`] = `
+
+Message:
+> 1 | globalThis.document.writeln(html);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(38): const write = document.write; write(html); 1`] = `
+
+  1 | const write = document.write; write(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(38): const write = document.write; write(html); 2`] = `
+
+Message:
+> 1 | const write = document.write; write(html);
+    |                               ^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(39): const doc = document; doc.write(html); 1`] = `
+
+  1 | const doc = document; doc.write(html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(39): const doc = document; doc.write(html); 2`] = `
+
+Message:
+> 1 | const doc = document; doc.write(html);
+    |                       ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(4): element[\"innerHTML\"] = html; 1`] = `
+
+  1 | element["innerHTML"] = html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(4): element[\"innerHTML\"] = html; 2`] = `
+
+Message:
+> 1 | element["innerHTML"] = html;
+    |         ^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(40): for (element.innerHTML in object) {} 1`] = `
+
+  1 | for (element.innerHTML in object) {}
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(40): for (element.innerHTML in object) {} 2`] = `
+
+Message:
+> 1 | for (element.innerHTML in object) {}
+    |              ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(41): for (element.innerHTML of list) {} 1`] = `
+
+  1 | for (element.innerHTML of list) {}
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(41): for (element.innerHTML of list) {} 2`] = `
+
+Message:
+> 1 | for (element.innerHTML of list) {}
+    |              ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(42): ({html: element.innerHTML} = source); 1`] = `
+
+  1 | ({html: element.innerHTML} = source);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(42): ({html: element.innerHTML} = source); 2`] = `
+
+Message:
+> 1 | ({html: element.innerHTML} = source);
+    |                 ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(43): [element.outerHTML] = source; 1`] = `
+
+  1 | [element.outerHTML] = source;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(43): [element.outerHTML] = source; 2`] = `
+
+Message:
+> 1 | [element.outerHTML] = source;
+    |          ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(44): [...element.innerHTML] = source; 1`] = `
+
+  1 | [...element.innerHTML] = source;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(44): [...element.innerHTML] = source; 2`] = `
+
+Message:
+> 1 | [...element.innerHTML] = source;
+    |             ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(45): ({...element.innerHTML} = source); 1`] = `
+
+  1 | ({...element.innerHTML} = source);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(45): ({...element.innerHTML} = source); 2`] = `
+
+Message:
+> 1 | ({...element.innerHTML} = source);
+    |              ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(46): for ([...element.innerHTML] of list) {} 1`] = `
+
+  1 | for ([...element.innerHTML] of list) {}
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(46): for ([...element.innerHTML] of list) {} 2`] = `
+
+Message:
+> 1 | for ([...element.innerHTML] of list) {}
+    |                  ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(47): for ({...element.innerHTML} of list) {} 1`] = `
+
+  1 | for ({...element.innerHTML} of list) {}
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(47): for ({...element.innerHTML} of list) {} 2`] = `
+
+Message:
+> 1 | for ({...element.innerHTML} of list) {}
+    |                  ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(48): element\n\t.innerHTML = html; 1`] = `
+
+  1 | element
+  2 | 	.innerHTML = html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(48): element\n\t.innerHTML = html; 2`] = `
+
+Message:
+  1 | element
+> 2 | 	.innerHTML = html;
+    | 	 ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(49): element.insertAdjacentHTML(\n\t\"beforeend\",\n\thtml,\n); 1`] = `
+
+  1 | element.insertAdjacentHTML(
+  2 | 	"beforeend",
+  3 | 	html,
+  4 | );
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(49): element.insertAdjacentHTML(\n\t\"beforeend\",\n\thtml,\n); 2`] = `
+
+Message:
+> 1 | element.insertAdjacentHTML(
+    |         ^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+  2 | 	"beforeend",
+  3 | 	html,
+  4 | );
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(5): element[\`innerHTML\`] = html; 1`] = `
+
+  1 | element[\`innerHTML\`] = html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(5): element[\`innerHTML\`] = html; 2`] = `
+
+Message:
+> 1 | element[\`innerHTML\`] = html;
+    |         ^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(50): (element?.insertAdjacentHTML)(\"beforeend\", html); 1`] = `
+
+  1 | (element?.insertAdjacentHTML)("beforeend", html);
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(50): (element?.insertAdjacentHTML)(\"beforeend\", html); 2`] = `
+
+Message:
+> 1 | (element?.insertAdjacentHTML)("beforeend", html);
+    |           ^^^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(6): element.outerHTML = html; 1`] = `
+
+  1 | element.outerHTML = html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(6): element.outerHTML = html; 2`] = `
+
+Message:
+> 1 | element.outerHTML = html;
+    |         ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(7): element.outerHTML ||= html; 1`] = `
+
+  1 | element.outerHTML ||= html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(7): element.outerHTML ||= html; 2`] = `
+
+Message:
+> 1 | element.outerHTML ||= html;
+    |         ^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(8): element[\"outerHTML\"] = trustedHTML; 1`] = `
+
+  1 | element["outerHTML"] = trustedHTML;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(8): element[\"outerHTML\"] = trustedHTML; 2`] = `
+
+Message:
+> 1 | element["outerHTML"] = trustedHTML;
+    |         ^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(9): iframe.srcdoc = html; 1`] = `
+
+  1 | iframe.srcdoc = html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(9): iframe.srcdoc = html; 2`] = `
+
+Message:
+> 1 | iframe.srcdoc = html;
+    |        ^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;

@@ -130,5 +130,7 @@ test.snapshot({
 			code: 'let flag: boolean;\nconst result = flag! === true;',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// Nested functions are not searched for `yield` expressions.
+		'function * foo() {\n\tconst result = [a, b].some(item => item > c) === false;\n}',
 	],
 });

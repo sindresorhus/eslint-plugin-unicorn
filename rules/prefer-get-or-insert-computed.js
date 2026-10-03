@@ -1,6 +1,6 @@
 import {isCallExpression, isFunction, isMethodCall} from './ast/index.js';
 import {replaceArgument} from './fix/index.js';
-import {getParenthesizedRange} from './utils/index.js';
+import {getParenthesizedRange, getVisitorChildNodes} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-get-or-insert-computed';
 const messages = {
@@ -30,25 +30,7 @@ const containsNodeMatching = (node, sourceCode, predicate) => {
 		return true;
 	}
 
-	const keys = sourceCode.visitorKeys[node.type] ?? [];
-	for (const key of keys) {
-		const child = node[key];
-		if (Array.isArray(child)) {
-			for (const childNode of child) {
-				if (childNode && containsNodeMatching(childNode, sourceCode, predicate)) {
-					return true;
-				}
-			}
-
-			continue;
-		}
-
-		if (child && containsNodeMatching(child, sourceCode, predicate)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => containsNodeMatching(child, sourceCode, predicate));
 };
 
 const shouldWrapArrowBody = node =>

@@ -193,6 +193,43 @@ test.snapshot({
 				bar.destroy();
 			}
 		`,
+		// Empty `finally` block
+		outdent`
+			const foo = open();
+			try {
+				use(foo);
+			} finally {}
+		`,
+		// A private method is not a disposal method
+		outdent`
+			class Foo {
+				method() {
+					const foo = open();
+					try {
+						use(foo);
+					} finally {
+						foo.#close();
+					}
+				}
+
+				#close() {}
+			}
+		`,
+		// `await using` is not allowed in a class static block
+		outdent`
+			class Foo {
+				static {
+					if (condition) {
+						const foo = open();
+						try {
+							use(foo);
+						} finally {
+							foo[Symbol.asyncDispose]();
+						}
+					}
+				}
+			}
+		`,
 	],
 	invalid: [
 		// Single resource
@@ -397,6 +434,15 @@ test.snapshot({
 					await bar[Symbol.asyncDispose]();
 					foo.close();
 				}
+			}
+		`,
+		// The `try` shares its line with the declaration
+		'const foo = open(); try { use(foo); } finally { foo.close(); }',
+		// Empty `try` block
+		outdent`
+			const foo = open();
+			try {} finally {
+				foo.close();
 			}
 		`,
 	],

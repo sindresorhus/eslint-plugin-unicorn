@@ -1,7 +1,6 @@
 import {
 	isBigIntLiteral,
 	isFunction,
-	isNullLiteral,
 	isRegexLiteral,
 	isTaggedTemplateLiteral,
 } from './ast/index.js';
@@ -15,11 +14,6 @@ const messages = {
 	[MESSAGE_ID]: 'Do not use unnecessary template literal expressions.',
 	[MESSAGE_ID_SUGGESTION]: 'Use `{{replacement}}` instead.',
 };
-
-const primitiveTypes = new Set([
-	'number',
-	'boolean',
-]);
 
 // Legacy octal (`\1`, `\012`) and `\8`/`\9` escapes are valid in sloppy-mode strings but are syntax errors inside template literals.
 const hasTemplateIncompatibleEscape = raw => /(?<=(?:^|[^\\])(?:\\\\)*)\\(?:[1-9]|0\d)/v.test(raw);
@@ -116,20 +110,13 @@ function getStaticInterpolationValue(node, sourceCode) {
 			};
 		}
 
-		if (
-			primitiveTypes.has(typeof node.value)
-			|| isNullLiteral(node)
-			|| isBigIntLiteral(node)
-		) {
-			const cooked = isBigIntLiteral(node) ? node.bigint : String(node.value);
+		// The remaining literals are numbers, booleans, `null`, and bigints
+		const cooked = isBigIntLiteral(node) ? node.bigint : String(node.value);
 
-			return {
-				cooked,
-				raw: cooked,
-			};
-		}
-
-		return;
+		return {
+			cooked,
+			raw: cooked,
+		};
 	}
 
 	if (
@@ -266,11 +253,8 @@ function getReplacement(node, sourceCode, problems) {
 
 	let cooked = '';
 
+	// `cooked` is only `null` for an invalid escape, which is a syntax error outside a tagged template
 	for (const [index, quasi] of node.quasis.entries()) {
-		if (quasi.value.cooked === null) {
-			return;
-		}
-
 		cooked += quasi.value.cooked;
 
 		if (index < problems.length) {
@@ -303,12 +287,10 @@ const create = context => {
 
 		try {
 			const typeScriptNode = parserServices.esTreeNodeToTSNodeMap.get(node);
-			if (!typeScriptNode) {
-				return true;
-			}
-
 			const type = typeChecker.getContextualType(typeScriptNode) ?? typeChecker.getTypeAtLocation(typeScriptNode);
 			return !type || !typeChecker.isTypeAssignableTo(typeChecker.getStringType(), type);
+			// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does
+			/* node:coverage ignore next 3 */
 		} catch {
 			return true;
 		}

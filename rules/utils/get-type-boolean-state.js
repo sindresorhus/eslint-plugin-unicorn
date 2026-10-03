@@ -16,10 +16,6 @@ function combineBooleanStates(states) {
 }
 
 function getTypeBooleanState(type, checker, visitedTypes = new Set(), functionTypesAreBoolean = true) {
-	if (!type) {
-		return unknown;
-	}
-
 	if (
 		isUnknownType(type)
 		|| type.intrinsicName === 'never'

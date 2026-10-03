@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -34,6 +34,13 @@ test.snapshot({
 		'window.addEventListener("wheel", ({target}) => { console.log(target); })',
 		'window?.addEventListener("wheel", () => {})',
 		'window.addEventListener?.("wheel", () => {})',
+		'window.addEventListener("wheel", event => { (event?.preventDefault)(); })',
+		'window.addEventListener("wheel", event => { event.preventDefault?.(); })',
+		'window.addEventListener("wheel", event => { const {preventDefault} = event; })',
+		{
+			code: 'window.addEventListener("wheel", function (this: Window, event) { event.preventDefault(); })',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'window.addEventListener("wheel", () => {})',
@@ -77,6 +84,15 @@ test.snapshot({
 				once: true // Keep this comment with once.
 			})
 		`,
+		// TypeScript `this` parameter is not the event
+		{
+			code: 'window.addEventListener("wheel", function (this: Window) {})',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'window.addEventListener("wheel", function (this: Window, event) { console.log(event.target); })',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

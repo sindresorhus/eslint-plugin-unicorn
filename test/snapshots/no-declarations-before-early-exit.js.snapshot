@@ -1,0 +1,1516 @@
+exports[`no-declarations-before-early-exit > invalid(1): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tprocess.exit(1);\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (!bar) {
+  4 | 		process.exit(1);
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(1): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tprocess.exit(1);\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		process.exit(1);
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) {
+  3 | 		process.exit(1);
+  4 | 	}
+  5 | 	const result = 1;
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(10): function foo(items) {\n\tfor (const item of items) {\n\t\tconst result = 1;\n\t\tif (!item) {\n\t\t\tbreak;\n\t\t}\n\t\tconsole.log(result);\n\t}\n} 1`] = `
+
+  1 | function foo(items) {
+  2 | 	for (const item of items) {
+  3 | 		const result = 1;
+  4 | 		if (!item) {
+  5 | 			break;
+  6 | 		}
+  7 | 		console.log(result);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(10): function foo(items) {\n\tfor (const item of items) {\n\t\tconst result = 1;\n\t\tif (!item) {\n\t\t\tbreak;\n\t\t}\n\t\tconsole.log(result);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo(items) {
+  2 | 	for (const item of items) {
+> 3 | 		const result = 1;
+    | 		      ^^^^^^ Move this declaration after the early exit.
+  4 | 		if (!item) {
+  5 | 			break;
+  6 | 		}
+  7 | 		console.log(result);
+  8 | 	}
+  9 | }
+
+Output:
+  1 | function foo(items) {
+  2 | 	for (const item of items) {
+  3 | 		if (!item) {
+  4 | 			break;
+  5 | 		}
+  6 | 		const result = 1;
+  7 | 		console.log(result);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(11): function foo(items) {\n\tfor (const item of items) {\n\t\tconst result = 1;\n\t\tif (!item) {\n\t\t\tcontinue;\n\t\t}\n\t\tconsole.log(result);\n\t}\n} 1`] = `
+
+  1 | function foo(items) {
+  2 | 	for (const item of items) {
+  3 | 		const result = 1;
+  4 | 		if (!item) {
+  5 | 			continue;
+  6 | 		}
+  7 | 		console.log(result);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(11): function foo(items) {\n\tfor (const item of items) {\n\t\tconst result = 1;\n\t\tif (!item) {\n\t\t\tcontinue;\n\t\t}\n\t\tconsole.log(result);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo(items) {
+  2 | 	for (const item of items) {
+> 3 | 		const result = 1;
+    | 		      ^^^^^^ Move this declaration after the early exit.
+  4 | 		if (!item) {
+  5 | 			continue;
+  6 | 		}
+  7 | 		console.log(result);
+  8 | 	}
+  9 | }
+
+Output:
+  1 | function foo(items) {
+  2 | 	for (const item of items) {
+  3 | 		if (!item) {
+  4 | 			continue;
+  5 | 		}
+  6 | 		const result = 1;
+  7 | 		console.log(result);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(12): function foo(value) {\n\tswitch (value) {\n\t\tcase 1: {\n\t\t\tconst result = 1;\n\t\t\tif (!bar) {\n\t\t\t\tbreak;\n\t\t\t}\n\t\t\tconsole.log(result);\n\t\t}\n\t}\n} 1`] = `
+
+   1 | function foo(value) {
+   2 | 	switch (value) {
+   3 | 		case 1: {
+   4 | 			const result = 1;
+   5 | 			if (!bar) {
+   6 | 				break;
+   7 | 			}
+   8 | 			console.log(result);
+   9 | 		}
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(12): function foo(value) {\n\tswitch (value) {\n\t\tcase 1: {\n\t\t\tconst result = 1;\n\t\t\tif (!bar) {\n\t\t\t\tbreak;\n\t\t\t}\n\t\t\tconsole.log(result);\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+   1 | function foo(value) {
+   2 | 	switch (value) {
+   3 | 		case 1: {
+>  4 | 			const result = 1;
+     | 			      ^^^^^^ Move this declaration after the early exit.
+   5 | 			if (!bar) {
+   6 | 				break;
+   7 | 			}
+   8 | 			console.log(result);
+   9 | 		}
+  10 | 	}
+  11 | }
+
+Output:
+   1 | function foo(value) {
+   2 | 	switch (value) {
+   3 | 		case 1: {
+   4 | 			if (!bar) {
+   5 | 				break;
+   6 | 			}
+   7 | 			const result = 1;
+   8 | 			console.log(result);
+   9 | 		}
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(13): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tcleanup();\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (!bar) {
+  4 | 		cleanup();
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(13): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tcleanup();\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		cleanup();
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) {
+  3 | 		cleanup();
+  4 | 		return;
+  5 | 	}
+  6 | 	const result = 1;
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(14): function foo(bar) {\n\tconst result = 1;\n\tif (bar) {\n\t\tconsole.log(bar);\n\t} else {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (bar) {
+  4 | 		console.log(bar);
+  5 | 	} else {
+  6 | 		return;
+  7 | 	}
+  8 | 	console.log(result);
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(14): function foo(bar) {\n\tconst result = 1;\n\tif (bar) {\n\t\tconsole.log(bar);\n\t} else {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (bar) {
+  4 | 		console.log(bar);
+  5 | 	} else {
+  6 | 		return;
+  7 | 	}
+  8 | 	console.log(result);
+  9 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (bar) {
+  3 | 		console.log(bar);
+  4 | 	} else {
+  5 | 		return;
+  6 | 	}
+  7 | 	const result = 1;
+  8 | 	console.log(result);
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(15): function foo(bar) {\n\tconst result = 1, other = 2;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result, other);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1, other = 2;
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result, other);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(15): function foo(bar) {\n\tconst result = 1, other = 2;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result, other);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1, other = 2;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result, other);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(15): function foo(bar) {\n\tconst result = 1, other = 2;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result, other);\n} 3`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1, other = 2;
+    | 	                  ^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result, other);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(16): function foo(bar) {\n\tconst result = object.result;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = object.result;
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(16): function foo(bar) {\n\tconst result = object.result;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = object.result;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(17): function foo(bar) {\n\tconst result = new Result();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = new Result();
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(17): function foo(bar) {\n\tconst result = new Result();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = new Result();
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(18): function foo(bar, items) {\n\tconst result = [...items];\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar, items) {
+  2 | 	const result = [...items];
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(18): function foo(bar, items) {\n\tconst result = [...items];\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar, items) {
+> 2 | 	const result = [...items];
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(19): function foo(bar, object) {\n\tconst result = {...object};\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar, object) {
+  2 | 	const result = {...object};
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(19): function foo(bar, object) {\n\tconst result = {...object};\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar, object) {
+> 2 | 	const result = {...object};
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(2): function foo(bar) {\n\tconst result = getResult();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = getResult();
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(2): function foo(bar) {\n\tconst result = getResult();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = getResult();
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(20): function foo(bar) {\n\tlet source;\n\tconst result = source = 1;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	let source;
+  3 | 	const result = source = 1;
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(20): function foo(bar) {\n\tlet source;\n\tconst result = source = 1;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+  2 | 	let source;
+> 3 | 	const result = source = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(21): function foo(bar) {\n\tlet index = 0;\n\tconst result = index++;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	let index = 0;
+  3 | 	const result = index++;
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(21): function foo(bar) {\n\tlet index = 0;\n\tconst result = index++;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+  2 | 	let index = 0;
+> 3 | 	const result = index++;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(22): function foo(bar) {\n\t// Keep this comment.\n\tconst result = 1;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	// Keep this comment.
+  3 | 	const result = 1;
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(22): function foo(bar) {\n\t// Keep this comment.\n\tconst result = 1;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+  2 | 	// Keep this comment.
+> 3 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(23): function foo(bar) {\n\tconst result = 1; // Keep this comment.\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1; // Keep this comment.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(23): function foo(bar) {\n\tconst result = 1; // Keep this comment.\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1; // Keep this comment.
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(24): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) return; // Keep this comment.\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (!bar) return; // Keep this comment.
+  4 | 	console.log(result);
+  5 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(24): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) return; // Keep this comment.\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) return; // Keep this comment.
+  4 | 	console.log(result);
+  5 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(25): function foo(bar) {\n\tconst result = 1;\n\t// Keep this comment.\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	// Keep this comment.
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(25): function foo(bar) {\n\tconst result = 1;\n\t// Keep this comment.\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	// Keep this comment.
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(26): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\treturn;\n\t} else {\n\t\tconsole.log(bar);\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	} else {
+  6 | 		console.log(bar);
+  7 | 	}
+  8 | 	console.log(result);
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(26): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\treturn;\n\t} else {\n\t\tconsole.log(bar);\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	} else {
+  6 | 		console.log(bar);
+  7 | 	}
+  8 | 	console.log(result);
+  9 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) {
+  3 | 		return;
+  4 | 	} else {
+  5 | 		console.log(bar);
+  6 | 	}
+  7 | 	const result = 1;
+  8 | 	console.log(result);
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(27): function foo(bar, parts) {\n\tconst last = parts.pop();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(last);\n} 1`] = `
+
+  1 | function foo(bar, parts) {
+  2 | 	const last = parts.pop();
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(last);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(27): function foo(bar, parts) {\n\tconst last = parts.pop();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(last);\n} 2`] = `
+
+Message:
+  1 | function foo(bar, parts) {
+> 2 | 	const last = parts.pop();
+    | 	      ^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(last);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(28): function foo(config) {\n\tconst name = config.name;\n\tif (config.enabled) {\n\t\treturn;\n\t}\n\tconsole.log(name);\n} 1`] = `
+
+  1 | function foo(config) {
+  2 | 	const name = config.name;
+  3 | 	if (config.enabled) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(name);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(28): function foo(config) {\n\tconst name = config.name;\n\tif (config.enabled) {\n\t\treturn;\n\t}\n\tconsole.log(name);\n} 2`] = `
+
+Message:
+  1 | function foo(config) {
+> 2 | 	const name = config.name;
+    | 	      ^^^^ Move this declaration after the early exit.
+  3 | 	if (config.enabled) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(name);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(29): function foo(items) {\n\tconst result = 1;\n\tif (items.pop()) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(items) {
+  2 | 	const result = 1;
+  3 | 	if (items.pop()) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(29): function foo(items) {\n\tconst result = 1;\n\tif (items.pop()) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(items) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (items.pop()) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+Output:
+  1 | function foo(items) {
+  2 | 	if (items.pop()) {
+  3 | 		return;
+  4 | 	}
+  5 | 	const result = 1;
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(3): function foo(bar) {\n\tconst result = \`result\`;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = \`result\`;
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(3): function foo(bar) {\n\tconst result = \`result\`;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = \`result\`;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) {
+  3 | 		return;
+  4 | 	}
+  5 | 	const result = \`result\`;
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(30): function foo(array) {\n\tconst a = array.pop(), b = 1;\n\tif (array.length > 0) {\n\t\treturn;\n\t}\n\tconsole.log(a, b);\n} 1`] = `
+
+  1 | function foo(array) {
+  2 | 	const a = array.pop(), b = 1;
+  3 | 	if (array.length > 0) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(a, b);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(30): function foo(array) {\n\tconst a = array.pop(), b = 1;\n\tif (array.length > 0) {\n\t\treturn;\n\t}\n\tconsole.log(a, b);\n} 2`] = `
+
+Message:
+  1 | function foo(array) {
+> 2 | 	const a = array.pop(), b = 1;
+    | 	                       ^ Move this declaration after the early exit.
+  3 | 	if (array.length > 0) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(a, b);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(31): function foo(array) {\n\tconst pop = () => array.pop();\n\tif (array.length > 0) {\n\t\treturn;\n\t}\n\tpop();\n} 1`] = `
+
+  1 | function foo(array) {
+  2 | 	const pop = () => array.pop();
+  3 | 	if (array.length > 0) {
+  4 | 		return;
+  5 | 	}
+  6 | 	pop();
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(31): function foo(array) {\n\tconst pop = () => array.pop();\n\tif (array.length > 0) {\n\t\treturn;\n\t}\n\tpop();\n} 2`] = `
+
+Message:
+  1 | function foo(array) {
+> 2 | 	const pop = () => array.pop();
+    | 	      ^^^ Move this declaration after the early exit.
+  3 | 	if (array.length > 0) {
+  4 | 		return;
+  5 | 	}
+  6 | 	pop();
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(32): function foo(bar) {\n\tconst value = useless();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(value);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const value = useless();
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(value);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(32): function foo(bar) {\n\tconst value = useless();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(value);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const value = useless();
+    | 	      ^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(value);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(33): function foo(bar) {\n\tconst value = React.compute();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(value);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const value = React.compute();
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(value);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(33): function foo(bar) {\n\tconst value = React.compute();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(value);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const value = React.compute();
+    | 	      ^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(value);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(34): function foo(bar, type) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tswitch (type) {\n\t\t\tcase 'a':\n\t\t\t\tthrow new Error('a');\n\t\t\tdefault:\n\t\t\t\tthrow new Error('unknown');\n\t\t}\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+   1 | function foo(bar, type) {
+   2 | 	const result = 1;
+   3 | 	if (!bar) {
+   4 | 		switch (type) {
+   5 | 			case 'a':
+   6 | 				throw new Error('a');
+   7 | 			default:
+   8 | 				throw new Error('unknown');
+   9 | 		}
+  10 | 	}
+  11 | 	console.log(result);
+  12 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(34): function foo(bar, type) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tswitch (type) {\n\t\t\tcase 'a':\n\t\t\t\tthrow new Error('a');\n\t\t\tdefault:\n\t\t\t\tthrow new Error('unknown');\n\t\t}\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+   1 | function foo(bar, type) {
+>  2 | 	const result = 1;
+     | 	      ^^^^^^ Move this declaration after the early exit.
+   3 | 	if (!bar) {
+   4 | 		switch (type) {
+   5 | 			case 'a':
+   6 | 				throw new Error('a');
+   7 | 			default:
+   8 | 				throw new Error('unknown');
+   9 | 		}
+  10 | 	}
+  11 | 	console.log(result);
+  12 | }
+
+Output:
+   1 | function foo(bar, type) {
+   2 | 	if (!bar) {
+   3 | 		switch (type) {
+   4 | 			case 'a':
+   5 | 				throw new Error('a');
+   6 | 			default:
+   7 | 				throw new Error('unknown');
+   8 | 		}
+   9 | 	}
+  10 | 	const result = 1;
+  11 | 	console.log(result);
+  12 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(35): function foo(bar, type) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tswitch (type) {\n\t\t\tcase 'a':\n\t\t\t\tprocess.exit(1);\n\t\t\tdefault:\n\t\t\t\tprocess.exit(2);\n\t\t}\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+   1 | function foo(bar, type) {
+   2 | 	const result = 1;
+   3 | 	if (!bar) {
+   4 | 		switch (type) {
+   5 | 			case 'a':
+   6 | 				process.exit(1);
+   7 | 			default:
+   8 | 				process.exit(2);
+   9 | 		}
+  10 | 	}
+  11 | 	console.log(result);
+  12 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(35): function foo(bar, type) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tswitch (type) {\n\t\t\tcase 'a':\n\t\t\t\tprocess.exit(1);\n\t\t\tdefault:\n\t\t\t\tprocess.exit(2);\n\t\t}\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+   1 | function foo(bar, type) {
+>  2 | 	const result = 1;
+     | 	      ^^^^^^ Move this declaration after the early exit.
+   3 | 	if (!bar) {
+   4 | 		switch (type) {
+   5 | 			case 'a':
+   6 | 				process.exit(1);
+   7 | 			default:
+   8 | 				process.exit(2);
+   9 | 		}
+  10 | 	}
+  11 | 	console.log(result);
+  12 | }
+
+Output:
+   1 | function foo(bar, type) {
+   2 | 	if (!bar) {
+   3 | 		switch (type) {
+   4 | 			case 'a':
+   5 | 				process.exit(1);
+   6 | 			default:
+   7 | 				process.exit(2);
+   8 | 		}
+   9 | 	}
+  10 | 	const result = 1;
+  11 | 	console.log(result);
+  12 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(36): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\ttry {\n\t\t\treturn getValue();\n\t\t} finally {\n\t\t\tcleanup();\n\t\t}\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+   1 | function foo(bar) {
+   2 | 	const result = 1;
+   3 | 	if (!bar) {
+   4 | 		try {
+   5 | 			return getValue();
+   6 | 		} finally {
+   7 | 			cleanup();
+   8 | 		}
+   9 | 	}
+  10 | 	console.log(result);
+  11 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(36): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\ttry {\n\t\t\treturn getValue();\n\t\t} finally {\n\t\t\tcleanup();\n\t\t}\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+   1 | function foo(bar) {
+>  2 | 	const result = 1;
+     | 	      ^^^^^^ Move this declaration after the early exit.
+   3 | 	if (!bar) {
+   4 | 		try {
+   5 | 			return getValue();
+   6 | 		} finally {
+   7 | 			cleanup();
+   8 | 		}
+   9 | 	}
+  10 | 	console.log(result);
+  11 | }
+
+Output:
+   1 | function foo(bar) {
+   2 | 	if (!bar) {
+   3 | 		try {
+   4 | 			return getValue();
+   5 | 		} finally {
+   6 | 			cleanup();
+   7 | 		}
+   8 | 	}
+   9 | 	const result = 1;
+  10 | 	console.log(result);
+  11 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(37): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\twhile (true) {\n\t\t\tpoll();\n\t\t}\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (!bar) {
+  4 | 		while (true) {
+  5 | 			poll();
+  6 | 		}
+  7 | 	}
+  8 | 	console.log(result);
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(37): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\twhile (true) {\n\t\t\tpoll();\n\t\t}\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		while (true) {
+  5 | 			poll();
+  6 | 		}
+  7 | 	}
+  8 | 	console.log(result);
+  9 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) {
+  3 | 		while (true) {
+  4 | 			poll();
+  5 | 		}
+  6 | 	}
+  7 | 	const result = 1;
+  8 | 	console.log(result);
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(38): function foo(bar, type) {\n\tconst result = 1;\n\tif (bar) {\n\t\tdoSomething();\n\t} else {\n\t\tswitch (type) {\n\t\t\tcase 'a':\n\t\t\t\treturn;\n\t\t\tdefault:\n\t\t\t\tthrow new Error();\n\t\t}\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+   1 | function foo(bar, type) {
+   2 | 	const result = 1;
+   3 | 	if (bar) {
+   4 | 		doSomething();
+   5 | 	} else {
+   6 | 		switch (type) {
+   7 | 			case 'a':
+   8 | 				return;
+   9 | 			default:
+  10 | 				throw new Error();
+  11 | 		}
+  12 | 	}
+  13 | 	console.log(result);
+  14 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(38): function foo(bar, type) {\n\tconst result = 1;\n\tif (bar) {\n\t\tdoSomething();\n\t} else {\n\t\tswitch (type) {\n\t\t\tcase 'a':\n\t\t\t\treturn;\n\t\t\tdefault:\n\t\t\t\tthrow new Error();\n\t\t}\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+   1 | function foo(bar, type) {
+>  2 | 	const result = 1;
+     | 	      ^^^^^^ Move this declaration after the early exit.
+   3 | 	if (bar) {
+   4 | 		doSomething();
+   5 | 	} else {
+   6 | 		switch (type) {
+   7 | 			case 'a':
+   8 | 				return;
+   9 | 			default:
+  10 | 				throw new Error();
+  11 | 		}
+  12 | 	}
+  13 | 	console.log(result);
+  14 | }
+
+Output:
+   1 | function foo(bar, type) {
+   2 | 	if (bar) {
+   3 | 		doSomething();
+   4 | 	} else {
+   5 | 		switch (type) {
+   6 | 			case 'a':
+   7 | 				return;
+   8 | 			default:
+   9 | 				throw new Error();
+  10 | 		}
+  11 | 	}
+  12 | 	const result = 1;
+  13 | 	console.log(result);
+  14 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(39): function foo(bar, baz) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tif (baz) {\n\t\t\treturn;\n\t\t} else {\n\t\t\tthrow new Error();\n\t\t}\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+   1 | function foo(bar, baz) {
+   2 | 	const result = 1;
+   3 | 	if (!bar) {
+   4 | 		if (baz) {
+   5 | 			return;
+   6 | 		} else {
+   7 | 			throw new Error();
+   8 | 		}
+   9 | 	}
+  10 | 	console.log(result);
+  11 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(39): function foo(bar, baz) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tif (baz) {\n\t\t\treturn;\n\t\t} else {\n\t\t\tthrow new Error();\n\t\t}\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+   1 | function foo(bar, baz) {
+>  2 | 	const result = 1;
+     | 	      ^^^^^^ Move this declaration after the early exit.
+   3 | 	if (!bar) {
+   4 | 		if (baz) {
+   5 | 			return;
+   6 | 		} else {
+   7 | 			throw new Error();
+   8 | 		}
+   9 | 	}
+  10 | 	console.log(result);
+  11 | }
+
+Output:
+   1 | function foo(bar, baz) {
+   2 | 	if (!bar) {
+   3 | 		if (baz) {
+   4 | 			return;
+   5 | 		} else {
+   6 | 			throw new Error();
+   7 | 		}
+   8 | 	}
+   9 | 	const result = 1;
+  10 | 	console.log(result);
+  11 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(4): function foo(bar) {\n\tconst result = 1;\n\tconsole.log(bar);\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	console.log(bar);
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(4): function foo(bar) {\n\tconst result = 1;\n\tconsole.log(bar);\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	console.log(bar);
+  4 | 	if (!bar) {
+  5 | 		return;
+  6 | 	}
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(40): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\ttry {\n\t\t\tthrow new Error('try');\n\t\t} catch {\n\t\t\tthrow new Error('catch');\n\t\t}\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+   1 | function foo(bar) {
+   2 | 	const result = 1;
+   3 | 	if (!bar) {
+   4 | 		try {
+   5 | 			throw new Error('try');
+   6 | 		} catch {
+   7 | 			throw new Error('catch');
+   8 | 		}
+   9 | 	}
+  10 | 	console.log(result);
+  11 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(40): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\ttry {\n\t\t\tthrow new Error('try');\n\t\t} catch {\n\t\t\tthrow new Error('catch');\n\t\t}\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+   1 | function foo(bar) {
+>  2 | 	const result = 1;
+     | 	      ^^^^^^ Move this declaration after the early exit.
+   3 | 	if (!bar) {
+   4 | 		try {
+   5 | 			throw new Error('try');
+   6 | 		} catch {
+   7 | 			throw new Error('catch');
+   8 | 		}
+   9 | 	}
+  10 | 	console.log(result);
+  11 | }
+
+Output:
+   1 | function foo(bar) {
+   2 | 	if (!bar) {
+   3 | 		try {
+   4 | 			throw new Error('try');
+   5 | 		} catch {
+   6 | 			throw new Error('catch');
+   7 | 		}
+   8 | 	}
+   9 | 	const result = 1;
+  10 | 	console.log(result);
+  11 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(41): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tdo {\n\t\t\tpoll();\n\t\t} while (true);\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (!bar) {
+  4 | 		do {
+  5 | 			poll();
+  6 | 		} while (true);
+  7 | 	}
+  8 | 	console.log(result);
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(41): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tdo {\n\t\t\tpoll();\n\t\t} while (true);\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		do {
+  5 | 			poll();
+  6 | 		} while (true);
+  7 | 	}
+  8 | 	console.log(result);
+  9 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) {
+  3 | 		do {
+  4 | 			poll();
+  5 | 		} while (true);
+  6 | 	}
+  7 | 	const result = 1;
+  8 | 	console.log(result);
+  9 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(42): async function foo(bar) {\n\tconst result = async () => await getResult();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | async function foo(bar) {
+  2 | 	const result = async () => await getResult();
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(42): async function foo(bar) {\n\tconst result = async () => await getResult();\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | async function foo(bar) {
+> 2 | 	const result = async () => await getResult();
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(43): function * foo(bar) {\n\tconst result = function * () { yield getResult(); };\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function * foo(bar) {
+  2 | 	const result = function * () { yield getResult(); };
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(43): function * foo(bar) {\n\tconst result = function * () { yield getResult(); };\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function * foo(bar) {
+> 2 | 	const result = function * () { yield getResult(); };
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(44): function * foo(bar) {\n\tconst result = function * () { yield * getResults(); };\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function * foo(bar) {
+  2 | 	const result = function * () { yield * getResults(); };
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(44): function * foo(bar) {\n\tconst result = function * () { yield * getResults(); };\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function * foo(bar) {
+> 2 | 	const result = function * () { yield * getResults(); };
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(45): async function foo(bar) {\n\tconst a = await getResult(), b = 1;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(a, b);\n} 1`] = `
+
+  1 | async function foo(bar) {
+  2 | 	const a = await getResult(), b = 1;
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(a, b);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(45): async function foo(bar) {\n\tconst a = await getResult(), b = 1;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(a, b);\n} 2`] = `
+
+Message:
+  1 | async function foo(bar) {
+> 2 | 	const a = await getResult(), b = 1;
+    | 	                             ^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(a, b);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(5): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(5): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) {
+  3 | 		return;
+  4 | 	}
+  5 | 	const result = 1;
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(6): const result = 1;\nif (!bar) {\n\tthrow new Error();\n}\nconsole.log(result); 1`] = `
+
+  1 | const result = 1;
+  2 | if (!bar) {
+  3 | 	throw new Error();
+  4 | }
+  5 | console.log(result);
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(6): const result = 1;\nif (!bar) {\n\tthrow new Error();\n}\nconsole.log(result); 2`] = `
+
+Message:
+> 1 | const result = 1;
+    |       ^^^^^^ Move this declaration after the early exit.
+  2 | if (!bar) {
+  3 | 	throw new Error();
+  4 | }
+  5 | console.log(result);
+
+Output:
+  1 | if (!bar) {
+  2 | 	throw new Error();
+  3 | }
+  4 | const result = 1;
+  5 | console.log(result);
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(7): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) return;\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (!bar) return;
+  4 | 	console.log(result);
+  5 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(7): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) return;\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) return;
+  4 | 	console.log(result);
+  5 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) return;
+  3 | 	const result = 1;
+  4 | 	console.log(result);
+  5 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(8): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tthrow new Error();\n\t}\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	const result = 1;
+  3 | 	if (!bar) {
+  4 | 		throw new Error();
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(8): function foo(bar) {\n\tconst result = 1;\n\tif (!bar) {\n\t\tthrow new Error();\n\t}\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	const result = 1;
+    | 	      ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		throw new Error();
+  5 | 	}
+  6 | 	console.log(result);
+  7 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) {
+  3 | 		throw new Error();
+  4 | 	}
+  5 | 	const result = 1;
+  6 | 	console.log(result);
+  7 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(9): function foo(bar) {\n\tlet result;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tresult = getResult();\n\tconsole.log(result);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	let result;
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	result = getResult();
+  7 | 	console.log(result);
+  8 | }
+
+`;
+
+exports[`no-declarations-before-early-exit > invalid(9): function foo(bar) {\n\tlet result;\n\tif (!bar) {\n\t\treturn;\n\t}\n\tresult = getResult();\n\tconsole.log(result);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	let result;
+    | 	    ^^^^^^ Move this declaration after the early exit.
+  3 | 	if (!bar) {
+  4 | 		return;
+  5 | 	}
+  6 | 	result = getResult();
+  7 | 	console.log(result);
+  8 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	if (!bar) {
+  3 | 		return;
+  4 | 	}
+  5 | 	let result;
+  6 | 	result = getResult();
+  7 | 	console.log(result);
+  8 | }
+
+`;

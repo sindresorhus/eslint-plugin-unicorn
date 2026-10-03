@@ -1,0 +1,305 @@
+exports[`no-unnecessary-slice-end > invalid(1): foo.slice(1, foo.length) 1`] = `
+
+  1 | foo.slice(1, foo.length)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(1): foo.slice(1, foo.length) 2`] = `
+
+Message:
+> 1 | foo.slice(1, foo.length)
+    |              ^^^^^^^^^^ Passing \`foo.length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(1): function f(string: string) { return string.slice(1, string.length); } 1`] = `
+
+  1 | function f(string: string) { return string.slice(1, string.length); }
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(1): function f(string: string) { return string.slice(1, string.length); } 2`] = `
+
+Message:
+> 1 | function f(string: string) { return string.slice(1, string.length); }
+    |                                                     ^^^^^^^^^^^^^ Passing \`string.length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | function f(string: string) { return string.slice(1); }
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(10): (foo as any[]).slice(1, (foo as any[]).length) 1`] = `
+
+  1 | (foo as any[]).slice(1, (foo as any[]).length)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(10): (foo as any[]).slice(1, (foo as any[]).length) 2`] = `
+
+Message:
+> 1 | (foo as any[]).slice(1, (foo as any[]).length)
+    |                         ^^^^^^^^^^^^^^^^^^^^^ Passing \`….length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | (foo as any[]).slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(11): (array as string[])?.slice(1, (array as string[])?.length) 1`] = `
+
+  1 | (array as string[])?.slice(1, (array as string[])?.length)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(11): (array as string[])?.slice(1, (array as string[])?.length) 2`] = `
+
+Message:
+> 1 | (array as string[])?.slice(1, (array as string[])?.length)
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`…?.length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | (array as string[])?.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(12): (foo as number[]).slice(1, Infinity) 1`] = `
+
+  1 | (foo as number[]).slice(1, Infinity)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(12): (foo as number[]).slice(1, Infinity) 2`] = `
+
+Message:
+> 1 | (foo as number[]).slice(1, Infinity)
+    |                            ^^^^^^^^ Passing \`Infinity\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | (foo as number[]).slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(13): (bar as any[]).slice(1, Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | (bar as any[]).slice(1, Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(13): (bar as any[]).slice(1, Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | (bar as any[]).slice(1, Number.POSITIVE_INFINITY)
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`Number.POSITIVE_INFINITY\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | (bar as any[]).slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(14): foo!.slice(1, foo!.length) 1`] = `
+
+  1 | foo!.slice(1, foo!.length)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(14): foo!.slice(1, foo!.length) 2`] = `
+
+Message:
+> 1 | foo!.slice(1, foo!.length)
+    |               ^^^^^^^^^^^ Passing \`….length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo!.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(15): foo!.slice(1, Infinity) 1`] = `
+
+  1 | foo!.slice(1, Infinity)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(15): foo!.slice(1, Infinity) 2`] = `
+
+Message:
+> 1 | foo!.slice(1, Infinity)
+    |               ^^^^^^^^ Passing \`Infinity\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo!.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(16): bar!.slice(1, Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | bar!.slice(1, Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(16): bar!.slice(1, Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | bar!.slice(1, Number.POSITIVE_INFINITY)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`Number.POSITIVE_INFINITY\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | bar!.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(2): foo?.slice(1, foo.length) 1`] = `
+
+  1 | foo?.slice(1, foo.length)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(2): foo?.slice(1, foo.length) 2`] = `
+
+Message:
+> 1 | foo?.slice(1, foo.length)
+    |               ^^^^^^^^^^ Passing \`foo.length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo?.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(2): function f(bytes: Uint8Array) { return bytes.slice(1, bytes.length); } 1`] = `
+
+  1 | function f(bytes: Uint8Array) { return bytes.slice(1, bytes.length); }
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(2): function f(bytes: Uint8Array) { return bytes.slice(1, bytes.length); } 2`] = `
+
+Message:
+> 1 | function f(bytes: Uint8Array) { return bytes.slice(1, bytes.length); }
+    |                                                       ^^^^^^^^^^^^ Passing \`bytes.length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | function f(bytes: Uint8Array) { return bytes.slice(1); }
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(3): foo.slice(1, foo.length,) 1`] = `
+
+  1 | foo.slice(1, foo.length,)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(3): foo.slice(1, foo.length,) 2`] = `
+
+Message:
+> 1 | foo.slice(1, foo.length,)
+    |              ^^^^^^^^^^ Passing \`foo.length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo.slice(1,)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(4): foo.slice(1, (( foo.length ))) 1`] = `
+
+  1 | foo.slice(1, (( foo.length )))
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(4): foo.slice(1, (( foo.length ))) 2`] = `
+
+Message:
+> 1 | foo.slice(1, (( foo.length )))
+    |                 ^^^^^^^^^^ Passing \`foo.length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(5): foo.slice(1, foo?.length) 1`] = `
+
+  1 | foo.slice(1, foo?.length)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(5): foo.slice(1, foo?.length) 2`] = `
+
+Message:
+> 1 | foo.slice(1, foo?.length)
+    |              ^^^^^^^^^^^ Passing \`foo?.length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(6): foo?.slice(1, foo?.length) 1`] = `
+
+  1 | foo?.slice(1, foo?.length)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(6): foo?.slice(1, foo?.length) 2`] = `
+
+Message:
+> 1 | foo?.slice(1, foo?.length)
+    |               ^^^^^^^^^^^ Passing \`foo?.length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo?.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(7): foo?.slice(1, Infinity) 1`] = `
+
+  1 | foo?.slice(1, Infinity)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(7): foo?.slice(1, Infinity) 2`] = `
+
+Message:
+> 1 | foo?.slice(1, Infinity)
+    |               ^^^^^^^^ Passing \`Infinity\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo?.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(8): foo?.slice(1, Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | foo?.slice(1, Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(8): foo?.slice(1, Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | foo?.slice(1, Number.POSITIVE_INFINITY)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`Number.POSITIVE_INFINITY\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo?.slice(1)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(9): foo.bar.slice(1, foo.bar.length) 1`] = `
+
+  1 | foo.bar.slice(1, foo.bar.length)
+
+`;
+
+exports[`no-unnecessary-slice-end > invalid(9): foo.bar.slice(1, foo.bar.length) 2`] = `
+
+Message:
+> 1 | foo.bar.slice(1, foo.bar.length)
+    |                  ^^^^^^^^^^^^^^ Passing \`….length\` as the \`end\` argument is unnecessary.
+
+Output:
+  1 | foo.bar.slice(1)
+
+`;

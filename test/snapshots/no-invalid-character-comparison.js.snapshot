@@ -1,0 +1,526 @@
+exports[`no-invalid-character-comparison > invalid(1): \"abc\".charAt(4) === \"ab\" 1`] = `
+
+  1 | "abc".charAt(4) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(1): \"abc\".charAt(4) === \"ab\" 2`] = `
+
+Message:
+> 1 | "abc".charAt(4) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(10): \"abc\".charAt() === \"ab\" 1`] = `
+
+  1 | "abc".charAt() === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(10): \"abc\".charAt() === \"ab\" 2`] = `
+
+Message:
+> 1 | "abc".charAt() === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(11): \"abc\".at() !== \"ab\" 1`] = `
+
+  1 | "abc".at() !== "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(11): \"abc\".at() !== \"ab\" 2`] = `
+
+Message:
+> 1 | "abc".at() !== "ab"
+    | ^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always true.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(12): \"abc\".charAt(0) === \"😀\" 1`] = `
+
+  1 | "abc".charAt(0) === "😀"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(12): \"abc\".charAt(0) === \"😀\" 2`] = `
+
+Message:
+> 1 | "abc".charAt(0) === "😀"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`😀\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(13): \"abc\".charAt(0) === \"\\u{1F600}\" 1`] = `
+
+  1 | "abc".charAt(0) === "\\u{1F600}"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(13): \"abc\".charAt(0) === \"\\u{1F600}\" 2`] = `
+
+Message:
+> 1 | "abc".charAt(0) === "\\u{1F600}"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`😀\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(14): \"abc\".charAt(0) === \"\\r\\n\" 1`] = `
+
+  1 | "abc".charAt(0) === "\\r\\n"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(14): \"abc\".charAt(0) === \"\\r\\n\" 2`] = `
+
+Message:
+> 1 | "abc".charAt(0) === "\\r\\n"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`␍
+\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(15): \"abc\".charAt(0) === \`ab\` 1`] = `
+
+  1 | "abc".charAt(0) === \`ab\`
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(15): \"abc\".charAt(0) === \`ab\` 2`] = `
+
+Message:
+> 1 | "abc".charAt(0) === \`ab\`
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(16): String(foo).charAt(0) === \"ab\" 1`] = `
+
+  1 | String(foo).charAt(0) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(16): String(foo).charAt(0) === \"ab\" 2`] = `
+
+Message:
+> 1 | String(foo).charAt(0) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(17): String.fromCharCode(65).charAt(0) === \"ab\" 1`] = `
+
+  1 | String.fromCharCode(65).charAt(0) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(17): String.fromCharCode(65).charAt(0) === \"ab\" 2`] = `
+
+Message:
+> 1 | String.fromCharCode(65).charAt(0) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(18): \`\${foo}\`.charAt(0) === \"ab\" 1`] = `
+
+  1 | \`\${foo}\`.charAt(0) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(18): \`\${foo}\`.charAt(0) === \"ab\" 2`] = `
+
+Message:
+> 1 | \`\${foo}\`.charAt(0) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(19): (foo + \"bar\").charAt(0) === \"ab\" 1`] = `
+
+  1 | (foo + "bar").charAt(0) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(19): (foo + \"bar\").charAt(0) === \"ab\" 2`] = `
+
+Message:
+> 1 | (foo + "bar").charAt(0) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(2): \"abc\".charAt(4) !== \"ab\" 1`] = `
+
+  1 | "abc".charAt(4) !== "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(2): \"abc\".charAt(4) !== \"ab\" 2`] = `
+
+Message:
+> 1 | "abc".charAt(4) !== "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always true.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(20): \"abc\".at(0) === \"ab\" 1`] = `
+
+  1 | "abc".at(0) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(20): \"abc\".at(0) === \"ab\" 2`] = `
+
+Message:
+> 1 | "abc".at(0) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(21): \"abc\".at(0) !== \"ab\" 1`] = `
+
+  1 | "abc".at(0) !== "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(21): \"abc\".at(0) !== \"ab\" 2`] = `
+
+Message:
+> 1 | "abc".at(0) !== "ab"
+    | ^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always true.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(22): \"abc\".at(-1) === \"ab\" 1`] = `
+
+  1 | "abc".at(-1) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(22): \"abc\".at(-1) === \"ab\" 2`] = `
+
+Message:
+> 1 | "abc".at(-1) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(23): String(foo).at(0) === \"ab\" 1`] = `
+
+  1 | String(foo).at(0) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(23): String(foo).at(0) === \"ab\" 2`] = `
+
+Message:
+> 1 | String(foo).at(0) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(24): String.fromCharCode(65).at(0) === \"ab\" 1`] = `
+
+  1 | String.fromCharCode(65).at(0) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(24): String.fromCharCode(65).at(0) === \"ab\" 2`] = `
+
+Message:
+> 1 | String.fromCharCode(65).at(0) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(25): \`\${foo}\`.at(0) === \"ab\" 1`] = `
+
+  1 | \`\${foo}\`.at(0) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(25): \`\${foo}\`.at(0) === \"ab\" 2`] = `
+
+Message:
+> 1 | \`\${foo}\`.at(0) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(26): (foo + \"bar\").at(0) === \"ab\" 1`] = `
+
+  1 | (foo + "bar").at(0) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(26): (foo + \"bar\").at(0) === \"ab\" 2`] = `
+
+Message:
+> 1 | (foo + "bar").at(0) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(27): \"abc\"[0] === \"ab\" 1`] = `
+
+  1 | "abc"[0] === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(27): \"abc\"[0] === \"ab\" 2`] = `
+
+Message:
+> 1 | "abc"[0] === "ab"
+    | ^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(28): \"abc\"[0] != \"ab\" 1`] = `
+
+  1 | "abc"[0] != "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(28): \"abc\"[0] != \"ab\" 2`] = `
+
+Message:
+> 1 | "abc"[0] != "ab"
+    | ^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always true.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(29): \"abc\"[\"0\"] === \"ab\" 1`] = `
+
+  1 | "abc"["0"] === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(29): \"abc\"[\"0\"] === \"ab\" 2`] = `
+
+Message:
+> 1 | "abc"["0"] === "ab"
+    | ^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(3): \"abc\".charAt(0) == \"ab\" 1`] = `
+
+  1 | "abc".charAt(0) == "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(3): \"abc\".charAt(0) == \"ab\" 2`] = `
+
+Message:
+> 1 | "abc".charAt(0) == "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(30): declare const s: string;\nconst x = s.at(0) === \"ab\"; 1`] = `
+
+  1 | declare const s: string;
+  2 | const x = s.at(0) === "ab";
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(30): declare const s: string;\nconst x = s.at(0) === \"ab\"; 2`] = `
+
+Message:
+  1 | declare const s: string;
+> 2 | const x = s.at(0) === "ab";
+    |           ^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(31): declare const s: string;\nconst x = s.charAt(0) === \"ab\"; 1`] = `
+
+  1 | declare const s: string;
+  2 | const x = s.charAt(0) === "ab";
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(31): declare const s: string;\nconst x = s.charAt(0) === \"ab\"; 2`] = `
+
+Message:
+  1 | declare const s: string;
+> 2 | const x = s.charAt(0) === "ab";
+    |           ^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(32): function isAb(s: string) {\n\treturn s[\"0\"] === \"ab\";\n} 1`] = `
+
+  1 | function isAb(s: string) {
+  2 | 	return s["0"] === "ab";
+  3 | }
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(32): function isAb(s: string) {\n\treturn s[\"0\"] === \"ab\";\n} 2`] = `
+
+Message:
+  1 | function isAb(s: string) {
+> 2 | 	return s["0"] === "ab";
+    | 	       ^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+  3 | }
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(33): (foo as string)[0] === \"ab\"; 1`] = `
+
+  1 | (foo as string)[0] === "ab";
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(33): (foo as string)[0] === \"ab\"; 2`] = `
+
+Message:
+> 1 | (foo as string)[0] === "ab";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(34): '😀'[0] === '😀' 1`] = `
+
+  1 | '😀'[0] === '😀'
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(34): '😀'[0] === '😀' 2`] = `
+
+Message:
+> 1 | '😀'[0] === '😀'
+    | ^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`😀\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(35): '😀'.charAt(0) === '😀' 1`] = `
+
+  1 | '😀'.charAt(0) === '😀'
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(35): '😀'.charAt(0) === '😀' 2`] = `
+
+Message:
+> 1 | '😀'.charAt(0) === '😀'
+    | ^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`😀\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(36): 'a😀'.at(0) === 'a😀' 1`] = `
+
+  1 | 'a😀'.at(0) === 'a😀'
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(36): 'a😀'.at(0) === 'a😀' 2`] = `
+
+Message:
+> 1 | 'a😀'.at(0) === 'a😀'
+    | ^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`a😀\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(37): '😀'.at(0) === '😀' 1`] = `
+
+  1 | '😀'.at(0) === '😀'
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(37): '😀'.at(0) === '😀' 2`] = `
+
+Message:
+> 1 | '😀'.at(0) === '😀'
+    | ^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`😀\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(4): \"abc\".charAt(0) != \"ab\" 1`] = `
+
+  1 | "abc".charAt(0) != "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(4): \"abc\".charAt(0) != \"ab\" 2`] = `
+
+Message:
+> 1 | "abc".charAt(0) != "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always true.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(5): \"ab\" === \"abc\".charAt(4) 1`] = `
+
+  1 | "ab" === "abc".charAt(4)
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(5): \"ab\" === \"abc\".charAt(4) 2`] = `
+
+Message:
+> 1 | "ab" === "abc".charAt(4)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(6): (\"abc\".charAt(0)) === \"ab\" 1`] = `
+
+  1 | ("abc".charAt(0)) === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(6): (\"abc\".charAt(0)) === \"ab\" 2`] = `
+
+Message:
+> 1 | ("abc".charAt(0)) === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(7): \"abc\".charAt(0) === (\"ab\") 1`] = `
+
+  1 | "abc".charAt(0) === ("ab")
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(7): \"abc\".charAt(0) === (\"ab\") 2`] = `
+
+Message:
+> 1 | "abc".charAt(0) === ("ab")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(8): \"abc\".charAt(3) === \"/n\" 1`] = `
+
+  1 | "abc".charAt(3) === "/n"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(8): \"abc\".charAt(3) === \"/n\" 2`] = `
+
+Message:
+> 1 | "abc".charAt(3) === "/n"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`/n\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(9): \"abc\".charAt(822) !== \"foo\" 1`] = `
+
+  1 | "abc".charAt(822) !== "foo"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(9): \"abc\".charAt(822) !== \"foo\" 2`] = `
+
+Message:
+> 1 | "abc".charAt(822) !== "foo"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`foo\`, so this comparison is always true.
+
+`;

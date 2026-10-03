@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {parse} from '@typescript-eslint/parser';
 import {
 	isRuntimeImportSpecifier,
@@ -20,16 +20,16 @@ const getImportSpecifiers = code => {
 
 test('checks type import specifiers', t => {
 	const [typeDefaultSpecifier] = getImportSpecifiers('import type Foo from "foo";');
-	t.true(isTypeImportSpecifier(typeDefaultSpecifier));
-	t.false(isRuntimeImportSpecifier(typeDefaultSpecifier));
+	t.assert.strictEqual(isTypeImportSpecifier(typeDefaultSpecifier), true);
+	t.assert.strictEqual(isRuntimeImportSpecifier(typeDefaultSpecifier), false);
 
 	const [typeNamespaceSpecifier] = getImportSpecifiers('import type * as Foo from "foo";');
-	t.true(isTypeImportSpecifier(typeNamespaceSpecifier));
-	t.false(isRuntimeImportSpecifier(typeNamespaceSpecifier));
+	t.assert.strictEqual(isTypeImportSpecifier(typeNamespaceSpecifier), true);
+	t.assert.strictEqual(isRuntimeImportSpecifier(typeNamespaceSpecifier), false);
 
 	const [typeNamedSpecifier, runtimeNamedSpecifier] = getImportSpecifiers('import {type Foo, Bar} from "foo";');
-	t.true(isTypeImportSpecifier(typeNamedSpecifier));
-	t.false(isRuntimeImportSpecifier(typeNamedSpecifier));
-	t.false(isTypeImportSpecifier(runtimeNamedSpecifier));
-	t.true(isRuntimeImportSpecifier(runtimeNamedSpecifier));
+	t.assert.strictEqual(isTypeImportSpecifier(typeNamedSpecifier), true);
+	t.assert.strictEqual(isRuntimeImportSpecifier(typeNamedSpecifier), false);
+	t.assert.strictEqual(isTypeImportSpecifier(runtimeNamedSpecifier), false);
+	t.assert.strictEqual(isRuntimeImportSpecifier(runtimeNamedSpecifier), true);
 });

@@ -1,0 +1,1042 @@
+exports[`prefer-group-by > invalid(1): const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(1): const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(items, item => item.type); 
+
+`;
+
+exports[`prefer-group-by > invalid(1): items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(1): items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(10): const groups = new Map(); for (const item of items) {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);}} 1`] = `
+
+  1 | const groups = new Map(); for (const item of items) {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);}}
+
+`;
+
+exports[`prefer-group-by > invalid(10): const groups = new Map(); for (const item of items) {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);}} 2`] = `
+
+Message:
+> 1 | const groups = new Map(); for (const item of items) {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);}}
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Map.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Map.groupBy(items, item => item.type); 
+
+`;
+
+exports[`prefer-group-by > invalid(10): items.reduce(function (groups, item) {const key = this.getKey(item); groups[key] ??= []; groups[key].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce(function (groups, item) {const key = this.getKey(item); groups[key] ??= []; groups[key].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(10): items.reduce(function (groups, item) {const key = this.getKey(item); groups[key] ??= []; groups[key].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce(function (groups, item) {const key = this.getKey(item); groups[key] ??= []; groups[key].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+`;
+
+exports[`prefer-group-by > invalid(11): const groups = new Map(); for (const item of items) {const key = getKey(item); if (groups.has(key)) {groups.get(key).push(item);} else {groups.set(key, [item]);}} 1`] = `
+
+  1 | const groups = new Map(); for (const item of items) {const key = getKey(item); if (groups.has(key)) {groups.get(key).push(item);} else {groups.set(key, [item]);}}
+
+`;
+
+exports[`prefer-group-by > invalid(11): const groups = new Map(); for (const item of items) {const key = getKey(item); if (groups.has(key)) {groups.get(key).push(item);} else {groups.set(key, [item]);}} 2`] = `
+
+Message:
+> 1 | const groups = new Map(); for (const item of items) {const key = getKey(item); if (groups.has(key)) {groups.get(key).push(item);} else {groups.set(key, [item]);}}
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Map.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Map.groupBy(items, item => getKey(item)); 
+
+`;
+
+exports[`prefer-group-by > invalid(11): items.reduce((groups, item) => {const key = getKey(item); groups[key] ??= []; groups[key].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {const key = getKey(item); groups[key] ??= []; groups[key].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(11): items.reduce((groups, item) => {const key = getKey(item); groups[key] ??= []; groups[key].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {const key = getKey(item); groups[key] ??= []; groups[key].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+`;
+
+exports[`prefer-group-by > invalid(12): items.reduce((groups, item) => {groups[item.groups] ??= []; groups[item.groups].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {groups[item.groups] ??= []; groups[item.groups].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(12): items.reduce((groups, item) => {groups[item.groups] ??= []; groups[item.groups].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {groups[item.groups] ??= []; groups[item.groups].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.groups);
+
+`;
+
+exports[`prefer-group-by > invalid(12): let groups = new Map(); for (let item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);} 1`] = `
+
+  1 | let groups = new Map(); for (let item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}
+
+`;
+
+exports[`prefer-group-by > invalid(12): let groups = new Map(); for (let item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);} 2`] = `
+
+Message:
+> 1 | let groups = new Map(); for (let item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Map.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | let groups = Map.groupBy(items, item => item.type); 
+
+`;
+
+exports[`prefer-group-by > invalid(13): const groups = new Map(); for (const item of items) {const key = getKey(item); const group = groups.get(key) || []; group.push(item); groups.set(key, group);} 1`] = `
+
+  1 | const groups = new Map(); for (const item of items) {const key = getKey(item); const group = groups.get(key) || []; group.push(item); groups.set(key, group);}
+
+`;
+
+exports[`prefer-group-by > invalid(13): const groups = new Map(); for (const item of items) {const key = getKey(item); const group = groups.get(key) || []; group.push(item); groups.set(key, group);} 2`] = `
+
+Message:
+> 1 | const groups = new Map(); for (const item of items) {const key = getKey(item); const group = groups.get(key) || []; group.push(item); groups.set(key, group);}
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Map.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Map.groupBy(items, item => getKey(item)); 
+
+`;
+
+exports[`prefer-group-by > invalid(13): items.reduce((groups, item, index) => {groups[item.index] ??= []; groups[item.index].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item, index) => {groups[item.index] ??= []; groups[item.index].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(13): items.reduce((groups, item, index) => {groups[item.index] ??= []; groups[item.index].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item, index) => {groups[item.index] ??= []; groups[item.index].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.index);
+
+`;
+
+exports[`prefer-group-by > invalid(14): const groups = {}; for (const item of items) {const key = await getKey(item); groups[key] ??= []; groups[key].push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items) {const key = await getKey(item); groups[key] ??= []; groups[key].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(14): const groups = {}; for (const item of items) {const key = await getKey(item); groups[key] ??= []; groups[key].push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items) {const key = await getKey(item); groups[key] ??= []; groups[key].push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+`;
+
+exports[`prefer-group-by > invalid(14): items.reduce((groups, item, index, array) => {groups[item.array] ??= []; groups[item.array].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item, index, array) => {groups[item.array] ??= []; groups[item.array].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(14): items.reduce((groups, item, index, array) => {groups[item.array] ??= []; groups[item.array].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item, index, array) => {groups[item.array] ??= []; groups[item.array].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.array);
+
+`;
+
+exports[`prefer-group-by > invalid(15): function* foo() {const groups = {}; for (const item of items) {const key = yield item; groups[key] ??= []; groups[key].push(item);}} 1`] = `
+
+  1 | function* foo() {const groups = {}; for (const item of items) {const key = yield item; groups[key] ??= []; groups[key].push(item);}}
+
+`;
+
+exports[`prefer-group-by > invalid(15): function* foo() {const groups = {}; for (const item of items) {const key = yield item; groups[key] ??= []; groups[key].push(item);}} 2`] = `
+
+Message:
+> 1 | function* foo() {const groups = {}; for (const item of items) {const key = yield item; groups[key] ??= []; groups[key].push(item);}}
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+`;
+
+exports[`prefer-group-by > invalid(15): items.reduce((groups, item) => {groups[item[type]] ??= []; groups[item[type]].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {groups[item[type]] ??= []; groups[item[type]].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(15): items.reduce((groups, item) => {groups[item[type]] ??= []; groups[item[type]].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {groups[item[type]] ??= []; groups[item[type]].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item[type]);
+
+`;
+
+exports[`prefer-group-by > invalid(16): const groups = {/* Keep initializer comment. */}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} 1`] = `
+
+  1 | const groups = {/* Keep initializer comment. */}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(16): const groups = {/* Keep initializer comment. */}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {/* Keep initializer comment. */}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+`;
+
+exports[`prefer-group-by > invalid(16): foo.items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, Object.create(null)); 1`] = `
+
+  1 | foo.items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, Object.create(null));
+
+`;
+
+exports[`prefer-group-by > invalid(16): foo.items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, Object.create(null)); 2`] = `
+
+Message:
+> 1 | foo.items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, Object.create(null));
+    |           ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(foo.items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(17): const groups = {}; /* Keep between comment. */ for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} 1`] = `
+
+  1 | const groups = {}; /* Keep between comment. */ for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(17): const groups = {}; /* Keep between comment. */ for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; /* Keep between comment. */ for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+`;
+
+exports[`prefer-group-by > invalid(17): items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, Object.create(null)); 1`] = `
+
+  1 | items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, Object.create(null));
+
+`;
+
+exports[`prefer-group-by > invalid(17): items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, Object.create(null)); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, Object.create(null));
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(18): const groups = {}; for (const item of items) {/* Keep loop comment. */ groups[item.type] ??= []; groups[item.type].push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items) {/* Keep loop comment. */ groups[item.type] ??= []; groups[item.type].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(18): const groups = {}; for (const item of items) {/* Keep loop comment. */ groups[item.type] ??= []; groups[item.type].push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items) {/* Keep loop comment. */ groups[item.type] ??= []; groups[item.type].push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+`;
+
+exports[`prefer-group-by > invalid(18): items.reduce((groups, item) => {\n\t// Keep this comment.\n\tgroups[item.type] ??= [];\n\tgroups[item.type].push(item);\n\treturn groups;\n}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {
+  2 | 	// Keep this comment.
+  3 | 	groups[item.type] ??= [];
+  4 | 	groups[item.type].push(item);
+  5 | 	return groups;
+  6 | }, {});
+
+`;
+
+exports[`prefer-group-by > invalid(18): items.reduce((groups, item) => {\n\t// Keep this comment.\n\tgroups[item.type] ??= [];\n\tgroups[item.type].push(item);\n\treturn groups;\n}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+  2 | 	// Keep this comment.
+  3 | 	groups[item.type] ??= [];
+  4 | 	groups[item.type].push(item);
+  5 | 	return groups;
+  6 | }, {});
+
+`;
+
+exports[`prefer-group-by > invalid(19): const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} // Keep trailing comment. 1`] = `
+
+  1 | const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} // Keep trailing comment.
+
+`;
+
+exports[`prefer-group-by > invalid(19): const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} // Keep trailing comment. 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} // Keep trailing comment.
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+`;
+
+exports[`prefer-group-by > invalid(19): items.reduce((groups, item) => {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);} return groups;}, new Map()); 1`] = `
+
+  1 | items.reduce((groups, item) => {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);} return groups;}, new Map());
+
+`;
+
+exports[`prefer-group-by > invalid(19): items.reduce((groups, item) => {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);} return groups;}, new Map()); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {if (groups.has(item.type)) {groups.get(item.type).push(item);} else {groups.set(item.type, [item]);} return groups;}, new Map());
+    |       ^^^^^^ Prefer \`Map.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Map.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(2): const groups = {}; for (const item of [, 1]) {(groups[item] ??= []).push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of [, 1]) {(groups[item] ??= []).push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(2): const groups = {}; for (const item of [, 1]) {(groups[item] ??= []).push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of [, 1]) {(groups[item] ??= []).push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy([, 1], item => item); 
+
+`;
+
+exports[`prefer-group-by > invalid(2): items.reduce((groups, item) => {groups[item.type] = groups[item.type] || []; groups[item.type].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {groups[item.type] = groups[item.type] || []; groups[item.type].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(2): items.reduce((groups, item) => {groups[item.type] = groups[item.type] || []; groups[item.type].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {groups[item.type] = groups[item.type] || []; groups[item.type].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(20): const groups = {}\nfor (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}\n(() => {})() 1`] = `
+
+  1 | const groups = {}
+  2 | for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
+  3 | (() => {})()
+
+`;
+
+exports[`prefer-group-by > invalid(20): const groups = {}\nfor (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}\n(() => {})() 2`] = `
+
+Message:
+  1 | const groups = {}
+> 2 | for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+  3 | (() => {})()
+
+Output:
+  1 | const groups = Object.groupBy(items, item => item.type);
+  2 | (() => {})()
+
+`;
+
+exports[`prefer-group-by > invalid(20): items.reduce((groups, item) => {const key = getKey(item); if (groups.has(key)) {groups.get(key).push(item);} else {groups.set(key, [item]);} return groups;}, new Map()); 1`] = `
+
+  1 | items.reduce((groups, item) => {const key = getKey(item); if (groups.has(key)) {groups.get(key).push(item);} else {groups.set(key, [item]);} return groups;}, new Map());
+
+`;
+
+exports[`prefer-group-by > invalid(20): items.reduce((groups, item) => {const key = getKey(item); if (groups.has(key)) {groups.get(key).push(item);} else {groups.set(key, [item]);} return groups;}, new Map()); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {const key = getKey(item); if (groups.has(key)) {groups.get(key).push(item);} else {groups.set(key, [item]);} return groups;}, new Map());
+    |       ^^^^^^ Prefer \`Map.groupBy()\` over \`Array#reduce()\`.
+
+`;
+
+exports[`prefer-group-by > invalid(21): const groups = new Map()\nfor (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}\n[1].map(foo) 1`] = `
+
+  1 | const groups = new Map()
+  2 | for (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}
+  3 | [1].map(foo)
+
+`;
+
+exports[`prefer-group-by > invalid(21): const groups = new Map()\nfor (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}\n[1].map(foo) 2`] = `
+
+Message:
+  1 | const groups = new Map()
+> 2 | for (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Map.groupBy()\` over a \`for-of\` loop.
+  3 | [1].map(foo)
+
+Output:
+  1 | const groups = Map.groupBy(items, item => item.type);
+  2 | [1].map(foo)
+
+`;
+
+exports[`prefer-group-by > invalid(21): items.reduce((groups, item) => {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group); return groups;}, new Map()); 1`] = `
+
+  1 | items.reduce((groups, item) => {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group); return groups;}, new Map());
+
+`;
+
+exports[`prefer-group-by > invalid(21): items.reduce((groups, item) => {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group); return groups;}, new Map()); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group); return groups;}, new Map());
+    |       ^^^^^^ Prefer \`Map.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Map.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(22): const groups = {}; for (const item of items as Item[]) {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items as Item[]) {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(22): const groups = {}; for (const item of items as Item[]) {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items as Item[]) {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(items as Item[], item => (item.type as string)); 
+
+`;
+
+exports[`prefer-group-by > invalid(22): items.reduce((groups, item) => {const group = groups.get(item.type) || []; group.push(item); groups.set(item.type, group); return groups;}, new Map()); 1`] = `
+
+  1 | items.reduce((groups, item) => {const group = groups.get(item.type) || []; group.push(item); groups.set(item.type, group); return groups;}, new Map());
+
+`;
+
+exports[`prefer-group-by > invalid(22): items.reduce((groups, item) => {const group = groups.get(item.type) || []; group.push(item); groups.set(item.type, group); return groups;}, new Map()); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {const group = groups.get(item.type) || []; group.push(item); groups.set(item.type, group); return groups;}, new Map());
+    |       ^^^^^^ Prefer \`Map.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Map.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(23): const groups = {}; for (const item of items!) {groups[item!.type satisfies string] ??= []; groups[item!.type satisfies string].push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items!) {groups[item!.type satisfies string] ??= []; groups[item!.type satisfies string].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(23): const groups = {}; for (const item of items!) {groups[item!.type satisfies string] ??= []; groups[item!.type satisfies string].push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items!) {groups[item!.type satisfies string] ??= []; groups[item!.type satisfies string].push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(items!, item => item!.type satisfies string); 
+
+`;
+
+exports[`prefer-group-by > invalid(23): function foo(items: Item[]) {items.reduce((groups, item) => {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item); return groups;}, {});} 1`] = `
+
+  1 | function foo(items: Item[]) {items.reduce((groups, item) => {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item); return groups;}, {});}
+
+`;
+
+exports[`prefer-group-by > invalid(23): function foo(items: Item[]) {items.reduce((groups, item) => {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item); return groups;}, {});} 2`] = `
+
+Message:
+> 1 | function foo(items: Item[]) {items.reduce((groups, item) => {groups[(item.type as string)] ??= []; groups[(item.type as string)].push(item); return groups;}, {});}
+    |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | function foo(items: Item[]) {Object.groupBy(items, item => (item.type as string));}
+
+`;
+
+exports[`prefer-group-by > invalid(24): const groups = new Map<string, Item[]>(); for (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);} 1`] = `
+
+  1 | const groups = new Map<string, Item[]>(); for (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}
+
+`;
+
+exports[`prefer-group-by > invalid(24): const groups = new Map<string, Item[]>(); for (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);} 2`] = `
+
+Message:
+> 1 | const groups = new Map<string, Item[]>(); for (const item of items) {const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group);}
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Map.groupBy()\` over a \`for-of\` loop.
+
+`;
+
+exports[`prefer-group-by > invalid(24): function foo(items: Item[]) {items.reduce((groups, item) => {groups[(item.type satisfies string)] ??= []; groups[(item.type satisfies string)].push(item); return groups;}, {});} 1`] = `
+
+  1 | function foo(items: Item[]) {items.reduce((groups, item) => {groups[(item.type satisfies string)] ??= []; groups[(item.type satisfies string)].push(item); return groups;}, {});}
+
+`;
+
+exports[`prefer-group-by > invalid(24): function foo(items: Item[]) {items.reduce((groups, item) => {groups[(item.type satisfies string)] ??= []; groups[(item.type satisfies string)].push(item); return groups;}, {});} 2`] = `
+
+Message:
+> 1 | function foo(items: Item[]) {items.reduce((groups, item) => {groups[(item.type satisfies string)] ??= []; groups[(item.type satisfies string)].push(item); return groups;}, {});}
+    |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | function foo(items: Item[]) {Object.groupBy(items, item => (item.type satisfies string));}
+
+`;
+
+exports[`prefer-group-by > invalid(25): const groups = {}; for (const item of items.filter(item => item.active)) {(groups[item.type] ??= []).push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items.filter(item => item.active)) {(groups[item.type] ??= []).push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(25): const groups = {}; for (const item of items.filter(item => item.active)) {(groups[item.type] ??= []).push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items.filter(item => item.active)) {(groups[item.type] ??= []).push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(items.filter(item => item.active), item => item.type); 
+
+`;
+
+exports[`prefer-group-by > invalid(25): function foo(items: Item[]) {items.reduce((groups, item) => {groups[item!.type] ??= []; groups[item!.type].push(item); return groups;}, {});} 1`] = `
+
+  1 | function foo(items: Item[]) {items.reduce((groups, item) => {groups[item!.type] ??= []; groups[item!.type].push(item); return groups;}, {});}
+
+`;
+
+exports[`prefer-group-by > invalid(25): function foo(items: Item[]) {items.reduce((groups, item) => {groups[item!.type] ??= []; groups[item!.type].push(item); return groups;}, {});} 2`] = `
+
+Message:
+> 1 | function foo(items: Item[]) {items.reduce((groups, item) => {groups[item!.type] ??= []; groups[item!.type].push(item); return groups;}, {});}
+    |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | function foo(items: Item[]) {Object.groupBy(items, item => item!.type);}
+
+`;
+
+exports[`prefer-group-by > invalid(26): async function group() {const groups = {}; for (const item of await getItems()) {(groups[item.type] ??= []).push(item);} return groups;} 1`] = `
+
+  1 | async function group() {const groups = {}; for (const item of await getItems()) {(groups[item.type] ??= []).push(item);} return groups;}
+
+`;
+
+exports[`prefer-group-by > invalid(26): async function group() {const groups = {}; for (const item of await getItems()) {(groups[item.type] ??= []).push(item);} return groups;} 2`] = `
+
+Message:
+> 1 | async function group() {const groups = {}; for (const item of await getItems()) {(groups[item.type] ??= []).push(item);} return groups;}
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | async function group() {const groups = Object.groupBy(await getItems(), item => item.type);  return groups;}
+
+`;
+
+exports[`prefer-group-by > invalid(26): function foo(items: Item[]) {items.reduce((groups, item: Item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 1`] = `
+
+  1 | function foo(items: Item[]) {items.reduce((groups, item: Item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+
+`;
+
+exports[`prefer-group-by > invalid(26): function foo(items: Item[]) {items.reduce((groups, item: Item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 2`] = `
+
+Message:
+> 1 | function foo(items: Item[]) {items.reduce((groups, item: Item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+    |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | function foo(items: Item[]) {Object.groupBy(items, (item: Item) => item.type);}
+
+`;
+
+exports[`prefer-group-by > invalid(27): function foo(items: Item[]) {items.reduce((groups: Record<string, Item[]>, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 1`] = `
+
+  1 | function foo(items: Item[]) {items.reduce((groups: Record<string, Item[]>, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+
+`;
+
+exports[`prefer-group-by > invalid(27): function foo(items: Item[]) {items.reduce((groups: Record<string, Item[]>, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 2`] = `
+
+Message:
+> 1 | function foo(items: Item[]) {items.reduce((groups: Record<string, Item[]>, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+    |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+`;
+
+exports[`prefer-group-by > invalid(27): function group(items, suffix) {\n\tconst groups = new Map();\n\tfor (const item of items) {\n\t\tconst key = this.getKey(item, arguments[1]);\n\t\tconst group = groups.get(key) ?? [];\n\t\tgroup.push(item);\n\t\tgroups.set(key, group);\n\t}\n\n\treturn groups;\n} 1`] = `
+
+   1 | function group(items, suffix) {
+   2 | 	const groups = new Map();
+   3 | 	for (const item of items) {
+   4 | 		const key = this.getKey(item, arguments[1]);
+   5 | 		const group = groups.get(key) ?? [];
+   6 | 		group.push(item);
+   7 | 		groups.set(key, group);
+   8 | 	}
+   9 |
+  10 | 	return groups;
+  11 | }
+
+`;
+
+exports[`prefer-group-by > invalid(27): function group(items, suffix) {\n\tconst groups = new Map();\n\tfor (const item of items) {\n\t\tconst key = this.getKey(item, arguments[1]);\n\t\tconst group = groups.get(key) ?? [];\n\t\tgroup.push(item);\n\t\tgroups.set(key, group);\n\t}\n\n\treturn groups;\n} 2`] = `
+
+Message:
+   1 | function group(items, suffix) {
+   2 | 	const groups = new Map();
+>  3 | 	for (const item of items) {
+     | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  4 | 		const key = this.getKey(item, arguments[1]);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  5 | 		const group = groups.get(key) ?? [];
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  6 | 		group.push(item);
+     | ^^^^^^^^^^^^^^^^^^^
+>  7 | 		groups.set(key, group);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+>  8 | 	}
+     | ^^ Prefer \`Map.groupBy()\` over a \`for-of\` loop.
+   9 |
+  10 | 	return groups;
+  11 | }
+
+Output:
+  1 | function group(items, suffix) {
+  2 | 	const groups = Map.groupBy(items, item => this.getKey(item, arguments[1]));
+  3 |
+  4 | 	return groups;
+  5 | }
+
+`;
+
+exports[`prefer-group-by > invalid(28): function foo(items: Item[]) {items.reduce((groups, item): Record<string, Item[]> => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 1`] = `
+
+  1 | function foo(items: Item[]) {items.reduce((groups, item): Record<string, Item[]> => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+
+`;
+
+exports[`prefer-group-by > invalid(28): function foo(items: Item[]) {items.reduce((groups, item): Record<string, Item[]> => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 2`] = `
+
+Message:
+> 1 | function foo(items: Item[]) {items.reduce((groups, item): Record<string, Item[]> => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+    |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+`;
+
+exports[`prefer-group-by > invalid(29): function foo(items: Item[]) {items.reduce<Record<string, Item[]>>((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 1`] = `
+
+  1 | function foo(items: Item[]) {items.reduce<Record<string, Item[]>>((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+
+`;
+
+exports[`prefer-group-by > invalid(29): function foo(items: Item[]) {items.reduce<Record<string, Item[]>>((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 2`] = `
+
+Message:
+> 1 | function foo(items: Item[]) {items.reduce<Record<string, Item[]>>((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+    |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+`;
+
+exports[`prefer-group-by > invalid(3): items.reduce((groups, item) => {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(3): items.reduce((groups, item) => {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(3): let groups = Object.create(null); for (let item of items) {groups[item.type] ||= []; groups[item.type].push(item);} 1`] = `
+
+  1 | let groups = Object.create(null); for (let item of items) {groups[item.type] ||= []; groups[item.type].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(3): let groups = Object.create(null); for (let item of items) {groups[item.type] ||= []; groups[item.type].push(item);} 2`] = `
+
+Message:
+> 1 | let groups = Object.create(null); for (let item of items) {groups[item.type] ||= []; groups[item.type].push(item);}
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | let groups = Object.groupBy(items, item => item.type); 
+
+`;
+
+exports[`prefer-group-by > invalid(30): items.reduce((groups, item) => {const key = {}; groups[key] ??= []; groups[key].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {const key = {}; groups[key] ??= []; groups[key].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(30): items.reduce((groups, item) => {const key = {}; groups[key] ??= []; groups[key].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {const key = {}; groups[key] ??= []; groups[key].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => ({}));
+
+`;
+
+exports[`prefer-group-by > invalid(31): items.reduce((groups, item) => {const key = {}; const group = groups.get(key) ?? []; group.push(item); groups.set(key, group); return groups;}, new Map()); 1`] = `
+
+  1 | items.reduce((groups, item) => {const key = {}; const group = groups.get(key) ?? []; group.push(item); groups.set(key, group); return groups;}, new Map());
+
+`;
+
+exports[`prefer-group-by > invalid(31): items.reduce((groups, item) => {const key = {}; const group = groups.get(key) ?? []; group.push(item); groups.set(key, group); return groups;}, new Map()); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {const key = {}; const group = groups.get(key) ?? []; group.push(item); groups.set(key, group); return groups;}, new Map());
+    |       ^^^^^^ Prefer \`Map.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Map.groupBy(items, item => ({}));
+
+`;
+
+exports[`prefer-group-by > invalid(32): function foo(items: Item[]) {items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(items: Item[]) {items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+
+`;
+
+exports[`prefer-group-by > invalid(32): function foo(items: Item[]) {items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});} 2`] = `
+
+Message:
+> 1 | function foo(items: Item[]) {items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}
+    |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | function foo(items: Item[]) {Object.groupBy(items, item => item.type);}
+
+`;
+
+exports[`prefer-group-by > invalid(33): function f(items: Int8Array) { items.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {}); } 1`] = `
+
+  1 | function f(items: Int8Array) { items.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {}); }
+
+`;
+
+exports[`prefer-group-by > invalid(33): function f(items: Int8Array) { items.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {}); } 2`] = `
+
+Message:
+> 1 | function f(items: Int8Array) { items.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {}); }
+    |                                      ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | function f(items: Int8Array) { Object.groupBy(items, item => item); }
+
+`;
+
+exports[`prefer-group-by > invalid(34): const array = [1, , 3]; const result = array.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {}); 1`] = `
+
+  1 | const array = [1, , 3]; const result = array.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(34): const array = [1, , 3]; const result = array.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | const array = [1, , 3]; const result = array.reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {});
+    |                                              ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | const array = [1, , 3]; const result = Object.groupBy(array, item => item);
+
+`;
+
+exports[`prefer-group-by > invalid(4): const groups = {}; for (const item of []) {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of []) {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(4): const groups = {}; for (const item of []) {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of []) {groups[item.type] = groups[item.type] ?? []; groups[item.type].push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy([], item => item.type); 
+
+`;
+
+exports[`prefer-group-by > invalid(4): items.reduce((groups, item) => {groups[item.type] ||= []; groups[item.type].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {groups[item.type] ||= []; groups[item.type].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(4): items.reduce((groups, item) => {groups[item.type] ||= []; groups[item.type].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {groups[item.type] ||= []; groups[item.type].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(5): const groups = {}; for (const item of new Set(items)) {(groups[item.type] ??= []).push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of new Set(items)) {(groups[item.type] ??= []).push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(5): const groups = {}; for (const item of new Set(items)) {(groups[item.type] ??= []).push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of new Set(items)) {(groups[item.type] ??= []).push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(new Set(items), item => item.type); 
+
+`;
+
+exports[`prefer-group-by > invalid(5): items.reduce((groups, item) => {(groups[item.type] ??= []).push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {(groups[item.type] ??= []).push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(5): items.reduce((groups, item) => {(groups[item.type] ??= []).push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {(groups[item.type] ??= []).push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(6): const groups = {}; for (const item of items) {(groups[item[(sideEffect(), \"type\")]] ??= []).push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items) {(groups[item[(sideEffect(), "type")]] ??= []).push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(6): const groups = {}; for (const item of items) {(groups[item[(sideEffect(), \"type\")]] ??= []).push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items) {(groups[item[(sideEffect(), "type")]] ??= []).push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(items, item => item[(sideEffect(), "type")]); 
+
+`;
+
+exports[`prefer-group-by > invalid(6): items.reduce((groups, item) => {(groups[item.type] ||= []).push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {(groups[item.type] ||= []).push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(6): items.reduce((groups, item) => {(groups[item.type] ||= []).push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {(groups[item.type] ||= []).push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(7): const groups = {}; for (const item of (items)) {const key = getKey(item); groups[key] ??= []; groups[key].push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of (items)) {const key = getKey(item); groups[key] ??= []; groups[key].push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(7): const groups = {}; for (const item of (items)) {const key = getKey(item); groups[key] ??= []; groups[key].push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of (items)) {const key = getKey(item); groups[key] ??= []; groups[key].push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy((items), item => getKey(item)); 
+
+`;
+
+exports[`prefer-group-by > invalid(7): items.reduce((groups, item) => {(groups[item.type] = groups[item.type] || []).push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce((groups, item) => {(groups[item.type] = groups[item.type] || []).push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(7): items.reduce((groups, item) => {(groups[item.type] = groups[item.type] || []).push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce((groups, item) => {(groups[item.type] = groups[item.type] || []).push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(8): const groups = {}; for (const item of items) {((groups)[(item.type)] ||= []).push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items) {((groups)[(item.type)] ||= []).push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(8): const groups = {}; for (const item of items) {((groups)[(item.type)] ||= []).push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items) {((groups)[(item.type)] ||= []).push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(items, item => (item.type)); 
+
+`;
+
+exports[`prefer-group-by > invalid(8): items.reduce(function (groups, item) {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce(function (groups, item) {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(8): items.reduce(function (groups, item) {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce(function (groups, item) {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+Output:
+  1 | Object.groupBy(items, item => item.type);
+
+`;
+
+exports[`prefer-group-by > invalid(9): const groups = {}; for (const item of items) {const key = {}; (groups[key] ??= []).push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items) {const key = {}; (groups[key] ??= []).push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(9): const groups = {}; for (const item of items) {const key = {}; (groups[key] ??= []).push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items) {const key = {}; (groups[key] ??= []).push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(items, item => ({})); 
+
+`;
+
+exports[`prefer-group-by > invalid(9): items.reduce(function (groups, item) {(groups[arguments[1].type] ??= []).push(item); return groups;}, {}); 1`] = `
+
+  1 | items.reduce(function (groups, item) {(groups[arguments[1].type] ??= []).push(item); return groups;}, {});
+
+`;
+
+exports[`prefer-group-by > invalid(9): items.reduce(function (groups, item) {(groups[arguments[1].type] ??= []).push(item); return groups;}, {}); 2`] = `
+
+Message:
+> 1 | items.reduce(function (groups, item) {(groups[arguments[1].type] ??= []).push(item); return groups;}, {});
+    |       ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
+
+`;

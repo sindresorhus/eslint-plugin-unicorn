@@ -1,0 +1,467 @@
+exports[`require-passive-events > invalid(1): window.addEventListener(\"wheel\", () => {}) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {})
+
+`;
+
+exports[`require-passive-events > invalid(1): window.addEventListener(\"wheel\", () => {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {})
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(10): window.addEventListener(\"wheel\", function () {}) 1`] = `
+
+  1 | window.addEventListener("wheel", function () {})
+
+`;
+
+exports[`require-passive-events > invalid(10): window.addEventListener(\"wheel\", function () {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", function () {})
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", function () {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(11): window.addEventListener(\"wheel\", event => { console.log(event.target); }) 1`] = `
+
+  1 | window.addEventListener("wheel", event => { console.log(event.target); })
+
+`;
+
+exports[`require-passive-events > invalid(11): window.addEventListener(\"wheel\", event => { console.log(event.target); }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", event => { console.log(event.target); })
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", event => { console.log(event.target); }, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(12): window.addEventListener(\"wheel\", event => { console.log(event.currentTarget.dataset.value); }) 1`] = `
+
+  1 | window.addEventListener("wheel", event => { console.log(event.currentTarget.dataset.value); })
+
+`;
+
+exports[`require-passive-events > invalid(12): window.addEventListener(\"wheel\", event => { console.log(event.currentTarget.dataset.value); }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", event => { console.log(event.currentTarget.dataset.value); })
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", event => { console.log(event.currentTarget.dataset.value); }, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(13): window.addEventListener(\"wheel\", function (event) {\n\tfunction nested() {\n\t\targuments[0].preventDefault();\n\t}\n\n\tconsole.log(event.target);\n}) 1`] = `
+
+  1 | window.addEventListener("wheel", function (event) {
+  2 | 	function nested() {
+  3 | 		arguments[0].preventDefault();
+  4 | 	}
+  5 |
+  6 | 	console.log(event.target);
+  7 | })
+
+`;
+
+exports[`require-passive-events > invalid(13): window.addEventListener(\"wheel\", function (event) {\n\tfunction nested() {\n\t\targuments[0].preventDefault();\n\t}\n\n\tconsole.log(event.target);\n}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", function (event) {
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+  2 | 	function nested() {
+  3 | 		arguments[0].preventDefault();
+  4 | 	}
+  5 |
+  6 | 	console.log(event.target);
+  7 | })
+
+Output:
+  1 | window.addEventListener("wheel", function (event) {
+  2 | 	function nested() {
+  3 | 		arguments[0].preventDefault();
+  4 | 	}
+  5 |
+  6 | 	console.log(event.target);
+  7 | }, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(14): window.addEventListener(\"wheel\", () => {}, true) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, true)
+
+`;
+
+exports[`require-passive-events > invalid(14): window.addEventListener(\"wheel\", () => {}, true) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, true)
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {capture: true, passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(15): window.addEventListener(\"wheel\", () => {}, false) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, false)
+
+`;
+
+exports[`require-passive-events > invalid(15): window.addEventListener(\"wheel\", () => {}, false) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, false)
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(16): window.addEventListener(\"wheel\", () => {}, (true)) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, (true))
+
+`;
+
+exports[`require-passive-events > invalid(16): window.addEventListener(\"wheel\", () => {}, (true)) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, (true))
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, ({capture: true, passive: true}))
+
+`;
+
+exports[`require-passive-events > invalid(17): window.addEventListener(\"wheel\", () => {}, {}) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, {})
+
+`;
+
+exports[`require-passive-events > invalid(17): window.addEventListener(\"wheel\", () => {}, {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, {})
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(18): window.addEventListener(\"wheel\", () => {}, {once: true}) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, {once: true})
+
+`;
+
+exports[`require-passive-events > invalid(18): window.addEventListener(\"wheel\", () => {}, {once: true}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, {once: true})
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {once: true, passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(19): window.addEventListener(\"wheel\", () => {}, {capture: true}) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, {capture: true})
+
+`;
+
+exports[`require-passive-events > invalid(19): window.addEventListener(\"wheel\", () => {}, {capture: true}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, {capture: true})
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {capture: true, passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(2): window.addEventListener(\"wheel\", (() => {})) 1`] = `
+
+  1 | window.addEventListener("wheel", (() => {}))
+
+`;
+
+exports[`require-passive-events > invalid(2): window.addEventListener(\"wheel\", (() => {})) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", (() => {}))
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", (() => {}), {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(20): window.addEventListener(\"wheel\", () => {}, {passive: false}) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, {passive: false})
+
+`;
+
+exports[`require-passive-events > invalid(20): window.addEventListener(\"wheel\", () => {}, {passive: false}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, {passive: false})
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(21): window.addEventListener(\"wheel\", () => {}, {\"passive\": false}) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, {"passive": false})
+
+`;
+
+exports[`require-passive-events > invalid(21): window.addEventListener(\"wheel\", () => {}, {\"passive\": false}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, {"passive": false})
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {"passive": true})
+
+`;
+
+exports[`require-passive-events > invalid(22): window.addEventListener(\"wheel\", () => {}, {passive: (false)}) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, {passive: (false)})
+
+`;
+
+exports[`require-passive-events > invalid(22): window.addEventListener(\"wheel\", () => {}, {passive: (false)}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, {passive: (false)})
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {passive: (true)})
+
+`;
+
+exports[`require-passive-events > invalid(23): window.addEventListener(\"wheel\", () => {}, {\n\tonce: true,\n}) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, {
+  2 | 	once: true,
+  3 | })
+
+`;
+
+exports[`require-passive-events > invalid(23): window.addEventListener(\"wheel\", () => {}, {\n\tonce: true,\n}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, {
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+  2 | 	once: true,
+  3 | })
+
+Output:
+  1 | window.addEventListener("wheel", () => {}, {
+  2 | 	once: true,
+  3 | 	passive: true,
+  4 | })
+
+`;
+
+exports[`require-passive-events > invalid(24): window.addEventListener(\"wheel\", () => {}, {\n\tonce: true // Keep this comment with once.\n}) 1`] = `
+
+  1 | window.addEventListener("wheel", () => {}, {
+  2 | 	once: true // Keep this comment with once.
+  3 | })
+
+`;
+
+exports[`require-passive-events > invalid(24): window.addEventListener(\"wheel\", () => {}, {\n\tonce: true // Keep this comment with once.\n}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", () => {}, {
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+  2 | 	once: true // Keep this comment with once.
+  3 | })
+
+`;
+
+exports[`require-passive-events > invalid(25): window.addEventListener(\"wheel\", function (this: Window) {}) 1`] = `
+
+  1 | window.addEventListener("wheel", function (this: Window) {})
+
+`;
+
+exports[`require-passive-events > invalid(25): window.addEventListener(\"wheel\", function (this: Window) {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", function (this: Window) {})
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", function (this: Window) {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(26): window.addEventListener(\"wheel\", function (this: Window, event) { console.log(event.target); }) 1`] = `
+
+  1 | window.addEventListener("wheel", function (this: Window, event) { console.log(event.target); })
+
+`;
+
+exports[`require-passive-events > invalid(26): window.addEventListener(\"wheel\", function (this: Window, event) { console.log(event.target); }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", function (this: Window, event) { console.log(event.target); })
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", function (this: Window, event) { console.log(event.target); }, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(3): window.addEventListener(\"wheel\", ((function () {}))) 1`] = `
+
+  1 | window.addEventListener("wheel", ((function () {})))
+
+`;
+
+exports[`require-passive-events > invalid(3): window.addEventListener(\"wheel\", ((function () {}))) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", ((function () {})))
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", ((function () {})), {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(4): window.addEventListener(\"mousewheel\", () => {}) 1`] = `
+
+  1 | window.addEventListener("mousewheel", () => {})
+
+`;
+
+exports[`require-passive-events > invalid(4): window.addEventListener(\"mousewheel\", () => {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("mousewheel", () => {})
+    |                         ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("mousewheel", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(5): window.addEventListener(\"touchstart\", () => {}) 1`] = `
+
+  1 | window.addEventListener("touchstart", () => {})
+
+`;
+
+exports[`require-passive-events > invalid(5): window.addEventListener(\"touchstart\", () => {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("touchstart", () => {})
+    |                         ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("touchstart", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(6): window.addEventListener(\"touchmove\", () => {}) 1`] = `
+
+  1 | window.addEventListener("touchmove", () => {})
+
+`;
+
+exports[`require-passive-events > invalid(6): window.addEventListener(\"touchmove\", () => {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("touchmove", () => {})
+    |                         ^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("touchmove", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(7): window.addEventListener(\"touchenter\", () => {}) 1`] = `
+
+  1 | window.addEventListener("touchenter", () => {})
+
+`;
+
+exports[`require-passive-events > invalid(7): window.addEventListener(\"touchenter\", () => {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("touchenter", () => {})
+    |                         ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("touchenter", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(8): window.addEventListener(\"touchend\", () => {}) 1`] = `
+
+  1 | window.addEventListener("touchend", () => {})
+
+`;
+
+exports[`require-passive-events > invalid(8): window.addEventListener(\"touchend\", () => {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("touchend", () => {})
+    |                         ^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("touchend", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(9): window.addEventListener(\"touchleave\", () => {}) 1`] = `
+
+  1 | window.addEventListener("touchleave", () => {})
+
+`;
+
+exports[`require-passive-events > invalid(9): window.addEventListener(\"touchleave\", () => {}) 2`] = `
+
+Message:
+> 1 | window.addEventListener("touchleave", () => {})
+    |                         ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("touchleave", () => {}, {passive: true})
+
+`;

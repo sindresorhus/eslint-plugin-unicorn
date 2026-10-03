@@ -1,5 +1,5 @@
 import path from 'node:path';
-import test from 'ava';
+import test from 'node:test';
 import {ESLint, Linter} from 'eslint';
 import css from '@eslint/css';
 import json from '@eslint/json';
@@ -70,14 +70,14 @@ test('resolves directory paths from ESLint cwd', t => {
 	});
 	const messages = verify('error');
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		messages.map(({message}) => message),
 		[
 			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
 		],
 	);
 
-	t.deepEqual(verify(['error', {directoryRoots: ['src/FooBar']}]), []);
+	t.assert.deepStrictEqual(verify(['error', {directoryRoots: ['src/FooBar']}]), []);
 });
 
 test('checks filenames of non-JavaScript files', t => {
@@ -110,13 +110,13 @@ test('checks filenames of non-JavaScript files', t => {
 			rules: {'unicorn/filename-case': 'error'},
 		};
 
-		t.deepEqual(
+		t.assert.deepStrictEqual(
 			linter.verify(code, config, {filename: `Foo_Bar.${extension}`}).map(({message}) => message),
 			[`Filename is not in kebab case. Rename it to \`foo-bar.${extension}\`.`],
 			`reports a badly-cased ${language} filename`,
 		);
 
-		t.deepEqual(
+		t.assert.deepStrictEqual(
 			linter.verify(code, config, {filename: `foo-bar.${extension}`}).map(({message}) => message),
 			[],
 			`accepts a well-cased ${language} filename`,
@@ -145,7 +145,7 @@ test('validates options', t => {
 		{cases: []},
 		JSON.parse('null'),
 	]) {
-		t.throws(
+		t.assert.throws(
 			() => verify(options),
 			{message: /should be object/u},
 		);
@@ -155,7 +155,7 @@ test('validates options', t => {
 		{case: 'pascalCase', directoryRoots: [42]},
 		{cases: {pascalCase: true}, directoryRoots: [42]},
 	]) {
-		t.throws(
+		t.assert.throws(
 			() => verify(options),
 			{message: /Value 42 should be string,object/u},
 		);
@@ -167,22 +167,22 @@ test('validates options', t => {
 			{cases: {pascalCase: true}},
 		]) {
 			const options = {...caseOptions, [optionName]: [{}]};
-			t.throws(
+			t.assert.throws(
 				() => verify(options),
 				{message: new RegExp(`The \`${optionName}\` option only accepts strings and regular expressions\\.`, 'u')},
 			);
 		}
 
-		t.throws(
+		t.assert.throws(
 			() => linter.verify('const value = 1;', getConfig({[optionName]: [{}]})),
 			{message: new RegExp(`The \`${optionName}\` option only accepts strings and regular expressions\\.`, 'u')},
 		);
 	}
 
 	for (const filename of [undefined, 'foo.js']) {
-		t.throws(
+		t.assert.throws(
 			() => linter.verify('const value = 1;', getConfig({ignore: ['[']}), {filename}),
-			{instanceOf: SyntaxError},
+			SyntaxError,
 		);
 	}
 });
@@ -204,10 +204,10 @@ test('matches stateful ignore patterns consistently between lint runs', async t 
 	const [firstResult] = await eslint.lintText('const value = 1;', {filePath: 'FOOBAR/fooBar.js'});
 	const [secondResult] = await eslint.lintText('const value = 1;', {filePath: 'FOOBAR/fooBar.js'});
 
-	t.is(reportedResult.messages.length, 1);
-	t.is(reportedResult.messages[0].message, 'Filename is not in kebab case. Rename it to `foo-bar.js`.');
-	t.deepEqual(firstResult.messages, []);
-	t.deepEqual(secondResult.messages, []);
+	t.assert.strictEqual(reportedResult.messages.length, 1);
+	t.assert.strictEqual(reportedResult.messages[0].message, 'Filename is not in kebab case. Rename it to `foo-bar.js`.');
+	t.assert.deepStrictEqual(firstResult.messages, []);
+	t.assert.deepStrictEqual(secondResult.messages, []);
 });
 
 test('ignores named virtual files created by processors', async t => {
@@ -229,7 +229,7 @@ test('ignores named virtual files created by processors', async t => {
 	});
 	const [result] = await eslint.lintText('```js\nfirst;\n```\n\n```js\nsecond;\n```', {filePath: 'FooBar.md'});
 
-	t.deepEqual(result.messages.map(({ruleId}) => ruleId), ['no-undef', 'no-undef']);
+	t.assert.deepStrictEqual(result.messages.map(({ruleId}) => ruleId), ['no-undef', 'no-undef']);
 });
 
 ruleTest({
@@ -1125,6 +1125,16 @@ ruleTest({
 			'src/foo/1_a_b.js',
 			'Filename is not in camel case with acronyms. Rename it to `1Ab.js`.',
 			[{case: 'camelCaseWithAcronyms', checkDirectories: false}],
+		),
+		testCase(
+			'src/foo/foo-bar.js',
+			'camelCaseWithAcronyms',
+			'Filename is not in camel case with acronyms. Rename it to `fooBar.js`.',
+		),
+		testCase(
+			'src/foo/getHTML5parser.js',
+			'camelCaseWithAcronyms',
+			'Filename is not in camel case with acronyms. Rename it to `getHtml5parser.js`.',
 		),
 	],
 });

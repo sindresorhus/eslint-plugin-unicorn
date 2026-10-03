@@ -1,0 +1,1227 @@
+exports[`no-array-method-this-argument > invalid(1): array.every(() => {}, thisArgument) 1`] = `
+
+  1 | array.every(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(1): array.every(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.every(() => {}, thisArgument)
+    |                       ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#every()\`.
+
+Output:
+  1 | array.every(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(1): array.map(callback, thisArgument) 1`] = `
+
+  1 | array.map(callback, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(1): array.map(callback, thisArgument) 2`] = `
+
+Message:
+> 1 | array.map(callback, thisArgument)
+    |                     ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map(callback)
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map(callback.bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(10): Array.from(iterableOrArrayLike, function callback () {}, thisArgument) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, function callback () {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(10): Array.from(iterableOrArrayLike, function callback () {}, thisArgument) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, function callback () {}, thisArgument)
+    |                                                          ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, function callback () {})
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.from(iterableOrArrayLike, (function callback () {}).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(10): array.some(() => {}, thisArgument) 1`] = `
+
+  1 | array.some(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(10): array.some(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.some(() => {}, thisArgument)
+    |                      ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#some()\`.
+
+Output:
+  1 | array.some(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(11): Array.fromAsync(iterableOrArrayLike, function callback () {}, thisArgument) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, function callback () {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(11): Array.fromAsync(iterableOrArrayLike, function callback () {}, thisArgument) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, function callback () {}, thisArgument)
+    |                                                               ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.fromAsync(iterableOrArrayLike, function callback () {})
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.fromAsync(iterableOrArrayLike, (function callback () {}).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(11): array?.map(() => {}, thisArgument) 1`] = `
+
+  1 | array?.map(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(11): array?.map(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array?.map(() => {}, thisArgument)
+    |                      ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | array?.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(12): (array).map(() => {}, thisArgument) 1`] = `
+
+  1 | (array).map(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(12): (array).map(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | (array).map(() => {}, thisArgument)
+    |                       ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | (array).map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(12): array.map( foo as bar, (( thisArgument )),) 1`] = `
+
+  1 | array.map( foo as bar, (( thisArgument )),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(12): array.map( foo as bar, (( thisArgument )),) 2`] = `
+
+Message:
+> 1 | array.map( foo as bar, (( thisArgument )),)
+    |                           ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map( foo as bar,)
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map( (foo as bar).bind((( thisArgument ))),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(13): Array.from(iterableOrArrayLike, foo as bar, (( thisArgument )),) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, foo as bar, (( thisArgument )),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(13): Array.from(iterableOrArrayLike, foo as bar, (( thisArgument )),) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, foo as bar, (( thisArgument )),)
+    |                                                ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, foo as bar,)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.from(iterableOrArrayLike, (foo as bar).bind((( thisArgument ))),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(13): function foo(collection: string[] | {map(callback: (value: string) => string, thisArgument: unknown): string[]}) {\n\tcollection.map(value => value, thisArgument);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(collection: string[] | {map(callback: (value: string) => string, thisArgument: unknown): string[]}) {
+  2 | 	collection.map(value => value, thisArgument);
+  3 | }
+
+`;
+
+exports[`no-array-method-this-argument > invalid(13): function foo(collection: string[] | {map(callback: (value: string) => string, thisArgument: unknown): string[]}) {\n\tcollection.map(value => value, thisArgument);\n} 2`] = `
+
+Message:
+  1 | function foo(collection: string[] | {map(callback: (value: string) => string, thisArgument: unknown): string[]}) {
+> 2 | 	collection.map(value => value, thisArgument);
+    | 	                               ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+  3 | }
+
+Output:
+  1 | function foo(collection: string[] | {map(callback: (value: string) => string, thisArgument: unknown): string[]}) {
+  2 | 	collection.map(value => value);
+  3 | }
+
+`;
+
+exports[`no-array-method-this-argument > invalid(14): Array.from(iterableOrArrayLike, () => {}, thisArgument) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, () => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(14): Array.from(iterableOrArrayLike, () => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, () => {}, thisArgument)
+    |                                           ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Output:
+  1 | Array.from(iterableOrArrayLike, () => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(14): Array.fromAsync(iterableOrArrayLike, foo as bar, (( thisArgument )),) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, foo as bar, (( thisArgument )),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(14): Array.fromAsync(iterableOrArrayLike, foo as bar, (( thisArgument )),) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, foo as bar, (( thisArgument )),)
+    |                                                     ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.fromAsync(iterableOrArrayLike, foo as bar,)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.fromAsync(iterableOrArrayLike, (foo as bar).bind((( thisArgument ))),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(15): Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(15): Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument)
+    |                                                ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Output:
+  1 | Array.fromAsync(iterableOrArrayLike, () => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(15): array.map( (( foo as bar )), (( thisArgument )),) 1`] = `
+
+  1 | array.map( (( foo as bar )), (( thisArgument )),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(15): array.map( (( foo as bar )), (( thisArgument )),) 2`] = `
+
+Message:
+> 1 | array.map( (( foo as bar )), (( thisArgument )),)
+    |                                 ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map( (( foo as bar )),)
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map( (( foo as bar )).bind((( thisArgument ))),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(16): Array.from(iterableOrArrayLike, (( foo as bar )), (( thisArgument )),) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, (( foo as bar )), (( thisArgument )),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(16): Array.from(iterableOrArrayLike, (( foo as bar )), (( thisArgument )),) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, (( foo as bar )), (( thisArgument )),)
+    |                                                      ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, (( foo as bar )),)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.from(iterableOrArrayLike, (( foo as bar )).bind((( thisArgument ))),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(16): array.map(() => {}, thisArgument,) 1`] = `
+
+  1 | array.map(() => {}, thisArgument,)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(16): array.map(() => {}, thisArgument,) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, thisArgument,)
+    |                     ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | array.map(() => {},)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(17): Array.fromAsync(iterableOrArrayLike, (( foo as bar )), (( thisArgument )),) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, (( foo as bar )), (( thisArgument )),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(17): Array.fromAsync(iterableOrArrayLike, (( foo as bar )), (( thisArgument )),) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, (( foo as bar )), (( thisArgument )),)
+    |                                                           ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.fromAsync(iterableOrArrayLike, (( foo as bar )),)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.fromAsync(iterableOrArrayLike, (( foo as bar )).bind((( thisArgument ))),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(17): array.map(() => {}, (0, thisArgument),) 1`] = `
+
+  1 | array.map(() => {}, (0, thisArgument),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(17): array.map(() => {}, (0, thisArgument),) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, (0, thisArgument),)
+    |                      ^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {},)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(18): Array.from(iterableOrArrayLike, () => {}, thisArgument,) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, () => {}, thisArgument,)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(18): Array.from(iterableOrArrayLike, () => {}, thisArgument,) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, () => {}, thisArgument,)
+    |                                           ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Output:
+  1 | Array.from(iterableOrArrayLike, () => {},)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(18): array.map( (( 0, callback )), (( thisArgument )),) 1`] = `
+
+  1 | array.map( (( 0, callback )), (( thisArgument )),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(18): array.map( (( 0, callback )), (( thisArgument )),) 2`] = `
+
+Message:
+> 1 | array.map( (( 0, callback )), (( thisArgument )),)
+    |                                  ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map( (( 0, callback )),)
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map( (( 0, callback )).bind((( thisArgument ))),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(19): Array.from(iterableOrArrayLike, (( 0, callback )), (( thisArgument )),) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, (( 0, callback )), (( thisArgument )),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(19): Array.from(iterableOrArrayLike, (( 0, callback )), (( thisArgument )),) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, (( 0, callback )), (( thisArgument )),)
+    |                                                       ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, (( 0, callback )),)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.from(iterableOrArrayLike, (( 0, callback )).bind((( thisArgument ))),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(19): Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument,) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument,)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(19): Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument,) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument,)
+    |                                                ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Output:
+  1 | Array.fromAsync(iterableOrArrayLike, () => {},)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(2): Array.from(iterableOrArrayLike, callback, thisArgument) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, callback, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(2): Array.from(iterableOrArrayLike, callback, thisArgument) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, callback, thisArgument)
+    |                                           ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, callback)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.from(iterableOrArrayLike, callback.bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(2): array.filter(() => {}, thisArgument) 1`] = `
+
+  1 | array.filter(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(2): array.filter(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.filter(() => {}, thisArgument)
+    |                        ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#filter()\`.
+
+Output:
+  1 | array.filter(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(20): Array.fromAsync(iterableOrArrayLike, (( 0, callback )), (( thisArgument )),) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, (( 0, callback )), (( thisArgument )),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(20): Array.fromAsync(iterableOrArrayLike, (( 0, callback )), (( thisArgument )),) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, (( 0, callback )), (( thisArgument )),)
+    |                                                            ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.fromAsync(iterableOrArrayLike, (( 0, callback )),)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.fromAsync(iterableOrArrayLike, (( 0, callback )).bind((( thisArgument ))),)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(20): array.map(() => {}, thisArgumentHasSideEffect()) 1`] = `
+
+  1 | array.map(() => {}, thisArgumentHasSideEffect())
+
+`;
+
+exports[`no-array-method-this-argument > invalid(20): array.map(() => {}, thisArgumentHasSideEffect()) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, thisArgumentHasSideEffect())
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(21): array.map((0, () => {}), thisArgument) 1`] = `
+
+  1 | array.map((0, () => {}), thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(21): array.map((0, () => {}), thisArgument) 2`] = `
+
+Message:
+> 1 | array.map((0, () => {}), thisArgument)
+    |                          ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map((0, () => {}))
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map((0, () => {}).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(21): array?.map(() => {}, thisArgumentHasSideEffect()) 1`] = `
+
+  1 | array?.map(() => {}, thisArgumentHasSideEffect())
+
+`;
+
+exports[`no-array-method-this-argument > invalid(21): array?.map(() => {}, thisArgumentHasSideEffect()) 2`] = `
+
+Message:
+> 1 | array?.map(() => {}, thisArgumentHasSideEffect())
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array?.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(22): Array.from(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect()) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())
+
+`;
+
+exports[`no-array-method-this-argument > invalid(22): Array.from(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect()) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, () => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(22): Array.from(iterableOrArrayLike, (0, () => {}), thisArgument) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, (0, () => {}), thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(22): Array.from(iterableOrArrayLike, (0, () => {}), thisArgument) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, (0, () => {}), thisArgument)
+    |                                                ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, (0, () => {}))
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.from(iterableOrArrayLike, (0, () => {}).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(23): Array.fromAsync(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect()) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())
+
+`;
+
+exports[`no-array-method-this-argument > invalid(23): Array.fromAsync(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect()) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | Array.fromAsync(iterableOrArrayLike, () => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(23): Array.fromAsync(iterableOrArrayLike, (0, () => {}), thisArgument) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, (0, () => {}), thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(23): Array.fromAsync(iterableOrArrayLike, (0, () => {}), thisArgument) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, (0, () => {}), thisArgument)
+    |                                                     ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.fromAsync(iterableOrArrayLike, (0, () => {}))
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.fromAsync(iterableOrArrayLike, (0, () => {}).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(24): array.map(() => {}, object.property) 1`] = `
+
+  1 | array.map(() => {}, object.property)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(24): array.map(() => {}, object.property) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, object.property)
+    |                     ^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(24): array.map(callback.bind(foo), thisArgument) 1`] = `
+
+  1 | array.map(callback.bind(foo), thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(24): array.map(callback.bind(foo), thisArgument) 2`] = `
+
+Message:
+> 1 | array.map(callback.bind(foo), thisArgument)
+    |                               ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map(callback.bind(foo))
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map(callback.bind(foo).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(25): Array.from(iterableOrArrayLike, callback.bind(foo), thisArgument) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, callback.bind(foo), thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(25): Array.from(iterableOrArrayLike, callback.bind(foo), thisArgument) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, callback.bind(foo), thisArgument)
+    |                                                     ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, callback.bind(foo))
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.from(iterableOrArrayLike, callback.bind(foo).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(25): array.map(() => {}, /* comment */ thisArgument) 1`] = `
+
+  1 | array.map(() => {}, /* comment */ thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(25): array.map(() => {}, /* comment */ thisArgument) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, /* comment */ thisArgument)
+    |                                   ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+`;
+
+exports[`no-array-method-this-argument > invalid(26): Array.fromAsync(iterableOrArrayLike, callback.bind(foo), thisArgument) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, callback.bind(foo), thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(26): Array.fromAsync(iterableOrArrayLike, callback.bind(foo), thisArgument) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, callback.bind(foo), thisArgument)
+    |                                                          ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.fromAsync(iterableOrArrayLike, callback.bind(foo))
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.fromAsync(iterableOrArrayLike, callback.bind(foo).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(26): array.map(callback, /* comment */ thisArgument) 1`] = `
+
+  1 | array.map(callback, /* comment */ thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(26): array.map(callback, /* comment */ thisArgument) 2`] = `
+
+Message:
+> 1 | array.map(callback, /* comment */ thisArgument)
+    |                                   ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+`;
+
+exports[`no-array-method-this-argument > invalid(27): array.map(function () { return this.x; }, sideEffect()) 1`] = `
+
+  1 | array.map(function () { return this.x; }, sideEffect())
+
+`;
+
+exports[`no-array-method-this-argument > invalid(27): array.map(function () { return this.x; }, sideEffect()) 2`] = `
+
+Message:
+> 1 | array.map(function () { return this.x; }, sideEffect())
+    |                                           ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map(function () { return this.x; })
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map((function () { return this.x; }).bind(sideEffect()))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(27): const array: string[] = []; array.map(value => value, thisArgument); 1`] = `
+
+Filename: file.ts
+
+  1 | const array: string[] = []; array.map(value => value, thisArgument);
+
+`;
+
+exports[`no-array-method-this-argument > invalid(27): const array: string[] = []; array.map(value => value, thisArgument); 2`] = `
+
+Message:
+> 1 | const array: string[] = []; array.map(value => value, thisArgument);
+    |                                                       ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | const array: string[] = []; array.map(value => value);
+
+`;
+
+exports[`no-array-method-this-argument > invalid(28): const array: [string] = [\"\"]; array.map(value => value, thisArgument); 1`] = `
+
+Filename: file.ts
+
+  1 | const array: [string] = [""]; array.map(value => value, thisArgument);
+
+`;
+
+exports[`no-array-method-this-argument > invalid(28): const array: [string] = [\"\"]; array.map(value => value, thisArgument); 2`] = `
+
+Message:
+> 1 | const array: [string] = [""]; array.map(value => value, thisArgument);
+    |                                                         ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | const array: [string] = [""]; array.map(value => value);
+
+`;
+
+exports[`no-array-method-this-argument > invalid(29): function f(foo: Int8Array) { foo.map(() => {}, thisArgument); } 1`] = `
+
+  1 | function f(foo: Int8Array) { foo.map(() => {}, thisArgument); }
+
+`;
+
+exports[`no-array-method-this-argument > invalid(29): function f(foo: Int8Array) { foo.map(() => {}, thisArgument); } 2`] = `
+
+Message:
+> 1 | function f(foo: Int8Array) { foo.map(() => {}, thisArgument); }
+    |                                                ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | function f(foo: Int8Array) { foo.map(() => {}); }
+
+`;
+
+exports[`no-array-method-this-argument > invalid(3): Array.fromAsync(iterableOrArrayLike, callback, thisArgument) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, callback, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(3): Array.fromAsync(iterableOrArrayLike, callback, thisArgument) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, callback, thisArgument)
+    |                                                ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.fromAsync(iterableOrArrayLike, callback)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.fromAsync(iterableOrArrayLike, callback.bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(3): array.find(() => {}, thisArgument) 1`] = `
+
+  1 | array.find(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(3): array.find(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.find(() => {}, thisArgument)
+    |                      ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#find()\`.
+
+Output:
+  1 | array.find(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(30): declare function getBytes(): Int8Array; getBytes().map(value => value, thisArgument); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getBytes(): Int8Array; getBytes().map(value => value, thisArgument);
+
+`;
+
+exports[`no-array-method-this-argument > invalid(30): declare function getBytes(): Int8Array; getBytes().map(value => value, thisArgument); 2`] = `
+
+Message:
+> 1 | declare function getBytes(): Int8Array; getBytes().map(value => value, thisArgument);
+    |                                                                        ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | declare function getBytes(): Int8Array; getBytes().map(value => value);
+
+`;
+
+exports[`no-array-method-this-argument > invalid(31): array.map(() => {}, tag\`a\`) 1`] = `
+
+  1 | array.map(() => {}, tag\`a\`)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(31): array.map(() => {}, tag\`a\`) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, tag\`a\`)
+    |                     ^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(32): array.map(() => {}, key in object) 1`] = `
+
+  1 | array.map(() => {}, key in object)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(32): array.map(() => {}, key in object) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, key in object)
+    |                     ^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(33): array.map(() => {}, {} instanceof Constructor) 1`] = `
+
+  1 | array.map(() => {}, {} instanceof Constructor)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(33): array.map(() => {}, {} instanceof Constructor) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, {} instanceof Constructor)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(34): array.map(() => {}, 1 + 2) 1`] = `
+
+  1 | array.map(() => {}, 1 + 2)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(34): array.map(() => {}, 1 + 2) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, 1 + 2)
+    |                     ^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(35): array.map(() => {}, !(key in object)) 1`] = `
+
+  1 | array.map(() => {}, !(key in object))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(35): array.map(() => {}, !(key in object)) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, !(key in object))
+    |                     ^^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(36): array.map(() => {}, [tag\`a\`]) 1`] = `
+
+  1 | array.map(() => {}, [tag\`a\`])
+
+`;
+
+exports[`no-array-method-this-argument > invalid(36): array.map(() => {}, [tag\`a\`]) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, [tag\`a\`])
+    |                     ^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(37): array.map(() => {}, (key in object) || 1) 1`] = `
+
+  1 | array.map(() => {}, (key in object) || 1)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(37): array.map(() => {}, (key in object) || 1) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, (key in object) || 1)
+    |                     ^^^^^^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(38): Array.from(iterableOrArrayLike, () => {}, !(key in object)) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, () => {}, !(key in object))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(38): Array.from(iterableOrArrayLike, () => {}, !(key in object)) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, () => {}, !(key in object))
+    |                                           ^^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/1: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, () => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(39): array.map(() => {}, this) 1`] = `
+
+  1 | array.map(() => {}, this)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(39): array.map(() => {}, this) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, this)
+    |                     ^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(4): array.findLast(() => {}, thisArgument) 1`] = `
+
+  1 | array.findLast(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(4): array.findLast(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.findLast(() => {}, thisArgument)
+    |                          ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#findLast()\`.
+
+Output:
+  1 | array.findLast(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(4): array.map(callback, (0, thisArgument)) 1`] = `
+
+  1 | array.map(callback, (0, thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(4): array.map(callback, (0, thisArgument)) 2`] = `
+
+Message:
+> 1 | array.map(callback, (0, thisArgument))
+    |                      ^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map(callback)
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map(callback.bind((0, thisArgument)))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(40): array.map(() => {}, null) 1`] = `
+
+  1 | array.map(() => {}, null)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(40): array.map(() => {}, null) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, null)
+    |                     ^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(5): Array.from(iterableOrArrayLike, callback, (0, thisArgument)) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, callback, (0, thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(5): Array.from(iterableOrArrayLike, callback, (0, thisArgument)) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, callback, (0, thisArgument))
+    |                                            ^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, callback)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.from(iterableOrArrayLike, callback.bind((0, thisArgument)))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(5): array.findIndex(() => {}, thisArgument) 1`] = `
+
+  1 | array.findIndex(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(5): array.findIndex(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.findIndex(() => {}, thisArgument)
+    |                           ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#findIndex()\`.
+
+Output:
+  1 | array.findIndex(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(6): Array.fromAsync(iterableOrArrayLike, callback, (0, thisArgument)) 1`] = `
+
+  1 | Array.fromAsync(iterableOrArrayLike, callback, (0, thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(6): Array.fromAsync(iterableOrArrayLike, callback, (0, thisArgument)) 2`] = `
+
+Message:
+> 1 | Array.fromAsync(iterableOrArrayLike, callback, (0, thisArgument))
+    |                                                 ^^^^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.fromAsync()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.fromAsync(iterableOrArrayLike, callback)
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.fromAsync(iterableOrArrayLike, callback.bind((0, thisArgument)))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(6): array.findLastIndex(() => {}, thisArgument) 1`] = `
+
+  1 | array.findLastIndex(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(6): array.findLastIndex(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.findLastIndex(() => {}, thisArgument)
+    |                               ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#findLastIndex()\`.
+
+Output:
+  1 | array.findLastIndex(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(7): array.flatMap(() => {}, thisArgument) 1`] = `
+
+  1 | array.flatMap(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(7): array.flatMap(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.flatMap(() => {}, thisArgument)
+    |                         ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#flatMap()\`.
+
+Output:
+  1 | array.flatMap(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(7): array.map(function () {}, thisArgument) 1`] = `
+
+  1 | array.map(function () {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(7): array.map(function () {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.map(function () {}, thisArgument)
+    |                           ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map(function () {})
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map((function () {}).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(8): Array.from(iterableOrArrayLike, function () {}, thisArgument) 1`] = `
+
+  1 | Array.from(iterableOrArrayLike, function () {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(8): Array.from(iterableOrArrayLike, function () {}, thisArgument) 2`] = `
+
+Message:
+> 1 | Array.from(iterableOrArrayLike, function () {}, thisArgument)
+    |                                                 ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array.from()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | Array.from(iterableOrArrayLike, function () {})
+
+Suggestion 2/2: Use a bound function.:
+  1 | Array.from(iterableOrArrayLike, (function () {}).bind(thisArgument))
+
+`;
+
+exports[`no-array-method-this-argument > invalid(8): array.forEach(() => {}, thisArgument) 1`] = `
+
+  1 | array.forEach(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(8): array.forEach(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.forEach(() => {}, thisArgument)
+    |                         ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#forEach()\`.
+
+Output:
+  1 | array.forEach(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(9): array.map(() => {}, thisArgument) 1`] = `
+
+  1 | array.map(() => {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(9): array.map(() => {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.map(() => {}, thisArgument)
+    |                     ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Output:
+  1 | array.map(() => {})
+
+`;
+
+exports[`no-array-method-this-argument > invalid(9): array.map(function callback () {}, thisArgument) 1`] = `
+
+  1 | array.map(function callback () {}, thisArgument)
+
+`;
+
+exports[`no-array-method-this-argument > invalid(9): array.map(function callback () {}, thisArgument) 2`] = `
+
+Message:
+> 1 | array.map(function callback () {}, thisArgument)
+    |                                    ^^^^^^^^^^^^ Do not use the \`this\` argument in \`Array#map()\`.
+
+Suggestion 1/2: Remove this argument.:
+  1 | array.map(function callback () {})
+
+Suggestion 2/2: Use a bound function.:
+  1 | array.map((function callback () {}).bind(thisArgument))
+
+`;

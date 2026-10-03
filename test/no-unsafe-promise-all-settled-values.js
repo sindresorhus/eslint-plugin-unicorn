@@ -388,6 +388,10 @@ test.snapshot({
 		'const values = (await Promise.allSettled(promises)).map(({value}) => ((value) => value)(fallback));',
 		'const values = (await Promise.allSettled(promises)).map(({value}) => other.value);',
 		'const values = (await Promise.allSettled(promises)).map(({value}) => ({value: fallback}));',
+		'const values = (await Promise.allSettled(promises)).map(result => condition || result.status !== "fulfilled" ? undefined : result.value);',
+		'const statuses = (await Promise.allSettled(promises)).map(({status}) => status);',
+		'Promise.allSettled(promises).then(handleResults);',
+		'Promise.allSettled(promises).then(() => {});',
 	],
 	invalid: [
 		outdent`
@@ -718,12 +722,16 @@ test.snapshot({
 		`,
 		'const values = (results as PromiseSettledResult<string>[]).filter(result => result.status === "fulfilled").map(result => result.value);',
 		'const values = (results as PromiseSettledResult<string>[]).map(result => result.status === "fulfilled" ? result.value : undefined);',
+		'declare const results: PromiseSettledResult<string>[]; const values = (results as PromiseFulfilledResult<string>[]).map(result => result.value);',
+		'declare const results: Array; const values = results.map(result => result.value);',
 	],
 	invalid: [
 		'const values = (results as PromiseSettledResult<string>[]).map(result => result.value);',
 		'const values = (results as Array<PromiseSettledResult<string>>).map(result => result.value);',
 		'const values = (results as ReadonlyArray<PromiseSettledResult<string>>).map(result => result.value);',
 		'const values = (results as (PromiseFulfilledResult<string> | PromiseRejectedResult)[]).map(result => result.value);',
+		'declare const results: Types.PromiseSettledResult<string>[]; const values = results.map(result => result.value);',
+		'declare const results: readonly PromiseSettledResult<string>[]; const values = results.map(result => result.value);',
 	],
 });
 
@@ -743,9 +751,13 @@ test.snapshot({
 			const values = results.filter(isFulfilled).map(result => result.value);
 		`),
 		typeAware('declare const results: PromiseSettledResult<string>[]; const values = results.filter(result => result.status === "fulfilled").map(result => result.value);'),
+		typeAware('declare const results: {map(callback: (result: PromiseSettledResult<string>) => unknown): unknown[]}; const values = results.map(result => result.value);'),
+		typeAware('declare const results: PromiseSettledResult<string>[]; const values = results.map((result: PromiseFulfilledResult<string>) => result.value);'),
+		typeAware('declare const results: PromiseSettledResult<string>[] | {map(callback: (result: PromiseSettledResult<string>) => unknown): unknown[]}; const values = results.map(result => result.value);'),
 	],
 	invalid: [
 		typeAware('declare const results: PromiseSettledResult<string>[]; const values = results.map(result => result.value);'),
 		typeAware('declare const results: Array<PromiseSettledResult<string>>; const values = results.map(result => result.value);'),
+		typeAware('declare const results: PromiseSettledResult<string>[] | PromiseSettledResult<number>[]; const values = results.map(result => result.value);'),
 	],
 });

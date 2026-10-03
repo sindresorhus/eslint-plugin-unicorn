@@ -213,6 +213,17 @@ test.snapshot({
 			`,
 			options: separateFunctionOptions,
 		},
+		outdent`
+			function * foo() {}
+			export default foo;
+		`,
+		{
+			code: outdent`
+				function foo(bar: string) {}
+				export default foo;
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		// Default inline style
@@ -390,6 +401,19 @@ test.snapshot({
 		// `classes: 'separate'`
 		{
 			code: 'export default class Foo {}',
+			options: separateClassOptions,
+		},
+		outdent`
+			const foo = async (bar) => bar;
+			export default foo;
+		`,
+		{
+			code: 'export default async function foo(bar) {}',
+			options: separateFunctionOptions,
+		},
+		// The fix would drop a comment between `export default` and the class, so it is reported without a fix
+		{
+			code: 'export default /* Comment. */ class Foo {}',
 			options: separateClassOptions,
 		},
 	],

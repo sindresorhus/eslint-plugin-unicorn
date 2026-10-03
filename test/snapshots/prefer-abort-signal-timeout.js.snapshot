@@ -1,0 +1,482 @@
+exports[`prefer-abort-signal-timeout > invalid(1): const abortController = new AbortController;\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController;
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(1): const abortController = new AbortController;\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController;
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(delay);
+  2 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(10): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), 2147483647);\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(() => abortController.abort(), 2147483647);
+  3 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(10): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), 2147483647);\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), 2147483647);
+  3 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(2147483647);
+  2 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(11): const delay = 2147483647;\nconst abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const delay = 2147483647;
+  2 | const abortController = new AbortController();
+  3 | setTimeout(() => abortController.abort(), delay);
+  4 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(11): const delay = 2147483647;\nconst abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+  1 | const delay = 2147483647;
+> 2 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  3 | setTimeout(() => abortController.abort(), delay);
+  4 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const delay = 2147483647;
+  2 | const abortSignal = AbortSignal.timeout(delay);
+  3 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(12): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), options.timeout);\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(() => abortController.abort(), options.timeout);
+  3 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(12): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), options.timeout);\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), options.timeout);
+  3 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(options.timeout);
+  2 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(13): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: (abortController).signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: (abortController).signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(13): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: (abortController).signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: (abortController).signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(delay);
+  2 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(14): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), (timeout + extraDelay));\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(() => abortController.abort(), (timeout + extraDelay));
+  3 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(14): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), (timeout + extraDelay));\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), (timeout + extraDelay));
+  3 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(timeout + extraDelay);
+  2 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(15): const controller = new AbortController();\nsetTimeout(() => controller.abort(), delay);\nfetch(url, {signal: controller.signal}); 1`] = `
+
+  1 | const controller = new AbortController();
+  2 | setTimeout(() => controller.abort(), delay);
+  3 | fetch(url, {signal: controller.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(15): const controller = new AbortController();\nsetTimeout(() => controller.abort(), delay);\nfetch(url, {signal: controller.signal}); 2`] = `
+
+Message:
+> 1 | const controller = new AbortController();
+    |       ^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => controller.abort(), delay);
+  3 | fetch(url, {signal: controller.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const signal = AbortSignal.timeout(delay);
+  2 | fetch(url, {signal: signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(16): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\n{\n\tconst abortSignal = getSignal();\n\tfetch(url, {signal: abortController.signal});\n} 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | {
+  4 | 	const abortSignal = getSignal();
+  5 | 	fetch(url, {signal: abortController.signal});
+  6 | }
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(16): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\n{\n\tconst abortSignal = getSignal();\n\tfetch(url, {signal: abortController.signal});\n} 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | {
+  4 | 	const abortSignal = getSignal();
+  5 | 	fetch(url, {signal: abortController.signal});
+  6 | }
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortController = AbortSignal.timeout(delay);
+  2 | {
+  3 | 	const abortSignal = getSignal();
+  4 | 	fetch(url, {signal: abortController});
+  5 | }
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(17): const signal = getSignal();\nconst controller = new AbortController();\nsetTimeout(() => controller.abort(), delay);\nfetch(url, {signal: controller.signal}); 1`] = `
+
+  1 | const signal = getSignal();
+  2 | const controller = new AbortController();
+  3 | setTimeout(() => controller.abort(), delay);
+  4 | fetch(url, {signal: controller.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(17): const signal = getSignal();\nconst controller = new AbortController();\nsetTimeout(() => controller.abort(), delay);\nfetch(url, {signal: controller.signal}); 2`] = `
+
+Message:
+  1 | const signal = getSignal();
+> 2 | const controller = new AbortController();
+    |       ^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  3 | setTimeout(() => controller.abort(), delay);
+  4 | fetch(url, {signal: controller.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const signal = getSignal();
+  2 | const controller = AbortSignal.timeout(delay);
+  3 | fetch(url, {signal: controller});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(18): const requestController = new AbortController();\nsetTimeout(() => requestController.abort(), delay);\nfetch(url, {signal: requestController.signal}); 1`] = `
+
+  1 | const requestController = new AbortController();
+  2 | setTimeout(() => requestController.abort(), delay);
+  3 | fetch(url, {signal: requestController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(18): const requestController = new AbortController();\nsetTimeout(() => requestController.abort(), delay);\nfetch(url, {signal: requestController.signal}); 2`] = `
+
+Message:
+> 1 | const requestController = new AbortController();
+    |       ^^^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => requestController.abort(), delay);
+  3 | fetch(url, {signal: requestController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const requestController = AbortSignal.timeout(delay);
+  2 | fetch(url, {signal: requestController});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(19): switch (value) {\n\tcase 'fetch':\n\t\tconst abortController = new AbortController();\n\t\tsetTimeout(() => abortController.abort(), delay);\n\t\tfetch(url, {signal: abortController.signal});\n\t\tbreak;\n} 1`] = `
+
+  1 | switch (value) {
+  2 | 	case 'fetch':
+  3 | 		const abortController = new AbortController();
+  4 | 		setTimeout(() => abortController.abort(), delay);
+  5 | 		fetch(url, {signal: abortController.signal});
+  6 | 		break;
+  7 | }
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(19): switch (value) {\n\tcase 'fetch':\n\t\tconst abortController = new AbortController();\n\t\tsetTimeout(() => abortController.abort(), delay);\n\t\tfetch(url, {signal: abortController.signal});\n\t\tbreak;\n} 2`] = `
+
+Message:
+  1 | switch (value) {
+  2 | 	case 'fetch':
+> 3 | 		const abortController = new AbortController();
+    | 		      ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  4 | 		setTimeout(() => abortController.abort(), delay);
+  5 | 		fetch(url, {signal: abortController.signal});
+  6 | 		break;
+  7 | }
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | switch (value) {
+  2 | 	case 'fetch':
+  3 | 		const abortSignal = AbortSignal.timeout(delay);
+  4 | 		fetch(url, {signal: abortSignal});
+  5 | 		break;
+  6 | }
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(2): switch (value) {\n\tcase 'fetch': {\n\t\tconst abortController = new AbortController();\n\t\tsetTimeout(() => abortController.abort(), delay);\n\t\tfetch(url, {signal: abortController.signal});\n\t\tbreak;\n\t}\n} 1`] = `
+
+  1 | switch (value) {
+  2 | 	case 'fetch': {
+  3 | 		const abortController = new AbortController();
+  4 | 		setTimeout(() => abortController.abort(), delay);
+  5 | 		fetch(url, {signal: abortController.signal});
+  6 | 		break;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(2): switch (value) {\n\tcase 'fetch': {\n\t\tconst abortController = new AbortController();\n\t\tsetTimeout(() => abortController.abort(), delay);\n\t\tfetch(url, {signal: abortController.signal});\n\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | switch (value) {
+  2 | 	case 'fetch': {
+> 3 | 		const abortController = new AbortController();
+    | 		      ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  4 | 		setTimeout(() => abortController.abort(), delay);
+  5 | 		fetch(url, {signal: abortController.signal});
+  6 | 		break;
+  7 | 	}
+  8 | }
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | switch (value) {
+  2 | 	case 'fetch': {
+  3 | 		const abortSignal = AbortSignal.timeout(delay);
+  4 | 		fetch(url, {signal: abortSignal});
+  5 | 		break;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(3): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(3): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(delay);
+  2 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(4): const abortController = new AbortController();\nsetTimeout(() => {\n\tabortController.abort();\n}, delay);\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(() => {
+  3 | 	abortController.abort();
+  4 | }, delay);
+  5 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(4): const abortController = new AbortController();\nsetTimeout(() => {\n\tabortController.abort();\n}, delay);\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => {
+  3 | 	abortController.abort();
+  4 | }, delay);
+  5 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(delay);
+  2 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(5): const abortController = new AbortController();\nsetTimeout(function () {\n\tabortController.abort();\n}, delay);\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(function () {
+  3 | 	abortController.abort();
+  4 | }, delay);
+  5 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(5): const abortController = new AbortController();\nsetTimeout(function () {\n\tabortController.abort();\n}, delay);\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(function () {
+  3 | 	abortController.abort();
+  4 | }, delay);
+  5 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(delay);
+  2 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(6): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal});\nread(abortController.signal); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: abortController.signal});
+  4 | read(abortController.signal);
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(6): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal});\nread(abortController.signal); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: abortController.signal});
+  4 | read(abortController.signal);
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(delay);
+  2 | fetch(url, {signal: abortSignal});
+  3 | read(abortSignal);
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(7): function foo() {\n\tconst abortController = new AbortController();\n\tsetTimeout(() => abortController.abort(), delay);\n\tif (abortController.signal.aborted) {\n\t\treturn;\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	const abortController = new AbortController();
+  3 | 	setTimeout(() => abortController.abort(), delay);
+  4 | 	if (abortController.signal.aborted) {
+  5 | 		return;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(7): function foo() {\n\tconst abortController = new AbortController();\n\tsetTimeout(() => abortController.abort(), delay);\n\tif (abortController.signal.aborted) {\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	const abortController = new AbortController();
+    | 	      ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  3 | 	setTimeout(() => abortController.abort(), delay);
+  4 | 	if (abortController.signal.aborted) {
+  5 | 		return;
+  6 | 	}
+  7 | }
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | function foo() {
+  2 | 	const abortSignal = AbortSignal.timeout(delay);
+  3 | 	if (abortSignal.aborted) {
+  4 | 		return;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(8): const abortController: AbortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController: AbortController = new AbortController();
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(8): const abortController: AbortController = new AbortController();\nsetTimeout(() => abortController.abort(), delay);\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController: AbortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), delay);
+  3 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal: AbortSignal = AbortSignal.timeout(delay);
+  2 | fetch(url, {signal: abortSignal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(9): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), 1000);\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | setTimeout(() => abortController.abort(), 1000);
+  3 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-timeout > invalid(9): const abortController = new AbortController();\nsetTimeout(() => abortController.abort(), 1000);\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.timeout()\` over manually aborting an \`AbortController\` with \`setTimeout()\`.
+  2 | setTimeout(() => abortController.abort(), 1000);
+  3 | fetch(url, {signal: abortController.signal});
+
+Suggestion 1/1: Replace with \`AbortSignal.timeout()\`.:
+  1 | const abortSignal = AbortSignal.timeout(1000);
+  2 | fetch(url, {signal: abortSignal});
+
+`;

@@ -1,0 +1,1488 @@
+exports[`no-useless-coercion > invalid(1): Boolean(true) 1`] = `
+
+  1 | Boolean(true)
+
+`;
+
+exports[`no-useless-coercion > invalid(1): Boolean(true) 2`] = `
+
+Message:
+> 1 | Boolean(true)
+    | ^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | true
+
+`;
+
+exports[`no-useless-coercion > invalid(10): Number(parseInt(x, 10)) 1`] = `
+
+  1 | Number(parseInt(x, 10))
+
+`;
+
+exports[`no-useless-coercion > invalid(10): Number(parseInt(x, 10)) 2`] = `
+
+Message:
+> 1 | Number(parseInt(x, 10))
+    | ^^^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | parseInt(x, 10)
+
+`;
+
+exports[`no-useless-coercion > invalid(11): Number(Number.parseFloat(x)) 1`] = `
+
+  1 | Number(Number.parseFloat(x))
+
+`;
+
+exports[`no-useless-coercion > invalid(11): Number(Number.parseFloat(x)) 2`] = `
+
+Message:
+> 1 | Number(Number.parseFloat(x))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | Number.parseFloat(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(12): BigInt(BigInt(x)) 1`] = `
+
+  1 | BigInt(BigInt(x))
+
+`;
+
+exports[`no-useless-coercion > invalid(12): BigInt(BigInt(x)) 2`] = `
+
+Message:
+> 1 | BigInt(BigInt(x))
+    | ^^^^^^^^^^^^^^^^^ \`BigInt()\` is unnecessary because the value is already a bigint.
+
+Output:
+  1 | BigInt(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(13): Boolean(a === b) 1`] = `
+
+  1 | Boolean(a === b)
+
+`;
+
+exports[`no-useless-coercion > invalid(13): Boolean(a === b) 2`] = `
+
+Message:
+> 1 | Boolean(a === b)
+    | ^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (a === b)
+
+`;
+
+exports[`no-useless-coercion > invalid(14): Boolean(!x) 1`] = `
+
+  1 | Boolean(!x)
+
+`;
+
+exports[`no-useless-coercion > invalid(14): Boolean(!x) 2`] = `
+
+Message:
+> 1 | Boolean(!x)
+    | ^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (!x)
+
+`;
+
+exports[`no-useless-coercion > invalid(15): Boolean(!!x) 1`] = `
+
+  1 | Boolean(!!x)
+
+`;
+
+exports[`no-useless-coercion > invalid(15): Boolean(!!x) 2`] = `
+
+Message:
+> 1 | Boolean(!!x)
+    | ^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (!!x)
+
+`;
+
+exports[`no-useless-coercion > invalid(16): Boolean(a > 0 && b > 0) 1`] = `
+
+  1 | Boolean(a > 0 && b > 0)
+
+`;
+
+exports[`no-useless-coercion > invalid(16): Boolean(a > 0 && b > 0) 2`] = `
+
+Message:
+> 1 | Boolean(a > 0 && b > 0)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (a > 0 && b > 0)
+
+`;
+
+exports[`no-useless-coercion > invalid(17): Boolean(true || false) 1`] = `
+
+  1 | Boolean(true || false)
+
+`;
+
+exports[`no-useless-coercion > invalid(17): Boolean(true || false) 2`] = `
+
+Message:
+> 1 | Boolean(true || false)
+    | ^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (true || false)
+
+`;
+
+exports[`no-useless-coercion > invalid(18): Boolean(x instanceof Foo) 1`] = `
+
+  1 | Boolean(x instanceof Foo)
+
+`;
+
+exports[`no-useless-coercion > invalid(18): Boolean(x instanceof Foo) 2`] = `
+
+Message:
+> 1 | Boolean(x instanceof Foo)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (x instanceof Foo)
+
+`;
+
+exports[`no-useless-coercion > invalid(19): Boolean(x in obj) 1`] = `
+
+  1 | Boolean(x in obj)
+
+`;
+
+exports[`no-useless-coercion > invalid(19): Boolean(x in obj) 2`] = `
+
+Message:
+> 1 | Boolean(x in obj)
+    | ^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (x in obj)
+
+`;
+
+exports[`no-useless-coercion > invalid(2): Boolean(false) 1`] = `
+
+  1 | Boolean(false)
+
+`;
+
+exports[`no-useless-coercion > invalid(2): Boolean(false) 2`] = `
+
+Message:
+> 1 | Boolean(false)
+    | ^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | false
+
+`;
+
+exports[`no-useless-coercion > invalid(20): Boolean(delete obj.x) 1`] = `
+
+  1 | Boolean(delete obj.x)
+
+`;
+
+exports[`no-useless-coercion > invalid(20): Boolean(delete obj.x) 2`] = `
+
+Message:
+> 1 | Boolean(delete obj.x)
+    | ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (delete obj.x)
+
+`;
+
+exports[`no-useless-coercion > invalid(21): Boolean(a?.b === c) 1`] = `
+
+  1 | Boolean(a?.b === c)
+
+`;
+
+exports[`no-useless-coercion > invalid(21): Boolean(a?.b === c) 2`] = `
+
+Message:
+> 1 | Boolean(a?.b === c)
+    | ^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (a?.b === c)
+
+`;
+
+exports[`no-useless-coercion > invalid(22): Number(x.length) 1`] = `
+
+  1 | Number(x.length)
+
+`;
+
+exports[`no-useless-coercion > invalid(22): Number(x.length) 2`] = `
+
+Message:
+> 1 | Number(x.length)
+    | ^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | x.length
+
+`;
+
+exports[`no-useless-coercion > invalid(23): Number(Math.PI) 1`] = `
+
+  1 | Number(Math.PI)
+
+`;
+
+exports[`no-useless-coercion > invalid(23): Number(Math.PI) 2`] = `
+
+Message:
+> 1 | Number(Math.PI)
+    | ^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | Math.PI
+
+`;
+
+exports[`no-useless-coercion > invalid(24): Number(Number.MAX_SAFE_INTEGER) 1`] = `
+
+  1 | Number(Number.MAX_SAFE_INTEGER)
+
+`;
+
+exports[`no-useless-coercion > invalid(24): Number(Number.MAX_SAFE_INTEGER) 2`] = `
+
+Message:
+> 1 | Number(Number.MAX_SAFE_INTEGER)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | Number.MAX_SAFE_INTEGER
+
+`;
+
+exports[`no-useless-coercion > invalid(25): Number(NaN) 1`] = `
+
+  1 | Number(NaN)
+
+`;
+
+exports[`no-useless-coercion > invalid(25): Number(NaN) 2`] = `
+
+Message:
+> 1 | Number(NaN)
+    | ^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | NaN
+
+`;
+
+exports[`no-useless-coercion > invalid(26): Number(x >>> 0) 1`] = `
+
+  1 | Number(x >>> 0)
+
+`;
+
+exports[`no-useless-coercion > invalid(26): Number(x >>> 0) 2`] = `
+
+Message:
+> 1 | Number(x >>> 0)
+    | ^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (x >>> 0)
+
+`;
+
+exports[`no-useless-coercion > invalid(27): Number(~x.length) 1`] = `
+
+  1 | Number(~x.length)
+
+`;
+
+exports[`no-useless-coercion > invalid(27): Number(~x.length) 2`] = `
+
+Message:
+> 1 | Number(~x.length)
+    | ^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (~x.length)
+
+`;
+
+exports[`no-useless-coercion > invalid(28): Number(+x) 1`] = `
+
+  1 | Number(+x)
+
+`;
+
+exports[`no-useless-coercion > invalid(28): Number(+x) 2`] = `
+
+Message:
+> 1 | Number(+x)
+    | ^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (+x)
+
+`;
+
+exports[`no-useless-coercion > invalid(29): Number(x * 2) 1`] = `
+
+  1 | Number(x * 2)
+
+`;
+
+exports[`no-useless-coercion > invalid(29): Number(x * 2) 2`] = `
+
+Message:
+> 1 | Number(x * 2)
+    | ^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (x * 2)
+
+`;
+
+exports[`no-useless-coercion > invalid(3): String('hello') 1`] = `
+
+  1 | String('hello')
+
+`;
+
+exports[`no-useless-coercion > invalid(3): String('hello') 2`] = `
+
+Message:
+> 1 | String('hello')
+    | ^^^^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | 'hello'
+
+`;
+
+exports[`no-useless-coercion > invalid(30): Number(x % 2) 1`] = `
+
+  1 | Number(x % 2)
+
+`;
+
+exports[`no-useless-coercion > invalid(30): Number(x % 2) 2`] = `
+
+Message:
+> 1 | Number(x % 2)
+    | ^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (x % 2)
+
+`;
+
+exports[`no-useless-coercion > invalid(31): Number(x > 0 ? 1 : 2) 1`] = `
+
+  1 | Number(x > 0 ? 1 : 2)
+
+`;
+
+exports[`no-useless-coercion > invalid(31): Number(x > 0 ? 1 : 2) 2`] = `
+
+Message:
+> 1 | Number(x > 0 ? 1 : 2)
+    | ^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (x > 0 ? 1 : 2)
+
+`;
+
+exports[`no-useless-coercion > invalid(32): String(\`\${x}\`) 1`] = `
+
+  1 | String(\`\${x}\`)
+
+`;
+
+exports[`no-useless-coercion > invalid(32): String(\`\${x}\`) 2`] = `
+
+Message:
+> 1 | String(\`\${x}\`)
+    | ^^^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | \`\${x}\`
+
+`;
+
+exports[`no-useless-coercion > invalid(33): String(a + 'b') 1`] = `
+
+  1 | String(a + 'b')
+
+`;
+
+exports[`no-useless-coercion > invalid(33): String(a + 'b') 2`] = `
+
+Message:
+> 1 | String(a + 'b')
+    | ^^^^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | (a + 'b')
+
+`;
+
+exports[`no-useless-coercion > invalid(34): String(typeof x) 1`] = `
+
+  1 | String(typeof x)
+
+`;
+
+exports[`no-useless-coercion > invalid(34): String(typeof x) 2`] = `
+
+Message:
+> 1 | String(typeof x)
+    | ^^^^^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | (typeof x)
+
+`;
+
+exports[`no-useless-coercion > invalid(35): String(x ? 'a' : 'b') 1`] = `
+
+  1 | String(x ? 'a' : 'b')
+
+`;
+
+exports[`no-useless-coercion > invalid(35): String(x ? 'a' : 'b') 2`] = `
+
+Message:
+> 1 | String(x ? 'a' : 'b')
+    | ^^^^^^^^^^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | (x ? 'a' : 'b')
+
+`;
+
+exports[`no-useless-coercion > invalid(36): BigInt(1n + 2n) 1`] = `
+
+  1 | BigInt(1n + 2n)
+
+`;
+
+exports[`no-useless-coercion > invalid(36): BigInt(1n + 2n) 2`] = `
+
+Message:
+> 1 | BigInt(1n + 2n)
+    | ^^^^^^^^^^^^^^^ \`BigInt()\` is unnecessary because the value is already a bigint.
+
+Output:
+  1 | (1n + 2n)
+
+`;
+
+exports[`no-useless-coercion > invalid(37): BigInt(2n ** 3n) 1`] = `
+
+  1 | BigInt(2n ** 3n)
+
+`;
+
+exports[`no-useless-coercion > invalid(37): BigInt(2n ** 3n) 2`] = `
+
+Message:
+> 1 | BigInt(2n ** 3n)
+    | ^^^^^^^^^^^^^^^^ \`BigInt()\` is unnecessary because the value is already a bigint.
+
+Output:
+  1 | (2n ** 3n)
+
+`;
+
+exports[`no-useless-coercion > invalid(38): BigInt(BigInt.asIntN(64, x)) 1`] = `
+
+  1 | BigInt(BigInt.asIntN(64, x))
+
+`;
+
+exports[`no-useless-coercion > invalid(38): BigInt(BigInt.asIntN(64, x)) 2`] = `
+
+Message:
+> 1 | BigInt(BigInt.asIntN(64, x))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`BigInt()\` is unnecessary because the value is already a bigint.
+
+Output:
+  1 | BigInt.asIntN(64, x)
+
+`;
+
+exports[`no-useless-coercion > invalid(39): BigInt(x ? 1n : 2n) 1`] = `
+
+  1 | BigInt(x ? 1n : 2n)
+
+`;
+
+exports[`no-useless-coercion > invalid(39): BigInt(x ? 1n : 2n) 2`] = `
+
+Message:
+> 1 | BigInt(x ? 1n : 2n)
+    | ^^^^^^^^^^^^^^^^^^^ \`BigInt()\` is unnecessary because the value is already a bigint.
+
+Output:
+  1 | (x ? 1n : 2n)
+
+`;
+
+exports[`no-useless-coercion > invalid(4): Number(42) 1`] = `
+
+  1 | Number(42)
+
+`;
+
+exports[`no-useless-coercion > invalid(4): Number(42) 2`] = `
+
+Message:
+> 1 | Number(42)
+    | ^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | 42
+
+`;
+
+exports[`no-useless-coercion > invalid(40): +5 1`] = `
+
+  1 | +5
+
+`;
+
+exports[`no-useless-coercion > invalid(40): +5 2`] = `
+
+Message:
+> 1 | +5
+    | ^^ \`+\` is unnecessary because the value is already a number.
+
+Output:
+  1 | 5
+
+`;
+
+exports[`no-useless-coercion > invalid(41): +x.length 1`] = `
+
+  1 | +x.length
+
+`;
+
+exports[`no-useless-coercion > invalid(41): +x.length 2`] = `
+
+Message:
+> 1 | +x.length
+    | ^^^^^^^^^ \`+\` is unnecessary because the value is already a number.
+
+Output:
+  1 | x.length
+
+`;
+
+exports[`no-useless-coercion > invalid(42): +Number(x) 1`] = `
+
+  1 | +Number(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(42): +Number(x) 2`] = `
+
+Message:
+> 1 | +Number(x)
+    | ^^^^^^^^^^ \`+\` is unnecessary because the value is already a number.
+
+Output:
+  1 | Number(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(43): +(x * 2) 1`] = `
+
+  1 | +(x * 2)
+
+`;
+
+exports[`no-useless-coercion > invalid(43): +(x * 2) 2`] = `
+
+Message:
+> 1 | +(x * 2)
+    | ^^^^^^^^ \`+\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (x * 2)
+
+`;
+
+exports[`no-useless-coercion > invalid(44): + +x 1`] = `
+
+  1 | + +x
+
+`;
+
+exports[`no-useless-coercion > invalid(44): + +x 2`] = `
+
+Message:
+> 1 | + +x
+    | ^^^^ \`+\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (+x)
+
+`;
+
+exports[`no-useless-coercion > invalid(45): 'a' + '' 1`] = `
+
+  1 | 'a' + ''
+
+`;
+
+exports[`no-useless-coercion > invalid(45): 'a' + '' 2`] = `
+
+Message:
+> 1 | 'a' + ''
+    | ^^^^^^^^ Concatenation with \`''\` is unnecessary because the value is already a string.
+
+Output:
+  1 | 'a'
+
+`;
+
+exports[`no-useless-coercion > invalid(46): '' + 'a' 1`] = `
+
+  1 | '' + 'a'
+
+`;
+
+exports[`no-useless-coercion > invalid(46): '' + 'a' 2`] = `
+
+Message:
+> 1 | '' + 'a'
+    | ^^^^^^^^ Concatenation with \`''\` is unnecessary because the value is already a string.
+
+Output:
+  1 | 'a'
+
+`;
+
+exports[`no-useless-coercion > invalid(47): '' + '' 1`] = `
+
+  1 | '' + ''
+
+`;
+
+exports[`no-useless-coercion > invalid(47): '' + '' 2`] = `
+
+Message:
+> 1 | '' + ''
+    | ^^^^^^^ Concatenation with \`''\` is unnecessary because the value is already a string.
+
+Output:
+  1 | ''
+
+`;
+
+exports[`no-useless-coercion > invalid(48): \`\${x}\` + '' 1`] = `
+
+  1 | \`\${x}\` + ''
+
+`;
+
+exports[`no-useless-coercion > invalid(48): \`\${x}\` + '' 2`] = `
+
+Message:
+> 1 | \`\${x}\` + ''
+    | ^^^^^^^^^^^ Concatenation with \`''\` is unnecessary because the value is already a string.
+
+Output:
+  1 | \`\${x}\`
+
+`;
+
+exports[`no-useless-coercion > invalid(49): (a + 'b') + '' 1`] = `
+
+  1 | (a + 'b') + ''
+
+`;
+
+exports[`no-useless-coercion > invalid(49): (a + 'b') + '' 2`] = `
+
+Message:
+> 1 | (a + 'b') + ''
+    | ^^^^^^^^^^^^^^ Concatenation with \`''\` is unnecessary because the value is already a string.
+
+Output:
+  1 | (a + 'b')
+
+`;
+
+exports[`no-useless-coercion > invalid(5): Number(0) 1`] = `
+
+  1 | Number(0)
+
+`;
+
+exports[`no-useless-coercion > invalid(5): Number(0) 2`] = `
+
+Message:
+> 1 | Number(0)
+    | ^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | 0
+
+`;
+
+exports[`no-useless-coercion > invalid(50): String(x) + '' 1`] = `
+
+  1 | String(x) + ''
+
+`;
+
+exports[`no-useless-coercion > invalid(50): String(x) + '' 2`] = `
+
+Message:
+> 1 | String(x) + ''
+    | ^^^^^^^^^^^^^^ Concatenation with \`''\` is unnecessary because the value is already a string.
+
+Output:
+  1 | String(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(51): 'a'.toString() 1`] = `
+
+  1 | 'a'.toString()
+
+`;
+
+exports[`no-useless-coercion > invalid(51): 'a'.toString() 2`] = `
+
+Message:
+> 1 | 'a'.toString()
+    | ^^^^^^^^^^^^^^ \`.toString()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | 'a'
+
+`;
+
+exports[`no-useless-coercion > invalid(52): \`\${x}\`.toString() 1`] = `
+
+  1 | \`\${x}\`.toString()
+
+`;
+
+exports[`no-useless-coercion > invalid(52): \`\${x}\`.toString() 2`] = `
+
+Message:
+> 1 | \`\${x}\`.toString()
+    | ^^^^^^^^^^^^^^^^^ \`.toString()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | \`\${x}\`
+
+`;
+
+exports[`no-useless-coercion > invalid(53): (a + 'b').toString() 1`] = `
+
+  1 | (a + 'b').toString()
+
+`;
+
+exports[`no-useless-coercion > invalid(53): (a + 'b').toString() 2`] = `
+
+Message:
+> 1 | (a + 'b').toString()
+    | ^^^^^^^^^^^^^^^^^^^^ \`.toString()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | (a + 'b')
+
+`;
+
+exports[`no-useless-coercion > invalid(54): String(x).toString() 1`] = `
+
+  1 | String(x).toString()
+
+`;
+
+exports[`no-useless-coercion > invalid(54): String(x).toString() 2`] = `
+
+Message:
+> 1 | String(x).toString()
+    | ^^^^^^^^^^^^^^^^^^^^ \`.toString()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | String(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(55): const flag = true; Boolean(flag) 1`] = `
+
+  1 | const flag = true; Boolean(flag)
+
+`;
+
+exports[`no-useless-coercion > invalid(55): const flag = true; Boolean(flag) 2`] = `
+
+Message:
+> 1 | const flag = true; Boolean(flag)
+    |                    ^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | const flag = true; flag
+
+`;
+
+exports[`no-useless-coercion > invalid(56): const name = 'unicorn'; String(name) 1`] = `
+
+  1 | const name = 'unicorn'; String(name)
+
+`;
+
+exports[`no-useless-coercion > invalid(56): const name = 'unicorn'; String(name) 2`] = `
+
+Message:
+> 1 | const name = 'unicorn'; String(name)
+    |                         ^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | const name = 'unicorn'; name
+
+`;
+
+exports[`no-useless-coercion > invalid(57): const text = 'x'; text + '' 1`] = `
+
+  1 | const text = 'x'; text + ''
+
+`;
+
+exports[`no-useless-coercion > invalid(57): const text = 'x'; text + '' 2`] = `
+
+Message:
+> 1 | const text = 'x'; text + ''
+    |                   ^^^^^^^^^ Concatenation with \`''\` is unnecessary because the value is already a string.
+
+Output:
+  1 | const text = 'x'; text
+
+`;
+
+exports[`no-useless-coercion > invalid(58): const n = 5; +n 1`] = `
+
+  1 | const n = 5; +n
+
+`;
+
+exports[`no-useless-coercion > invalid(58): const n = 5; +n 2`] = `
+
+Message:
+> 1 | const n = 5; +n
+    |              ^^ \`+\` is unnecessary because the value is already a number.
+
+Output:
+  1 | const n = 5; n
+
+`;
+
+exports[`no-useless-coercion > invalid(59): String(a + 'b').length 1`] = `
+
+  1 | String(a + 'b').length
+
+`;
+
+exports[`no-useless-coercion > invalid(59): String(a + 'b').length 2`] = `
+
+Message:
+> 1 | String(a + 'b').length
+    | ^^^^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | (a + 'b').length
+
+`;
+
+exports[`no-useless-coercion > invalid(6): BigInt(1n) 1`] = `
+
+  1 | BigInt(1n)
+
+`;
+
+exports[`no-useless-coercion > invalid(6): BigInt(1n) 2`] = `
+
+Message:
+> 1 | BigInt(1n)
+    | ^^^^^^^^^^ \`BigInt()\` is unnecessary because the value is already a bigint.
+
+Output:
+  1 | 1n
+
+`;
+
+exports[`no-useless-coercion > invalid(60): Number(x * 2).toFixed(2) 1`] = `
+
+  1 | Number(x * 2).toFixed(2)
+
+`;
+
+exports[`no-useless-coercion > invalid(60): Number(x * 2).toFixed(2) 2`] = `
+
+Message:
+> 1 | Number(x * 2).toFixed(2)
+    | ^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (x * 2).toFixed(2)
+
+`;
+
+exports[`no-useless-coercion > invalid(61): Boolean(x ? a > 0 : b < 0) 1`] = `
+
+  1 | Boolean(x ? a > 0 : b < 0)
+
+`;
+
+exports[`no-useless-coercion > invalid(61): Boolean(x ? a > 0 : b < 0) 2`] = `
+
+Message:
+> 1 | Boolean(x ? a > 0 : b < 0)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (x ? a > 0 : b < 0)
+
+`;
+
+exports[`no-useless-coercion > invalid(62): !Boolean(a === b) 1`] = `
+
+  1 | !Boolean(a === b)
+
+`;
+
+exports[`no-useless-coercion > invalid(62): !Boolean(a === b) 2`] = `
+
+Message:
+> 1 | !Boolean(a === b)
+    |  ^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | !(a === b)
+
+`;
+
+exports[`no-useless-coercion > invalid(63): -Number(x.length) 1`] = `
+
+  1 | -Number(x.length)
+
+`;
+
+exports[`no-useless-coercion > invalid(63): -Number(x.length) 2`] = `
+
+Message:
+> 1 | -Number(x.length)
+    |  ^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | -x.length
+
+`;
+
+exports[`no-useless-coercion > invalid(64): String(\`foo\`).length 1`] = `
+
+  1 | String(\`foo\`).length
+
+`;
+
+exports[`no-useless-coercion > invalid(64): String(\`foo\`).length 2`] = `
+
+Message:
+> 1 | String(\`foo\`).length
+    | ^^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | \`foo\`.length
+
+`;
+
+exports[`no-useless-coercion > invalid(65): Number(5).toFixed(2) 1`] = `
+
+  1 | Number(5).toFixed(2)
+
+`;
+
+exports[`no-useless-coercion > invalid(65): Number(5).toFixed(2) 2`] = `
+
+Message:
+> 1 | Number(5).toFixed(2)
+    | ^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (5).toFixed(2)
+
+`;
+
+exports[`no-useless-coercion > invalid(66): Boolean((a === b)) 1`] = `
+
+  1 | Boolean((a === b))
+
+`;
+
+exports[`no-useless-coercion > invalid(66): Boolean((a === b)) 2`] = `
+
+Message:
+> 1 | Boolean((a === b))
+    | ^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (a === b)
+
+`;
+
+exports[`no-useless-coercion > invalid(67): (Number(x.length)) 1`] = `
+
+  1 | (Number(x.length))
+
+`;
+
+exports[`no-useless-coercion > invalid(67): (Number(x.length)) 2`] = `
+
+Message:
+> 1 | (Number(x.length))
+    |  ^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (x.length)
+
+`;
+
+exports[`no-useless-coercion > invalid(68): Number((a, b.length)) 1`] = `
+
+  1 | Number((a, b.length))
+
+`;
+
+exports[`no-useless-coercion > invalid(68): Number((a, b.length)) 2`] = `
+
+Message:
+> 1 | Number((a, b.length))
+    | ^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (a, b.length)
+
+`;
+
+exports[`no-useless-coercion > invalid(69): Number({foo: 1}.length) 1`] = `
+
+  1 | Number({foo: 1}.length)
+
+`;
+
+exports[`no-useless-coercion > invalid(69): Number({foo: 1}.length) 2`] = `
+
+Message:
+> 1 | Number({foo: 1}.length)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | ({foo: 1}.length)
+
+`;
+
+exports[`no-useless-coercion > invalid(7): Boolean(Boolean(x)) 1`] = `
+
+  1 | Boolean(Boolean(x))
+
+`;
+
+exports[`no-useless-coercion > invalid(7): Boolean(Boolean(x)) 2`] = `
+
+Message:
+> 1 | Boolean(Boolean(x))
+    | ^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | Boolean(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(70): foo\nNumber(+bar) 1`] = `
+
+  1 | foo
+  2 | Number(+bar)
+
+`;
+
+exports[`no-useless-coercion > invalid(70): foo\nNumber(+bar) 2`] = `
+
+Message:
+  1 | foo
+> 2 | Number(+bar)
+    | ^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | foo
+  2 | ;(+bar)
+
+`;
+
+exports[`no-useless-coercion > invalid(71): Number(/* keep */ x.length) 1`] = `
+
+  1 | Number(/* keep */ x.length)
+
+`;
+
+exports[`no-useless-coercion > invalid(71): Number(/* keep */ x.length) 2`] = `
+
+Message:
+> 1 | Number(/* keep */ x.length)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+`;
+
+exports[`no-useless-coercion > invalid(72): +/* keep */ x.length 1`] = `
+
+  1 | +/* keep */ x.length
+
+`;
+
+exports[`no-useless-coercion > invalid(72): +/* keep */ x.length 2`] = `
+
+Message:
+> 1 | +/* keep */ x.length
+    | ^^^^^^^^^^^^^^^^^^^^ \`+\` is unnecessary because the value is already a number.
+
+`;
+
+exports[`no-useless-coercion > invalid(73): 'a' /* keep */ + '' 1`] = `
+
+  1 | 'a' /* keep */ + ''
+
+`;
+
+exports[`no-useless-coercion > invalid(73): 'a' /* keep */ + '' 2`] = `
+
+Message:
+> 1 | 'a' /* keep */ + ''
+    | ^^^^^^^^^^^^^^^^^^^ Concatenation with \`''\` is unnecessary because the value is already a string.
+
+`;
+
+exports[`no-useless-coercion > invalid(74): (/* keep */ 'a').toString() 1`] = `
+
+  1 | (/* keep */ 'a').toString()
+
+`;
+
+exports[`no-useless-coercion > invalid(74): (/* keep */ 'a').toString() 2`] = `
+
+Message:
+> 1 | (/* keep */ 'a').toString()
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`.toString()\` is unnecessary because the value is already a string.
+
+`;
+
+exports[`no-useless-coercion > invalid(75): Boolean(x as boolean) 1`] = `
+
+  1 | Boolean(x as boolean)
+
+`;
+
+exports[`no-useless-coercion > invalid(75): Boolean(x as boolean) 2`] = `
+
+Message:
+> 1 | Boolean(x as boolean)
+    | ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary because the value is already a boolean.
+
+Output:
+  1 | (x as boolean)
+
+`;
+
+exports[`no-useless-coercion > invalid(76): Number(x satisfies number) 1`] = `
+
+  1 | Number(x satisfies number)
+
+`;
+
+exports[`no-useless-coercion > invalid(76): Number(x satisfies number) 2`] = `
+
+Message:
+> 1 | Number(x satisfies number)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (x satisfies number)
+
+`;
+
+exports[`no-useless-coercion > invalid(77): declare const x: string; String(x!) 1`] = `
+
+  1 | declare const x: string; String(x!)
+
+`;
+
+exports[`no-useless-coercion > invalid(77): declare const x: string; String(x!) 2`] = `
+
+Message:
+> 1 | declare const x: string; String(x!)
+    |                          ^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | declare const x: string; x!
+
+`;
+
+exports[`no-useless-coercion > invalid(78): const f = (x: number) => Number(x) 1`] = `
+
+  1 | const f = (x: number) => Number(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(78): const f = (x: number) => Number(x) 2`] = `
+
+Message:
+> 1 | const f = (x: number) => Number(x)
+    |                          ^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | const f = (x: number) => x
+
+`;
+
+exports[`no-useless-coercion > invalid(79): const f = (x: bigint) => BigInt(x) 1`] = `
+
+  1 | const f = (x: bigint) => BigInt(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(79): const f = (x: bigint) => BigInt(x) 2`] = `
+
+Message:
+> 1 | const f = (x: bigint) => BigInt(x)
+    |                          ^^^^^^^^^ \`BigInt()\` is unnecessary because the value is already a bigint.
+
+Output:
+  1 | const f = (x: bigint) => x
+
+`;
+
+exports[`no-useless-coercion > invalid(8): String(String(x)) 1`] = `
+
+  1 | String(String(x))
+
+`;
+
+exports[`no-useless-coercion > invalid(8): String(String(x)) 2`] = `
+
+Message:
+> 1 | String(String(x))
+    | ^^^^^^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | String(x)
+
+`;
+
+exports[`no-useless-coercion > invalid(80): Number(<number>x) 1`] = `
+
+  1 | Number(<number>x)
+
+`;
+
+exports[`no-useless-coercion > invalid(80): Number(<number>x) 2`] = `
+
+Message:
+> 1 | Number(<number>x)
+    | ^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (<number>x)
+
+`;
+
+exports[`no-useless-coercion > invalid(81): declare const x: number; Number(x!) 1`] = `
+
+  1 | declare const x: number; Number(x!)
+
+`;
+
+exports[`no-useless-coercion > invalid(81): declare const x: number; Number(x!) 2`] = `
+
+Message:
+> 1 | declare const x: number; Number(x!)
+    |                          ^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | declare const x: number; x!
+
+`;
+
+exports[`no-useless-coercion > invalid(82): BigInt(x as bigint) 1`] = `
+
+  1 | BigInt(x as bigint)
+
+`;
+
+exports[`no-useless-coercion > invalid(82): BigInt(x as bigint) 2`] = `
+
+Message:
+> 1 | BigInt(x as bigint)
+    | ^^^^^^^^^^^^^^^^^^^ \`BigInt()\` is unnecessary because the value is already a bigint.
+
+Output:
+  1 | (x as bigint)
+
+`;
+
+exports[`no-useless-coercion > invalid(83): String(x as string).length 1`] = `
+
+  1 | String(x as string).length
+
+`;
+
+exports[`no-useless-coercion > invalid(83): String(x as string).length 2`] = `
+
+Message:
+> 1 | String(x as string).length
+    | ^^^^^^^^^^^^^^^^^^^ \`String()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | (x as string).length
+
+`;
+
+exports[`no-useless-coercion > invalid(84): Number(x satisfies number).toFixed(2) 1`] = `
+
+  1 | Number(x satisfies number).toFixed(2)
+
+`;
+
+exports[`no-useless-coercion > invalid(84): Number(x satisfies number).toFixed(2) 2`] = `
+
+Message:
+> 1 | Number(x satisfies number).toFixed(2)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | (x satisfies number).toFixed(2)
+
+`;
+
+exports[`no-useless-coercion > invalid(85): declare const x: number; +x 1`] = `
+
+  1 | declare const x: number; +x
+
+`;
+
+exports[`no-useless-coercion > invalid(85): declare const x: number; +x 2`] = `
+
+Message:
+> 1 | declare const x: number; +x
+    |                          ^^ \`+\` is unnecessary because the value is already a number.
+
+Output:
+  1 | declare const x: number; x
+
+`;
+
+exports[`no-useless-coercion > invalid(86): declare const x: string; x + '' 1`] = `
+
+  1 | declare const x: string; x + ''
+
+`;
+
+exports[`no-useless-coercion > invalid(86): declare const x: string; x + '' 2`] = `
+
+Message:
+> 1 | declare const x: string; x + ''
+    |                          ^^^^^^ Concatenation with \`''\` is unnecessary because the value is already a string.
+
+Output:
+  1 | declare const x: string; x
+
+`;
+
+exports[`no-useless-coercion > invalid(87): declare const x: string; x.toString() 1`] = `
+
+  1 | declare const x: string; x.toString()
+
+`;
+
+exports[`no-useless-coercion > invalid(87): declare const x: string; x.toString() 2`] = `
+
+Message:
+> 1 | declare const x: string; x.toString()
+    |                          ^^^^^^^^^^^^ \`.toString()\` is unnecessary because the value is already a string.
+
+Output:
+  1 | declare const x: string; x
+
+`;
+
+exports[`no-useless-coercion > invalid(88): declare const object: {value: 1n}; BigInt(object.value); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: {value: 1n}; BigInt(object.value);
+
+`;
+
+exports[`no-useless-coercion > invalid(88): declare const object: {value: 1n}; BigInt(object.value); 2`] = `
+
+Message:
+> 1 | declare const object: {value: 1n}; BigInt(object.value);
+    |                                    ^^^^^^^^^^^^^^^^^^^^ \`BigInt()\` is unnecessary because the value is already a bigint.
+
+Output:
+  1 | declare const object: {value: 1n}; object.value;
+
+`;
+
+exports[`no-useless-coercion > invalid(9): Number(Number(x)) 1`] = `
+
+  1 | Number(Number(x))
+
+`;
+
+exports[`no-useless-coercion > invalid(9): Number(Number(x)) 2`] = `
+
+Message:
+> 1 | Number(Number(x))
+    | ^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+
+Output:
+  1 | Number(x)
+
+`;

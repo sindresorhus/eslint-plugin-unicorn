@@ -216,10 +216,6 @@ function getConstVariableInitializer(node, context, visitedVariables) {
 function isDefinitelyNotFunctionValue(node, context, visitedVariables = new Set()) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (!node) {
-		return false;
-	}
-
 	if (
 		definitelyNotFunctionValueNodeTypes.has(node.type)
 		|| isUndefined(node)

@@ -1,0 +1,485 @@
+exports[`no-undeclared-class-members > invalid(1): class Foo {\n\tconstructor(name: string) {}\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	constructor(name: string) {}
+  3 | 	getName() {
+  4 | 		return this.name;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(1): class Foo {\n\tconstructor(name: string) {}\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	constructor(name: string) {}
+  3 | 	getName() {
+> 4 | 		return this.name;
+    | 		       ^^^^^^^^^ Class member \`name\` is used but not declared.
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(1): class Foo {\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	getName() {
+  3 | 		return this.name;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(1): class Foo {\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	getName() {
+> 3 | 		return this.name;
+    | 		       ^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(10): class Foo {\n\tconstructor() {\n\t\tthis.name = this.value;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		this.name = this.value;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(10): class Foo {\n\tconstructor() {\n\t\tthis.name = this.value;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	constructor() {
+> 3 | 		this.name = this.value;
+    | 		            ^^^^^^^^^^ Class member \`value\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(11): class Foo {\n\tconstructor(callbacks) {\n\t\tcallbacks.push(() => {\n\t\t\tthis.name = 'foo';\n\t\t});\n\t}\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 1`] = `
+
+   1 | class Foo {
+   2 | 	constructor(callbacks) {
+   3 | 		callbacks.push(() => {
+   4 | 			this.name = 'foo';
+   5 | 		});
+   6 | 	}
+   7 | 	getName() {
+   8 | 		return this.name;
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(11): class Foo {\n\tconstructor(callbacks) {\n\t\tcallbacks.push(() => {\n\t\t\tthis.name = 'foo';\n\t\t});\n\t}\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 2`] = `
+
+Message:
+   1 | class Foo {
+   2 | 	constructor(callbacks) {
+   3 | 		callbacks.push(() => {
+>  4 | 			this.name = 'foo';
+     | 			^^^^^^^^^ Class member \`name\` is used but not declared.
+   5 | 		});
+   6 | 	}
+   7 | 	getName() {
+   8 | 		return this.name;
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(11): class Foo {\n\tconstructor(callbacks) {\n\t\tcallbacks.push(() => {\n\t\t\tthis.name = 'foo';\n\t\t});\n\t}\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 3`] = `
+
+Message:
+   1 | class Foo {
+   2 | 	constructor(callbacks) {
+   3 | 		callbacks.push(() => {
+   4 | 			this.name = 'foo';
+   5 | 		});
+   6 | 	}
+   7 | 	getName() {
+>  8 | 		return this.name;
+     | 		       ^^^^^^^^^ Class member \`name\` is used but not declared.
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(12): class Foo {\n\tsetName(name) {\n\t\tthis.name = name;\n\t\tthis.name = name.trim();\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	setName(name) {
+  3 | 		this.name = name;
+  4 | 		this.name = name.trim();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(12): class Foo {\n\tsetName(name) {\n\t\tthis.name = name;\n\t\tthis.name = name.trim();\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	setName(name) {
+> 3 | 		this.name = name;
+    | 		^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 		this.name = name.trim();
+  5 | 	}
+  6 | }
+
+Suggestion 1/1: Declare \`name\` as a class field.:
+  1 | class Foo {
+  2 | 	name;
+  3 | 	setName(name) {
+  4 | 		this.name = name;
+  5 | 		this.name = name.trim();
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(12): class Foo {\n\tsetName(name) {\n\t\tthis.name = name;\n\t\tthis.name = name.trim();\n\t}\n} 3`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	setName(name) {
+  3 | 		this.name = name;
+> 4 | 		this.name = name.trim();
+    | 		^^^^^^^^^ Class member \`name\` is used but not declared.
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(13): class Foo {\n\t// Sets the name.\n\tsetName(name) {\n\t\tthis.name = name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	// Sets the name.
+  3 | 	setName(name) {
+  4 | 		this.name = name;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(13): class Foo {\n\t// Sets the name.\n\tsetName(name) {\n\t\tthis.name = name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	// Sets the name.
+  3 | 	setName(name) {
+> 4 | 		this.name = name;
+    | 		^^^^^^^^^ Class member \`name\` is used but not declared.
+  5 | 	}
+  6 | }
+
+Suggestion 1/1: Declare \`name\` as a class field.:
+  1 | class Foo {
+  2 | 	name;
+  3 | 	// Sets the name.
+  4 | 	setName(name) {
+  5 | 		this.name = name;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(14): class Foo { setName(name) { this.name = name; } } 1`] = `
+
+  1 | class Foo { setName(name) { this.name = name; } }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(14): class Foo { setName(name) { this.name = name; } } 2`] = `
+
+Message:
+> 1 | class Foo { setName(name) { this.name = name; } }
+    |                             ^^^^^^^^^ Class member \`name\` is used but not declared.
+
+`;
+
+exports[`no-undeclared-class-members > invalid(15): class Foo {\n\t1() {}\n\t[name]() {}\n\t[\`\${prefix}name\`]() {}\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	1() {}
+  3 | 	[name]() {}
+  4 | 	[\`\${prefix}name\`]() {}
+  5 | 	getName() {
+  6 | 		return this.name;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(15): class Foo {\n\t1() {}\n\t[name]() {}\n\t[\`\${prefix}name\`]() {}\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	1() {}
+  3 | 	[name]() {}
+  4 | 	[\`\${prefix}name\`]() {}
+  5 | 	getName() {
+> 6 | 		return this.name;
+    | 		       ^^^^^^^^^ Class member \`name\` is used but not declared.
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(2): class Foo {\n\tcallName() {\n\t\tthis.name();\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	callName() {
+  3 | 		this.name();
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(2): class Foo {\n\tcallName() {\n\t\tthis.name();\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	callName() {
+> 3 | 		this.name();
+    | 		^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(2): class Foo {\n\tgetName() {\n\t\treturn this.name as string;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	getName() {
+  3 | 		return this.name as string;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(2): class Foo {\n\tgetName() {\n\t\treturn this.name as string;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	getName() {
+> 3 | 		return this.name as string;
+    | 		       ^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(3): class Foo {\n\tcallName() {\n\t\tthis.name?.();\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	callName() {
+  3 | 		this.name?.();
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(3): class Foo {\n\tcallName() {\n\t\tthis.name?.();\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	callName() {
+> 3 | 		this.name?.();
+    | 		^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(3): class Foo {\n\tgetName() {\n\t\treturn this!.name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	getName() {
+  3 | 		return this!.name;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(3): class Foo {\n\tgetName() {\n\t\treturn this!.name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	getName() {
+> 3 | 		return this!.name;
+    | 		       ^^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(4): class Foo {\n\t@decorator\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	@decorator
+  3 | 	getName() {
+  4 | 		return this.name;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(4): class Foo {\n\t@decorator\n\tgetName() {\n\t\treturn this.name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	@decorator
+  3 | 	getName() {
+> 4 | 		return this.name;
+    | 		       ^^^^^^^^^ Class member \`name\` is used but not declared.
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(4): class Foo {\n\tgetName() {\n\t\treturn this?.name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	getName() {
+  3 | 		return this?.name;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(4): class Foo {\n\tgetName() {\n\t\treturn this?.name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	getName() {
+> 3 | 		return this?.name;
+    | 		       ^^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(5): class Foo {\n\tname = this.value;\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	name = this.value;
+  3 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(5): class Foo {\n\tname = this.value;\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	name = this.value;
+    | 	       ^^^^^^^^^^ Class member \`value\` is used but not declared.
+  3 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(6): class Foo {\n\tsetName(name) {\n\t\tthis.name = name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	setName(name) {
+  3 | 		this.name = name;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(6): class Foo {\n\tsetName(name) {\n\t\tthis.name = name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	setName(name) {
+> 3 | 		this.name = name;
+    | 		^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+Suggestion 1/1: Declare \`name\` as a class field.:
+  1 | class Foo {
+  2 | 	name;
+  3 | 	setName(name) {
+  4 | 		this.name = name;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(7): class Foo {\n\tsetName(name) {\n\t\tthis.name += name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	setName(name) {
+  3 | 		this.name += name;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(7): class Foo {\n\tsetName(name) {\n\t\tthis.name += name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	setName(name) {
+> 3 | 		this.name += name;
+    | 		^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(8): class Foo {\n\tsetName() {\n\t\tthis.name++;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	setName() {
+  3 | 		this.name++;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(8): class Foo {\n\tsetName() {\n\t\tthis.name++;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	setName() {
+> 3 | 		this.name++;
+    | 		^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(9): class Foo {\n\tgetName() {\n\t\treturn () => this.name;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	getName() {
+  3 | 		return () => this.name;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-undeclared-class-members > invalid(9): class Foo {\n\tgetName() {\n\t\treturn () => this.name;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	getName() {
+> 3 | 		return () => this.name;
+    | 		             ^^^^^^^^^ Class member \`name\` is used but not declared.
+  4 | 	}
+  5 | }
+
+`;

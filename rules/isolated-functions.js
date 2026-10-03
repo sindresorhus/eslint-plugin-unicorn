@@ -1,5 +1,6 @@
 import globals from 'globals';
 import {functionTypes, isMemberExpression, isMethodCall} from './ast/index.js';
+import {getVisitorChildNodes} from './utils/index.js';
 
 const MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE = 'externally-scoped-variable';
 const MESSAGE_ID_SUPER = 'super';
@@ -105,7 +106,9 @@ const create = context => {
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 
 	const configuredGlobals = {
-		...(globals[`es${context.languageOptions.ecmaVersion}`] ?? globals.builtins),
+		// Defensive: a newer ESLint version can support an `ecmaVersion` that `globals` does not have yet
+		/* node:coverage ignore next */
+		...(globals[`es${context.languageOptions.ecmaVersion}`] ?? globals.builtin),
 		...context.languageOptions.globals,
 	};
 	const checked = new WeakSet();
@@ -180,22 +183,8 @@ const create = context => {
 			}
 		}
 
-		for (const key of sourceCode.visitorKeys[node.type] ?? []) {
-			const value = node[key];
-
-			if (Array.isArray(value)) {
-				for (const childNode of value) {
-					if (childNode?.type) {
-						yield * getFunctionContextProblems(childNode, reason, root);
-					}
-				}
-
-				continue;
-			}
-
-			if (value?.type) {
-				yield * getFunctionContextProblems(value, reason, root);
-			}
+		for (const child of getVisitorChildNodes(node, sourceCode.visitorKeys)) {
+			yield * getFunctionContextProblems(child, reason, root);
 		}
 	}
 

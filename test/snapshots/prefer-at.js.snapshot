@@ -1,0 +1,2017 @@
+exports[`prefer-at > invalid(1): \"string\"[\"string\".length - 1] 1`] = `
+
+  1 | "string"["string".length - 1]
+
+`;
+
+exports[`prefer-at > invalid(1): \"string\"[\"string\".length - 1] 2`] = `
+
+Message:
+> 1 | "string"["string".length - 1]
+    |          ^^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | "string".at(-1)
+
+`;
+
+exports[`prefer-at > invalid(1): _.last(array) 1`] = `
+
+  1 | _.last(array)
+
+`;
+
+exports[`prefer-at > invalid(1): _.last(array) 2`] = `
+
+Message:
+> 1 | _.last(array)
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(1): array.slice(-1)[0] 1`] = `
+
+  1 | array.slice(-1)[0]
+
+`;
+
+exports[`prefer-at > invalid(1): array.slice(-1)[0] 2`] = `
+
+Message:
+> 1 | array.slice(-1)[0]
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(1): array.slice(-9, -8)[0] 1`] = `
+
+  1 | array.slice(-9, -8)[0]
+
+`;
+
+exports[`prefer-at > invalid(1): array.slice(-9, -8)[0] 2`] = `
+
+Message:
+> 1 | array.slice(-9, -8)[0]
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-9)
+
+`;
+
+exports[`prefer-at > invalid(1): array[0] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | array[0]
+
+`;
+
+exports[`prefer-at > invalid(1): array[0] 2`] = `
+
+Message:
+> 1 | array[0]
+    |       ^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | array.at(0)
+
+`;
+
+exports[`prefer-at > invalid(1): array[array.length - 1]; 1`] = `
+
+  1 | array[array.length - 1];
+
+`;
+
+exports[`prefer-at > invalid(1): array[array.length - 1]; 2`] = `
+
+Message:
+> 1 | array[array.length - 1];
+    |       ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(1): string.charAt(string.length - 1); 1`] = `
+
+  1 | string.charAt(string.length - 1);
+
+`;
+
+exports[`prefer-at > invalid(1): string.charAt(string.length - 1); 2`] = `
+
+Message:
+> 1 | string.charAt(string.length - 1);
+    |               ^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(- 1);
+
+`;
+
+exports[`prefer-at > invalid(1): string.substring(0, 1) 1`] = `
+
+  1 | string.substring(0, 1)
+
+`;
+
+exports[`prefer-at > invalid(1): string.substring(0, 1) 2`] = `
+
+Message:
+> 1 | string.substring(0, 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(0)
+
+`;
+
+exports[`prefer-at > invalid(10): (( array.slice(-1)[0] )); 1`] = `
+
+  1 | (( array.slice(-1)[0] ));
+
+`;
+
+exports[`prefer-at > invalid(10): (( array.slice(-1)[0] )); 2`] = `
+
+Message:
+> 1 | (( array.slice(-1)[0] ));
+    |          ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (( array.at(-1) ));
+
+`;
+
+exports[`prefer-at > invalid(10): (( string.charAt(string.length - 1) )); 1`] = `
+
+  1 | (( string.charAt(string.length - 1) ));
+
+`;
+
+exports[`prefer-at > invalid(10): (( string.charAt(string.length - 1) )); 2`] = `
+
+Message:
+> 1 | (( string.charAt(string.length - 1) ));
+    |                  ^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | (( string.at(- 1) ));
+
+`;
+
+exports[`prefer-at > invalid(10): _.last(getLast(utils.lastOne(array))) 1`] = `
+
+Options:
+- getLastElementFunctions:
+    - 'getLast'
+    - '  utils.lastOne  '
+
+Code:
+  1 | _.last(getLast(utils.lastOne(array)))
+
+`;
+
+exports[`prefer-at > invalid(10): _.last(getLast(utils.lastOne(array))) 2`] = `
+
+Message:
+> 1 | _.last(getLast(utils.lastOne(array)))
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | getLast(utils.lastOne(array)).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(10): _.last(getLast(utils.lastOne(array))) 3`] = `
+
+Message:
+> 1 | _.last(getLast(utils.lastOne(array)))
+    |        ^^^^^^^ Prefer \`.at(-1)\` over \`getLast(…)\` to get the last element.
+
+Output:
+  1 | _.last(utils.lastOne(array).at(-1))
+
+`;
+
+exports[`prefer-at > invalid(10): _.last(getLast(utils.lastOne(array))) 4`] = `
+
+Message:
+> 1 | _.last(getLast(utils.lastOne(array)))
+    |                ^^^^^^^^^^^^^ Prefer \`.at(-1)\` over \`utils.lastOne(…)\` to get the last element.
+
+Output:
+  1 | _.last(getLast(array.at(-1)))
+
+`;
+
+exports[`prefer-at > invalid(10): array[array.length - (( 1 ))]; 1`] = `
+
+  1 | array[array.length - (( 1 ))];
+
+`;
+
+exports[`prefer-at > invalid(10): array[array.length - (( 1 ))]; 2`] = `
+
+Message:
+> 1 | array[array.length - (( 1 ))];
+    |       ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(- (( 1 )));
+
+`;
+
+exports[`prefer-at > invalid(10): array[array.length - 1] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | array[array.length - 1]
+
+`;
+
+exports[`prefer-at > invalid(10): array[array.length - 1] 2`] = `
+
+Message:
+> 1 | array[array.length - 1]
+    |       ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(10): string.substring(index, index + /* comment */ 1) 1`] = `
+
+  1 | string.substring(index, index + /* comment */ 1)
+
+`;
+
+exports[`prefer-at > invalid(10): string.substring(index, index + /* comment */ 1) 2`] = `
+
+Message:
+> 1 | string.substring(index, index + /* comment */ 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+`;
+
+exports[`prefer-at > invalid(11): (( array.slice(-1) )).pop(); 1`] = `
+
+  1 | (( array.slice(-1) )).pop();
+
+`;
+
+exports[`prefer-at > invalid(11): (( array.slice(-1) )).pop(); 2`] = `
+
+Message:
+> 1 | (( array.slice(-1) )).pop();
+    |          ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (( array.at(-1) ));
+
+`;
+
+exports[`prefer-at > invalid(11): (string as string).charAt((string as string).length - 1); 1`] = `
+
+  1 | (string as string).charAt((string as string).length - 1);
+
+`;
+
+exports[`prefer-at > invalid(11): (string as string).charAt((string as string).length - 1); 2`] = `
+
+Message:
+> 1 | (string as string).charAt((string as string).length - 1);
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | (string as string).at(- 1);
+
+`;
+
+exports[`prefer-at > invalid(11): array[(( array.length - 1 ))]; 1`] = `
+
+  1 | array[(( array.length - 1 ))];
+
+`;
+
+exports[`prefer-at > invalid(11): array[(( array.length - 1 ))]; 2`] = `
+
+Message:
+> 1 | array[(( array.length - 1 ))];
+    |          ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at((( -1 )));
+
+`;
+
+exports[`prefer-at > invalid(11): string.charAt(9) 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | string.charAt(9)
+
+`;
+
+exports[`prefer-at > invalid(11): string.charAt(9) 2`] = `
+
+Message:
+> 1 | string.charAt(9)
+    |               ^ Prefer \`String#at(…)\` over \`String#charAt(…)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(9)
+
+`;
+
+exports[`prefer-at > invalid(11): string.substring(0, /* between */ 1) 1`] = `
+
+  1 | string.substring(0, /* between */ 1)
+
+`;
+
+exports[`prefer-at > invalid(11): string.substring(0, /* between */ 1) 2`] = `
+
+Message:
+> 1 | string.substring(0, /* between */ 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+`;
+
+exports[`prefer-at > invalid(12): (( array ))[array.length - 1]; 1`] = `
+
+  1 | (( array ))[array.length - 1];
+
+`;
+
+exports[`prefer-at > invalid(12): (( array ))[array.length - 1]; 2`] = `
+
+Message:
+> 1 | (( array ))[array.length - 1];
+    |             ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | (( array )).at(-1);
+
+`;
+
+exports[`prefer-at > invalid(12): (( array.slice(-1).pop ))(); 1`] = `
+
+  1 | (( array.slice(-1).pop ))();
+
+`;
+
+exports[`prefer-at > invalid(12): (( array.slice(-1).pop ))(); 2`] = `
+
+Message:
+> 1 | (( array.slice(-1).pop ))();
+    |          ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (( array.at(-1) ));
+
+`;
+
+exports[`prefer-at > invalid(12): <string>string.charAt((<string>string).length - 1); 1`] = `
+
+  1 | <string>string.charAt((<string>string).length - 1);
+
+`;
+
+exports[`prefer-at > invalid(12): <string>string.charAt((<string>string).length - 1); 2`] = `
+
+Message:
+> 1 | <string>string.charAt((<string>string).length - 1);
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | <string>string.at(- 1);
+
+`;
+
+exports[`prefer-at > invalid(12): string.charAt(5 + 9) 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | string.charAt(5 + 9)
+
+`;
+
+exports[`prefer-at > invalid(12): string.charAt(5 + 9) 2`] = `
+
+Message:
+> 1 | string.charAt(5 + 9)
+    |               ^^^^^ Prefer \`String#at(…)\` over \`String#charAt(…)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(5 + 9)
+
+`;
+
+exports[`prefer-at > invalid(12): string.substring((( index )), (( index )) + 1) 1`] = `
+
+  1 | string.substring((( index )), (( index )) + 1)
+
+`;
+
+exports[`prefer-at > invalid(12): string.substring((( index )), (( index )) + 1) 2`] = `
+
+Message:
+> 1 | string.substring((( index )), (( index )) + 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at((( index )))
+
+`;
+
+exports[`prefer-at > invalid(13): (( array.slice(-1).pop() )); 1`] = `
+
+  1 | (( array.slice(-1).pop() ));
+
+`;
+
+exports[`prefer-at > invalid(13): (( array.slice(-1).pop() )); 2`] = `
+
+Message:
+> 1 | (( array.slice(-1).pop() ));
+    |          ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (( array.at(-1) ));
+
+`;
+
+exports[`prefer-at > invalid(13): (( array[array.length - 1] )); 1`] = `
+
+  1 | (( array[array.length - 1] ));
+
+`;
+
+exports[`prefer-at > invalid(13): (( array[array.length - 1] )); 2`] = `
+
+Message:
+> 1 | (( array[array.length - 1] ));
+    |          ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | (( array.at(-1) ));
+
+`;
+
+exports[`prefer-at > invalid(13): const offset = 5;string.charAt(offset + 9) 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | const offset = 5;string.charAt(offset + 9)
+
+`;
+
+exports[`prefer-at > invalid(13): const offset = 5;string.charAt(offset + 9) 2`] = `
+
+Message:
+> 1 | const offset = 5;string.charAt(offset + 9)
+    |                                ^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(…)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | const offset = 5;string.at(offset + 9)
+
+`;
+
+exports[`prefer-at > invalid(13): string!.charAt(string!.length - 1); 1`] = `
+
+  1 | string!.charAt(string!.length - 1);
+
+`;
+
+exports[`prefer-at > invalid(13): string!.charAt(string!.length - 1); 2`] = `
+
+Message:
+> 1 | string!.charAt(string!.length - 1);
+    |                ^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string!.at(- 1);
+
+`;
+
+exports[`prefer-at > invalid(13): string.substring((( index )) - 1, (( index ))) 1`] = `
+
+  1 | string.substring((( index )) - 1, (( index )))
+
+`;
+
+exports[`prefer-at > invalid(13): string.substring((( index )) - 1, (( index ))) 2`] = `
+
+Message:
+> 1 | string.substring((( index )) - 1, (( index )))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at((( index )) - 1)
+
+`;
+
+exports[`prefer-at > invalid(14): (( string )).substring(index, index + 1) 1`] = `
+
+  1 | (( string )).substring(index, index + 1)
+
+`;
+
+exports[`prefer-at > invalid(14): (( string )).substring(index, index + 1) 2`] = `
+
+Message:
+> 1 | (( string )).substring(index, index + 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | (( string )).at(index)
+
+`;
+
+exports[`prefer-at > invalid(14): array.slice(-1)[0].pop().shift().slice(-1) 1`] = `
+
+  1 | array.slice(-1)[0].pop().shift().slice(-1)
+
+`;
+
+exports[`prefer-at > invalid(14): array.slice(-1)[0].pop().shift().slice(-1) 2`] = `
+
+Message:
+> 1 | array.slice(-1)[0].pop().shift().slice(-1)
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-1).pop().shift().slice(-1)
+
+`;
+
+exports[`prefer-at > invalid(14): array[array.length - 1].pop().shift()[0]; 1`] = `
+
+  1 | array[array.length - 1].pop().shift()[0];
+
+`;
+
+exports[`prefer-at > invalid(14): array[array.length - 1].pop().shift()[0]; 2`] = `
+
+Message:
+> 1 | array[array.length - 1].pop().shift()[0];
+    |       ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(-1).pop().shift()[0];
+
+`;
+
+exports[`prefer-at > invalid(14): string.charAt(string /* keep */ .length - 1); 1`] = `
+
+  1 | string.charAt(string /* keep */ .length - 1);
+
+`;
+
+exports[`prefer-at > invalid(14): string.charAt(string /* keep */ .length - 1); 2`] = `
+
+Message:
+> 1 | string.charAt(string /* keep */ .length - 1);
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+`;
+
+exports[`prefer-at > invalid(14): string.charAt(unknown) 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | string.charAt(unknown)
+
+`;
+
+exports[`prefer-at > invalid(14): string.charAt(unknown) 2`] = `
+
+Message:
+> 1 | string.charAt(unknown)
+    |               ^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(…)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(unknown)
+
+`;
+
+exports[`prefer-at > invalid(15): (array as Foo[]).slice(-1)[0] 1`] = `
+
+  1 | (array as Foo[]).slice(-1)[0]
+
+`;
+
+exports[`prefer-at > invalid(15): (array as Foo[]).slice(-1)[0] 2`] = `
+
+Message:
+> 1 | (array as Foo[]).slice(-1)[0]
+    |                  ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (array as Foo[]).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(15): a = array[array.length - 1] 1`] = `
+
+  1 | a = array[array.length - 1]
+
+`;
+
+exports[`prefer-at > invalid(15): a = array[array.length - 1] 2`] = `
+
+Message:
+> 1 | a = array[array.length - 1]
+    |           ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | a = array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(15): string.charAt(1.5) 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | string.charAt(1.5)
+
+`;
+
+exports[`prefer-at > invalid(15): string.charAt(1.5) 2`] = `
+
+Message:
+> 1 | string.charAt(1.5)
+    |               ^^^ Prefer \`String#at(…)\` over \`String#charAt(…)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(1.5)
+
+`;
+
+exports[`prefer-at > invalid(15): string?.substring(index, index + 1) 1`] = `
+
+  1 | string?.substring(index, index + 1)
+
+`;
+
+exports[`prefer-at > invalid(15): string?.substring(index, index + 1) 2`] = `
+
+Message:
+> 1 | string?.substring(index, index + 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string?.at(index)
+
+`;
+
+exports[`prefer-at > invalid(16): (array as Foo[]).slice(-1).pop() 1`] = `
+
+  1 | (array as Foo[]).slice(-1).pop()
+
+`;
+
+exports[`prefer-at > invalid(16): (array as Foo[]).slice(-1).pop() 2`] = `
+
+Message:
+> 1 | (array as Foo[]).slice(-1).pop()
+    |                  ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (array as Foo[]).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(16): const a = array[array.length - 1] 1`] = `
+
+  1 | const a = array[array.length - 1]
+
+`;
+
+exports[`prefer-at > invalid(16): const a = array[array.length - 1] 2`] = `
+
+Message:
+> 1 | const a = array[array.length - 1]
+    |                 ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const a = array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(16): string.charAt(1n) 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | string.charAt(1n)
+
+`;
+
+exports[`prefer-at > invalid(16): string.charAt(1n) 2`] = `
+
+Message:
+> 1 | string.charAt(1n)
+    |               ^^ Prefer \`String#at(…)\` over \`String#charAt(…)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(1n)
+
+`;
+
+exports[`prefer-at > invalid(16): string.substring?.(index, index + 1) 1`] = `
+
+  1 | string.substring?.(index, index + 1)
+
+`;
+
+exports[`prefer-at > invalid(16): string.substring?.(index, index + 1) 2`] = `
+
+Message:
+> 1 | string.substring?.(index, index + 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at?.(index)
+
+`;
+
+exports[`prefer-at > invalid(17): (<Foo[]>array).slice(-1).pop() 1`] = `
+
+  1 | (<Foo[]>array).slice(-1).pop()
+
+`;
+
+exports[`prefer-at > invalid(17): (<Foo[]>array).slice(-1).pop() 2`] = `
+
+Message:
+> 1 | (<Foo[]>array).slice(-1).pop()
+    |                ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (<Foo[]>array).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(17): const {a = array[array.length - 1]} = {} 1`] = `
+
+  1 | const {a = array[array.length - 1]} = {}
+
+`;
+
+exports[`prefer-at > invalid(17): const {a = array[array.length - 1]} = {} 2`] = `
+
+Message:
+> 1 | const {a = array[array.length - 1]} = {}
+    |                  ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const {a = array.at(-1)} = {}
+
+`;
+
+exports[`prefer-at > invalid(17): string.charAt(string.length - 1) 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | string.charAt(string.length - 1)
+
+`;
+
+exports[`prefer-at > invalid(17): string.charAt(string.length - 1) 2`] = `
+
+Message:
+> 1 | string.charAt(string.length - 1)
+    |               ^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(- 1)
+
+`;
+
+exports[`prefer-at > invalid(18): <Foo[]>array.slice(-1)[0] 1`] = `
+
+  1 | <Foo[]>array.slice(-1)[0]
+
+`;
+
+exports[`prefer-at > invalid(18): <Foo[]>array.slice(-1)[0] 2`] = `
+
+Message:
+> 1 | <Foo[]>array.slice(-1)[0]
+    |              ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | <Foo[]>array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(18): foo.charAt(bar.length - 1) 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | foo.charAt(bar.length - 1)
+
+`;
+
+exports[`prefer-at > invalid(18): foo.charAt(bar.length - 1) 2`] = `
+
+Message:
+> 1 | foo.charAt(bar.length - 1)
+    |            ^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(…)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | foo.at(bar.length - 1)
+
+`;
+
+exports[`prefer-at > invalid(18): typeof array[array.length - 1] 1`] = `
+
+  1 | typeof array[array.length - 1]
+
+`;
+
+exports[`prefer-at > invalid(18): typeof array[array.length - 1] 2`] = `
+
+Message:
+> 1 | typeof array[array.length - 1]
+    |              ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | typeof array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(19): <Foo[]>array.slice(-1).shift() 1`] = `
+
+  1 | <Foo[]>array.slice(-1).shift()
+
+`;
+
+exports[`prefer-at > invalid(19): <Foo[]>array.slice(-1).shift() 2`] = `
+
+Message:
+> 1 | <Foo[]>array.slice(-1).shift()
+    |              ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | <Foo[]>array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(19): class Foo {bar; baz() {return this.bar[this.bar.length - 1]}} 1`] = `
+
+  1 | class Foo {bar; baz() {return this.bar[this.bar.length - 1]}}
+
+`;
+
+exports[`prefer-at > invalid(19): class Foo {bar; baz() {return this.bar[this.bar.length - 1]}} 2`] = `
+
+Message:
+> 1 | class Foo {bar; baz() {return this.bar[this.bar.length - 1]}}
+    |                                        ^^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | class Foo {bar; baz() {return this.bar.at(-1)}}
+
+`;
+
+exports[`prefer-at > invalid(2): array.slice(-9, -0o10)[0] 1`] = `
+
+  1 | array.slice(-9, -0o10)[0]
+
+`;
+
+exports[`prefer-at > invalid(2): array.slice(-9, -0o10)[0] 2`] = `
+
+Message:
+> 1 | array.slice(-9, -0o10)[0]
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-9)
+
+`;
+
+exports[`prefer-at > invalid(2): array?.[array.length - 1]; 1`] = `
+
+  1 | array?.[array.length - 1];
+
+`;
+
+exports[`prefer-at > invalid(2): array?.[array.length - 1]; 2`] = `
+
+Message:
+> 1 | array?.[array.length - 1];
+    |         ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array?.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(2): array?.slice(-1)[0] 1`] = `
+
+  1 | array?.slice(-1)[0]
+
+`;
+
+exports[`prefer-at > invalid(2): array?.slice(-1)[0] 2`] = `
+
+Message:
+> 1 | array?.slice(-1)[0]
+    |        ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array?.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(2): array[1] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | array[1]
+
+`;
+
+exports[`prefer-at > invalid(2): array[1] 2`] = `
+
+Message:
+> 1 | array[1]
+    |       ^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | array.at(1)
+
+`;
+
+exports[`prefer-at > invalid(2): const string = \"string\"; string[string.length - 1] 1`] = `
+
+  1 | const string = "string"; string[string.length - 1]
+
+`;
+
+exports[`prefer-at > invalid(2): const string = \"string\"; string[string.length - 1] 2`] = `
+
+Message:
+> 1 | const string = "string"; string[string.length - 1]
+    |                                 ^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const string = "string"; string.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(2): lodash.last(array) 1`] = `
+
+  1 | lodash.last(array)
+
+`;
+
+exports[`prefer-at > invalid(2): lodash.last(array) 2`] = `
+
+Message:
+> 1 | lodash.last(array)
+    | ^^^^^^^^^^^ Prefer \`.at(-1)\` over \`lodash.last(…)\` to get the last element.
+
+Output:
+  1 | array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(2): string.substring(1, 2) 1`] = `
+
+  1 | string.substring(1, 2)
+
+`;
+
+exports[`prefer-at > invalid(2): string.substring(1, 2) 2`] = `
+
+Message:
+> 1 | string.substring(1, 2)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(1)
+
+`;
+
+exports[`prefer-at > invalid(2): string?.charAt(string.length - 1); 1`] = `
+
+  1 | string?.charAt(string.length - 1);
+
+`;
+
+exports[`prefer-at > invalid(2): string?.charAt(string.length - 1); 2`] = `
+
+Message:
+> 1 | string?.charAt(string.length - 1);
+    |                ^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string?.at(- 1);
+
+`;
+
+exports[`prefer-at > invalid(20): array!.slice(-1)[0] 1`] = `
+
+  1 | array!.slice(-1)[0]
+
+`;
+
+exports[`prefer-at > invalid(20): array!.slice(-1)[0] 2`] = `
+
+Message:
+> 1 | array!.slice(-1)[0]
+    |        ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array!.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(20): class Foo {#bar; baz() {return this.#bar[this.#bar.length - 1]}} 1`] = `
+
+  1 | class Foo {#bar; baz() {return this.#bar[this.#bar.length - 1]}}
+
+`;
+
+exports[`prefer-at > invalid(20): class Foo {#bar; baz() {return this.#bar[this.#bar.length - 1]}} 2`] = `
+
+Message:
+> 1 | class Foo {#bar; baz() {return this.#bar[this.#bar.length - 1]}}
+    |                                          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | class Foo {#bar; baz() {return this.#bar.at(-1)}}
+
+`;
+
+exports[`prefer-at > invalid(21): (array as Foo[])[array.length - 1] 1`] = `
+
+  1 | (array as Foo[])[array.length - 1]
+
+`;
+
+exports[`prefer-at > invalid(21): (array as Foo[])[array.length - 1] 2`] = `
+
+Message:
+> 1 | (array as Foo[])[array.length - 1]
+    |                  ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | (array as Foo[]).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(21): array!.slice(-1).pop() 1`] = `
+
+  1 | array!.slice(-1).pop()
+
+`;
+
+exports[`prefer-at > invalid(21): array!.slice(-1).pop() 2`] = `
+
+Message:
+> 1 | array!.slice(-1).pop()
+    |        ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array!.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(22): (array as Foo[])[(array as Foo[]).length - 1] 1`] = `
+
+  1 | (array as Foo[])[(array as Foo[]).length - 1]
+
+`;
+
+exports[`prefer-at > invalid(22): (array as Foo[])[(array as Foo[]).length - 1] 2`] = `
+
+Message:
+> 1 | (array as Foo[])[(array as Foo[]).length - 1]
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | (array as Foo[]).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(23): <Foo[]>array[array.length - 1] 1`] = `
+
+  1 | <Foo[]>array[array.length - 1]
+
+`;
+
+exports[`prefer-at > invalid(23): <Foo[]>array[array.length - 1] 2`] = `
+
+Message:
+> 1 | <Foo[]>array[array.length - 1]
+    |              ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | <Foo[]>array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(24): <Foo[]>array[(<Foo[]>array).length - 1] 1`] = `
+
+  1 | <Foo[]>array[(<Foo[]>array).length - 1]
+
+`;
+
+exports[`prefer-at > invalid(24): <Foo[]>array[(<Foo[]>array).length - 1] 2`] = `
+
+Message:
+> 1 | <Foo[]>array[(<Foo[]>array).length - 1]
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | <Foo[]>array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(25): array![array.length - 1] 1`] = `
+
+  1 | array![array.length - 1]
+
+`;
+
+exports[`prefer-at > invalid(25): array![array.length - 1] 2`] = `
+
+Message:
+> 1 | array![array.length - 1]
+    |        ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array!.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(26): array![array!.length - 1] 1`] = `
+
+  1 | array![array!.length - 1]
+
+`;
+
+exports[`prefer-at > invalid(26): array![array!.length - 1] 2`] = `
+
+Message:
+> 1 | array![array!.length - 1]
+    |        ^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array!.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(3): array.slice(-1).pop() 1`] = `
+
+  1 | array.slice(-1).pop()
+
+`;
+
+exports[`prefer-at > invalid(3): array.slice(-1).pop() 2`] = `
+
+Message:
+> 1 | array.slice(-1).pop()
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(3): array.slice(-9, -8).pop() 1`] = `
+
+  1 | array.slice(-9, -8).pop()
+
+`;
+
+exports[`prefer-at > invalid(3): array.slice(-9, -8).pop() 2`] = `
+
+Message:
+> 1 | array.slice(-9, -8).pop()
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-9)
+
+`;
+
+exports[`prefer-at > invalid(3): array[5 + 9] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | array[5 + 9]
+
+`;
+
+exports[`prefer-at > invalid(3): array[5 + 9] 2`] = `
+
+Message:
+> 1 | array[5 + 9]
+    |       ^^^^^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | array.at(5 + 9)
+
+`;
+
+exports[`prefer-at > invalid(3): array[array.length -1]; 1`] = `
+
+  1 | array[array.length -1];
+
+`;
+
+exports[`prefer-at > invalid(3): array[array.length -1]; 2`] = `
+
+Message:
+> 1 | array[array.length -1];
+    |       ^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(3): string.charAt(string.length - 0o11); 1`] = `
+
+  1 | string.charAt(string.length - 0o11);
+
+`;
+
+exports[`prefer-at > invalid(3): string.charAt(string.length - 0o11); 2`] = `
+
+Message:
+> 1 | string.charAt(string.length - 0o11);
+    |               ^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(- 0o11);
+
+`;
+
+exports[`prefer-at > invalid(3): string.substring(2, 1) 1`] = `
+
+  1 | string.substring(2, 1)
+
+`;
+
+exports[`prefer-at > invalid(3): string.substring(2, 1) 2`] = `
+
+Message:
+> 1 | string.substring(2, 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(1)
+
+`;
+
+exports[`prefer-at > invalid(3): underscore.last(array) 1`] = `
+
+  1 | underscore.last(array)
+
+`;
+
+exports[`prefer-at > invalid(3): underscore.last(array) 2`] = `
+
+Message:
+> 1 | underscore.last(array)
+    | ^^^^^^^^^^^^^^^ Prefer \`.at(-1)\` over \`underscore.last(…)\` to get the last element.
+
+Output:
+  1 | array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(4): _.last(foo.bar) 1`] = `
+
+  1 | _.last(foo.bar)
+
+`;
+
+exports[`prefer-at > invalid(4): _.last(foo.bar) 2`] = `
+
+Message:
+> 1 | _.last(foo.bar)
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | foo.bar.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(4): array.slice(-1.0).shift() 1`] = `
+
+  1 | array.slice(-1.0).shift()
+
+`;
+
+exports[`prefer-at > invalid(4): array.slice(-1.0).shift() 2`] = `
+
+Message:
+> 1 | array.slice(-1.0).shift()
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-1.0)
+
+`;
+
+exports[`prefer-at > invalid(4): array.slice(-9, -8).shift() 1`] = `
+
+  1 | array.slice(-9, -8).shift()
+
+`;
+
+exports[`prefer-at > invalid(4): array.slice(-9, -8).shift() 2`] = `
+
+Message:
+> 1 | array.slice(-9, -8).shift()
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-9)
+
+`;
+
+exports[`prefer-at > invalid(4): array[array.length - /* comment */ 1]; 1`] = `
+
+  1 | array[array.length - /* comment */ 1];
+
+`;
+
+exports[`prefer-at > invalid(4): array[array.length - /* comment */ 1]; 2`] = `
+
+Message:
+> 1 | array[array.length - /* comment */ 1];
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(- /* comment */ 1);
+
+`;
+
+exports[`prefer-at > invalid(4): const offset = 5;array[offset + 9] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | const offset = 5;array[offset + 9]
+
+`;
+
+exports[`prefer-at > invalid(4): const offset = 5;array[offset + 9] 2`] = `
+
+Message:
+> 1 | const offset = 5;array[offset + 9]
+    |                        ^^^^^^^^^^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | const offset = 5;array.at(offset + 9)
+
+`;
+
+exports[`prefer-at > invalid(4): some.string.charAt(some.string.length - 1); 1`] = `
+
+  1 | some.string.charAt(some.string.length - 1);
+
+`;
+
+exports[`prefer-at > invalid(4): some.string.charAt(some.string.length - 1); 2`] = `
+
+Message:
+> 1 | some.string.charAt(some.string.length - 1);
+    |                    ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | some.string.at(- 1);
+
+`;
+
+exports[`prefer-at > invalid(4): string.substring(index, index + 1) 1`] = `
+
+  1 | string.substring(index, index + 1)
+
+`;
+
+exports[`prefer-at > invalid(4): string.substring(index, index + 1) 2`] = `
+
+Message:
+> 1 | string.substring(index, index + 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(index)
+
+`;
+
+exports[`prefer-at > invalid(5): _.last(new Array) 1`] = `
+
+  1 | _.last(new Array)
+
+`;
+
+exports[`prefer-at > invalid(5): _.last(new Array) 2`] = `
+
+Message:
+> 1 | _.last(new Array)
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | (new Array).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(5): array.slice((( -9 )), (( -8 )), ).shift() 1`] = `
+
+  1 | array.slice((( -9 )), (( -8 )), ).shift()
+
+`;
+
+exports[`prefer-at > invalid(5): array.slice((( -9 )), (( -8 )), ).shift() 2`] = `
+
+Message:
+> 1 | array.slice((( -9 )), (( -8 )), ).shift()
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at((( -9 )))
+
+`;
+
+exports[`prefer-at > invalid(5): array.slice(-1)[(( 0 ))]; 1`] = `
+
+  1 | array.slice(-1)[(( 0 ))];
+
+`;
+
+exports[`prefer-at > invalid(5): array.slice(-1)[(( 0 ))]; 2`] = `
+
+Message:
+> 1 | array.slice(-1)[(( 0 ))];
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(5): array[array.length - 1.]; 1`] = `
+
+  1 | array[array.length - 1.];
+
+`;
+
+exports[`prefer-at > invalid(5): array[array.length - 1.]; 2`] = `
+
+Message:
+> 1 | array[array.length - 1.];
+    |       ^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(- 1.);
+
+`;
+
+exports[`prefer-at > invalid(5): let object = {1: 1, a: 2}; object[1] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | let object = {1: 1, a: 2}; object[1]
+
+`;
+
+exports[`prefer-at > invalid(5): let object = {1: 1, a: 2}; object[1] 2`] = `
+
+Message:
+> 1 | let object = {1: 1, a: 2}; object[1]
+    |                                   ^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | let object = {1: 1, a: 2}; object.at(1)
+
+`;
+
+exports[`prefer-at > invalid(5): string.charAt((( string.length )) - 0xFF); 1`] = `
+
+  1 | string.charAt((( string.length )) - 0xFF);
+
+`;
+
+exports[`prefer-at > invalid(5): string.charAt((( string.length )) - 0xFF); 2`] = `
+
+Message:
+> 1 | string.charAt((( string.length )) - 0xFF);
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(- 0xFF);
+
+`;
+
+exports[`prefer-at > invalid(5): string.substring(index, 1 + index) 1`] = `
+
+  1 | string.substring(index, 1 + index)
+
+`;
+
+exports[`prefer-at > invalid(5): string.substring(index, 1 + index) 2`] = `
+
+Message:
+> 1 | string.substring(index, 1 + index)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(index)
+
+`;
+
+exports[`prefer-at > invalid(6): (( array.slice(-9, -8).shift ))() 1`] = `
+
+  1 | (( array.slice(-9, -8).shift ))()
+
+`;
+
+exports[`prefer-at > invalid(6): (( array.slice(-9, -8).shift ))() 2`] = `
+
+Message:
+> 1 | (( array.slice(-9, -8).shift ))()
+    |          ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (( array.at(-9) ))
+
+`;
+
+exports[`prefer-at > invalid(6): \"string\"[1] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | "string"[1]
+
+`;
+
+exports[`prefer-at > invalid(6): \"string\"[1] 2`] = `
+
+Message:
+> 1 | "string"[1]
+    |          ^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | "string".at(1)
+
+`;
+
+exports[`prefer-at > invalid(6): array.slice(-(( 1 )))[0]; 1`] = `
+
+  1 | array.slice(-(( 1 )))[0];
+
+`;
+
+exports[`prefer-at > invalid(6): array.slice(-(( 1 )))[0]; 2`] = `
+
+Message:
+> 1 | array.slice(-(( 1 )))[0];
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at(-(( 1 )));
+
+`;
+
+exports[`prefer-at > invalid(6): array[array.length - 0b1]; 1`] = `
+
+  1 | array[array.length - 0b1];
+
+`;
+
+exports[`prefer-at > invalid(6): array[array.length - 0b1]; 2`] = `
+
+Message:
+> 1 | array[array.length - 0b1];
+    |       ^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(- 0b1);
+
+`;
+
+exports[`prefer-at > invalid(6): const foo = []\n_.last([bar]) 1`] = `
+
+  1 | const foo = []
+  2 | _.last([bar])
+
+`;
+
+exports[`prefer-at > invalid(6): const foo = []\n_.last([bar]) 2`] = `
+
+Message:
+  1 | const foo = []
+> 2 | _.last([bar])
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const foo = []
+  2 | ;[bar].at(-1)
+
+`;
+
+exports[`prefer-at > invalid(6): string.charAt(string.length - (( 1 ))); 1`] = `
+
+  1 | string.charAt(string.length - (( 1 )));
+
+`;
+
+exports[`prefer-at > invalid(6): string.charAt(string.length - (( 1 ))); 2`] = `
+
+Message:
+> 1 | string.charAt(string.length - (( 1 )));
+    |               ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(- (( 1 )));
+
+`;
+
+exports[`prefer-at > invalid(6): string.substring(index - 1, index) 1`] = `
+
+  1 | string.substring(index - 1, index)
+
+`;
+
+exports[`prefer-at > invalid(6): string.substring(index - 1, index) 2`] = `
+
+Message:
+> 1 | string.substring(index - 1, index)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(index - 1)
+
+`;
+
+exports[`prefer-at > invalid(7): \`string\`[1] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | \`string\`[1]
+
+`;
+
+exports[`prefer-at > invalid(7): \`string\`[1] 2`] = `
+
+Message:
+> 1 | \`string\`[1]
+    |          ^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | \`string\`.at(1)
+
+`;
+
+exports[`prefer-at > invalid(7): array.slice((( -1 )))[0]; 1`] = `
+
+  1 | array.slice((( -1 )))[0];
+
+`;
+
+exports[`prefer-at > invalid(7): array.slice((( -1 )))[0]; 2`] = `
+
+Message:
+> 1 | array.slice((( -1 )))[0];
+    |       ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | array.at((( -1 )));
+
+`;
+
+exports[`prefer-at > invalid(7): array[array.length - 9]; 1`] = `
+
+  1 | array[array.length - 9];
+
+`;
+
+exports[`prefer-at > invalid(7): array[array.length - 9]; 2`] = `
+
+Message:
+> 1 | array[array.length - 9];
+    |       ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(-9);
+
+`;
+
+exports[`prefer-at > invalid(7): const foo = []\n_.last( new Array ) 1`] = `
+
+  1 | const foo = []
+  2 | _.last( new Array )
+
+`;
+
+exports[`prefer-at > invalid(7): const foo = []\n_.last( new Array ) 2`] = `
+
+Message:
+  1 | const foo = []
+> 2 | _.last( new Array )
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const foo = []
+  2 | ;(new Array).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(7): string.charAt((( string.length - 1 ))); 1`] = `
+
+  1 | string.charAt((( string.length - 1 )));
+
+`;
+
+exports[`prefer-at > invalid(7): string.charAt((( string.length - 1 ))); 2`] = `
+
+Message:
+> 1 | string.charAt((( string.length - 1 )));
+    |                  ^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at((( - 1 )));
+
+`;
+
+exports[`prefer-at > invalid(7): string.substring(index + 1, index) 1`] = `
+
+  1 | string.substring(index + 1, index)
+
+`;
+
+exports[`prefer-at > invalid(7): string.substring(index + 1, index) 2`] = `
+
+Message:
+> 1 | string.substring(index + 1, index)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(index)
+
+`;
+
+exports[`prefer-at > invalid(8): (( array.slice(-1) ))[0]; 1`] = `
+
+  1 | (( array.slice(-1) ))[0];
+
+`;
+
+exports[`prefer-at > invalid(8): (( array.slice(-1) ))[0]; 2`] = `
+
+Message:
+> 1 | (( array.slice(-1) ))[0];
+    |          ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (( array.at(-1) ));
+
+`;
+
+exports[`prefer-at > invalid(8): (( string )).charAt(string.length - 1); 1`] = `
+
+  1 | (( string )).charAt(string.length - 1);
+
+`;
+
+exports[`prefer-at > invalid(8): (( string )).charAt(string.length - 1); 2`] = `
+
+Message:
+> 1 | (( string )).charAt(string.length - 1);
+    |                     ^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | (( string )).at(- 1);
+
+`;
+
+exports[`prefer-at > invalid(8): array[0][array[0].length - 1]; 1`] = `
+
+  1 | array[0][array[0].length - 1];
+
+`;
+
+exports[`prefer-at > invalid(8): array[0][array[0].length - 1]; 2`] = `
+
+Message:
+> 1 | array[0][array[0].length - 1];
+    |          ^^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array[0].at(-1);
+
+`;
+
+exports[`prefer-at > invalid(8): const foo = []\n_.last( (( new Array )) ) 1`] = `
+
+  1 | const foo = []
+  2 | _.last( (( new Array )) )
+
+`;
+
+exports[`prefer-at > invalid(8): const foo = []\n_.last( (( new Array )) ) 2`] = `
+
+Message:
+  1 | const foo = []
+> 2 | _.last( (( new Array )) )
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const foo = []
+  2 | ;(( new Array )).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(8): const string = \"string\"; string[1] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | const string = "string"; string[1]
+
+`;
+
+exports[`prefer-at > invalid(8): const string = \"string\"; string[1] 2`] = `
+
+Message:
+> 1 | const string = "string"; string[1]
+    |                                 ^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | const string = "string"; string.at(1)
+
+`;
+
+exports[`prefer-at > invalid(8): string.substring(1 + index, index) 1`] = `
+
+  1 | string.substring(1 + index, index)
+
+`;
+
+exports[`prefer-at > invalid(8): string.substring(1 + index, index) 2`] = `
+
+Message:
+> 1 | string.substring(1 + index, index)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | string.at(index)
+
+`;
+
+exports[`prefer-at > invalid(9): (( array )).slice(-1)[0]; 1`] = `
+
+  1 | (( array )).slice(-1)[0];
+
+`;
+
+exports[`prefer-at > invalid(9): (( array )).slice(-1)[0]; 2`] = `
+
+Message:
+> 1 | (( array )).slice(-1)[0];
+    |             ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | (( array )).at(-1);
+
+`;
+
+exports[`prefer-at > invalid(9): (( string.charAt ))(string.length - 1); 1`] = `
+
+  1 | (( string.charAt ))(string.length - 1);
+
+`;
+
+exports[`prefer-at > invalid(9): (( string.charAt ))(string.length - 1); 2`] = `
+
+Message:
+> 1 | (( string.charAt ))(string.length - 1);
+    |                     ^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#charAt(….length - index)\`.
+
+Suggestion 1/1: Use \`.at(…)\`.:
+  1 | (( string.at ))(- 1);
+
+`;
+
+exports[`prefer-at > invalid(9): array[(( array.length )) - 1]; 1`] = `
+
+  1 | array[(( array.length )) - 1];
+
+`;
+
+exports[`prefer-at > invalid(9): array[(( array.length )) - 1]; 2`] = `
+
+Message:
+> 1 | array[(( array.length )) - 1];
+    |       ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | array.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(9): if (foo) _.last([bar]) 1`] = `
+
+  1 | if (foo) _.last([bar])
+
+`;
+
+exports[`prefer-at > invalid(9): if (foo) _.last([bar]) 2`] = `
+
+Message:
+> 1 | if (foo) _.last([bar])
+    |          ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | if (foo) [bar].at(-1)
+
+`;
+
+exports[`prefer-at > invalid(9): new Uint8Array([1])[0] 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | new Uint8Array([1])[0]
+
+`;
+
+exports[`prefer-at > invalid(9): new Uint8Array([1])[0] 2`] = `
+
+Message:
+> 1 | new Uint8Array([1])[0]
+    |                     ^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | new Uint8Array([1]).at(0)
+
+`;
+
+exports[`prefer-at > invalid(9): string.substring(index, /* comment */ index + 1) 1`] = `
+
+  1 | string.substring(index, /* comment */ index + 1)
+
+`;
+
+exports[`prefer-at > invalid(9): string.substring(index, /* comment */ index + 1) 2`] = `
+
+Message:
+> 1 | string.substring(index, /* comment */ index + 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#at(…)\` over \`String#substring(…)\` when getting one character.
+
+`;

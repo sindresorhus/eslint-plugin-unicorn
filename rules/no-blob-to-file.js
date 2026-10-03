@@ -30,10 +30,6 @@ function isGlobalIdentifier(node, context) {
 }
 
 function isSameBindingAtUse(identifier, reference, context) {
-	if (identifier.type !== 'Identifier') {
-		return true;
-	}
-
 	const {sourceCode} = context;
 	return findVariable(sourceCode.getScope(identifier), identifier) === findVariable(sourceCode.getScope(reference), identifier);
 }
@@ -192,10 +188,6 @@ function getProblem(node, context) {
 	}
 
 	const variable = findVariable(sourceCode.getScope(id), id);
-	if (!variable) {
-		return;
-	}
-
 	const references = getVariableIdentifiers(variable).filter(identifier => identifier !== id);
 
 	if (references.length !== 1) {

@@ -29,18 +29,9 @@ const transparentExpressionTypes = new Set([
 ]);
 
 function isStaticMemberPath(node, path) {
-	const names = path.split('.');
+	const [objectName, ...propertyNames] = path.split('.');
 
-	for (let index = names.length - 1; index >= 0; index--) {
-		const name = names[index];
-
-		if (index === 0) {
-			return (
-				(node.type === 'Identifier' && node.name === name)
-				|| (name === 'this' && node.type === 'ThisExpression')
-			);
-		}
-
+	for (const name of propertyNames.toReversed()) {
 		if (
 			node.type !== 'MemberExpression'
 			|| node.computed
@@ -52,6 +43,9 @@ function isStaticMemberPath(node, path) {
 
 		node = node.object;
 	}
+
+	return (node.type === 'Identifier' && node.name === objectName)
+		|| (objectName === 'this' && node.type === 'ThisExpression');
 }
 
 const isIgnoredCallee = callee => ignoredCallees.some(ignoredCallee => isStaticMemberPath(callee, ignoredCallee));

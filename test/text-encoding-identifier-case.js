@@ -173,6 +173,9 @@ test.snapshot({
 		{code: '@charset "ascii";', language: languages.css},
 		// Non-charset @rules are not affected
 		{code: '@import "utf8.css";', language: languages.css},
+		// Only a string prelude is checked
+		{code: '@charset utf8;', language: languages.css},
+		{code: '@charset;', language: languages.css},
 	],
 	invalid: [
 		// Wrong case

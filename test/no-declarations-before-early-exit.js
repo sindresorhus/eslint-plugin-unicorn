@@ -613,6 +613,19 @@ test.snapshot({
 				console.log(result);
 			}
 		`,
+		// A qualified `typeof` query is a type-only reference too
+		{
+			code: outdent`
+				function foo(bar: boolean) {
+					const result = getResult();
+					if (!bar) {
+						return;
+					}
+					let value: typeof result.data.value;
+				}
+			`,
+			languageOptions: typescriptLanguageOptions,
+		},
 	],
 	invalid: [
 		outdent`

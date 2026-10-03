@@ -1,0 +1,421 @@
+exports[`prefer-single-replace > invalid(1): string.replaceAll('a', '-').replaceAll('b', '-'); 1`] = `
+
+  1 | string.replaceAll('a', '-').replaceAll('b', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(1): string.replaceAll('a', '-').replaceAll('b', '-'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('a', '-').replaceAll('b', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[ab]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(10): string.replaceAll('\\u2028', '_').replaceAll('a', '_'); 1`] = `
+
+  1 | string.replaceAll('\\u2028', '_').replaceAll('a', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(10): string.replaceAll('\\u2028', '_').replaceAll('a', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('\\u2028', '_').replaceAll('a', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[\\u2028a]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(11): string.replaceAll('\\u2029', '_').replaceAll('a', '_'); 1`] = `
+
+  1 | string.replaceAll('\\u2029', '_').replaceAll('a', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(11): string.replaceAll('\\u2029', '_').replaceAll('a', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('\\u2029', '_').replaceAll('a', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[\\u2029a]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(12): string.replace(/\\u2028/g, '_').replace(/\\u2029/g, '_'); 1`] = `
+
+  1 | string.replace(/\\u2028/g, '_').replace(/\\u2029/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(12): string.replace(/\\u2028/g, '_').replace(/\\u2029/g, '_'); 2`] = `
+
+Message:
+> 1 | string.replace(/\\u2028/g, '_').replace(/\\u2029/g, '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[\\u2028\\u2029]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(13): string.replaceAll('^', '_').replaceAll('a', '_'); 1`] = `
+
+  1 | string.replaceAll('^', '_').replaceAll('a', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(13): string.replaceAll('^', '_').replaceAll('a', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('^', '_').replaceAll('a', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[\\^a]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(14): string.replaceAll('a', '_').replaceAll('^', '_'); 1`] = `
+
+  1 | string.replaceAll('a', '_').replaceAll('^', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(14): string.replaceAll('a', '_').replaceAll('^', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('a', '_').replaceAll('^', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[a^]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(15): string.replaceAll('a', '_').replaceAll('-', '_').replaceAll('b', '_'); 1`] = `
+
+  1 | string.replaceAll('a', '_').replaceAll('-', '_').replaceAll('b', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(15): string.replaceAll('a', '_').replaceAll('-', '_').replaceAll('b', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('a', '_').replaceAll('-', '_').replaceAll('b', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[a\\-b]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(16): string.replaceAll('-', '_').replaceAll('a', '_'); 1`] = `
+
+  1 | string.replaceAll('-', '_').replaceAll('a', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(16): string.replaceAll('-', '_').replaceAll('a', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('-', '_').replaceAll('a', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[-a]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(17): string.replaceAll('a', '').replaceAll('b', ''); 1`] = `
+
+  1 | string.replaceAll('a', '').replaceAll('b', '');
+
+`;
+
+exports[`prefer-single-replace > invalid(17): string.replaceAll('a', '').replaceAll('b', ''); 2`] = `
+
+Message:
+> 1 | string.replaceAll('a', '').replaceAll('b', '');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[ab]/g, '');
+
+`;
+
+exports[`prefer-single-replace > invalid(18): string.replace(/a/gm, '-').replace(/b/gm, '-'); 1`] = `
+
+  1 | string.replace(/a/gm, '-').replace(/b/gm, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(18): string.replace(/a/gm, '-').replace(/b/gm, '-'); 2`] = `
+
+Message:
+> 1 | string.replace(/a/gm, '-').replace(/b/gm, '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[ab]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(19): string.replace(/a/gs, '-').replaceAll('b', '-'); 1`] = `
+
+  1 | string.replace(/a/gs, '-').replaceAll('b', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(19): string.replace(/a/gs, '-').replaceAll('b', '-'); 2`] = `
+
+Message:
+> 1 | string.replace(/a/gs, '-').replaceAll('b', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[ab]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(2): string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '-'); 1`] = `
+
+  1 | string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(2): string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '-'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[abc]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(20): string.replaceAll('a', '-').replaceAll('a', '-'); 1`] = `
+
+  1 | string.replaceAll('a', '-').replaceAll('a', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(20): string.replaceAll('a', '-').replaceAll('a', '-'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('a', '-').replaceAll('a', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[a]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(21): (foo + bar).replaceAll('a', '-').replaceAll('b', '-'); 1`] = `
+
+  1 | (foo + bar).replaceAll('a', '-').replaceAll('b', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(21): (foo + bar).replaceAll('a', '-').replaceAll('b', '-'); 2`] = `
+
+Message:
+> 1 | (foo + bar).replaceAll('a', '-').replaceAll('b', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | (foo + bar).replaceAll(/[ab]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(22): string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+'); 1`] = `
+
+  1 | string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+');
+
+`;
+
+exports[`prefer-single-replace > invalid(22): string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[ab]/g, '-').replaceAll('c', '+');
+
+`;
+
+exports[`prefer-single-replace > invalid(23): string.replaceAll('a', '-')/* comment */.replaceAll('b', '-'); 1`] = `
+
+  1 | string.replaceAll('a', '-')/* comment */.replaceAll('b', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(23): string.replaceAll('a', '-')/* comment */.replaceAll('b', '-'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('a', '-')/* comment */.replaceAll('b', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+`;
+
+exports[`prefer-single-replace > invalid(24): (string as string).replaceAll('a', '-').replaceAll('b', '-'); 1`] = `
+
+  1 | (string as string).replaceAll('a', '-').replaceAll('b', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(24): (string as string).replaceAll('a', '-').replaceAll('b', '-'); 2`] = `
+
+Message:
+> 1 | (string as string).replaceAll('a', '-').replaceAll('b', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | (string as string).replaceAll(/[ab]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(25): string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-'); 1`] = `
+
+  1 | string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(25): string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[\\x01\\x7F]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(3): string.replace(/a/g, '-').replaceAll('b', '-'); 1`] = `
+
+  1 | string.replace(/a/g, '-').replaceAll('b', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(3): string.replace(/a/g, '-').replaceAll('b', '-'); 2`] = `
+
+Message:
+> 1 | string.replace(/a/g, '-').replaceAll('b', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[ab]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(4): string.replaceAll('a', '-').replace(/b/g, '-'); 1`] = `
+
+  1 | string.replaceAll('a', '-').replace(/b/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(4): string.replaceAll('a', '-').replace(/b/g, '-'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('a', '-').replace(/b/g, '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[ab]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(5): string.replace(/\\./g, '-').replaceAll('a', '-'); 1`] = `
+
+  1 | string.replace(/\\./g, '-').replaceAll('a', '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(5): string.replace(/\\./g, '-').replaceAll('a', '-'); 2`] = `
+
+Message:
+> 1 | string.replace(/\\./g, '-').replaceAll('a', '-');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[.a]/g, '-');
+
+`;
+
+exports[`prefer-single-replace > invalid(6): string.replaceAll(']', '_').replaceAll('^', '_').replaceAll('-', '_'); 1`] = `
+
+  1 | string.replaceAll(']', '_').replaceAll('^', '_').replaceAll('-', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(6): string.replaceAll(']', '_').replaceAll('^', '_').replaceAll('-', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll(']', '_').replaceAll('^', '_').replaceAll('-', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[\\]^-]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(7): string.replaceAll('\\\\', '_').replaceAll('a', '_'); 1`] = `
+
+  1 | string.replaceAll('\\\\', '_').replaceAll('a', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(7): string.replaceAll('\\\\', '_').replaceAll('a', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('\\\\', '_').replaceAll('a', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[\\\\a]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(8): string.replaceAll('/', '_').replaceAll('a', '_'); 1`] = `
+
+  1 | string.replaceAll('/', '_').replaceAll('a', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(8): string.replaceAll('/', '_').replaceAll('a', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('/', '_').replaceAll('a', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[/a]/g, '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(9): string.replaceAll('\\n', '_').replaceAll('a', '_'); 1`] = `
+
+  1 | string.replaceAll('\\n', '_').replaceAll('a', '_');
+
+`;
+
+exports[`prefer-single-replace > invalid(9): string.replaceAll('\\n', '_').replaceAll('a', '_'); 2`] = `
+
+Message:
+> 1 | string.replaceAll('\\n', '_').replaceAll('a', '_');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[\\na]/g, '_');
+
+`;

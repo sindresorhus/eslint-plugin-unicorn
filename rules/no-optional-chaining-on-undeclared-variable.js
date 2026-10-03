@@ -78,11 +78,8 @@ function getOptionalOperationBase(node) {
 }
 
 function getUndeclaredOptionalChainBase(chainExpression, context) {
+	// A `ChainExpression` always has an optional link along its object/callee path, so there is always a base.
 	const base = getOptionalOperationBase(chainExpression.expression);
-	if (!base) {
-		return;
-	}
-
 	const identifier = getLeftmostMemberBase(base);
 	if (
 		identifier

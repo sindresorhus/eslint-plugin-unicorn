@@ -109,6 +109,10 @@ test({
 			code: 'const foo = () => undefined',
 			options: optionsIgnoreArrowFunctionBody,
 		},
+
+		// Unsupported index tests
+		'const foo = condition ? array[index] : undefined;',
+		'const foo = index >= object?.minimum ? array[index] : undefined;',
 	],
 	invalid: [
 		{

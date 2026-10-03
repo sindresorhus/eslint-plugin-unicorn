@@ -1,0 +1,3582 @@
+exports[`comment-content > invalid(1): // nodejs uses javascript. 1`] = `
+
+  1 | // nodejs uses javascript.
+
+`;
+
+exports[`comment-content > invalid(1): // nodejs uses javascript. 2`] = `
+
+Message:
+> 1 | // nodejs uses javascript.
+    |    ^^^^^^ Prefer \`Node.js\` over \`nodejs\`.
+
+Output:
+  1 | // Node.js uses javascript.
+
+`;
+
+exports[`comment-content > invalid(1): // the Url of the page 1`] = `
+
+Options:
+- checkUniformCase: false
+
+Code:
+  1 | // the Url of the page
+
+`;
+
+exports[`comment-content > invalid(1): // the Url of the page 2`] = `
+
+Message:
+> 1 | // the Url of the page
+    |        ^^^ Prefer \`URL\` over \`Url\`.
+
+Output:
+  1 | // the URL of the page
+
+`;
+
+exports[`comment-content > invalid(10): // ios app 1`] = `
+
+  1 | // ios app
+
+`;
+
+exports[`comment-content > invalid(10): // ios app 2`] = `
+
+Message:
+> 1 | // ios app
+    |    ^^^ Prefer \`iOS\` over \`ios\`.
+
+Output:
+  1 | // iOS app
+
+`;
+
+exports[`comment-content > invalid(11): // reddit discussion 1`] = `
+
+  1 | // reddit discussion
+
+`;
+
+exports[`comment-content > invalid(11): // reddit discussion 2`] = `
+
+Message:
+> 1 | // reddit discussion
+    |    ^^^^^^ Prefer \`Reddit\` over \`reddit\`.
+
+Output:
+  1 | // Reddit discussion
+
+`;
+
+exports[`comment-content > invalid(12): // gulp.js task 1`] = `
+
+  1 | // gulp.js task
+
+`;
+
+exports[`comment-content > invalid(12): // gulp.js task 2`] = `
+
+Message:
+> 1 | // gulp.js task
+    |    ^^^^^^^ Prefer \`Gulp\` over \`gulp.js\`.
+
+Output:
+  1 | // Gulp task
+
+`;
+
+exports[`comment-content > invalid(13): // grunt.js task 1`] = `
+
+  1 | // grunt.js task
+
+`;
+
+exports[`comment-content > invalid(13): // grunt.js task 2`] = `
+
+Message:
+> 1 | // grunt.js task
+    |    ^^^^^^^^ Prefer \`Grunt\` over \`grunt.js\`.
+
+Output:
+  1 | // Grunt task
+
+`;
+
+exports[`comment-content > invalid(14): // svg url css html png jpg jpeg 1`] = `
+
+  1 | // svg url css html png jpg jpeg
+
+`;
+
+exports[`comment-content > invalid(14): // svg url css html png jpg jpeg 2`] = `
+
+Message:
+> 1 | // svg url css html png jpg jpeg
+    |    ^^^ Prefer \`SVG\` over \`svg\`.
+
+Output:
+  1 | // SVG url css html png jpg jpeg
+
+`;
+
+exports[`comment-content > invalid(15): // NPM package 1`] = `
+
+  1 | // NPM package
+
+`;
+
+exports[`comment-content > invalid(15): // NPM package 2`] = `
+
+Message:
+> 1 | // NPM package
+    |    ^^^ Prefer \`npm\` over \`NPM\`.
+
+Output:
+  1 | // npm package
+
+`;
+
+exports[`comment-content > invalid(16): // bitcoin devops JQuery IOS Typescript 1`] = `
+
+  1 | // bitcoin devops JQuery IOS Typescript
+
+`;
+
+exports[`comment-content > invalid(16): // bitcoin devops JQuery IOS Typescript 2`] = `
+
+Message:
+> 1 | // bitcoin devops JQuery IOS Typescript
+    |    ^^^^^^^ Prefer \`Bitcoin\` over \`bitcoin\`.
+
+Output:
+  1 | // Bitcoin devops JQuery IOS Typescript
+
+`;
+
+exports[`comment-content > invalid(17): // React.js and reactjs 1`] = `
+
+  1 | // React.js and reactjs
+
+`;
+
+exports[`comment-content > invalid(17): // React.js and reactjs 2`] = `
+
+Message:
+> 1 | // React.js and reactjs
+    |    ^^^^^^^^ Prefer \`React\` over \`React.js\`.
+
+Output:
+  1 | // React and reactjs
+
+`;
+
+exports[`comment-content > invalid(18): // Vuejs and vue 1`] = `
+
+  1 | // Vuejs and vue
+
+`;
+
+exports[`comment-content > invalid(18): // Vuejs and vue 2`] = `
+
+Message:
+> 1 | // Vuejs and vue
+    |    ^^^^^ Prefer \`Vue.js\` over \`Vuejs\`.
+
+Output:
+  1 | // Vue.js and vue
+
+`;
+
+exports[`comment-content > invalid(19): // eslint and eslint.js 1`] = `
+
+  1 | // eslint and eslint.js
+
+`;
+
+exports[`comment-content > invalid(19): // eslint and eslint.js 2`] = `
+
+Message:
+> 1 | // eslint and eslint.js
+    |    ^^^^^^ Prefer \`ESLint\` over \`eslint\`.
+
+Output:
+  1 | // ESLint and eslint.js
+
+`;
+
+exports[`comment-content > invalid(2): // Node.js and nodejs 1`] = `
+
+  1 | // Node.js and nodejs
+
+`;
+
+exports[`comment-content > invalid(2): // Node.js and nodejs 2`] = `
+
+Message:
+> 1 | // Node.js and nodejs
+    |                ^^^^^^ Prefer \`Node.js\` over \`nodejs\`.
+
+Output:
+  1 | // Node.js and Node.js
+
+`;
+
+exports[`comment-content > invalid(2): // use Json here 1`] = `
+
+Options:
+- checkUniformCase: false
+
+Code:
+  1 | // use Json here
+
+`;
+
+exports[`comment-content > invalid(2): // use Json here 2`] = `
+
+Message:
+> 1 | // use Json here
+    |        ^^^^ Prefer \`JSON\` over \`Json\`.
+
+Output:
+  1 | // use JSON here
+
+`;
+
+exports[`comment-content > invalid(20): // FaceBook discord twitchtv 1`] = `
+
+  1 | // FaceBook discord twitchtv
+
+`;
+
+exports[`comment-content > invalid(20): // FaceBook discord twitchtv 2`] = `
+
+Message:
+> 1 | // FaceBook discord twitchtv
+    |    ^^^^^^^^ Prefer \`Facebook\` over \`FaceBook\`.
+
+Output:
+  1 | // Facebook discord twitchtv
+
+`;
+
+exports[`comment-content > invalid(21): // applications and application 1`] = `
+
+  1 | // applications and application
+
+`;
+
+exports[`comment-content > invalid(21): // applications and application 2`] = `
+
+Message:
+> 1 | // applications and application
+    |    ^^^^^^^^^^^^ Prefer \`apps\` over \`applications\`.
+
+Output:
+  1 | // apps and application
+
+`;
+
+exports[`comment-content > invalid(22): // nodejs (legacy) 1`] = `
+
+  1 | // nodejs (legacy)
+
+`;
+
+exports[`comment-content > invalid(22): // nodejs (legacy) 2`] = `
+
+Message:
+> 1 | // nodejs (legacy)
+    |    ^^^^^^ Prefer \`Node.js\` over \`nodejs\`.
+
+Output:
+  1 | // Node.js (legacy)
+
+`;
+
+exports[`comment-content > invalid(23): // github and \`nodejs\` 1`] = `
+
+  1 | // github and \`nodejs\`
+
+`;
+
+exports[`comment-content > invalid(23): // github and \`nodejs\` 2`] = `
+
+Message:
+> 1 | // github and \`nodejs\`
+    |    ^^^^^^ Prefer \`GitHub\` over \`github\`.
+
+Output:
+  1 | // GitHub and \`nodejs\`
+
+`;
+
+exports[`comment-content > invalid(24): // \`nodejs\` then github and \`javascript\` 1`] = `
+
+  1 | // \`nodejs\` then github and \`javascript\`
+
+`;
+
+exports[`comment-content > invalid(24): // \`nodejs\` then github and \`javascript\` 2`] = `
+
+Message:
+> 1 | // \`nodejs\` then github and \`javascript\`
+    |                  ^^^^^^ Prefer \`GitHub\` over \`github\`.
+
+Output:
+  1 | // \`nodejs\` then GitHub and \`javascript\`
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 1`] = `
+
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 10`] = `
+
+Message:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+>  9 | 		// sql
+     | 		   ^^^ Prefer \`SQL\` over \`sql\`.
+  10 | 		// uri
+
+Output:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// SQL
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 11`] = `
+
+Message:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+> 10 | 		// uri
+     | 		   ^^^ Prefer \`URI\` over \`uri\`.
+
+Output:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// URI
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 2`] = `
+
+Message:
+>  1 | // api
+     |    ^^^ Prefer \`API\` over \`api\`.
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+Output:
+   1 | // API
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 3`] = `
+
+Message:
+   1 | // api
+>  2 | 		// cli
+     | 		   ^^^ Prefer \`CLI\` over \`cli\`.
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+Output:
+   1 | // api
+   2 | 		// CLI
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 4`] = `
+
+Message:
+   1 | // api
+   2 | 		// cli
+>  3 | 		// json
+     | 		   ^^^^ Prefer \`JSON\` over \`json\`.
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+Output:
+   1 | // api
+   2 | 		// cli
+   3 | 		// JSON
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 5`] = `
+
+Message:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+>  4 | 		// yaml
+     | 		   ^^^^ Prefer \`YAML\` over \`yaml\`.
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+Output:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// YAML
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 6`] = `
+
+Message:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+>  5 | 		// xml
+     | 		   ^^^ Prefer \`XML\` over \`xml\`.
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+Output:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// XML
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 7`] = `
+
+Message:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+>  6 | 		// dom
+     | 		   ^^^ Prefer \`DOM\` over \`dom\`.
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+Output:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// DOM
+   7 | 		// jsx
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 8`] = `
+
+Message:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+>  7 | 		// jsx
+     | 		   ^^^ Prefer \`JSX\` over \`jsx\`.
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+Output:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// JSX
+   8 | 		// ast
+   9 | 		// sql
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(25): // api\n\t\t// cli\n\t\t// json\n\t\t// yaml\n\t\t// xml\n\t\t// dom\n\t\t// jsx\n\t\t// ast\n\t\t// sql\n\t\t// uri 9`] = `
+
+Message:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+>  8 | 		// ast
+     | 		   ^^^ Prefer \`AST\` over \`ast\`.
+   9 | 		// sql
+  10 | 		// uri
+
+Output:
+   1 | // api
+   2 | 		// cli
+   3 | 		// json
+   4 | 		// yaml
+   5 | 		// xml
+   6 | 		// dom
+   7 | 		// jsx
+   8 | 		// AST
+   9 | 		// sql
+  10 | 		// uri
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 1`] = `
+
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 10`] = `
+
+Message:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+> 9 | 		// avif
+    | 		   ^^^^ Prefer \`AVIF\` over \`avif\`.
+
+Output:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// AVIF
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 2`] = `
+
+Message:
+> 1 | // dns
+    |    ^^^ Prefer \`DNS\` over \`dns\`.
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+Output:
+  1 | // DNS
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 3`] = `
+
+Message:
+  1 | // dns
+> 2 | 		// tcp
+    | 		   ^^^ Prefer \`TCP\` over \`tcp\`.
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+Output:
+  1 | // dns
+  2 | 		// TCP
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 4`] = `
+
+Message:
+  1 | // dns
+  2 | 		// tcp
+> 3 | 		// udp
+    | 		   ^^^ Prefer \`UDP\` over \`udp\`.
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+Output:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// UDP
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 5`] = `
+
+Message:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+> 4 | 		// pdf
+    | 		   ^^^ Prefer \`PDF\` over \`pdf\`.
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+Output:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// PDF
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 6`] = `
+
+Message:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+> 5 | 		// csv
+    | 		   ^^^ Prefer \`CSV\` over \`csv\`.
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+Output:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// CSV
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 7`] = `
+
+Message:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+> 6 | 		// tsv
+    | 		   ^^^ Prefer \`TSV\` over \`tsv\`.
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+Output:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// TSV
+  7 | 		// gif
+  8 | 		// webp
+  9 | 		// avif
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 8`] = `
+
+Message:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+> 7 | 		// gif
+    | 		   ^^^ Prefer \`GIF\` over \`gif\`.
+  8 | 		// webp
+  9 | 		// avif
+
+Output:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// GIF
+  8 | 		// webp
+  9 | 		// avif
+
+`;
+
+exports[`comment-content > invalid(26): // dns\n\t\t// tcp\n\t\t// udp\n\t\t// pdf\n\t\t// csv\n\t\t// tsv\n\t\t// gif\n\t\t// webp\n\t\t// avif 9`] = `
+
+Message:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+> 8 | 		// webp
+    | 		   ^^^^ Prefer \`WebP\` over \`webp\`.
+  9 | 		// avif
+
+Output:
+  1 | // dns
+  2 | 		// tcp
+  3 | 		// udp
+  4 | 		// pdf
+  5 | 		// csv
+  6 | 		// tsv
+  7 | 		// gif
+  8 | 		// WebP
+  9 | 		// avif
+
+`;
+
+exports[`comment-content > invalid(27): // ascii\n\t\t// unicode\n\t\t// utf8\n\t\t// utf-8\n\t\t// uuid\n\t\t// mime\n\t\t// posix 1`] = `
+
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// posix
+
+`;
+
+exports[`comment-content > invalid(27): // ascii\n\t\t// unicode\n\t\t// utf8\n\t\t// utf-8\n\t\t// uuid\n\t\t// mime\n\t\t// posix 2`] = `
+
+Message:
+> 1 | // ascii
+    |    ^^^^^ Prefer \`ASCII\` over \`ascii\`.
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// posix
+
+Output:
+  1 | // ASCII
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// posix
+
+`;
+
+exports[`comment-content > invalid(27): // ascii\n\t\t// unicode\n\t\t// utf8\n\t\t// utf-8\n\t\t// uuid\n\t\t// mime\n\t\t// posix 3`] = `
+
+Message:
+  1 | // ascii
+> 2 | 		// unicode
+    | 		   ^^^^^^^ Prefer \`Unicode\` over \`unicode\`.
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// posix
+
+Output:
+  1 | // ascii
+  2 | 		// Unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// posix
+
+`;
+
+exports[`comment-content > invalid(27): // ascii\n\t\t// unicode\n\t\t// utf8\n\t\t// utf-8\n\t\t// uuid\n\t\t// mime\n\t\t// posix 4`] = `
+
+Message:
+  1 | // ascii
+  2 | 		// unicode
+> 3 | 		// utf8
+    | 		   ^^^^ Prefer \`UTF-8\` over \`utf8\`.
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// posix
+
+Output:
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// UTF-8
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// posix
+
+`;
+
+exports[`comment-content > invalid(27): // ascii\n\t\t// unicode\n\t\t// utf8\n\t\t// utf-8\n\t\t// uuid\n\t\t// mime\n\t\t// posix 5`] = `
+
+Message:
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// utf8
+> 4 | 		// utf-8
+    | 		   ^^^^^ Prefer \`UTF-8\` over \`utf-8\`.
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// posix
+
+Output:
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// UTF-8
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// posix
+
+`;
+
+exports[`comment-content > invalid(27): // ascii\n\t\t// unicode\n\t\t// utf8\n\t\t// utf-8\n\t\t// uuid\n\t\t// mime\n\t\t// posix 6`] = `
+
+Message:
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+> 5 | 		// uuid
+    | 		   ^^^^ Prefer \`UUID\` over \`uuid\`.
+  6 | 		// mime
+  7 | 		// posix
+
+Output:
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// UUID
+  6 | 		// mime
+  7 | 		// posix
+
+`;
+
+exports[`comment-content > invalid(27): // ascii\n\t\t// unicode\n\t\t// utf8\n\t\t// utf-8\n\t\t// uuid\n\t\t// mime\n\t\t// posix 7`] = `
+
+Message:
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// uuid
+> 6 | 		// mime
+    | 		   ^^^^ Prefer \`MIME\` over \`mime\`.
+  7 | 		// posix
+
+Output:
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// MIME
+  7 | 		// posix
+
+`;
+
+exports[`comment-content > invalid(27): // ascii\n\t\t// unicode\n\t\t// utf8\n\t\t// utf-8\n\t\t// uuid\n\t\t// mime\n\t\t// posix 8`] = `
+
+Message:
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// mime
+> 7 | 		// posix
+    | 		   ^^^^^ Prefer \`POSIX\` over \`posix\`.
+
+Output:
+  1 | // ascii
+  2 | 		// unicode
+  3 | 		// utf8
+  4 | 		// utf-8
+  5 | 		// uuid
+  6 | 		// mime
+  7 | 		// POSIX
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 1`] = `
+
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 10`] = `
+
+Message:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+>  9 | 		// vscode
+     | 		   ^^^^^^ Prefer \`VS Code\` over \`vscode\`.
+  10 | 		// vs code
+
+Output:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// VS Code
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 11`] = `
+
+Message:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+> 10 | 		// vs code
+     | 		   ^^^^^^^ Prefer \`VS Code\` over \`vs code\`.
+
+Output:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// VS Code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 2`] = `
+
+Message:
+>  1 | // oauth
+     |    ^^^^^ Prefer \`OAuth\` over \`oauth\`.
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+Output:
+   1 | // OAuth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 3`] = `
+
+Message:
+   1 | // oauth
+>  2 | 		// graphql
+     | 		   ^^^^^^^ Prefer \`GraphQL\` over \`graphql\`.
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+Output:
+   1 | // oauth
+   2 | 		// GraphQL
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 4`] = `
+
+Message:
+   1 | // oauth
+   2 | 		// graphql
+>  3 | 		// websocket
+     | 		   ^^^^^^^^^ Prefer \`WebSocket\` over \`websocket\`.
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+Output:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// WebSocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 5`] = `
+
+Message:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+>  4 | 		// webrtc
+     | 		   ^^^^^^ Prefer \`WebRTC\` over \`webrtc\`.
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+Output:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// WebRTC
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 6`] = `
+
+Message:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+>  5 | 		// webgl
+     | 		   ^^^^^ Prefer \`WebGL\` over \`webgl\`.
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+Output:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// WebGL
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 7`] = `
+
+Message:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+>  6 | 		// linux
+     | 		   ^^^^^ Prefer \`Linux\` over \`linux\`.
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+Output:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// Linux
+   7 | 		// unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 8`] = `
+
+Message:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+>  7 | 		// unix
+     | 		   ^^^^ Prefer \`Unix\` over \`unix\`.
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+Output:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// Unix
+   8 | 		// git
+   9 | 		// vscode
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(28): // oauth\n\t\t// graphql\n\t\t// websocket\n\t\t// webrtc\n\t\t// webgl\n\t\t// linux\n\t\t// unix\n\t\t// git\n\t\t// vscode\n\t\t// vs code 9`] = `
+
+Message:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+>  8 | 		// git
+     | 		   ^^^ Prefer \`Git\` over \`git\`.
+   9 | 		// vscode
+  10 | 		// vs code
+
+Output:
+   1 | // oauth
+   2 | 		// graphql
+   3 | 		// websocket
+   4 | 		// webrtc
+   5 | 		// webgl
+   6 | 		// linux
+   7 | 		// unix
+   8 | 		// Git
+   9 | 		// vscode
+  10 | 		// vs code
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 1`] = `
+
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 10`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+>  9 | 		// tls
+     | 		   ^^^ Prefer \`TLS\` over \`tls\`.
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// TLS
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 11`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+> 10 | 		// ssl
+     | 		   ^^^ Prefer \`SSL\` over \`ssl\`.
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// SSL
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 12`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+> 11 | 		// ssh
+     | 		   ^^^ Prefer \`SSH\` over \`ssh\`.
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// SSH
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 13`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+> 12 | 		// ftp
+     | 		   ^^^ Prefer \`FTP\` over \`ftp\`.
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// FTP
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 14`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+> 13 | 		// sftp
+     | 		   ^^^^ Prefer \`SFTP\` over \`sftp\`.
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// SFTP
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 15`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+> 14 | 		// ram
+     | 		   ^^^ Prefer \`RAM\` over \`ram\`.
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// RAM
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 2`] = `
+
+Message:
+>  1 | // cpu
+     |    ^^^ Prefer \`CPU\` over \`cpu\`.
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // CPU
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 3`] = `
+
+Message:
+   1 | // cpu
+>  2 | 		// gpu
+     | 		   ^^^ Prefer \`GPU\` over \`gpu\`.
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// GPU
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 4`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+>  3 | 		// ui
+     | 		   ^^ Prefer \`UI\` over \`ui\`.
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// UI
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 5`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+>  4 | 		// ux
+     | 		   ^^ Prefer \`UX\` over \`ux\`.
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// UX
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 6`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+>  5 | 		// cors
+     | 		   ^^^^ Prefer \`CORS\` over \`cors\`.
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// CORS
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 7`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+>  6 | 		// csrf
+     | 		   ^^^^ Prefer \`CSRF\` over \`csrf\`.
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// CSRF
+   7 | 		// xss
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 8`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+>  7 | 		// xss
+     | 		   ^^^ Prefer \`XSS\` over \`xss\`.
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// XSS
+   8 | 		// jwt
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(29): // cpu\n\t\t// gpu\n\t\t// ui\n\t\t// ux\n\t\t// cors\n\t\t// csrf\n\t\t// xss\n\t\t// jwt\n\t\t// tls\n\t\t// ssl\n\t\t// ssh\n\t\t// ftp\n\t\t// sftp\n\t\t// ram 9`] = `
+
+Message:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+>  8 | 		// jwt
+     | 		   ^^^ Prefer \`JWT\` over \`jwt\`.
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+Output:
+   1 | // cpu
+   2 | 		// gpu
+   3 | 		// ui
+   4 | 		// ux
+   5 | 		// cors
+   6 | 		// csrf
+   7 | 		// xss
+   8 | 		// JWT
+   9 | 		// tls
+  10 | 		// ssl
+  11 | 		// ssh
+  12 | 		// ftp
+  13 | 		// sftp
+  14 | 		// ram
+
+`;
+
+exports[`comment-content > invalid(3): // NodeJS uses Javascript. 1`] = `
+
+  1 | // NodeJS uses Javascript.
+
+`;
+
+exports[`comment-content > invalid(3): // NodeJS uses Javascript. 2`] = `
+
+Message:
+> 1 | // NodeJS uses Javascript.
+    |    ^^^^^^ Prefer \`Node.js\` over \`NodeJS\`.
+
+Output:
+  1 | // Node.js uses Javascript.
+
+`;
+
+exports[`comment-content > invalid(3): // install Github cli 1`] = `
+
+Options:
+- checkUniformCase: false
+
+Code:
+  1 | // install Github cli
+
+`;
+
+exports[`comment-content > invalid(3): // install Github cli 2`] = `
+
+Message:
+> 1 | // install Github cli
+    |            ^^^^^^ Prefer \`GitHub\` over \`Github\`.
+
+Output:
+  1 | // install GitHub cli
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 1`] = `
+
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 10`] = `
+
+Message:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+>  9 | 		// ec2
+     | 		   ^^^ Prefer \`EC2\` over \`ec2\`.
+  10 | 		// ci
+  11 | 		// cd
+
+Output:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// EC2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 11`] = `
+
+Message:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+> 10 | 		// ci
+     | 		   ^^ Prefer \`CI\` over \`ci\`.
+  11 | 		// cd
+
+Output:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// CI
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 12`] = `
+
+Message:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+> 11 | 		// cd
+     | 		   ^^ Prefer \`CD\` over \`cd\`.
+
+Output:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// CD
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 2`] = `
+
+Message:
+>  1 | // aws
+     |    ^^^ Prefer \`AWS\` over \`aws\`.
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+Output:
+   1 | // AWS
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 3`] = `
+
+Message:
+   1 | // aws
+>  2 | 		// gcp
+     | 		   ^^^ Prefer \`GCP\` over \`gcp\`.
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+Output:
+   1 | // aws
+   2 | 		// GCP
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 4`] = `
+
+Message:
+   1 | // aws
+   2 | 		// gcp
+>  3 | 		// azure
+     | 		   ^^^^^ Prefer \`Azure\` over \`azure\`.
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+Output:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// Azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 5`] = `
+
+Message:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+>  4 | 		// docker
+     | 		   ^^^^^^ Prefer \`Docker\` over \`docker\`.
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+Output:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// Docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 6`] = `
+
+Message:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+>  5 | 		// kubernetes
+     | 		   ^^^^^^^^^^ Prefer \`Kubernetes\` over \`kubernetes\`.
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+Output:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// Kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 7`] = `
+
+Message:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+>  6 | 		// k8s
+     | 		   ^^^ Prefer \`K8s\` over \`k8s\`.
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+Output:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// K8s
+   7 | 		// nginx
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 8`] = `
+
+Message:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+>  7 | 		// nginx
+     | 		   ^^^^^ Prefer \`NGINX\` over \`nginx\`.
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+Output:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// NGINX
+   8 | 		// s3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(30): // aws\n\t\t// gcp\n\t\t// azure\n\t\t// docker\n\t\t// kubernetes\n\t\t// k8s\n\t\t// nginx\n\t\t// s3\n\t\t// ec2\n\t\t// ci\n\t\t// cd 9`] = `
+
+Message:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+>  8 | 		// s3
+     | 		   ^^ Prefer \`S3\` over \`s3\`.
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+Output:
+   1 | // aws
+   2 | 		// gcp
+   3 | 		// azure
+   4 | 		// docker
+   5 | 		// kubernetes
+   6 | 		// k8s
+   7 | 		// nginx
+   8 | 		// S3
+   9 | 		// ec2
+  10 | 		// ci
+  11 | 		// cd
+
+`;
+
+exports[`comment-content > invalid(31): // mysql\n\t\t// sqlite\n\t\t// postgresql\n\t\t// mongodb\n\t\t// redis\n\t\t// deno\n\t\t// svelte\n\t\t// vite 1`] = `
+
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+`;
+
+exports[`comment-content > invalid(31): // mysql\n\t\t// sqlite\n\t\t// postgresql\n\t\t// mongodb\n\t\t// redis\n\t\t// deno\n\t\t// svelte\n\t\t// vite 2`] = `
+
+Message:
+> 1 | // mysql
+    |    ^^^^^ Prefer \`MySQL\` over \`mysql\`.
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+Output:
+  1 | // MySQL
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+`;
+
+exports[`comment-content > invalid(31): // mysql\n\t\t// sqlite\n\t\t// postgresql\n\t\t// mongodb\n\t\t// redis\n\t\t// deno\n\t\t// svelte\n\t\t// vite 3`] = `
+
+Message:
+  1 | // mysql
+> 2 | 		// sqlite
+    | 		   ^^^^^^ Prefer \`SQLite\` over \`sqlite\`.
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+Output:
+  1 | // mysql
+  2 | 		// SQLite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+`;
+
+exports[`comment-content > invalid(31): // mysql\n\t\t// sqlite\n\t\t// postgresql\n\t\t// mongodb\n\t\t// redis\n\t\t// deno\n\t\t// svelte\n\t\t// vite 4`] = `
+
+Message:
+  1 | // mysql
+  2 | 		// sqlite
+> 3 | 		// postgresql
+    | 		   ^^^^^^^^^^ Prefer \`PostgreSQL\` over \`postgresql\`.
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+Output:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// PostgreSQL
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+`;
+
+exports[`comment-content > invalid(31): // mysql\n\t\t// sqlite\n\t\t// postgresql\n\t\t// mongodb\n\t\t// redis\n\t\t// deno\n\t\t// svelte\n\t\t// vite 5`] = `
+
+Message:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+> 4 | 		// mongodb
+    | 		   ^^^^^^^ Prefer \`MongoDB\` over \`mongodb\`.
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+Output:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// MongoDB
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+`;
+
+exports[`comment-content > invalid(31): // mysql\n\t\t// sqlite\n\t\t// postgresql\n\t\t// mongodb\n\t\t// redis\n\t\t// deno\n\t\t// svelte\n\t\t// vite 6`] = `
+
+Message:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+> 5 | 		// redis
+    | 		   ^^^^^ Prefer \`Redis\` over \`redis\`.
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+Output:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// Redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// vite
+
+`;
+
+exports[`comment-content > invalid(31): // mysql\n\t\t// sqlite\n\t\t// postgresql\n\t\t// mongodb\n\t\t// redis\n\t\t// deno\n\t\t// svelte\n\t\t// vite 7`] = `
+
+Message:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+> 6 | 		// deno
+    | 		   ^^^^ Prefer \`Deno\` over \`deno\`.
+  7 | 		// svelte
+  8 | 		// vite
+
+Output:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// Deno
+  7 | 		// svelte
+  8 | 		// vite
+
+`;
+
+exports[`comment-content > invalid(31): // mysql\n\t\t// sqlite\n\t\t// postgresql\n\t\t// mongodb\n\t\t// redis\n\t\t// deno\n\t\t// svelte\n\t\t// vite 8`] = `
+
+Message:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+> 7 | 		// svelte
+    | 		   ^^^^^^ Prefer \`Svelte\` over \`svelte\`.
+  8 | 		// vite
+
+Output:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// Svelte
+  8 | 		// vite
+
+`;
+
+exports[`comment-content > invalid(31): // mysql\n\t\t// sqlite\n\t\t// postgresql\n\t\t// mongodb\n\t\t// redis\n\t\t// deno\n\t\t// svelte\n\t\t// vite 9`] = `
+
+Message:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+> 8 | 		// vite
+    | 		   ^^^^ Prefer \`Vite\` over \`vite\`.
+
+Output:
+  1 | // mysql
+  2 | 		// sqlite
+  3 | 		// postgresql
+  4 | 		// mongodb
+  5 | 		// redis
+  6 | 		// deno
+  7 | 		// svelte
+  8 | 		// Vite
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 1`] = `
+
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 10`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+>  9 | 		// nfd
+     | 		   ^^^ Prefer \`NFD\` over \`nfd\`.
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// NFD
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 11`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+> 10 | 		// rtl
+     | 		   ^^^ Prefer \`RTL\` over \`rtl\`.
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// RTL
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 12`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+> 11 | 		// ltr
+     | 		   ^^^ Prefer \`LTR\` over \`ltr\`.
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// LTR
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 13`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+> 12 | 		// crud
+     | 		   ^^^^ Prefer \`CRUD\` over \`crud\`.
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// CRUD
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 2`] = `
+
+Message:
+>  1 | // cdn
+     |    ^^^ Prefer \`CDN\` over \`cdn\`.
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // CDN
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 3`] = `
+
+Message:
+   1 | // cdn
+>  2 | 		// sdk
+     | 		   ^^^ Prefer \`SDK\` over \`sdk\`.
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// SDK
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 4`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+>  3 | 		// ide
+     | 		   ^^^ Prefer \`IDE\` over \`ide\`.
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// IDE
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 5`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+>  4 | 		// lsp
+     | 		   ^^^ Prefer \`LSP\` over \`lsp\`.
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// LSP
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 6`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+>  5 | 		// wasm
+     | 		   ^^^^ Prefer \`WebAssembly\` over \`wasm\`.
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// WebAssembly
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 7`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+>  6 | 		// webassembly
+     | 		   ^^^^^^^^^^^ Prefer \`WebAssembly\` over \`webassembly\`.
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// WebAssembly
+   7 | 		// mdn
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 8`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+>  7 | 		// mdn
+     | 		   ^^^ Prefer \`MDN\` over \`mdn\`.
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// MDN
+   8 | 		// nfc
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(32): // cdn\n\t\t// sdk\n\t\t// ide\n\t\t// lsp\n\t\t// wasm\n\t\t// webassembly\n\t\t// mdn\n\t\t// nfc\n\t\t// nfd\n\t\t// rtl\n\t\t// ltr\n\t\t// crud 9`] = `
+
+Message:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+>  8 | 		// nfc
+     | 		   ^^^ Prefer \`NFC\` over \`nfc\`.
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+Output:
+   1 | // cdn
+   2 | 		// sdk
+   3 | 		// ide
+   4 | 		// lsp
+   5 | 		// wasm
+   6 | 		// webassembly
+   7 | 		// mdn
+   8 | 		// NFC
+   9 | 		// nfd
+  10 | 		// rtl
+  11 | 		// ltr
+  12 | 		// crud
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 1`] = `
+
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 10`] = `
+
+Message:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+>  9 | 		// STDOUT
+     | 		   ^^^^^^ Prefer \`stdout\` over \`STDOUT\`.
+  10 | 		// STDERR
+
+Output:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// stdout
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 11`] = `
+
+Message:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+> 10 | 		// STDERR
+     | 		   ^^^^^^ Prefer \`stderr\` over \`STDERR\`.
+
+Output:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// stderr
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 2`] = `
+
+Message:
+>  1 | // iife
+     |    ^^^^ Prefer \`IIFE\` over \`iife\`.
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+Output:
+   1 | // IIFE
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 3`] = `
+
+Message:
+   1 | // iife
+>  2 | 		// esm
+     | 		   ^^^ Prefer \`ESM\` over \`esm\`.
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+Output:
+   1 | // iife
+   2 | 		// ESM
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 4`] = `
+
+Message:
+   1 | // iife
+   2 | 		// esm
+>  3 | 		// cjs
+     | 		   ^^^ Prefer \`CJS\` over \`cjs\`.
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+Output:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// CJS
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 5`] = `
+
+Message:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+>  4 | 		// umd
+     | 		   ^^^ Prefer \`UMD\` over \`umd\`.
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+Output:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// UMD
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 6`] = `
+
+Message:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+>  5 | 		// bom
+     | 		   ^^^ Prefer \`BOM\` over \`bom\`.
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+Output:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// BOM
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 7`] = `
+
+Message:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+>  6 | 		// eof
+     | 		   ^^^ Prefer \`EOF\` over \`eof\`.
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+Output:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// EOF
+   7 | 		// eol
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 8`] = `
+
+Message:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+>  7 | 		// eol
+     | 		   ^^^ Prefer \`EOL\` over \`eol\`.
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+Output:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// EOL
+   8 | 		// STDIN
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(33): // iife\n\t\t// esm\n\t\t// cjs\n\t\t// umd\n\t\t// bom\n\t\t// eof\n\t\t// eol\n\t\t// STDIN\n\t\t// STDOUT\n\t\t// STDERR 9`] = `
+
+Message:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+>  8 | 		// STDIN
+     | 		   ^^^^^ Prefer \`stdin\` over \`STDIN\`.
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+Output:
+   1 | // iife
+   2 | 		// esm
+   3 | 		// cjs
+   4 | 		// umd
+   5 | 		// bom
+   6 | 		// eof
+   7 | 		// eol
+   8 | 		// stdin
+   9 | 		// STDOUT
+  10 | 		// STDERR
+
+`;
+
+exports[`comment-content > invalid(34): /* node.js */ 1`] = `
+
+  1 | /* node.js */
+
+`;
+
+exports[`comment-content > invalid(34): /* node.js */ 2`] = `
+
+Message:
+> 1 | /* node.js */
+    |    ^^^^^^^ Prefer \`Node.js\` over \`node.js\`.
+
+Output:
+  1 | /* Node.js */
+
+`;
+
+exports[`comment-content > invalid(35): /**\n\t\t * nodejs and javascript\n\t\t */ 1`] = `
+
+  1 | /**
+  2 | 		 * nodejs and javascript
+  3 | 		 */
+
+`;
+
+exports[`comment-content > invalid(35): /**\n\t\t * nodejs and javascript\n\t\t */ 2`] = `
+
+Message:
+  1 | /**
+> 2 | 		 * nodejs and javascript
+    | 		   ^^^^^^ Prefer \`Node.js\` over \`nodejs\`.
+  3 | 		 */
+
+Output:
+  1 | /**
+  2 | 		 * Node.js and javascript
+  3 | 		 */
+
+`;
+
+exports[`comment-content > invalid(36): // We sanitize the input,\n\t\t// then return html. 1`] = `
+
+  1 | // We sanitize the input,
+  2 | 		// then return html.
+
+`;
+
+exports[`comment-content > invalid(36): // We sanitize the input,\n\t\t// then return html. 2`] = `
+
+Message:
+  1 | // We sanitize the input,
+> 2 | 		// then return html.
+    | 		               ^^^^ Prefer \`HTML\` over \`html\`.
+
+Output:
+  1 | // We sanitize the input,
+  2 | 		// then return HTML.
+
+`;
+
+exports[`comment-content > invalid(37): // const x = parse(html)\n\t\t// Then read the html. 1`] = `
+
+  1 | // const x = parse(html)
+  2 | 		// Then read the html.
+
+`;
+
+exports[`comment-content > invalid(37): // const x = parse(html)\n\t\t// Then read the html. 2`] = `
+
+Message:
+  1 | // const x = parse(html)
+> 2 | 		// Then read the html.
+    | 		                 ^^^^ Prefer \`HTML\` over \`html\`.
+
+Output:
+  1 | // const x = parse(html)
+  2 | 		// Then read the HTML.
+
+`;
+
+exports[`comment-content > invalid(38): // const value = sanitize(\n\n\t\t// then return html. 1`] = `
+
+  1 | // const value = sanitize(
+  2 |
+  3 | 		// then return html.
+
+`;
+
+exports[`comment-content > invalid(38): // const value = sanitize(\n\n\t\t// then return html. 2`] = `
+
+Message:
+  1 | // const value = sanitize(
+  2 |
+> 3 | 		// then return html.
+    | 		               ^^^^ Prefer \`HTML\` over \`html\`.
+
+Output:
+  1 | // const value = sanitize(
+  2 |
+  3 | 		// then return HTML.
+
+`;
+
+exports[`comment-content > invalid(39): // const value = sanitize(\n\t\t// eslint-disable-next-line no-console\n\t\t// then return html. 1`] = `
+
+  1 | // const value = sanitize(
+  2 | 		// eslint-disable-next-line no-console
+  3 | 		// then return html.
+
+`;
+
+exports[`comment-content > invalid(39): // const value = sanitize(\n\t\t// eslint-disable-next-line no-console\n\t\t// then return html. 2`] = `
+
+Message:
+  1 | // const value = sanitize(
+  2 | 		// eslint-disable-next-line no-console
+> 3 | 		// then return html.
+    | 		               ^^^^ Prefer \`HTML\` over \`html\`.
+
+Output:
+  1 | // const value = sanitize(
+  2 | 		// eslint-disable-next-line no-console
+  3 | 		// then return HTML.
+
+`;
+
+exports[`comment-content > invalid(4): // run on Nodejs 1`] = `
+
+Options:
+- checkUniformCase: false
+
+Code:
+  1 | // run on Nodejs
+
+`;
+
+exports[`comment-content > invalid(4): // run on Nodejs 2`] = `
+
+Message:
+> 1 | // run on Nodejs
+    |           ^^^^^^ Prefer \`Node.js\` over \`Nodejs\`.
+
+Output:
+  1 | // run on Node.js
+
+`;
+
+exports[`comment-content > invalid(4): // stackoverflow question 1`] = `
+
+  1 | // stackoverflow question
+
+`;
+
+exports[`comment-content > invalid(4): // stackoverflow question 2`] = `
+
+Message:
+> 1 | // stackoverflow question
+    |    ^^^^^^^^^^^^^ Prefer \`Stack Overflow\` over \`stackoverflow\`.
+
+Output:
+  1 | // Stack Overflow question
+
+`;
+
+exports[`comment-content > invalid(40): // const value = sanitize(\n\t\tdoSomething();\n\t\t// then return html. 1`] = `
+
+  1 | // const value = sanitize(
+  2 | 		doSomething();
+  3 | 		// then return html.
+
+`;
+
+exports[`comment-content > invalid(40): // const value = sanitize(\n\t\tdoSomething();\n\t\t// then return html. 2`] = `
+
+Message:
+  1 | // const value = sanitize(
+  2 | 		doSomething();
+> 3 | 		// then return html.
+    | 		               ^^^^ Prefer \`HTML\` over \`html\`.
+
+Output:
+  1 | // const value = sanitize(
+  2 | 		doSomething();
+  3 | 		// then return HTML.
+
+`;
+
+exports[`comment-content > invalid(41): // const a = open(\n\t\t//   data\n\t\t// )\n\t\t// then read the html.\n\t\t// const b = close(\n\t\t//   data\n\t\t// ) 1`] = `
+
+  1 | // const a = open(
+  2 | 		//   data
+  3 | 		// )
+  4 | 		// then read the html.
+  5 | 		// const b = close(
+  6 | 		//   data
+  7 | 		// )
+
+`;
+
+exports[`comment-content > invalid(41): // const a = open(\n\t\t//   data\n\t\t// )\n\t\t// then read the html.\n\t\t// const b = close(\n\t\t//   data\n\t\t// ) 2`] = `
+
+Message:
+  1 | // const a = open(
+  2 | 		//   data
+  3 | 		// )
+> 4 | 		// then read the html.
+    | 		                 ^^^^ Prefer \`HTML\` over \`html\`.
+  5 | 		// const b = close(
+  6 | 		//   data
+  7 | 		// )
+
+Output:
+  1 | // const a = open(
+  2 | 		//   data
+  3 | 		// )
+  4 | 		// then read the HTML.
+  5 | 		// const b = close(
+  6 | 		//   data
+  7 | 		// )
+
+`;
+
+exports[`comment-content > invalid(5): // mac OS X and MacOS 1`] = `
+
+  1 | // mac OS X and MacOS
+
+`;
+
+exports[`comment-content > invalid(5): // mac OS X and MacOS 2`] = `
+
+Message:
+> 1 | // mac OS X and MacOS
+    |    ^^^^^^^^ Prefer \`macOS\` over \`mac OS X\`.
+
+Output:
+  1 | // macOS and MacOS
+
+`;
+
+exports[`comment-content > invalid(5): // see Stack overflow 1`] = `
+
+Options:
+- checkUniformCase: false
+
+Code:
+  1 | // see Stack overflow
+
+`;
+
+exports[`comment-content > invalid(5): // see Stack overflow 2`] = `
+
+Message:
+> 1 | // see Stack overflow
+    |        ^^^^^^^^^^^^^^ Prefer \`Stack Overflow\` over \`Stack overflow\`.
+
+Output:
+  1 | // see Stack Overflow
+
+`;
+
+exports[`comment-content > invalid(6): // the application starts 1`] = `
+
+Options:
+- checkUniformCase: false
+
+Code:
+  1 | // the application starts
+
+`;
+
+exports[`comment-content > invalid(6): // the application starts 2`] = `
+
+Message:
+> 1 | // the application starts
+    |        ^^^^^^^^^^^ Prefer \`app\` over \`application\`.
+
+Output:
+  1 | // the app starts
+
+`;
+
+exports[`comment-content > invalid(6): // the ſql query 1`] = `
+
+  1 | // the ſql query
+
+`;
+
+exports[`comment-content > invalid(6): // the ſql query 2`] = `
+
+Message:
+> 1 | // the ſql query
+    |        ^^^ Prefer \`SQL\` over \`ſql\`.
+
+Output:
+  1 | // the SQL query
+
+`;
+
+exports[`comment-content > invalid(7): // you tube video 1`] = `
+
+  1 | // you tube video
+
+`;
+
+exports[`comment-content > invalid(7): // you tube video 2`] = `
+
+Message:
+> 1 | // you tube video
+    |    ^^^^^^^^ Prefer \`YouTube\` over \`you tube\`.
+
+Output:
+  1 | // YouTube video
+
+`;
+
+exports[`comment-content > invalid(8): // github issue 1`] = `
+
+  1 | // github issue
+
+`;
+
+exports[`comment-content > invalid(8): // github issue 2`] = `
+
+Message:
+> 1 | // github issue
+    |    ^^^^^^ Prefer \`GitHub\` over \`github\`.
+
+Output:
+  1 | // GitHub issue
+
+`;
+
+exports[`comment-content > invalid(9): // foo.github and github docs 1`] = `
+
+  1 | // foo.github and github docs
+
+`;
+
+exports[`comment-content > invalid(9): // foo.github and github docs 2`] = `
+
+Message:
+> 1 | // foo.github and github docs
+    |                   ^^^^^^ Prefer \`GitHub\` over \`github\`.
+
+Output:
+  1 | // foo.github and GitHub docs
+
+`;

@@ -3,7 +3,7 @@ import indentString from 'indent-string';
 import detectIndent from 'detect-indent';
 import {replaceTemplateElement} from './fix/index.js';
 import {isTaggedTemplateLiteral} from './ast/index.js';
-import {isNodeMatches} from './utils/index.js';
+import {isNodeMatches, getVisitorChildNodes} from './utils/index.js';
 import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
@@ -17,9 +17,6 @@ const getIgnoredTemplateLiteralLines = sourceCode => {
 
 	while (nodes.length > 0) {
 		const node = nodes.pop();
-		if (!node) {
-			continue;
-		}
 
 		if (node.type === 'TemplateLiteral') {
 			const {start: {line: startLine}, end: {line: endLine}} = sourceCode.getLoc(node);
@@ -28,14 +25,7 @@ const getIgnoredTemplateLiteralLines = sourceCode => {
 			}
 		}
 
-		for (const key of sourceCode.visitorKeys[node.type] ?? []) {
-			const value = node[key];
-			if (Array.isArray(value)) {
-				nodes.push(...value);
-			} else {
-				nodes.push(value);
-			}
-		}
+		nodes.push(...getVisitorChildNodes(node, sourceCode.visitorKeys));
 	}
 
 	return ignoredLines;
@@ -96,8 +86,8 @@ const create = context => {
 
 		const location = sourceCode.getLoc(node);
 		const startLine = sourceCode.lines[location.start.line - 1];
-		const marginMatch = startLine.match(/^(\s*)\S/);
-		const parentMargin = marginMatch ? marginMatch[1] : '';
+		// The template starts on this line, so the leading whitespace is always followed by content.
+		const [parentMargin] = startLine.match(/^\s*/);
 
 		let indent;
 		if (typeof options.indent === 'string') {

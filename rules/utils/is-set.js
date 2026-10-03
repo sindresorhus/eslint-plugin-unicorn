@@ -1,11 +1,4 @@
-import {
-	createBuiltinTypeCheckers,
-	target,
-	unknown,
-} from './type-helpers.js';
-
-const getStaticType = value =>
-	value instanceof Set ? target : unknown;
+import {createBuiltinTypeCheckers} from './type-helpers.js';
 
 const {
 	isTarget: isSet,
@@ -13,7 +6,6 @@ const {
 } = createBuiltinTypeCheckers({
 	name: 'Set',
 	aliases: ['ReadonlySet'],
-	getStaticType,
 });
 
 export {

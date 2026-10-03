@@ -1,0 +1,2664 @@
+exports[`prefer-export-from > invalid(1): import defaultExport from 'foo';\nexport default defaultExport; 1`] = `
+
+  1 | import defaultExport from 'foo';
+  2 | export default defaultExport;
+
+`;
+
+exports[`prefer-export-from > invalid(1): import defaultExport from 'foo';\nexport default defaultExport; 2`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+> 2 | export default defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(1): import defaultExport from 'foo';\nexport {defaultExport as default};\nexport {defaultExport as named}; 1`] = `
+
+Options:
+- checkUsedVariables: false
+
+Code:
+  1 | import defaultExport from 'foo';
+  2 | export {defaultExport as default};
+  3 | export {defaultExport as named};
+
+`;
+
+exports[`prefer-export-from > invalid(1): import defaultExport from 'foo';\nexport {defaultExport as default};\nexport {defaultExport as named}; 2`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+> 2 | export {defaultExport as default};
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+  3 | export {defaultExport as named};
+
+Output:
+  1 | import defaultExport from 'foo';
+  2 |
+  3 | export {defaultExport as named};
+  4 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(1): import defaultExport from 'foo';\nexport {defaultExport as default};\nexport {defaultExport as named}; 3`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+  2 | export {defaultExport as default};
+> 3 | export {defaultExport as named};
+    |         ^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 | import defaultExport from 'foo';
+  2 | export {defaultExport as default};
+  3 |
+  4 | export {default as named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(1): import json from './foo.json' with { type: 'json' };\nexport default json; 1`] = `
+
+  1 | import json from './foo.json' with { type: 'json' };
+  2 | export default json;
+
+`;
+
+exports[`prefer-export-from > invalid(1): import json from './foo.json' with { type: 'json' };\nexport default json; 2`] = `
+
+Message:
+  1 | import json from './foo.json' with { type: 'json' };
+> 2 | export default json;
+    | ^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default} from './foo.json' with { type: 'json' };
+
+`;
+
+exports[`prefer-export-from > invalid(1): import { foo } from \"foo\";\nexport { foo };\nexport type { bar } from \"foo\"; 1`] = `
+
+  1 | import { foo } from "foo";
+  2 | export { foo };
+  3 | export type { bar } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(1): import { foo } from \"foo\";\nexport { foo };\nexport type { bar } from \"foo\"; 2`] = `
+
+Message:
+  1 | import { foo } from "foo";
+> 2 | export { foo };
+    |          ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export type { bar } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export type { bar } from "foo";
+  4 | export {foo} from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(10): import type { foo } from 'foo';\nexport type { foo };\nexport { type bar } from \"foo\";\nexport { baz } from \"foo\"; 1`] = `
+
+  1 | import type { foo } from 'foo';
+  2 | export type { foo };
+  3 | export { type bar } from "foo";
+  4 | export { baz } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(10): import type { foo } from 'foo';\nexport type { foo };\nexport { type bar } from \"foo\";\nexport { baz } from \"foo\"; 2`] = `
+
+Message:
+  1 | import type { foo } from 'foo';
+> 2 | export type { foo };
+    |               ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export { type bar } from "foo";
+  4 | export { baz } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export { type bar, type foo } from "foo";
+  4 | export { baz } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(10): import {named} from 'foo';\nexport {named as default}; 1`] = `
+
+  1 | import {named} from 'foo';
+  2 | export {named as default};
+
+`;
+
+exports[`prefer-export-from > invalid(10): import {named} from 'foo';\nexport {named as default}; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+> 2 | export {named as default};
+    |         ^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {named as default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(11): import type { foo } from 'foo';\nexport type { foo };\nexport { baz } from \"foo\";\nexport { type bar } from \"foo\"; 1`] = `
+
+  1 | import type { foo } from 'foo';
+  2 | export type { foo };
+  3 | export { baz } from "foo";
+  4 | export { type bar } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(11): import type { foo } from 'foo';\nexport type { foo };\nexport { baz } from \"foo\";\nexport { type bar } from \"foo\"; 2`] = `
+
+Message:
+  1 | import type { foo } from 'foo';
+> 2 | export type { foo };
+    |               ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export { baz } from "foo";
+  4 | export { type bar } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export { baz, type foo } from "foo";
+  4 | export { type bar } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(11): import {named} from 'foo';\nexport {named as named}; 1`] = `
+
+  1 | import {named} from 'foo';
+  2 | export {named as named};
+
+`;
+
+exports[`prefer-export-from > invalid(11): import {named} from 'foo';\nexport {named as named}; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+> 2 | export {named as named};
+    |         ^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(12): import { type foo } from 'foo';\nexport type { foo }; 1`] = `
+
+  1 | import { type foo } from 'foo';
+  2 | export type { foo };
+
+`;
+
+exports[`prefer-export-from > invalid(12): import { type foo } from 'foo';\nexport type { foo }; 2`] = `
+
+Message:
+  1 | import { type foo } from 'foo';
+> 2 | export type { foo };
+    |               ^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {type foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(12): import {named} from 'foo';\nexport {named as renamed}; 1`] = `
+
+  1 | import {named} from 'foo';
+  2 | export {named as renamed};
+
+`;
+
+exports[`prefer-export-from > invalid(12): import {named} from 'foo';\nexport {named as renamed}; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+> 2 | export {named as renamed};
+    |         ^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`renamed\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {named as renamed} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(13): import { foo } from 'foo';\nexport type { foo }; 1`] = `
+
+  1 | import { foo } from 'foo';
+  2 | export type { foo };
+
+`;
+
+exports[`prefer-export-from > invalid(13): import { foo } from 'foo';\nexport type { foo }; 2`] = `
+
+Message:
+  1 | import { foo } from 'foo';
+> 2 | export type { foo };
+    |               ^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 | import { foo } from 'foo';
+  2 |
+  3 | export {type foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(13): import {named} from 'foo';\nexport const variable = named; 1`] = `
+
+  1 | import {named} from 'foo';
+  2 | export const variable = named;
+
+`;
+
+exports[`prefer-export-from > invalid(13): import {named} from 'foo';\nexport const variable = named; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+> 2 | export const variable = named;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`variable\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {named as variable} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(14): import type { foo } from 'foo';\nexport { type foo }; 1`] = `
+
+  1 | import type { foo } from 'foo';
+  2 | export { type foo };
+
+`;
+
+exports[`prefer-export-from > invalid(14): import type { foo } from 'foo';\nexport { type foo }; 2`] = `
+
+Message:
+  1 | import type { foo } from 'foo';
+> 2 | export { type foo };
+    |          ^^^^^^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {type foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(14): import {named} from 'foo';\nnamed.bar = 1;\nexport {named as named};\nexport {named as default};\nexport const variable = named; 1`] = `
+
+  1 | import {named} from 'foo';
+  2 | named.bar = 1;
+  3 | export {named as named};
+  4 | export {named as default};
+  5 | export const variable = named;
+
+`;
+
+exports[`prefer-export-from > invalid(14): import {named} from 'foo';\nnamed.bar = 1;\nexport {named as named};\nexport {named as default};\nexport const variable = named; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+  2 | named.bar = 1;
+> 3 | export {named as named};
+    |         ^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`named\`.
+  4 | export {named as default};
+  5 | export const variable = named;
+
+Output:
+  1 | import {named} from 'foo';
+  2 | named.bar = 1;
+  3 |
+  4 | export {named as default};
+  5 | export const variable = named;
+  6 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(14): import {named} from 'foo';\nnamed.bar = 1;\nexport {named as named};\nexport {named as default};\nexport const variable = named; 3`] = `
+
+Message:
+  1 | import {named} from 'foo';
+  2 | named.bar = 1;
+  3 | export {named as named};
+> 4 | export {named as default};
+    |         ^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+  5 | export const variable = named;
+
+Output:
+  1 | import {named} from 'foo';
+  2 | named.bar = 1;
+  3 | export {named as named};
+  4 |
+  5 | export const variable = named;
+  6 | export {named as default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(14): import {named} from 'foo';\nnamed.bar = 1;\nexport {named as named};\nexport {named as default};\nexport const variable = named; 4`] = `
+
+Message:
+  1 | import {named} from 'foo';
+  2 | named.bar = 1;
+  3 | export {named as named};
+  4 | export {named as default};
+> 5 | export const variable = named;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`variable\`.
+
+Output:
+  1 | import {named} from 'foo';
+  2 | named.bar = 1;
+  3 | export {named as named};
+  4 | export {named as default};
+  5 |
+  6 | export {named as variable} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(15): import * as namespace from 'foo';\nexport {namespace as namespace}; 1`] = `
+
+  1 | import * as namespace from 'foo';
+  2 | export {namespace as namespace};
+
+`;
+
+exports[`prefer-export-from > invalid(15): import * as namespace from 'foo';\nexport {namespace as namespace}; 2`] = `
+
+Message:
+  1 | import * as namespace from 'foo';
+> 2 | export {namespace as namespace};
+    |         ^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`namespace\`.
+
+Output:
+  1 |
+  2 |
+  3 | export * as namespace from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(15): import type foo from \"foo\";\nexport default foo 1`] = `
+
+  1 | import type foo from "foo";
+  2 | export default foo
+
+`;
+
+exports[`prefer-export-from > invalid(15): import type foo from \"foo\";\nexport default foo 2`] = `
+
+Message:
+  1 | import type foo from "foo";
+> 2 | export default foo
+    | ^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {type default} from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(16): import * as namespace from 'foo';\nexport {namespace as renamed}; 1`] = `
+
+  1 | import * as namespace from 'foo';
+  2 | export {namespace as renamed};
+
+`;
+
+exports[`prefer-export-from > invalid(16): import * as namespace from 'foo';\nexport {namespace as renamed}; 2`] = `
+
+Message:
+  1 | import * as namespace from 'foo';
+> 2 | export {namespace as renamed};
+    |         ^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`renamed\`.
+
+Output:
+  1 |
+  2 |
+  3 | export * as renamed from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(16): import {type foo} from 'foo';\nexport {type foo as bar}; 1`] = `
+
+  1 | import {type foo} from 'foo';
+  2 | export {type foo as bar};
+
+`;
+
+exports[`prefer-export-from > invalid(16): import {type foo} from 'foo';\nexport {type foo as bar}; 2`] = `
+
+Message:
+  1 | import {type foo} from 'foo';
+> 2 | export {type foo as bar};
+    |         ^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`bar\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {type foo as bar} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(17): import * as namespace from 'foo';\nexport const variable = namespace; 1`] = `
+
+  1 | import * as namespace from 'foo';
+  2 | export const variable = namespace;
+
+`;
+
+exports[`prefer-export-from > invalid(17): import * as namespace from 'foo';\nexport const variable = namespace; 2`] = `
+
+Message:
+  1 | import * as namespace from 'foo';
+> 2 | export const variable = namespace;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`variable\`.
+
+Output:
+  1 |
+  2 |
+  3 | export * as variable from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(17): import {type foo} from 'foo';\nexport {type foo as bar};\nexport {type bar} from 'foo'; 1`] = `
+
+  1 | import {type foo} from 'foo';
+  2 | export {type foo as bar};
+  3 | export {type bar} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(17): import {type foo} from 'foo';\nexport {type foo as bar};\nexport {type bar} from 'foo'; 2`] = `
+
+Message:
+  1 | import {type foo} from 'foo';
+> 2 | export {type foo as bar};
+    |         ^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`bar\`.
+  3 | export {type bar} from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export {type bar, type foo as bar} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(18): import * as namespace from 'foo';\nnamespace.bar = 1;\nexport {namespace as named};\nexport {namespace as default};\nexport const variable = namespace; 1`] = `
+
+  1 | import * as namespace from 'foo';
+  2 | namespace.bar = 1;
+  3 | export {namespace as named};
+  4 | export {namespace as default};
+  5 | export const variable = namespace;
+
+`;
+
+exports[`prefer-export-from > invalid(18): import * as namespace from 'foo';\nnamespace.bar = 1;\nexport {namespace as named};\nexport {namespace as default};\nexport const variable = namespace; 2`] = `
+
+Message:
+  1 | import * as namespace from 'foo';
+  2 | namespace.bar = 1;
+> 3 | export {namespace as named};
+    |         ^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`named\`.
+  4 | export {namespace as default};
+  5 | export const variable = namespace;
+
+Output:
+  1 | import * as namespace from 'foo';
+  2 | namespace.bar = 1;
+  3 |
+  4 | export {namespace as default};
+  5 | export const variable = namespace;
+  6 | export * as named from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(18): import * as namespace from 'foo';\nnamespace.bar = 1;\nexport {namespace as named};\nexport {namespace as default};\nexport const variable = namespace; 3`] = `
+
+Message:
+  1 | import * as namespace from 'foo';
+  2 | namespace.bar = 1;
+  3 | export {namespace as named};
+  4 | export {namespace as default};
+> 5 | export const variable = namespace;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`variable\`.
+
+Output:
+  1 | import * as namespace from 'foo';
+  2 | namespace.bar = 1;
+  3 | export {namespace as named};
+  4 | export {namespace as default};
+  5 |
+  6 | export * as variable from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(18): import {type foo as bar} from 'foo';\nexport {type bar as baz}; 1`] = `
+
+  1 | import {type foo as bar} from 'foo';
+  2 | export {type bar as baz};
+
+`;
+
+exports[`prefer-export-from > invalid(18): import {type foo as bar} from 'foo';\nexport {type bar as baz}; 2`] = `
+
+Message:
+  1 | import {type foo as bar} from 'foo';
+> 2 | export {type bar as baz};
+    |         ^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`baz\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {type foo as baz} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(19): import {named1, named2} from 'foo';\nexport {named1}; 1`] = `
+
+  1 | import {named1, named2} from 'foo';
+  2 | export {named1};
+
+`;
+
+exports[`prefer-export-from > invalid(19): import {named1, named2} from 'foo';\nexport {named1}; 2`] = `
+
+Message:
+  1 | import {named1, named2} from 'foo';
+> 2 | export {named1};
+    |         ^^^^^^ Use \`export…from\` to re-export \`named1\`.
+
+Output:
+  1 | import { named2} from 'foo';
+  2 |
+  3 | export {named1} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(19): import {type foo as foo} from 'foo';\nexport {type foo as bar}; 1`] = `
+
+  1 | import {type foo as foo} from 'foo';
+  2 | export {type foo as bar};
+
+`;
+
+exports[`prefer-export-from > invalid(19): import {type foo as foo} from 'foo';\nexport {type foo as bar}; 2`] = `
+
+Message:
+  1 | import {type foo as foo} from 'foo';
+> 2 | export {type foo as bar};
+    |         ^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`bar\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {type foo as bar} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(2): import * as json from './foo.json' with { type: 'json' };\nexport {json}; 1`] = `
+
+  1 | import * as json from './foo.json' with { type: 'json' };
+  2 | export {json};
+
+`;
+
+exports[`prefer-export-from > invalid(2): import * as json from './foo.json' with { type: 'json' };\nexport {json}; 2`] = `
+
+Message:
+  1 | import * as json from './foo.json' with { type: 'json' };
+> 2 | export {json};
+    |         ^^^^ Use \`export…from\` to re-export \`json\`.
+
+Output:
+  1 |
+  2 |
+  3 | export * as json from './foo.json' with { type: 'json' };
+
+`;
+
+exports[`prefer-export-from > invalid(2): import defaultExport from 'foo';\nexport {defaultExport as default}; 1`] = `
+
+  1 | import defaultExport from 'foo';
+  2 | export {defaultExport as default};
+
+`;
+
+exports[`prefer-export-from > invalid(2): import defaultExport from 'foo';\nexport {defaultExport as default}; 2`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+> 2 | export {defaultExport as default};
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(2): import { foo } from \"foo\";\nexport { foo };\nexport { type bar } from \"foo\"; 1`] = `
+
+  1 | import { foo } from "foo";
+  2 | export { foo };
+  3 | export { type bar } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(2): import { foo } from \"foo\";\nexport { foo };\nexport { type bar } from \"foo\"; 2`] = `
+
+Message:
+  1 | import { foo } from "foo";
+> 2 | export { foo };
+    |          ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export { type bar } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export { type bar, foo } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(2): import {named} from 'foo';\nexport {named as default};\nexport {named as named}; 1`] = `
+
+Options:
+- checkUsedVariables: false
+
+Code:
+  1 | import {named} from 'foo';
+  2 | export {named as default};
+  3 | export {named as named};
+
+`;
+
+exports[`prefer-export-from > invalid(2): import {named} from 'foo';\nexport {named as default};\nexport {named as named}; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+> 2 | export {named as default};
+    |         ^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+  3 | export {named as named};
+
+Output:
+  1 | import {named} from 'foo';
+  2 |
+  3 | export {named as named};
+  4 | export {named as default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(2): import {named} from 'foo';\nexport {named as default};\nexport {named as named}; 3`] = `
+
+Message:
+  1 | import {named} from 'foo';
+  2 | export {named as default};
+> 3 | export {named as named};
+    |         ^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 | import {named} from 'foo';
+  2 | export {named as default};
+  3 |
+  4 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(20): import defaultExport, {named} from 'foo';\nexport {defaultExport}; 1`] = `
+
+  1 | import defaultExport, {named} from 'foo';
+  2 | export {defaultExport};
+
+`;
+
+exports[`prefer-export-from > invalid(20): import defaultExport, {named} from 'foo';\nexport {defaultExport}; 2`] = `
+
+Message:
+  1 | import defaultExport, {named} from 'foo';
+> 2 | export {defaultExport};
+    |         ^^^^^^^^^^^^^ Use \`export…from\` to re-export \`defaultExport\`.
+
+Output:
+  1 | import  {named} from 'foo';
+  2 |
+  3 | export {default as defaultExport} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(20): import {type foo as bar} from 'foo';\nexport {type bar as bar}; 1`] = `
+
+  1 | import {type foo as bar} from 'foo';
+  2 | export {type bar as bar};
+
+`;
+
+exports[`prefer-export-from > invalid(20): import {type foo as bar} from 'foo';\nexport {type bar as bar}; 2`] = `
+
+Message:
+  1 | import {type foo as bar} from 'foo';
+> 2 | export {type bar as bar};
+    |         ^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`bar\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {type foo as bar} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(21): import defaultExport, {named} from 'foo';\nexport {named}; 1`] = `
+
+  1 | import defaultExport, {named} from 'foo';
+  2 | export {named};
+
+`;
+
+exports[`prefer-export-from > invalid(21): import defaultExport, {named} from 'foo';\nexport {named}; 2`] = `
+
+Message:
+  1 | import defaultExport, {named} from 'foo';
+> 2 | export {named};
+    |         ^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 | import defaultExport from 'foo';
+  2 |
+  3 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(21): import {type foo as bar} from 'foo';\nexport {type bar as foo}; 1`] = `
+
+  1 | import {type foo as bar} from 'foo';
+  2 | export {type bar as foo};
+
+`;
+
+exports[`prefer-export-from > invalid(21): import {type foo as bar} from 'foo';\nexport {type bar as foo}; 2`] = `
+
+Message:
+  1 | import {type foo as bar} from 'foo';
+> 2 | export {type bar as foo};
+    |         ^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {type foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(22): import defaultExport, * as namespace from 'foo';\nexport {defaultExport}; 1`] = `
+
+  1 | import defaultExport, * as namespace from 'foo';
+  2 | export {defaultExport};
+
+`;
+
+exports[`prefer-export-from > invalid(22): import defaultExport, * as namespace from 'foo';\nexport {defaultExport}; 2`] = `
+
+Message:
+  1 | import defaultExport, * as namespace from 'foo';
+> 2 | export {defaultExport};
+    |         ^^^^^^^^^^^^^ Use \`export…from\` to re-export \`defaultExport\`.
+
+Output:
+  1 | import  * as namespace from 'foo';
+  2 |
+  3 | export {default as defaultExport} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(22): import json from './foo.json' assert { type: 'json' };\nexport default json; 1`] = `
+
+  1 | import json from './foo.json' assert { type: 'json' };
+  2 | export default json;
+
+`;
+
+exports[`prefer-export-from > invalid(22): import json from './foo.json' assert { type: 'json' };\nexport default json; 2`] = `
+
+Message:
+  1 | import json from './foo.json' assert { type: 'json' };
+> 2 | export default json;
+    | ^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default} from './foo.json' assert { type: 'json' };
+
+`;
+
+exports[`prefer-export-from > invalid(23): import * as foo from 'foo';\nexport {foo};\nexport * as bar from 'foo'; 1`] = `
+
+  1 | import * as foo from 'foo';
+  2 | export {foo};
+  3 | export * as bar from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(23): import * as foo from 'foo';\nexport {foo};\nexport * as bar from 'foo'; 2`] = `
+
+Message:
+  1 | import * as foo from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export * as bar from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export * as bar from 'foo';
+  4 | export * as foo from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(23): import * as json from './foo.json' assert { type: 'json' };\nexport {json}; 1`] = `
+
+  1 | import * as json from './foo.json' assert { type: 'json' };
+  2 | export {json};
+
+`;
+
+exports[`prefer-export-from > invalid(23): import * as json from './foo.json' assert { type: 'json' };\nexport {json}; 2`] = `
+
+Message:
+  1 | import * as json from './foo.json' assert { type: 'json' };
+> 2 | export {json};
+    |         ^^^^ Use \`export…from\` to re-export \`json\`.
+
+Output:
+  1 |
+  2 |
+  3 | export * as json from './foo.json' assert { type: 'json' };
+
+`;
+
+exports[`prefer-export-from > invalid(24): import * as foo from 'foo';\nexport {foo};\nexport {bar} from 'foo'; 1`] = `
+
+  1 | import * as foo from 'foo';
+  2 | export {foo};
+  3 | export {bar} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(24): import * as foo from 'foo';\nexport {foo};\nexport {bar} from 'foo'; 2`] = `
+
+Message:
+  1 | import * as foo from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export {bar} from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export {bar} from 'foo';
+  4 | export * as foo from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(24): import {foo} from './foo.json' assert { type: 'unknown' };\nexport {foo};\nexport {bar} from './foo.json'; 1`] = `
+
+  1 | import {foo} from './foo.json' assert { type: 'unknown' };
+  2 | export {foo};
+  3 | export {bar} from './foo.json';
+
+`;
+
+exports[`prefer-export-from > invalid(24): import {foo} from './foo.json' assert { type: 'unknown' };\nexport {foo};\nexport {bar} from './foo.json'; 2`] = `
+
+Message:
+  1 | import {foo} from './foo.json' assert { type: 'unknown' };
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export {bar} from './foo.json';
+
+Output:
+  1 |
+  2 |
+  3 | export {bar, foo} from './foo.json';
+
+`;
+
+exports[`prefer-export-from > invalid(25): import * as foo from 'foo';\nexport {foo};\nexport {} from 'foo'; 1`] = `
+
+  1 | import * as foo from 'foo';
+  2 | export {foo};
+  3 | export {} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(25): import * as foo from 'foo';\nexport {foo};\nexport {} from 'foo'; 2`] = `
+
+Message:
+  1 | import * as foo from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export {} from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export {} from 'foo';
+  4 | export * as foo from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(25): import {foo} from './foo.json';\nexport {foo};\nexport {bar} from './foo.json' assert { type: 'unknown' }; 1`] = `
+
+  1 | import {foo} from './foo.json';
+  2 | export {foo};
+  3 | export {bar} from './foo.json' assert { type: 'unknown' };
+
+`;
+
+exports[`prefer-export-from > invalid(25): import {foo} from './foo.json';\nexport {foo};\nexport {bar} from './foo.json' assert { type: 'unknown' }; 2`] = `
+
+Message:
+  1 | import {foo} from './foo.json';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export {bar} from './foo.json' assert { type: 'unknown' };
+
+Output:
+  1 |
+  2 |
+  3 | export {bar, foo} from './foo.json' assert { type: 'unknown' };
+
+`;
+
+exports[`prefer-export-from > invalid(26): import * as foo from 'foo';\nexport {foo};\nexport * from 'foo'; 1`] = `
+
+  1 | import * as foo from 'foo';
+  2 | export {foo};
+  3 | export * from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(26): import * as foo from 'foo';\nexport {foo};\nexport * from 'foo'; 2`] = `
+
+Message:
+  1 | import * as foo from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export * from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export * from 'foo';
+  4 | export * as foo from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(26): import type * as X from 'foo';\nexport { X }; 1`] = `
+
+  1 | import type * as X from 'foo';
+  2 | export { X };
+
+`;
+
+exports[`prefer-export-from > invalid(26): import type * as X from 'foo';\nexport { X }; 2`] = `
+
+Message:
+  1 | import type * as X from 'foo';
+> 2 | export { X };
+    |          ^ Use \`export…from\` to re-export \`X\`.
+
+Output:
+  1 |
+  2 |
+  3 | export type * as X from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(27): import * as X from 'foo';\nexport type { X }; 1`] = `
+
+  1 | import * as X from 'foo';
+  2 | export type { X };
+
+`;
+
+exports[`prefer-export-from > invalid(27): import * as X from 'foo';\nexport type { X }; 2`] = `
+
+Message:
+  1 | import * as X from 'foo';
+> 2 | export type { X };
+    |               ^ Use \`export…from\` to re-export \`X\`.
+
+Output:
+  1 | import * as X from 'foo';
+  2 |
+  3 | export type * as X from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(27): import foo from 'foo';\nexport {foo};\nexport * as bar from 'foo'; 1`] = `
+
+  1 | import foo from 'foo';
+  2 | export {foo};
+  3 | export * as bar from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(27): import foo from 'foo';\nexport {foo};\nexport * as bar from 'foo'; 2`] = `
+
+Message:
+  1 | import foo from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export * as bar from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export * as bar from 'foo';
+  4 | export {default as foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(28): import foo from 'foo';\nexport {foo};\nexport {bar} from 'foo'; 1`] = `
+
+  1 | import foo from 'foo';
+  2 | export {foo};
+  3 | export {bar} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(28): import foo from 'foo';\nexport {foo};\nexport {bar} from 'foo'; 2`] = `
+
+Message:
+  1 | import foo from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export {bar} from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export {bar, default as foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(28): import type * as X from 'foo';\nexport type { X }; 1`] = `
+
+  1 | import type * as X from 'foo';
+  2 | export type { X };
+
+`;
+
+exports[`prefer-export-from > invalid(28): import type * as X from 'foo';\nexport type { X }; 2`] = `
+
+Message:
+  1 | import type * as X from 'foo';
+> 2 | export type { X };
+    |               ^ Use \`export…from\` to re-export \`X\`.
+
+Output:
+  1 |
+  2 |
+  3 | export type * as X from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(29): import * as X from 'foo';\nexport { X }; 1`] = `
+
+  1 | import * as X from 'foo';
+  2 | export { X };
+
+`;
+
+exports[`prefer-export-from > invalid(29): import * as X from 'foo';\nexport { X }; 2`] = `
+
+Message:
+  1 | import * as X from 'foo';
+> 2 | export { X };
+    |          ^ Use \`export…from\` to re-export \`X\`.
+
+Output:
+  1 |
+  2 |
+  3 | export * as X from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(29): import foo from 'foo';\nexport {foo};\nexport {bar,} from 'foo'; 1`] = `
+
+  1 | import foo from 'foo';
+  2 | export {foo};
+  3 | export {bar,} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(29): import foo from 'foo';\nexport {foo};\nexport {bar,} from 'foo'; 2`] = `
+
+Message:
+  1 | import foo from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export {bar,} from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export {bar, default as foo,} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(3): import defaultExport from 'foo';\nexport {defaultExport as named}; 1`] = `
+
+  1 | import defaultExport from 'foo';
+  2 | export {defaultExport as named};
+
+`;
+
+exports[`prefer-export-from > invalid(3): import defaultExport from 'foo';\nexport {defaultExport as named}; 2`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+> 2 | export {defaultExport as named};
+    |         ^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default as named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(3): import { foo } from 'foo';\nexport { foo };\nexport type { bar } from \"foo\";\nexport { baz } from \"foo\"; 1`] = `
+
+  1 | import { foo } from 'foo';
+  2 | export { foo };
+  3 | export type { bar } from "foo";
+  4 | export { baz } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(3): import { foo } from 'foo';\nexport { foo };\nexport type { bar } from \"foo\";\nexport { baz } from \"foo\"; 2`] = `
+
+Message:
+  1 | import { foo } from 'foo';
+> 2 | export { foo };
+    |          ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export type { bar } from "foo";
+  4 | export { baz } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export type { bar } from "foo";
+  4 | export { baz, foo } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(3): import {foo} from './foo.json' with { type: 'unknown' };\nexport {foo};\nexport {bar} from './foo.json'; 1`] = `
+
+  1 | import {foo} from './foo.json' with { type: 'unknown' };
+  2 | export {foo};
+  3 | export {bar} from './foo.json';
+
+`;
+
+exports[`prefer-export-from > invalid(3): import {foo} from './foo.json' with { type: 'unknown' };\nexport {foo};\nexport {bar} from './foo.json'; 2`] = `
+
+Message:
+  1 | import {foo} from './foo.json' with { type: 'unknown' };
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export {bar} from './foo.json';
+
+Output:
+  1 |
+  2 |
+  3 | export {bar, foo} from './foo.json';
+
+`;
+
+exports[`prefer-export-from > invalid(3): import {named} from 'foo';\nexport default named;\nexport {named as named}; 1`] = `
+
+Options:
+- checkUsedVariables: false
+
+Code:
+  1 | import {named} from 'foo';
+  2 | export default named;
+  3 | export {named as named};
+
+`;
+
+exports[`prefer-export-from > invalid(3): import {named} from 'foo';\nexport default named;\nexport {named as named}; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+> 2 | export default named;
+    | ^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+  3 | export {named as named};
+
+Output:
+  1 | import {named} from 'foo';
+  2 |
+  3 | export {named as named};
+  4 | export {named as default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(3): import {named} from 'foo';\nexport default named;\nexport {named as named}; 3`] = `
+
+Message:
+  1 | import {named} from 'foo';
+  2 | export default named;
+> 3 | export {named as named};
+    |         ^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 | import {named} from 'foo';
+  2 | export default named;
+  3 |
+  4 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(30): import foo from 'foo';\nexport {foo};\nexport {} from 'foo'; 1`] = `
+
+  1 | import foo from 'foo';
+  2 | export {foo};
+  3 | export {} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(30): import foo from 'foo';\nexport {foo};\nexport {} from 'foo'; 2`] = `
+
+Message:
+  1 | import foo from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export {} from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export {default as foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(31): import foo from 'foo';\nexport {foo};\nexport * from 'foo'; 1`] = `
+
+  1 | import foo from 'foo';
+  2 | export {foo};
+  3 | export * from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(31): import foo from 'foo';\nexport {foo};\nexport * from 'foo'; 2`] = `
+
+Message:
+  1 | import foo from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export * from 'foo';
+
+Output:
+  1 |
+  2 |
+  3 | export * from 'foo';
+  4 | export {default as foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(32): import {named1, named2} from 'foo';\nexport {named1, named2}; 1`] = `
+
+  1 | import {named1, named2} from 'foo';
+  2 | export {named1, named2};
+
+`;
+
+exports[`prefer-export-from > invalid(32): import {named1, named2} from 'foo';\nexport {named1, named2}; 2`] = `
+
+Message:
+  1 | import {named1, named2} from 'foo';
+> 2 | export {named1, named2};
+    |         ^^^^^^ Use \`export…from\` to re-export \`named1\`.
+
+Output:
+  1 | import { named2} from 'foo';
+  2 | export { named2};
+  3 | export {named1} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(32): import {named1, named2} from 'foo';\nexport {named1, named2}; 3`] = `
+
+Message:
+  1 | import {named1, named2} from 'foo';
+> 2 | export {named1, named2};
+    |                 ^^^^^^ Use \`export…from\` to re-export \`named2\`.
+
+Output:
+  1 | import {named1, } from 'foo';
+  2 | export {named1, };
+  3 | export {named2} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(33): import {named} from 'foo';\nexport {named as default, named}; 1`] = `
+
+  1 | import {named} from 'foo';
+  2 | export {named as default, named};
+
+`;
+
+exports[`prefer-export-from > invalid(33): import {named} from 'foo';\nexport {named as default, named}; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+> 2 | export {named as default, named};
+    |         ^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 | import {named} from 'foo';
+  2 | export { named};
+  3 | export {named as default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(33): import {named} from 'foo';\nexport {named as default, named}; 3`] = `
+
+Message:
+  1 | import {named} from 'foo';
+> 2 | export {named as default, named};
+    |                           ^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 | import {named} from 'foo';
+  2 | export {named as default, };
+  3 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(34): import {named, named as renamed} from 'foo';\nexport {named, renamed}; 1`] = `
+
+  1 | import {named, named as renamed} from 'foo';
+  2 | export {named, renamed};
+
+`;
+
+exports[`prefer-export-from > invalid(34): import {named, named as renamed} from 'foo';\nexport {named, renamed}; 2`] = `
+
+Message:
+  1 | import {named, named as renamed} from 'foo';
+> 2 | export {named, renamed};
+    |         ^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 | import { named as renamed} from 'foo';
+  2 | export { renamed};
+  3 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(34): import {named, named as renamed} from 'foo';\nexport {named, renamed}; 3`] = `
+
+Message:
+  1 | import {named, named as renamed} from 'foo';
+> 2 | export {named, renamed};
+    |                ^^^^^^^ Use \`export…from\` to re-export \`renamed\`.
+
+Output:
+  1 | import {named, } from 'foo';
+  2 | export {named, };
+  3 | export {named as renamed} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(35): import defaultExport, {named1, named2} from 'foo';\nexport {named1 as default};\nexport {named2};\nexport {defaultExport}; 1`] = `
+
+  1 | import defaultExport, {named1, named2} from 'foo';
+  2 | export {named1 as default};
+  3 | export {named2};
+  4 | export {defaultExport};
+
+`;
+
+exports[`prefer-export-from > invalid(35): import defaultExport, {named1, named2} from 'foo';\nexport {named1 as default};\nexport {named2};\nexport {defaultExport}; 2`] = `
+
+Message:
+  1 | import defaultExport, {named1, named2} from 'foo';
+> 2 | export {named1 as default};
+    |         ^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+  3 | export {named2};
+  4 | export {defaultExport};
+
+Output:
+  1 | import defaultExport, { named2} from 'foo';
+  2 |
+  3 | export {named2};
+  4 | export {defaultExport};
+  5 | export {named1 as default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(35): import defaultExport, {named1, named2} from 'foo';\nexport {named1 as default};\nexport {named2};\nexport {defaultExport}; 3`] = `
+
+Message:
+  1 | import defaultExport, {named1, named2} from 'foo';
+  2 | export {named1 as default};
+> 3 | export {named2};
+    |         ^^^^^^ Use \`export…from\` to re-export \`named2\`.
+  4 | export {defaultExport};
+
+Output:
+  1 | import defaultExport, {named1, } from 'foo';
+  2 | export {named1 as default};
+  3 |
+  4 | export {defaultExport};
+  5 | export {named2} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(35): import defaultExport, {named1, named2} from 'foo';\nexport {named1 as default};\nexport {named2};\nexport {defaultExport}; 4`] = `
+
+Message:
+  1 | import defaultExport, {named1, named2} from 'foo';
+  2 | export {named1 as default};
+  3 | export {named2};
+> 4 | export {defaultExport};
+    |         ^^^^^^^^^^^^^ Use \`export…from\` to re-export \`defaultExport\`.
+
+Output:
+  1 | import  {named1, named2} from 'foo';
+  2 | export {named1 as default};
+  3 | export {named2};
+  4 |
+  5 | export {default as defaultExport} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(36): import * as foo from 'foo';\nimport * as bar from 'foo';\nexport {foo, bar}; 1`] = `
+
+  1 | import * as foo from 'foo';
+  2 | import * as bar from 'foo';
+  3 | export {foo, bar};
+
+`;
+
+exports[`prefer-export-from > invalid(36): import * as foo from 'foo';\nimport * as bar from 'foo';\nexport {foo, bar}; 2`] = `
+
+Message:
+  1 | import * as foo from 'foo';
+  2 | import * as bar from 'foo';
+> 3 | export {foo, bar};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 |
+  2 | import * as bar from 'foo';
+  3 | export { bar};
+  4 | export * as foo from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(36): import * as foo from 'foo';\nimport * as bar from 'foo';\nexport {foo, bar}; 3`] = `
+
+Message:
+  1 | import * as foo from 'foo';
+  2 | import * as bar from 'foo';
+> 3 | export {foo, bar};
+    |              ^^^ Use \`export…from\` to re-export \`bar\`.
+
+Output:
+  1 | import * as foo from 'foo';
+  2 |
+  3 | export {foo, };
+  4 | export * as bar from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(37): import * as foo from 'foo';\nexport {foo, foo as bar}; 1`] = `
+
+  1 | import * as foo from 'foo';
+  2 | export {foo, foo as bar};
+
+`;
+
+exports[`prefer-export-from > invalid(37): import * as foo from 'foo';\nexport {foo, foo as bar}; 2`] = `
+
+Message:
+  1 | import * as foo from 'foo';
+> 2 | export {foo, foo as bar};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 | import * as foo from 'foo';
+  2 | export { foo as bar};
+  3 | export * as foo from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(37): import * as foo from 'foo';\nexport {foo, foo as bar}; 3`] = `
+
+Message:
+  1 | import * as foo from 'foo';
+> 2 | export {foo, foo as bar};
+    |              ^^^^^^^^^^ Use \`export…from\` to re-export \`bar\`.
+
+Output:
+  1 | import * as foo from 'foo';
+  2 | export {foo, };
+  3 | export * as bar from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(38): import defaultExport from 'foo';\nexport * from 'foo';\nexport default defaultExport; 1`] = `
+
+  1 | import defaultExport from 'foo';
+  2 | export * from 'foo';
+  3 | export default defaultExport;
+
+`;
+
+exports[`prefer-export-from > invalid(38): import defaultExport from 'foo';\nexport * from 'foo';\nexport default defaultExport; 2`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+  2 | export * from 'foo';
+> 3 | export default defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 | export * from 'foo';
+  3 |
+  4 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(39): import defaultExport from 'foo';\nexport {named} from 'foo';\nexport * from 'foo';\nexport default defaultExport; 1`] = `
+
+  1 | import defaultExport from 'foo';
+  2 | export {named} from 'foo';
+  3 | export * from 'foo';
+  4 | export default defaultExport;
+
+`;
+
+exports[`prefer-export-from > invalid(39): import defaultExport from 'foo';\nexport {named} from 'foo';\nexport * from 'foo';\nexport default defaultExport; 2`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+  2 | export {named} from 'foo';
+  3 | export * from 'foo';
+> 4 | export default defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 | export {named, default} from 'foo';
+  3 | export * from 'foo';
+  4 |
+
+`;
+
+exports[`prefer-export-from > invalid(4): import defaultExport from 'foo';\nexport const variable = defaultExport; 1`] = `
+
+  1 | import defaultExport from 'foo';
+  2 | export const variable = defaultExport;
+
+`;
+
+exports[`prefer-export-from > invalid(4): import defaultExport from 'foo';\nexport const variable = defaultExport; 2`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+> 2 | export const variable = defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`variable\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default as variable} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(4): import defaultExport, {named} from 'foo';\nexport default defaultExport;\nexport {named}; 1`] = `
+
+Options:
+- checkUsedVariables: false
+
+Code:
+  1 | import defaultExport, {named} from 'foo';
+  2 | export default defaultExport;
+  3 | export {named};
+
+`;
+
+exports[`prefer-export-from > invalid(4): import defaultExport, {named} from 'foo';\nexport default defaultExport;\nexport {named}; 2`] = `
+
+Message:
+  1 | import defaultExport, {named} from 'foo';
+> 2 | export default defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+  3 | export {named};
+
+Output:
+  1 | import  {named} from 'foo';
+  2 |
+  3 | export {named};
+  4 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(4): import defaultExport, {named} from 'foo';\nexport default defaultExport;\nexport {named}; 3`] = `
+
+Message:
+  1 | import defaultExport, {named} from 'foo';
+  2 | export default defaultExport;
+> 3 | export {named};
+    |         ^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 | import defaultExport from 'foo';
+  2 | export default defaultExport;
+  3 |
+  4 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(4): import { foo } from 'foo';\nexport { foo };\nexport { type bar } from \"foo\";\nexport { baz } from \"foo\"; 1`] = `
+
+  1 | import { foo } from 'foo';
+  2 | export { foo };
+  3 | export { type bar } from "foo";
+  4 | export { baz } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(4): import { foo } from 'foo';\nexport { foo };\nexport { type bar } from \"foo\";\nexport { baz } from \"foo\"; 2`] = `
+
+Message:
+  1 | import { foo } from 'foo';
+> 2 | export { foo };
+    |          ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export { type bar } from "foo";
+  4 | export { baz } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export { type bar, foo } from "foo";
+  4 | export { baz } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(4): import {foo} from './foo.json';\nexport {foo};\nexport {bar} from './foo.json' with { type: 'unknown' }; 1`] = `
+
+  1 | import {foo} from './foo.json';
+  2 | export {foo};
+  3 | export {bar} from './foo.json' with { type: 'unknown' };
+
+`;
+
+exports[`prefer-export-from > invalid(4): import {foo} from './foo.json';\nexport {foo};\nexport {bar} from './foo.json' with { type: 'unknown' }; 2`] = `
+
+Message:
+  1 | import {foo} from './foo.json';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export {bar} from './foo.json' with { type: 'unknown' };
+
+Output:
+  1 |
+  2 |
+  3 | export {bar, foo} from './foo.json' with { type: 'unknown' };
+
+`;
+
+exports[`prefer-export-from > invalid(40): import defaultExport from './foo.js';\nexport {named} from './foo.js';\nexport default defaultExport; 1`] = `
+
+  1 | import defaultExport from './foo.js';
+  2 | export {named} from './foo.js';
+  3 | export default defaultExport;
+
+`;
+
+exports[`prefer-export-from > invalid(40): import defaultExport from './foo.js';\nexport {named} from './foo.js';\nexport default defaultExport; 2`] = `
+
+Message:
+  1 | import defaultExport from './foo.js';
+  2 | export {named} from './foo.js';
+> 3 | export default defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 | export {named, default} from './foo.js';
+  3 |
+
+`;
+
+exports[`prefer-export-from > invalid(41): import defaultExport from './foo.js';\nexport {named} from './foo.js?query';\nexport default defaultExport; 1`] = `
+
+  1 | import defaultExport from './foo.js';
+  2 | export {named} from './foo.js?query';
+  3 | export default defaultExport;
+
+`;
+
+exports[`prefer-export-from > invalid(41): import defaultExport from './foo.js';\nexport {named} from './foo.js?query';\nexport default defaultExport; 2`] = `
+
+Message:
+  1 | import defaultExport from './foo.js';
+  2 | export {named} from './foo.js?query';
+> 3 | export default defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 | export {named} from './foo.js?query';
+  3 |
+  4 | export {default} from './foo.js';
+
+`;
+
+exports[`prefer-export-from > invalid(42): import * as namespace from 'foo';\nexport default namespace;\nexport {namespace}; 1`] = `
+
+  1 | import * as namespace from 'foo';
+  2 | export default namespace;
+  3 | export {namespace};
+
+`;
+
+exports[`prefer-export-from > invalid(42): import * as namespace from 'foo';\nexport default namespace;\nexport {namespace}; 2`] = `
+
+Message:
+  1 | import * as namespace from 'foo';
+  2 | export default namespace;
+> 3 | export {namespace};
+    |         ^^^^^^^^^ Use \`export…from\` to re-export \`namespace\`.
+
+Output:
+  1 | import * as namespace from 'foo';
+  2 | export default namespace;
+  3 |
+  4 | export * as namespace from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(43): import * as namespace from 'foo';\nexport {namespace};\nexport default namespace; 1`] = `
+
+  1 | import * as namespace from 'foo';
+  2 | export {namespace};
+  3 | export default namespace;
+
+`;
+
+exports[`prefer-export-from > invalid(43): import * as namespace from 'foo';\nexport {namespace};\nexport default namespace; 2`] = `
+
+Message:
+  1 | import * as namespace from 'foo';
+> 2 | export {namespace};
+    |         ^^^^^^^^^ Use \`export…from\` to re-export \`namespace\`.
+  3 | export default namespace;
+
+Output:
+  1 | import * as namespace from 'foo';
+  2 |
+  3 | export default namespace;
+  4 | export * as namespace from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(44): import {'foo' as foo} from 'foo';\nexport default foo; 1`] = `
+
+  1 | import {'foo' as foo} from 'foo';
+  2 | export default foo;
+
+`;
+
+exports[`prefer-export-from > invalid(44): import {'foo' as foo} from 'foo';\nexport default foo; 2`] = `
+
+Message:
+  1 | import {'foo' as foo} from 'foo';
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {'foo' as default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(45): import {'foo' as foo} from 'foo';\nexport {foo}; 1`] = `
+
+  1 | import {'foo' as foo} from 'foo';
+  2 | export {foo};
+
+`;
+
+exports[`prefer-export-from > invalid(45): import {'foo' as foo} from 'foo';\nexport {foo}; 2`] = `
+
+Message:
+  1 | import {'foo' as foo} from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {'foo' as foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(46): import {'foo' as foo} from 'foo';\nexport const bar = foo; 1`] = `
+
+  1 | import {'foo' as foo} from 'foo';
+  2 | export const bar = foo;
+
+`;
+
+exports[`prefer-export-from > invalid(46): import {'foo' as foo} from 'foo';\nexport const bar = foo; 2`] = `
+
+Message:
+  1 | import {'foo' as foo} from 'foo';
+> 2 | export const bar = foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`bar\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {'foo' as bar} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(47): import {'foo' as foo} from 'foo';\nexport {foo as 'foo'}; 1`] = `
+
+  1 | import {'foo' as foo} from 'foo';
+  2 | export {foo as 'foo'};
+
+`;
+
+exports[`prefer-export-from > invalid(47): import {'foo' as foo} from 'foo';\nexport {foo as 'foo'}; 2`] = `
+
+Message:
+  1 | import {'foo' as foo} from 'foo';
+> 2 | export {foo as 'foo'};
+    |         ^^^^^^^^^^^^ Use \`export…from\` to re-export \`'foo'\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {'foo'} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(48): import {foo} from 'foo';\nexport {foo as 'bar'}; 1`] = `
+
+  1 | import {foo} from 'foo';
+  2 | export {foo as 'bar'};
+
+`;
+
+exports[`prefer-export-from > invalid(48): import {foo} from 'foo';\nexport {foo as 'bar'}; 2`] = `
+
+Message:
+  1 | import {foo} from 'foo';
+> 2 | export {foo as 'bar'};
+    |         ^^^^^^^^^^^^ Use \`export…from\` to re-export \`'bar'\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {foo as 'bar'} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(49): import {'foo' as foo} from 'foo';\nexport {foo as \"foo\"}; 1`] = `
+
+  1 | import {'foo' as foo} from 'foo';
+  2 | export {foo as "foo"};
+
+`;
+
+exports[`prefer-export-from > invalid(49): import {'foo' as foo} from 'foo';\nexport {foo as \"foo\"}; 2`] = `
+
+Message:
+  1 | import {'foo' as foo} from 'foo';
+> 2 | export {foo as "foo"};
+    |         ^^^^^^^^^^^^ Use \`export…from\` to re-export \`"foo"\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {"foo"} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(5): import defaultExport, {named} from 'foo';\nexport {defaultExport as default, named}; 1`] = `
+
+Options:
+- checkUsedVariables: false
+
+Code:
+  1 | import defaultExport, {named} from 'foo';
+  2 | export {defaultExport as default, named};
+
+`;
+
+exports[`prefer-export-from > invalid(5): import defaultExport, {named} from 'foo';\nexport {defaultExport as default, named}; 2`] = `
+
+Message:
+  1 | import defaultExport, {named} from 'foo';
+> 2 | export {defaultExport as default, named};
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 | import  {named} from 'foo';
+  2 | export { named};
+  3 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(5): import defaultExport, {named} from 'foo';\nexport {defaultExport as default, named}; 3`] = `
+
+Message:
+  1 | import defaultExport, {named} from 'foo';
+> 2 | export {defaultExport as default, named};
+    |                                   ^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 | import defaultExport from 'foo';
+  2 | export {defaultExport as default, };
+  3 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(5): import type { foo } from \"foo\";\nexport type { foo };\nexport type { bar } from \"foo\"; 1`] = `
+
+  1 | import type { foo } from "foo";
+  2 | export type { foo };
+  3 | export type { bar } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(5): import type { foo } from \"foo\";\nexport type { foo };\nexport type { bar } from \"foo\"; 2`] = `
+
+Message:
+  1 | import type { foo } from "foo";
+> 2 | export type { foo };
+    |               ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export type { bar } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export type { bar, foo } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(5): import {default as defaultExport} from 'foo';\nexport default defaultExport; 1`] = `
+
+  1 | import {default as defaultExport} from 'foo';
+  2 | export default defaultExport;
+
+`;
+
+exports[`prefer-export-from > invalid(5): import {default as defaultExport} from 'foo';\nexport default defaultExport; 2`] = `
+
+Message:
+  1 | import {default as defaultExport} from 'foo';
+> 2 | export default defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(50): import {'fo\\u{20}o' as foo} from 'foo';\nexport {foo as \"fo o\"}; 1`] = `
+
+  1 | import {'fo\\u{20}o' as foo} from 'foo';
+  2 | export {foo as "fo o"};
+
+`;
+
+exports[`prefer-export-from > invalid(50): import {'fo\\u{20}o' as foo} from 'foo';\nexport {foo as \"fo o\"}; 2`] = `
+
+Message:
+  1 | import {'fo\\u{20}o' as foo} from 'foo';
+> 2 | export {foo as "fo o"};
+    |         ^^^^^^^^^^^^^ Use \`export…from\` to re-export \`"fo o"\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {"fo o"} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(51): import {'fo\\no' as foo} from 'foo';\nexport {foo as \"fo\\u000ao\"}; 1`] = `
+
+  1 | import {'fo\\no' as foo} from 'foo';
+  2 | export {foo as "fo\\u000ao"};
+
+`;
+
+exports[`prefer-export-from > invalid(51): import {'fo\\no' as foo} from 'foo';\nexport {foo as \"fo\\u000ao\"}; 2`] = `
+
+Message:
+  1 | import {'fo\\no' as foo} from 'foo';
+> 2 | export {foo as "fo\\u000ao"};
+    |         ^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`"fo\\u000ao"\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {"fo\\u000ao"} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(52): import {'default' as foo} from 'foo';\nexport {foo}; 1`] = `
+
+  1 | import {'default' as foo} from 'foo';
+  2 | export {foo};
+
+`;
+
+exports[`prefer-export-from > invalid(52): import {'default' as foo} from 'foo';\nexport {foo}; 2`] = `
+
+Message:
+  1 | import {'default' as foo} from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {'default' as foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(53): import {'default' as foo} from 'foo';\nexport default foo; 1`] = `
+
+  1 | import {'default' as foo} from 'foo';
+  2 | export default foo;
+
+`;
+
+exports[`prefer-export-from > invalid(53): import {'default' as foo} from 'foo';\nexport default foo; 2`] = `
+
+Message:
+  1 | import {'default' as foo} from 'foo';
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {'default' as default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(54): import {'*' as foo} from 'foo';\nexport {foo}; 1`] = `
+
+  1 | import {'*' as foo} from 'foo';
+  2 | export {foo};
+
+`;
+
+exports[`prefer-export-from > invalid(54): import {'*' as foo} from 'foo';\nexport {foo}; 2`] = `
+
+Message:
+  1 | import {'*' as foo} from 'foo';
+> 2 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {'*' as foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(55): import {named} from 'foo';\nuse(named);\nexport {named}; 1`] = `
+
+  1 | import {named} from 'foo';
+  2 | use(named);
+  3 | export {named};
+
+`;
+
+exports[`prefer-export-from > invalid(55): import {named} from 'foo';\nuse(named);\nexport {named}; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+  2 | use(named);
+> 3 | export {named};
+    |         ^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 | import {named} from 'foo';
+  2 | use(named);
+  3 |
+  4 | export {named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(56): import {foo} from 'foo';\n// This is not JSDoc.\nexport const baz = foo; 1`] = `
+
+  1 | import {foo} from 'foo';
+  2 | // This is not JSDoc.
+  3 | export const baz = foo;
+
+`;
+
+exports[`prefer-export-from > invalid(56): import {foo} from 'foo';\n// This is not JSDoc.\nexport const baz = foo; 2`] = `
+
+Message:
+  1 | import {foo} from 'foo';
+  2 | // This is not JSDoc.
+> 3 | export const baz = foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`baz\`.
+
+Output:
+  1 |
+  2 | // This is not JSDoc.
+  3 |
+  4 | export {foo as baz} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(57): import {foo} from 'foo';\n\n/**\n * Documentation for the direct export.\n */\nexport {foo}; 1`] = `
+
+  1 | import {foo} from 'foo';
+  2 |
+  3 | /**
+  4 |  * Documentation for the direct export.
+  5 |  */
+  6 | export {foo};
+
+`;
+
+exports[`prefer-export-from > invalid(57): import {foo} from 'foo';\n\n/**\n * Documentation for the direct export.\n */\nexport {foo}; 2`] = `
+
+Message:
+  1 | import {foo} from 'foo';
+  2 |
+  3 | /**
+  4 |  * Documentation for the direct export.
+  5 |  */
+> 6 | export {foo};
+    |         ^^^ Use \`export…from\` to re-export \`foo\`.
+
+Output:
+  1 |
+  2 |
+  3 | /**
+  4 |  * Documentation for the direct export.
+  5 |  */
+  6 |
+  7 | export {foo} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(58): import {foo} from 'foo';\n/*\n * This is not JSDoc.\n */\nexport const baz = foo; 1`] = `
+
+  1 | import {foo} from 'foo';
+  2 | /*
+  3 |  * This is not JSDoc.
+  4 |  */
+  5 | export const baz = foo;
+
+`;
+
+exports[`prefer-export-from > invalid(58): import {foo} from 'foo';\n/*\n * This is not JSDoc.\n */\nexport const baz = foo; 2`] = `
+
+Message:
+  1 | import {foo} from 'foo';
+  2 | /*
+  3 |  * This is not JSDoc.
+  4 |  */
+> 5 | export const baz = foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`baz\`.
+
+Output:
+  1 |
+  2 | /*
+  3 |  * This is not JSDoc.
+  4 |  */
+  5 |
+  6 | export {foo as baz} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(59): import {foo} from 'foo';\n/*** This is not JSDoc. */\nexport const baz = foo; 1`] = `
+
+  1 | import {foo} from 'foo';
+  2 | /*** This is not JSDoc. */
+  3 | export const baz = foo;
+
+`;
+
+exports[`prefer-export-from > invalid(59): import {foo} from 'foo';\n/*** This is not JSDoc. */\nexport const baz = foo; 2`] = `
+
+Message:
+  1 | import {foo} from 'foo';
+  2 | /*** This is not JSDoc. */
+> 3 | export const baz = foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`baz\`.
+
+Output:
+  1 |
+  2 | /*** This is not JSDoc. */
+  3 |
+  4 | export {foo as baz} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(6): import defaultExport from 'foo';\nexport const variable = defaultExport; 1`] = `
+
+Options:
+- checkUsedVariables: false
+
+Code:
+  1 | import defaultExport from 'foo';
+  2 | export const variable = defaultExport;
+
+`;
+
+exports[`prefer-export-from > invalid(6): import defaultExport from 'foo';\nexport const variable = defaultExport; 2`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+> 2 | export const variable = defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`variable\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default as variable} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(6): import { foo } from 'foo';\nexport { foo };\nexport { baz } from \"foo\";\nexport { type bar } from \"foo\"; 1`] = `
+
+  1 | import { foo } from 'foo';
+  2 | export { foo };
+  3 | export { baz } from "foo";
+  4 | export { type bar } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(6): import { foo } from 'foo';\nexport { foo };\nexport { baz } from \"foo\";\nexport { type bar } from \"foo\"; 2`] = `
+
+Message:
+  1 | import { foo } from 'foo';
+> 2 | export { foo };
+    |          ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export { baz } from "foo";
+  4 | export { type bar } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export { baz, foo } from "foo";
+  4 | export { type bar } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(6): import {default as defaultExport} from 'foo';\nexport {defaultExport as default}; 1`] = `
+
+  1 | import {default as defaultExport} from 'foo';
+  2 | export {defaultExport as default};
+
+`;
+
+exports[`prefer-export-from > invalid(6): import {default as defaultExport} from 'foo';\nexport {defaultExport as default}; 2`] = `
+
+Message:
+  1 | import {default as defaultExport} from 'foo';
+> 2 | export {defaultExport as default};
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(60): import {foo} from 'foo'; /** This comment belongs to the import. */\nexport const baz = foo; 1`] = `
+
+  1 | import {foo} from 'foo'; /** This comment belongs to the import. */
+  2 | export const baz = foo;
+
+`;
+
+exports[`prefer-export-from > invalid(60): import {foo} from 'foo'; /** This comment belongs to the import. */\nexport const baz = foo; 2`] = `
+
+Message:
+  1 | import {foo} from 'foo'; /** This comment belongs to the import. */
+> 2 | export const baz = foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`baz\`.
+
+Output:
+  1 |  /** This comment belongs to the import. */
+  2 |
+  3 | export {foo as baz} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(61): import {foo} from 'foo';\n\n/**\n * This comment is detached from the declaration.\n */\n\nexport const baz = foo; 1`] = `
+
+  1 | import {foo} from 'foo';
+  2 |
+  3 | /**
+  4 |  * This comment is detached from the declaration.
+  5 |  */
+  6 |
+  7 | export const baz = foo;
+
+`;
+
+exports[`prefer-export-from > invalid(61): import {foo} from 'foo';\n\n/**\n * This comment is detached from the declaration.\n */\n\nexport const baz = foo; 2`] = `
+
+Message:
+  1 | import {foo} from 'foo';
+  2 |
+  3 | /**
+  4 |  * This comment is detached from the declaration.
+  5 |  */
+  6 |
+> 7 | export const baz = foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`baz\`.
+
+Output:
+  1 |
+  2 |
+  3 | /**
+  4 |  * This comment is detached from the declaration.
+  5 |  */
+  6 |
+  7 |
+  8 | export {foo as baz} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(7): import type { foo } from \"foo\";\nexport type { foo };\nexport { type bar } from \"foo\"; 1`] = `
+
+  1 | import type { foo } from "foo";
+  2 | export type { foo };
+  3 | export { type bar } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(7): import type { foo } from \"foo\";\nexport type { foo };\nexport { type bar } from \"foo\"; 2`] = `
+
+Message:
+  1 | import type { foo } from "foo";
+> 2 | export type { foo };
+    |               ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export { type bar } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export { type bar, type foo } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(7): import {default as defaultExport} from 'foo';\nexport {defaultExport as named}; 1`] = `
+
+  1 | import {default as defaultExport} from 'foo';
+  2 | export {defaultExport as named};
+
+`;
+
+exports[`prefer-export-from > invalid(7): import {default as defaultExport} from 'foo';\nexport {defaultExport as named}; 2`] = `
+
+Message:
+  1 | import {default as defaultExport} from 'foo';
+> 2 | export {defaultExport as named};
+    |         ^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`named\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default as named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(7): import {notUsedNotExported, exported} from 'foo';\nexport {exported}; 1`] = `
+
+Options:
+- checkUsedVariables: false
+
+Code:
+  1 | import {notUsedNotExported, exported} from 'foo';
+  2 | export {exported};
+
+`;
+
+exports[`prefer-export-from > invalid(7): import {notUsedNotExported, exported} from 'foo';\nexport {exported}; 2`] = `
+
+Message:
+  1 | import {notUsedNotExported, exported} from 'foo';
+> 2 | export {exported};
+    |         ^^^^^^^^ Use \`export…from\` to re-export \`exported\`.
+
+Suggestion 1/1: Switch to \`export…from\`.:
+  1 | import {notUsedNotExported, } from 'foo';
+  2 |
+  3 | export {exported} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(8): import defaultExport from 'foo';\ndefaultExport.bar = 1;\nexport {defaultExport as named};\nexport {defaultExport as default};\nexport const variable = defaultExport; 1`] = `
+
+  1 | import defaultExport from 'foo';
+  2 | defaultExport.bar = 1;
+  3 | export {defaultExport as named};
+  4 | export {defaultExport as default};
+  5 | export const variable = defaultExport;
+
+`;
+
+exports[`prefer-export-from > invalid(8): import defaultExport from 'foo';\ndefaultExport.bar = 1;\nexport {defaultExport as named};\nexport {defaultExport as default};\nexport const variable = defaultExport; 2`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+  2 | defaultExport.bar = 1;
+> 3 | export {defaultExport as named};
+    |         ^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`named\`.
+  4 | export {defaultExport as default};
+  5 | export const variable = defaultExport;
+
+Output:
+  1 | import defaultExport from 'foo';
+  2 | defaultExport.bar = 1;
+  3 |
+  4 | export {defaultExport as default};
+  5 | export const variable = defaultExport;
+  6 | export {default as named} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(8): import defaultExport from 'foo';\ndefaultExport.bar = 1;\nexport {defaultExport as named};\nexport {defaultExport as default};\nexport const variable = defaultExport; 3`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+  2 | defaultExport.bar = 1;
+  3 | export {defaultExport as named};
+> 4 | export {defaultExport as default};
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+  5 | export const variable = defaultExport;
+
+Output:
+  1 | import defaultExport from 'foo';
+  2 | defaultExport.bar = 1;
+  3 | export {defaultExport as named};
+  4 |
+  5 | export const variable = defaultExport;
+  6 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(8): import defaultExport from 'foo';\ndefaultExport.bar = 1;\nexport {defaultExport as named};\nexport {defaultExport as default};\nexport const variable = defaultExport; 4`] = `
+
+Message:
+  1 | import defaultExport from 'foo';
+  2 | defaultExport.bar = 1;
+  3 | export {defaultExport as named};
+  4 | export {defaultExport as default};
+> 5 | export const variable = defaultExport;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`variable\`.
+
+Output:
+  1 | import defaultExport from 'foo';
+  2 | defaultExport.bar = 1;
+  3 | export {defaultExport as named};
+  4 | export {defaultExport as default};
+  5 |
+  6 | export {default as variable} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(8): import type { foo } from 'foo';\nexport type { foo };\nexport type { bar } from \"foo\";\nexport { baz } from \"foo\"; 1`] = `
+
+  1 | import type { foo } from 'foo';
+  2 | export type { foo };
+  3 | export type { bar } from "foo";
+  4 | export { baz } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(8): import type { foo } from 'foo';\nexport type { foo };\nexport type { bar } from \"foo\";\nexport { baz } from \"foo\"; 2`] = `
+
+Message:
+  1 | import type { foo } from 'foo';
+> 2 | export type { foo };
+    |               ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export type { bar } from "foo";
+  4 | export { baz } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export type { bar, foo } from "foo";
+  4 | export { baz } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(8): import {documented, other, unused} from 'foo';\n\n/**\n * Preserve this documentation.\n */\nexport const documentedAlias = documented;\nexport {other}; 1`] = `
+
+Options:
+- checkUsedVariables: false
+
+Code:
+  1 | import {documented, other, unused} from 'foo';
+  2 |
+  3 | /**
+  4 |  * Preserve this documentation.
+  5 |  */
+  6 | export const documentedAlias = documented;
+  7 | export {other};
+
+`;
+
+exports[`prefer-export-from > invalid(8): import {documented, other, unused} from 'foo';\n\n/**\n * Preserve this documentation.\n */\nexport const documentedAlias = documented;\nexport {other}; 2`] = `
+
+Message:
+  1 | import {documented, other, unused} from 'foo';
+  2 |
+  3 | /**
+  4 |  * Preserve this documentation.
+  5 |  */
+  6 | export const documentedAlias = documented;
+> 7 | export {other};
+    |         ^^^^^ Use \`export…from\` to re-export \`other\`.
+
+Suggestion 1/1: Switch to \`export…from\`.:
+  1 | import {documented,  unused} from 'foo';
+  2 |
+  3 | /**
+  4 |  * Preserve this documentation.
+  5 |  */
+  6 | export const documentedAlias = documented;
+  7 |
+  8 | export {other} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(9): import type { foo } from 'foo';\nexport type { foo };\nexport { baz } from \"foo\";\nexport type { bar } from \"foo\"; 1`] = `
+
+  1 | import type { foo } from 'foo';
+  2 | export type { foo };
+  3 | export { baz } from "foo";
+  4 | export type { bar } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(9): import type { foo } from 'foo';\nexport type { foo };\nexport { baz } from \"foo\";\nexport type { bar } from \"foo\"; 2`] = `
+
+Message:
+  1 | import type { foo } from 'foo';
+> 2 | export type { foo };
+    |               ^^^ Use \`export…from\` to re-export \`foo\`.
+  3 | export { baz } from "foo";
+  4 | export type { bar } from "foo";
+
+Output:
+  1 |
+  2 |
+  3 | export { baz } from "foo";
+  4 | export type { bar, foo } from "foo";
+
+`;
+
+exports[`prefer-export-from > invalid(9): import {named} from 'foo';\nexport default named; 1`] = `
+
+  1 | import {named} from 'foo';
+  2 | export default named;
+
+`;
+
+exports[`prefer-export-from > invalid(9): import {named} from 'foo';\nexport default named; 2`] = `
+
+Message:
+  1 | import {named} from 'foo';
+> 2 | export default named;
+    | ^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {named as default} from 'foo';
+
+`;

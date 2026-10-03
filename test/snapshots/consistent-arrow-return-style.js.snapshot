@@ -1,0 +1,764 @@
+exports[`consistent-arrow-return-style > invalid(1): const Div = () => (\n\t\t<>\n\t\t\t<div />\n\t\t</>\n\t); 1`] = `
+
+  1 | const Div = () => (
+  2 | 		<>
+  3 | 			<div />
+  4 | 		</>
+  5 | 	);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(1): const Div = () => (\n\t\t<>\n\t\t\t<div />\n\t\t</>\n\t); 2`] = `
+
+Message:
+> 1 | const Div = () => (
+    |             ^^^^^^^
+> 2 | 		<>
+    | ^^^^
+> 3 | 			<div />
+    | ^^^^^^^^^^
+> 4 | 		</>
+    | ^^^^^
+> 5 | 	);
+    | ^^ Use an explicit return for a multiline arrow function body.
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(1): const value = () => foo(\n\t\tbar,\n\t); 1`] = `
+
+  1 | const value = () => foo(
+  2 | 		bar,
+  3 | 	);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(1): const value = () => foo(\n\t\tbar,\n\t); 2`] = `
+
+Message:
+> 1 | const value = () => foo(
+    |               ^^^^^^^^^^
+> 2 | 		bar,
+    | ^^^^^^
+> 3 | 	);
+    | ^^ Use an explicit return for a multiline arrow function body.
+
+Output:
+  1 | const value = () => {
+  2 | 	return foo(
+  3 | 			bar,
+  4 | 		);
+  5 | };
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(1): const value = (input: string): string => getValue(\n\t\tinput,\n\t); 1`] = `
+
+  1 | const value = (input: string): string => getValue(
+  2 | 		input,
+  3 | 	);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(1): const value = (input: string): string => getValue(\n\t\tinput,\n\t); 2`] = `
+
+Message:
+> 1 | const value = (input: string): string => getValue(
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 		input,
+    | ^^^^^^^^
+> 3 | 	);
+    | ^^ Use an explicit return for a multiline arrow function body.
+
+Output:
+  1 | const value = (input: string): string => {
+  2 | 	return getValue(
+  3 | 			input,
+  4 | 		);
+  5 | };
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(10): const value = () => {\n\t\treturn {};\n\t}; 1`] = `
+
+  1 | const value = () => {
+  2 | 		return {};
+  3 | 	};
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(10): const value = () => {\n\t\treturn {};\n\t}; 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return {};
+    | ^^^^^^^^^^^^
+> 3 | 	};
+    | ^^ Use an implicit return for a single-line return expression.
+
+Output:
+  1 | const value = () => ({});
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(11): const value = () => {\n\t\treturn (foo, bar);\n\t}; 1`] = `
+
+  1 | const value = () => {
+  2 | 		return (foo, bar);
+  3 | 	};
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(11): const value = () => {\n\t\treturn (foo, bar);\n\t}; 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return (foo, bar);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 3 | 	};
+    | ^^ Use an implicit return for a single-line return expression.
+
+Output:
+  1 | const value = () => (foo, bar);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(12): const value = () => {\n\t\treturn foo, bar;\n\t}; 1`] = `
+
+  1 | const value = () => {
+  2 | 		return foo, bar;
+  3 | 	};
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(12): const value = () => {\n\t\treturn foo, bar;\n\t}; 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return foo, bar;
+    | ^^^^^^^^^^^^^^^^^^
+> 3 | 	};
+    | ^^ Use an implicit return for a single-line return expression.
+
+Output:
+  1 | const value = () => (foo, bar);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(13): for (const value = () => {\n\t\treturn foo in bar;\n\t}; ; ) {} 1`] = `
+
+  1 | for (const value = () => {
+  2 | 		return foo in bar;
+  3 | 	}; ; ) {}
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(13): for (const value = () => {\n\t\treturn foo in bar;\n\t}; ; ) {} 2`] = `
+
+Message:
+> 1 | for (const value = () => {
+    |                    ^^^^^^^
+> 2 | 		return foo in bar;
+    | ^^^^^^^^^^^^^^^^^^^^
+> 3 | 	}; ; ) {}
+    | ^^ Use an implicit return for a single-line return expression.
+
+Output:
+  1 | for (const value = () => (foo in bar); ; ) {}
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(14): const values = [\n\t\t() => foo(\n\t\t\tbar,\n\t\t),\n\t\t() => {\n\t\t\treturn baz;\n\t\t},\n\t]; 1`] = `
+
+  1 | const values = [
+  2 | 		() => foo(
+  3 | 			bar,
+  4 | 		),
+  5 | 		() => {
+  6 | 			return baz;
+  7 | 		},
+  8 | 	];
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(14): const values = [\n\t\t() => foo(\n\t\t\tbar,\n\t\t),\n\t\t() => {\n\t\t\treturn baz;\n\t\t},\n\t]; 2`] = `
+
+Message:
+  1 | const values = [
+> 2 | 		() => foo(
+    | 		^^^^^^^^^^
+> 3 | 			bar,
+    | ^^^^^^^
+> 4 | 		),
+    | ^^^ Use an explicit return for a multiline arrow function body.
+  5 | 		() => {
+  6 | 			return baz;
+  7 | 		},
+  8 | 	];
+
+Output:
+   1 | const values = [
+   2 | 		() => {
+   3 | 			return foo(
+   4 | 				bar,
+   5 | 			);
+   6 | 		},
+   7 | 		() => {
+   8 | 			return baz;
+   9 | 		},
+  10 | 	];
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(14): const values = [\n\t\t() => foo(\n\t\t\tbar,\n\t\t),\n\t\t() => {\n\t\t\treturn baz;\n\t\t},\n\t]; 3`] = `
+
+Message:
+  1 | const values = [
+  2 | 		() => foo(
+  3 | 			bar,
+  4 | 		),
+> 5 | 		() => {
+    | 		^^^^^^^
+> 6 | 			return baz;
+    | ^^^^^^^^^^^^^^
+> 7 | 		},
+    | ^^^ Use an implicit return for a single-line return expression.
+  8 | 	];
+
+Output:
+  1 | const values = [
+  2 | 		() => foo(
+  3 | 			bar,
+  4 | 		),
+  5 | 		() => baz,
+  6 | 	];
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(15): const value = () => {\n\t\treturn foo;\n\t}\n[bar]; 1`] = `
+
+  1 | const value = () => {
+  2 | 		return foo;
+  3 | 	}
+  4 | [bar];
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(15): const value = () => {\n\t\treturn foo;\n\t}\n[bar]; 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return foo;
+    | ^^^^^^^^^^^^^
+> 3 | 	}
+    | ^^ Use an implicit return for a single-line return expression.
+  4 | [bar];
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(16): const value = () => {\n\t\treturn this;\n\t}\n[bar]; 1`] = `
+
+  1 | const value = () => {
+  2 | 		return this;
+  3 | 	}
+  4 | [bar];
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(16): const value = () => {\n\t\treturn this;\n\t}\n[bar]; 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return this;
+    | ^^^^^^^^^^^^^^
+> 3 | 	}
+    | ^^ Use an implicit return for a single-line return expression.
+  4 | [bar];
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(17): const value = () => {\n\t\treturn function () {};\n\t}\n[bar]; 1`] = `
+
+  1 | const value = () => {
+  2 | 		return function () {};
+  3 | 	}
+  4 | [bar];
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(17): const value = () => {\n\t\treturn function () {};\n\t}\n[bar]; 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return function () {};
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	}
+    | ^^ Use an implicit return for a single-line return expression.
+  4 | [bar];
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(18): const value = () => {\n\t\treturn foo;\n\t}\n/bar/.test(value); 1`] = `
+
+  1 | const value = () => {
+  2 | 		return foo;
+  3 | 	}
+  4 | /bar/.test(value);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(18): const value = () => {\n\t\treturn foo;\n\t}\n/bar/.test(value); 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return foo;
+    | ^^^^^^^^^^^^^
+> 3 | 	}
+    | ^^ Use an implicit return for a single-line return expression.
+  4 | /bar/.test(value);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(19): const value = () => {\n\t\treturn foo;\n\t}\n\`bar\`; 1`] = `
+
+  1 | const value = () => {
+  2 | 		return foo;
+  3 | 	}
+  4 | \`bar\`;
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(19): const value = () => {\n\t\treturn foo;\n\t}\n\`bar\`; 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return foo;
+    | ^^^^^^^^^^^^^
+> 3 | 	}
+    | ^^ Use an implicit return for a single-line return expression.
+  4 | \`bar\`;
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(2): const Div = () => (\n\t<div>\n\t\ttext\n\t</div>\n); 1`] = `
+
+  1 | const Div = () => (
+  2 | 	<div>
+  3 | 		text
+  4 | 	</div>
+  5 | );
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(2): const Div = () => (\n\t<div>\n\t\ttext\n\t</div>\n); 2`] = `
+
+Message:
+> 1 | const Div = () => (
+    |             ^^^^^^^
+> 2 | 	<div>
+    | ^^^^^^
+> 3 | 		text
+    | ^^^^^^
+> 4 | 	</div>
+    | ^^^^^^^
+> 5 | );
+    | ^ Use an explicit return for a multiline arrow function body.
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(2): const value = () =>\n\tfoo(\n\t\tbar,\n\t); 1`] = `
+
+  1 | const value = () =>
+  2 | 	foo(
+  3 | 		bar,
+  4 | 	);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(2): const value = () =>\n\tfoo(\n\t\tbar,\n\t); 2`] = `
+
+Message:
+> 1 | const value = () =>
+    |               ^^^^^
+> 2 | 	foo(
+    | ^^^^^
+> 3 | 		bar,
+    | ^^^^^^
+> 4 | 	);
+    | ^^ Use an explicit return for a multiline arrow function body.
+
+Output:
+  1 | const value = () => {
+  2 | 	return foo(
+  3 | 		bar,
+  4 | 	);
+  5 | };
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(2): const value = (\n\tcallback: (\n\t\tinput: string,\n\t) => string,\n): string => getValue(\n\t\tinput,\n\t); 1`] = `
+
+  1 | const value = (
+  2 | 	callback: (
+  3 | 		input: string,
+  4 | 	) => string,
+  5 | ): string => getValue(
+  6 | 		input,
+  7 | 	);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(2): const value = (\n\tcallback: (\n\t\tinput: string,\n\t) => string,\n): string => getValue(\n\t\tinput,\n\t); 2`] = `
+
+Message:
+> 1 | const value = (
+    |               ^
+> 2 | 	callback: (
+    | ^^^^^^^^^^^^
+> 3 | 		input: string,
+    | ^^^^^^^^^^^^^^^^
+> 4 | 	) => string,
+    | ^^^^^^^^^^^^^
+> 5 | ): string => getValue(
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 6 | 		input,
+    | ^^^^^^^^
+> 7 | 	);
+    | ^^ Use an explicit return for a multiline arrow function body.
+
+Output:
+  1 | const value = (
+  2 | 	callback: (
+  3 | 		input: string,
+  4 | 	) => string,
+  5 | ): string => {
+  6 | 	return getValue(
+  7 | 			input,
+  8 | 		);
+  9 | };
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(20): const value = () => 'foo\\\nbar'; 1`] = `
+
+  1 | const value = () => 'foo\\
+  2 | bar';
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(20): const value = () => 'foo\\\nbar'; 2`] = `
+
+Message:
+> 1 | const value = () => 'foo\\
+    |               ^^^^^^^^^^^
+> 2 | bar';
+    | ^^^^ Use an explicit return for a multiline arrow function body.
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(3): const value = () => (\n\t\tfoo\n\t); 1`] = `
+
+  1 | const value = () => (
+  2 | 		foo
+  3 | 	);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(3): const value = () => (\n\t\tfoo\n\t); 2`] = `
+
+Message:
+> 1 | const value = () => (
+    |               ^^^^^^^
+> 2 | 		foo
+    | ^^^^^
+> 3 | 	);
+    | ^^ Use an explicit return for a multiline arrow function body.
+
+Output:
+  1 | const value = () => {
+  2 | 	return (
+  3 | 			foo
+  4 | 		);
+  5 | };
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(3): const value = () => {\n\t\treturn foo;\n\t}\n<div />; 1`] = `
+
+  1 | const value = () => {
+  2 | 		return foo;
+  3 | 	}
+  4 | <div />;
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(3): const value = () => {\n\t\treturn foo;\n\t}\n<div />; 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return foo;
+    | ^^^^^^^^^^^^^
+> 3 | 	}
+    | ^^ Use an implicit return for a single-line return expression.
+  4 | <div />;
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(3): const value = (input: string): string => {\n\t\treturn input;\n\t}; 1`] = `
+
+  1 | const value = (input: string): string => {
+  2 | 		return input;
+  3 | 	};
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(3): const value = (input: string): string => {\n\t\treturn input;\n\t}; 2`] = `
+
+Message:
+> 1 | const value = (input: string): string => {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 		return input;
+    | ^^^^^^^^^^^^^^^
+> 3 | 	};
+    | ^^ Use an implicit return for a single-line return expression.
+
+Output:
+  1 | const value = (input: string): string => input;
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(4): const value = () => (\n\t\tfoo(\n\t\t\tbar,\n\t\t)\n\t); 1`] = `
+
+  1 | const value = () => (
+  2 | 		foo(
+  3 | 			bar,
+  4 | 		)
+  5 | 	);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(4): const value = () => (\n\t\tfoo(\n\t\t\tbar,\n\t\t)\n\t); 2`] = `
+
+Message:
+> 1 | const value = () => (
+    |               ^^^^^^^
+> 2 | 		foo(
+    | ^^^^^^
+> 3 | 			bar,
+    | ^^^^^^^
+> 4 | 		)
+    | ^^^
+> 5 | 	);
+    | ^^ Use an explicit return for a multiline arrow function body.
+
+Output:
+  1 | const value = () => {
+  2 | 	return (
+  3 | 			foo(
+  4 | 				bar,
+  5 | 			)
+  6 | 		);
+  7 | };
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(4): const value = (): Foo => {\n\t\treturn {} as Foo;\n\t}; 1`] = `
+
+  1 | const value = (): Foo => {
+  2 | 		return {} as Foo;
+  3 | 	};
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(4): const value = (): Foo => {\n\t\treturn {} as Foo;\n\t}; 2`] = `
+
+Message:
+> 1 | const value = (): Foo => {
+    |               ^^^^^^^^^^^^
+> 2 | 		return {} as Foo;
+    | ^^^^^^^^^^^^^^^^^^^
+> 3 | 	};
+    | ^^ Use an implicit return for a single-line return expression.
+
+Output:
+  1 | const value = (): Foo => ({} as Foo);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(5): const value = () => ({\n\t\tfoo: bar,\n\t}); 1`] = `
+
+  1 | const value = () => ({
+  2 | 		foo: bar,
+  3 | 	});
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(5): const value = () => ({\n\t\tfoo: bar,\n\t}); 2`] = `
+
+Message:
+> 1 | const value = () => ({
+    |               ^^^^^^^^
+> 2 | 		foo: bar,
+    | ^^^^^^^^^^^
+> 3 | 	});
+    | ^^^ Use an explicit return for a multiline arrow function body.
+
+Output:
+  1 | const value = () => {
+  2 | 	return {
+  3 | 			foo: bar,
+  4 | 		};
+  5 | };
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(5): const value = (): Foo => {\n\t\treturn {} satisfies Foo;\n\t}; 1`] = `
+
+  1 | const value = (): Foo => {
+  2 | 		return {} satisfies Foo;
+  3 | 	};
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(5): const value = (): Foo => {\n\t\treturn {} satisfies Foo;\n\t}; 2`] = `
+
+Message:
+> 1 | const value = (): Foo => {
+    |               ^^^^^^^^^^^^
+> 2 | 		return {} satisfies Foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	};
+    | ^^ Use an implicit return for a single-line return expression.
+
+Output:
+  1 | const value = (): Foo => ({} satisfies Foo);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(6): const value = () => ({\n\tfoo: bar,\n}); 1`] = `
+
+  1 | const value = () => ({
+  2 | 	foo: bar,
+  3 | });
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(6): const value = () => ({\n\tfoo: bar,\n}); 2`] = `
+
+Message:
+> 1 | const value = () => ({
+    |               ^^^^^^^^
+> 2 | 	foo: bar,
+    | ^^^^^^^^^^
+> 3 | });
+    | ^^ Use an explicit return for a multiline arrow function body.
+
+Output:
+  1 | const value = () => {
+  2 | 	return {
+  3 | 		foo: bar,
+  4 | 	};
+  5 | };
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(6): const value = (): Foo => {\n\t\treturn {}!;\n\t}; 1`] = `
+
+  1 | const value = (): Foo => {
+  2 | 		return {}!;
+  3 | 	};
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(6): const value = (): Foo => {\n\t\treturn {}!;\n\t}; 2`] = `
+
+Message:
+> 1 | const value = (): Foo => {
+    |               ^^^^^^^^^^^^
+> 2 | 		return {}!;
+    | ^^^^^^^^^^^^^
+> 3 | 	};
+    | ^^ Use an implicit return for a single-line return expression.
+
+Output:
+  1 | const value = (): Foo => ({}!);
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(7): const value = () =>\n\t({\n\t\tfoo: bar,\n\t}); 1`] = `
+
+  1 | const value = () =>
+  2 | 	({
+  3 | 		foo: bar,
+  4 | 	});
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(7): const value = () =>\n\t({\n\t\tfoo: bar,\n\t}); 2`] = `
+
+Message:
+> 1 | const value = () =>
+    |               ^^^^^
+> 2 | 	({
+    | ^^^
+> 3 | 		foo: bar,
+    | ^^^^^^^^^^^
+> 4 | 	});
+    | ^^^ Use an explicit return for a multiline arrow function body.
+
+Output:
+  1 | const value = () => {
+  2 | 	return {
+  3 | 		foo: bar,
+  4 | 	};
+  5 | };
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(8): const value = () => \`foo\nbar\`; 1`] = `
+
+  1 | const value = () => \`foo
+  2 | bar\`;
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(8): const value = () => \`foo\nbar\`; 2`] = `
+
+Message:
+> 1 | const value = () => \`foo
+    |               ^^^^^^^^^^
+> 2 | bar\`;
+    | ^^^^ Use an explicit return for a multiline arrow function body.
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(9): const value = () => {\n\t\treturn foo;\n\t}; 1`] = `
+
+  1 | const value = () => {
+  2 | 		return foo;
+  3 | 	};
+
+`;
+
+exports[`consistent-arrow-return-style > invalid(9): const value = () => {\n\t\treturn foo;\n\t}; 2`] = `
+
+Message:
+> 1 | const value = () => {
+    |               ^^^^^^^
+> 2 | 		return foo;
+    | ^^^^^^^^^^^^^
+> 3 | 	};
+    | ^^ Use an implicit return for a single-line return expression.
+
+Output:
+  1 | const value = () => foo;
+
+`;

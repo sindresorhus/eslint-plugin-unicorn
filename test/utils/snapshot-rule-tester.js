@@ -1,5 +1,5 @@
 import path from 'node:path';
-import {inspect} from 'node:util';
+import assert from 'node:assert/strict';
 import {codeFrameColumns} from '@babel/code-frame';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
@@ -192,9 +192,9 @@ export default class SnapshotRuleTester {
 
 			(only ? test.only : test)(
 				`valid(${index + 1}): ${input}`,
-				t => {
+				() => {
 					const messages = verify(input, verifyConfig, {filename});
-					t.deepEqual(messages, [], 'Valid case should not have errors.');
+					assert.deepEqual(messages, [], 'Valid case should not have errors.');
 				},
 			);
 		}
@@ -210,7 +210,7 @@ export default class SnapshotRuleTester {
 				t => {
 					const messages = runVerify(input);
 
-					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
+					assert.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
 
 					const inputSnapshotParts = [];
 					let shouldPrintCodeHead = false;
@@ -230,10 +230,11 @@ export default class SnapshotRuleTester {
 						`
 						: printCode(input));
 
-					t.snapshot(
-						`\n${inputSnapshotParts.join('\n\n')}\n`,
-						'Input' + (snapshotFilename === undefined ? '' : ` ${inspect(snapshotFilename)}`),
-					);
+					if (snapshotFilename !== undefined) {
+						inputSnapshotParts.unshift(`Filename: ${snapshotFilename}`);
+					}
+
+					t.assert.snapshot(`\n${inputSnapshotParts.join('\n\n')}\n`);
 
 					for (const [index, message] of messages.entries()) {
 						const snapshotParts = [
@@ -259,7 +260,7 @@ export default class SnapshotRuleTester {
 
 						for (const [index, suggestion] of suggestions.entries()) {
 							const output = applyFix(input, suggestion);
-							t.not(output, input, 'Suggestion should provide different output.');
+							assert.notEqual(output, input, 'Suggestion should provide different output.');
 
 							runVerify(output);
 
@@ -271,7 +272,7 @@ export default class SnapshotRuleTester {
 							]);
 						}
 
-						t.snapshot(`\n${snapshotParts.join('\n\n')}\n`, `Error ${index + 1}/${messages.length}`);
+						t.assert.snapshot(`\n${snapshotParts.join('\n\n')}\n`);
 					}
 				},
 			);

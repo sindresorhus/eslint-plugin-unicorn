@@ -1,0 +1,335 @@
+exports[`no-invalid-fetch-options > invalid(1): fetch(url, {body}) 1`] = `
+
+  1 | fetch(url, {body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(1): fetch(url, {body}) 2`] = `
+
+Message:
+> 1 | fetch(url, {body})
+    |             ^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(10): new Request(url, {method: false ? \"POST\" : \"HEAD\", body}) 1`] = `
+
+  1 | new Request(url, {method: false ? "POST" : "HEAD", body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(10): new Request(url, {method: false ? \"POST\" : \"HEAD\", body}) 2`] = `
+
+Message:
+> 1 | new Request(url, {method: false ? "POST" : "HEAD", body})
+    |                                                    ^^^^ "body" is not allowed when method is "HEAD".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(11): const condition = true; let value; fetch(url, {method: condition ? \"GET\" : value, body}) 1`] = `
+
+  1 | const condition = true; let value; fetch(url, {method: condition ? "GET" : value, body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(11): const condition = true; let value; fetch(url, {method: condition ? \"GET\" : value, body}) 2`] = `
+
+Message:
+> 1 | const condition = true; let value; fetch(url, {method: condition ? "GET" : value, body})
+    |                                                                                   ^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(12): const method = \"head\"; new Request(url, {method, body: \"foo=bar\"}) 1`] = `
+
+  1 | const method = "head"; new Request(url, {method, body: "foo=bar"})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(12): const method = \"head\"; new Request(url, {method, body: \"foo=bar\"}) 2`] = `
+
+Message:
+> 1 | const method = "head"; new Request(url, {method, body: "foo=bar"})
+    |                                                  ^^^^ "body" is not allowed when method is "HEAD".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(13): const method = \"head\"; fetch(url, {method, body: \"foo=bar\"}) 1`] = `
+
+  1 | const method = "head"; fetch(url, {method, body: "foo=bar"})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(13): const method = \"head\"; fetch(url, {method, body: \"foo=bar\"}) 2`] = `
+
+Message:
+> 1 | const method = "head"; fetch(url, {method, body: "foo=bar"})
+    |                                            ^^^^ "body" is not allowed when method is "HEAD".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(14): fetch(url, {body}, extraArgument) 1`] = `
+
+  1 | fetch(url, {body}, extraArgument)
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(14): fetch(url, {body}, extraArgument) 2`] = `
+
+Message:
+> 1 | fetch(url, {body}, extraArgument)
+    |             ^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(15): new Request(url, {body}, extraArgument) 1`] = `
+
+  1 | new Request(url, {body}, extraArgument)
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(15): new Request(url, {body}, extraArgument) 2`] = `
+
+Message:
+> 1 | new Request(url, {body}, extraArgument)
+    |                   ^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(16): fetch(url, {\n\tbody: undefined,\n\tbody: 'foo=bar',\n}); 1`] = `
+
+  1 | fetch(url, {
+  2 | 	body: undefined,
+  3 | 	body: 'foo=bar',
+  4 | });
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(16): fetch(url, {\n\tbody: undefined,\n\tbody: 'foo=bar',\n}); 2`] = `
+
+Message:
+  1 | fetch(url, {
+  2 | 	body: undefined,
+> 3 | 	body: 'foo=bar',
+    | 	^^^^ "body" is not allowed when method is "GET".
+  4 | });
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(17): new Request(url, {\n\tbody: undefined,\n\tbody: 'foo=bar',\n}); 1`] = `
+
+  1 | new Request(url, {
+  2 | 	body: undefined,
+  3 | 	body: 'foo=bar',
+  4 | });
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(17): new Request(url, {\n\tbody: undefined,\n\tbody: 'foo=bar',\n}); 2`] = `
+
+Message:
+  1 | new Request(url, {
+  2 | 	body: undefined,
+> 3 | 	body: 'foo=bar',
+    | 	^^^^ "body" is not allowed when method is "GET".
+  4 | });
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(18): fetch(url, {\n\tmethod: 'post',\n\tbody: 'foo=bar',\n\tmethod: 'HEAD',\n}); 1`] = `
+
+  1 | fetch(url, {
+  2 | 	method: 'post',
+  3 | 	body: 'foo=bar',
+  4 | 	method: 'HEAD',
+  5 | });
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(18): fetch(url, {\n\tmethod: 'post',\n\tbody: 'foo=bar',\n\tmethod: 'HEAD',\n}); 2`] = `
+
+Message:
+  1 | fetch(url, {
+  2 | 	method: 'post',
+> 3 | 	body: 'foo=bar',
+    | 	^^^^ "body" is not allowed when method is "HEAD".
+  4 | 	method: 'HEAD',
+  5 | });
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(19): new Request(url, {\n\tmethod: 'post',\n\tbody: 'foo=bar',\n\tmethod: 'HEAD',\n}); 1`] = `
+
+  1 | new Request(url, {
+  2 | 	method: 'post',
+  3 | 	body: 'foo=bar',
+  4 | 	method: 'HEAD',
+  5 | });
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(19): new Request(url, {\n\tmethod: 'post',\n\tbody: 'foo=bar',\n\tmethod: 'HEAD',\n}); 2`] = `
+
+Message:
+  1 | new Request(url, {
+  2 | 	method: 'post',
+> 3 | 	body: 'foo=bar',
+    | 	^^^^ "body" is not allowed when method is "HEAD".
+  4 | 	method: 'HEAD',
+  5 | });
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(2): new Request(url, {body}) 1`] = `
+
+  1 | new Request(url, {body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(2): new Request(url, {body}) 2`] = `
+
+Message:
+> 1 | new Request(url, {body})
+    |                   ^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(20): fetch(url, {['method']: 'GET', 'body': 'x'}) 1`] = `
+
+  1 | fetch(url, {['method']: 'GET', 'body': 'x'})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(20): fetch(url, {['method']: 'GET', 'body': 'x'}) 2`] = `
+
+Message:
+> 1 | fetch(url, {['method']: 'GET', 'body': 'x'})
+    |                                ^^^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(21): fetch(url, {['body']: 'x'}) 1`] = `
+
+  1 | fetch(url, {['body']: 'x'})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(21): fetch(url, {['body']: 'x'}) 2`] = `
+
+Message:
+> 1 | fetch(url, {['body']: 'x'})
+    |              ^^^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(22): fetch(url, {...options, method: \"GET\", body: \"x\"}) 1`] = `
+
+  1 | fetch(url, {...options, method: "GET", body: "x"})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(22): fetch(url, {...options, method: \"GET\", body: \"x\"}) 2`] = `
+
+Message:
+> 1 | fetch(url, {...options, method: "GET", body: "x"})
+    |                                        ^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(3): fetch(url, {method: \"GET\", body}) 1`] = `
+
+  1 | fetch(url, {method: "GET", body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(3): fetch(url, {method: \"GET\", body}) 2`] = `
+
+Message:
+> 1 | fetch(url, {method: "GET", body})
+    |                            ^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(4): new Request(url, {method: \"GET\", body}) 1`] = `
+
+  1 | new Request(url, {method: "GET", body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(4): new Request(url, {method: \"GET\", body}) 2`] = `
+
+Message:
+> 1 | new Request(url, {method: "GET", body})
+    |                                  ^^^^ "body" is not allowed when method is "GET".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(5): fetch(url, {method: \"HEAD\", body}) 1`] = `
+
+  1 | fetch(url, {method: "HEAD", body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(5): fetch(url, {method: \"HEAD\", body}) 2`] = `
+
+Message:
+> 1 | fetch(url, {method: "HEAD", body})
+    |                             ^^^^ "body" is not allowed when method is "HEAD".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(6): new Request(url, {method: \"HEAD\", body}) 1`] = `
+
+  1 | new Request(url, {method: "HEAD", body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(6): new Request(url, {method: \"HEAD\", body}) 2`] = `
+
+Message:
+> 1 | new Request(url, {method: "HEAD", body})
+    |                                   ^^^^ "body" is not allowed when method is "HEAD".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(7): fetch(url, {method: \"head\", body}) 1`] = `
+
+  1 | fetch(url, {method: "head", body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(7): fetch(url, {method: \"head\", body}) 2`] = `
+
+Message:
+> 1 | fetch(url, {method: "head", body})
+    |                             ^^^^ "body" is not allowed when method is "HEAD".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(8): new Request(url, {method: \"head\", body}) 1`] = `
+
+  1 | new Request(url, {method: "head", body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(8): new Request(url, {method: \"head\", body}) 2`] = `
+
+Message:
+> 1 | new Request(url, {method: "head", body})
+    |                                   ^^^^ "body" is not allowed when method is "HEAD".
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(9): fetch(url, {method: true ? \"GET\" : \"POST\", body}) 1`] = `
+
+  1 | fetch(url, {method: true ? "GET" : "POST", body})
+
+`;
+
+exports[`no-invalid-fetch-options > invalid(9): fetch(url, {method: true ? \"GET\" : \"POST\", body}) 2`] = `
+
+Message:
+> 1 | fetch(url, {method: true ? "GET" : "POST", body})
+    |                                            ^^^^ "body" is not allowed when method is "GET".
+
+`;

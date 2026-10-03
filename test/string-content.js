@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -749,14 +749,15 @@ test('an empty `selectors` entry is rejected by the schema', t => {
 	const linter = new Linter();
 
 	for (const selector of ['', ' ']) {
-		const error = t.throws(() =>
-			linter.verify('const a = "teh";', {
-				files: ['**'],
-				plugins: {unicorn: plugin},
-				rules: {'unicorn/string-content': ['error', {selectors: [selector]}]},
-			}, 'index.js'),
+		t.assert.throws(
+			() =>
+				linter.verify('const a = "teh";', {
+					files: ['**'],
+					plugins: {unicorn: plugin},
+					rules: {'unicorn/string-content': ['error', {selectors: [selector]}]},
+				}, 'index.js'),
+			{message: /should be string|should match pattern|should NOT be shorter/u},
+			`selector ${JSON.stringify(selector)}`,
 		);
-
-		t.regex(error.message, /should be string|should match pattern|should NOT be shorter/u, `selector ${JSON.stringify(selector)}`);
 	}
 });

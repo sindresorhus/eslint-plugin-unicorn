@@ -147,11 +147,11 @@ const hasCommentsInside = (node, context) =>
 */
 const create = context => {
 	const {
-		useErrorIsError = false,
-		strategy = 'loose',
-		include = [],
-		exclude = [],
-	} = context.options[0] ?? {};
+		useErrorIsError,
+		strategy,
+		include,
+		exclude,
+	} = context.options[0];
 
 	const forbiddenConstructors = new Set(strategy === 'strict'
 		? [...strictStrategyConstructors, ...include]

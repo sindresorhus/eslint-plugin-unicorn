@@ -123,5 +123,17 @@ test.snapshot({
 		{code: '(a as number) > 0 && (b as number) > 0 && a === b', languageOptions: {parser: parsers.typescript}},
 		{code: 'a! > 0 && b! > 0 && a === b', languageOptions: {parser: parsers.typescript}},
 		{code: '(a satisfies number) > 0 && (b satisfies number) > 0 && a === b', languageOptions: {parser: parsers.typescript}},
+
+		// Equality value on the right side
+		'a !== b && 1 === a && b !== 1',
+
+		// Equality chains merged into one class
+		'a === b && c === d && b === c && a > 5 && d > 3',
+		'a === b && b === c && a === c && a > 5 && c > 3',
+		'a === b && c === a && c > 5 && b > 3',
+
+		// The later comparison implies the earlier one
+		'a < 5 && b < 3 && a === b',
+		'a <= 3 && b < 3 && a === b',
 	],
 });

@@ -1,7 +1,12 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {isReference, isSame, unwrapExpression} from './utils/comparison.js';
-import {getStaticValueIfNoSideEffects, isComparableStaticValue, isKnownNonMap} from './utils/index.js';
+import {
+	getStaticValueIfNoSideEffects,
+	isComparableStaticValue,
+	isKnownNonMap,
+	getVisitorChildNodes,
+} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -127,10 +132,6 @@ function hasCallExpression(node, context) {
 	let isResult = false;
 
 	function visit(node) {
-		if (!node) {
-			return;
-		}
-
 		node = unwrapExpression(node);
 
 		if (
@@ -145,17 +146,7 @@ function hasCallExpression(node, context) {
 			return;
 		}
 
-		for (const key of visitorKeys[node.type] ?? []) {
-			const child = node[key];
-
-			if (Array.isArray(child)) {
-				for (const childNode of child) {
-					visit(childNode);
-				}
-
-				continue;
-			}
-
+		for (const child of getVisitorChildNodes(node, visitorKeys)) {
 			visit(child);
 		}
 	}
@@ -231,7 +222,7 @@ function getBranchNodes(node) {
 	if (node.type === 'WhileStatement') {
 		return [
 			getSingleStatement(node.body),
-		];
+		].filter(Boolean);
 	}
 
 	return [
@@ -296,13 +287,6 @@ function isSameReferenceBinding(left, right, context) {
 }
 
 function isSameBinding(left, right, context) {
-	if (
-		left.type !== 'Identifier'
-		|| right.type !== 'Identifier'
-	) {
-		return false;
-	}
-
 	const leftVariable = findVariable(context.sourceCode.getScope(left), left);
 	const rightVariable = findVariable(context.sourceCode.getScope(right), right);
 
@@ -359,7 +343,6 @@ function hasSameMapHasCall(node, mapHasCall, context) {
 	function visit(node) {
 		if (
 			isResult
-			|| !node
 			|| skippedNodeTypes.has(node.type)
 		) {
 			return;
@@ -375,17 +358,7 @@ function hasSameMapHasCall(node, mapHasCall, context) {
 			return;
 		}
 
-		for (const key of visitorKeys[node.type] ?? []) {
-			const child = node[key];
-
-			if (Array.isArray(child)) {
-				for (const childNode of child) {
-					visit(childNode);
-				}
-
-				continue;
-			}
-
+		for (const child of getVisitorChildNodes(node, visitorKeys)) {
 			visit(child);
 		}
 	}
@@ -402,7 +375,6 @@ function hasMapReceiverWrite(node, mapHasCall, context) {
 	function visit(node) {
 		if (
 			isResult
-			|| !node
 			|| skippedNodeTypes.has(node.type)
 			|| isNestedMapHasGuard(node, mapHasCall, context)
 		) {
@@ -414,17 +386,7 @@ function hasMapReceiverWrite(node, mapHasCall, context) {
 			return;
 		}
 
-		for (const key of visitorKeys[node.type] ?? []) {
-			const child = node[key];
-
-			if (Array.isArray(child)) {
-				for (const childNode of child) {
-					visit(childNode);
-				}
-
-				continue;
-			}
-
+		for (const child of getVisitorChildNodes(node, visitorKeys)) {
 			visit(child);
 		}
 	}
@@ -440,8 +402,7 @@ function getMapAccessProblems(node, mapHasCall, context, reportedAccessKeys) {
 
 	function visit(node) {
 		if (
-			!node
-			|| skippedNodeTypes.has(node.type)
+			skippedNodeTypes.has(node.type)
 			|| isNestedMapHasGuard(node, mapHasCall, context)
 			|| hasMapReceiverWrite(node, mapHasCall, context)
 		) {
@@ -454,17 +415,7 @@ function getMapAccessProblems(node, mapHasCall, context, reportedAccessKeys) {
 			problems.push(problem);
 		}
 
-		for (const key of visitorKeys[node.type] ?? []) {
-			const child = node[key];
-
-			if (Array.isArray(child)) {
-				for (const childNode of child) {
-					visit(childNode);
-				}
-
-				continue;
-			}
-
+		for (const child of getVisitorChildNodes(node, visitorKeys)) {
 			visit(child);
 		}
 	}

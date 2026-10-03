@@ -1,0 +1,1592 @@
+exports[`no-invalid-property-descriptor > invalid(1): Object.defineProperty(object, 'property', {get() {}, value: 1}); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', {get() {}, value: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(1): Object.defineProperty(object, 'property', {get() {}, value: 1}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', {get() {}, value: 1});
+    |                                           ^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(10): Reflect.defineProperty(object, 'property', {set: undefined, writable: false}); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', {set: undefined, writable: false});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(10): Reflect.defineProperty(object, 'property', {set: undefined, writable: false}); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', {set: undefined, writable: false});
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(100): Object.defineProperty(object, \"property\", {[\"write\" /* comment */ + \"able\"]: true}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {["write" /* comment */ + "able"]: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(100): Object.defineProperty(object, \"property\", {[\"write\" /* comment */ + \"able\"]: true}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {["write" /* comment */ + "able"]: true});
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(101): const element = <div>{Object.defineProperty(object, \"property\", {get: 1})}</div>; 1`] = `
+
+  1 | const element = <div>{Object.defineProperty(object, "property", {get: 1})}</div>;
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(101): const element = <div>{Object.defineProperty(object, \"property\", {get: 1})}</div>; 2`] = `
+
+Message:
+> 1 | const element = <div>{Object.defineProperty(object, "property", {get: 1})}</div>;
+    |                                                                       ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(102): Object.defineProperty(object, \"property\", {[undefined]: true}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {[undefined]: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(102): Object.defineProperty(object, \"property\", {[undefined]: true}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {[undefined]: true});
+    |                                             ^^^^^^^^^ Unknown property descriptor field \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(103): Object[\"define\" + \"Property\"](object, \"property\", {get: 1}); 1`] = `
+
+  1 | Object["define" + "Property"](object, "property", {get: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(103): Object[\"define\" + \"Property\"](object, \"property\", {get: 1}); 2`] = `
+
+Message:
+> 1 | Object["define" + "Property"](object, "property", {get: 1});
+    |                                                         ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(104): Object.defineProperty(object, \"property\", value + 1); 1`] = `
+
+  1 | Object.defineProperty(object, "property", value + 1);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(104): Object.defineProperty(object, \"property\", value + 1); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", value + 1);
+    |                                           ^^^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(105): Object.defineProperty(object, \"property\", value++); 1`] = `
+
+  1 | Object.defineProperty(object, "property", value++);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(105): Object.defineProperty(object, \"property\", value++); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", value++);
+    |                                           ^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(106): Object.defineProperty(object, \"property\", {get: value + 1, set: value++}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {get: value + 1, set: value++});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(106): Object.defineProperty(object, \"property\", {get: value + 1, set: value++}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: value + 1, set: value++});
+    |                                                 ^^^^^^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(106): Object.defineProperty(object, \"property\", {get: value + 1, set: value++}); 3`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: value + 1, set: value++});
+    |                                                                 ^^^^^^^ The \`set\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(107): const descriptor = {get: 1}; Object.defineProperties(object, {descriptor}); 1`] = `
+
+  1 | const descriptor = {get: 1}; Object.defineProperties(object, {descriptor});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(107): const descriptor = {get: 1}; Object.defineProperties(object, {descriptor}); 2`] = `
+
+Message:
+> 1 | const descriptor = {get: 1}; Object.defineProperties(object, {descriptor});
+    |                          ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(11): Object.defineProperties(object, {property: {set: undefined, writable: false}}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: {set: undefined, writable: false}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(11): Object.defineProperties(object, {property: {set: undefined, writable: false}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: {set: undefined, writable: false}});
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(12): Object.create(prototype, {property: {set: undefined, writable: false}}); 1`] = `
+
+  1 | Object.create(prototype, {property: {set: undefined, writable: false}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(12): Object.create(prototype, {property: {set: undefined, writable: false}}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: {set: undefined, writable: false}});
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(13): Object.defineProperty(object, 'property', {get: undefined, writable: undefined}); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', {get: undefined, writable: undefined});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(13): Object.defineProperty(object, 'property', {get: undefined, writable: undefined}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', {get: undefined, writable: undefined});
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(14): Reflect.defineProperty(object, 'property', {get: undefined, writable: undefined}); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', {get: undefined, writable: undefined});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(14): Reflect.defineProperty(object, 'property', {get: undefined, writable: undefined}); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', {get: undefined, writable: undefined});
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(15): Object.defineProperties(object, {property: {get: undefined, writable: undefined}}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: {get: undefined, writable: undefined}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(15): Object.defineProperties(object, {property: {get: undefined, writable: undefined}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: {get: undefined, writable: undefined}});
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(16): Object.create(prototype, {property: {get: undefined, writable: undefined}}); 1`] = `
+
+  1 | Object.create(prototype, {property: {get: undefined, writable: undefined}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(16): Object.create(prototype, {property: {get: undefined, writable: undefined}}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: {get: undefined, writable: undefined}});
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(17): Object.defineProperty(object, 'property', undefined); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', undefined);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(17): Object.defineProperty(object, 'property', undefined); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', undefined);
+    |                                           ^^^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(18): Reflect.defineProperty(object, 'property', undefined); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', undefined);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(18): Reflect.defineProperty(object, 'property', undefined); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', undefined);
+    |                                            ^^^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(19): Object.defineProperties(object, {property: undefined}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: undefined});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(19): Object.defineProperties(object, {property: undefined}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: undefined});
+    |                                            ^^^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(2): Reflect.defineProperty(object, 'property', {get() {}, value: 1}); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', {get() {}, value: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(2): Reflect.defineProperty(object, 'property', {get() {}, value: 1}); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', {get() {}, value: 1});
+    |                                            ^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(20): Object.create(prototype, {property: undefined}); 1`] = `
+
+  1 | Object.create(prototype, {property: undefined});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(20): Object.create(prototype, {property: undefined}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: undefined});
+    |                                     ^^^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(21): Object.defineProperty(object, 'property', null); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', null);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(21): Object.defineProperty(object, 'property', null); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', null);
+    |                                           ^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(22): Reflect.defineProperty(object, 'property', null); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', null);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(22): Reflect.defineProperty(object, 'property', null); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', null);
+    |                                            ^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(23): Object.defineProperties(object, {property: null}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: null});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(23): Object.defineProperties(object, {property: null}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: null});
+    |                                            ^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(24): Object.create(prototype, {property: null}); 1`] = `
+
+  1 | Object.create(prototype, {property: null});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(24): Object.create(prototype, {property: null}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: null});
+    |                                     ^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(25): Object.defineProperty(object, 'property', false); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', false);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(25): Object.defineProperty(object, 'property', false); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', false);
+    |                                           ^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(26): Reflect.defineProperty(object, 'property', false); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', false);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(26): Reflect.defineProperty(object, 'property', false); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', false);
+    |                                            ^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(27): Object.defineProperties(object, {property: false}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: false});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(27): Object.defineProperties(object, {property: false}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: false});
+    |                                            ^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(28): Object.create(prototype, {property: false}); 1`] = `
+
+  1 | Object.create(prototype, {property: false});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(28): Object.create(prototype, {property: false}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: false});
+    |                                     ^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(29): Object.defineProperty(object, 'property', 42); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', 42);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(29): Object.defineProperty(object, 'property', 42); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', 42);
+    |                                           ^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(3): Object.defineProperties(object, {property: {get() {}, value: 1}}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: {get() {}, value: 1}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(3): Object.defineProperties(object, {property: {get() {}, value: 1}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: {get() {}, value: 1}});
+    |                                            ^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(30): Reflect.defineProperty(object, 'property', 42); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', 42);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(30): Reflect.defineProperty(object, 'property', 42); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', 42);
+    |                                            ^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(31): Object.defineProperties(object, {property: 42}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: 42});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(31): Object.defineProperties(object, {property: 42}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: 42});
+    |                                            ^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(32): Object.create(prototype, {property: 42}); 1`] = `
+
+  1 | Object.create(prototype, {property: 42});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(32): Object.create(prototype, {property: 42}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: 42});
+    |                                     ^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(33): Object.defineProperty(object, 'property', 42n); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', 42n);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(33): Object.defineProperty(object, 'property', 42n); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', 42n);
+    |                                           ^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(34): Reflect.defineProperty(object, 'property', 42n); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', 42n);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(34): Reflect.defineProperty(object, 'property', 42n); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', 42n);
+    |                                            ^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(35): Object.defineProperties(object, {property: 42n}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: 42n});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(35): Object.defineProperties(object, {property: 42n}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: 42n});
+    |                                            ^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(36): Object.create(prototype, {property: 42n}); 1`] = `
+
+  1 | Object.create(prototype, {property: 42n});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(36): Object.create(prototype, {property: 42n}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: 42n});
+    |                                     ^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(37): Object.defineProperty(object, 'property', \"value\"); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', "value");
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(37): Object.defineProperty(object, 'property', \"value\"); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', "value");
+    |                                           ^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(38): Reflect.defineProperty(object, 'property', \"value\"); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', "value");
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(38): Reflect.defineProperty(object, 'property', \"value\"); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', "value");
+    |                                            ^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(39): Object.defineProperties(object, {property: \"value\"}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: "value"});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(39): Object.defineProperties(object, {property: \"value\"}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: "value"});
+    |                                            ^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(4): Object.create(prototype, {property: {get() {}, value: 1}}); 1`] = `
+
+  1 | Object.create(prototype, {property: {get() {}, value: 1}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(4): Object.create(prototype, {property: {get() {}, value: 1}}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: {get() {}, value: 1}});
+    |                                     ^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(40): Object.create(prototype, {property: \"value\"}); 1`] = `
+
+  1 | Object.create(prototype, {property: "value"});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(40): Object.create(prototype, {property: \"value\"}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: "value"});
+    |                                     ^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(41): Object.defineProperty(object, 'property', {get: null}); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', {get: null});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(41): Object.defineProperty(object, 'property', {get: null}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', {get: null});
+    |                                                 ^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(42): Reflect.defineProperty(object, 'property', {get: null}); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', {get: null});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(42): Reflect.defineProperty(object, 'property', {get: null}); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', {get: null});
+    |                                                  ^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(43): Object.defineProperties(object, {property: {get: null}}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: {get: null}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(43): Object.defineProperties(object, {property: {get: null}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: {get: null}});
+    |                                                  ^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(44): Object.create(prototype, {property: {get: null}}); 1`] = `
+
+  1 | Object.create(prototype, {property: {get: null}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(44): Object.create(prototype, {property: {get: null}}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: {get: null}});
+    |                                           ^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(45): Object.defineProperty(object, 'property', {set: 1}); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', {set: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(45): Object.defineProperty(object, 'property', {set: 1}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', {set: 1});
+    |                                                 ^ The \`set\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(46): Reflect.defineProperty(object, 'property', {set: 1}); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', {set: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(46): Reflect.defineProperty(object, 'property', {set: 1}); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', {set: 1});
+    |                                                  ^ The \`set\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(47): Object.defineProperties(object, {property: {set: 1}}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: {set: 1}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(47): Object.defineProperties(object, {property: {set: 1}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: {set: 1}});
+    |                                                  ^ The \`set\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(48): Object.create(prototype, {property: {set: 1}}); 1`] = `
+
+  1 | Object.create(prototype, {property: {set: 1}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(48): Object.create(prototype, {property: {set: 1}}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: {set: 1}});
+    |                                           ^ The \`set\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(49): Object.defineProperty(object, 'property', {writeable: true}); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', {writeable: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(49): Object.defineProperty(object, 'property', {writeable: true}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', {writeable: true});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperty(object, 'property', {writable: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(5): Object.defineProperty(object, 'property', {set(value) {}, value: undefined}); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', {set(value) {}, value: undefined});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(5): Object.defineProperty(object, 'property', {set(value) {}, value: undefined}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', {set(value) {}, value: undefined});
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(50): Reflect.defineProperty(object, 'property', {writeable: true}); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', {writeable: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(50): Reflect.defineProperty(object, 'property', {writeable: true}); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', {writeable: true});
+    |                                             ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Reflect.defineProperty(object, 'property', {writable: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(51): Object.defineProperties(object, {property: {writeable: true}}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: {writeable: true}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(51): Object.defineProperties(object, {property: {writeable: true}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: {writeable: true}});
+    |                                             ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperties(object, {property: {writable: true}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(52): Object.create(prototype, {property: {writeable: true}}); 1`] = `
+
+  1 | Object.create(prototype, {property: {writeable: true}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(52): Object.create(prototype, {property: {writeable: true}}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: {writeable: true}});
+    |                                      ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.create(prototype, {property: {writable: true}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(53): Object.defineProperty(object, \"property\", Symbol.iterator); 1`] = `
+
+  1 | Object.defineProperty(object, "property", Symbol.iterator);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(53): Object.defineProperty(object, \"property\", Symbol.iterator); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", Symbol.iterator);
+    |                                           ^^^^^^^^^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(54): Object.defineProperty(object, \"property\", void sideEffect()); 1`] = `
+
+  1 | Object.defineProperty(object, "property", void sideEffect());
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(54): Object.defineProperty(object, \"property\", void sideEffect()); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", void sideEffect());
+    |                                           ^^^^^^^^^^^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(55): const descriptor = null; Object.defineProperty(object, \"property\", descriptor); 1`] = `
+
+  1 | const descriptor = null; Object.defineProperty(object, "property", descriptor);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(55): const descriptor = null; Object.defineProperty(object, \"property\", descriptor); 2`] = `
+
+Message:
+> 1 | const descriptor = null; Object.defineProperty(object, "property", descriptor);
+    |                                                                    ^^^^^^^^^^ A property descriptor must be an object.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(56): Object.defineProperty(object, \"property\", {get: {}, set: []}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {get: {}, set: []});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(56): Object.defineProperty(object, \"property\", {get: {}, set: []}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: {}, set: []});
+    |                                                 ^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(56): Object.defineProperty(object, \"property\", {get: {}, set: []}); 3`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: {}, set: []});
+    |                                                          ^^ The \`set\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(57): Object.defineProperty(object, \"property\", {get: /regularExpression/}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {get: /regularExpression/});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(57): Object.defineProperty(object, \"property\", {get: /regularExpression/}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: /regularExpression/});
+    |                                                 ^^^^^^^^^^^^^^^^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(58): Object.defineProperty(object, \"property\", {get: true, set: \"setter\"}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {get: true, set: "setter"});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(58): Object.defineProperty(object, \"property\", {get: true, set: \"setter\"}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: true, set: "setter"});
+    |                                                 ^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(58): Object.defineProperty(object, \"property\", {get: true, set: \"setter\"}); 3`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: true, set: "setter"});
+    |                                                            ^^^^^^^^ The \`set\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(59): Object.defineProperty(object, \"property\", {get: -value, set: typeof value}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {get: -value, set: typeof value});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(59): Object.defineProperty(object, \"property\", {get: -value, set: typeof value}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: -value, set: typeof value});
+    |                                                 ^^^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(59): Object.defineProperty(object, \"property\", {get: -value, set: typeof value}); 3`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: -value, set: typeof value});
+    |                                                              ^^^^^^^^^^^^ The \`set\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(6): Reflect.defineProperty(object, 'property', {set(value) {}, value: undefined}); 1`] = `
+
+  1 | Reflect.defineProperty(object, 'property', {set(value) {}, value: undefined});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(6): Reflect.defineProperty(object, 'property', {set(value) {}, value: undefined}); 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(object, 'property', {set(value) {}, value: undefined});
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(60): Object.defineProperty(object, \"property\", {get: \`\${value}\`}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {get: \`\${value}\`});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(60): Object.defineProperty(object, \"property\", {get: \`\${value}\`}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: \`\${value}\`});
+    |                                                 ^^^^^^^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(61): Object.defineProperty(object, \"property\", {get() {}, get: 1}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {get() {}, get: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(61): Object.defineProperty(object, \"property\", {get() {}, get: 1}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get() {}, get: 1});
+    |                                                           ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(62): Object.defineProperty(object, \"property\", {get get() { return getter; }, writable: false}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {get get() { return getter; }, writable: false});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(62): Object.defineProperty(object, \"property\", {get get() { return getter; }, writable: false}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get get() { return getter; }, writable: false});
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(63): Object.defineProperty(object, \"property\", {set get(value) {}, value: 1}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {set get(value) {}, value: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(63): Object.defineProperty(object, \"property\", {set get(value) {}, value: 1}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {set get(value) {}, value: 1});
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(64): Object.defineProperty(object, \"property\", {Value: 1, getter() {}, metadata: true}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {Value: 1, getter() {}, metadata: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(64): Object.defineProperty(object, \"property\", {Value: 1, getter() {}, metadata: true}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {Value: 1, getter() {}, metadata: true});
+    |                                            ^^^^^ Unknown property descriptor field \`Value\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(64): Object.defineProperty(object, \"property\", {Value: 1, getter() {}, metadata: true}); 3`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {Value: 1, getter() {}, metadata: true});
+    |                                                      ^^^^^^ Unknown property descriptor field \`getter\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(64): Object.defineProperty(object, \"property\", {Value: 1, getter() {}, metadata: true}); 4`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {Value: 1, getter() {}, metadata: true});
+    |                                                                   ^^^^^^^^ Unknown property descriptor field \`metadata\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(65): Object.defineProperty(object, \"property\", {value: 1, [Symbol.iterator]: true}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {value: 1, [Symbol.iterator]: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(65): Object.defineProperty(object, \"property\", {value: 1, [Symbol.iterator]: true}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {value: 1, [Symbol.iterator]: true});
+    |                                                       ^^^^^^^^^^^^^^^ Unknown property descriptor field \`Symbol.iterator\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(66): Object.defineProperty(object, \"property\", {[\"__proto__\"]: null}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {["__proto__"]: null});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(66): Object.defineProperty(object, \"property\", {[\"__proto__\"]: null}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {["__proto__"]: null});
+    |                                             ^^^^^^^^^^^ Unknown property descriptor field \`__proto__\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(67): Object.defineProperty(object, \"property\", {__proto__}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {__proto__});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(67): Object.defineProperty(object, \"property\", {__proto__}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {__proto__});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`__proto__\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(68): Object.defineProperty(object, \"property\", {__proto__() {}}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {__proto__() {}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(68): Object.defineProperty(object, \"property\", {__proto__() {}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {__proto__() {}});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`__proto__\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(69): Object.defineProperty(object, \"property\", {__proto__: null, get: 1}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {__proto__: null, get: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(69): Object.defineProperty(object, \"property\", {__proto__: null, get: 1}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {__proto__: null, get: 1});
+    |                                                                  ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(7): Object.defineProperties(object, {property: {set(value) {}, value: undefined}}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: {set(value) {}, value: undefined}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(7): Object.defineProperties(object, {property: {set(value) {}, value: undefined}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: {set(value) {}, value: undefined}});
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(70): Object.defineProperties(object, {property: {value: 1}, property: {get: 1}}); 1`] = `
+
+  1 | Object.defineProperties(object, {property: {value: 1}, property: {get: 1}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(70): Object.defineProperties(object, {property: {value: 1}, property: {get: 1}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {property: {value: 1}, property: {get: 1}});
+    |                                                                        ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(71): Object.defineProperties(object, {[Symbol.iterator]: {get: 1}, [\"other\"]: {set: null}}); 1`] = `
+
+  1 | Object.defineProperties(object, {[Symbol.iterator]: {get: 1}, ["other"]: {set: null}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(71): Object.defineProperties(object, {[Symbol.iterator]: {get: 1}, [\"other\"]: {set: null}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {[Symbol.iterator]: {get: 1}, ["other"]: {set: null}});
+    |                                                           ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(71): Object.defineProperties(object, {[Symbol.iterator]: {get: 1}, [\"other\"]: {set: null}}); 3`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {[Symbol.iterator]: {get: 1}, ["other"]: {set: null}});
+    |                                                                                ^^^^ The \`set\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(72): Object.defineProperties(object, {__proto__: {inherited: {}}, own: {get: 1}}); 1`] = `
+
+  1 | Object.defineProperties(object, {__proto__: {inherited: {}}, own: {get: 1}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(72): Object.defineProperties(object, {__proto__: {inherited: {}}, own: {get: 1}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperties(object, {__proto__: {inherited: {}}, own: {get: 1}});
+    |                                                                         ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(73): Object[\"defineProperty\"](object, \"property\", {get: 1}); 1`] = `
+
+  1 | Object["defineProperty"](object, "property", {get: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(73): Object[\"defineProperty\"](object, \"property\", {get: 1}); 2`] = `
+
+Message:
+> 1 | Object["defineProperty"](object, "property", {get: 1});
+    |                                                    ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(74): Reflect[\"defineProperty\"](object, \"property\", {get: 1}); 1`] = `
+
+  1 | Reflect["defineProperty"](object, "property", {get: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(74): Reflect[\"defineProperty\"](object, \"property\", {get: 1}); 2`] = `
+
+Message:
+> 1 | Reflect["defineProperty"](object, "property", {get: 1});
+    |                                                     ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(75): Object[\"defineProperties\"](object, {property: {get: 1}}); 1`] = `
+
+  1 | Object["defineProperties"](object, {property: {get: 1}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(75): Object[\"defineProperties\"](object, {property: {get: 1}}); 2`] = `
+
+Message:
+> 1 | Object["defineProperties"](object, {property: {get: 1}});
+    |                                                     ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(76): Object[\"create\"](prototype, {property: {get: 1}}); 1`] = `
+
+  1 | Object["create"](prototype, {property: {get: 1}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(76): Object[\"create\"](prototype, {property: {get: 1}}); 2`] = `
+
+Message:
+> 1 | Object["create"](prototype, {property: {get: 1}});
+    |                                              ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(77): const method = \"defineProperty\"; Object[method](object, \"property\", {get: 1}); 1`] = `
+
+  1 | const method = "defineProperty"; Object[method](object, "property", {get: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(77): const method = \"defineProperty\"; Object[method](object, \"property\", {get: 1}); 2`] = `
+
+Message:
+> 1 | const method = "defineProperty"; Object[method](object, "property", {get: 1});
+    |                                                                           ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(78): const field = \"get\"; Object.defineProperty(object, \"property\", {[field]: 1}); 1`] = `
+
+  1 | const field = "get"; Object.defineProperty(object, "property", {[field]: 1});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(78): const field = \"get\"; Object.defineProperty(object, \"property\", {[field]: 1}); 2`] = `
+
+Message:
+> 1 | const field = "get"; Object.defineProperty(object, "property", {[field]: 1});
+    |                                                                          ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(79): const getter = 42; Object.defineProperty(object, \"property\", {get: getter}); 1`] = `
+
+  1 | const getter = 42; Object.defineProperty(object, "property", {get: getter});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(79): const getter = 42; Object.defineProperty(object, \"property\", {get: getter}); 2`] = `
+
+Message:
+> 1 | const getter = 42; Object.defineProperty(object, "property", {get: getter});
+    |                                                                    ^^^^^^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(8): Object.create(prototype, {property: {set(value) {}, value: undefined}}); 1`] = `
+
+  1 | Object.create(prototype, {property: {set(value) {}, value: undefined}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(8): Object.create(prototype, {property: {set(value) {}, value: undefined}}); 2`] = `
+
+Message:
+> 1 | Object.create(prototype, {property: {set(value) {}, value: undefined}});
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(80): Object.defineProperty(object, \"property\", {get: 1}, ...extra); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {get: 1}, ...extra);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(80): Object.defineProperty(object, \"property\", {get: 1}, ...extra); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {get: 1}, ...extra);
+    |                                                 ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(81): const descriptor = {get: 1}; Object.defineProperty(object, \"property\", descriptor); 1`] = `
+
+  1 | const descriptor = {get: 1}; Object.defineProperty(object, "property", descriptor);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(81): const descriptor = {get: 1}; Object.defineProperty(object, \"property\", descriptor); 2`] = `
+
+Message:
+> 1 | const descriptor = {get: 1}; Object.defineProperty(object, "property", descriptor);
+    |                          ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(82): const descriptors = {property: {get: 1}}; Object.defineProperties(object, descriptors); 1`] = `
+
+  1 | const descriptors = {property: {get: 1}}; Object.defineProperties(object, descriptors);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(82): const descriptors = {property: {get: 1}}; Object.defineProperties(object, descriptors); 2`] = `
+
+Message:
+> 1 | const descriptors = {property: {get: 1}}; Object.defineProperties(object, descriptors);
+    |                                      ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(83): const descriptors = {property: {get: 1}}; Object.create(prototype, descriptors); 1`] = `
+
+  1 | const descriptors = {property: {get: 1}}; Object.create(prototype, descriptors);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(83): const descriptors = {property: {get: 1}}; Object.create(prototype, descriptors); 2`] = `
+
+Message:
+> 1 | const descriptors = {property: {get: 1}}; Object.create(prototype, descriptors);
+    |                                      ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(84): const descriptor = {get: 1}; Object.defineProperties(object, {property: descriptor}); 1`] = `
+
+  1 | const descriptor = {get: 1}; Object.defineProperties(object, {property: descriptor});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(84): const descriptor = {get: 1}; Object.defineProperties(object, {property: descriptor}); 2`] = `
+
+Message:
+> 1 | const descriptor = {get: 1}; Object.defineProperties(object, {property: descriptor});
+    |                          ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(85): const descriptor = {get: 1}; const descriptors = {property: descriptor}; Object.create(prototype, descriptors); 1`] = `
+
+  1 | const descriptor = {get: 1}; const descriptors = {property: descriptor}; Object.create(prototype, descriptors);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(85): const descriptor = {get: 1}; const descriptors = {property: descriptor}; Object.create(prototype, descriptors); 2`] = `
+
+Message:
+> 1 | const descriptor = {get: 1}; const descriptors = {property: descriptor}; Object.create(prototype, descriptors);
+    |                          ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(86): const descriptor = {get: 1}; Object.defineProperty(object, \"first\", descriptor); Reflect.defineProperty(object, \"second\", descriptor); 1`] = `
+
+  1 | const descriptor = {get: 1}; Object.defineProperty(object, "first", descriptor); Reflect.defineProperty(object, "second", descriptor);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(86): const descriptor = {get: 1}; Object.defineProperty(object, \"first\", descriptor); Reflect.defineProperty(object, \"second\", descriptor); 2`] = `
+
+Message:
+> 1 | const descriptor = {get: 1}; Object.defineProperty(object, "first", descriptor); Reflect.defineProperty(object, "second", descriptor);
+    |                          ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(87): const descriptors = {property: {get: 1}}; Object.defineProperties(object, descriptors); Object.create(prototype, descriptors); 1`] = `
+
+  1 | const descriptors = {property: {get: 1}}; Object.defineProperties(object, descriptors); Object.create(prototype, descriptors);
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(87): const descriptors = {property: {get: 1}}; Object.defineProperties(object, descriptors); Object.create(prototype, descriptors); 2`] = `
+
+Message:
+> 1 | const descriptors = {property: {get: 1}}; Object.defineProperties(object, descriptors); Object.create(prototype, descriptors);
+    |                                      ^ The \`get\` field must be a function or \`undefined\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(88): Object.defineProperty(object, \"property\", {\"writeable\": true}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {"writeable": true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(88): Object.defineProperty(object, \"property\", {\"writeable\": true}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {"writeable": true});
+    |                                            ^^^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperty(object, "property", {'writable': true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(89): Object.defineProperty(object, \"property\", {[\"writeable\"]: true}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {["writeable"]: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(89): Object.defineProperty(object, \"property\", {[\"writeable\"]: true}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {["writeable"]: true});
+    |                                             ^^^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperty(object, "property", {['writable']: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(9): Object.defineProperty(object, 'property', {set: undefined, writable: false}); 1`] = `
+
+  1 | Object.defineProperty(object, 'property', {set: undefined, writable: false});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(9): Object.defineProperty(object, 'property', {set: undefined, writable: false}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, 'property', {set: undefined, writable: false});
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ A property descriptor cannot combine \`get\` or \`set\` with \`value\` or \`writable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(90): const field = \"writeable\"; Object.defineProperty(object, \"property\", {[field]: true}); 1`] = `
+
+  1 | const field = "writeable"; Object.defineProperty(object, "property", {[field]: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(90): const field = \"writeable\"; Object.defineProperty(object, \"property\", {[field]: true}); 2`] = `
+
+Message:
+> 1 | const field = "writeable"; Object.defineProperty(object, "property", {[field]: true});
+    |                                                                        ^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | const field = "writeable"; Object.defineProperty(object, "property", {['writable']: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(91): Object.defineProperty(object, \"property\", {writeable}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {writeable});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(91): Object.defineProperty(object, \"property\", {writeable}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {writeable});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperty(object, "property", {writable: writeable});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(92): Object.defineProperty(object, \"property\", {writeable /* comment */}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {writeable /* comment */});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(92): Object.defineProperty(object, \"property\", {writeable /* comment */}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {writeable /* comment */});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperty(object, "property", {writable: writeable /* comment */});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(93): Object.defineProperty(object, \"property\", {writeable: /* comment */ true}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {writeable: /* comment */ true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(93): Object.defineProperty(object, \"property\", {writeable: /* comment */ true}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {writeable: /* comment */ true});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperty(object, "property", {writable: /* comment */ true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(94): Object.defineProperty(object, \"property\", {writeable() {}}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {writeable() {}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(94): Object.defineProperty(object, \"property\", {writeable() {}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {writeable() {}});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperty(object, "property", {writable() {}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(95): Object.defineProperty(object, \"property\", {writeable: true, writable: false}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {writeable: true, writable: false});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(95): Object.defineProperty(object, \"property\", {writeable: true, writable: false}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {writeable: true, writable: false});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(96): Object.defineProperty(object, \"property\", {writeable: true, get() {}}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {writeable: true, get() {}});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(96): Object.defineProperty(object, \"property\", {writeable: true, get() {}}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {writeable: true, get() {}});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(97): Object.defineProperty(object, \"property\", {writeable: true, set: undefined}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {writeable: true, set: undefined});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(97): Object.defineProperty(object, \"property\", {writeable: true, set: undefined}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {writeable: true, set: undefined});
+    |                                            ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(98): Object.defineProperty(object, \"property\", {[(/* comment */ \"writeable\")]: true}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {[(/* comment */ "writeable")]: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(98): Object.defineProperty(object, \"property\", {[(/* comment */ \"writeable\")]: true}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {[(/* comment */ "writeable")]: true});
+    |                                                            ^^^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperty(object, "property", {[(/* comment */ 'writable')]: true});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(99): Object.defineProperty(object, \"property\", {writeable: true, writeable: false}); 1`] = `
+
+  1 | Object.defineProperty(object, "property", {writeable: true, writeable: false});
+
+`;
+
+exports[`no-invalid-property-descriptor > invalid(99): Object.defineProperty(object, \"property\", {writeable: true, writeable: false}); 2`] = `
+
+Message:
+> 1 | Object.defineProperty(object, "property", {writeable: true, writeable: false});
+    |                                                             ^^^^^^^^^ Unknown property descriptor field \`writeable\`.
+
+Suggestion 1/1: Rename \`writeable\` to \`writable\`.:
+  1 | Object.defineProperty(object, "property", {writeable: true, writable: false});
+
+`;

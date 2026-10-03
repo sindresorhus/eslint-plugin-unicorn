@@ -1,0 +1,577 @@
+exports[`prefer-math-constants > invalid(1): 3.14 1`] = `
+
+  1 | 3.14
+
+`;
+
+exports[`prefer-math-constants > invalid(1): 3.14 2`] = `
+
+Message:
+> 1 | 3.14
+    | ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | Math.PI
+
+`;
+
+exports[`prefer-math-constants > invalid(10): 0.6931 1`] = `
+
+  1 | 0.6931
+
+`;
+
+exports[`prefer-math-constants > invalid(10): 0.6931 2`] = `
+
+Message:
+> 1 | 0.6931
+    | ^^^^^^ Prefer \`Math.LN2\` over the approximate value \`0.6931\`.
+
+Suggestion 1/1: Replace \`0.6931\` with \`Math.LN2\`.:
+  1 | Math.LN2
+
+`;
+
+exports[`prefer-math-constants > invalid(11): 0.6931471805599453 1`] = `
+
+  1 | 0.6931471805599453
+
+`;
+
+exports[`prefer-math-constants > invalid(11): 0.6931471805599453 2`] = `
+
+Message:
+> 1 | 0.6931471805599453
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`Math.LN2\` over the approximate value \`0.6931471805599453\`.
+
+Suggestion 1/1: Replace \`0.6931471805599453\` with \`Math.LN2\`.:
+  1 | Math.LN2
+
+`;
+
+exports[`prefer-math-constants > invalid(12): 2.3025 1`] = `
+
+  1 | 2.3025
+
+`;
+
+exports[`prefer-math-constants > invalid(12): 2.3025 2`] = `
+
+Message:
+> 1 | 2.3025
+    | ^^^^^^ Prefer \`Math.LN10\` over the approximate value \`2.3025\`.
+
+Suggestion 1/1: Replace \`2.3025\` with \`Math.LN10\`.:
+  1 | Math.LN10
+
+`;
+
+exports[`prefer-math-constants > invalid(13): 2.3026 1`] = `
+
+  1 | 2.3026
+
+`;
+
+exports[`prefer-math-constants > invalid(13): 2.3026 2`] = `
+
+Message:
+> 1 | 2.3026
+    | ^^^^^^ Prefer \`Math.LN10\` over the approximate value \`2.3026\`.
+
+Suggestion 1/1: Replace \`2.3026\` with \`Math.LN10\`.:
+  1 | Math.LN10
+
+`;
+
+exports[`prefer-math-constants > invalid(14): 1.4426 1`] = `
+
+  1 | 1.4426
+
+`;
+
+exports[`prefer-math-constants > invalid(14): 1.4426 2`] = `
+
+Message:
+> 1 | 1.4426
+    | ^^^^^^ Prefer \`Math.LOG2E\` over the approximate value \`1.4426\`.
+
+Suggestion 1/1: Replace \`1.4426\` with \`Math.LOG2E\`.:
+  1 | Math.LOG2E
+
+`;
+
+exports[`prefer-math-constants > invalid(15): 1.4427 1`] = `
+
+  1 | 1.4427
+
+`;
+
+exports[`prefer-math-constants > invalid(15): 1.4427 2`] = `
+
+Message:
+> 1 | 1.4427
+    | ^^^^^^ Prefer \`Math.LOG2E\` over the approximate value \`1.4427\`.
+
+Suggestion 1/1: Replace \`1.4427\` with \`Math.LOG2E\`.:
+  1 | Math.LOG2E
+
+`;
+
+exports[`prefer-math-constants > invalid(16): 0.4342 1`] = `
+
+  1 | 0.4342
+
+`;
+
+exports[`prefer-math-constants > invalid(16): 0.4342 2`] = `
+
+Message:
+> 1 | 0.4342
+    | ^^^^^^ Prefer \`Math.LOG10E\` over the approximate value \`0.4342\`.
+
+Suggestion 1/1: Replace \`0.4342\` with \`Math.LOG10E\`.:
+  1 | Math.LOG10E
+
+`;
+
+exports[`prefer-math-constants > invalid(17): 1.4142 1`] = `
+
+  1 | 1.4142
+
+`;
+
+exports[`prefer-math-constants > invalid(17): 1.4142 2`] = `
+
+Message:
+> 1 | 1.4142
+    | ^^^^^^ Prefer \`Math.SQRT2\` over the approximate value \`1.4142\`.
+
+Suggestion 1/1: Replace \`1.4142\` with \`Math.SQRT2\`.:
+  1 | Math.SQRT2
+
+`;
+
+exports[`prefer-math-constants > invalid(18): 0.7071 1`] = `
+
+  1 | 0.7071
+
+`;
+
+exports[`prefer-math-constants > invalid(18): 0.7071 2`] = `
+
+Message:
+> 1 | 0.7071
+    | ^^^^^^ Prefer \`Math.SQRT1_2\` over the approximate value \`0.7071\`.
+
+Suggestion 1/1: Replace \`0.7071\` with \`Math.SQRT1_2\`.:
+  1 | Math.SQRT1_2
+
+`;
+
+exports[`prefer-math-constants > invalid(19): -3.14 1`] = `
+
+  1 | -3.14
+
+`;
+
+exports[`prefer-math-constants > invalid(19): -3.14 2`] = `
+
+Message:
+> 1 | -3.14
+    |  ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | -Math.PI
+
+`;
+
+exports[`prefer-math-constants > invalid(2): const area = 3.14 * radius ** 2; 1`] = `
+
+  1 | const area = 3.14 * radius ** 2;
+
+`;
+
+exports[`prefer-math-constants > invalid(2): const area = 3.14 * radius ** 2; 2`] = `
+
+Message:
+> 1 | const area = 3.14 * radius ** 2;
+    |              ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | const area = Math.PI * radius ** 2;
+
+`;
+
+exports[`prefer-math-constants > invalid(20): .6931 1`] = `
+
+  1 | .6931
+
+`;
+
+exports[`prefer-math-constants > invalid(20): .6931 2`] = `
+
+Message:
+> 1 | .6931
+    | ^^^^^ Prefer \`Math.LN2\` over the approximate value \`.6931\`.
+
+Suggestion 1/1: Replace \`.6931\` with \`Math.LN2\`.:
+  1 | Math.LN2
+
+`;
+
+exports[`prefer-math-constants > invalid(21): 3.141_592 1`] = `
+
+  1 | 3.141_592
+
+`;
+
+exports[`prefer-math-constants > invalid(21): 3.141_592 2`] = `
+
+Message:
+> 1 | 3.141_592
+    | ^^^^^^^^^ Prefer \`Math.PI\` over the approximate value \`3.141_592\`.
+
+Suggestion 1/1: Replace \`3.141_592\` with \`Math.PI\`.:
+  1 | Math.PI
+
+`;
+
+exports[`prefer-math-constants > invalid(22): 1 / 3.14 1`] = `
+
+  1 | 1 / 3.14
+
+`;
+
+exports[`prefer-math-constants > invalid(22): 1 / 3.14 2`] = `
+
+Message:
+> 1 | 1 / 3.14
+    |     ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | 1 / Math.PI
+
+`;
+
+exports[`prefer-math-constants > invalid(23): foo(3.14) 1`] = `
+
+  1 | foo(3.14)
+
+`;
+
+exports[`prefer-math-constants > invalid(23): foo(3.14) 2`] = `
+
+Message:
+> 1 | foo(3.14)
+    |     ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | foo(Math.PI)
+
+`;
+
+exports[`prefer-math-constants > invalid(24): [2.718] 1`] = `
+
+  1 | [2.718]
+
+`;
+
+exports[`prefer-math-constants > invalid(24): [2.718] 2`] = `
+
+Message:
+> 1 | [2.718]
+    |  ^^^^^ Prefer \`Math.E\` over the approximate value \`2.718\`.
+
+Suggestion 1/1: Replace \`2.718\` with \`Math.E\`.:
+  1 | [Math.E]
+
+`;
+
+exports[`prefer-math-constants > invalid(25): const object = {[3.14]: 1}; 1`] = `
+
+  1 | const object = {[3.14]: 1};
+
+`;
+
+exports[`prefer-math-constants > invalid(25): const object = {[3.14]: 1}; 2`] = `
+
+Message:
+> 1 | const object = {[3.14]: 1};
+    |                  ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | const object = {[Math.PI]: 1};
+
+`;
+
+exports[`prefer-math-constants > invalid(26): class Foo {[3.14] = 1} 1`] = `
+
+  1 | class Foo {[3.14] = 1}
+
+`;
+
+exports[`prefer-math-constants > invalid(26): class Foo {[3.14] = 1} 2`] = `
+
+Message:
+> 1 | class Foo {[3.14] = 1}
+    |             ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | class Foo {[Math.PI] = 1}
+
+`;
+
+exports[`prefer-math-constants > invalid(27): object[3.14] 1`] = `
+
+  1 | object[3.14]
+
+`;
+
+exports[`prefer-math-constants > invalid(27): object[3.14] 2`] = `
+
+Message:
+> 1 | object[3.14]
+    |        ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | object[Math.PI]
+
+`;
+
+exports[`prefer-math-constants > invalid(28): <div>{3.14}</div> 1`] = `
+
+  1 | <div>{3.14}</div>
+
+`;
+
+exports[`prefer-math-constants > invalid(28): <div>{3.14}</div> 2`] = `
+
+Message:
+> 1 | <div>{3.14}</div>
+    |       ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | <div>{Math.PI}</div>
+
+`;
+
+exports[`prefer-math-constants > invalid(29): foo(/* before */ 3.14 /* after */) 1`] = `
+
+  1 | foo(/* before */ 3.14 /* after */)
+
+`;
+
+exports[`prefer-math-constants > invalid(29): foo(/* before */ 3.14 /* after */) 2`] = `
+
+Message:
+> 1 | foo(/* before */ 3.14 /* after */)
+    |                  ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | foo(/* before */ Math.PI /* after */)
+
+`;
+
+exports[`prefer-math-constants > invalid(3): 3.141 1`] = `
+
+  1 | 3.141
+
+`;
+
+exports[`prefer-math-constants > invalid(3): 3.141 2`] = `
+
+Message:
+> 1 | 3.141
+    | ^^^^^ Prefer \`Math.PI\` over the approximate value \`3.141\`.
+
+Suggestion 1/1: Replace \`3.141\` with \`Math.PI\`.:
+  1 | Math.PI
+
+`;
+
+exports[`prefer-math-constants > invalid(30): enum Foo {a = 3.14} 1`] = `
+
+  1 | enum Foo {a = 3.14}
+
+`;
+
+exports[`prefer-math-constants > invalid(30): enum Foo {a = 3.14} 2`] = `
+
+Message:
+> 1 | enum Foo {a = 3.14}
+    |               ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | enum Foo {a = Math.PI}
+
+`;
+
+exports[`prefer-math-constants > invalid(31): const x = 3.14 satisfies number; 1`] = `
+
+  1 | const x = 3.14 satisfies number;
+
+`;
+
+exports[`prefer-math-constants > invalid(31): const x = 3.14 satisfies number; 2`] = `
+
+Message:
+> 1 | const x = 3.14 satisfies number;
+    |           ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | const x = Math.PI satisfies number;
+
+`;
+
+exports[`prefer-math-constants > invalid(32): const x = 3.14 as number; 1`] = `
+
+  1 | const x = 3.14 as number;
+
+`;
+
+exports[`prefer-math-constants > invalid(32): const x = 3.14 as number; 2`] = `
+
+Message:
+> 1 | const x = 3.14 as number;
+    |           ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | const x = Math.PI as number;
+
+`;
+
+exports[`prefer-math-constants > invalid(33): const x = <number>3.14; 1`] = `
+
+  1 | const x = <number>3.14;
+
+`;
+
+exports[`prefer-math-constants > invalid(33): const x = <number>3.14; 2`] = `
+
+Message:
+> 1 | const x = <number>3.14;
+    |                   ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | const x = <number>Math.PI;
+
+`;
+
+exports[`prefer-math-constants > invalid(34): const value = -3.14 as number; 1`] = `
+
+  1 | const value = -3.14 as number;
+
+`;
+
+exports[`prefer-math-constants > invalid(34): const value = -3.14 as number; 2`] = `
+
+Message:
+> 1 | const value = -3.14 as number;
+    |                ^^^^ Prefer \`Math.PI\` over the approximate value \`3.14\`.
+
+Suggestion 1/1: Replace \`3.14\` with \`Math.PI\`.:
+  1 | const value = -Math.PI as number;
+
+`;
+
+exports[`prefer-math-constants > invalid(4): 3.1416 1`] = `
+
+  1 | 3.1416
+
+`;
+
+exports[`prefer-math-constants > invalid(4): 3.1416 2`] = `
+
+Message:
+> 1 | 3.1416
+    | ^^^^^^ Prefer \`Math.PI\` over the approximate value \`3.1416\`.
+
+Suggestion 1/1: Replace \`3.1416\` with \`Math.PI\`.:
+  1 | Math.PI
+
+`;
+
+exports[`prefer-math-constants > invalid(5): 3.141592653589793 1`] = `
+
+  1 | 3.141592653589793
+
+`;
+
+exports[`prefer-math-constants > invalid(5): 3.141592653589793 2`] = `
+
+Message:
+> 1 | 3.141592653589793
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Math.PI\` over the approximate value \`3.141592653589793\`.
+
+Suggestion 1/1: Replace \`3.141592653589793\` with \`Math.PI\`.:
+  1 | Math.PI
+
+`;
+
+exports[`prefer-math-constants > invalid(6): 2.718 1`] = `
+
+  1 | 2.718
+
+`;
+
+exports[`prefer-math-constants > invalid(6): 2.718 2`] = `
+
+Message:
+> 1 | 2.718
+    | ^^^^^ Prefer \`Math.E\` over the approximate value \`2.718\`.
+
+Suggestion 1/1: Replace \`2.718\` with \`Math.E\`.:
+  1 | Math.E
+
+`;
+
+exports[`prefer-math-constants > invalid(7): const growth = amount * 2.718; 1`] = `
+
+  1 | const growth = amount * 2.718;
+
+`;
+
+exports[`prefer-math-constants > invalid(7): const growth = amount * 2.718; 2`] = `
+
+Message:
+> 1 | const growth = amount * 2.718;
+    |                         ^^^^^ Prefer \`Math.E\` over the approximate value \`2.718\`.
+
+Suggestion 1/1: Replace \`2.718\` with \`Math.E\`.:
+  1 | const growth = amount * Math.E;
+
+`;
+
+exports[`prefer-math-constants > invalid(8): 2.718281828459045 1`] = `
+
+  1 | 2.718281828459045
+
+`;
+
+exports[`prefer-math-constants > invalid(8): 2.718281828459045 2`] = `
+
+Message:
+> 1 | 2.718281828459045
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Math.E\` over the approximate value \`2.718281828459045\`.
+
+Suggestion 1/1: Replace \`2.718281828459045\` with \`Math.E\`.:
+  1 | Math.E
+
+`;
+
+exports[`prefer-math-constants > invalid(9): 2.7183 1`] = `
+
+  1 | 2.7183
+
+`;
+
+exports[`prefer-math-constants > invalid(9): 2.7183 2`] = `
+
+Message:
+> 1 | 2.7183
+    | ^^^^^^ Prefer \`Math.E\` over the approximate value \`2.7183\`.
+
+Suggestion 1/1: Replace \`2.7183\` with \`Math.E\`.:
+  1 | Math.E
+
+`;

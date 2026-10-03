@@ -1,0 +1,195 @@
+exports[`no-invalid-remove-event-listener > invalid(1): window.removeEventListener(\"scroll\", handler.bind(abc)) 1`] = `
+
+  1 | window.removeEventListener("scroll", handler.bind(abc))
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(1): window.removeEventListener(\"scroll\", handler.bind(abc)) 2`] = `
+
+Message:
+> 1 | window.removeEventListener("scroll", handler.bind(abc))
+    |                                              ^^^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(10): el.removeEventListener(\"mouseout\", function (e) {}) 1`] = `
+
+  1 | el.removeEventListener("mouseout", function (e) {})
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(10): el.removeEventListener(\"mouseout\", function (e) {}) 2`] = `
+
+Message:
+> 1 | el.removeEventListener("mouseout", function (e) {})
+    |                                    ^^^^^^^^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(11): el?.removeEventListener(\"mouseout\", function (e) {}) 1`] = `
+
+  1 | el?.removeEventListener("mouseout", function (e) {})
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(11): el?.removeEventListener(\"mouseout\", function (e) {}) 2`] = `
+
+Message:
+> 1 | el?.removeEventListener("mouseout", function (e) {})
+    |                                     ^^^^^^^^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(12): el.removeEventListener(\"mouseout\", function (e) {}, true) 1`] = `
+
+  1 | el.removeEventListener("mouseout", function (e) {}, true)
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(12): el.removeEventListener(\"mouseout\", function (e) {}, true) 2`] = `
+
+Message:
+> 1 | el.removeEventListener("mouseout", function (e) {}, true)
+    |                                    ^^^^^^^^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(13): el.removeEventListener(\"click\", function (e) {}, ...moreArguments) 1`] = `
+
+  1 | el.removeEventListener("click", function (e) {}, ...moreArguments)
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(13): el.removeEventListener(\"click\", function (e) {}, ...moreArguments) 2`] = `
+
+Message:
+> 1 | el.removeEventListener("click", function (e) {}, ...moreArguments)
+    |                                 ^^^^^^^^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(14): el.removeEventListener(() => {}, () => {}, () => {}) 1`] = `
+
+  1 | el.removeEventListener(() => {}, () => {}, () => {})
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(14): el.removeEventListener(() => {}, () => {}, () => {}) 2`] = `
+
+Message:
+> 1 | el.removeEventListener(() => {}, () => {}, () => {})
+    |                                     ^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(2): window.removeEventListener(\"scroll\", this.handler.bind(abc)) 1`] = `
+
+  1 | window.removeEventListener("scroll", this.handler.bind(abc))
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(2): window.removeEventListener(\"scroll\", this.handler.bind(abc)) 2`] = `
+
+Message:
+> 1 | window.removeEventListener("scroll", this.handler.bind(abc))
+    |                                                   ^^^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(3): window.removeEventListener(\"click\", () => {}) 1`] = `
+
+  1 | window.removeEventListener("click", () => {})
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(3): window.removeEventListener(\"click\", () => {}) 2`] = `
+
+Message:
+> 1 | window.removeEventListener("click", () => {})
+    |                                        ^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(4): window.removeEventListener(\"keydown\", function () {}) 1`] = `
+
+  1 | window.removeEventListener("keydown", function () {})
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(4): window.removeEventListener(\"keydown\", function () {}) 2`] = `
+
+Message:
+> 1 | window.removeEventListener("keydown", function () {})
+    |                                       ^^^^^^^^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(5): el.removeEventListener(\"click\", function handleClick() {}) 1`] = `
+
+  1 | el.removeEventListener("click", function handleClick() {})
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(5): el.removeEventListener(\"click\", function handleClick() {}) 2`] = `
+
+Message:
+> 1 | el.removeEventListener("click", function handleClick() {})
+    |                                 ^^^^^^^^^^^^^^^^^^^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(6): el.removeEventListener(\"click\", async () => {}) 1`] = `
+
+  1 | el.removeEventListener("click", async () => {})
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(6): el.removeEventListener(\"click\", async () => {}) 2`] = `
+
+Message:
+> 1 | el.removeEventListener("click", async () => {})
+    |                                          ^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(7): el.removeEventListener(\"click\", (e) => { e.preventDefault(); }) 1`] = `
+
+  1 | el.removeEventListener("click", (e) => { e.preventDefault(); })
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(7): el.removeEventListener(\"click\", (e) => { e.preventDefault(); }) 2`] = `
+
+Message:
+> 1 | el.removeEventListener("click", (e) => { e.preventDefault(); })
+    |                                     ^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(8): el.removeEventListener(\"mouseover\", fn.bind(abc)) 1`] = `
+
+  1 | el.removeEventListener("mouseover", fn.bind(abc))
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(8): el.removeEventListener(\"mouseover\", fn.bind(abc)) 2`] = `
+
+Message:
+> 1 | el.removeEventListener("mouseover", fn.bind(abc))
+    |                                        ^^^^ The listener argument should be a function reference.
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(9): el?.removeEventListener(\"mouseover\", fn.bind(abc)) 1`] = `
+
+  1 | el?.removeEventListener("mouseover", fn.bind(abc))
+
+`;
+
+exports[`no-invalid-remove-event-listener > invalid(9): el?.removeEventListener(\"mouseover\", fn.bind(abc)) 2`] = `
+
+Message:
+> 1 | el?.removeEventListener("mouseover", fn.bind(abc))
+    |                                         ^^^^ The listener argument should be a function reference.
+
+`;

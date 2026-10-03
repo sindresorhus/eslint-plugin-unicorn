@@ -198,5 +198,12 @@ test.snapshot({
 		{code: 'declare const a: unknown;\nif (a && (<boolean>true)) {}', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const a: unknown;\nif (a && (true satisfies boolean)) {}', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const a: unknown;\nif ((true as boolean) && a) {}', languageOptions: {parser: parsers.typescript}},
+
+		// A binary operand gets parentheses for readability
+		'const value = foo === 1 && true && bar;',
+		// Not in a directive prologue position
+		'if (condition) {\n\ttrue && \'use strict\';\n}',
+		// ASI protection
+		'foo\ntrue && (a || b) && c',
 	],
 });

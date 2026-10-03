@@ -1,0 +1,1759 @@
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))(); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))();
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))(); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))();
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); (!a.isDisjointFrom(b))();
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); a.difference(b).size === 0; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); a.difference(b).size === 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); a.difference(b).size === 0; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); a.difference(b).size === 0;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); a.intersection(b).size === 0; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); a.intersection(b).size === 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); a.intersection(b).size === 0; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); a.intersection(b).size === 0;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); const c = new Set(); [...a].every(value => (condition ? b : c).has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); [...a].every(value => (condition ? b : c).has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); const c = new Set(); [...a].every(value => (condition ? b : c).has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); const c = new Set(); [...a].every(value => (condition ? b : c).has(value));
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); a.isSubsetOf((condition ? b : c));
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); const c = new Set(); [...a].filter(value => (condition ? b : c).has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); [...a].filter(value => (condition ? b : c).has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); const c = new Set(); [...a].filter(value => (condition ? b : c).has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); const c = new Set(); [...a].filter(value => (condition ? b : c).has(value));
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); a.intersection((condition ? b : c));
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); const c = new Set(); [...a].some(value => (condition ? b : c).has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); [...a].some(value => (condition ? b : c).has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); const c = new Set(); [...a].some(value => (condition ? b : c).has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); const c = new Set(); [...a].some(value => (condition ? b : c).has(value));
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); !a.isDisjointFrom((condition ? b : c));
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); new Set([...a, ...b]); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); new Set([...a, ...b]);
+
+`;
+
+exports[`prefer-set-methods > invalid(1): const a = new Set(); const b = new Set(); new Set([...a, ...b]); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); new Set([...a, ...b]);
+    |                                           ^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.union(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(10): const a = new Set(); const b = new Set(); function foo() { return[...a].every(value => b.has(value)); }; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); function foo() { return[...a].every(value => b.has(value)); };
+
+`;
+
+exports[`prefer-set-methods > invalid(10): const a = new Set(); const b = new Set(); function foo() { return[...a].every(value => b.has(value)); }; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); function foo() { return[...a].every(value => b.has(value)); };
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); function foo() { return a.isSubsetOf(b); };
+
+`;
+
+exports[`prefer-set-methods > invalid(10): const a = new Set(); const b = new Set(); function foo() { return[...a].some(value => b.has(value)); }; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); function foo() { return[...a].some(value => b.has(value)); };
+
+`;
+
+exports[`prefer-set-methods > invalid(10): const a = new Set(); const b = new Set(); function foo() { return[...a].some(value => b.has(value)); }; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); function foo() { return[...a].some(value => b.has(value)); };
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); function foo() { return !a.isDisjointFrom(b); };
+
+`;
+
+exports[`prefer-set-methods > invalid(10): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.difference(b).size === 0; } 1`] = `
+
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.difference(b).size === 0; }
+
+`;
+
+exports[`prefer-set-methods > invalid(10): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.difference(b).size === 0; } 2`] = `
+
+Message:
+> 1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.difference(b).size === 0; }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.isSubsetOf(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(10): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.intersection(b).size === 0; } 1`] = `
+
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.intersection(b).size === 0; }
+
+`;
+
+exports[`prefer-set-methods > invalid(10): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.intersection(b).size === 0; } 2`] = `
+
+Message:
+> 1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.intersection(b).size === 0; }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.isDisjointFrom(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(10): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; new Set([...a, ...b]); 1`] = `
+
+Filename: file.ts
+
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; new Set([...a, ...b]);
+
+`;
+
+exports[`prefer-set-methods > invalid(10): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; new Set([...a, ...b]); 2`] = `
+
+Message:
+> 1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; new Set([...a, ...b]);
+    |                                                                                 ^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.union(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(11): const a = new Set(); const b = new Set(); [...(condition ? a : b)].every(value => b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...(condition ? a : b)].every(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(11): const a = new Set(); const b = new Set(); [...(condition ? a : b)].every(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...(condition ? a : b)].every(value => b.has(value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); (condition ? a : b).isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(11): const a = new Set(); const b = new Set(); [...(condition ? a : b)].some(value => b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...(condition ? a : b)].some(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(11): const a = new Set(); const b = new Set(); [...(condition ? a : b)].some(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...(condition ? a : b)].some(value => b.has(value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !(condition ? a : b).isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(11): const a = new Set(); const b = new Set(); [...a].filter(value => b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].filter(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(11): const a = new Set(); const b = new Set(); [...a].filter(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].filter(value => b.has(value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | const a = new Set(); const b = new Set(); a.intersection(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(11): function foo(a: Set<string>, b: Set<string>) { return (a as Set<string>).difference(b!).size !== 0; } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return (a as Set<string>).difference(b!).size !== 0; }
+
+`;
+
+exports[`prefer-set-methods > invalid(11): function foo(a: Set<string>, b: Set<string>) { return (a as Set<string>).difference(b!).size !== 0; } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return (a as Set<string>).difference(b!).size !== 0; }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return !(a as Set<string>).isSubsetOf(b!); }
+
+`;
+
+exports[`prefer-set-methods > invalid(11): function foo(a: Set<string>, b: Set<string>) { return (a as Set<string>).intersection(b!).size !== 0; } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return (a as Set<string>).intersection(b!).size !== 0; }
+
+`;
+
+exports[`prefer-set-methods > invalid(11): function foo(a: Set<string>, b: Set<string>) { return (a as Set<string>).intersection(b!).size !== 0; } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return (a as Set<string>).intersection(b!).size !== 0; }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return !(a as Set<string>).isDisjointFrom(b!); }
+
+`;
+
+exports[`prefer-set-methods > invalid(12): const a = new Set(); const b = new Set(); new Set([...a].filter(value => b.has(value))); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); new Set([...a].filter(value => b.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(12): const a = new Set(); const b = new Set(); new Set([...a].filter(value => b.has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); new Set([...a].filter(value => b.has(value)));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | const a = new Set(); const b = new Set(); a.intersection(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(12): function foo(a: Set<string>, b: Set<string>) { return [...a].every(value => b.has(value)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...a].every(value => b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(12): function foo(a: Set<string>, b: Set<string>) { return [...a].every(value => b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...a].every(value => b.has(value)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a.isSubsetOf(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(12): function foo(a: Set<string>, b: Set<string>) { return [...a].some(value => b.has(value)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...a].some(value => b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(12): function foo(a: Set<string>, b: Set<string>) { return [...a].some(value => b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...a].some(value => b.has(value)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return !a.isDisjointFrom(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(12): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.difference(b).size === 0; 1`] = `
+
+Filename: file.ts
+
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.difference(b).size === 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(12): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.difference(b).size === 0; 2`] = `
+
+Message:
+> 1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.difference(b).size === 0;
+    |                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(12): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.intersection(b).size === 0; 1`] = `
+
+Filename: file.ts
+
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.intersection(b).size === 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(12): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.intersection(b).size === 0; 2`] = `
+
+Message:
+> 1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.intersection(b).size === 0;
+    |                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(13): const a = new Set();\nconst b = new Set();\nfoo\n0 === (condition ? a : b).difference(b).size; 1`] = `
+
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | foo
+  4 | 0 === (condition ? a : b).difference(b).size;
+
+`;
+
+exports[`prefer-set-methods > invalid(13): const a = new Set();\nconst b = new Set();\nfoo\n0 === (condition ? a : b).difference(b).size; 2`] = `
+
+Message:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | foo
+> 4 | 0 === (condition ? a : b).difference(b).size;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | foo
+  4 | ;(condition ? a : b).isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(13): const a = new Set();\nconst b = new Set();\nfoo\n0 === (condition ? a : b).intersection(b).size; 1`] = `
+
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | foo
+  4 | 0 === (condition ? a : b).intersection(b).size;
+
+`;
+
+exports[`prefer-set-methods > invalid(13): const a = new Set();\nconst b = new Set();\nfoo\n0 === (condition ? a : b).intersection(b).size; 2`] = `
+
+Message:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | foo
+> 4 | 0 === (condition ? a : b).intersection(b).size;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | foo
+  4 | ;(condition ? a : b).isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(13): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => b.has(value)); } 1`] = `
+
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(13): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => b.has(value)); }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.isSubsetOf(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(13): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].some(value => b.has(value)); } 1`] = `
+
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].some(value => b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(13): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].some(value => b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].some(value => b.has(value)); }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return !a.isDisjointFrom(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(13): function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => b.has(value)) as string[])); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => b.has(value)) as string[])); }
+
+`;
+
+exports[`prefer-set-methods > invalid(13): function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => b.has(value)) as string[])); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => b.has(value)) as string[])); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a.intersection(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(14): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => !b.has(value)); } 1`] = `
+
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => !b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(14): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => !b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => !b.has(value)); }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.isDisjointFrom(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(14): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].some(value => !b.has(value)); } 1`] = `
+
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].some(value => !b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(14): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].some(value => !b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].some(value => !b.has(value)); }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return !a.isSubsetOf(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(14): function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => b.has(value)) as string[])!)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => b.has(value)) as string[])!)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(14): function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => b.has(value)) as string[])!)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => b.has(value)) as string[])!)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a.intersection(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(15): const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(15): const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#difference()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#difference()\`.:
+  1 | const a = new Set(); const b = new Set(); a.difference(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(15): function foo(a: Set<string>, b: Set<string>) { return [...(a as Set<string>)].every(value => (b satisfies Set<string>).has(value)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...(a as Set<string>)].every(value => (b satisfies Set<string>).has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(15): function foo(a: Set<string>, b: Set<string>) { return [...(a as Set<string>)].every(value => (b satisfies Set<string>).has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...(a as Set<string>)].every(value => (b satisfies Set<string>).has(value)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return (a as Set<string>).isSubsetOf((b satisfies Set<string>)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(15): function foo(a: Set<string>, b: Set<string>) { return [...(a as Set<string>)].some(value => (b satisfies Set<string>).has(value)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...(a as Set<string>)].some(value => (b satisfies Set<string>).has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(15): function foo(a: Set<string>, b: Set<string>) { return [...(a as Set<string>)].some(value => (b satisfies Set<string>).has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...(a as Set<string>)].some(value => (b satisfies Set<string>).has(value)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return !(a as Set<string>).isDisjointFrom((b satisfies Set<string>)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(16): const a = new Set(); const b = new Set(); new Set([...a].filter(value => !b.has(value))); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); new Set([...a].filter(value => !b.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(16): const a = new Set(); const b = new Set(); new Set([...a].filter(value => !b.has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); new Set([...a].filter(value => !b.has(value)));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#difference()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#difference()\`.:
+  1 | const a = new Set(); const b = new Set(); a.difference(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(16): function foo(a: Set<string>, b: Set<string>) { return [...a!].every(value => b!.has(value))!; } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...a!].every(value => b!.has(value))!; }
+
+`;
+
+exports[`prefer-set-methods > invalid(16): function foo(a: Set<string>, b: Set<string>) { return [...a!].every(value => b!.has(value))!; } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...a!].every(value => b!.has(value))!; }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a!.isSubsetOf(b!)!; }
+
+`;
+
+exports[`prefer-set-methods > invalid(16): function foo(a: Set<string>, b: Set<string>) { return [...a!].some(value => b!.has(value))!; } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...a!].some(value => b!.has(value))!; }
+
+`;
+
+exports[`prefer-set-methods > invalid(16): function foo(a: Set<string>, b: Set<string>) { return [...a!].some(value => b!.has(value))!; } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...a!].some(value => b!.has(value))!; }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return (!a!.isDisjointFrom(b!))!; }
+
+`;
+
+exports[`prefer-set-methods > invalid(17): function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => !b.has(value)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => !b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(17): function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => !b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => !b.has(value)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#difference()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#difference()\`.:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a.difference(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(17): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].every(value => b.has(value)); 1`] = `
+
+Filename: file.ts
+
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].every(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(17): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].every(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].every(value => b.has(value));
+    |                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(17): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].some(value => b.has(value)); 1`] = `
+
+Filename: file.ts
+
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].some(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(17): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].some(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].some(value => b.has(value));
+    |                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; !a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(18): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => !b.has(value)); } 1`] = `
+
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => !b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(18): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => !b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => !b.has(value)); }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#difference()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#difference()\`.:
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.difference(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(19): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => !b.has(value)); 1`] = `
+
+Filename: file.ts
+
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => !b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(19): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => !b.has(value)); 2`] = `
+
+Message:
+> 1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => !b.has(value));
+    |                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#difference()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#difference()\`.:
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.difference(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); 0 === a.difference(b).size; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); 0 === a.difference(b).size;
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); 0 === a.difference(b).size; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); 0 === a.difference(b).size;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); 0 === a.intersection(b).size; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); 0 === a.intersection(b).size;
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); 0 === a.intersection(b).size; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); 0 === a.intersection(b).size;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); [...a].every(value => !b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].every(value => !b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); [...a].every(value => !b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].every(value => !b.has(value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); [...a].some(value => !b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].some(value => !b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); [...a].some(value => !b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].some(value => !b.has(value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))\`template\`; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))\`template\`;
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))\`template\`; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value))\`template\`;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); (!a.isDisjointFrom(b))\`template\`;
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); const c = new Set(); new Set([...a, ...b, ...c]); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); new Set([...a, ...b, ...c]);
+
+`;
+
+exports[`prefer-set-methods > invalid(2): const a = new Set(); const b = new Set(); const c = new Set(); new Set([...a, ...b, ...c]); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); const c = new Set(); new Set([...a, ...b, ...c]);
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); a.union(b).union(c);
+
+`;
+
+exports[`prefer-set-methods > invalid(2): function foo(a: Set<string>, b: Set<string>) { return [...a].every(<T extends string>(value: T) => b.has(value)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...a].every(<T extends string>(value: T) => b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(2): function foo(a: Set<string>, b: Set<string>) { return [...a].every(<T extends string>(value: T) => b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...a].every(<T extends string>(value: T) => b.has(value)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a.isSubsetOf(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(2): function foo(a: Set<string>, b: Set<string>) { return [...a].filter(<T extends string>(value: T) => b.has(value)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...a].filter(<T extends string>(value: T) => b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(2): function foo(a: Set<string>, b: Set<string>) { return [...a].filter(<T extends string>(value: T) => b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...a].filter(<T extends string>(value: T) => b.has(value)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a.intersection(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(2): function foo(a: Set<string>, b: Set<string>) { return [...a].some(<T extends string>(value: T) => b.has(value)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...a].some(<T extends string>(value: T) => b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(2): function foo(a: Set<string>, b: Set<string>) { return [...a].some(<T extends string>(value: T) => b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...a].some(<T extends string>(value: T) => b.has(value)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { return !a.isDisjointFrom(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(20): function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => !b.has(value)) as string[])); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => !b.has(value)) as string[])); }
+
+`;
+
+exports[`prefer-set-methods > invalid(20): function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => !b.has(value)) as string[])); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => !b.has(value)) as string[])); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#difference()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#difference()\`.:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a.difference(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(21): function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => !b.has(value)) as string[])!)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => !b.has(value)) as string[])!)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(21): function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => !b.has(value)) as string[])!)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => !b.has(value)) as string[])!)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#difference()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#difference()\`.:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a.difference(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(22): const a = new Set();\nconst b = new Set();\nconst c = new Set();\nfoo\nnew Set([...(condition ? a : b)].filter(value => !c.has(value))); 1`] = `
+
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const c = new Set();
+  4 | foo
+  5 | new Set([...(condition ? a : b)].filter(value => !c.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(22): const a = new Set();\nconst b = new Set();\nconst c = new Set();\nfoo\nnew Set([...(condition ? a : b)].filter(value => !c.has(value))); 2`] = `
+
+Message:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const c = new Set();
+  4 | foo
+> 5 | new Set([...(condition ? a : b)].filter(value => !c.has(value)));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#difference()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#difference()\`.:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const c = new Set();
+  4 | foo
+  5 | ;(condition ? a : b).difference(c);
+
+`;
+
+exports[`prefer-set-methods > invalid(23): const a = new Set();\nconst b = new Set();\nconst c = new Set();\nfoo\nnew Set([...(condition ? a : b)].filter(value => c.has(value))); 1`] = `
+
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const c = new Set();
+  4 | foo
+  5 | new Set([...(condition ? a : b)].filter(value => c.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(23): const a = new Set();\nconst b = new Set();\nconst c = new Set();\nfoo\nnew Set([...(condition ? a : b)].filter(value => c.has(value))); 2`] = `
+
+Message:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const c = new Set();
+  4 | foo
+> 5 | new Set([...(condition ? a : b)].filter(value => c.has(value)));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const c = new Set();
+  4 | foo
+  5 | ;(condition ? a : b).intersection(c);
+
+`;
+
+exports[`prefer-set-methods > invalid(24): const a = new Set(); const c = new Set(); new Set([...(condition ? a : a)].filter(value => c.has(value))); 1`] = `
+
+  1 | const a = new Set(); const c = new Set(); new Set([...(condition ? a : a)].filter(value => c.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(24): const a = new Set(); const c = new Set(); new Set([...(condition ? a : a)].filter(value => c.has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const c = new Set(); new Set([...(condition ? a : a)].filter(value => c.has(value)));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | const a = new Set(); const c = new Set(); (condition ? a : a).intersection(c);
+
+`;
+
+exports[`prefer-set-methods > invalid(25): function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => b.has(value)); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(25): function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => b.has(value)); }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | function foo(a: Set<string>, b: Set<string>) { return a.intersection(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(26): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => b.has(value)); } 1`] = `
+
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => b.has(value)); }
+
+`;
+
+exports[`prefer-set-methods > invalid(26): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => b.has(value)); } 2`] = `
+
+Message:
+> 1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => b.has(value)); }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return a.intersection(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(27): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => b.has(value)); 1`] = `
+
+Filename: file.ts
+
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(27): type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => b.has(value));
+    |                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; a.intersection(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(28): const a = new Set();\nconst b = new Set();\nconst intersection = [...a]\n\t.filter(value => b.has(value)); 1`] = `
+
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const intersection = [...a]
+  4 | 	.filter(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(28): const a = new Set();\nconst b = new Set();\nconst intersection = [...a]\n\t.filter(value => b.has(value)); 2`] = `
+
+Message:
+  1 | const a = new Set();
+  2 | const b = new Set();
+> 3 | const intersection = [...a]
+    |                      ^^^^^^
+> 4 | 	.filter(value => b.has(value));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const intersection = a.intersection(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); a.difference(b).size !== 0; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); a.difference(b).size !== 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); a.difference(b).size !== 0; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); a.difference(b).size !== 0;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); a.intersection(b).size !== 0; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); a.intersection(b).size !== 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); a.intersection(b).size !== 0; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); a.intersection(b).size !== 0;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); const c = new Set(); new Set([...(condition ? a : b), ...c]); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); new Set([...(condition ? a : b), ...c]);
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); const c = new Set(); new Set([...(condition ? a : b), ...c]); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); const c = new Set(); new Set([...(condition ? a : b), ...c]);
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); const c = new Set(); (condition ? a : b).union(c);
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); const element = <div>{[...a].every(value => b.has(value))}</div>; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); const element = <div>{[...a].every(value => b.has(value))}</div>;
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); const element = <div>{[...a].every(value => b.has(value))}</div>; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); const element = <div>{[...a].every(value => b.has(value))}</div>;
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); const element = <div>{a.isSubsetOf(b)}</div>;
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); const element = <div>{[...a].filter(value => b.has(value))}</div>; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); const element = <div>{[...a].filter(value => b.has(value))}</div>;
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); const element = <div>{[...a].filter(value => b.has(value))}</div>; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); const element = <div>{[...a].filter(value => b.has(value))}</div>;
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+Suggestion 1/1: Use \`Set#intersection()\`.:
+  1 | const a = new Set(); const b = new Set(); const element = <div>{a.intersection(b)}</div>;
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); const element = <div>{[...a].some(value => b.has(value))}</div>; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); const element = <div>{[...a].some(value => b.has(value))}</div>;
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); const element = <div>{[...a].some(value => b.has(value))}</div>; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); const element = <div>{[...a].some(value => b.has(value))}</div>;
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); const element = <div>{!a.isDisjointFrom(b)}</div>;
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); foo([...a].every(value => b.has(value))); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); foo([...a].every(value => b.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); foo([...a].every(value => b.has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); foo([...a].every(value => b.has(value)));
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); foo(a.isSubsetOf(b));
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); foo([...a].some(value => b.has(value))); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); foo([...a].some(value => b.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); foo([...a].some(value => b.has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); foo([...a].some(value => b.has(value)));
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); foo(!a.isDisjointFrom(b));
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const b = new Set(); 0 !== a.difference(b).size; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); 0 !== a.difference(b).size;
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const b = new Set(); 0 !== a.difference(b).size; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); 0 !== a.difference(b).size;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const b = new Set(); 0 !== a.intersection(b).size; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); 0 !== a.intersection(b).size;
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const b = new Set(); 0 !== a.intersection(b).size; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); 0 !== a.intersection(b).size;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const b = new Set(); new Foo([...a].every(value => b.has(value))); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); new Foo([...a].every(value => b.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const b = new Set(); new Foo([...a].every(value => b.has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); new Foo([...a].every(value => b.has(value)));
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); new Foo(a.isSubsetOf(b));
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const b = new Set(); new Foo([...a].some(value => b.has(value))); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); new Foo([...a].some(value => b.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const b = new Set(); new Foo([...a].some(value => b.has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); new Foo([...a].some(value => b.has(value)));
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); new Foo(!a.isDisjointFrom(b));
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const c = new Set(); new Set([...(condition ? a : a), ...c]); 1`] = `
+
+  1 | const a = new Set(); const c = new Set(); new Set([...(condition ? a : a), ...c]);
+
+`;
+
+exports[`prefer-set-methods > invalid(4): const a = new Set(); const c = new Set(); new Set([...(condition ? a : a), ...c]); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const c = new Set(); new Set([...(condition ? a : a), ...c]);
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | const a = new Set(); const c = new Set(); (condition ? a : a).union(c);
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)).toString(); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)).toString();
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)).toString(); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)).toString();
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.isSubsetOf(b).toString();
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)).toString(); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)).toString();
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)).toString(); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)).toString();
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); (!a.isDisjointFrom(b)).toString();
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set(); const b = new Set(); a.difference(b).size > 0; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); a.difference(b).size > 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set(); const b = new Set(); a.difference(b).size > 0; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); a.difference(b).size > 0;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set(); const b = new Set(); a.intersection(b).size > 0; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); a.intersection(b).size > 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set(); const b = new Set(); a.intersection(b).size > 0; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); a.intersection(b).size > 0;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set();\nconst b = new Set();\nconst c = new Set();\nfoo\nnew Set([...(condition ? a : b), ...c]); 1`] = `
+
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const c = new Set();
+  4 | foo
+  5 | new Set([...(condition ? a : b), ...c]);
+
+`;
+
+exports[`prefer-set-methods > invalid(5): const a = new Set();\nconst b = new Set();\nconst c = new Set();\nfoo\nnew Set([...(condition ? a : b), ...c]); 2`] = `
+
+Message:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const c = new Set();
+  4 | foo
+> 5 | new Set([...(condition ? a : b), ...c]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | const a = new Set();
+  2 | const b = new Set();
+  3 | const c = new Set();
+  4 | foo
+  5 | ;(condition ? a : b).union(c);
+
+`;
+
+exports[`prefer-set-methods > invalid(6): const a = new Set(); const b = new Set(); 0 < a.difference(b).size; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); 0 < a.difference(b).size;
+
+`;
+
+exports[`prefer-set-methods > invalid(6): const a = new Set(); const b = new Set(); 0 < a.difference(b).size; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); 0 < a.difference(b).size;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(6): const a = new Set(); const b = new Set(); 0 < a.intersection(b).size; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); 0 < a.intersection(b).size;
+
+`;
+
+exports[`prefer-set-methods > invalid(6): const a = new Set(); const b = new Set(); 0 < a.intersection(b).size; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); 0 < a.intersection(b).size;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(6): const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)) ** 2; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)) ** 2;
+
+`;
+
+exports[`prefer-set-methods > invalid(6): const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)) ** 2; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)) ** 2;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.isSubsetOf(b) ** 2;
+
+`;
+
+exports[`prefer-set-methods > invalid(6): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)) ** 2; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)) ** 2;
+
+`;
+
+exports[`prefer-set-methods > invalid(6): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)) ** 2; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)) ** 2;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); (!a.isDisjointFrom(b)) ** 2;
+
+`;
+
+exports[`prefer-set-methods > invalid(6): new Set([...(new Set()), ...(new Set())]); 1`] = `
+
+  1 | new Set([...(new Set()), ...(new Set())]);
+
+`;
+
+exports[`prefer-set-methods > invalid(6): new Set([...(new Set()), ...(new Set())]); 2`] = `
+
+Message:
+> 1 | new Set([...(new Set()), ...(new Set())]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | (new Set()).union((new Set()));
+
+`;
+
+exports[`prefer-set-methods > invalid(7): const a = new Set(); const b = new Set(); ![...a].every(value => b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); ![...a].every(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(7): const a = new Set(); const b = new Set(); ![...a].every(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); ![...a].every(value => b.has(value));
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isSubsetOf(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(7): const a = new Set(); const b = new Set(); ![...a].some(value => b.has(value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); ![...a].some(value => b.has(value));
+
+`;
+
+exports[`prefer-set-methods > invalid(7): const a = new Set(); const b = new Set(); ![...a].some(value => b.has(value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); ![...a].some(value => b.has(value));
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !!a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(7): const a = new Set(); const b = new Set(); foo((a.difference(b).size) === (0)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); foo((a.difference(b).size) === (0));
+
+`;
+
+exports[`prefer-set-methods > invalid(7): const a = new Set(); const b = new Set(); foo((a.difference(b).size) === (0)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); foo((a.difference(b).size) === (0));
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); foo(a.isSubsetOf(b));
+
+`;
+
+exports[`prefer-set-methods > invalid(7): const a = new Set(); const b = new Set(); foo((a.intersection(b).size) === (0)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); foo((a.intersection(b).size) === (0));
+
+`;
+
+exports[`prefer-set-methods > invalid(7): const a = new Set(); const b = new Set(); foo((a.intersection(b).size) === (0)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); foo((a.intersection(b).size) === (0));
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); foo(a.isDisjointFrom(b));
+
+`;
+
+exports[`prefer-set-methods > invalid(7): function foo(a: Set<string>, b: Set<string>) { new Set([...a, ...b]); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { new Set([...a, ...b]); }
+
+`;
+
+exports[`prefer-set-methods > invalid(7): function foo(a: Set<string>, b: Set<string>) { new Set([...a, ...b]); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { new Set([...a, ...b]); }
+    |                                                ^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { a.union(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(8): const a = new Set(); const b = new Set(); (a.difference(b).size !== 0).toString(); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); (a.difference(b).size !== 0).toString();
+
+`;
+
+exports[`prefer-set-methods > invalid(8): const a = new Set(); const b = new Set(); (a.difference(b).size !== 0).toString(); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); (a.difference(b).size !== 0).toString();
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); (!a.isSubsetOf(b)).toString();
+
+`;
+
+exports[`prefer-set-methods > invalid(8): const a = new Set(); const b = new Set(); (a.intersection(b).size !== 0).toString(); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); (a.intersection(b).size !== 0).toString();
+
+`;
+
+exports[`prefer-set-methods > invalid(8): const a = new Set(); const b = new Set(); (a.intersection(b).size !== 0).toString(); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); (a.intersection(b).size !== 0).toString();
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); (!a.isDisjointFrom(b)).toString();
+
+`;
+
+exports[`prefer-set-methods > invalid(8): const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)) && other; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)) && other;
+
+`;
+
+exports[`prefer-set-methods > invalid(8): const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)) && other; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(value)) && other;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); a.isSubsetOf(b) && other;
+
+`;
+
+exports[`prefer-set-methods > invalid(8): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)) && other; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)) && other;
+
+`;
+
+exports[`prefer-set-methods > invalid(8): const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)) && other; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(value)) && other;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !a.isDisjointFrom(b) && other;
+
+`;
+
+exports[`prefer-set-methods > invalid(8): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { new Set([...a, ...b]); } 1`] = `
+
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { new Set([...a, ...b]); }
+
+`;
+
+exports[`prefer-set-methods > invalid(8): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { new Set([...a, ...b]); } 2`] = `
+
+Message:
+> 1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { new Set([...a, ...b]); }
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { a.union(b); }
+
+`;
+
+exports[`prefer-set-methods > invalid(9): const a = new Set(); const b = new Set(); !(a.difference(b).size === 0); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); !(a.difference(b).size === 0);
+
+`;
+
+exports[`prefer-set-methods > invalid(9): const a = new Set(); const b = new Set(); !(a.difference(b).size === 0); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); !(a.difference(b).size === 0);
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !(a.isSubsetOf(b));
+
+`;
+
+exports[`prefer-set-methods > invalid(9): const a = new Set(); const b = new Set(); !(a.intersection(b).size === 0); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); !(a.intersection(b).size === 0);
+
+`;
+
+exports[`prefer-set-methods > invalid(9): const a = new Set(); const b = new Set(); !(a.intersection(b).size === 0); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); !(a.intersection(b).size === 0);
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); !(a.isDisjointFrom(b));
+
+`;
+
+exports[`prefer-set-methods > invalid(9): const a = new Set(); const b = new Set(); ([...(a)].every(value => (b).has(value))); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); ([...(a)].every(value => (b).has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(9): const a = new Set(); const b = new Set(); ([...(a)].every(value => (b).has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); ([...(a)].every(value => (b).has(value)));
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); ((a).isSubsetOf((b)));
+
+`;
+
+exports[`prefer-set-methods > invalid(9): const a = new Set(); const b = new Set(); ([...(a)].some(value => (b).has(value))); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); ([...(a)].some(value => (b).has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(9): const a = new Set(); const b = new Set(); ([...(a)].some(value => (b).has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); ([...(a)].some(value => (b).has(value)));
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+Output:
+  1 | const a = new Set(); const b = new Set(); (!(a).isDisjointFrom((b)));
+
+`;
+
+exports[`prefer-set-methods > invalid(9): function foo(a: Set<string>, b: Set<string>) { new Set([...(a satisfies Set<string>), ...(b as Set<string>)]); } 1`] = `
+
+  1 | function foo(a: Set<string>, b: Set<string>) { new Set([...(a satisfies Set<string>), ...(b as Set<string>)]); }
+
+`;
+
+exports[`prefer-set-methods > invalid(9): function foo(a: Set<string>, b: Set<string>) { new Set([...(a satisfies Set<string>), ...(b as Set<string>)]); } 2`] = `
+
+Message:
+> 1 | function foo(a: Set<string>, b: Set<string>) { new Set([...(a satisfies Set<string>), ...(b as Set<string>)]); }
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+Output:
+  1 | function foo(a: Set<string>, b: Set<string>) { (a satisfies Set<string>).union((b as Set<string>)); }
+
+`;

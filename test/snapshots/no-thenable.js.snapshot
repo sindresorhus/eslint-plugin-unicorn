@@ -1,0 +1,1261 @@
+exports[`no-thenable > invalid(1): const foo = {then: 1} 1`] = `
+
+  1 | const foo = {then: 1}
+
+`;
+
+exports[`no-thenable > invalid(1): const foo = {then: 1} 2`] = `
+
+Message:
+> 1 | const foo = {then: 1}
+    |              ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(10): const foo = {set then(v) {}} 1`] = `
+
+  1 | const foo = {set then(v) {}}
+
+`;
+
+exports[`no-thenable > invalid(10): const foo = {set then(v) {}} 2`] = `
+
+Message:
+> 1 | const foo = {set then(v) {}}
+    |                  ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(11): const foo = {get [\"then\"]() {}} 1`] = `
+
+  1 | const foo = {get ["then"]() {}}
+
+`;
+
+exports[`no-thenable > invalid(11): const foo = {get [\"then\"]() {}} 2`] = `
+
+Message:
+> 1 | const foo = {get ["then"]() {}}
+    |                   ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(12): const foo = {get [\`then\`]() {}} 1`] = `
+
+  1 | const foo = {get [\`then\`]() {}}
+
+`;
+
+exports[`no-thenable > invalid(12): const foo = {get [\`then\`]() {}} 2`] = `
+
+Message:
+> 1 | const foo = {get [\`then\`]() {}}
+    |                   ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(13): const THEN = \"then\";const foo = {get [THEN]() {}} 1`] = `
+
+  1 | const THEN = "then";const foo = {get [THEN]() {}}
+
+`;
+
+exports[`no-thenable > invalid(13): const THEN = \"then\";const foo = {get [THEN]() {}} 2`] = `
+
+Message:
+> 1 | const THEN = "then";const foo = {get [THEN]() {}}
+    |                                       ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(14): class Foo {then} 1`] = `
+
+  1 | class Foo {then}
+
+`;
+
+exports[`no-thenable > invalid(14): class Foo {then} 2`] = `
+
+Message:
+> 1 | class Foo {then}
+    |            ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(15): const Foo = class {then} 1`] = `
+
+  1 | const Foo = class {then}
+
+`;
+
+exports[`no-thenable > invalid(15): const Foo = class {then} 2`] = `
+
+Message:
+> 1 | const Foo = class {then}
+    |                    ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(16): class Foo {[\"then\"]} 1`] = `
+
+  1 | class Foo {["then"]}
+
+`;
+
+exports[`no-thenable > invalid(16): class Foo {[\"then\"]} 2`] = `
+
+Message:
+> 1 | class Foo {["then"]}
+    |             ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(17): class Foo {[\`then\`]} 1`] = `
+
+  1 | class Foo {[\`then\`]}
+
+`;
+
+exports[`no-thenable > invalid(17): class Foo {[\`then\`]} 2`] = `
+
+Message:
+> 1 | class Foo {[\`then\`]}
+    |             ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(18): const THEN = \"then\";class Foo {[THEN]} 1`] = `
+
+  1 | const THEN = "then";class Foo {[THEN]}
+
+`;
+
+exports[`no-thenable > invalid(18): const THEN = \"then\";class Foo {[THEN]} 2`] = `
+
+Message:
+> 1 | const THEN = "then";class Foo {[THEN]}
+    |                                 ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(19): class Foo {then() {}} 1`] = `
+
+  1 | class Foo {then() {}}
+
+`;
+
+exports[`no-thenable > invalid(19): class Foo {then() {}} 2`] = `
+
+Message:
+> 1 | class Foo {then() {}}
+    |            ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(2): const foo = {[\"then\"]: 1} 1`] = `
+
+  1 | const foo = {["then"]: 1}
+
+`;
+
+exports[`no-thenable > invalid(2): const foo = {[\"then\"]: 1} 2`] = `
+
+Message:
+> 1 | const foo = {["then"]: 1}
+    |               ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(20): class Foo {[\"then\"]() {}} 1`] = `
+
+  1 | class Foo {["then"]() {}}
+
+`;
+
+exports[`no-thenable > invalid(20): class Foo {[\"then\"]() {}} 2`] = `
+
+Message:
+> 1 | class Foo {["then"]() {}}
+    |             ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(21): class Foo {[\`then\`]() {}} 1`] = `
+
+  1 | class Foo {[\`then\`]() {}}
+
+`;
+
+exports[`no-thenable > invalid(21): class Foo {[\`then\`]() {}} 2`] = `
+
+Message:
+> 1 | class Foo {[\`then\`]() {}}
+    |             ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(22): const THEN = \"then\";class Foo {[THEN]() {}} 1`] = `
+
+  1 | const THEN = "then";class Foo {[THEN]() {}}
+
+`;
+
+exports[`no-thenable > invalid(22): const THEN = \"then\";class Foo {[THEN]() {}} 2`] = `
+
+Message:
+> 1 | const THEN = "then";class Foo {[THEN]() {}}
+    |                                 ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(23): class Foo {static then} 1`] = `
+
+  1 | class Foo {static then}
+
+`;
+
+exports[`no-thenable > invalid(23): class Foo {static then} 2`] = `
+
+Message:
+> 1 | class Foo {static then}
+    |                   ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(24): class Foo {static [\"then\"]} 1`] = `
+
+  1 | class Foo {static ["then"]}
+
+`;
+
+exports[`no-thenable > invalid(24): class Foo {static [\"then\"]} 2`] = `
+
+Message:
+> 1 | class Foo {static ["then"]}
+    |                    ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(25): class Foo {static [\`then\`]} 1`] = `
+
+  1 | class Foo {static [\`then\`]}
+
+`;
+
+exports[`no-thenable > invalid(25): class Foo {static [\`then\`]} 2`] = `
+
+Message:
+> 1 | class Foo {static [\`then\`]}
+    |                    ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(26): const THEN = \"then\";class Foo {static [THEN]} 1`] = `
+
+  1 | const THEN = "then";class Foo {static [THEN]}
+
+`;
+
+exports[`no-thenable > invalid(26): const THEN = \"then\";class Foo {static [THEN]} 2`] = `
+
+Message:
+> 1 | const THEN = "then";class Foo {static [THEN]}
+    |                                        ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(27): class Foo {static then() {}} 1`] = `
+
+  1 | class Foo {static then() {}}
+
+`;
+
+exports[`no-thenable > invalid(27): class Foo {static then() {}} 2`] = `
+
+Message:
+> 1 | class Foo {static then() {}}
+    |                   ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(28): class Foo {static [\"then\"]() {}} 1`] = `
+
+  1 | class Foo {static ["then"]() {}}
+
+`;
+
+exports[`no-thenable > invalid(28): class Foo {static [\"then\"]() {}} 2`] = `
+
+Message:
+> 1 | class Foo {static ["then"]() {}}
+    |                    ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(29): class Foo {static [\`then\`]() {}} 1`] = `
+
+  1 | class Foo {static [\`then\`]() {}}
+
+`;
+
+exports[`no-thenable > invalid(29): class Foo {static [\`then\`]() {}} 2`] = `
+
+Message:
+> 1 | class Foo {static [\`then\`]() {}}
+    |                    ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(3): const foo = {[\`then\`]: 1} 1`] = `
+
+  1 | const foo = {[\`then\`]: 1}
+
+`;
+
+exports[`no-thenable > invalid(3): const foo = {[\`then\`]: 1} 2`] = `
+
+Message:
+> 1 | const foo = {[\`then\`]: 1}
+    |               ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(30): const THEN = \"then\";class Foo {static [THEN]() {}} 1`] = `
+
+  1 | const THEN = "then";class Foo {static [THEN]() {}}
+
+`;
+
+exports[`no-thenable > invalid(30): const THEN = \"then\";class Foo {static [THEN]() {}} 2`] = `
+
+Message:
+> 1 | const THEN = "then";class Foo {static [THEN]() {}}
+    |                                        ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(31): class Foo {get then() {}} 1`] = `
+
+  1 | class Foo {get then() {}}
+
+`;
+
+exports[`no-thenable > invalid(31): class Foo {get then() {}} 2`] = `
+
+Message:
+> 1 | class Foo {get then() {}}
+    |                ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(32): class Foo {get [\"then\"]() {}} 1`] = `
+
+  1 | class Foo {get ["then"]() {}}
+
+`;
+
+exports[`no-thenable > invalid(32): class Foo {get [\"then\"]() {}} 2`] = `
+
+Message:
+> 1 | class Foo {get ["then"]() {}}
+    |                 ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(33): class Foo {get [\`then\`]() {}} 1`] = `
+
+  1 | class Foo {get [\`then\`]() {}}
+
+`;
+
+exports[`no-thenable > invalid(33): class Foo {get [\`then\`]() {}} 2`] = `
+
+Message:
+> 1 | class Foo {get [\`then\`]() {}}
+    |                 ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(34): const THEN = \"then\";class Foo {get [THEN]() {}} 1`] = `
+
+  1 | const THEN = "then";class Foo {get [THEN]() {}}
+
+`;
+
+exports[`no-thenable > invalid(34): const THEN = \"then\";class Foo {get [THEN]() {}} 2`] = `
+
+Message:
+> 1 | const THEN = "then";class Foo {get [THEN]() {}}
+    |                                     ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(35): class Foo {set then(v) {}} 1`] = `
+
+  1 | class Foo {set then(v) {}}
+
+`;
+
+exports[`no-thenable > invalid(35): class Foo {set then(v) {}} 2`] = `
+
+Message:
+> 1 | class Foo {set then(v) {}}
+    |                ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(36): class Foo {set [\"then\"](v) {}} 1`] = `
+
+  1 | class Foo {set ["then"](v) {}}
+
+`;
+
+exports[`no-thenable > invalid(36): class Foo {set [\"then\"](v) {}} 2`] = `
+
+Message:
+> 1 | class Foo {set ["then"](v) {}}
+    |                 ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(37): class Foo {set [\`then\`](v) {}} 1`] = `
+
+  1 | class Foo {set [\`then\`](v) {}}
+
+`;
+
+exports[`no-thenable > invalid(37): class Foo {set [\`then\`](v) {}} 2`] = `
+
+Message:
+> 1 | class Foo {set [\`then\`](v) {}}
+    |                 ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(38): const THEN = \"then\";class Foo {set [THEN](v) {}} 1`] = `
+
+  1 | const THEN = "then";class Foo {set [THEN](v) {}}
+
+`;
+
+exports[`no-thenable > invalid(38): const THEN = \"then\";class Foo {set [THEN](v) {}} 2`] = `
+
+Message:
+> 1 | const THEN = "then";class Foo {set [THEN](v) {}}
+    |                                     ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(39): class Foo {static get then() {}} 1`] = `
+
+  1 | class Foo {static get then() {}}
+
+`;
+
+exports[`no-thenable > invalid(39): class Foo {static get then() {}} 2`] = `
+
+Message:
+> 1 | class Foo {static get then() {}}
+    |                       ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(4): const THEN = \"then\";const foo = {[THEN]: 1} 1`] = `
+
+  1 | const THEN = "then";const foo = {[THEN]: 1}
+
+`;
+
+exports[`no-thenable > invalid(4): const THEN = \"then\";const foo = {[THEN]: 1} 2`] = `
+
+Message:
+> 1 | const THEN = "then";const foo = {[THEN]: 1}
+    |                                   ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(40): class Foo {static set then(v) {}} 1`] = `
+
+  1 | class Foo {static set then(v) {}}
+
+`;
+
+exports[`no-thenable > invalid(40): class Foo {static set then(v) {}} 2`] = `
+
+Message:
+> 1 | class Foo {static set then(v) {}}
+    |                       ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(41): class Foo {static get [\"then\"]() {}} 1`] = `
+
+  1 | class Foo {static get ["then"]() {}}
+
+`;
+
+exports[`no-thenable > invalid(41): class Foo {static get [\"then\"]() {}} 2`] = `
+
+Message:
+> 1 | class Foo {static get ["then"]() {}}
+    |                        ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(42): class Foo {static get [\`then\`]() {}} 1`] = `
+
+  1 | class Foo {static get [\`then\`]() {}}
+
+`;
+
+exports[`no-thenable > invalid(42): class Foo {static get [\`then\`]() {}} 2`] = `
+
+Message:
+> 1 | class Foo {static get [\`then\`]() {}}
+    |                        ^^^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(43): const THEN = \"then\";class Foo {static get [THEN]() {}} 1`] = `
+
+  1 | const THEN = "then";class Foo {static get [THEN]() {}}
+
+`;
+
+exports[`no-thenable > invalid(43): const THEN = \"then\";class Foo {static get [THEN]() {}} 2`] = `
+
+Message:
+> 1 | const THEN = "then";class Foo {static get [THEN]() {}}
+    |                                            ^^^^ Do not add \`then\` to a class.
+
+`;
+
+exports[`no-thenable > invalid(44): foo.then = 1 1`] = `
+
+  1 | foo.then = 1
+
+`;
+
+exports[`no-thenable > invalid(44): foo.then = 1 2`] = `
+
+Message:
+> 1 | foo.then = 1
+    |     ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(45): foo[\"then\"] = 1 1`] = `
+
+  1 | foo["then"] = 1
+
+`;
+
+exports[`no-thenable > invalid(45): foo[\"then\"] = 1 2`] = `
+
+Message:
+> 1 | foo["then"] = 1
+    |     ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(46): foo[\`then\`] = 1 1`] = `
+
+  1 | foo[\`then\`] = 1
+
+`;
+
+exports[`no-thenable > invalid(46): foo[\`then\`] = 1 2`] = `
+
+Message:
+> 1 | foo[\`then\`] = 1
+    |     ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(47): const THEN = \"then\";foo[THEN] = 1 1`] = `
+
+  1 | const THEN = "then";foo[THEN] = 1
+
+`;
+
+exports[`no-thenable > invalid(47): const THEN = \"then\";foo[THEN] = 1 2`] = `
+
+Message:
+> 1 | const THEN = "then";foo[THEN] = 1
+    |                         ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(48): foo.then += 1 1`] = `
+
+  1 | foo.then += 1
+
+`;
+
+exports[`no-thenable > invalid(48): foo.then += 1 2`] = `
+
+Message:
+> 1 | foo.then += 1
+    |     ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(49): foo.then ||= 1 1`] = `
+
+  1 | foo.then ||= 1
+
+`;
+
+exports[`no-thenable > invalid(49): foo.then ||= 1 2`] = `
+
+Message:
+> 1 | foo.then ||= 1
+    |     ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(5): const foo = {then() {}} 1`] = `
+
+  1 | const foo = {then() {}}
+
+`;
+
+exports[`no-thenable > invalid(5): const foo = {then() {}} 2`] = `
+
+Message:
+> 1 | const foo = {then() {}}
+    |              ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(50): foo.then ??= 1 1`] = `
+
+  1 | foo.then ??= 1
+
+`;
+
+exports[`no-thenable > invalid(50): foo.then ??= 1 2`] = `
+
+Message:
+> 1 | foo.then ??= 1
+    |     ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(51): Object.defineProperty(foo, \"then\", 1) 1`] = `
+
+  1 | Object.defineProperty(foo, "then", 1)
+
+`;
+
+exports[`no-thenable > invalid(51): Object.defineProperty(foo, \"then\", 1) 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, "then", 1)
+    |                            ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(52): Object.defineProperty(foo, \`then\`, 1) 1`] = `
+
+  1 | Object.defineProperty(foo, \`then\`, 1)
+
+`;
+
+exports[`no-thenable > invalid(52): Object.defineProperty(foo, \`then\`, 1) 2`] = `
+
+Message:
+> 1 | Object.defineProperty(foo, \`then\`, 1)
+    |                            ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(53): const THEN = \"then\";Object.defineProperty(foo, THEN, 1) 1`] = `
+
+  1 | const THEN = "then";Object.defineProperty(foo, THEN, 1)
+
+`;
+
+exports[`no-thenable > invalid(53): const THEN = \"then\";Object.defineProperty(foo, THEN, 1) 2`] = `
+
+Message:
+> 1 | const THEN = "then";Object.defineProperty(foo, THEN, 1)
+    |                                                ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(54): Reflect.defineProperty(foo, \"then\", 1) 1`] = `
+
+  1 | Reflect.defineProperty(foo, "then", 1)
+
+`;
+
+exports[`no-thenable > invalid(54): Reflect.defineProperty(foo, \"then\", 1) 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(foo, "then", 1)
+    |                             ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(55): Reflect.defineProperty(foo, \`then\`, 1) 1`] = `
+
+  1 | Reflect.defineProperty(foo, \`then\`, 1)
+
+`;
+
+exports[`no-thenable > invalid(55): Reflect.defineProperty(foo, \`then\`, 1) 2`] = `
+
+Message:
+> 1 | Reflect.defineProperty(foo, \`then\`, 1)
+    |                             ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(56): const THEN = \"then\";Reflect.defineProperty(foo, THEN, 1) 1`] = `
+
+  1 | const THEN = "then";Reflect.defineProperty(foo, THEN, 1)
+
+`;
+
+exports[`no-thenable > invalid(56): const THEN = \"then\";Reflect.defineProperty(foo, THEN, 1) 2`] = `
+
+Message:
+> 1 | const THEN = "then";Reflect.defineProperty(foo, THEN, 1)
+    |                                                 ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(57): Object.fromEntries([[\"then\", 1]]) 1`] = `
+
+  1 | Object.fromEntries([["then", 1]])
+
+`;
+
+exports[`no-thenable > invalid(57): Object.fromEntries([[\"then\", 1]]) 2`] = `
+
+Message:
+> 1 | Object.fromEntries([["then", 1]])
+    |                      ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(58): Object.fromEntries([[\"then\"]]) 1`] = `
+
+  1 | Object.fromEntries([["then"]])
+
+`;
+
+exports[`no-thenable > invalid(58): Object.fromEntries([[\"then\"]]) 2`] = `
+
+Message:
+> 1 | Object.fromEntries([["then"]])
+    |                      ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(59): Object.fromEntries([[\`then\`, 1]]) 1`] = `
+
+  1 | Object.fromEntries([[\`then\`, 1]])
+
+`;
+
+exports[`no-thenable > invalid(59): Object.fromEntries([[\`then\`, 1]]) 2`] = `
+
+Message:
+> 1 | Object.fromEntries([[\`then\`, 1]])
+    |                      ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(6): const foo = {[\"then\"]() {}} 1`] = `
+
+  1 | const foo = {["then"]() {}}
+
+`;
+
+exports[`no-thenable > invalid(6): const foo = {[\"then\"]() {}} 2`] = `
+
+Message:
+> 1 | const foo = {["then"]() {}}
+    |               ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(60): const THEN = \"then\";Object.fromEntries([[THEN, 1]]) 1`] = `
+
+  1 | const THEN = "then";Object.fromEntries([[THEN, 1]])
+
+`;
+
+exports[`no-thenable > invalid(60): const THEN = \"then\";Object.fromEntries([[THEN, 1]]) 2`] = `
+
+Message:
+> 1 | const THEN = "then";Object.fromEntries([[THEN, 1]])
+    |                                          ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(61): Object.fromEntries([foo, [\"then\", 1]]) 1`] = `
+
+  1 | Object.fromEntries([foo, ["then", 1]])
+
+`;
+
+exports[`no-thenable > invalid(61): Object.fromEntries([foo, [\"then\", 1]]) 2`] = `
+
+Message:
+> 1 | Object.fromEntries([foo, ["then", 1]])
+    |                           ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(62): const then = 1; export {then} 1`] = `
+
+  1 | const then = 1; export {then}
+
+`;
+
+exports[`no-thenable > invalid(62): const then = 1; export {then} 2`] = `
+
+Message:
+> 1 | const then = 1; export {then}
+    |                         ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(62): const then = 1; export {then} 3`] = `
+
+Message:
+> 1 | const then = 1; export {then}
+    |                         ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(63): const notThen = 1; export {notThen as then} 1`] = `
+
+  1 | const notThen = 1; export {notThen as then}
+
+`;
+
+exports[`no-thenable > invalid(63): const notThen = 1; export {notThen as then} 2`] = `
+
+Message:
+> 1 | const notThen = 1; export {notThen as then}
+    |                                       ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(64): export {then} from \"foo\" 1`] = `
+
+  1 | export {then} from "foo"
+
+`;
+
+exports[`no-thenable > invalid(64): export {then} from \"foo\" 2`] = `
+
+Message:
+> 1 | export {then} from "foo"
+    |         ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(64): export {then} from \"foo\" 3`] = `
+
+Message:
+> 1 | export {then} from "foo"
+    |         ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(65): export function then() {} 1`] = `
+
+  1 | export function then() {}
+
+`;
+
+exports[`no-thenable > invalid(65): export function then() {} 2`] = `
+
+Message:
+> 1 | export function then() {}
+    |                 ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(66): export async function then() {} 1`] = `
+
+  1 | export async function then() {}
+
+`;
+
+exports[`no-thenable > invalid(66): export async function then() {} 2`] = `
+
+Message:
+> 1 | export async function then() {}
+    |                       ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(67): export function * then() {} 1`] = `
+
+  1 | export function * then() {}
+
+`;
+
+exports[`no-thenable > invalid(67): export function * then() {} 2`] = `
+
+Message:
+> 1 | export function * then() {}
+    |                   ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(68): export async function * then() {} 1`] = `
+
+  1 | export async function * then() {}
+
+`;
+
+exports[`no-thenable > invalid(68): export async function * then() {} 2`] = `
+
+Message:
+> 1 | export async function * then() {}
+    |                         ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(69): export class then {} 1`] = `
+
+  1 | export class then {}
+
+`;
+
+exports[`no-thenable > invalid(69): export class then {} 2`] = `
+
+Message:
+> 1 | export class then {}
+    |              ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(7): const foo = {[\`then\`]() {}} 1`] = `
+
+  1 | const foo = {[\`then\`]() {}}
+
+`;
+
+exports[`no-thenable > invalid(7): const foo = {[\`then\`]() {}} 2`] = `
+
+Message:
+> 1 | const foo = {[\`then\`]() {}}
+    |               ^^^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(70): export const then = 1 1`] = `
+
+  1 | export const then = 1
+
+`;
+
+exports[`no-thenable > invalid(70): export const then = 1 2`] = `
+
+Message:
+> 1 | export const then = 1
+    |              ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(71): export let then = 1 1`] = `
+
+  1 | export let then = 1
+
+`;
+
+exports[`no-thenable > invalid(71): export let then = 1 2`] = `
+
+Message:
+> 1 | export let then = 1
+    |            ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(72): export var then = 1 1`] = `
+
+  1 | export var then = 1
+
+`;
+
+exports[`no-thenable > invalid(72): export var then = 1 2`] = `
+
+Message:
+> 1 | export var then = 1
+    |            ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(73): export const [then] = 1 1`] = `
+
+  1 | export const [then] = 1
+
+`;
+
+exports[`no-thenable > invalid(73): export const [then] = 1 2`] = `
+
+Message:
+> 1 | export const [then] = 1
+    |               ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(74): export let [then] = 1 1`] = `
+
+  1 | export let [then] = 1
+
+`;
+
+exports[`no-thenable > invalid(74): export let [then] = 1 2`] = `
+
+Message:
+> 1 | export let [then] = 1
+    |             ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(75): export var [then] = 1 1`] = `
+
+  1 | export var [then] = 1
+
+`;
+
+exports[`no-thenable > invalid(75): export var [then] = 1 2`] = `
+
+Message:
+> 1 | export var [then] = 1
+    |             ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(76): export const [, then] = 1 1`] = `
+
+  1 | export const [, then] = 1
+
+`;
+
+exports[`no-thenable > invalid(76): export const [, then] = 1 2`] = `
+
+Message:
+> 1 | export const [, then] = 1
+    |                 ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(77): export let [, then] = 1 1`] = `
+
+  1 | export let [, then] = 1
+
+`;
+
+exports[`no-thenable > invalid(77): export let [, then] = 1 2`] = `
+
+Message:
+> 1 | export let [, then] = 1
+    |               ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(78): export var [, then] = 1 1`] = `
+
+  1 | export var [, then] = 1
+
+`;
+
+exports[`no-thenable > invalid(78): export var [, then] = 1 2`] = `
+
+Message:
+> 1 | export var [, then] = 1
+    |               ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(79): export const [, ...then] = 1 1`] = `
+
+  1 | export const [, ...then] = 1
+
+`;
+
+exports[`no-thenable > invalid(79): export const [, ...then] = 1 2`] = `
+
+Message:
+> 1 | export const [, ...then] = 1
+    |                    ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(8): const THEN = \"then\";const foo = {[THEN]() {}} 1`] = `
+
+  1 | const THEN = "then";const foo = {[THEN]() {}}
+
+`;
+
+exports[`no-thenable > invalid(8): const THEN = \"then\";const foo = {[THEN]() {}} 2`] = `
+
+Message:
+> 1 | const THEN = "then";const foo = {[THEN]() {}}
+    |                                   ^^^^ Do not add \`then\` to an object.
+
+`;
+
+exports[`no-thenable > invalid(80): export let [, ...then] = 1 1`] = `
+
+  1 | export let [, ...then] = 1
+
+`;
+
+exports[`no-thenable > invalid(80): export let [, ...then] = 1 2`] = `
+
+Message:
+> 1 | export let [, ...then] = 1
+    |                  ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(81): export var [, ...then] = 1 1`] = `
+
+  1 | export var [, ...then] = 1
+
+`;
+
+exports[`no-thenable > invalid(81): export var [, ...then] = 1 2`] = `
+
+Message:
+> 1 | export var [, ...then] = 1
+    |                  ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(82): export const {then} = 1 1`] = `
+
+  1 | export const {then} = 1
+
+`;
+
+exports[`no-thenable > invalid(82): export const {then} = 1 2`] = `
+
+Message:
+> 1 | export const {then} = 1
+    |               ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(83): export let {then} = 1 1`] = `
+
+  1 | export let {then} = 1
+
+`;
+
+exports[`no-thenable > invalid(83): export let {then} = 1 2`] = `
+
+Message:
+> 1 | export let {then} = 1
+    |             ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(84): export var {then} = 1 1`] = `
+
+  1 | export var {then} = 1
+
+`;
+
+exports[`no-thenable > invalid(84): export var {then} = 1 2`] = `
+
+Message:
+> 1 | export var {then} = 1
+    |             ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(85): export const {foo, ...then} = 1 1`] = `
+
+  1 | export const {foo, ...then} = 1
+
+`;
+
+exports[`no-thenable > invalid(85): export const {foo, ...then} = 1 2`] = `
+
+Message:
+> 1 | export const {foo, ...then} = 1
+    |                       ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(86): export let {foo, ...then} = 1 1`] = `
+
+  1 | export let {foo, ...then} = 1
+
+`;
+
+exports[`no-thenable > invalid(86): export let {foo, ...then} = 1 2`] = `
+
+Message:
+> 1 | export let {foo, ...then} = 1
+    |                     ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(87): export var {foo, ...then} = 1 1`] = `
+
+  1 | export var {foo, ...then} = 1
+
+`;
+
+exports[`no-thenable > invalid(87): export var {foo, ...then} = 1 2`] = `
+
+Message:
+> 1 | export var {foo, ...then} = 1
+    |                     ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(88): export const {foo: {bar: [{baz: then}]}} = 1 1`] = `
+
+  1 | export const {foo: {bar: [{baz: then}]}} = 1
+
+`;
+
+exports[`no-thenable > invalid(88): export const {foo: {bar: [{baz: then}]}} = 1 2`] = `
+
+Message:
+> 1 | export const {foo: {bar: [{baz: then}]}} = 1
+    |                                 ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(89): export const notThen = 1, then = 1 1`] = `
+
+  1 | export const notThen = 1, then = 1
+
+`;
+
+exports[`no-thenable > invalid(89): export const notThen = 1, then = 1 2`] = `
+
+Message:
+> 1 | export const notThen = 1, then = 1
+    |                           ^^^^ Do not export \`then\`.
+
+`;
+
+exports[`no-thenable > invalid(9): const foo = {get then() {}} 1`] = `
+
+  1 | const foo = {get then() {}}
+
+`;
+
+exports[`no-thenable > invalid(9): const foo = {get then() {}} 2`] = `
+
+Message:
+> 1 | const foo = {get then() {}}
+    |                  ^^^^ Do not add \`then\` to an object.
+
+`;

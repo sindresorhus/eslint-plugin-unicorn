@@ -10,6 +10,7 @@ import {
 	isGlobalIdentifier,
 	isLeftHandSide,
 	unwrapTypeScriptExpression,
+	getVisitorChildNodes,
 } from './utils/index.js';
 import {
 	getBaseTypes,
@@ -133,6 +134,8 @@ const isKnownDefaultLibraryNode = (node, context, typeNames) => {
 			program,
 			typeNames,
 		);
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}
@@ -152,6 +155,8 @@ const isKnownNonDomNode = (node, context) => {
 			checker,
 			program,
 		);
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}
@@ -171,6 +176,8 @@ const getEventNameFromTypeInformation = (node, context) => {
 
 	try {
 		return getEventNameFromType(parserServices.getTypeAtLocation(node));
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next */
 	} catch {}
 };
 
@@ -369,10 +376,6 @@ const isLayoutMethodCall = (node, context) =>
 	&& !isKnownNonDomNode(node.callee.object, context);
 
 const containsLayoutRead = (node, context, root = node) => {
-	if (!node) {
-		return false;
-	}
-
 	if (node !== root && isFunction(node)) {
 		return false;
 	}
@@ -385,23 +388,7 @@ const containsLayoutRead = (node, context, root = node) => {
 		return true;
 	}
 
-	const keys = context.sourceCode.visitorKeys[node.type] ?? [];
-	for (const key of keys) {
-		const child = node[key];
-		if (Array.isArray(child)) {
-			if (child.some(node => containsLayoutRead(node, context, root))) {
-				return true;
-			}
-
-			continue;
-		}
-
-		if (containsLayoutRead(child, context, root)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, context.sourceCode.visitorKeys).some(child => containsLayoutRead(child, context, root));
 };
 
 const getListenerFunction = (node, context) => {

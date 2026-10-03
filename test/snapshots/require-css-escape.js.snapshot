@@ -1,0 +1,299 @@
+exports[`require-css-escape > invalid(1): document.querySelector(\`[data-id=\"\${id}\"]\`); 1`] = `
+
+  1 | document.querySelector(\`[data-id="\${id}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(1): document.querySelector(\`[data-id=\"\${id}\"]\`); 2`] = `
+
+Message:
+> 1 | document.querySelector(\`[data-id="\${id}"]\`);
+    |                                     ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`[data-id="\${CSS.escape(id)}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(10): document.querySelector(\`[data-id=\"\${/* keep */ id}\"]\`); 1`] = `
+
+  1 | document.querySelector(\`[data-id="\${/* keep */ id}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(10): document.querySelector(\`[data-id=\"\${/* keep */ id}\"]\`); 2`] = `
+
+Message:
+> 1 | document.querySelector(\`[data-id="\${/* keep */ id}"]\`);
+    |                                                ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`[data-id="\${/* keep */ CSS.escape(id)}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(11): document.querySelector(\`[data-id=\"\${foo, bar}\"]\`); 1`] = `
+
+  1 | document.querySelector(\`[data-id="\${foo, bar}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(11): document.querySelector(\`[data-id=\"\${foo, bar}\"]\`); 2`] = `
+
+Message:
+> 1 | document.querySelector(\`[data-id="\${foo, bar}"]\`);
+    |                                     ^^^^^^^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`[data-id="\${CSS.escape((foo, bar))}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(12): document.querySelector(\`[data-id=\"\${id}\"] .\${className}\`); 1`] = `
+
+  1 | document.querySelector(\`[data-id="\${id}"] .\${className}\`);
+
+`;
+
+exports[`require-css-escape > invalid(12): document.querySelector(\`[data-id=\"\${id}\"] .\${className}\`); 2`] = `
+
+Message:
+> 1 | document.querySelector(\`[data-id="\${id}"] .\${className}\`);
+    |                                     ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`[data-id="\${CSS.escape(id)}"] .\${className}\`);
+
+`;
+
+exports[`require-css-escape > invalid(13): document.querySelector(\`#\${id}\`); 1`] = `
+
+Options:
+- checkAllSelectors: true
+
+Code:
+  1 | document.querySelector(\`#\${id}\`);
+
+`;
+
+exports[`require-css-escape > invalid(13): document.querySelector(\`#\${id}\`); 2`] = `
+
+Message:
+> 1 | document.querySelector(\`#\${id}\`);
+    |                            ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`#\${CSS.escape(id)}\`);
+
+`;
+
+exports[`require-css-escape > invalid(14): document.querySelectorAll(\`.\${className}\`); 1`] = `
+
+Options:
+- checkAllSelectors: true
+
+Code:
+  1 | document.querySelectorAll(\`.\${className}\`);
+
+`;
+
+exports[`require-css-escape > invalid(14): document.querySelectorAll(\`.\${className}\`); 2`] = `
+
+Message:
+> 1 | document.querySelectorAll(\`.\${className}\`);
+    |                               ^^^^^^^^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelectorAll(\`.\${CSS.escape(className)}\`);
+
+`;
+
+exports[`require-css-escape > invalid(15): document.querySelector(\`#\${id}[data-value=\"\${value}\"] .\${className}\`); 1`] = `
+
+Options:
+- checkAllSelectors: true
+
+Code:
+  1 | document.querySelector(\`#\${id}[data-value="\${value}"] .\${className}\`);
+
+`;
+
+exports[`require-css-escape > invalid(15): document.querySelector(\`#\${id}[data-value=\"\${value}\"] .\${className}\`); 2`] = `
+
+Message:
+> 1 | document.querySelector(\`#\${id}[data-value="\${value}"] .\${className}\`);
+    |                            ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`#\${CSS.escape(id)}[data-value="\${value}"] .\${className}\`);
+
+`;
+
+exports[`require-css-escape > invalid(15): document.querySelector(\`#\${id}[data-value=\"\${value}\"] .\${className}\`); 3`] = `
+
+Message:
+> 1 | document.querySelector(\`#\${id}[data-value="\${value}"] .\${className}\`);
+    |                                              ^^^^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`#\${id}[data-value="\${CSS.escape(value)}"] .\${className}\`);
+
+`;
+
+exports[`require-css-escape > invalid(15): document.querySelector(\`#\${id}[data-value=\"\${value}\"] .\${className}\`); 4`] = `
+
+Message:
+> 1 | document.querySelector(\`#\${id}[data-value="\${value}"] .\${className}\`);
+    |                                                          ^^^^^^^^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`#\${id}[data-value="\${value}"] .\${CSS.escape(className)}\`);
+
+`;
+
+exports[`require-css-escape > invalid(2): element.querySelectorAll(\`a[href^=\"#\${hash}\"]\`); 1`] = `
+
+  1 | element.querySelectorAll(\`a[href^="#\${hash}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(2): element.querySelectorAll(\`a[href^=\"#\${hash}\"]\`); 2`] = `
+
+Message:
+> 1 | element.querySelectorAll(\`a[href^="#\${hash}"]\`);
+    |                                       ^^^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | element.querySelectorAll(\`a[href^="#\${CSS.escape(hash)}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(3): element.matches(\`[data-id=\"\${id}\"]\`); 1`] = `
+
+  1 | element.matches(\`[data-id="\${id}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(3): element.matches(\`[data-id=\"\${id}\"]\`); 2`] = `
+
+Message:
+> 1 | element.matches(\`[data-id="\${id}"]\`);
+    |                              ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | element.matches(\`[data-id="\${CSS.escape(id)}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(4): element.closest(\`[data-id=\"\${id}\"]\`); 1`] = `
+
+  1 | element.closest(\`[data-id="\${id}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(4): element.closest(\`[data-id=\"\${id}\"]\`); 2`] = `
+
+Message:
+> 1 | element.closest(\`[data-id="\${id}"]\`);
+    |                              ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | element.closest(\`[data-id="\${CSS.escape(id)}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(5): document?.querySelector(\`[data-id=\"\${id}\"]\`); 1`] = `
+
+  1 | document?.querySelector(\`[data-id="\${id}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(5): document?.querySelector(\`[data-id=\"\${id}\"]\`); 2`] = `
+
+Message:
+> 1 | document?.querySelector(\`[data-id="\${id}"]\`);
+    |                                      ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document?.querySelector(\`[data-id="\${CSS.escape(id)}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(6): document.querySelector?.(\`[data-id=\"\${id}\"]\`); 1`] = `
+
+  1 | document.querySelector?.(\`[data-id="\${id}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(6): document.querySelector?.(\`[data-id=\"\${id}\"]\`); 2`] = `
+
+Message:
+> 1 | document.querySelector?.(\`[data-id="\${id}"]\`);
+    |                                       ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector?.(\`[data-id="\${CSS.escape(id)}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(7): document.querySelector(\`[data-id=\"\${id}\"]\`, root); 1`] = `
+
+  1 | document.querySelector(\`[data-id="\${id}"]\`, root);
+
+`;
+
+exports[`require-css-escape > invalid(7): document.querySelector(\`[data-id=\"\${id}\"]\`, root); 2`] = `
+
+Message:
+> 1 | document.querySelector(\`[data-id="\${id}"]\`, root);
+    |                                     ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`[data-id="\${CSS.escape(id)}"]\`, root);
+
+`;
+
+exports[`require-css-escape > invalid(8): document.querySelector(\`[data-id=\"\${id}\"][data-name=\"\${name}\"]\`); 1`] = `
+
+  1 | document.querySelector(\`[data-id="\${id}"][data-name="\${name}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(8): document.querySelector(\`[data-id=\"\${id}\"][data-name=\"\${name}\"]\`); 2`] = `
+
+Message:
+> 1 | document.querySelector(\`[data-id="\${id}"][data-name="\${name}"]\`);
+    |                                     ^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`[data-id="\${CSS.escape(id)}"][data-name="\${name}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(8): document.querySelector(\`[data-id=\"\${id}\"][data-name=\"\${name}\"]\`); 3`] = `
+
+Message:
+> 1 | document.querySelector(\`[data-id="\${id}"][data-name="\${name}"]\`);
+    |                                                        ^^^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`[data-id="\${id}"][data-name="\${CSS.escape(name)}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(9): document.querySelector(\`[data-id=\"\${String(id)}\"]\`); 1`] = `
+
+  1 | document.querySelector(\`[data-id="\${String(id)}"]\`);
+
+`;
+
+exports[`require-css-escape > invalid(9): document.querySelector(\`[data-id=\"\${String(id)}\"]\`); 2`] = `
+
+Message:
+> 1 | document.querySelector(\`[data-id="\${String(id)}"]\`);
+    |                                     ^^^^^^^^^^ Use \`CSS.escape()\` for interpolated values in CSS selectors.
+
+Output:
+  1 | document.querySelector(\`[data-id="\${CSS.escape(String(id))}"]\`);
+
+`;

@@ -1,0 +1,1828 @@
+exports[`no-instanceof-builtins > invalid(1): a + b instanceof Function 1`] = `
+
+  1 | a + b instanceof Function
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): a + b instanceof Function 2`] = `
+
+Message:
+> 1 | a + b instanceof Function
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | typeof (a + b) === 'function'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): arr instanceof Array 1`] = `
+
+  1 | arr instanceof Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): arr instanceof Array 2`] = `
+
+Message:
+> 1 | arr instanceof Array
+    | ^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Array.isArray(arr)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): err instanceof Error 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'strict'
+
+Code:
+  1 | err instanceof Error
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): err instanceof Error 2`] = `
+
+Message:
+> 1 | err instanceof Error
+    | ^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Error.isError(err)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): foo instanceof String 1`] = `
+
+  1 | foo instanceof String
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): foo instanceof String 2`] = `
+
+Message:
+> 1 | foo instanceof String
+    | ^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'string'\`.:
+  1 | typeof foo === 'string'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): foo instanceof globalThis.String 1`] = `
+
+  1 | foo instanceof globalThis.String
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): foo instanceof globalThis.String 2`] = `
+
+Message:
+> 1 | foo instanceof globalThis.String
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'string'\`.:
+  1 | typeof foo === 'string'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): fooErr instanceof Error 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'loose'
+
+Code:
+  1 | fooErr instanceof Error
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): fooErr instanceof Error 2`] = `
+
+Message:
+> 1 | fooErr instanceof Error
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Error.isError(fooErr)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): fooInclude instanceof WebWorker 1`] = `
+
+Options:
+- include:
+    - 'WebWorker'
+
+Code:
+  1 | fooInclude instanceof WebWorker
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): fooInclude instanceof WebWorker 2`] = `
+
+Message:
+> 1 | fooInclude instanceof WebWorker
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): fooStrict instanceof String 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof String
+
+`;
+
+exports[`no-instanceof-builtins > invalid(1): fooStrict instanceof String 2`] = `
+
+Message:
+> 1 | fooStrict instanceof String
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'string'\`.:
+  1 | typeof fooStrict === 'string'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(10): <template><div v-if=\"array instanceof Array\" v-for=\"element of array\"></div></template> 1`] = `
+
+  1 | <template><div v-if="array instanceof Array" v-for="element of array"></div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(10): <template><div v-if=\"array instanceof Array\" v-for=\"element of array\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="array instanceof Array" v-for="element of array"></div></template>
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | <template><div v-if="Array.isArray(array)" v-for="element of array"></div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(10): foo instanceof globalThis.Error 1`] = `
+
+Options:
+- useErrorIsError: true
+
+Code:
+  1 | foo instanceof globalThis.Error
+
+`;
+
+exports[`no-instanceof-builtins > invalid(10): foo instanceof globalThis.Error 2`] = `
+
+Message:
+> 1 | foo instanceof globalThis.Error
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | globalThis.Error.isError(foo)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(10): fooStrict instanceof RangeError 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof RangeError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(10): fooStrict instanceof RangeError 2`] = `
+
+Message:
+> 1 | fooStrict instanceof RangeError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(11): <template><div v-if=\"(( (( array )) instanceof (( Array )) ))\" v-for=\"element of array\"></div></template> 1`] = `
+
+  1 | <template><div v-if="(( (( array )) instanceof (( Array )) ))" v-for="element of array"></div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(11): <template><div v-if=\"(( (( array )) instanceof (( Array )) ))\" v-for=\"element of array\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="(( (( array )) instanceof (( Array )) ))" v-for="element of array"></div></template>
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | <template><div v-if="(( Array.isArray((( array ))) ))" v-for="element of array"></div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(11): const Error = CustomError; foo instanceof globalThis.Error 1`] = `
+
+Options:
+- useErrorIsError: true
+
+Code:
+  1 | const Error = CustomError; foo instanceof globalThis.Error
+
+`;
+
+exports[`no-instanceof-builtins > invalid(11): const Error = CustomError; foo instanceof globalThis.Error 2`] = `
+
+Message:
+> 1 | const Error = CustomError; foo instanceof globalThis.Error
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | const Error = CustomError; globalThis.Error.isError(foo)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(11): fooStrict instanceof ReferenceError 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof ReferenceError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(11): fooStrict instanceof ReferenceError 2`] = `
+
+Message:
+> 1 | fooStrict instanceof ReferenceError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(12): <template><div>{{(( (( array )) instanceof (( Array )) )) ? array.join(\" | \") : array}}</div></template> 1`] = `
+
+  1 | <template><div>{{(( (( array )) instanceof (( Array )) )) ? array.join(" | ") : array}}</div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(12): <template><div>{{(( (( array )) instanceof (( Array )) )) ? array.join(\" | \") : array}}</div></template> 2`] = `
+
+Message:
+> 1 | <template><div>{{(( (( array )) instanceof (( Array )) )) ? array.join(" | ") : array}}</div></template>
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | <template><div>{{(( Array.isArray((( array ))) )) ? array.join(" | ") : array}}</div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(12): foo instanceof globalThis.TypeError 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | foo instanceof globalThis.TypeError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(12): foo instanceof globalThis.TypeError 2`] = `
+
+Message:
+> 1 | foo instanceof globalThis.TypeError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(12): fooStrict instanceof SyntaxError 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof SyntaxError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(12): fooStrict instanceof SyntaxError 2`] = `
+
+Message:
+> 1 | fooStrict instanceof SyntaxError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(13): <script>const foo = array instanceof Array</script> 1`] = `
+
+  1 | <script>const foo = array instanceof Array</script>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(13): <script>const foo = array instanceof Array</script> 2`] = `
+
+Message:
+> 1 | <script>const foo = array instanceof Array</script>
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | <script>const foo = Array.isArray(array)</script>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(13): foo instanceof globalThis.WebWorker 1`] = `
+
+Options:
+- include:
+    - 'WebWorker'
+
+Code:
+  1 | foo instanceof globalThis.WebWorker
+
+`;
+
+exports[`no-instanceof-builtins > invalid(13): foo instanceof globalThis.WebWorker 2`] = `
+
+Message:
+> 1 | foo instanceof globalThis.WebWorker
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(13): fooStrict instanceof TypeError 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof TypeError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(13): fooStrict instanceof TypeError 2`] = `
+
+Message:
+> 1 | fooStrict instanceof TypeError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(14): <script>const foo = (( (( array )) instanceof (( Array )) ))</script> 1`] = `
+
+  1 | <script>const foo = (( (( array )) instanceof (( Array )) ))</script>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(14): <script>const foo = (( (( array )) instanceof (( Array )) ))</script> 2`] = `
+
+Message:
+> 1 | <script>const foo = (( (( array )) instanceof (( Array )) ))</script>
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | <script>const foo = (( Array.isArray((( array ))) ))</script>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(14): fooStrict instanceof URIError 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof URIError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(14): fooStrict instanceof URIError 2`] = `
+
+Message:
+> 1 | fooStrict instanceof URIError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(15): <script>foo instanceof Function</script> 1`] = `
+
+  1 | <script>foo instanceof Function</script>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(15): <script>foo instanceof Function</script> 2`] = `
+
+Message:
+> 1 | <script>foo instanceof Function</script>
+    |         ^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | <script>typeof foo === 'function'</script>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(15): fooStrict instanceof AggregateError 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof AggregateError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(15): fooStrict instanceof AggregateError 2`] = `
+
+Message:
+> 1 | fooStrict instanceof AggregateError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(16): <template><div v-if=\"foo instanceof Function\"></div></template> 1`] = `
+
+  1 | <template><div v-if="foo instanceof Function"></div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(16): <template><div v-if=\"foo instanceof Function\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="foo instanceof Function"></div></template>
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | <template><div v-if="typeof foo === 'function'"></div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(16): fooStrict instanceof SuppressedError 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof SuppressedError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(16): fooStrict instanceof SuppressedError 2`] = `
+
+Message:
+> 1 | fooStrict instanceof SuppressedError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(17): <template><div>{{foo instanceof Function}}</div></template> 1`] = `
+
+  1 | <template><div>{{foo instanceof Function}}</div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(17): <template><div>{{foo instanceof Function}}</div></template> 2`] = `
+
+Message:
+> 1 | <template><div>{{foo instanceof Function}}</div></template>
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | <template><div>{{typeof foo === "function"}}</div></template>
+
+`;
+
+exports[`no-instanceof-builtins > invalid(17): fooStrict instanceof Map 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Map
+
+`;
+
+exports[`no-instanceof-builtins > invalid(17): fooStrict instanceof Map 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Map
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(18): fooStrict instanceof Set 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Set
+
+`;
+
+exports[`no-instanceof-builtins > invalid(18): fooStrict instanceof Set 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Set
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(19): fooStrict instanceof WeakMap 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof WeakMap
+
+`;
+
+exports[`no-instanceof-builtins > invalid(19): fooStrict instanceof WeakMap 2`] = `
+
+Message:
+> 1 | fooStrict instanceof WeakMap
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): (fooErr) instanceof (Error) 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'loose'
+
+Code:
+  1 | (fooErr) instanceof (Error)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): (fooErr) instanceof (Error) 2`] = `
+
+Message:
+> 1 | (fooErr) instanceof (Error)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Error.isError((fooErr))
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): [] instanceof Array 1`] = `
+
+  1 | [] instanceof Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): [] instanceof Array 2`] = `
+
+Message:
+> 1 | [] instanceof Array
+    | ^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Array.isArray([])
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): a + b instanceof String 1`] = `
+
+  1 | a + b instanceof String
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): a + b instanceof String 2`] = `
+
+Message:
+> 1 | a + b instanceof String
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'string'\`.:
+  1 | typeof (a + b) === 'string'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): err instanceof EvalError 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'strict'
+
+Code:
+  1 | err instanceof EvalError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): err instanceof EvalError 2`] = `
+
+Message:
+> 1 | err instanceof EvalError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): foo instanceof Number 1`] = `
+
+  1 | foo instanceof Number
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): foo instanceof Number 2`] = `
+
+Message:
+> 1 | foo instanceof Number
+    | ^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'number'\`.:
+  1 | typeof foo === 'number'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): foo instanceof globalThis /* keep */ .String 1`] = `
+
+  1 | foo instanceof globalThis /* keep */ .String
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): foo instanceof globalThis /* keep */ .String 2`] = `
+
+Message:
+> 1 | foo instanceof globalThis /* keep */ .String
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): fooInclude instanceof HTMLElement 1`] = `
+
+Options:
+- include:
+    - 'HTMLElement'
+
+Code:
+  1 | fooInclude instanceof HTMLElement
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): fooInclude instanceof HTMLElement 2`] = `
+
+Message:
+> 1 | fooInclude instanceof HTMLElement
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): fooStrict instanceof Number 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Number
+
+`;
+
+exports[`no-instanceof-builtins > invalid(2): fooStrict instanceof Number 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Number
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'number'\`.:
+  1 | typeof fooStrict === 'number'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(20): fooStrict instanceof WeakRef 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof WeakRef
+
+`;
+
+exports[`no-instanceof-builtins > invalid(20): fooStrict instanceof WeakRef 2`] = `
+
+Message:
+> 1 | fooStrict instanceof WeakRef
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(21): fooStrict instanceof WeakSet 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof WeakSet
+
+`;
+
+exports[`no-instanceof-builtins > invalid(21): fooStrict instanceof WeakSet 2`] = `
+
+Message:
+> 1 | fooStrict instanceof WeakSet
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(22): fooStrict instanceof ArrayBuffer 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof ArrayBuffer
+
+`;
+
+exports[`no-instanceof-builtins > invalid(22): fooStrict instanceof ArrayBuffer 2`] = `
+
+Message:
+> 1 | fooStrict instanceof ArrayBuffer
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(23): fooStrict instanceof Int8Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Int8Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(23): fooStrict instanceof Int8Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Int8Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(24): fooStrict instanceof Uint8Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Uint8Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(24): fooStrict instanceof Uint8Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Uint8Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(25): fooStrict instanceof Uint8ClampedArray 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Uint8ClampedArray
+
+`;
+
+exports[`no-instanceof-builtins > invalid(25): fooStrict instanceof Uint8ClampedArray 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Uint8ClampedArray
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(26): fooStrict instanceof Int16Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Int16Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(26): fooStrict instanceof Int16Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Int16Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(27): fooStrict instanceof Uint16Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Uint16Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(27): fooStrict instanceof Uint16Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Uint16Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(28): fooStrict instanceof Int32Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Int32Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(28): fooStrict instanceof Int32Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Int32Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(29): fooStrict instanceof Uint32Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Uint32Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(29): fooStrict instanceof Uint32Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Uint32Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): [1,2,3] instanceof Array === true 1`] = `
+
+  1 | [1,2,3] instanceof Array === true
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): [1,2,3] instanceof Array === true 2`] = `
+
+Message:
+> 1 | [1,2,3] instanceof Array === true
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Array.isArray([1,2,3]) === true
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): a - b instanceof Function 1`] = `
+
+  1 | a - b instanceof Function
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): a - b instanceof Function 2`] = `
+
+Message:
+> 1 | a - b instanceof Function
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | typeof (a - b) === 'function'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): err instanceof RangeError 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'strict'
+
+Code:
+  1 | err instanceof RangeError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): err instanceof RangeError 2`] = `
+
+Message:
+> 1 | err instanceof RangeError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): foo instanceof Boolean 1`] = `
+
+  1 | foo instanceof Boolean
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): foo instanceof Boolean 2`] = `
+
+Message:
+> 1 | foo instanceof Boolean
+    | ^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'boolean'\`.:
+  1 | typeof foo === 'boolean'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): foo instanceof globalThis.Function 1`] = `
+
+  1 | foo instanceof globalThis.Function
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): foo instanceof globalThis.Function 2`] = `
+
+Message:
+> 1 | foo instanceof globalThis.Function
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | typeof foo === 'function'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): fooStrict instanceof Boolean 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Boolean
+
+`;
+
+exports[`no-instanceof-builtins > invalid(3): fooStrict instanceof Boolean 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Boolean
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'boolean'\`.:
+  1 | typeof fooStrict === 'boolean'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(30): fooStrict instanceof Float16Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Float16Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(30): fooStrict instanceof Float16Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Float16Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(31): fooStrict instanceof Float32Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Float32Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(31): fooStrict instanceof Float32Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Float32Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(32): fooStrict instanceof Float64Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Float64Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(32): fooStrict instanceof Float64Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Float64Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(33): fooStrict instanceof BigInt64Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof BigInt64Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(33): fooStrict instanceof BigInt64Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof BigInt64Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(34): fooStrict instanceof BigUint64Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof BigUint64Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(34): fooStrict instanceof BigUint64Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof BigUint64Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(35): fooStrict instanceof Object 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Object
+
+`;
+
+exports[`no-instanceof-builtins > invalid(35): fooStrict instanceof Object 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Object
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(36): fooStrict instanceof RegExp 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof RegExp
+
+`;
+
+exports[`no-instanceof-builtins > invalid(36): fooStrict instanceof RegExp 2`] = `
+
+Message:
+> 1 | fooStrict instanceof RegExp
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(37): fooStrict instanceof Promise 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Promise
+
+`;
+
+exports[`no-instanceof-builtins > invalid(37): fooStrict instanceof Promise 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Promise
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(38): fooStrict instanceof Proxy 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Proxy
+
+`;
+
+exports[`no-instanceof-builtins > invalid(38): fooStrict instanceof Proxy 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Proxy
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(39): fooStrict instanceof DataView 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof DataView
+
+`;
+
+exports[`no-instanceof-builtins > invalid(39): fooStrict instanceof DataView 2`] = `
+
+Message:
+> 1 | fooStrict instanceof DataView
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): (a + b) instanceof Function 1`] = `
+
+  1 | (a + b) instanceof Function
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): (a + b) instanceof Function 2`] = `
+
+Message:
+> 1 | (a + b) instanceof Function
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | typeof (a + b) === 'function'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): err instanceof ReferenceError 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'strict'
+
+Code:
+  1 | err instanceof ReferenceError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): err instanceof ReferenceError 2`] = `
+
+Message:
+> 1 | err instanceof ReferenceError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): foo instanceof BigInt 1`] = `
+
+  1 | foo instanceof BigInt
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): foo instanceof BigInt 2`] = `
+
+Message:
+> 1 | foo instanceof BigInt
+    | ^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'bigint'\`.:
+  1 | typeof foo === 'bigint'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): foo instanceof globalThis /* keep */ .Function 1`] = `
+
+  1 | foo instanceof globalThis /* keep */ .Function
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): foo instanceof globalThis /* keep */ .Function 2`] = `
+
+Message:
+> 1 | foo instanceof globalThis /* keep */ .Function
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): fooStrict instanceof BigInt 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof BigInt
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): fooStrict instanceof BigInt 2`] = `
+
+Message:
+> 1 | fooStrict instanceof BigInt
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'bigint'\`.:
+  1 | typeof fooStrict === 'bigint'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): fun.call(1, 2, 3) instanceof Array 1`] = `
+
+  1 | fun.call(1, 2, 3) instanceof Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(4): fun.call(1, 2, 3) instanceof Array 2`] = `
+
+Message:
+> 1 | fun.call(1, 2, 3) instanceof Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Array.isArray(fun.call(1, 2, 3))
+
+`;
+
+exports[`no-instanceof-builtins > invalid(40): fooStrict instanceof Date 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Date
+
+`;
+
+exports[`no-instanceof-builtins > invalid(40): fooStrict instanceof Date 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Date
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(41): fooStrict instanceof SharedArrayBuffer 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof SharedArrayBuffer
+
+`;
+
+exports[`no-instanceof-builtins > invalid(41): fooStrict instanceof SharedArrayBuffer 2`] = `
+
+Message:
+> 1 | fooStrict instanceof SharedArrayBuffer
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(42): fooStrict instanceof FinalizationRegistry 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof FinalizationRegistry
+
+`;
+
+exports[`no-instanceof-builtins > invalid(42): fooStrict instanceof FinalizationRegistry 2`] = `
+
+Message:
+> 1 | fooStrict instanceof FinalizationRegistry
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): err instanceof SyntaxError 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'strict'
+
+Code:
+  1 | err instanceof SyntaxError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): err instanceof SyntaxError 2`] = `
+
+Message:
+> 1 | err instanceof SyntaxError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): foo instanceof Symbol 1`] = `
+
+  1 | foo instanceof Symbol
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): foo instanceof Symbol 2`] = `
+
+Message:
+> 1 | foo instanceof Symbol
+    | ^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'symbol'\`.:
+  1 | typeof foo === 'symbol'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): foo instanceof globalThis.Array 1`] = `
+
+  1 | foo instanceof globalThis.Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): foo instanceof globalThis.Array 2`] = `
+
+Message:
+> 1 | foo instanceof globalThis.Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | globalThis.Array.isArray(foo)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): fooStrict instanceof Symbol 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Symbol
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): fooStrict instanceof Symbol 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Symbol
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Suggestion 1/1: Switch to \`typeof … === 'symbol'\`.:
+  1 | typeof fooStrict === 'symbol'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): obj.arr instanceof Array 1`] = `
+
+  1 | obj.arr instanceof Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(5): obj.arr instanceof Array 2`] = `
+
+Message:
+> 1 | obj.arr instanceof Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Array.isArray(obj.arr)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): const Array = {isArray: () => false}; foo instanceof globalThis.Array 1`] = `
+
+  1 | const Array = {isArray: () => false}; foo instanceof globalThis.Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): const Array = {isArray: () => false}; foo instanceof globalThis.Array 2`] = `
+
+Message:
+> 1 | const Array = {isArray: () => false}; foo instanceof globalThis.Array
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | const Array = {isArray: () => false}; globalThis.Array.isArray(foo)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): err instanceof TypeError 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'strict'
+
+Code:
+  1 | err instanceof TypeError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): err instanceof TypeError 2`] = `
+
+Message:
+> 1 | err instanceof TypeError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): foo instanceof Function 1`] = `
+
+  1 | foo instanceof Function
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): foo instanceof Function 2`] = `
+
+Message:
+> 1 | foo instanceof Function
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | typeof foo === 'function'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): foo.bar[2] instanceof Array 1`] = `
+
+  1 | foo.bar[2] instanceof Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): foo.bar[2] instanceof Array 2`] = `
+
+Message:
+> 1 | foo.bar[2] instanceof Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Array.isArray(foo.bar[2])
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): fooStrict instanceof Function 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Function
+
+`;
+
+exports[`no-instanceof-builtins > invalid(6): fooStrict instanceof Function 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Function
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | typeof fooStrict === 'function'
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): (0, array) instanceof Array 1`] = `
+
+  1 | (0, array) instanceof Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): (0, array) instanceof Array 2`] = `
+
+Message:
+> 1 | (0, array) instanceof Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Array.isArray((0, array))
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): err instanceof URIError 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'strict'
+
+Code:
+  1 | err instanceof URIError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): err instanceof URIError 2`] = `
+
+Message:
+> 1 | err instanceof URIError
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): foo instanceof Array 1`] = `
+
+  1 | foo instanceof Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): foo instanceof Array 2`] = `
+
+Message:
+> 1 | foo instanceof Array
+    | ^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Array.isArray(foo)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): foo instanceof window.Array 1`] = `
+
+  1 | foo instanceof window.Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): foo instanceof window.Array 2`] = `
+
+Message:
+> 1 | foo instanceof window.Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | window.Array.isArray(foo)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): fooStrict instanceof Array 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(7): fooStrict instanceof Array 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | Array.isArray(fooStrict)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(8): err instanceof AggregateError 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'strict'
+
+Code:
+  1 | err instanceof AggregateError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(8): err instanceof AggregateError 2`] = `
+
+Message:
+> 1 | err instanceof AggregateError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(8): foo instanceof self.Array 1`] = `
+
+  1 | foo instanceof self.Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(8): foo instanceof self.Array 2`] = `
+
+Message:
+> 1 | foo instanceof self.Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | self.Array.isArray(foo)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(8): fooStrict instanceof Error 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof Error
+
+`;
+
+exports[`no-instanceof-builtins > invalid(8): fooStrict instanceof Error 2`] = `
+
+Message:
+> 1 | fooStrict instanceof Error
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(8): function foo(){return[]instanceof Array} 1`] = `
+
+  1 | function foo(){return[]instanceof Array}
+
+`;
+
+exports[`no-instanceof-builtins > invalid(8): function foo(){return[]instanceof Array} 2`] = `
+
+Message:
+> 1 | function foo(){return[]instanceof Array}
+    |                      ^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | function foo(){return Array.isArray([])}
+
+`;
+
+exports[`no-instanceof-builtins > invalid(9): (\n\t// comment\n\t((\n\t\t// comment\n\t\t(\n\t\t\t// comment\n\t\t\tfoo\n\t\t\t// comment\n\t\t)\n\t\t// comment\n\t))\n\t// comment\n)\n// comment before instanceof\r   instanceof\n\n// comment after instanceof\n\n(\n\t// comment\n\n\t(\n\n\t\t// comment\n\n\t\tArray\n\n\t\t// comment\n\t)\n\n\t\t// comment\n)\n\n\t// comment 1`] = `
+
+   1 | (
+   2 | 	// comment
+   3 | 	((
+   4 | 		// comment
+   5 | 		(
+   6 | 			// comment
+   7 | 			foo
+   8 | 			// comment
+   9 | 		)
+  10 | 		// comment
+  11 | 	))
+  12 | 	// comment
+  13 | )
+  14 | // comment before instanceof
+  15 |    instanceof
+  16 |
+  17 | // comment after instanceof
+  18 |
+  19 | (
+  20 | 	// comment
+  21 |
+  22 | 	(
+  23 |
+  24 | 		// comment
+  25 |
+  26 | 		Array
+  27 |
+  28 | 		// comment
+  29 | 	)
+  30 |
+  31 | 		// comment
+  32 | )
+  33 |
+  34 | 	// comment
+
+`;
+
+exports[`no-instanceof-builtins > invalid(9): (\n\t// comment\n\t((\n\t\t// comment\n\t\t(\n\t\t\t// comment\n\t\t\tfoo\n\t\t\t// comment\n\t\t)\n\t\t// comment\n\t))\n\t// comment\n)\n// comment before instanceof\r   instanceof\n\n// comment after instanceof\n\n(\n\t// comment\n\n\t(\n\n\t\t// comment\n\n\t\tArray\n\n\t\t// comment\n\t)\n\n\t\t// comment\n)\n\n\t// comment 2`] = `
+
+Message:
+>  1 | (
+     | ^
+>  2 | 	// comment
+     | ^^^^^^^^^^^
+>  3 | 	((
+     | ^^^
+>  4 | 		// comment
+     | ^^^^^^^^^^^^
+>  5 | 		(
+     | ^^^
+>  6 | 			// comment
+     | ^^^^^^^^^^^^^
+>  7 | 			foo
+     | ^^^^^^
+>  8 | 			// comment
+     | ^^^^^^^^^^^^^
+>  9 | 		)
+     | ^^^
+> 10 | 		// comment
+     | ^^^^^^^^^^^^
+> 11 | 	))
+     | ^^^
+> 12 | 	// comment
+     | ^^^^^^^^^^^
+> 13 | )
+     | ^
+> 14 | // comment before instanceof
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 15 |    instanceof
+     | ^^^^^^^^^^^^^
+> 16 |
+     | ^
+> 17 | // comment after instanceof
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 18 |
+     | ^
+> 19 | (
+     | ^
+> 20 | 	// comment
+     | ^^^^^^^^^^^
+> 21 |
+     | ^
+> 22 | 	(
+     | ^^
+> 23 |
+     | ^
+> 24 | 		// comment
+     | ^^^^^^^^^^^^
+> 25 |
+     | ^
+> 26 | 		Array
+     | ^^^^^^^
+> 27 |
+     | ^
+> 28 | 		// comment
+     | ^^^^^^^^^^^^
+> 29 | 	)
+     | ^^
+> 30 |
+     | ^
+> 31 | 		// comment
+     | ^^^^^^^^^^^^
+> 32 | )
+     | ^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+  33 |
+  34 | 	// comment
+
+`;
+
+exports[`no-instanceof-builtins > invalid(9): err instanceof SuppressedError 1`] = `
+
+Options:
+- useErrorIsError: true
+  strategy: 'strict'
+
+Code:
+  1 | err instanceof SuppressedError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(9): err instanceof SuppressedError 2`] = `
+
+Message:
+> 1 | err instanceof SuppressedError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;
+
+exports[`no-instanceof-builtins > invalid(9): foo instanceof global.Array 1`] = `
+
+  1 | foo instanceof global.Array
+
+`;
+
+exports[`no-instanceof-builtins > invalid(9): foo instanceof global.Array 2`] = `
+
+Message:
+> 1 | foo instanceof global.Array
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+Output:
+  1 | global.Array.isArray(foo)
+
+`;
+
+exports[`no-instanceof-builtins > invalid(9): fooStrict instanceof EvalError 1`] = `
+
+Options:
+- strategy: 'strict'
+
+Code:
+  1 | fooStrict instanceof EvalError
+
+`;
+
+exports[`no-instanceof-builtins > invalid(9): fooStrict instanceof EvalError 2`] = `
+
+Message:
+> 1 | fooStrict instanceof EvalError
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid using \`instanceof\` for type checking as it can lead to unreliable results.
+
+`;

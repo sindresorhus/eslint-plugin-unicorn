@@ -363,7 +363,7 @@ function create(context) {
 				break;
 			}
 
-			default:
+			// No default
 		}
 
 		return problem;

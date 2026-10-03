@@ -30,6 +30,15 @@ for (const configBlock of xoConfig) {
 	if (configBlock.plugins?.unicorn?.rules) {
 		// XO can lag local renamed rules, but inline disable comments must still validate in this repo.
 		configBlock.plugins.unicorn.rules['name-replacements'] = eslintPluginUnicorn.rules['name-replacements'];
+		// TODO: Remove when XO uses a version that ignores `node:coverage` directives.
+		configBlock.plugins.unicorn.rules['single-line-block-comment-style'] = eslintPluginUnicorn.rules['single-line-block-comment-style'];
+	}
+
+	const capitalizedComments = configBlock.rules?.['capitalized-comments'];
+	if (capitalizedComments) {
+		// TODO: Remove when `eslint-config-xo` ignores `node:coverage` directives.
+		const [severity, when, options] = capitalizedComments;
+		configBlock.rules['capitalized-comments'] = [severity, when, {...options, ignorePattern: `${options.ignorePattern}|node:coverage`}];
 	}
 }
 
@@ -55,9 +64,6 @@ const config = [
 			'test/fixtures/no-unnecessary-polyfills/issue-2270-node-18-range/package.json',
 			'test/fixtures/no-unnecessary-polyfills/issue-2270-node-22/package.json',
 			'test/fixtures/no-unnecessary-polyfills/package-json-sectioned-browserslist/package.json',
-			// Snapshot fixtures are generated markdown and currently trigger
-			// markdown processor `getLoc` crashes under this ESLint setup.
-			'test/**/snapshots/**',
 			'**/*.ts',
 		],
 	},
@@ -73,7 +79,7 @@ const config = [
 			'no-unused-vars': 'off',
 			'no-undef': 'off',
 			'import-x/no-anonymous-default-export': 'off',
-			'ava/no-conditional-assertion': 'off',
+			'node-test/no-conditional-assertion': 'off',
 			'n/prefer-global/process': 'off',
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2341
 			'unicorn/escape-case': 'off',
@@ -107,7 +113,7 @@ const config = [
 			'func-names': 'off',
 			'@stylistic/function-paren-newline': 'off',
 			'@stylistic/curly-newline': 'off',
-			// This repository uses AVA, and some non-test rule files have names that match Node.js test file conventions.
+			// Some non-test rule files have names that match Node.js test file conventions.
 			'node-test/no-import-test-files': 'off',
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2833
 			'unicorn/template-indent': ['error', {indent: '\t'}],
@@ -121,6 +127,14 @@ const config = [
 			'regexp/prefer-named-capture-group': 'off',
 			// Our long-standing `eslint-disable` directives predate this rule and are self-explanatory.
 			'@eslint-community/eslint-comments/require-description': 'off',
+		},
+	},
+	{
+		// Shared test helpers configure `node:test` when loaded and register tests for the test files that import them.
+		files: ['test/utils/*.js'],
+		rules: {
+			'node-test/no-export': 'off',
+			'unicorn/no-top-level-side-effects': 'off',
 		},
 	},
 	{

@@ -1,0 +1,899 @@
+exports[`prefer-iterator-zip > invalid(1): for (let index = 0; index < Math.min(Iterators.length, scores.length); index++) { save(Iterators[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(Iterators.length, scores.length); index++) { save(Iterators[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(1): for (let index = 0; index < Math.min(Iterators.length, scores.length); index++) { save(Iterators[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(Iterators.length, scores.length); index++) { save(Iterators[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [Iterator_, score] of Iterator.zip([Iterators, scores])) { save(Iterator_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(10): for (let index = 0; Math.min(names.length, scores.length) > index; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; Math.min(names.length, scores.length) > index; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(10): for (let index = 0; Math.min(names.length, scores.length) > index; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; Math.min(names.length, scores.length) > index; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(11): for (let index = 0; index < Math.min(names.length, scores.length, ranks.length); index++) { save(names[index], scores[index], ranks[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length, ranks.length); index++) { save(names[index], scores[index], ranks[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(11): for (let index = 0; index < Math.min(names.length, scores.length, ranks.length); index++) { save(names[index], scores[index], ranks[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length, ranks.length); index++) { save(names[index], scores[index], ranks[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score, rank] of Iterator.zip([names, scores, ranks])) { save(name_, score, rank); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(12): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index], names[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index], names[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(12): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index], names[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index], names[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score, name_); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(13): for (let index = 0; index < Math.min(names.length, scores.length); index++) { const name = names[index]; const score = scores[index]; save(name, score); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { const name = names[index]; const score = scores[index]; save(name, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(13): for (let index = 0; index < Math.min(names.length, scores.length); index++) { const name = names[index]; const score = scores[index]; save(name, score); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { const name = names[index]; const score = scores[index]; save(name, score); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score_] of Iterator.zip([names, scores])) { const name = name_; const score = score_; save(name, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(14): for (let index = 0; index < Math.min(names.length, scores.length); index++) { if (names[index]) { save(names[index], scores[index]); } } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { if (names[index]) { save(names[index], scores[index]); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(14): for (let index = 0; index < Math.min(names.length, scores.length); index++) { if (names[index]) { save(names[index], scores[index]); } } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { if (names[index]) { save(names[index], scores[index]); } }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { if (name_) { save(name_, score); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(15): for (let index = 0; index < Math.min(names.length, scores.length); index++) { if (!names[index]) { continue; } save(names[index], scores[index]); break; } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { if (!names[index]) { continue; } save(names[index], scores[index]); break; }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(15): for (let index = 0; index < Math.min(names.length, scores.length); index++) { if (!names[index]) { continue; } save(names[index], scores[index]); break; } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { if (!names[index]) { continue; } save(names[index], scores[index]); break; }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { if (!name_) { continue; } save(name_, score); break; }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(16): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save((names)[(index)], ((scores[index]))); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save((names)[(index)], ((scores[index]))); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(16): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save((names)[(index)], ((scores[index]))); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save((names)[(index)], ((scores[index]))); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, ((score))); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(17): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index].value, scores[index].value); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index].value, scores[index].value); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(17): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index].value, scores[index].value); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index].value, scores[index].value); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_.value, score.value); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(18): for (let index = 0; index < Math.min(names.length, scores.length); index++) { names[index].save(scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { names[index].save(scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(18): for (let index = 0; index < Math.min(names.length, scores.length); index++) { names[index].save(scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { names[index].save(scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { name_.save(score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(19): for (let index = 0; index < Math.min(names.length, scores.length); index++) { names[index].value = scores[index]; } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { names[index].value = scores[index]; }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(19): for (let index = 0; index < Math.min(names.length, scores.length); index++) { names[index].value = scores[index]; } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { names[index].value = scores[index]; }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { name_.value = score; }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(2): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(2): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(20): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(name, names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(name, names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(20): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(name, names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(name, names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name, name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(21): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const name = \"inner\"; use(name); } } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const name = "inner"; use(name); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(21): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const name = \"inner\"; use(name); } } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const name = "inner"; use(name); } }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); { const name = "inner"; use(name); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(22): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const index = 1; use(index); } } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const index = 1; use(index); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(22): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const index = 1; use(index); } } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const index = 1; use(index); } }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); { const index = 1; use(index); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(23): for (let index = 0; index < Math.min(names.length, scores.length); index++) { /* keep body comment */ save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { /* keep body comment */ save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(23): for (let index = 0; index < Math.min(names.length, scores.length); index++) { /* keep body comment */ save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { /* keep body comment */ save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { /* keep body comment */ save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(24): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[/* keep access comment */ index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[/* keep access comment */ index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(24): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[/* keep access comment */ index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[/* keep access comment */ index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+`;
+
+exports[`prefer-iterator-zip > invalid(25): const name = 'existing'; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(name, names[index], scores[index]); } 1`] = `
+
+  1 | const name = 'existing'; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(name, names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(25): const name = 'existing'; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(name, names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | const name = 'existing'; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(name, names[index], scores[index]); }
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | const name = 'existing'; for (const [name_, score] of Iterator.zip([names, scores])) { save(name, name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(26): for (let index = 0; index < Math.min(items.length, item.length); index++) { save(items[index], item[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(items.length, item.length); index++) { save(items[index], item[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(26): for (let index = 0; index < Math.min(items.length, item.length); index++) { save(items[index], item[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(items.length, item.length); index++) { save(items[index], item[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [item_, element] of Iterator.zip([items, item])) { save(item_, element); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(27): for (let index = 0; index < Math.min(data.length, metadata.length); index++) { save(data[index], metadata[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(data.length, metadata.length); index++) { save(data[index], metadata[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(27): for (let index = 0; index < Math.min(data.length, metadata.length); index++) { save(data[index], metadata[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(data.length, metadata.length); index++) { save(data[index], metadata[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [datum, metadatum] of Iterator.zip([data, metadata])) { save(datum, metadatum); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(28): for (let index = 0; /* keep header comment */ index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; /* keep header comment */ index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(28): for (let index = 0; /* keep header comment */ index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; /* keep header comment */ index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+`;
+
+exports[`prefer-iterator-zip > invalid(29): for (/* before declaration */ let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (/* before declaration */ let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(29): for (/* before declaration */ let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (/* before declaration */ let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+`;
+
+exports[`prefer-iterator-zip > invalid(3): function pair(names, scores) { for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } } 1`] = `
+
+  1 | function pair(names, scores) { for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(3): function pair(names, scores) { for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } } 2`] = `
+
+Message:
+> 1 | function pair(names, scores) { for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } }
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | function pair(names, scores) { for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(30): for (let index = 0; index < Math.min(names.length, scores.length); index++ /* after update */) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++ /* after update */) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(30): for (let index = 0; index < Math.min(names.length, scores.length); index++ /* after update */) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++ /* after update */) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+`;
+
+exports[`prefer-iterator-zip > invalid(31): function pair(names: readonly string[], scores: number[]) { for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } } 1`] = `
+
+  1 | function pair(names: readonly string[], scores: number[]) { for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(31): function pair(names: readonly string[], scores: number[]) { for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } } 2`] = `
+
+Message:
+> 1 | function pair(names: readonly string[], scores: number[]) { for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } }
+    |                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | function pair(names: readonly string[], scores: number[]) { for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(32): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]!, scores[index] as number); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]!, scores[index] as number); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(32): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]!, scores[index] as number); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]!, scores[index] as number); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_!, score as number); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(33): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(<string>names[index], scores[index] satisfies number); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(<string>names[index], scores[index] satisfies number); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(33): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(<string>names[index], scores[index] satisfies number); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(<string>names[index], scores[index] satisfies number); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(<string>name_, score satisfies number); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(34): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]<string>, scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]<string>, scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(34): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]<string>, scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]<string>, scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_<string>, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(35): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]in object, scores[index]instanceof Number); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]in object, scores[index]instanceof Number); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(35): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]in object, scores[index]instanceof Number); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]in object, scores[index]instanceof Number); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_ in object, score instanceof Number); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(36): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]as string, scores[index]satisfies number); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]as string, scores[index]satisfies number); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(36): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]as string, scores[index]satisfies number); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index]as string, scores[index]satisfies number); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_ as string, score satisfies number); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(37): for (let index = 0; index < Math.min(Cards.length, scores.length); index++) { render(<Card name={Cards[index]} score={scores[index]} />); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(Cards.length, scores.length); index++) { render(<Card name={Cards[index]} score={scores[index]} />); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(37): for (let index = 0; index < Math.min(Cards.length, scores.length); index++) { render(<Card name={Cards[index]} score={scores[index]} />); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(Cards.length, scores.length); index++) { render(<Card name={Cards[index]} score={scores[index]} />); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [Card_, score] of Iterator.zip([Cards, scores])) { render(<Card name={Card_} score={score} />); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(38): declare const names: string[]; declare const scores: readonly number[]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const names: string[]; declare const scores: readonly number[]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(38): declare const names: string[]; declare const scores: readonly number[]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | declare const names: string[]; declare const scores: readonly number[]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+    |                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | declare const names: string[]; declare const scores: readonly number[]; for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(39): declare const names: Uint8Array; declare const scores: Float64Array; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const names: Uint8Array; declare const scores: Float64Array; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(39): declare const names: Uint8Array; declare const scores: Float64Array; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | declare const names: Uint8Array; declare const scores: Float64Array; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | declare const names: Uint8Array; declare const scores: Float64Array; for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(4): const names = ['a', 'b']; const scores = [1]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | const names = ['a', 'b']; const scores = [1]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(4): const names = ['a', 'b']; const scores = [1]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | const names = ['a', 'b']; const scores = [1]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | const names = ['a', 'b']; const scores = [1]; for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(40): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const names = other; const index = 0; save(names[index]); } } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const names = other; const index = 0; save(names[index]); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(40): for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const names = other; const index = 0; save(names[index]); } } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); { const names = other; const index = 0; save(names[index]); } }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); { const names = other; const index = 0; save(names[index]); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(41): for (let index = 0; index < Math.min(widgets.length, scores.length); index++) { save(widgets[index], scores[index]); function getWidget() { return widget; } } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(widgets.length, scores.length); index++) { save(widgets[index], scores[index]); function getWidget() { return widget; } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(41): for (let index = 0; index < Math.min(widgets.length, scores.length); index++) { save(widgets[index], scores[index]); function getWidget() { return widget; } } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(widgets.length, scores.length); index++) { save(widgets[index], scores[index]); function getWidget() { return widget; } }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [widget_, score] of Iterator.zip([widgets, scores])) { save(widget_, score); function getWidget() { return widget; } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(42): for (let index = 0; index < names.length && index < scores.length; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < names.length && index < scores.length; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(42): for (let index = 0; index < names.length && index < scores.length; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < names.length && index < scores.length; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(43): for (let index = 0; names.length > index && index < scores.length; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; names.length > index && index < scores.length; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(43): for (let index = 0; names.length > index && index < scores.length; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; names.length > index && index < scores.length; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(44): for (let index = 0; index < names.length && (scores.length > index && index < ranks.length); index++) { save(names[index], scores[index], ranks[index]); } 1`] = `
+
+  1 | for (let index = 0; index < names.length && (scores.length > index && index < ranks.length); index++) { save(names[index], scores[index], ranks[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(44): for (let index = 0; index < names.length && (scores.length > index && index < ranks.length); index++) { save(names[index], scores[index], ranks[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < names.length && (scores.length > index && index < ranks.length); index++) { save(names[index], scores[index], ranks[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score, rank] of Iterator.zip([names, scores, ranks])) { save(name_, score, rank); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(45): for (let index = 0; index < Math.min(names.length, scores.length); index = index + 1) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index = index + 1) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(45): for (let index = 0; index < Math.min(names.length, scores.length); index = index + 1) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index = index + 1) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(46): for (let index = 0; index < scores.length && index < names.length; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < scores.length && index < names.length; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(46): for (let index = 0; index < scores.length && index < names.length; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < scores.length && index < names.length; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [score, name_] of Iterator.zip([scores, names])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(47): const length = Math.min(names.length, scores.length);\nfor (let index = 0; index < length; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | const length = Math.min(names.length, scores.length);
+  2 | for (let index = 0; index < length; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(47): const length = Math.min(names.length, scores.length);\nfor (let index = 0; index < length; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+  1 | const length = Math.min(names.length, scores.length);
+> 2 | for (let index = 0; index < length; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(48): const length = Math.min(names.length, scores.length);\nfor (let index = 0; length > index; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | const length = Math.min(names.length, scores.length);
+  2 | for (let index = 0; length > index; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(48): const length = Math.min(names.length, scores.length);\nfor (let index = 0; length > index; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+  1 | const length = Math.min(names.length, scores.length);
+> 2 | for (let index = 0; length > index; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(49): for (let index = 0, length = Math.min(names.length, scores.length); index < length; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0, length = Math.min(names.length, scores.length); index < length; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(49): for (let index = 0, length = Math.min(names.length, scores.length); index < length; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0, length = Math.min(names.length, scores.length); index < length; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(5): const names = []; const scores = [1]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | const names = []; const scores = [1]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(5): const names = []; const scores = [1]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | const names = []; const scores = [1]; for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | const names = []; const scores = [1]; for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(50): const length = Math.min(names.length, scores.length); /* keep cached-bound comment */\nfor (let index = 0; index < length; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | const length = Math.min(names.length, scores.length); /* keep cached-bound comment */
+  2 | for (let index = 0; index < length; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(50): const length = Math.min(names.length, scores.length); /* keep cached-bound comment */\nfor (let index = 0; index < length; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+  1 | const length = Math.min(names.length, scores.length); /* keep cached-bound comment */
+> 2 | for (let index = 0; index < length; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+`;
+
+exports[`prefer-iterator-zip > invalid(51): let length = Math.min(names.length, scores.length);\nfor (let index = 0; index < length; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | let length = Math.min(names.length, scores.length);
+  2 | for (let index = 0; index < length; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(51): let length = Math.min(names.length, scores.length);\nfor (let index = 0; index < length; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+  1 | let length = Math.min(names.length, scores.length);
+> 2 | for (let index = 0; index < length; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(52): const length: number = Math.min(names.length, scores.length);\nfor (let index = 0; index < length; index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | const length: number = Math.min(names.length, scores.length);
+  2 | for (let index = 0; index < length; index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(52): const length: number = Math.min(names.length, scores.length);\nfor (let index = 0; index < length; index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+  1 | const length: number = Math.min(names.length, scores.length);
+> 2 | for (let index = 0; index < length; index++) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(53): for (let index = 0; index < Math.min(names.length, scores.length); index++) { for (const letter of names[index]) { save(letter, scores[index]); } } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { for (const letter of names[index]) { save(letter, scores[index]); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(53): for (let index = 0; index < Math.min(names.length, scores.length); index++) { for (const letter of names[index]) { save(letter, scores[index]); } } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index++) { for (const letter of names[index]) { save(letter, scores[index]); } }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { for (const letter of name_) { save(letter, score); } }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(6): const names = new Uint8Array(2); const scores = new Float64Array(3); for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | const names = new Uint8Array(2); const scores = new Float64Array(3); for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(6): const names = new Uint8Array(2); const scores = new Float64Array(3); for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | const names = new Uint8Array(2); const scores = new Float64Array(3); for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | const names = new Uint8Array(2); const scores = new Float64Array(3); for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(7): const names = new BigInt64Array(2); const scores = new BigUint64Array(3); for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 1`] = `
+
+  1 | const names = new BigInt64Array(2); const scores = new BigUint64Array(3); for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(7): const names = new BigInt64Array(2); const scores = new BigUint64Array(3); for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | const names = new BigInt64Array(2); const scores = new BigUint64Array(3); for (let index = 0; index < Math.min(names.length, scores.length); index++) { save(names[index], scores[index]); }
+    |                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | const names = new BigInt64Array(2); const scores = new BigUint64Array(3); for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(8): for (let index = 0; index < Math.min(names.length, scores.length); ++index) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); ++index) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(8): for (let index = 0; index < Math.min(names.length, scores.length); ++index) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); ++index) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(9): for (let index = 0; index < Math.min(names.length, scores.length); index += 1) { save(names[index], scores[index]); } 1`] = `
+
+  1 | for (let index = 0; index < Math.min(names.length, scores.length); index += 1) { save(names[index], scores[index]); }
+
+`;
+
+exports[`prefer-iterator-zip > invalid(9): for (let index = 0; index < Math.min(names.length, scores.length); index += 1) { save(names[index], scores[index]); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < Math.min(names.length, scores.length); index += 1) { save(names[index], scores[index]); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.zip(…)\` to iterate over these arrays together.
+
+Suggestion 1/1: Use \`Iterator.zip(…)\`.:
+  1 | for (const [name_, score] of Iterator.zip([names, scores])) { save(name_, score); }
+
+`;

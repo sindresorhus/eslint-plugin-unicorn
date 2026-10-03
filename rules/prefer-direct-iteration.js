@@ -136,6 +136,8 @@ const getTypesFromTypeInformation = (node, context) => {
 			program.getTypeChecker(),
 			program,
 		);
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
 	}
@@ -254,10 +256,6 @@ const getTypesFromSyntax = (node, context, visitedVariables) => {
 		}
 
 		case 'TSNonNullExpression': {
-			return getTypes(node.expression, context, visitedVariables);
-		}
-
-		case 'ParenthesizedExpression': {
 			return getTypes(node.expression, context, visitedVariables);
 		}
 

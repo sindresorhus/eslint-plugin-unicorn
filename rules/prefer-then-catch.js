@@ -60,6 +60,8 @@ function canThenResultCatch(callExpression, context) {
 
 		const resultType = parserServices.getTypeAtLocation(callExpression);
 		return hasCallableCatch(resultType, checker, callExpression);
+		// Defensive: no known input throws here
+		/* node:coverage ignore next 4 */
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
 		return true;

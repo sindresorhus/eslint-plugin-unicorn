@@ -172,5 +172,7 @@ test.snapshot({
 		// TypeScript (type-aware: member receiver resolves, suggestion applies)
 		typeAware('function foo(cache: {map: Map<string, number>}) { cache.map["foo"] = 1; }'),
 		typeAware('function foo(set: Set<string>) { set["foo"] = 1; }'),
+		// A branch with an unknown side is not a known member
+		'const map = new Map(); map[key || "get"];',
 	],
 });

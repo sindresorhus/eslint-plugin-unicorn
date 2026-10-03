@@ -94,29 +94,13 @@ const combineIntersectionEntriesSupport = entriesSupports => {
 	return entriesSupports.every(entriesSupport => entriesSupport === entriesUnsupported) ? entriesUnsupported : entriesUnknown;
 };
 
-const getTypeName = typeName => {
-	if (typeName.type === 'Identifier') {
-		return typeName.name;
-	}
-
-	if (typeName.type !== 'TSQualifiedName') {
-		return;
-	}
-
-	const left = getTypeName(typeName.left);
-	if (!left) {
-		return;
-	}
-
-	return `${left}.${typeName.right.name}`;
-};
-
 const getTypeReferenceEntriesSupport = (node, scope, visitedTypeReferenceNames) => {
-	const typeReferenceName = getTypeName(node.typeName);
-
-	if (!typeReferenceName) {
+	// A qualified name like `Foo.Bar` cannot be resolved by name
+	if (node.typeName.type !== 'Identifier') {
 		return entriesUnknown;
 	}
+
+	const typeReferenceName = node.typeName.name;
 
 	if (typeReferenceName === 'Array' || typeReferenceName === 'ReadonlyArray') {
 		return entriesSupported;
@@ -206,14 +190,9 @@ const getEntryTypeSupport = (type, checker) => {
 		: entriesUnsupported;
 };
 
+// Only called for an iterator type, which has a callable `next()`
 const getIteratorResultValueType = (type, checker) => {
-	const next = checker.getTypeOfPropertyOfType(type, 'next');
-	const [nextSignature] = next?.getCallSignatures() ?? [];
-
-	if (!nextSignature) {
-		return;
-	}
-
+	const [nextSignature] = checker.getTypeOfPropertyOfType(type, 'next').getCallSignatures();
 	return checker.getTypeOfPropertyOfType(checker.getReturnTypeOfSignature(nextSignature), 'value');
 };
 
@@ -290,6 +269,8 @@ const getEntriesSupportFromTypeInformation = (node, context) => {
 			parserServices.getTypeAtLocation(node),
 			parserServices.program.getTypeChecker(),
 		);
+		// Defensive: the TypeScript type checker can throw on unusual types, the rule then falls back to syntax
+		/* node:coverage ignore next 3 */
 	} catch {
 		return entriesUnknown;
 	}
@@ -355,8 +336,7 @@ function getEntriesSupportFromSyntax(node, context, visitedVariables) {
 		}
 
 		case 'TSSatisfiesExpression':
-		case 'TSNonNullExpression':
-		case 'ParenthesizedExpression': {
+		case 'TSNonNullExpression': {
 			return getEntriesSupport(node.expression, context, visitedVariables);
 		}
 
@@ -716,19 +696,10 @@ const canRemoveCachedLengthVariable = ({
 	forStatement,
 	cachedLengthVariable,
 	cachedLengthIdentifier,
-}) => {
-	if (!cachedLengthIdentifier) {
-		return true;
-	}
-
-	if (!cachedLengthVariable) {
-		return false;
-	}
-
-	return !(
-		isCachedLengthVariableUsedOutsideTest(forStatement, cachedLengthVariable, cachedLengthIdentifier)
-	);
-};
+}) =>
+	// The cached length variable is declared in the loop head, so it always resolves when `cachedLengthIdentifier` exists
+	!cachedLengthIdentifier
+	|| !isCachedLengthVariableUsedOutsideTest(forStatement, cachedLengthVariable, cachedLengthIdentifier);
 
 // `let element = array[index]; element = 1; use(array[index])` would read the reassigned value after the rewrite
 const isElementReassignedWhileArrayIsRead = ({elementNode, elementVariable, arrayReferences}) =>

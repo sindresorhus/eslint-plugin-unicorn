@@ -1,0 +1,1082 @@
+exports[`no-new-array > invalid(1): const modes = new Set(['foo']);\nmodes.clear();\nnew Array(modes.size ? 1 : 'x'); 1`] = `
+
+  1 | const modes = new Set(['foo']);
+  2 | modes.clear();
+  3 | new Array(modes.size ? 1 : 'x');
+
+`;
+
+exports[`no-new-array > invalid(1): const modes = new Set(['foo']);\nmodes.clear();\nnew Array(modes.size ? 1 : 'x'); 2`] = `
+
+Message:
+  1 | const modes = new Set(['foo']);
+  2 | modes.clear();
+> 3 | new Array(modes.size ? 1 : 'x');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(10): const array = new Array(\"1\") 1`] = `
+
+  1 | const array = new Array("1")
+
+`;
+
+exports[`no-new-array > invalid(10): const array = new Array(\"1\") 2`] = `
+
+Message:
+> 1 | const array = new Array("1")
+    |               ^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Output:
+  1 | const array = ["1"]
+
+`;
+
+exports[`no-new-array > invalid(11): const array = new Array(null) 1`] = `
+
+  1 | const array = new Array(null)
+
+`;
+
+exports[`no-new-array > invalid(11): const array = new Array(null) 2`] = `
+
+Message:
+> 1 | const array = new Array(null)
+    |               ^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Output:
+  1 | const array = [null]
+
+`;
+
+exports[`no-new-array > invalid(12): const array = new Array((\"1\")) 1`] = `
+
+  1 | const array = new Array(("1"))
+
+`;
+
+exports[`no-new-array > invalid(12): const array = new Array((\"1\")) 2`] = `
+
+Message:
+> 1 | const array = new Array(("1"))
+    |               ^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Output:
+  1 | const array = [("1")]
+
+`;
+
+exports[`no-new-array > invalid(13): const array = new Array((0, 1)) 1`] = `
+
+  1 | const array = new Array((0, 1))
+
+`;
+
+exports[`no-new-array > invalid(13): const array = new Array((0, 1)) 2`] = `
+
+Message:
+> 1 | const array = new Array((0, 1))
+    |               ^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(14): const foo = []\nnew Array(\"bar\").forEach(baz) 1`] = `
+
+  1 | const foo = []
+  2 | new Array("bar").forEach(baz)
+
+`;
+
+exports[`no-new-array > invalid(14): const foo = []\nnew Array(\"bar\").forEach(baz) 2`] = `
+
+Message:
+  1 | const foo = []
+> 2 | new Array("bar").forEach(baz)
+    | ^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Output:
+  1 | const foo = []
+  2 | ;["bar"].forEach(baz)
+
+`;
+
+exports[`no-new-array > invalid(15): new Array(0xff) 1`] = `
+
+  1 | new Array(0xff)
+
+`;
+
+exports[`no-new-array > invalid(15): new Array(0xff) 2`] = `
+
+Message:
+> 1 | new Array(0xff)
+    | ^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(16): new Array(Math.PI | foo) 1`] = `
+
+  1 | new Array(Math.PI | foo)
+
+`;
+
+exports[`no-new-array > invalid(16): new Array(Math.PI | foo) 2`] = `
+
+Message:
+> 1 | new Array(Math.PI | foo)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(17): new Array(Math.min(foo, bar)) 1`] = `
+
+  1 | new Array(Math.min(foo, bar))
+
+`;
+
+exports[`no-new-array > invalid(17): new Array(Math.min(foo, bar)) 2`] = `
+
+Message:
+> 1 | new Array(Math.min(foo, bar))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(18): new Array(Number(foo)) 1`] = `
+
+  1 | new Array(Number(foo))
+
+`;
+
+exports[`no-new-array > invalid(18): new Array(Number(foo)) 2`] = `
+
+Message:
+> 1 | new Array(Number(foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(19): new Array(Number.MAX_SAFE_INTEGER) 1`] = `
+
+  1 | new Array(Number.MAX_SAFE_INTEGER)
+
+`;
+
+exports[`no-new-array > invalid(19): new Array(Number.MAX_SAFE_INTEGER) 2`] = `
+
+Message:
+> 1 | new Array(Number.MAX_SAFE_INTEGER)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(2): const modes = new Set([\"foo\"]); modes.clear(); new Array((modes.size && 1) || value); 1`] = `
+
+  1 | const modes = new Set(["foo"]); modes.clear(); new Array((modes.size && 1) || value);
+
+`;
+
+exports[`no-new-array > invalid(2): const modes = new Set([\"foo\"]); modes.clear(); new Array((modes.size && 1) || value); 2`] = `
+
+Message:
+> 1 | const modes = new Set(["foo"]); modes.clear(); new Array((modes.size && 1) || value);
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(20): new Array(parseInt(foo)) 1`] = `
+
+  1 | new Array(parseInt(foo))
+
+`;
+
+exports[`no-new-array > invalid(20): new Array(parseInt(foo)) 2`] = `
+
+Message:
+> 1 | new Array(parseInt(foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(21): new Array(Number.parseInt(foo)) 1`] = `
+
+  1 | new Array(Number.parseInt(foo))
+
+`;
+
+exports[`no-new-array > invalid(21): new Array(Number.parseInt(foo)) 2`] = `
+
+Message:
+> 1 | new Array(Number.parseInt(foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(22): new Array(+foo) 1`] = `
+
+  1 | new Array(+foo)
+
+`;
+
+exports[`no-new-array > invalid(22): new Array(+foo) 2`] = `
+
+Message:
+> 1 | new Array(+foo)
+    | ^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(23): new Array(-Math.PI) 1`] = `
+
+  1 | new Array(-Math.PI)
+
+`;
+
+exports[`no-new-array > invalid(23): new Array(-Math.PI) 2`] = `
+
+Message:
+> 1 | new Array(-Math.PI)
+    | ^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(24): new Array(-\"-2\") 1`] = `
+
+  1 | new Array(-"-2")
+
+`;
+
+exports[`no-new-array > invalid(24): new Array(-\"-2\") 2`] = `
+
+Message:
+> 1 | new Array(-"-2")
+    | ^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(25): new Array(foo.length) 1`] = `
+
+  1 | new Array(foo.length)
+
+`;
+
+exports[`no-new-array > invalid(25): new Array(foo.length) 2`] = `
+
+Message:
+> 1 | new Array(foo.length)
+    | ^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(26): const array = [1]; new Array(array.length) 1`] = `
+
+  1 | const array = [1]; new Array(array.length)
+
+`;
+
+exports[`no-new-array > invalid(26): const array = [1]; new Array(array.length) 2`] = `
+
+Message:
+> 1 | const array = [1]; new Array(array.length)
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(27): const text = \"foo\"; new Array(text.length) 1`] = `
+
+  1 | const text = "foo"; new Array(text.length)
+
+`;
+
+exports[`no-new-array > invalid(27): const text = \"foo\"; new Array(text.length) 2`] = `
+
+Message:
+> 1 | const text = "foo"; new Array(text.length)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(28): const foo = 1; new Array(foo + 2) 1`] = `
+
+  1 | const foo = 1; new Array(foo + 2)
+
+`;
+
+exports[`no-new-array > invalid(28): const foo = 1; new Array(foo + 2) 2`] = `
+
+Message:
+> 1 | const foo = 1; new Array(foo + 2)
+    |                ^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(29): new Array(foo - 2) 1`] = `
+
+  1 | new Array(foo - 2)
+
+`;
+
+exports[`no-new-array > invalid(29): new Array(foo - 2) 2`] = `
+
+Message:
+> 1 | new Array(foo - 2)
+    | ^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(3): const object = {value: true}; Object.defineProperty(object, \"value\", {get() { return false; }}); new Array(object.value ? 1 : value); 1`] = `
+
+  1 | const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); new Array(object.value ? 1 : value);
+
+`;
+
+exports[`no-new-array > invalid(3): const object = {value: true}; Object.defineProperty(object, \"value\", {get() { return false; }}); new Array(object.value ? 1 : value); 2`] = `
+
+Message:
+> 1 | const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); new Array(object.value ? 1 : value);
+    |                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(30): new Array(foo -= 2) 1`] = `
+
+  1 | new Array(foo -= 2)
+
+`;
+
+exports[`no-new-array > invalid(30): new Array(foo -= 2) 2`] = `
+
+Message:
+> 1 | new Array(foo -= 2)
+    | ^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(31): new Array(foo ? 1 : 2) 1`] = `
+
+  1 | new Array(foo ? 1 : 2)
+
+`;
+
+exports[`no-new-array > invalid(31): new Array(foo ? 1 : 2) 2`] = `
+
+Message:
+> 1 | new Array(foo ? 1 : 2)
+    | ^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(32): const truthy = \"truthy\"; new Array(truthy ? 1 : foo) 1`] = `
+
+  1 | const truthy = "truthy"; new Array(truthy ? 1 : foo)
+
+`;
+
+exports[`no-new-array > invalid(32): const truthy = \"truthy\"; new Array(truthy ? 1 : foo) 2`] = `
+
+Message:
+> 1 | const truthy = "truthy"; new Array(truthy ? 1 : foo)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(33): const falsy = !\"truthy\"; new Array(falsy ? foo : 1) 1`] = `
+
+  1 | const falsy = !"truthy"; new Array(falsy ? foo : 1)
+
+`;
+
+exports[`no-new-array > invalid(33): const falsy = !\"truthy\"; new Array(falsy ? foo : 1) 2`] = `
+
+Message:
+> 1 | const falsy = !"truthy"; new Array(falsy ? foo : 1)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(34): new Array((1n, 2)) 1`] = `
+
+  1 | new Array((1n, 2))
+
+`;
+
+exports[`no-new-array > invalid(34): new Array((1n, 2)) 2`] = `
+
+Message:
+> 1 | new Array((1n, 2))
+    | ^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(35): new Array(Number.NaN) 1`] = `
+
+  1 | new Array(Number.NaN)
+
+`;
+
+exports[`no-new-array > invalid(35): new Array(Number.NaN) 2`] = `
+
+Message:
+> 1 | new Array(Number.NaN)
+    | ^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(36): new Array(NaN) 1`] = `
+
+  1 | new Array(NaN)
+
+`;
+
+exports[`no-new-array > invalid(36): new Array(NaN) 2`] = `
+
+Message:
+> 1 | new Array(NaN)
+    | ^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(37): new Array(foo >>> bar) 1`] = `
+
+  1 | new Array(foo >>> bar)
+
+`;
+
+exports[`no-new-array > invalid(37): new Array(foo >>> bar) 2`] = `
+
+Message:
+> 1 | new Array(foo >>> bar)
+    | ^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(38): new Array(foo >>>= bar) 1`] = `
+
+  1 | new Array(foo >>>= bar)
+
+`;
+
+exports[`no-new-array > invalid(38): new Array(foo >>>= bar) 2`] = `
+
+Message:
+> 1 | new Array(foo >>>= bar)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(39): new Array(++bar.length) 1`] = `
+
+  1 | new Array(++bar.length)
+
+`;
+
+exports[`no-new-array > invalid(39): new Array(++bar.length) 2`] = `
+
+Message:
+> 1 | new Array(++bar.length)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(4): const modes = new Set([\"foo\"]); modes.clear(); new Array((modes.size ? \"x\" : 1) as number); 1`] = `
+
+  1 | const modes = new Set(["foo"]); modes.clear(); new Array((modes.size ? "x" : 1) as number);
+
+`;
+
+exports[`no-new-array > invalid(4): const modes = new Set([\"foo\"]); modes.clear(); new Array((modes.size ? \"x\" : 1) as number); 2`] = `
+
+Message:
+> 1 | const modes = new Set(["foo"]); modes.clear(); new Array((modes.size ? "x" : 1) as number);
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(40): new Array(bar.length++) 1`] = `
+
+  1 | new Array(bar.length++)
+
+`;
+
+exports[`no-new-array > invalid(40): new Array(bar.length++) 2`] = `
+
+Message:
+> 1 | new Array(bar.length++)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(41): new Array(foo = bar.length) 1`] = `
+
+  1 | new Array(foo = bar.length)
+
+`;
+
+exports[`no-new-array > invalid(41): new Array(foo = bar.length) 2`] = `
+
+Message:
+> 1 | new Array(foo = bar.length)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(42): new Array(\"0xff\") 1`] = `
+
+  1 | new Array("0xff")
+
+`;
+
+exports[`no-new-array > invalid(42): new Array(\"0xff\") 2`] = `
+
+Message:
+> 1 | new Array("0xff")
+    | ^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Output:
+  1 | ["0xff"]
+
+`;
+
+exports[`no-new-array > invalid(43): new Array(Math.NON_EXISTS_PROPERTY) 1`] = `
+
+  1 | new Array(Math.NON_EXISTS_PROPERTY)
+
+`;
+
+exports[`no-new-array > invalid(43): new Array(Math.NON_EXISTS_PROPERTY) 2`] = `
+
+Message:
+> 1 | new Array(Math.NON_EXISTS_PROPERTY)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(44): new Array(Math.NON_EXISTS_METHOD(foo)) 1`] = `
+
+  1 | new Array(Math.NON_EXISTS_METHOD(foo))
+
+`;
+
+exports[`no-new-array > invalid(44): new Array(Math.NON_EXISTS_METHOD(foo)) 2`] = `
+
+Message:
+> 1 | new Array(Math.NON_EXISTS_METHOD(foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(45): new Array(Math[min](foo, bar)) 1`] = `
+
+  1 | new Array(Math[min](foo, bar))
+
+`;
+
+exports[`no-new-array > invalid(45): new Array(Math[min](foo, bar)) 2`] = `
+
+Message:
+> 1 | new Array(Math[min](foo, bar))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(46): new Array(Number[MAX_SAFE_INTEGER]) 1`] = `
+
+  1 | new Array(Number[MAX_SAFE_INTEGER])
+
+`;
+
+exports[`no-new-array > invalid(46): new Array(Number[MAX_SAFE_INTEGER]) 2`] = `
+
+Message:
+> 1 | new Array(Number[MAX_SAFE_INTEGER])
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(47): new Array(new Number(foo)) 1`] = `
+
+  1 | new Array(new Number(foo))
+
+`;
+
+exports[`no-new-array > invalid(47): new Array(new Number(foo)) 2`] = `
+
+Message:
+> 1 | new Array(new Number(foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(48): const foo = 1; new Array(foo + \"2\") 1`] = `
+
+  1 | const foo = 1; new Array(foo + "2")
+
+`;
+
+exports[`no-new-array > invalid(48): const foo = 1; new Array(foo + \"2\") 2`] = `
+
+Message:
+> 1 | const foo = 1; new Array(foo + "2")
+    |                ^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Output:
+  1 | const foo = 1; [foo + "2"]
+
+`;
+
+exports[`no-new-array > invalid(49): new Array(foo - 2n) 1`] = `
+
+  1 | new Array(foo - 2n)
+
+`;
+
+exports[`no-new-array > invalid(49): new Array(foo - 2n) 2`] = `
+
+Message:
+> 1 | new Array(foo - 2n)
+    | ^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(5): const array = new Array(1) 1`] = `
+
+  1 | const array = new Array(1)
+
+`;
+
+exports[`no-new-array > invalid(5): const array = new Array(1) 2`] = `
+
+Message:
+> 1 | const array = new Array(1)
+    |               ^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(50): new Array(foo -= 2n) 1`] = `
+
+  1 | new Array(foo -= 2n)
+
+`;
+
+exports[`no-new-array > invalid(50): new Array(foo -= 2n) 2`] = `
+
+Message:
+> 1 | new Array(foo -= 2n)
+    | ^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(51): new Array(foo instanceof 1) 1`] = `
+
+  1 | new Array(foo instanceof 1)
+
+`;
+
+exports[`no-new-array > invalid(51): new Array(foo instanceof 1) 2`] = `
+
+Message:
+> 1 | new Array(foo instanceof 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(52): new Array(foo || 1) 1`] = `
+
+  1 | new Array(foo || 1)
+
+`;
+
+exports[`no-new-array > invalid(52): new Array(foo || 1) 2`] = `
+
+Message:
+> 1 | new Array(foo || 1)
+    | ^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(53): new Array(foo ||= 1) 1`] = `
+
+  1 | new Array(foo ||= 1)
+
+`;
+
+exports[`no-new-array > invalid(53): new Array(foo ||= 1) 2`] = `
+
+Message:
+> 1 | new Array(foo ||= 1)
+    | ^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(54): new Array(foo ? 1n : 2) 1`] = `
+
+  1 | new Array(foo ? 1n : 2)
+
+`;
+
+exports[`no-new-array > invalid(54): new Array(foo ? 1n : 2) 2`] = `
+
+Message:
+> 1 | new Array(foo ? 1n : 2)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(55): new Array((1, 2n)) 1`] = `
+
+  1 | new Array((1, 2n))
+
+`;
+
+exports[`no-new-array > invalid(55): new Array((1, 2n)) 2`] = `
+
+Message:
+> 1 | new Array((1, 2n))
+    | ^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Output:
+  1 | [(1, 2n)]
+
+`;
+
+exports[`no-new-array > invalid(56): new Array(-foo) 1`] = `
+
+  1 | new Array(-foo)
+
+`;
+
+exports[`no-new-array > invalid(56): new Array(-foo) 2`] = `
+
+Message:
+> 1 | new Array(-foo)
+    | ^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(57): new Array(~foo) 1`] = `
+
+  1 | new Array(~foo)
+
+`;
+
+exports[`no-new-array > invalid(57): new Array(~foo) 2`] = `
+
+Message:
+> 1 | new Array(~foo)
+    | ^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(58): new Array(typeof 1) 1`] = `
+
+  1 | new Array(typeof 1)
+
+`;
+
+exports[`no-new-array > invalid(58): new Array(typeof 1) 2`] = `
+
+Message:
+> 1 | new Array(typeof 1)
+    | ^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Output:
+  1 | [typeof 1]
+
+`;
+
+exports[`no-new-array > invalid(59): const truthy = \"truthy\"; new Array(truthy ? foo : 1) 1`] = `
+
+  1 | const truthy = "truthy"; new Array(truthy ? foo : 1)
+
+`;
+
+exports[`no-new-array > invalid(59): const truthy = \"truthy\"; new Array(truthy ? foo : 1) 2`] = `
+
+Message:
+> 1 | const truthy = "truthy"; new Array(truthy ? foo : 1)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(6): const zero = 0;\nconst array = new Array(zero); 1`] = `
+
+  1 | const zero = 0;
+  2 | const array = new Array(zero);
+
+`;
+
+exports[`no-new-array > invalid(6): const zero = 0;\nconst array = new Array(zero); 2`] = `
+
+Message:
+  1 | const zero = 0;
+> 2 | const array = new Array(zero);
+    |               ^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(60): const falsy = !\"truthy\"; new Array(falsy ? 1 : foo) 1`] = `
+
+  1 | const falsy = !"truthy"; new Array(falsy ? 1 : foo)
+
+`;
+
+exports[`no-new-array > invalid(60): const falsy = !\"truthy\"; new Array(falsy ? 1 : foo) 2`] = `
+
+Message:
+> 1 | const falsy = !"truthy"; new Array(falsy ? 1 : foo)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(61): new Array(unknown ? foo : 1) 1`] = `
+
+  1 | new Array(unknown ? foo : 1)
+
+`;
+
+exports[`no-new-array > invalid(61): new Array(unknown ? foo : 1) 2`] = `
+
+Message:
+> 1 | new Array(unknown ? foo : 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(62): new Array(unknown ? 1 : foo) 1`] = `
+
+  1 | new Array(unknown ? 1 : foo)
+
+`;
+
+exports[`no-new-array > invalid(62): new Array(unknown ? 1 : foo) 2`] = `
+
+Message:
+> 1 | new Array(unknown ? 1 : foo)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(63): new Array(++foo) 1`] = `
+
+  1 | new Array(++foo)
+
+`;
+
+exports[`no-new-array > invalid(63): new Array(++foo) 2`] = `
+
+Message:
+> 1 | new Array(++foo)
+    | ^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(64): const array = new Array(foo) 1`] = `
+
+  1 | const array = new Array(foo)
+
+`;
+
+exports[`no-new-array > invalid(64): const array = new Array(foo) 2`] = `
+
+Message:
+> 1 | const array = new Array(foo)
+    |               ^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(65): const array = new Array(length) 1`] = `
+
+  1 | const array = new Array(length)
+
+`;
+
+exports[`no-new-array > invalid(65): const array = new Array(length) 2`] = `
+
+Message:
+> 1 | const array = new Array(length)
+    |               ^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(66): const foo = []\nnew Array(bar).forEach(baz) 1`] = `
+
+  1 | const foo = []
+  2 | new Array(bar).forEach(baz)
+
+`;
+
+exports[`no-new-array > invalid(66): const foo = []\nnew Array(bar).forEach(baz) 2`] = `
+
+Message:
+  1 | const foo = []
+> 2 | new Array(bar).forEach(baz)
+    | ^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(67): const array = new Array(...[foo]) 1`] = `
+
+  1 | const array = new Array(...[foo])
+
+`;
+
+exports[`no-new-array > invalid(67): const array = new Array(...[foo]) 2`] = `
+
+Message:
+> 1 | const array = new Array(...[foo])
+    |               ^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Suggestion 1/1: Spread the argument.:
+  1 | const array = [...[foo]]
+
+`;
+
+exports[`no-new-array > invalid(68): const array = new Array(...foo) 1`] = `
+
+  1 | const array = new Array(...foo)
+
+`;
+
+exports[`no-new-array > invalid(68): const array = new Array(...foo) 2`] = `
+
+Message:
+> 1 | const array = new Array(...foo)
+    |               ^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Suggestion 1/1: Spread the argument.:
+  1 | const array = [...foo]
+
+`;
+
+exports[`no-new-array > invalid(69): const array = new Array(...[...foo]) 1`] = `
+
+  1 | const array = new Array(...[...foo])
+
+`;
+
+exports[`no-new-array > invalid(69): const array = new Array(...[...foo]) 2`] = `
+
+Message:
+> 1 | const array = new Array(...[...foo])
+    |               ^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Suggestion 1/1: Spread the argument.:
+  1 | const array = [...[...foo]]
+
+`;
+
+exports[`no-new-array > invalid(7): const length = 1;\nconst array = new Array(length); 1`] = `
+
+  1 | const length = 1;
+  2 | const array = new Array(length);
+
+`;
+
+exports[`no-new-array > invalid(7): const length = 1;\nconst array = new Array(length); 2`] = `
+
+Message:
+  1 | const length = 1;
+> 2 | const array = new Array(length);
+    |               ^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(70): const array = new Array(...[1]) 1`] = `
+
+  1 | const array = new Array(...[1])
+
+`;
+
+exports[`no-new-array > invalid(70): const array = new Array(...[1]) 2`] = `
+
+Message:
+> 1 | const array = new Array(...[1])
+    |               ^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Suggestion 1/1: Spread the argument.:
+  1 | const array = [...[1]]
+
+`;
+
+exports[`no-new-array > invalid(71): const array = new Array(...[\"1\"]) 1`] = `
+
+  1 | const array = new Array(...["1"])
+
+`;
+
+exports[`no-new-array > invalid(71): const array = new Array(...[\"1\"]) 2`] = `
+
+Message:
+> 1 | const array = new Array(...["1"])
+    |               ^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Suggestion 1/1: Spread the argument.:
+  1 | const array = [...["1"]]
+
+`;
+
+exports[`no-new-array > invalid(72): const array = new Array(...[1, \"1\"]) 1`] = `
+
+  1 | const array = new Array(...[1, "1"])
+
+`;
+
+exports[`no-new-array > invalid(72): const array = new Array(...[1, \"1\"]) 2`] = `
+
+Message:
+> 1 | const array = new Array(...[1, "1"])
+    |               ^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Suggestion 1/1: Spread the argument.:
+  1 | const array = [...[1, "1"]]
+
+`;
+
+exports[`no-new-array > invalid(73): const foo = []\nnew Array(...bar).forEach(baz) 1`] = `
+
+  1 | const foo = []
+  2 | new Array(...bar).forEach(baz)
+
+`;
+
+exports[`no-new-array > invalid(73): const foo = []\nnew Array(...bar).forEach(baz) 2`] = `
+
+Message:
+  1 | const foo = []
+> 2 | new Array(...bar).forEach(baz)
+    | ^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+Suggestion 1/1: Spread the argument.:
+  1 | const foo = []
+  2 | ;[...bar].forEach(baz)
+
+`;
+
+exports[`no-new-array > invalid(8): const array = new Array(1.5) 1`] = `
+
+  1 | const array = new Array(1.5)
+
+`;
+
+exports[`no-new-array > invalid(8): const array = new Array(1.5) 2`] = `
+
+Message:
+> 1 | const array = new Array(1.5)
+    |               ^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;
+
+exports[`no-new-array > invalid(9): const array = new Array(Number(\"1\")) 1`] = `
+
+  1 | const array = new Array(Number("1"))
+
+`;
+
+exports[`no-new-array > invalid(9): const array = new Array(Number(\"1\")) 2`] = `
+
+Message:
+> 1 | const array = new Array(Number("1"))
+    |               ^^^^^^^^^^^^^^^^^^^^^^ \`new Array()\` is unclear in intent; use an array literal or \`Array.from()\`.
+
+`;

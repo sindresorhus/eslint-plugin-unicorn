@@ -7,10 +7,9 @@ import {
 	isGlobalIdentifier,
 	isKnownNonDomNode,
 	isLeftHandSide,
-	isParenthesized,
 	isValueNotUsable,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	wouldRemoveComments,
 	isIdentifierName,
 	getLinebreak,
@@ -84,21 +83,6 @@ const isUnsafeDatasetKey = key =>
 	|| INVALID_ATTRIBUTE_NAME_CHARS.test(key);
 
 /*
-Get text for a node that becomes the receiver of a method call, preserving any required parentheses so e.g. `(a + b).dataset.foo` rewrites to `(a + b).getAttribute('data-foo')` rather than `a + b.getAttribute(...)`.
-*/
-function getReceiverText(node, context) {
-	const text = getParenthesizedText(node, context);
-	if (
-		!isParenthesized(node, context.sourceCode)
-		&& shouldAddParenthesesToMemberExpressionObject(node, context)
-	) {
-		return `(${text})`;
-	}
-
-	return text;
-}
-
-/*
 For `const data = el.dataset`, collect the member expressions (`data.fooBar`) that read a `data-*` attribute through the variable. Returns `undefined` if any reference is something we can't safely rewrite to `getAttribute(…)` (write, `delete`, call, unsafe key, bare use like `foo(data)`, …).
 */
 function getDatasetVariableReadMembers(variable) {
@@ -163,10 +147,6 @@ function getDatasetVariableInlineFix(declarator, context) {
 	const declaration = declarator.parent;
 
 	const [variable] = sourceCode.getDeclaredVariables(declarator);
-	if (!variable) {
-		return;
-	}
-
 	const usageMembers = getDatasetVariableReadMembers(variable);
 	if (!(
 		usageMembers
@@ -183,7 +163,7 @@ function getDatasetVariableInlineFix(declarator, context) {
 		return;
 	}
 
-	const objectText = getReceiverText(datasetNode.object, context);
+	const objectText = getMemberExpressionObjectText(datasetNode.object, context);
 	return function * (fixer) {
 		yield removeStatement(declaration, context, fixer);
 		for (const member of usageMembers) {
@@ -227,7 +207,7 @@ function getFix(callExpression, context) {
 		const [nameNode] = callExpression.arguments;
 		const name = dashToCamelCase(nameNode.value.toLowerCase().slice(5));
 		let text = '';
-		const datasetText = `${getReceiverText(callExpression.callee.object, context)}${callExpression.callee.optional ? '?' : ''}.dataset`;
+		const datasetText = `${getMemberExpressionObjectText(callExpression.callee.object, context)}${callExpression.callee.optional ? '?' : ''}.dataset`;
 		switch (method) {
 			case 'setAttribute':
 			case 'getAttribute':
@@ -288,7 +268,7 @@ const create = context => {
 				return;
 			}
 
-			const objectText = getReceiverText(datasetNode.object, context);
+			const objectText = getMemberExpressionObjectText(datasetNode.object, context);
 			const chain = datasetNode.optional ? '?.' : '.';
 			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
 			const fix = wouldRemoveComments(context, reportNode, [datasetNode.object])
@@ -402,8 +382,7 @@ const create = context => {
 			}
 
 			const declaration = declarator.parent;
-			const objectText = getReceiverText(datasetNode.object, context);
-			const chain = datasetNode.optional ? '?.' : '.';
+			const objectText = getMemberExpressionObjectText(datasetNode.object, context);
 
 			/*
 			Only suggest when all properties are simple (no defaults, rest, computed) and object is a plain identifier (safe to repeat for multi-property).
@@ -421,7 +400,7 @@ const create = context => {
 				// The pattern's type annotation describes the whole object, it cannot be carried over to a single destructured binding.
 				const declarations = properties.map(property => {
 					const attributeName = escapeString(camelCaseToDash(property.key.name), '\'');
-					return `${declaration.kind} ${property.value.name} = ${objectText}${chain}getAttribute(${attributeName})`;
+					return `${declaration.kind} ${property.value.name} = ${objectText}.getAttribute(${attributeName})`;
 				});
 
 				// `element.dataset.foo` is `undefined` for a missing attribute, `getAttribute()` is `null`
@@ -498,7 +477,7 @@ const create = context => {
 
 			const method = isWrite ? 'setAttribute' : (isDelete ? 'removeAttribute' : 'getAttribute');
 
-			const objectText = getReceiverText(object.object, context);
+			const objectText = getMemberExpressionObjectText(object.object, context);
 			const chain = object.optional ? '?.' : '.';
 			const quote = memberExpression.computed ? memberExpression.property.raw.charAt(0) : undefined;
 			const attributeName = escapeString(camelCaseToDash(keyName), quote);

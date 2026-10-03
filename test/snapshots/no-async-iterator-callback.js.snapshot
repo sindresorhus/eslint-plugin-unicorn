@@ -1,0 +1,1247 @@
+exports[`no-async-iterator-callback > invalid(1): Iterator.from([1]).filter(() => Promise.resolve(false)); 1`] = `
+
+Filename: file.ts
+
+  1 | Iterator.from([1]).filter(() => Promise.resolve(false));
+
+`;
+
+exports[`no-async-iterator-callback > invalid(1): Iterator.from([1]).filter(() => Promise.resolve(false)); 2`] = `
+
+Message:
+> 1 | Iterator.from([1]).filter(() => Promise.resolve(false));
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(1): Iterator.from(values).filter(async value => value) 1`] = `
+
+  1 | Iterator.from(values).filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(1): Iterator.from(values).filter(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter(async value => value)
+    |                              ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(1): function foo(iterator: Iterator<number>) { iterator.filter(async value => value); } 1`] = `
+
+  1 | function foo(iterator: Iterator<number>) { iterator.filter(async value => value); }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(1): function foo(iterator: Iterator<number>) { iterator.filter(async value => value); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: Iterator<number>) { iterator.filter(async value => value); }
+    |                                                            ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(10): Iterator.from(values).filter(<Predicate>(async value => value)) 1`] = `
+
+  1 | Iterator.from(values).filter(<Predicate>(async value => value))
+
+`;
+
+exports[`no-async-iterator-callback > invalid(10): Iterator.from(values).filter(<Predicate>(async value => value)) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter(<Predicate>(async value => value))
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(10): Iterator.from(values).find(async function (value) { await consume(value); }) 1`] = `
+
+  1 | Iterator.from(values).find(async function (value) { await consume(value); })
+
+`;
+
+exports[`no-async-iterator-callback > invalid(10): Iterator.from(values).find(async function (value) { await consume(value); }) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).find(async function (value) { await consume(value); })
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#find()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(10): declare const callback: (() => Promise<boolean>) | undefined; Iterator.from([1]).filter(callback!); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const callback: (() => Promise<boolean>) | undefined; Iterator.from([1]).filter(callback!);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(10): declare const callback: (() => Promise<boolean>) | undefined; Iterator.from([1]).filter(callback!); 2`] = `
+
+Message:
+> 1 | declare const callback: (() => Promise<boolean>) | undefined; Iterator.from([1]).filter(callback!);
+    |                                                                                         ^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(11): Iterator.from(values).filter((async value => value)!) 1`] = `
+
+  1 | Iterator.from(values).filter((async value => value)!)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(11): Iterator.from(values).filter((async value => value)!) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter((async value => value)!)
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(11): Iterator.from(values).flatMap(async value => value) 1`] = `
+
+  1 | Iterator.from(values).flatMap(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(11): Iterator.from(values).flatMap(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).flatMap(async value => value)
+    |                               ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#flatMap()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(11): declare const callback: () => PromiseLike<boolean>; Iterator.from([1]).filter(callback); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const callback: () => PromiseLike<boolean>; Iterator.from([1]).filter(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(11): declare const callback: () => PromiseLike<boolean>; Iterator.from([1]).filter(callback); 2`] = `
+
+Message:
+> 1 | declare const callback: () => PromiseLike<boolean>; Iterator.from([1]).filter(callback);
+    |                                                                               ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(12): Iterator.from(values).filter((async value => value) satisfies Predicate) 1`] = `
+
+  1 | Iterator.from(values).filter((async value => value) satisfies Predicate)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(12): Iterator.from(values).filter((async value => value) satisfies Predicate) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter((async value => value) satisfies Predicate)
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(12): Iterator.from(values).flatMap(async function (value) { await consume(value); }) 1`] = `
+
+  1 | Iterator.from(values).flatMap(async function (value) { await consume(value); })
+
+`;
+
+exports[`no-async-iterator-callback > invalid(12): Iterator.from(values).flatMap(async function (value) { await consume(value); }) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).flatMap(async function (value) { await consume(value); })
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#flatMap()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(12): function foo<T extends PromiseLike<boolean>>(callback: () => T) { Iterator.from([1]).filter(callback); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<T extends PromiseLike<boolean>>(callback: () => T) { Iterator.from([1]).filter(callback); }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(12): function foo<T extends PromiseLike<boolean>>(callback: () => T) { Iterator.from([1]).filter(callback); } 2`] = `
+
+Message:
+> 1 | function foo<T extends PromiseLike<boolean>>(callback: () => T) { Iterator.from([1]).filter(callback); }
+    |                                                                                             ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(13): const callback = (async value => value) as Predicate; Iterator.from(values).filter(callback); 1`] = `
+
+  1 | const callback = (async value => value) as Predicate; Iterator.from(values).filter(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(13): const callback = (async value => value) as Predicate; Iterator.from(values).filter(callback); 2`] = `
+
+Message:
+> 1 | const callback = (async value => value) as Predicate; Iterator.from(values).filter(callback);
+    |                                                                                    ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(13): function foo<T extends boolean | PromiseLike<boolean>>(callback: () => T) { Iterator.from([1]).filter(callback); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<T extends boolean | PromiseLike<boolean>>(callback: () => T) { Iterator.from([1]).filter(callback); }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(13): function foo<T extends boolean | PromiseLike<boolean>>(callback: () => T) { Iterator.from([1]).filter(callback); } 2`] = `
+
+Message:
+> 1 | function foo<T extends boolean | PromiseLike<boolean>>(callback: () => T) { Iterator.from([1]).filter(callback); }
+    |                                                                                                       ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(13): globalThis.Iterator.from(values).filter(async value => value) 1`] = `
+
+  1 | globalThis.Iterator.from(values).filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(13): globalThis.Iterator.from(values).filter(async value => value) 2`] = `
+
+Message:
+> 1 | globalThis.Iterator.from(values).filter(async value => value)
+    |                                         ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(14): Iterator.concat(first, second).some(async value => value) 1`] = `
+
+  1 | Iterator.concat(first, second).some(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(14): Iterator.concat(first, second).some(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.concat(first, second).some(async value => value)
+    |                                     ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(14): const callback = async <T>(value: T) => value; Iterator.from(values).filter(callback<number>); 1`] = `
+
+  1 | const callback = async <T>(value: T) => value; Iterator.from(values).filter(callback<number>);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(14): const callback = async <T>(value: T) => value; Iterator.from(values).filter(callback<number>); 2`] = `
+
+Message:
+> 1 | const callback = async <T>(value: T) => value; Iterator.from(values).filter(callback<number>);
+    |                                                                             ^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(14): declare const callback: () => boolean | Promise<boolean>; Iterator.from([1]).filter(callback); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const callback: () => boolean | Promise<boolean>; Iterator.from([1]).filter(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(14): declare const callback: () => boolean | Promise<boolean>; Iterator.from([1]).filter(callback); 2`] = `
+
+Message:
+> 1 | declare const callback: () => boolean | Promise<boolean>; Iterator.from([1]).filter(callback);
+    |                                                                                     ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(15): Iterator.zip([first, second]).every(async value => value) 1`] = `
+
+  1 | Iterator.zip([first, second]).every(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(15): Iterator.zip([first, second]).every(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.zip([first, second]).every(async value => value)
+    |                                     ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#every()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(15): async function callback<T>(value: T) { return value; } Iterator.from(values).filter(callback<number>); 1`] = `
+
+  1 | async function callback<T>(value: T) { return value; } Iterator.from(values).filter(callback<number>);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(15): async function callback<T>(value: T) { return value; } Iterator.from(values).filter(callback<number>); 2`] = `
+
+Message:
+> 1 | async function callback<T>(value: T) { return value; } Iterator.from(values).filter(callback<number>);
+    |                                                                                     ^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(15): declare const callback: () => Promise<boolean> | undefined; Iterator.from([1]).filter(callback); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const callback: () => Promise<boolean> | undefined; Iterator.from([1]).filter(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(15): declare const callback: () => Promise<boolean> | undefined; Iterator.from([1]).filter(callback); 2`] = `
+
+Message:
+> 1 | declare const callback: () => Promise<boolean> | undefined; Iterator.from([1]).filter(callback);
+    |                                                                                       ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(16): Iterator.zipKeyed({first, second}).find(async value => value) 1`] = `
+
+  1 | Iterator.zipKeyed({first, second}).find(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(16): Iterator.zipKeyed({first, second}).find(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.zipKeyed({first, second}).find(async value => value)
+    |                                         ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#find()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(16): const object = {callback() { return Promise.resolve(false); }}; Iterator.from([1]).filter(object.callback); 1`] = `
+
+Filename: file.ts
+
+  1 | const object = {callback() { return Promise.resolve(false); }}; Iterator.from([1]).filter(object.callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(16): const object = {callback() { return Promise.resolve(false); }}; Iterator.from([1]).filter(object.callback); 2`] = `
+
+Message:
+> 1 | const object = {callback() { return Promise.resolve(false); }}; Iterator.from([1]).filter(object.callback);
+    |                                                                                           ^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(16): function callback(value: number): Promise<boolean>; async function callback(value: number) { return true; } Iterator.from(values).filter(callback); 1`] = `
+
+  1 | function callback(value: number): Promise<boolean>; async function callback(value: number) { return true; } Iterator.from(values).filter(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(16): function callback(value: number): Promise<boolean>; async function callback(value: number) { return true; } Iterator.from(values).filter(callback); 2`] = `
+
+Message:
+> 1 | function callback(value: number): Promise<boolean>; async function callback(value: number) { return true; } Iterator.from(values).filter(callback);
+    |                                                                                                                                          ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(17): array.values().filter(async value => value) 1`] = `
+
+  1 | array.values().filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(17): array.values().filter(async value => value) 2`] = `
+
+Message:
+> 1 | array.values().filter(async value => value)
+    |                       ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(17): function foo(iterator: IteratorObject<number>) { iterator!.filter<number>(async value => value); } 1`] = `
+
+  1 | function foo(iterator: IteratorObject<number>) { iterator!.filter<number>(async value => value); }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(17): function foo(iterator: IteratorObject<number>) { iterator!.filter<number>(async value => value); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: IteratorObject<number>) { iterator!.filter<number>(async value => value); }
+    |                                                                           ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(17): import spawn from \"nano-spawn\"; Iterator.from([\"command\"]).filter(spawn); 1`] = `
+
+Filename: file.ts
+
+  1 | import spawn from "nano-spawn"; Iterator.from(["command"]).filter(spawn);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(17): import spawn from \"nano-spawn\"; Iterator.from([\"command\"]).filter(spawn); 2`] = `
+
+Message:
+> 1 | import spawn from "nano-spawn"; Iterator.from(["command"]).filter(spawn);
+    |                                                                   ^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(18): (Iterator.from(values) satisfies Iterable<number>).filter(async value => value) 1`] = `
+
+  1 | (Iterator.from(values) satisfies Iterable<number>).filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(18): (Iterator.from(values) satisfies Iterable<number>).filter(async value => value) 2`] = `
+
+Message:
+> 1 | (Iterator.from(values) satisfies Iterable<number>).filter(async value => value)
+    |                                                           ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(18): function * values() { yield 1; } values().filter(async value => value); 1`] = `
+
+Filename: file.ts
+
+  1 | function * values() { yield 1; } values().filter(async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(18): function * values() { yield 1; } values().filter(async value => value); 2`] = `
+
+Message:
+> 1 | function * values() { yield 1; } values().filter(async value => value);
+    |                                                  ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(18): map.keys().some(async value => value) 1`] = `
+
+  1 | map.keys().some(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(18): map.keys().some(async value => value) 2`] = `
+
+Message:
+> 1 | map.keys().some(async value => value)
+    |                 ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(19): const iterator = [1].values(); iterator.filter(async value => value); 1`] = `
+
+Filename: file.ts
+
+  1 | const iterator = [1].values(); iterator.filter(async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(19): const iterator = [1].values(); iterator.filter(async value => value); 2`] = `
+
+Message:
+> 1 | const iterator = [1].values(); iterator.filter(async value => value);
+    |                                                ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(19): set.entries().every(async value => value) 1`] = `
+
+  1 | set.entries().every(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(19): set.entries().every(async value => value) 2`] = `
+
+Message:
+> 1 | set.entries().every(async value => value)
+    |                     ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#every()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(2): Iterator.from([1]).forEach(() => Promise.resolve(false)); 1`] = `
+
+Filename: file.ts
+
+  1 | Iterator.from([1]).forEach(() => Promise.resolve(false));
+
+`;
+
+exports[`no-async-iterator-callback > invalid(2): Iterator.from([1]).forEach(() => Promise.resolve(false)); 2`] = `
+
+Message:
+> 1 | Iterator.from([1]).forEach(() => Promise.resolve(false));
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#forEach()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(2): Iterator.from(values).filter(async function (value) { await consume(value); }) 1`] = `
+
+  1 | Iterator.from(values).filter(async function (value) { await consume(value); })
+
+`;
+
+exports[`no-async-iterator-callback > invalid(2): Iterator.from(values).filter(async function (value) { await consume(value); }) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter(async function (value) { await consume(value); })
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(2): function foo(iterator: IteratorObject<number> | undefined) { iterator?.filter(async value => value); } 1`] = `
+
+  1 | function foo(iterator: IteratorObject<number> | undefined) { iterator?.filter(async value => value); }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(2): function foo(iterator: IteratorObject<number> | undefined) { iterator?.filter(async value => value); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: IteratorObject<number> | undefined) { iterator?.filter(async value => value); }
+    |                                                                               ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(20): declare const object: {iterator?: IteratorObject<number>}; object.iterator?.filter(() => Promise.resolve(false)); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: {iterator?: IteratorObject<number>}; object.iterator?.filter(() => Promise.resolve(false));
+
+`;
+
+exports[`no-async-iterator-callback > invalid(20): declare const object: {iterator?: IteratorObject<number>}; object.iterator?.filter(() => Promise.resolve(false)); 2`] = `
+
+Message:
+> 1 | declare const object: {iterator?: IteratorObject<number>}; object.iterator?.filter(() => Promise.resolve(false));
+    |                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(20): string.matchAll(pattern).forEach(async value => value) 1`] = `
+
+  1 | string.matchAll(pattern).forEach(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(20): string.matchAll(pattern).forEach(async value => value) 2`] = `
+
+Message:
+> 1 | string.matchAll(pattern).forEach(async value => value)
+    |                                  ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#forEach()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(21): Iterator.from(values).map(value => value).take(2).filter(async value => value) 1`] = `
+
+  1 | Iterator.from(values).map(value => value).take(2).filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(21): Iterator.from(values).map(value => value).take(2).filter(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).map(value => value).take(2).filter(async value => value)
+    |                                                          ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(21): declare function values(): IteratorObject<number>; values().some(async value => value); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function values(): IteratorObject<number>; values().some(async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(21): declare function values(): IteratorObject<number>; values().some(async value => value); 2`] = `
+
+Message:
+> 1 | declare function values(): IteratorObject<number>; values().some(async value => value);
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(22): const iterator = Iterator.from(values); iterator.filter(async value => value); 1`] = `
+
+  1 | const iterator = Iterator.from(values); iterator.filter(async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(22): const iterator = Iterator.from(values); iterator.filter(async value => value); 2`] = `
+
+Message:
+> 1 | const iterator = Iterator.from(values); iterator.filter(async value => value);
+    |                                                         ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(22): declare function callback(value: string): boolean; declare function callback(value: number): Promise<boolean>; Iterator.from([1]).filter(callback); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function callback(value: string): boolean; declare function callback(value: number): Promise<boolean>; Iterator.from([1]).filter(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(22): declare function callback(value: string): boolean; declare function callback(value: number): Promise<boolean>; Iterator.from([1]).filter(callback); 2`] = `
+
+Message:
+> 1 | declare function callback(value: string): boolean; declare function callback(value: number): Promise<boolean>; Iterator.from([1]).filter(callback);
+    |                                                                                                                                          ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(23): const iterator = Iterator.from(values); const alias = iterator; alias.filter(async value => value); 1`] = `
+
+  1 | const iterator = Iterator.from(values); const alias = iterator; alias.filter(async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(23): const iterator = Iterator.from(values); const alias = iterator; alias.filter(async value => value); 2`] = `
+
+Message:
+> 1 | const iterator = Iterator.from(values); const alias = iterator; alias.filter(async value => value);
+    |                                                                              ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(24): const iterator = array.values(); iterator.forEach(async value => value); 1`] = `
+
+  1 | const iterator = array.values(); iterator.forEach(async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(24): const iterator = array.values(); iterator.forEach(async value => value); 2`] = `
+
+Message:
+> 1 | const iterator = array.values(); iterator.forEach(async value => value);
+    |                                                   ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#forEach()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(25): function * generate() { yield 1; } generate().filter(async value => value); 1`] = `
+
+  1 | function * generate() { yield 1; } generate().filter(async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(25): function * generate() { yield 1; } generate().filter(async value => value); 2`] = `
+
+Message:
+> 1 | function * generate() { yield 1; } generate().filter(async value => value);
+    |                                                      ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(26): const callback = async value => value; Iterator.from(values).filter(callback); 1`] = `
+
+  1 | const callback = async value => value; Iterator.from(values).filter(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(26): const callback = async value => value; Iterator.from(values).filter(callback); 2`] = `
+
+Message:
+> 1 | const callback = async value => value; Iterator.from(values).filter(callback);
+    |                                                                     ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(27): const callback = async function (value) { return value; }; Iterator.from(values).some(callback); 1`] = `
+
+  1 | const callback = async function (value) { return value; }; Iterator.from(values).some(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(27): const callback = async function (value) { return value; }; Iterator.from(values).some(callback); 2`] = `
+
+Message:
+> 1 | const callback = async function (value) { return value; }; Iterator.from(values).some(callback);
+    |                                                                                       ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(28): async function callback(value) { return value; } Iterator.from(values).every(callback); 1`] = `
+
+  1 | async function callback(value) { return value; } Iterator.from(values).every(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(28): async function callback(value) { return value; } Iterator.from(values).every(callback); 2`] = `
+
+Message:
+> 1 | async function callback(value) { return value; } Iterator.from(values).every(callback);
+    |                                                                              ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#every()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(29): Iterator.from(values)?.filter(async value => value) 1`] = `
+
+  1 | Iterator.from(values)?.filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(29): Iterator.from(values)?.filter(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values)?.filter(async value => value)
+    |                               ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(3): Iterator.from([1]).some(() => Promise.resolve(false)); 1`] = `
+
+Filename: file.ts
+
+  1 | Iterator.from([1]).some(() => Promise.resolve(false));
+
+`;
+
+exports[`no-async-iterator-callback > invalid(3): Iterator.from([1]).some(() => Promise.resolve(false)); 2`] = `
+
+Message:
+> 1 | Iterator.from([1]).some(() => Promise.resolve(false));
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(3): Iterator.from(values).forEach(async value => value) 1`] = `
+
+  1 | Iterator.from(values).forEach(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(3): Iterator.from(values).forEach(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).forEach(async value => value)
+    |                               ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#forEach()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(3): function foo(iterator: IteratorObject<number>) { iterator.some(async value => value); } 1`] = `
+
+  1 | function foo(iterator: IteratorObject<number>) { iterator.some(async value => value); }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(3): function foo(iterator: IteratorObject<number>) { iterator.some(async value => value); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: IteratorObject<number>) { iterator.some(async value => value); }
+    |                                                                ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(30): Iterator.from(values).filter?.(async value => value) 1`] = `
+
+  1 | Iterator.from(values).filter?.(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(30): Iterator.from(values).filter?.(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter?.(async value => value)
+    |                                ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(31): Iterator?.from(values).filter(async value => value) 1`] = `
+
+  1 | Iterator?.from(values).filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(31): Iterator?.from(values).filter(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator?.from(values).filter(async value => value)
+    |                               ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(32): Iterator.from?.(values).filter(async value => value) 1`] = `
+
+  1 | Iterator.from?.(values).filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(32): Iterator.from?.(values).filter(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from?.(values).filter(async value => value)
+    |                                ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(33): map.values?.().filter(async value => value) 1`] = `
+
+  1 | map.values?.().filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(33): map.values?.().filter(async value => value) 2`] = `
+
+Message:
+> 1 | map.values?.().filter(async value => value)
+    |                       ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(34): string.matchAll?.(pattern).filter(async value => value) 1`] = `
+
+  1 | string.matchAll?.(pattern).filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(34): string.matchAll?.(pattern).filter(async value => value) 2`] = `
+
+Message:
+> 1 | string.matchAll?.(pattern).filter(async value => value)
+    |                                   ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(35): Iterator.from(values).map?.(value => value).filter(async value => value) 1`] = `
+
+  1 | Iterator.from(values).map?.(value => value).filter(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(35): Iterator.from(values).map?.(value => value).filter(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).map?.(value => value).filter(async value => value)
+    |                                                    ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(36): Iterator.from(values)[\"filter\"](async value => value) 1`] = `
+
+  1 | Iterator.from(values)["filter"](async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(36): Iterator.from(values)[\"filter\"](async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values)["filter"](async value => value)
+    |                                 ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(37): Iterator.from(values)[\`filter\`](async value => value) 1`] = `
+
+  1 | Iterator.from(values)[\`filter\`](async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(37): Iterator.from(values)[\`filter\`](async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values)[\`filter\`](async value => value)
+    |                                 ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(38): const method = \"filter\"; Iterator.from(values)[method](async value => value); 1`] = `
+
+  1 | const method = "filter"; Iterator.from(values)[method](async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(38): const method = \"filter\"; Iterator.from(values)[method](async value => value); 2`] = `
+
+Message:
+> 1 | const method = "filter"; Iterator.from(values)[method](async value => value);
+    |                                                        ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(39): (Iterator.from(values)).filter((async value => value)) 1`] = `
+
+  1 | (Iterator.from(values)).filter((async value => value))
+
+`;
+
+exports[`no-async-iterator-callback > invalid(39): (Iterator.from(values)).filter((async value => value)) 2`] = `
+
+Message:
+> 1 | (Iterator.from(values)).filter((async value => value))
+    |                                 ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(4): Iterator.from([1]).every(() => Promise.resolve(false)); 1`] = `
+
+Filename: file.ts
+
+  1 | Iterator.from([1]).every(() => Promise.resolve(false));
+
+`;
+
+exports[`no-async-iterator-callback > invalid(4): Iterator.from([1]).every(() => Promise.resolve(false)); 2`] = `
+
+Message:
+> 1 | Iterator.from([1]).every(() => Promise.resolve(false));
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#every()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(4): Iterator.from(values).forEach(async function (value) { await consume(value); }) 1`] = `
+
+  1 | Iterator.from(values).forEach(async function (value) { await consume(value); })
+
+`;
+
+exports[`no-async-iterator-callback > invalid(4): Iterator.from(values).forEach(async function (value) { await consume(value); }) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).forEach(async function (value) { await consume(value); })
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#forEach()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(4): function foo(iterator: IteratorObject<number> | undefined) { iterator!.map(value => value).filter(async value => value); } 1`] = `
+
+  1 | function foo(iterator: IteratorObject<number> | undefined) { iterator!.map(value => value).filter(async value => value); }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(4): function foo(iterator: IteratorObject<number> | undefined) { iterator!.map(value => value).filter(async value => value); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: IteratorObject<number> | undefined) { iterator!.map(value => value).filter(async value => value); }
+    |                                                                                                   ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(40): Iterator.from(values).filter(/* before */ async value => /* inside */ value /* after */) 1`] = `
+
+  1 | Iterator.from(values).filter(/* before */ async value => /* inside */ value /* after */)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(40): Iterator.from(values).filter(/* before */ async value => /* inside */ value /* after */) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter(/* before */ async value => /* inside */ value /* after */)
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(41): const result = consume(Iterator.from(values).filter(async value => value).toArray()); 1`] = `
+
+  1 | const result = consume(Iterator.from(values).filter(async value => value).toArray());
+
+`;
+
+exports[`no-async-iterator-callback > invalid(41): const result = consume(Iterator.from(values).filter(async value => value).toArray()); 2`] = `
+
+Message:
+> 1 | const result = consume(Iterator.from(values).filter(async value => value).toArray());
+    |                                                     ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(42): await Iterator.from(values).forEach(async value => value) 1`] = `
+
+  1 | await Iterator.from(values).forEach(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(42): await Iterator.from(values).forEach(async value => value) 2`] = `
+
+Message:
+> 1 | await Iterator.from(values).forEach(async value => value)
+    |                                     ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#forEach()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(43): Iterator.from(values).filter(async value => value, extra) 1`] = `
+
+  1 | Iterator.from(values).filter(async value => value, extra)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(43): Iterator.from(values).filter(async value => value, extra) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter(async value => value, extra)
+    |                              ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(44): Iterator.from(values).filter(async value => value, ...extra) 1`] = `
+
+  1 | Iterator.from(values).filter(async value => value, ...extra)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(44): Iterator.from(values).filter(async value => value, ...extra) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter(async value => value, ...extra)
+    |                              ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(45): const element = <div>{Iterator.from(values).some(async value => value)}</div>; 1`] = `
+
+  1 | const element = <div>{Iterator.from(values).some(async value => value)}</div>;
+
+`;
+
+exports[`no-async-iterator-callback > invalid(45): const element = <div>{Iterator.from(values).some(async value => value)}</div>; 2`] = `
+
+Message:
+> 1 | const element = <div>{Iterator.from(values).some(async value => value)}</div>;
+    |                                                  ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(46): Iterator.from(values).filter(callback); async function callback(value) { return value; } 1`] = `
+
+  1 | Iterator.from(values).filter(callback); async function callback(value) { return value; }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(46): Iterator.from(values).filter(callback); async function callback(value) { return value; } 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter(callback); async function callback(value) { return value; }
+    |                              ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(5): Iterator.from([1]).find(() => Promise.resolve(false)); 1`] = `
+
+Filename: file.ts
+
+  1 | Iterator.from([1]).find(() => Promise.resolve(false));
+
+`;
+
+exports[`no-async-iterator-callback > invalid(5): Iterator.from([1]).find(() => Promise.resolve(false)); 2`] = `
+
+Message:
+> 1 | Iterator.from([1]).find(() => Promise.resolve(false));
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#find()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(5): Iterator.from(values).some(async value => value) 1`] = `
+
+  1 | Iterator.from(values).some(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(5): Iterator.from(values).some(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).some(async value => value)
+    |                            ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(5): function foo(iterator: IterableIterator<number>) { iterator.every(async value => value); } 1`] = `
+
+  1 | function foo(iterator: IterableIterator<number>) { iterator.every(async value => value); }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(5): function foo(iterator: IterableIterator<number>) { iterator.every(async value => value); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: IterableIterator<number>) { iterator.every(async value => value); }
+    |                                                                   ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#every()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(6): Iterator.from([1]).flatMap(() => Promise.resolve(false)); 1`] = `
+
+Filename: file.ts
+
+  1 | Iterator.from([1]).flatMap(() => Promise.resolve(false));
+
+`;
+
+exports[`no-async-iterator-callback > invalid(6): Iterator.from([1]).flatMap(() => Promise.resolve(false)); 2`] = `
+
+Message:
+> 1 | Iterator.from([1]).flatMap(() => Promise.resolve(false));
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#flatMap()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(6): Iterator.from(values).some(async function (value) { await consume(value); }) 1`] = `
+
+  1 | Iterator.from(values).some(async function (value) { await consume(value); })
+
+`;
+
+exports[`no-async-iterator-callback > invalid(6): Iterator.from(values).some(async function (value) { await consume(value); }) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).some(async function (value) { await consume(value); })
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(6): function foo(iterator: Generator<number>) { iterator.find(async value => value); } 1`] = `
+
+  1 | function foo(iterator: Generator<number>) { iterator.find(async value => value); }
+
+`;
+
+exports[`no-async-iterator-callback > invalid(6): function foo(iterator: Generator<number>) { iterator.find(async value => value); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: Generator<number>) { iterator.find(async value => value); }
+    |                                                           ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#find()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(7): Iterator.from(values).every(async value => value) 1`] = `
+
+  1 | Iterator.from(values).every(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(7): Iterator.from(values).every(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).every(async value => value)
+    |                             ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#every()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(7): declare const callback: unknown; Iterator.from([1]).filter(callback as () => Promise<boolean>); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const callback: unknown; Iterator.from([1]).filter(callback as () => Promise<boolean>);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(7): declare const callback: unknown; Iterator.from([1]).filter(callback as () => Promise<boolean>); 2`] = `
+
+Message:
+> 1 | declare const callback: unknown; Iterator.from([1]).filter(callback as () => Promise<boolean>);
+    |                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(7): declare const iterator: unknown; (iterator as IteratorObject<number>).filter(async value => value); 1`] = `
+
+  1 | declare const iterator: unknown; (iterator as IteratorObject<number>).filter(async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(7): declare const iterator: unknown; (iterator as IteratorObject<number>).filter(async value => value); 2`] = `
+
+Message:
+> 1 | declare const iterator: unknown; (iterator as IteratorObject<number>).filter(async value => value);
+    |                                                                              ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(8): Iterator.from([1]).forEach((async () => {}) as () => void); 1`] = `
+
+Filename: file.ts
+
+  1 | Iterator.from([1]).forEach((async () => {}) as () => void);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(8): Iterator.from([1]).forEach((async () => {}) as () => void); 2`] = `
+
+Message:
+> 1 | Iterator.from([1]).forEach((async () => {}) as () => void);
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#forEach()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(8): Iterator.from(values).every(async function (value) { await consume(value); }) 1`] = `
+
+  1 | Iterator.from(values).every(async function (value) { await consume(value); })
+
+`;
+
+exports[`no-async-iterator-callback > invalid(8): Iterator.from(values).every(async function (value) { await consume(value); }) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).every(async function (value) { await consume(value); })
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#every()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(8): declare const iterator: unknown; (<IteratorObject<number>>iterator).filter(async value => value); 1`] = `
+
+  1 | declare const iterator: unknown; (<IteratorObject<number>>iterator).filter(async value => value);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(8): declare const iterator: unknown; (<IteratorObject<number>>iterator).filter(async value => value); 2`] = `
+
+Message:
+> 1 | declare const iterator: unknown; (<IteratorObject<number>>iterator).filter(async value => value);
+    |                                                                            ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(9): Iterator.from(values).filter((async value => value) as Predicate) 1`] = `
+
+  1 | Iterator.from(values).filter((async value => value) as Predicate)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(9): Iterator.from(values).filter((async value => value) as Predicate) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).filter((async value => value) as Predicate)
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(9): Iterator.from(values).find(async value => value) 1`] = `
+
+  1 | Iterator.from(values).find(async value => value)
+
+`;
+
+exports[`no-async-iterator-callback > invalid(9): Iterator.from(values).find(async value => value) 2`] = `
+
+Message:
+> 1 | Iterator.from(values).find(async value => value)
+    |                            ^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#find()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(9): declare const callback: unknown; Iterator.from([1]).filter(<() => PromiseLike<boolean>>callback); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const callback: unknown; Iterator.from([1]).filter(<() => PromiseLike<boolean>>callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(9): declare const callback: unknown; Iterator.from([1]).filter(<() => PromiseLike<boolean>>callback); 2`] = `
+
+Message:
+> 1 | declare const callback: unknown; Iterator.from([1]).filter(<() => PromiseLike<boolean>>callback);
+    |                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;

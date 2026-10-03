@@ -1,0 +1,310 @@
+exports[`string-content > invalid(1): a { content: \"no\"; font-family: \"no\"; } 1`] = `
+
+Options:
+- patterns:
+    no:
+      suggest: 'yes'
+
+Code:
+  1 | a { content: "no"; font-family: "no"; }
+
+`;
+
+exports[`string-content > invalid(1): a { content: \"no\"; font-family: \"no\"; } 2`] = `
+
+Message:
+> 1 | a { content: "no"; font-family: "no"; }
+    |              ^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | a { content: "yes"; font-family: "no"; }
+
+`;
+
+exports[`string-content > invalid(1): a { content: \"no\"; font-family: \"no\"; } 3`] = `
+
+Message:
+> 1 | a { content: "no"; font-family: "no"; }
+    |                                 ^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | a { content: "no"; font-family: "yes"; }
+
+`;
+
+exports[`string-content > invalid(1): {'\\u006eo': 'no'} 1`] = `
+
+Options:
+- patterns:
+    no:
+      suggest: 'yes'
+
+Code:
+  1 | {'\\u006eo': 'no'}
+
+`;
+
+exports[`string-content > invalid(1): {'\\u006eo': 'no'} 2`] = `
+
+Message:
+> 1 | {'\\u006eo': 'no'}
+    |  ^^^^^^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | {"yes": 'no'}
+
+`;
+
+exports[`string-content > invalid(1): {'\\u006eo': 'no'} 3`] = `
+
+Message:
+> 1 | {'\\u006eo': 'no'}
+    |             ^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | {'\\u006eo': "yes"}
+
+`;
+
+exports[`string-content > invalid(2): a[data-name=\"no\"] { background: url(no.png); } 1`] = `
+
+Options:
+- patterns:
+    no:
+      suggest: 'yes'
+
+Code:
+  1 | a[data-name="no"] { background: url(no.png); }
+
+`;
+
+exports[`string-content > invalid(2): a[data-name=\"no\"] { background: url(no.png); } 2`] = `
+
+Message:
+> 1 | a[data-name="no"] { background: url(no.png); }
+    |             ^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | a[data-name="yes"] { background: url(no.png); }
+
+`;
+
+exports[`string-content > invalid(2): a[data-name=\"no\"] { background: url(no.png); } 3`] = `
+
+Message:
+> 1 | a[data-name="no"] { background: url(no.png); }
+    |                                 ^^^^^^^^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | a[data-name="no"] { background: url("yes.png"); }
+
+`;
+
+exports[`string-content > invalid(3): a { content: \"\\6e o\"; background: url(\"\\6e o.png\"); } 1`] = `
+
+Options:
+- patterns:
+    no:
+      suggest: 'yes'
+
+Code:
+  1 | a { content: "\\6e o"; background: url("\\6e o.png"); }
+
+`;
+
+exports[`string-content > invalid(3): a { content: \"\\6e o\"; background: url(\"\\6e o.png\"); } 2`] = `
+
+Message:
+> 1 | a { content: "\\6e o"; background: url("\\6e o.png"); }
+    |              ^^^^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | a { content: "yes"; background: url("\\6e o.png"); }
+
+`;
+
+exports[`string-content > invalid(3): a { content: \"\\6e o\"; background: url(\"\\6e o.png\"); } 3`] = `
+
+Message:
+> 1 | a { content: "\\6e o"; background: url("\\6e o.png"); }
+    |                                   ^^^^^^^^^^^^^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | a { content: "\\6e o"; background: url("yes.png"); }
+
+`;
+
+exports[`string-content > invalid(4): a { content: 'no'; background: url( no.png ); } 1`] = `
+
+Options:
+- patterns:
+    no:
+      suggest: 'yes'
+
+Code:
+  1 | a { content: 'no'; background: url( no.png ); }
+
+`;
+
+exports[`string-content > invalid(4): a { content: 'no'; background: url( no.png ); } 2`] = `
+
+Message:
+> 1 | a { content: 'no'; background: url( no.png ); }
+    |              ^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | a { content: "yes"; background: url( no.png ); }
+
+`;
+
+exports[`string-content > invalid(4): a { content: 'no'; background: url( no.png ); } 3`] = `
+
+Message:
+> 1 | a { content: 'no'; background: url( no.png ); }
+    |                                ^^^^^^^^^^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | a { content: 'no'; background: url("yes.png"); }
+
+`;
+
+exports[`string-content > invalid(5): a { content: \"no\"; background: url(no); } 1`] = `
+
+Options:
+- patterns:
+    no: "'\\"\\\\\\n\\r\\f\\t() a"
+
+Code:
+  1 | a { content: "no"; background: url(no); }
+
+`;
+
+exports[`string-content > invalid(5): a { content: \"no\"; background: url(no); } 2`] = `
+
+Message:
+> 1 | a { content: "no"; background: url(no); }
+    |              ^^^^ Prefer \`'"\\
+␍	() a\` over \`no\`.
+
+Output:
+  1 | a { content: "'\\"\\\\\\a\\d\\c\\9() a"; background: url(no); }
+
+`;
+
+exports[`string-content > invalid(5): a { content: \"no\"; background: url(no); } 3`] = `
+
+Message:
+> 1 | a { content: "no"; background: url(no); }
+    |                                ^^^^^^^ Prefer \`'"\\
+␍	() a\` over \`no\`.
+
+Output:
+  1 | a { content: "no"; background: url("'\\"\\\\\\a\\d\\c\\9() a"); }
+
+`;
+
+exports[`string-content > invalid(6): a { content: \"NO\"; background: url(no); } 1`] = `
+
+Options:
+- patterns:
+    no:
+      suggest: 'yes'
+      fix: false
+      caseSensitive: false
+
+Code:
+  1 | a { content: "NO"; background: url(no); }
+
+`;
+
+exports[`string-content > invalid(6): a { content: \"NO\"; background: url(no); } 2`] = `
+
+Message:
+> 1 | a { content: "NO"; background: url(no); }
+    |              ^^^^ Prefer \`yes\` over \`no\`.
+
+Suggestion 1/1: Replace \`no\` with \`yes\`.:
+  1 | a { content: "yes"; background: url(no); }
+
+`;
+
+exports[`string-content > invalid(6): a { content: \"NO\"; background: url(no); } 3`] = `
+
+Message:
+> 1 | a { content: "NO"; background: url(no); }
+    |                                ^^^^^^^ Prefer \`yes\` over \`no\`.
+
+Suggestion 1/1: Replace \`no\` with \`yes\`.:
+  1 | a { content: "NO"; background: url("yes"); }
+
+`;
+
+exports[`string-content > invalid(7): a { content: \"no\"; background: url(no); } 1`] = `
+
+Options:
+- patterns:
+    no:
+      suggest: 'yes'
+  selectors:
+    - 'Url'
+
+Code:
+  1 | a { content: "no"; background: url(no); }
+
+`;
+
+exports[`string-content > invalid(7): a { content: \"no\"; background: url(no); } 2`] = `
+
+Message:
+> 1 | a { content: "no"; background: url(no); }
+    |                                ^^^^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | a { content: "no"; background: url("yes"); }
+
+`;
+
+exports[`string-content > invalid(8): {unquoted: \"no\", \"no\": 'no'} 1`] = `
+
+Options:
+- patterns:
+    no:
+      suggest: 'yes'
+
+Code:
+  1 | {unquoted: "no", "no": 'no'}
+
+`;
+
+exports[`string-content > invalid(8): {unquoted: \"no\", \"no\": 'no'} 2`] = `
+
+Message:
+> 1 | {unquoted: "no", "no": 'no'}
+    |            ^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | {unquoted: "yes", "no": 'no'}
+
+`;
+
+exports[`string-content > invalid(8): {unquoted: \"no\", \"no\": 'no'} 3`] = `
+
+Message:
+> 1 | {unquoted: "no", "no": 'no'}
+    |                  ^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | {unquoted: "no", "yes": 'no'}
+
+`;
+
+exports[`string-content > invalid(8): {unquoted: \"no\", \"no\": 'no'} 4`] = `
+
+Message:
+> 1 | {unquoted: "no", "no": 'no'}
+    |                        ^^^^ Prefer \`yes\` over \`no\`.
+
+Output:
+  1 | {unquoted: "no", "no": "yes"}
+
+`;

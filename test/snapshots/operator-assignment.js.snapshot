@@ -1,0 +1,142 @@
+exports[`operator-assignment > invalid(1): foo = foo + bar; 1`] = `
+
+  1 | foo = foo + bar;
+
+`;
+
+exports[`operator-assignment > invalid(1): foo = foo + bar; 2`] = `
+
+Message:
+> 1 | foo = foo + bar;
+    | ^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+Output:
+  1 | foo += bar;
+
+`;
+
+exports[`operator-assignment > invalid(2): foo += bar; 1`] = `
+
+Options:
+- 'never'
+
+Code:
+  1 | foo += bar;
+
+`;
+
+exports[`operator-assignment > invalid(2): foo += bar; 2`] = `
+
+Message:
+> 1 | foo += bar;
+    | ^^^^^^^^^^ Unexpected operator assignment (+=) shorthand.
+
+Output:
+  1 | foo = foo + bar;
+
+`;
+
+exports[`operator-assignment > invalid(3): foo = \`\${foo} bar\`; 1`] = `
+
+  1 | foo = \`\${foo} bar\`;
+
+`;
+
+exports[`operator-assignment > invalid(3): foo = \`\${foo} bar\`; 2`] = `
+
+Message:
+> 1 | foo = \`\${foo} bar\`;
+    | ^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+Suggestion 1/1: Use \`+=\` assignment.:
+  1 | foo += \` bar\`;
+
+`;
+
+exports[`operator-assignment > invalid(4): foo = \`\${foo } bar\`; 1`] = `
+
+  1 | foo = \`\${foo } bar\`;
+
+`;
+
+exports[`operator-assignment > invalid(4): foo = \`\${foo } bar\`; 2`] = `
+
+Message:
+> 1 | foo = \`\${foo } bar\`;
+    | ^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+Suggestion 1/1: Use \`+=\` assignment.:
+  1 | foo += \` bar\`;
+
+`;
+
+exports[`operator-assignment > invalid(5): foo = \`\${foo\n} bar\`; 1`] = `
+
+  1 | foo = \`\${foo
+  2 | } bar\`;
+
+`;
+
+exports[`operator-assignment > invalid(5): foo = \`\${foo\n} bar\`; 2`] = `
+
+Message:
+> 1 | foo = \`\${foo
+    | ^^^^^^^^^^^^
+> 2 | } bar\`;
+    | ^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+Suggestion 1/1: Use \`+=\` assignment.:
+  1 | foo += \` bar\`;
+
+`;
+
+exports[`operator-assignment > invalid(6): foo = \`\${foo}\${bar}\`; 1`] = `
+
+  1 | foo = \`\${foo}\${bar}\`;
+
+`;
+
+exports[`operator-assignment > invalid(6): foo = \`\${foo}\${bar}\`; 2`] = `
+
+Message:
+> 1 | foo = \`\${foo}\${bar}\`;
+    | ^^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+Suggestion 1/1: Use \`+=\` assignment.:
+  1 | foo += \`\${bar}\`;
+
+`;
+
+exports[`operator-assignment > invalid(7): foo = \`\${foo} \${/* keep */ bar}\`; 1`] = `
+
+  1 | foo = \`\${foo} \${/* keep */ bar}\`;
+
+`;
+
+exports[`operator-assignment > invalid(7): foo = \`\${foo} \${/* keep */ bar}\`; 2`] = `
+
+Message:
+> 1 | foo = \`\${foo} \${/* keep */ bar}\`;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+Suggestion 1/1: Use \`+=\` assignment.:
+  1 | foo += \` \${/* keep */ bar}\`;
+
+`;
+
+exports[`operator-assignment > invalid(8): foo = \`\${foo} bar \${baz}\`; 1`] = `
+
+  1 | foo = \`\${foo} bar \${baz}\`;
+
+`;
+
+exports[`operator-assignment > invalid(8): foo = \`\${foo} bar \${baz}\`; 2`] = `
+
+Message:
+> 1 | foo = \`\${foo} bar \${baz}\`;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+Suggestion 1/1: Use \`+=\` assignment.:
+  1 | foo += \` bar \${baz}\`;
+
+`;

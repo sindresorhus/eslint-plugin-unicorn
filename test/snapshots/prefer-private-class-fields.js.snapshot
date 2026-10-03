@@ -1,0 +1,2586 @@
+exports[`prefer-private-class-fields > invalid(1): class Foo { _bar = 1; } 1`] = `
+
+  1 | class Foo { _bar = 1; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(1): class Foo { _bar = 1; } 2`] = `
+
+Message:
+> 1 | class Foo { _bar = 1; }
+    |             ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+
+Output:
+  1 | class Foo { #bar = 1; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(1): class Foo {\n\t_bar: number = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar: number = 1;
+  3 | 	baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(1): class Foo {\n\t_bar: number = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar: number = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar: number = 1;
+  3 | 	baz() {
+  4 | 		return this.#bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(10): class Foo {\n\t_foo = 1;\n\t_bar() {}\n\tbaz() {\n\t\treturn this._foo + this._bar();\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	_bar() {}
+  4 | 	baz() {
+  5 | 		return this._foo + this._bar();
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(10): class Foo {\n\t_foo = 1;\n\t_bar() {}\n\tbaz() {\n\t\treturn this._foo + this._bar();\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	_bar() {}
+  4 | 	baz() {
+  5 | 		return this._foo + this._bar();
+  6 | 	}
+  7 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#foo = 1;
+  3 | 	_bar() {}
+  4 | 	baz() {
+  5 | 		return this.#foo + this._bar();
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(10): class Foo {\n\t_foo = 1;\n\t_bar() {}\n\tbaz() {\n\t\treturn this._foo + this._bar();\n\t}\n} 3`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	_foo = 1;
+> 3 | 	_bar() {}
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  4 | 	baz() {
+  5 | 		return this._foo + this._bar();
+  6 | 	}
+  7 | }
+
+Output:
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	#bar() {}
+  4 | 	baz() {
+  5 | 		return this._foo + this.#bar();
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(10): class Foo {\n\t_foo = 1;\n\tbaz() {\n\t\tdelete (this._foo as unknown);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	baz() {
+  4 | 		delete (this._foo as unknown);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(10): class Foo {\n\t_foo = 1;\n\tbaz() {\n\t\tdelete (this._foo as unknown);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	baz() {
+  4 | 		delete (this._foo as unknown);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(11): class Foo {\n\t_foo = 1;\n\t_bar = 2;\n\tbaz() {\n\t\treturn this._foo + this[\"_bar\"];\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	_bar = 2;
+  4 | 	baz() {
+  5 | 		return this._foo + this["_bar"];
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(11): class Foo {\n\t_foo = 1;\n\t_bar = 2;\n\tbaz() {\n\t\treturn this._foo + this[\"_bar\"];\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	_bar = 2;
+  4 | 	baz() {
+  5 | 		return this._foo + this["_bar"];
+  6 | 	}
+  7 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#foo = 1;
+  3 | 	_bar = 2;
+  4 | 	baz() {
+  5 | 		return this.#foo + this["_bar"];
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(11): class Foo {\n\t_foo = 1;\n\t_bar = 2;\n\tbaz() {\n\t\treturn this._foo + this[\"_bar\"];\n\t}\n} 3`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	_foo = 1;
+> 3 | 	_bar = 2;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  4 | 	baz() {
+  5 | 		return this._foo + this["_bar"];
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(11): class Foo {\n\t_foo = 1;\n\tbaz() {\n\t\tdelete this._foo<string>;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	baz() {
+  4 | 		delete this._foo<string>;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(11): class Foo {\n\t_foo = 1;\n\tbaz() {\n\t\tdelete this._foo<string>;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	baz() {
+  4 | 		delete this._foo<string>;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(12): class Base {\n\t_bar() {\n\t\treturn 1;\n\t}\n\n\tbaz() {\n\t\treturn this._bar();\n\t}\n}\n\nclass Sub extends Base {\n\tpublic _bar() {\n\t\treturn 2;\n\t}\n} 1`] = `
+
+   1 | class Base {
+   2 | 	_bar() {
+   3 | 		return 1;
+   4 | 	}
+   5 |
+   6 | 	baz() {
+   7 | 		return this._bar();
+   8 | 	}
+   9 | }
+  10 |
+  11 | class Sub extends Base {
+  12 | 	public _bar() {
+  13 | 		return 2;
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(12): class Base {\n\t_bar() {\n\t\treturn 1;\n\t}\n\n\tbaz() {\n\t\treturn this._bar();\n\t}\n}\n\nclass Sub extends Base {\n\tpublic _bar() {\n\t\treturn 2;\n\t}\n} 2`] = `
+
+Message:
+   1 | class Base {
+>  2 | 	_bar() {
+     | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+   3 | 		return 1;
+   4 | 	}
+   5 |
+   6 | 	baz() {
+   7 | 		return this._bar();
+   8 | 	}
+   9 | }
+  10 |
+  11 | class Sub extends Base {
+  12 | 	public _bar() {
+  13 | 		return 2;
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(12): class Foo {\n\t// The answer.\n\t_bar = 42;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	// The answer.
+  3 | 	_bar = 42;
+  4 | 	baz() {
+  5 | 		return this._bar;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(12): class Foo {\n\t// The answer.\n\t_bar = 42;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	// The answer.
+> 3 | 	_bar = 42;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  4 | 	baz() {
+  5 | 		return this._bar;
+  6 | 	}
+  7 | }
+
+Output:
+  1 | class Foo {
+  2 | 	// The answer.
+  3 | 	#bar = 42;
+  4 | 	baz() {
+  5 | 		return this.#bar;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(13): @decorator\nclass Foo {\n\tstatic _bar = 1;\n} 1`] = `
+
+  1 | @decorator
+  2 | class Foo {
+  3 | 	static _bar = 1;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(13): @decorator\nclass Foo {\n\tstatic _bar = 1;\n} 2`] = `
+
+Message:
+  1 | @decorator
+  2 | class Foo {
+> 3 | 	static _bar = 1;
+    | 	       ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  4 | }
+
+Output:
+  1 | @decorator
+  2 | class Foo {
+  3 | 	static #bar = 1;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(13): class Foo {\n\t_bar = 1;\n\ta() {\n\t\treturn this._bar;\n\t}\n}\n\nclass Baz {\n\t_bar = 2;\n\tb() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+   1 | class Foo {
+   2 | 	_bar = 1;
+   3 | 	a() {
+   4 | 		return this._bar;
+   5 | 	}
+   6 | }
+   7 |
+   8 | class Baz {
+   9 | 	_bar = 2;
+  10 | 	b() {
+  11 | 		return this._bar;
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(13): class Foo {\n\t_bar = 1;\n\ta() {\n\t\treturn this._bar;\n\t}\n}\n\nclass Baz {\n\t_bar = 2;\n\tb() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+   1 | class Foo {
+>  2 | 	_bar = 1;
+     | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+   3 | 	a() {
+   4 | 		return this._bar;
+   5 | 	}
+   6 | }
+   7 |
+   8 | class Baz {
+   9 | 	_bar = 2;
+  10 | 	b() {
+  11 | 		return this._bar;
+  12 | 	}
+  13 | }
+
+Output:
+   1 | class Foo {
+   2 | 	#bar = 1;
+   3 | 	a() {
+   4 | 		return this.#bar;
+   5 | 	}
+   6 | }
+   7 |
+   8 | class Baz {
+   9 | 	_bar = 2;
+  10 | 	b() {
+  11 | 		return this._bar;
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(13): class Foo {\n\t_bar = 1;\n\ta() {\n\t\treturn this._bar;\n\t}\n}\n\nclass Baz {\n\t_bar = 2;\n\tb() {\n\t\treturn this._bar;\n\t}\n} 3`] = `
+
+Message:
+   1 | class Foo {
+   2 | 	_bar = 1;
+   3 | 	a() {
+   4 | 		return this._bar;
+   5 | 	}
+   6 | }
+   7 |
+   8 | class Baz {
+>  9 | 	_bar = 2;
+     | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  10 | 	b() {
+  11 | 		return this._bar;
+  12 | 	}
+  13 | }
+
+Output:
+   1 | class Foo {
+   2 | 	_bar = 1;
+   3 | 	a() {
+   4 | 		return this._bar;
+   5 | 	}
+   6 | }
+   7 |
+   8 | class Baz {
+   9 | 	#bar = 2;
+  10 | 	b() {
+  11 | 		return this.#bar;
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(14): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn {...(this as Foo)};\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return {...(this as Foo)};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(14): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn {...(this as Foo)};\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return {...(this as Foo)};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(14): class Foo {\n\t_bar = 1;\n}\n\nconst foo = new Foo();\nconsole.log(foo._bar); 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | }
+  4 |
+  5 | const foo = new Foo();
+  6 | console.log(foo._bar);
+
+`;
+
+exports[`prefer-private-class-fields > invalid(14): class Foo {\n\t_bar = 1;\n}\n\nconst foo = new Foo();\nconsole.log(foo._bar); 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | }
+  4 |
+  5 | const foo = new Foo();
+  6 | console.log(foo._bar);
+
+`;
+
+exports[`prefer-private-class-fields > invalid(15): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this[\"_bar\"];\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return this["_bar"];
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(15): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this[\"_bar\"];\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this["_bar"];
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(15): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn {...(this satisfies Foo)};\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return {...(this satisfies Foo)};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(15): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn {...(this satisfies Foo)};\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return {...(this satisfies Foo)};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(16): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {...rest} = this as Foo;\n\t\treturn rest;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		const {...rest} = this as Foo;
+  5 | 		return rest;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(16): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {...rest} = this as Foo;\n\t\treturn rest;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		const {...rest} = this as Foo;
+  5 | 		return rest;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(16): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn {...this};\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return {...this};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(16): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn {...this};\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return {...this};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(17): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {...rest} = this;\n\t\treturn rest;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		const {...rest} = this;
+  5 | 		return rest;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(17): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {...rest} = this;\n\t\treturn rest;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		const {...rest} = this;
+  5 | 		return rest;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(17): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this?._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return this?._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(17): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this?._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this?._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(18): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tlet rest;\n\t\t({...rest} = this);\n\t\treturn rest;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		let rest;
+  5 | 		({...rest} = this);
+  6 | 		return rest;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(18): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tlet rest;\n\t\t({...rest} = this);\n\t\treturn rest;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		let rest;
+  5 | 		({...rest} = this);
+  6 | 		return rest;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(19): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn Object.keys(this);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return Object.keys(this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(19): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn Object.keys(this);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return Object.keys(this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(2): class Foo { _bar: string; } 1`] = `
+
+  1 | class Foo { _bar: string; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(2): class Foo { _bar: string; } 2`] = `
+
+Message:
+> 1 | class Foo { _bar: string; }
+    |             ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+
+Output:
+  1 | class Foo { #bar: string; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(2): class Foo { static _bar = 1; } 1`] = `
+
+  1 | class Foo { static _bar = 1; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(2): class Foo { static _bar = 1; } 2`] = `
+
+Message:
+> 1 | class Foo { static _bar = 1; }
+    |                    ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+
+Output:
+  1 | class Foo { static #bar = 1; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(20): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn Object['keys'](this);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return Object['keys'](this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(20): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn Object['keys'](this);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return Object['keys'](this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(21): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn Object.assign({}, this);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return Object.assign({}, this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(21): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn Object.assign({}, this);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return Object.assign({}, this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(22): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn JSON.stringify(this);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return JSON.stringify(this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(22): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn JSON.stringify(this);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return JSON.stringify(this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(23): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn JSON['stringify'](this);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return JSON['stringify'](this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(23): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn JSON['stringify'](this);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return JSON['stringify'](this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(24): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn Reflect.ownKeys(this);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return Reflect.ownKeys(this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(24): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn Reflect.ownKeys(this);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return Reflect.ownKeys(this);
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		return Reflect.ownKeys(this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(25): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn '_bar' in this;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return '_bar' in this;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(25): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn '_bar' in this;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return '_bar' in this;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		return '_bar' in this;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(26): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tfor (const key in this) {\n\t\t\treturn key;\n\t\t}\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		for (const key in this) {
+  5 | 			return key;
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(26): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tfor (const key in this) {\n\t\t\treturn key;\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		for (const key in this) {
+  5 | 			return key;
+  6 | 		}
+  7 | 	}
+  8 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		for (const key in this) {
+  5 | 			return key;
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(27): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn {...this};\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static _bar = 1;
+  3 | 	static baz() {
+  4 | 		return {...this};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(27): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn {...this};\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	static _bar = 1;
+    | 	       ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	static baz() {
+  4 | 		return {...this};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(28): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\tconst {...rest} = this;\n\t\treturn rest;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static _bar = 1;
+  3 | 	static baz() {
+  4 | 		const {...rest} = this;
+  5 | 		return rest;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(28): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\tconst {...rest} = this;\n\t\treturn rest;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	static _bar = 1;
+    | 	       ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	static baz() {
+  4 | 		const {...rest} = this;
+  5 | 		return rest;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(29): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn Object.keys(this);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static _bar = 1;
+  3 | 	static baz() {
+  4 | 		return Object.keys(this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(29): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn Object.keys(this);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	static _bar = 1;
+    | 	       ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	static baz() {
+  4 | 		return Object.keys(this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(3): abstract class Foo { _bar = 1; } 1`] = `
+
+  1 | abstract class Foo { _bar = 1; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(3): abstract class Foo { _bar = 1; } 2`] = `
+
+Message:
+> 1 | abstract class Foo { _bar = 1; }
+    |                      ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+
+Output:
+  1 | abstract class Foo { #bar = 1; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(3): class Foo {\n\t_bar() {\n\t\treturn 1;\n\t}\n\n\tbaz() {\n\t\treturn this._bar();\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar() {
+  3 | 		return 1;
+  4 | 	}
+  5 |
+  6 | 	baz() {
+  7 | 		return this._bar();
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(3): class Foo {\n\t_bar() {\n\t\treturn 1;\n\t}\n\n\tbaz() {\n\t\treturn this._bar();\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar() {
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 		return 1;
+  4 | 	}
+  5 |
+  6 | 	baz() {
+  7 | 		return this._bar();
+  8 | 	}
+  9 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar() {
+  3 | 		return 1;
+  4 | 	}
+  5 |
+  6 | 	baz() {
+  7 | 		return this.#bar();
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(30): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn Object.keys(Foo);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static _bar = 1;
+  3 | 	static baz() {
+  4 | 		return Object.keys(Foo);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(30): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn Object.keys(Foo);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	static _bar = 1;
+    | 	       ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	static baz() {
+  4 | 		return Object.keys(Foo);
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	static #bar = 1;
+  3 | 	static baz() {
+  4 | 		return Object.keys(Foo);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(31): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this['_' + 'bar'];\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return this['_' + 'bar'];
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(31): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this['_' + 'bar'];\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this['_' + 'bar'];
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(32): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {_bar} = this;\n\t\treturn _bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		const {_bar} = this;
+  5 | 		return _bar;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(32): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {_bar} = this;\n\t\treturn _bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		const {_bar} = this;
+  5 | 		return _bar;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(33): class Base {\n\t_bar = 1;\n}\n\nclass Sub extends Base {\n\tbaz() {\n\t\treturn super._bar;\n\t}\n} 1`] = `
+
+  1 | class Base {
+  2 | 	_bar = 1;
+  3 | }
+  4 |
+  5 | class Sub extends Base {
+  6 | 	baz() {
+  7 | 		return super._bar;
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(33): class Base {\n\t_bar = 1;\n}\n\nclass Sub extends Base {\n\tbaz() {\n\t\treturn super._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Base {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | }
+  4 |
+  5 | class Sub extends Base {
+  6 | 	baz() {
+  7 | 		return super._bar;
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(34): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn [1].forEach(function () {\n\t\t\treturn this._bar;\n\t\t});\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return [1].forEach(function () {
+  5 | 			return this._bar;
+  6 | 		});
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(34): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn [1].forEach(function () {\n\t\t\treturn this._bar;\n\t\t});\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return [1].forEach(function () {
+  5 | 			return this._bar;
+  6 | 		});
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(35): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn Foo._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static _bar = 1;
+  3 | 	static baz() {
+  4 | 		return Foo._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(35): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn Foo._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	static _bar = 1;
+    | 	       ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	static baz() {
+  4 | 		return Foo._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(36): class Base {\n\t_foo = 1;\n}\n\nclass Sub extends Base {\n\tbaz() {\n\t\treturn this._foo;\n\t}\n} 1`] = `
+
+  1 | class Base {
+  2 | 	_foo = 1;
+  3 | }
+  4 |
+  5 | class Sub extends Base {
+  6 | 	baz() {
+  7 | 		return this._foo;
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(36): class Base {\n\t_foo = 1;\n}\n\nclass Sub extends Base {\n\tbaz() {\n\t\treturn this._foo;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Base {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | }
+  4 |
+  5 | class Sub extends Base {
+  6 | 	baz() {
+  7 | 		return this._foo;
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(37): class Foo {\n\t__bar = 1;\n\tbaz() {\n\t\treturn this.__bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	__bar = 1;
+  3 | 	baz() {
+  4 | 		return this.__bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(37): class Foo {\n\t__bar = 1;\n\tbaz() {\n\t\treturn this.__bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	__bar = 1;
+    | 	^^^^^ Prefer the private class field \`#_bar\` over the underscore-prefixed \`__bar\`.
+  3 | 	baz() {
+  4 | 		return this.__bar;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#_bar = 1;
+  3 | 	baz() {
+  4 | 		return this.#_bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(38): const Foo = class { _bar = 1; }; 1`] = `
+
+  1 | const Foo = class { _bar = 1; };
+
+`;
+
+exports[`prefer-private-class-fields > invalid(38): const Foo = class { _bar = 1; }; 2`] = `
+
+Message:
+> 1 | const Foo = class { _bar = 1; };
+    |                     ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+
+Output:
+  1 | const Foo = class { #bar = 1; };
+
+`;
+
+exports[`prefer-private-class-fields > invalid(39): class Foo {\n\t_bar = 1;\n\t_handler = () => this._bar;\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	_handler = () => this._bar;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(39): class Foo {\n\t_bar = 1;\n\t_handler = () => this._bar;\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	_handler = () => this._bar;
+  4 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	_handler = () => this.#bar;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(39): class Foo {\n\t_bar = 1;\n\t_handler = () => this._bar;\n} 3`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	_bar = 1;
+> 3 | 	_handler = () => this._bar;
+    | 	^^^^^^^^ Prefer the private class field \`#handler\` over the underscore-prefixed \`_handler\`.
+  4 | }
+
+Output:
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	#handler = () => this._bar;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(4): class Foo { accessor _bar = 1; } 1`] = `
+
+  1 | class Foo { accessor _bar = 1; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(4): class Foo { accessor _bar = 1; } 2`] = `
+
+Message:
+> 1 | class Foo { accessor _bar = 1; }
+    |                      ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+
+Output:
+  1 | class Foo { accessor #bar = 1; }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(4): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(4): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		return this.#bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(40): class Foo {\n\t_foo = 1;\n\t_bar = this._foo + 1;\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	_bar = this._foo + 1;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(40): class Foo {\n\t_foo = 1;\n\t_bar = this._foo + 1;\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	_bar = this._foo + 1;
+  4 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#foo = 1;
+  3 | 	_bar = this.#foo + 1;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(40): class Foo {\n\t_foo = 1;\n\t_bar = this._foo + 1;\n} 3`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	_foo = 1;
+> 3 | 	_bar = this._foo + 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  4 | }
+
+Output:
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	#bar = this._foo + 1;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(41): class Foo {\n\t_bar = this._foo;\n\t_foo = 1;\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = this._foo;
+  3 | 	_foo = 1;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(41): class Foo {\n\t_bar = this._foo;\n\t_foo = 1;\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = this._foo;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	_foo = 1;
+  4 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = this._foo;
+  3 | 	_foo = 1;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(41): class Foo {\n\t_bar = this._foo;\n\t_foo = 1;\n} 3`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	_bar = this._foo;
+> 3 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(42): class Foo {\n\t_foo = this._foo ?? 1;\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = this._foo ?? 1;
+  3 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(42): class Foo {\n\t_foo = this._foo ?? 1;\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = this._foo ?? 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(43): class Foo {\n\t_foo = 1;\n\t[this._foo]() {}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	[this._foo]() {}
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(43): class Foo {\n\t_foo = 1;\n\t[this._foo]() {}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	[this._foo]() {}
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(44): class Foo {\n\tstatic _bar = 1;\n\tstatic {\n\t\tthis._bar = 2;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static _bar = 1;
+  3 | 	static {
+  4 | 		this._bar = 2;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(44): class Foo {\n\tstatic _bar = 1;\n\tstatic {\n\t\tthis._bar = 2;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	static _bar = 1;
+    | 	       ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	static {
+  4 | 		this._bar = 2;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(45): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn {_bar: this._bar};\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return {_bar: this._bar};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(45): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn {_bar: this._bar};\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return {_bar: this._bar};
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		return {_bar: this.#bar};
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(46): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n}\n\nconst array = [1, 2, 3];\nconst first = array[0];\nconst value = array[first]; 1`] = `
+
+   1 | class Foo {
+   2 | 	_bar = 1;
+   3 | 	baz() {
+   4 | 		return this._bar;
+   5 | 	}
+   6 | }
+   7 |
+   8 | const array = [1, 2, 3];
+   9 | const first = array[0];
+  10 | const value = array[first];
+
+`;
+
+exports[`prefer-private-class-fields > invalid(46): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n}\n\nconst array = [1, 2, 3];\nconst first = array[0];\nconst value = array[first]; 2`] = `
+
+Message:
+   1 | class Foo {
+>  2 | 	_bar = 1;
+     | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+   3 | 	baz() {
+   4 | 		return this._bar;
+   5 | 	}
+   6 | }
+   7 |
+   8 | const array = [1, 2, 3];
+   9 | const first = array[0];
+  10 | const value = array[first];
+
+Output:
+   1 | class Foo {
+   2 | 	#bar = 1;
+   3 | 	baz() {
+   4 | 		return this.#bar;
+   5 | 	}
+   6 | }
+   7 |
+   8 | const array = [1, 2, 3];
+   9 | const first = array[0];
+  10 | const value = array[first];
+
+`;
+
+exports[`prefer-private-class-fields > invalid(47): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n}\n\nconst key = 'x';\nconst {[key]: value} = globalThis; 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+  7 |
+  8 | const key = 'x';
+  9 | const {[key]: value} = globalThis;
+
+`;
+
+exports[`prefer-private-class-fields > invalid(47): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n}\n\nconst key = 'x';\nconst {[key]: value} = globalThis; 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+  7 |
+  8 | const key = 'x';
+  9 | const {[key]: value} = globalThis;
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		return this.#bar;
+  5 | 	}
+  6 | }
+  7 |
+  8 | const key = 'x';
+  9 | const {[key]: value} = globalThis;
+
+`;
+
+exports[`prefer-private-class-fields > invalid(48): class Foo {\n\t_foo = 0;\n\tset bar(value) {\n\t\tthis._foo = value;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 0;
+  3 | 	set bar(value) {
+  4 | 		this._foo = value;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(48): class Foo {\n\t_foo = 0;\n\tset bar(value) {\n\t\tthis._foo = value;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 0;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	set bar(value) {
+  4 | 		this._foo = value;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#foo = 0;
+  3 | 	set bar(value) {
+  4 | 		this.#foo = value;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(49): class Outer {\n\t_foo = 1;\n\tbaz() {\n\t\treturn this._foo;\n\t}\n\n\tinner = class {\n\t\t_foo = 2;\n\t\tqux() {\n\t\t\treturn this._foo;\n\t\t}\n\t};\n} 1`] = `
+
+   1 | class Outer {
+   2 | 	_foo = 1;
+   3 | 	baz() {
+   4 | 		return this._foo;
+   5 | 	}
+   6 |
+   7 | 	inner = class {
+   8 | 		_foo = 2;
+   9 | 		qux() {
+  10 | 			return this._foo;
+  11 | 		}
+  12 | 	};
+  13 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(49): class Outer {\n\t_foo = 1;\n\tbaz() {\n\t\treturn this._foo;\n\t}\n\n\tinner = class {\n\t\t_foo = 2;\n\t\tqux() {\n\t\t\treturn this._foo;\n\t\t}\n\t};\n} 2`] = `
+
+Message:
+   1 | class Outer {
+>  2 | 	_foo = 1;
+     | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+   3 | 	baz() {
+   4 | 		return this._foo;
+   5 | 	}
+   6 |
+   7 | 	inner = class {
+   8 | 		_foo = 2;
+   9 | 		qux() {
+  10 | 			return this._foo;
+  11 | 		}
+  12 | 	};
+  13 | }
+
+Output:
+   1 | class Outer {
+   2 | 	#foo = 1;
+   3 | 	baz() {
+   4 | 		return this.#foo;
+   5 | 	}
+   6 |
+   7 | 	inner = class {
+   8 | 		_foo = 2;
+   9 | 		qux() {
+  10 | 			return this._foo;
+  11 | 		}
+  12 | 	};
+  13 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(49): class Outer {\n\t_foo = 1;\n\tbaz() {\n\t\treturn this._foo;\n\t}\n\n\tinner = class {\n\t\t_foo = 2;\n\t\tqux() {\n\t\t\treturn this._foo;\n\t\t}\n\t};\n} 3`] = `
+
+Message:
+   1 | class Outer {
+   2 | 	_foo = 1;
+   3 | 	baz() {
+   4 | 		return this._foo;
+   5 | 	}
+   6 |
+   7 | 	inner = class {
+>  8 | 		_foo = 2;
+     | 		^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+   9 | 		qux() {
+  10 | 			return this._foo;
+  11 | 		}
+  12 | 	};
+  13 | }
+
+Output:
+   1 | class Outer {
+   2 | 	_foo = 1;
+   3 | 	baz() {
+   4 | 		return this._foo;
+   5 | 	}
+   6 |
+   7 | 	inner = class {
+   8 | 		#foo = 2;
+   9 | 		qux() {
+  10 | 			return this.#foo;
+  11 | 		}
+  12 | 	};
+  13 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(5): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this!._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return this!._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(5): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this!._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this!._bar;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		return this!.#bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(5): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this?._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return this?._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(5): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this?._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this?._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(50): class Outer {\n\t_foo = 'x';\n\tmake() {\n\t\treturn class Inner {\n\t\t\t_foo = 1;\n\t\t\t[this._foo]() {}\n\t\t};\n\t}\n} 1`] = `
+
+  1 | class Outer {
+  2 | 	_foo = 'x';
+  3 | 	make() {
+  4 | 		return class Inner {
+  5 | 			_foo = 1;
+  6 | 			[this._foo]() {}
+  7 | 		};
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(50): class Outer {\n\t_foo = 'x';\n\tmake() {\n\t\treturn class Inner {\n\t\t\t_foo = 1;\n\t\t\t[this._foo]() {}\n\t\t};\n\t}\n} 2`] = `
+
+Message:
+  1 | class Outer {
+> 2 | 	_foo = 'x';
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	make() {
+  4 | 		return class Inner {
+  5 | 			_foo = 1;
+  6 | 			[this._foo]() {}
+  7 | 		};
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(50): class Outer {\n\t_foo = 'x';\n\tmake() {\n\t\treturn class Inner {\n\t\t\t_foo = 1;\n\t\t\t[this._foo]() {}\n\t\t};\n\t}\n} 3`] = `
+
+Message:
+  1 | class Outer {
+  2 | 	_foo = 'x';
+  3 | 	make() {
+  4 | 		return class Inner {
+> 5 | 			_foo = 1;
+    | 			^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  6 | 			[this._foo]() {}
+  7 | 		};
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(51): class Foo {\n\t_foo = 1;\n\tbaz() {\n\t\treturn super._foo;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	baz() {
+  4 | 		return super._foo;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(51): class Foo {\n\t_foo = 1;\n\tbaz() {\n\t\treturn super._foo;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	baz() {
+  4 | 		return super._foo;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(52): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tdelete this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		delete this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(52): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tdelete this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		delete this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(53): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tdelete this?._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		delete this?._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(53): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tdelete this?._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		delete this?._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(54): class Foo {\n\t_bar = 1;\n\t_bar = 2;\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	_bar = 2;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(54): class Foo {\n\t_bar = 1;\n\t_bar = 2;\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	_bar = 2;
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(55): class Foo {\n\t_bar = 1;\n\t['_bar'] = 2;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	['_bar'] = 2;
+  4 | 	baz() {
+  5 | 		return this._bar;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(55): class Foo {\n\t_bar = 1;\n\t['_bar'] = 2;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	['_bar'] = 2;
+  4 | 	baz() {
+  5 | 		return this._bar;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(56): class Foo {\n\t_bar = 1;\n\t['_' + 'bar'] = 2;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	['_' + 'bar'] = 2;
+  4 | 	baz() {
+  5 | 		return this._bar;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(56): class Foo {\n\t_bar = 1;\n\t['_' + 'bar'] = 2;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	['_' + 'bar'] = 2;
+  4 | 	baz() {
+  5 | 		return this._bar;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(57): class Foo {\n\tget _bar() { return 1; }\n\tget _bar() { return 2; }\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	get _bar() { return 1; }
+  3 | 	get _bar() { return 2; }
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(57): class Foo {\n\tget _bar() { return 1; }\n\tget _bar() { return 2; }\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	get _bar() { return 1; }
+    | 	    ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	get _bar() { return 2; }
+  4 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(58): class Foo {\n\tstatic _bar = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static _bar = 1;
+  3 | 	baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(58): class Foo {\n\tstatic _bar = 1;\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	static _bar = 1;
+    | 	       ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(59): class Foo {\n\t_bar = 1;\n\tstatic baz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	static baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(59): class Foo {\n\t_bar = 1;\n\tstatic baz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	static baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(6): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn (this as Foo)._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return (this as Foo)._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(6): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn (this as Foo)._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return (this as Foo)._bar;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		return (this as Foo).#bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(6): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn [1].map(() => this._bar);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return [1].map(() => this._bar);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(6): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn [1].map(() => this._bar);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return [1].map(() => this._bar);
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		return [1].map(() => this.#bar);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(60): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this[\`_bar\`];\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return this[\`_bar\`];
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(60): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn this[\`_bar\`];\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return this[\`_bar\`];
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(61): class Foo {\n\t_bar = 1;\n\tstatic {\n\t\tthis._bar = 2;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	static {
+  4 | 		this._bar = 2;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(61): class Foo {\n\t_bar = 1;\n\tstatic {\n\t\tthis._bar = 2;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	static {
+  4 | 		this._bar = 2;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(62): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {['_bar']: value} = this;\n\t\treturn value;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		const {['_bar']: value} = this;
+  5 | 		return value;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(62): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {['_bar']: value} = this;\n\t\treturn value;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		const {['_bar']: value} = this;
+  5 | 		return value;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(63): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {['_' + 'bar']: value} = this;\n\t\treturn value;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		const {['_' + 'bar']: value} = this;
+  5 | 		return value;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(63): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tconst {['_' + 'bar']: value} = this;\n\t\treturn value;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		const {['_' + 'bar']: value} = this;
+  5 | 		return value;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(64): class Base {\n\t_bar() {\n\t\treturn 1;\n\t}\n\n\tbaz() {\n\t\treturn this._bar();\n\t}\n}\n\nclass Sub extends Base {\n\t_bar() {\n\t\treturn 2;\n\t}\n} 1`] = `
+
+   1 | class Base {
+   2 | 	_bar() {
+   3 | 		return 1;
+   4 | 	}
+   5 |
+   6 | 	baz() {
+   7 | 		return this._bar();
+   8 | 	}
+   9 | }
+  10 |
+  11 | class Sub extends Base {
+  12 | 	_bar() {
+  13 | 		return 2;
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(64): class Base {\n\t_bar() {\n\t\treturn 1;\n\t}\n\n\tbaz() {\n\t\treturn this._bar();\n\t}\n}\n\nclass Sub extends Base {\n\t_bar() {\n\t\treturn 2;\n\t}\n} 2`] = `
+
+Message:
+   1 | class Base {
+>  2 | 	_bar() {
+     | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+   3 | 		return 1;
+   4 | 	}
+   5 |
+   6 | 	baz() {
+   7 | 		return this._bar();
+   8 | 	}
+   9 | }
+  10 |
+  11 | class Sub extends Base {
+  12 | 	_bar() {
+  13 | 		return 2;
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(64): class Base {\n\t_bar() {\n\t\treturn 1;\n\t}\n\n\tbaz() {\n\t\treturn this._bar();\n\t}\n}\n\nclass Sub extends Base {\n\t_bar() {\n\t\treturn 2;\n\t}\n} 3`] = `
+
+Message:
+   1 | class Base {
+   2 | 	_bar() {
+   3 | 		return 1;
+   4 | 	}
+   5 |
+   6 | 	baz() {
+   7 | 		return this._bar();
+   8 | 	}
+   9 | }
+  10 |
+  11 | class Sub extends Base {
+> 12 | 	_bar() {
+     | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  13 | 		return 2;
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(65): class Base {\n\t_foo = 1;\n}\n\nclass Sub extends Base {\n\t_foo = 2;\n} 1`] = `
+
+  1 | class Base {
+  2 | 	_foo = 1;
+  3 | }
+  4 |
+  5 | class Sub extends Base {
+  6 | 	_foo = 2;
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(65): class Base {\n\t_foo = 1;\n}\n\nclass Sub extends Base {\n\t_foo = 2;\n} 2`] = `
+
+Message:
+  1 | class Base {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | }
+  4 |
+  5 | class Sub extends Base {
+  6 | 	_foo = 2;
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(65): class Base {\n\t_foo = 1;\n}\n\nclass Sub extends Base {\n\t_foo = 2;\n} 3`] = `
+
+Message:
+  1 | class Base {
+  2 | 	_foo = 1;
+  3 | }
+  4 |
+  5 | class Sub extends Base {
+> 6 | 	_foo = 2;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(66): class Foo {\n\t_bar = 1;\n}\n\nthis._bar; 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | }
+  4 |
+  5 | this._bar;
+
+`;
+
+exports[`prefer-private-class-fields > invalid(66): class Foo {\n\t_bar = 1;\n}\n\nthis._bar; 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | }
+  4 |
+  5 | this._bar;
+
+`;
+
+exports[`prefer-private-class-fields > invalid(67): class Foo {\n\t_bar = 1;\n\tbaz(key) {\n\t\tlet value;\n\t\t({[key]: value} = this);\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz(key) {
+  4 | 		let value;
+  5 | 		({[key]: value} = this);
+  6 | 		return this._bar;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(67): class Foo {\n\t_bar = 1;\n\tbaz(key) {\n\t\tlet value;\n\t\t({[key]: value} = this);\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz(key) {
+  4 | 		let value;
+  5 | 		({[key]: value} = this);
+  6 | 		return this._bar;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(68): class Foo {\n\t_bar = 1;\n\tbaz({[key]: value}) {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz({[key]: value}) {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(68): class Foo {\n\t_bar = 1;\n\tbaz({[key]: value}) {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz({[key]: value}) {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz({[key]: value}) {
+  4 | 		return this.#bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(7): class Foo {\n\t#value = 1;\n\tget _bar() {\n\t\treturn this.#value;\n\t}\n\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+   1 | class Foo {
+   2 | 	#value = 1;
+   3 | 	get _bar() {
+   4 | 		return this.#value;
+   5 | 	}
+   6 |
+   7 | 	baz() {
+   8 | 		return this._bar;
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(7): class Foo {\n\t#value = 1;\n\tget _bar() {\n\t\treturn this.#value;\n\t}\n\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+   1 | class Foo {
+   2 | 	#value = 1;
+>  3 | 	get _bar() {
+     | 	    ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+   4 | 		return this.#value;
+   5 | 	}
+   6 |
+   7 | 	baz() {
+   8 | 		return this._bar;
+   9 | 	}
+  10 | }
+
+Output:
+   1 | class Foo {
+   2 | 	#value = 1;
+   3 | 	get #bar() {
+   4 | 		return this.#value;
+   5 | 	}
+   6 |
+   7 | 	baz() {
+   8 | 		return this.#bar;
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(7): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn (this satisfies Foo)._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_bar = 1;
+  3 | 	baz() {
+  4 | 		return (this satisfies Foo)._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(7): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\treturn (this satisfies Foo)._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_bar = 1;
+    | 	^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	baz() {
+  4 | 		return (this satisfies Foo)._bar;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	baz() {
+  4 | 		return (this satisfies Foo).#bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(8): class Foo {\n\t#value = 1;\n\tget _bar() {\n\t\treturn this.#value;\n\t}\n\n\tset _bar(value) {\n\t\tthis.#value = value;\n\t}\n\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+   1 | class Foo {
+   2 | 	#value = 1;
+   3 | 	get _bar() {
+   4 | 		return this.#value;
+   5 | 	}
+   6 |
+   7 | 	set _bar(value) {
+   8 | 		this.#value = value;
+   9 | 	}
+  10 |
+  11 | 	baz() {
+  12 | 		return this._bar;
+  13 | 	}
+  14 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(8): class Foo {\n\t#value = 1;\n\tget _bar() {\n\t\treturn this.#value;\n\t}\n\n\tset _bar(value) {\n\t\tthis.#value = value;\n\t}\n\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+   1 | class Foo {
+   2 | 	#value = 1;
+>  3 | 	get _bar() {
+     | 	    ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+   4 | 		return this.#value;
+   5 | 	}
+   6 |
+   7 | 	set _bar(value) {
+   8 | 		this.#value = value;
+   9 | 	}
+  10 |
+  11 | 	baz() {
+  12 | 		return this._bar;
+  13 | 	}
+  14 | }
+
+Output:
+   1 | class Foo {
+   2 | 	#value = 1;
+   3 | 	get #bar() {
+   4 | 		return this.#value;
+   5 | 	}
+   6 |
+   7 | 	set #bar(value) {
+   8 | 		this.#value = value;
+   9 | 	}
+  10 |
+  11 | 	baz() {
+  12 | 		return this.#bar;
+  13 | 	}
+  14 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(8): class Foo {\n\t_foo = 1;\n\t@decorator(this._foo)\n\tbar = 1;\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	@decorator(this._foo)
+  4 | 	bar = 1;
+  5 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(8): class Foo {\n\t_foo = 1;\n\t@decorator(this._foo)\n\tbar = 1;\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	@decorator(this._foo)
+  4 | 	bar = 1;
+  5 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(9): class Foo {\n\t_foo = 1;\n\tbaz() {\n\t\tdelete this._foo!;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_foo = 1;
+  3 | 	baz() {
+  4 | 		delete this._foo!;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(9): class Foo {\n\t_foo = 1;\n\tbaz() {\n\t\tdelete this._foo!;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_foo = 1;
+    | 	^^^^ Prefer the private class field \`#foo\` over the underscore-prefixed \`_foo\`.
+  3 | 	baz() {
+  4 | 		delete this._foo!;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(9): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static _bar = 1;
+  3 | 	static baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(9): class Foo {\n\tstatic _bar = 1;\n\tstatic baz() {\n\t\treturn this._bar;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	static _bar = 1;
+    | 	       ^^^^ Prefer the private class field \`#bar\` over the underscore-prefixed \`_bar\`.
+  3 | 	static baz() {
+  4 | 		return this._bar;
+  5 | 	}
+  6 | }
+
+`;

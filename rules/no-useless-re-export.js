@@ -10,6 +10,8 @@ const messages = {
 const getName = node => node.type === 'Identifier' ? node.name : node.value;
 
 function getModuleRequest(declaration, sourceCode) {
+	// Defensive: some parsers omit `attributes` when there are none.
+	/* node:coverage ignore next */
 	const attributes = declaration.attributes ?? [];
 	return `${declaration.source.value}\u0000${attributes.map(attribute => sourceCode.getText(attribute)).join('\u0000')}`;
 }

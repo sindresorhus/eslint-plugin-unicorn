@@ -1,11 +1,9 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
 import {
-	getParenthesizedText,
-	isParenthesized,
 	isSameReference,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {createTypeCheckers} from './utils/type-helpers.js';
@@ -69,11 +67,8 @@ function getFieldEntries(node, fields) {
 		return node.arguments.map((value, index) => [fields[index] ?? 'calendar', value]);
 	}
 
+	// `getConversionMatch` only gets here for a `.from()` call with an object argument
 	const argument = unwrapTypeScriptExpression(node.arguments[0]);
-	if (argument.type !== 'ObjectExpression') {
-		return;
-	}
-
 	const entries = [];
 	for (const property of argument.properties) {
 		if (property.type !== 'Property' || property.computed || property.method || property.kind !== 'init') {
@@ -196,12 +191,7 @@ const create = context => {
 		}
 
 		const fix = fixer => {
-			let text = getParenthesizedText(source, context);
-			if (shouldAddParenthesesToMemberExpressionObject(source, context) && !isParenthesized(source, context)) {
-				text = `(${text})`;
-			}
-
-			text += `.${method}()`;
+			let text = `${getMemberExpressionObjectText(source, context)}.${method}()`;
 			if (needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {
 				text = `;${text}`;
 			}

@@ -27,6 +27,7 @@ test.snapshot({
 		'(value + 1) < 0 ? -(value + 1) : value + 1',
 		'Math.abs(value) > limit',
 		'Math.abs(value) >= limit',
+		'value > limit && value < -limit',
 	],
 	invalid: [
 		'value < 0 ? -value : value',
@@ -66,6 +67,7 @@ test.snapshot({
 				console.log(number);
 			}
 		`,
+		'import {value} from "./value.js"; value < 0 ? -value : value;',
 	],
 });
 
@@ -122,6 +124,11 @@ test.snapshot({
 		outdent`
 			function foo(value) {
 				return (value satisfies bigint) < 0 ? -(value satisfies bigint) : (value satisfies bigint);
+			}
+		`,
+		outdent`
+			function foo(value) {
+				return (value as bigint)! < 0 ? -(value as bigint)! : (value as bigint)!;
 			}
 		`,
 	],

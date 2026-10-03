@@ -113,6 +113,8 @@ const getTypesFromTypeInformation = (node, context) => {
 		if (types && !hasUserDefinedCollectionType(types, node, context)) {
 			return types;
 		}
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
 	}
@@ -239,18 +241,13 @@ const getBuiltinCollectionType = (node, context) => {
 	let hasMapType = false;
 	let hasSetType = false;
 
+	// `types` only ever holds names from `mapTypes` and `setTypes`
 	for (const type of types) {
 		if (mapTypes.has(type)) {
 			hasMapType = true;
-			continue;
-		}
-
-		if (setTypes.has(type)) {
+		} else {
 			hasSetType = true;
-			continue;
 		}
-
-		return;
 	}
 
 	if (hasMapType && hasSetType) {

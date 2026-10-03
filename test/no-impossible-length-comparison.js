@@ -94,6 +94,12 @@ if (object.length >= 0) {}`,
 const object = {length: 1};
 Object.defineProperties(object, {[key]: {get() { return -1; }}});
 if (object.length >= 0) {}`,
+		'if (array.length < 1) {}',
+		'if (array.length + 1 < 0) {}',
+		'if ((foo?.bar).array.length < 0) {}',
+		'if ((foo?.bar).getArray().length < 0) {}',
+		// A computed key makes the assigned property unknown
+		'const foo = {length: 1}; Object.assign(foo, {[key]: -1}); if (foo.length < 0) {}',
 	],
 	invalid: [
 		{

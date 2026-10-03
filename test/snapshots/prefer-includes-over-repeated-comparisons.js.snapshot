@@ -1,0 +1,331 @@
+exports[`prefer-includes-over-repeated-comparisons > invalid(1): value === \"a\" || value === \"b\" || value === \"c\"; 1`] = `
+
+  1 | value === "a" || value === "b" || value === "c";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(1): value === \"a\" || value === \"b\" || value === \"c\"; 2`] = `
+
+Message:
+> 1 | value === "a" || value === "b" || value === "c";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(10): object.value === \"a\" || object.value === \"b\"; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | object.value === "a" || object.value === "b";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(10): object.value === \"a\" || object.value === \"b\"; 2`] = `
+
+Message:
+> 1 | object.value === "a" || object.value === "b";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(11): object.foo === \"a\" || object[\"foo\"] === \"b\"; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | object.foo === "a" || object["foo"] === "b";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(11): object.foo === \"a\" || object[\"foo\"] === \"b\"; 2`] = `
+
+Message:
+> 1 | object.foo === "a" || object["foo"] === "b";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(12): object[key] === \"a\" || object[key] === \"b\"; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | object[key] === "a" || object[key] === "b";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(12): object[key] === \"a\" || object[key] === \"b\"; 2`] = `
+
+Message:
+> 1 | object[key] === "a" || object[key] === "b";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(13): value === object.a || value === object.b; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | value === object.a || value === object.b;
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(13): value === object.a || value === object.b; 2`] = `
+
+Message:
+> 1 | value === object.a || value === object.b;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(14): (value === \"a\") || (value === \"b\"); 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | (value === "a") || (value === "b");
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(14): (value === \"a\") || (value === \"b\"); 2`] = `
+
+Message:
+> 1 | (value === "a") || (value === "b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(15): (value === \"a\" || value === \"b\") && otherValue; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | (value === "a" || value === "b") && otherValue;
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(15): (value === \"a\" || value === \"b\") && otherValue; 2`] = `
+
+Message:
+> 1 | (value === "a" || value === "b") && otherValue;
+    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(16): value === \"a\" || value === \"b\" || value === \"c\"; 1`] = `
+
+Options:
+- minimumComparisons: 3
+
+Code:
+  1 | value === "a" || value === "b" || value === "c";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(16): value === \"a\" || value === \"b\" || value === \"c\"; 2`] = `
+
+Message:
+> 1 | value === "a" || value === "b" || value === "c";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(17): value! === \"a\" || value! === \"b\" || value! === \"c\"; 1`] = `
+
+  1 | value! === "a" || value! === "b" || value! === "c";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(17): value! === \"a\" || value! === \"b\" || value! === \"c\"; 2`] = `
+
+Message:
+> 1 | value! === "a" || value! === "b" || value! === "c";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(18): (value satisfies string) === \"a\" || (value satisfies string) === \"b\" || (value satisfies string) === \"c\"; 1`] = `
+
+  1 | (value satisfies string) === "a" || (value satisfies string) === "b" || (value satisfies string) === "c";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(18): (value satisfies string) === \"a\" || (value satisfies string) === \"b\" || (value satisfies string) === \"c\"; 2`] = `
+
+Message:
+> 1 | (value satisfies string) === "a" || (value satisfies string) === "b" || (value satisfies string) === "c";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(19): (value as {foo?: string}) === \"a\" || (value as {foo?: string}) === \"b\" || (value as {foo?: string}) === \"c\"; 1`] = `
+
+  1 | (value as {foo?: string}) === "a" || (value as {foo?: string}) === "b" || (value as {foo?: string}) === "c";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(19): (value as {foo?: string}) === \"a\" || (value as {foo?: string}) === \"b\" || (value as {foo?: string}) === \"c\"; 2`] = `
+
+Message:
+> 1 | (value as {foo?: string}) === "a" || (value as {foo?: string}) === "b" || (value as {foo?: string}) === "c";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(2): const object = {value: true}; Object.defineProperty(object, \"value\", {get() { return NaN; }}); value === (object.value ? NaN : other) || value === 2 || value === 3; 1`] = `
+
+  1 | const object = {value: true}; Object.defineProperty(object, "value", {get() { return NaN; }}); value === (object.value ? NaN : other) || value === 2 || value === 3;
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(2): const object = {value: true}; Object.defineProperty(object, \"value\", {get() { return NaN; }}); value === (object.value ? NaN : other) || value === 2 || value === 3; 2`] = `
+
+Message:
+> 1 | const object = {value: true}; Object.defineProperty(object, "value", {get() { return NaN; }}); value === (object.value ? NaN : other) || value === 2 || value === 3;
+    |                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(20): (object satisfies Foo).value === \"a\" || (object satisfies Foo).value === \"b\" || (object satisfies Foo).value === \"c\"; 1`] = `
+
+  1 | (object satisfies Foo).value === "a" || (object satisfies Foo).value === "b" || (object satisfies Foo).value === "c";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(20): (object satisfies Foo).value === \"a\" || (object satisfies Foo).value === \"b\" || (object satisfies Foo).value === \"c\"; 2`] = `
+
+Message:
+> 1 | (object satisfies Foo).value === "a" || (object satisfies Foo).value === "b" || (object satisfies Foo).value === "c";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(3): value === undefined || value === \"a\" || value === \"b\"; 1`] = `
+
+  1 | value === undefined || value === "a" || value === "b";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(3): value === undefined || value === \"a\" || value === \"b\"; 2`] = `
+
+Message:
+> 1 | value === undefined || value === "a" || value === "b";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(4): value === null || value === undefined; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | value === null || value === undefined;
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(4): value === null || value === undefined; 2`] = `
+
+Message:
+> 1 | value === null || value === undefined;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(5): value === \"a\" || value === \"b\"; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | value === "a" || value === "b";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(5): value === \"a\" || value === \"b\"; 2`] = `
+
+Message:
+> 1 | value === "a" || value === "b";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(6): \"a\" === value || \"b\" === value; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | "a" === value || "b" === value;
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(6): \"a\" === value || \"b\" === value; 2`] = `
+
+Message:
+> 1 | "a" === value || "b" === value;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(7): value === \"a\" || \"b\" === value; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | value === "a" || "b" === value;
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(7): value === \"a\" || \"b\" === value; 2`] = `
+
+Message:
+> 1 | value === "a" || "b" === value;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(8): value === first || value === second; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | value === first || value === second;
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(8): value === first || value === second; 2`] = `
+
+Message:
+> 1 | value === first || value === second;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(9): args[0] === \"-h\" || args[0] === \"--help\"; 1`] = `
+
+Options:
+- minimumComparisons: 2
+
+Code:
+  1 | args[0] === "-h" || args[0] === "--help";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(9): args[0] === \"-h\" || args[0] === \"--help\"; 2`] = `
+
+Message:
+> 1 | args[0] === "-h" || args[0] === "--help";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;

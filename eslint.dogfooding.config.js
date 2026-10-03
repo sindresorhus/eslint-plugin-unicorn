@@ -14,7 +14,8 @@ const config = [
 		'eslint-plugin/require-meta-default-options',
 		'@stylistic/max-len',
 		'internal/prefer-context-on',
-		'ava/no-ignored-test-files',
+		'node-test/no-duplicate-assertions',
+		'node-test/require-assertion',
 	]),
 	{
 		linterOptions: {
@@ -101,9 +102,10 @@ const config = [
 	{
 		files: [
 			'test/integration/projects.js',
+			'test/utils/test.js',
 		],
 		rules: {
-			// The project list is built when the module is loaded.
+			// The project list is built, and `node:test` is configured, when the module is loaded.
 			'unicorn/no-top-level-side-effects': 'off',
 		},
 	},

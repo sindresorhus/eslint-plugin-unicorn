@@ -93,5 +93,6 @@ test.snapshot({
 		typeAware('type Items = ReadonlySet<string>; declare const items: Items; Object.values(items);'),
 		typeAware('type Items = Map<string, number> | ReadonlyMap<string, number>; declare const items: Items; Object.entries(items);'),
 		'Object.keys(/* keep */ new Map())',
+		typescript('Object.values((value as Set<string>));'),
 	],
 });

@@ -1,0 +1,375 @@
+exports[`no-incorrect-template-string-interpolation > invalid(1): const greeting = \`Hello {name}\`; 1`] = `
+
+  1 | const greeting = \`Hello {name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(1): const greeting = \`Hello {name}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`Hello {name}\`;
+    |                         ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const greeting = \`Hello \${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(10): const greeting = \`Hello {firstName} {lastName}\`; 1`] = `
+
+  1 | const greeting = \`Hello {firstName} {lastName}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(10): const greeting = \`Hello {firstName} {lastName}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`Hello {firstName} {lastName}\`;
+    |                         ^^^^^^^^^^^ Use \`\${firstName}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{firstName}\` with \`\${firstName}\`.:
+  1 | const greeting = \`Hello \${firstName} {lastName}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(10): const greeting = \`Hello {firstName} {lastName}\`; 3`] = `
+
+Message:
+> 1 | const greeting = \`Hello {firstName} {lastName}\`;
+    |                                     ^^^^^^^^^^ Use \`\${lastName}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{lastName}\` with \`\${lastName}\`.:
+  1 | const greeting = \`Hello {firstName} \${lastName}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(11): const greeting = \`Hello $firstName} $lastName}\`; 1`] = `
+
+  1 | const greeting = \`Hello $firstName} $lastName}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(11): const greeting = \`Hello $firstName} $lastName}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`Hello $firstName} $lastName}\`;
+    |                         ^^^^^^^^^^^ Use \`\${firstName}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`$firstName}\` with \`\${firstName}\`.:
+  1 | const greeting = \`Hello \${firstName} $lastName}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(11): const greeting = \`Hello $firstName} $lastName}\`; 3`] = `
+
+Message:
+> 1 | const greeting = \`Hello $firstName} $lastName}\`;
+    |                                     ^^^^^^^^^^ Use \`\${lastName}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`$lastName}\` with \`\${lastName}\`.:
+  1 | const greeting = \`Hello $firstName} \${lastName}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(12): const greeting = \`Hello {firstName} \${middleName} {lastName}\`; 1`] = `
+
+  1 | const greeting = \`Hello {firstName} \${middleName} {lastName}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(12): const greeting = \`Hello {firstName} \${middleName} {lastName}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`Hello {firstName} \${middleName} {lastName}\`;
+    |                         ^^^^^^^^^^^ Use \`\${firstName}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{firstName}\` with \`\${firstName}\`.:
+  1 | const greeting = \`Hello \${firstName} \${middleName} {lastName}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(12): const greeting = \`Hello {firstName} \${middleName} {lastName}\`; 3`] = `
+
+Message:
+> 1 | const greeting = \`Hello {firstName} \${middleName} {lastName}\`;
+    |                                                   ^^^^^^^^^^ Use \`\${lastName}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{lastName}\` with \`\${lastName}\`.:
+  1 | const greeting = \`Hello {firstName} \${middleName} \${lastName}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(13): const greeting = \`\${salutation}, {name}\`; 1`] = `
+
+  1 | const greeting = \`\${salutation}, {name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(13): const greeting = \`\${salutation}, {name}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`\${salutation}, {name}\`;
+    |                                  ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const greeting = \`\${salutation}, \${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(14): const greeting = \`\${salutation}, {name} \${punctuation}\`; 1`] = `
+
+  1 | const greeting = \`\${salutation}, {name} \${punctuation}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(14): const greeting = \`\${salutation}, {name} \${punctuation}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`\${salutation}, {name} \${punctuation}\`;
+    |                                  ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const greeting = \`\${salutation}, \${name} \${punctuation}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(15): const code = \`/** \${description}\r\n*/ {name}\`; 1`] = `
+
+  1 | const code = \`/** \${description}
+  2 | */ {name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(15): const code = \`/** \${description}\r\n*/ {name}\`; 2`] = `
+
+Message:
+  1 | const code = \`/** \${description}
+> 2 | */ {name}\`;
+    |    ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const code = \`/** \${description}
+  2 | */ \${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(16): const code = \`/* doc */ Hello {name}\`; 1`] = `
+
+  1 | const code = \`/* doc */ Hello {name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(16): const code = \`/* doc */ Hello {name}\`; 2`] = `
+
+Message:
+> 1 | const code = \`/* doc */ Hello {name}\`;
+    |                               ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const code = \`/* doc */ Hello \${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(17): const code = \`{name} /* {type} */\`; 1`] = `
+
+  1 | const code = \`{name} /* {type} */\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(17): const code = \`{name} /* {type} */\`; 2`] = `
+
+Message:
+> 1 | const code = \`{name} /* {type} */\`;
+    |               ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const code = \`\${name} /* {type} */\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(18): const code = \`const re = \"/*\"; {name}\`; 1`] = `
+
+  1 | const code = \`const re = "/*"; {name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(18): const code = \`const re = \"/*\"; {name}\`; 2`] = `
+
+Message:
+> 1 | const code = \`const re = "/*"; {name}\`;
+    |                                ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const code = \`const re = "/*"; \${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(19): const code = \`// {name}\`; 1`] = `
+
+  1 | const code = \`// {name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(19): const code = \`// {name}\`; 2`] = `
+
+Message:
+> 1 | const code = \`// {name}\`;
+    |                  ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const code = \`// \${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(2): const code = \`const x = {name};\`; 1`] = `
+
+  1 | const code = \`const x = {name};\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(2): const code = \`const x = {name};\`; 2`] = `
+
+Message:
+> 1 | const code = \`const x = {name};\`;
+    |                         ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const code = \`const x = \${name};\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(20): const blob = \`\\u{FEFF}{name}\`; 1`] = `
+
+  1 | const blob = \`\\u{FEFF}{name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(20): const blob = \`\\u{FEFF}{name}\`; 2`] = `
+
+Message:
+> 1 | const blob = \`\\u{FEFF}{name}\`;
+    |                       ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const blob = \`\\u{FEFF}\${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(3): const greeting = \`Please import {name} now\`; 1`] = `
+
+  1 | const greeting = \`Please import {name} now\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(3): const greeting = \`Please import {name} now\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`Please import {name} now\`;
+    |                                 ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const greeting = \`Please import \${name} now\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(4): const greeting = \`important {name}\`; 1`] = `
+
+  1 | const greeting = \`important {name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(4): const greeting = \`important {name}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`important {name}\`;
+    |                             ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const greeting = \`important \${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(5): const greeting = \`constant {name}\`; 1`] = `
+
+  1 | const greeting = \`constant {name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(5): const greeting = \`constant {name}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`constant {name}\`;
+    |                            ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{name}\` with \`\${name}\`.:
+  1 | const greeting = \`constant \${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(6): const code = \`const $foo} = bar;\`; 1`] = `
+
+  1 | const code = \`const $foo} = bar;\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(6): const code = \`const $foo} = bar;\`; 2`] = `
+
+Message:
+> 1 | const code = \`const $foo} = bar;\`;
+    |                     ^^^^^ Use \`\${foo}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`$foo}\` with \`\${foo}\`.:
+  1 | const code = \`const \${foo} = bar;\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(7): const greeting = \`Hello {user.name}\`; 1`] = `
+
+  1 | const greeting = \`Hello {user.name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(7): const greeting = \`Hello {user.name}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`Hello {user.name}\`;
+    |                         ^^^^^^^^^^^ Use \`\${user.name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`{user.name}\` with \`\${user.name}\`.:
+  1 | const greeting = \`Hello \${user.name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(8): const greeting = \`Hello $name}\`; 1`] = `
+
+  1 | const greeting = \`Hello $name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(8): const greeting = \`Hello $name}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`Hello $name}\`;
+    |                         ^^^^^^ Use \`\${name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`$name}\` with \`\${name}\`.:
+  1 | const greeting = \`Hello \${name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(9): const greeting = \`Hello $user.name}\`; 1`] = `
+
+  1 | const greeting = \`Hello $user.name}\`;
+
+`;
+
+exports[`no-incorrect-template-string-interpolation > invalid(9): const greeting = \`Hello $user.name}\`; 2`] = `
+
+Message:
+> 1 | const greeting = \`Hello $user.name}\`;
+    |                         ^^^^^^^^^^^ Use \`\${user.name}\` for template literal interpolation.
+
+Suggestion 1/1: Replace \`$user.name}\` with \`\${user.name}\`.:
+  1 | const greeting = \`Hello \${user.name}\`;
+
+`;

@@ -74,14 +74,14 @@ const assignmentNeedParenthesize = (node, sourceCode) => {
 		return false;
 	}
 
+	// A first element with a default value is not fixed, see `hasDefaultValue()`
 	const {left} = getDestructuringLeftAndRight(node);
-	const [element] = left.elements;
-	const {type} = element.type === 'AssignmentPattern' ? element.left : element;
+	const [{type}] = left.elements;
 	return type === 'ObjectExpression' || type === 'ObjectPattern';
 };
 
 const getDestructuringLeftAndRight = node => {
-	/* c8 ignore next 3 */
+	/* node:coverage ignore next 3 */
 	if (!node) {
 		return {};
 	}
@@ -132,7 +132,7 @@ function * fixDestructuring(node, fixer, context, {abort}) {
 		return abort();
 	}
 
-	const leftText = sourceCode.getText(element.type === 'AssignmentPattern' ? element.left : element);
+	const leftText = sourceCode.getText(element);
 	yield fixer.replaceText(left, leftText);
 
 	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI

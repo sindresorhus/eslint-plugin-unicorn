@@ -128,6 +128,21 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		'const object = Object.fromEntries([entry]); object.foo;',
+		'const object = Object.fromEntries([, ["foo", value]]); object.foo;',
+		'const object = Object.fromEntries(Object.entries(source)); object.foo?.bar;',
+		'const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(source, object);',
+		'const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object);',
+		'const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, ...keys);',
+		'const object = Object.fromEntries(Object.entries(source)); Object.keys(object, extra);',
+		'class Foo { #foo; bar() { const object = Object.fromEntries(Object.entries(source)); object.#foo; } }',
+		// The type and the value share one variable
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); type object = string; object.foo;',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 	invalid: [
 		'const object = Object.fromEntries([["foo", value]]); object.foo;',

@@ -227,6 +227,12 @@ test({
 				),
 			],
 		},
+		invalidMethodTest({
+			// A spread radix is not known to be base-10
+			code: 'parseInt("10", ...radix);',
+			output: 'Number.parseInt("10", ...radix);',
+			name: 'parseInt',
+		}),
 	],
 });
 

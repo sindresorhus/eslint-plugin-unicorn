@@ -1,0 +1,394 @@
+exports[`no-constant-zero-expression > invalid(1): x * 0; 1`] = `
+
+  1 | x * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(1): x * 0; 2`] = `
+
+Message:
+> 1 | x * 0;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(10): (x) & 0; 1`] = `
+
+  1 | (x) & 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(10): (x) & 0; 2`] = `
+
+Message:
+> 1 | (x) & 0;
+    | ^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(11): foo.bar * 0; 1`] = `
+
+  1 | foo.bar * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(11): foo.bar * 0; 2`] = `
+
+Message:
+> 1 | foo.bar * 0;
+    | ^^^^^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(12): foo() * 0; 1`] = `
+
+  1 | foo() * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(12): foo() * 0; 2`] = `
+
+Message:
+> 1 | foo() * 0;
+    | ^^^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(13): const object = {value: 1};\nObject.defineProperty(object, 'value', {get() { return 1n; }});\nobject.value * 0; 1`] = `
+
+  1 | const object = {value: 1};
+  2 | Object.defineProperty(object, 'value', {get() { return 1n; }});
+  3 | object.value * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(13): const object = {value: 1};\nObject.defineProperty(object, 'value', {get() { return 1n; }});\nobject.value * 0; 2`] = `
+
+Message:
+  1 | const object = {value: 1};
+  2 | Object.defineProperty(object, 'value', {get() { return 1n; }});
+> 3 | object.value * 0;
+    | ^^^^^^^^^^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(14): const object = {value: 1};\nObject.defineProperty(object, 'value', {get() { return 1n; }});\nconst value = object.value;\nvalue * 0; 1`] = `
+
+  1 | const object = {value: 1};
+  2 | Object.defineProperty(object, 'value', {get() { return 1n; }});
+  3 | const value = object.value;
+  4 | value * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(14): const object = {value: 1};\nObject.defineProperty(object, 'value', {get() { return 1n; }});\nconst value = object.value;\nvalue * 0; 2`] = `
+
+Message:
+  1 | const object = {value: 1};
+  2 | Object.defineProperty(object, 'value', {get() { return 1n; }});
+  3 | const value = object.value;
+> 4 | value * 0;
+    | ^^^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(15): const a = 5;\na * 0; 1`] = `
+
+  1 | const a = 5;
+  2 | a * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(15): const a = 5;\na * 0; 2`] = `
+
+Message:
+  1 | const a = 5;
+> 2 | a * 0;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+Suggestion 1/1: Replace this expression with \`0\`.:
+  1 | const a = 5;
+  2 | 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(16): 5 * 0; 1`] = `
+
+  1 | 5 * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(16): 5 * 0; 2`] = `
+
+Message:
+> 1 | 5 * 0;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+Suggestion 1/1: Replace this expression with \`0\`.:
+  1 | 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(17): 0 * 5; 1`] = `
+
+  1 | 0 * 5;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(17): 0 * 5; 2`] = `
+
+Message:
+> 1 | 0 * 5;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+Suggestion 1/1: Replace this expression with \`0\`.:
+  1 | 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(18): 7 & 0; 1`] = `
+
+  1 | 7 & 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(18): 7 & 0; 2`] = `
+
+Message:
+> 1 | 7 & 0;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+Suggestion 1/1: Replace this expression with \`0\`.:
+  1 | 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(19): 0 & 3; 1`] = `
+
+  1 | 0 & 3;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(19): 0 & 3; 2`] = `
+
+Message:
+> 1 | 0 & 3;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+Suggestion 1/1: Replace this expression with \`0\`.:
+  1 | 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(2): 0 * x; 1`] = `
+
+  1 | 0 * x;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(2): 0 * x; 2`] = `
+
+Message:
+> 1 | 0 * x;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(20): 0 / 5; 1`] = `
+
+  1 | 0 / 5;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(20): 0 / 5; 2`] = `
+
+Message:
+> 1 | 0 / 5;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+Suggestion 1/1: Replace this expression with \`0\`.:
+  1 | 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(21): -5 * 0; 1`] = `
+
+  1 | -5 * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(21): -5 * 0; 2`] = `
+
+Message:
+> 1 | -5 * 0;
+    | ^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(22): 0 / -5; 1`] = `
+
+  1 | 0 / -5;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(22): 0 / -5; 2`] = `
+
+Message:
+> 1 | 0 / -5;
+    | ^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(23): 0 / 0; 1`] = `
+
+  1 | 0 / 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(23): 0 / 0; 2`] = `
+
+Message:
+> 1 | 0 / 0;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(24): 5 /* keep */ * 0; 1`] = `
+
+  1 | 5 /* keep */ * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(24): 5 /* keep */ * 0; 2`] = `
+
+Message:
+> 1 | 5 /* keep */ * 0;
+    | ^^^^^^^^^^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(25): (x as number) * 0; 1`] = `
+
+  1 | (x as number) * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(25): (x as number) * 0; 2`] = `
+
+Message:
+> 1 | (x as number) * 0;
+    | ^^^^^^^^^^^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(26): x! & 0; 1`] = `
+
+  1 | x! & 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(26): x! & 0; 2`] = `
+
+Message:
+> 1 | x! & 0;
+    | ^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(3): 0.0 * x; 1`] = `
+
+  1 | 0.0 * x;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(3): 0.0 * x; 2`] = `
+
+Message:
+> 1 | 0.0 * x;
+    | ^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(4): x & 0; 1`] = `
+
+  1 | x & 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(4): x & 0; 2`] = `
+
+Message:
+> 1 | x & 0;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(5): 0 & x; 1`] = `
+
+  1 | 0 & x;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(5): 0 & x; 2`] = `
+
+Message:
+> 1 | 0 & x;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(6): 0 / x; 1`] = `
+
+  1 | 0 / x;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(6): 0 / x; 2`] = `
+
+Message:
+> 1 | 0 / x;
+    | ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(7): const y = value * 0; 1`] = `
+
+  1 | const y = value * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(7): const y = value * 0; 2`] = `
+
+Message:
+> 1 | const y = value * 0;
+    |           ^^^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(8): a + b * 0; 1`] = `
+
+  1 | a + b * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(8): a + b * 0; 2`] = `
+
+Message:
+> 1 | a + b * 0;
+    |     ^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;
+
+exports[`no-constant-zero-expression > invalid(9): (a + b) * 0; 1`] = `
+
+  1 | (a + b) * 0;
+
+`;
+
+exports[`no-constant-zero-expression > invalid(9): (a + b) * 0; 2`] = `
+
+Message:
+> 1 | (a + b) * 0;
+    | ^^^^^^^^^^^ This operation always evaluates to \`0\` (or \`-0\`/\`NaN\`), which is likely a mistake.
+
+`;

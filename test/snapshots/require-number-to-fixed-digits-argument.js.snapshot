@@ -1,0 +1,84 @@
+exports[`require-number-to-fixed-digits-argument > invalid(1): const string = number.toFixed(); 1`] = `
+
+  1 | const string = number.toFixed();
+
+`;
+
+exports[`require-number-to-fixed-digits-argument > invalid(1): const string = number.toFixed(); 2`] = `
+
+Message:
+> 1 | const string = number.toFixed();
+    |                              ^^ Missing the digits argument.
+
+Output:
+  1 | const string = number.toFixed(0);
+
+`;
+
+exports[`require-number-to-fixed-digits-argument > invalid(2): const string = number?.toFixed() ?? \"\"; 1`] = `
+
+  1 | const string = number?.toFixed() ?? "";
+
+`;
+
+exports[`require-number-to-fixed-digits-argument > invalid(2): const string = number?.toFixed() ?? \"\"; 2`] = `
+
+Message:
+> 1 | const string = number?.toFixed() ?? "";
+    |                               ^^ Missing the digits argument.
+
+Output:
+  1 | const string = number?.toFixed(0) ?? "";
+
+`;
+
+exports[`require-number-to-fixed-digits-argument > invalid(3): const string = number.toFixed( /* comment */ ); 1`] = `
+
+  1 | const string = number.toFixed( /* comment */ );
+
+`;
+
+exports[`require-number-to-fixed-digits-argument > invalid(3): const string = number.toFixed( /* comment */ ); 2`] = `
+
+Message:
+> 1 | const string = number.toFixed( /* comment */ );
+    |                              ^^^^^^^^^^^^^^^^^ Missing the digits argument.
+
+Output:
+  1 | const string = number.toFixed( /* comment */ 0);
+
+`;
+
+exports[`require-number-to-fixed-digits-argument > invalid(4): Number(1).toFixed() 1`] = `
+
+  1 | Number(1).toFixed()
+
+`;
+
+exports[`require-number-to-fixed-digits-argument > invalid(4): Number(1).toFixed() 2`] = `
+
+Message:
+> 1 | Number(1).toFixed()
+    |                  ^^ Missing the digits argument.
+
+Output:
+  1 | Number(1).toFixed(0)
+
+`;
+
+exports[`require-number-to-fixed-digits-argument > invalid(5): const bigNumber = new BigNumber(1); const string = bigNumber.toFixed(); 1`] = `
+
+  1 | const bigNumber = new BigNumber(1); const string = bigNumber.toFixed();
+
+`;
+
+exports[`require-number-to-fixed-digits-argument > invalid(5): const bigNumber = new BigNumber(1); const string = bigNumber.toFixed(); 2`] = `
+
+Message:
+> 1 | const bigNumber = new BigNumber(1); const string = bigNumber.toFixed();
+    |                                                                     ^^ Missing the digits argument.
+
+Output:
+  1 | const bigNumber = new BigNumber(1); const string = bigNumber.toFixed(0);
+
+`;

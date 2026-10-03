@@ -1,0 +1,632 @@
+exports[`prefer-single-object-destructuring > invalid(1): const foo = getFoo();\nconst {bar, baz} = foo; 1`] = `
+
+  1 | const foo = getFoo();
+  2 | const {bar, baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(1): const foo = getFoo();\nconst {bar, baz} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo();
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+  2 | const {bar, baz} = foo;
+
+Output:
+  1 | const {bar, baz} = getFoo();
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(1): const foo = {};\nconst {bar} = foo;\nconst {baz} = foo; 1`] = `
+
+  1 | const foo = {};
+  2 | const {bar} = foo;
+  3 | const {baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(1): const foo = {};\nconst {bar} = foo;\nconst {baz} = foo; 2`] = `
+
+Message:
+  1 | const foo = {};
+  2 | const {bar} = foo;
+> 3 | const {baz} = foo;
+    | ^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+
+Output:
+  1 | const foo = {};
+  2 | const {bar, baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(10): const foo = getFoo\`value\`; const {bar} = foo; 1`] = `
+
+  1 | const foo = getFoo\`value\`; const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(10): const foo = getFoo\`value\`; const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo\`value\`; const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = getFoo\`value\`;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(11): const foo = await getFoo(); const {bar} = foo; 1`] = `
+
+  1 | const foo = await getFoo(); const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(11): const foo = await getFoo(); const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = await getFoo(); const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = await getFoo();
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(12): const foo = getFoo(); const {bar} = foo; function other(foo) { return foo; } 1`] = `
+
+  1 | const foo = getFoo(); const {bar} = foo; function other(foo) { return foo; }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(12): const foo = getFoo(); const {bar} = foo; function other(foo) { return foo; } 2`] = `
+
+Message:
+> 1 | const foo = getFoo(); const {bar} = foo; function other(foo) { return foo; }
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = getFoo(); function other(foo) { return foo; }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(13): function useFoo() { const foo = getFoo(); const {bar} = foo; return bar; } 1`] = `
+
+  1 | function useFoo() { const foo = getFoo(); const {bar} = foo; return bar; }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(13): function useFoo() { const foo = getFoo(); const {bar} = foo; return bar; } 2`] = `
+
+Message:
+> 1 | function useFoo() { const foo = getFoo(); const {bar} = foo; return bar; }
+    |                           ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | function useFoo() { const {bar} = getFoo(); return bar; }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(14): { const foo = getFoo(); const {bar} = foo; } 1`] = `
+
+  1 | { const foo = getFoo(); const {bar} = foo; }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(14): { const foo = getFoo(); const {bar} = foo; } 2`] = `
+
+Message:
+> 1 | { const foo = getFoo(); const {bar} = foo; }
+    |         ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | { const {bar} = getFoo(); }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(15): class Foo { static { const foo = getFoo(); const {bar} = foo; } } 1`] = `
+
+  1 | class Foo { static { const foo = getFoo(); const {bar} = foo; } }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(15): class Foo { static { const foo = getFoo(); const {bar} = foo; } } 2`] = `
+
+Message:
+> 1 | class Foo { static { const foo = getFoo(); const {bar} = foo; } }
+    |                            ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | class Foo { static { const {bar} = getFoo(); } }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(16): switch (value) { case 1: const foo = getFoo(); const {bar} = foo; } 1`] = `
+
+  1 | switch (value) { case 1: const foo = getFoo(); const {bar} = foo; }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(16): switch (value) { case 1: const foo = getFoo(); const {bar} = foo; } 2`] = `
+
+Message:
+> 1 | switch (value) { case 1: const foo = getFoo(); const {bar} = foo; }
+    |                                ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | switch (value) { case 1: const {bar} = getFoo(); }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(17): const foo = getFoo({\n\tbar: 1,\n});\nconst {\n\tbar,\n} = foo; 1`] = `
+
+  1 | const foo = getFoo({
+  2 | 	bar: 1,
+  3 | });
+  4 | const {
+  5 | 	bar,
+  6 | } = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(17): const foo = getFoo({\n\tbar: 1,\n});\nconst {\n\tbar,\n} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo({
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+  2 | 	bar: 1,
+  3 | });
+  4 | const {
+  5 | 	bar,
+  6 | } = foo;
+
+Output:
+  1 | const {
+  2 | 	bar,
+  3 | } = getFoo({
+  4 | 	bar: 1,
+  5 | });
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(18): const foo = getFoo() as Foo; const {bar} = foo; 1`] = `
+
+  1 | const foo = getFoo() as Foo; const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(18): const foo = getFoo() as Foo; const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo() as Foo; const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = getFoo() as Foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(19): const foo = <Foo>getFoo(); const {bar} = foo; 1`] = `
+
+  1 | const foo = <Foo>getFoo(); const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(19): const foo = <Foo>getFoo(); const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = <Foo>getFoo(); const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = <Foo>getFoo();
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(2): const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo; 1`] = `
+
+  1 | const foo = getFoo();
+  2 | const {bar} = foo;
+  3 | const {baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(2): const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo; 2`] = `
+
+Message:
+  1 | const foo = getFoo();
+  2 | const {bar} = foo;
+> 3 | const {baz} = foo;
+    | ^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+
+Output:
+  1 | const foo = getFoo();
+  2 | const {bar, baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(2): const foo = {};\nlet {bar} = foo;\nlet {baz} = foo; 1`] = `
+
+  1 | const foo = {};
+  2 | let {bar} = foo;
+  3 | let {baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(2): const foo = {};\nlet {bar} = foo;\nlet {baz} = foo; 2`] = `
+
+Message:
+  1 | const foo = {};
+  2 | let {bar} = foo;
+> 3 | let {baz} = foo;
+    | ^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+
+Output:
+  1 | const foo = {};
+  2 | let {bar, baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(20): const foo = getFoo()!; const {bar} = foo; 1`] = `
+
+  1 | const foo = getFoo()!; const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(20): const foo = getFoo()!; const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo()!; const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = getFoo()!;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(21): const foo = getFoo() satisfies Foo; const {bar} = foo; 1`] = `
+
+  1 | const foo = getFoo() satisfies Foo; const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(21): const foo = getFoo() satisfies Foo; const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo() satisfies Foo; const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = getFoo() satisfies Foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(22): const foo = getFoo<Foo>(); const {bar} = foo; 1`] = `
+
+  1 | const foo = getFoo<Foo>(); const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(22): const foo = getFoo<Foo>(); const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo<Foo>(); const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = getFoo<Foo>();
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(3): const foo = getFoo(); const {bar: renamed} = foo; 1`] = `
+
+  1 | const foo = getFoo(); const {bar: renamed} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(3): const foo = getFoo(); const {bar: renamed} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo(); const {bar: renamed} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar: renamed} = getFoo();
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(3): const foo = {};\nconst {bar: renamed} = foo;\nconst {baz} = foo; 1`] = `
+
+  1 | const foo = {};
+  2 | const {bar: renamed} = foo;
+  3 | const {baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(3): const foo = {};\nconst {bar: renamed} = foo;\nconst {baz} = foo; 2`] = `
+
+Message:
+  1 | const foo = {};
+  2 | const {bar: renamed} = foo;
+> 3 | const {baz} = foo;
+    | ^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+
+Output:
+  1 | const foo = {};
+  2 | const {bar: renamed, baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(4): const foo = getFoo(); let {bar} = foo; bar = other; 1`] = `
+
+  1 | const foo = getFoo(); let {bar} = foo; bar = other;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(4): const foo = getFoo(); let {bar} = foo; bar = other; 2`] = `
+
+Message:
+> 1 | const foo = getFoo(); let {bar} = foo; bar = other;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | let {bar} = getFoo(); bar = other;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(4): const foo = {};\nconst {'bar': bar} = foo;\nconst {baz} = foo; 1`] = `
+
+  1 | const foo = {};
+  2 | const {'bar': bar} = foo;
+  3 | const {baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(4): const foo = {};\nconst {'bar': bar} = foo;\nconst {baz} = foo; 2`] = `
+
+Message:
+  1 | const foo = {};
+  2 | const {'bar': bar} = foo;
+> 3 | const {baz} = foo;
+    | ^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+
+Output:
+  1 | const foo = {};
+  2 | const {'bar': bar, baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(5): const foo = ((getFoo())); const {bar} = (foo); 1`] = `
+
+  1 | const foo = ((getFoo())); const {bar} = (foo);
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(5): const foo = ((getFoo())); const {bar} = (foo); 2`] = `
+
+Message:
+> 1 | const foo = ((getFoo())); const {bar} = (foo);
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = ((getFoo()));
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(5): for (const foo of foos) {\n\tconst {bar} = foo;\n\tconst {baz} = foo;\n} 1`] = `
+
+  1 | for (const foo of foos) {
+  2 | 	const {bar} = foo;
+  3 | 	const {baz} = foo;
+  4 | }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(5): for (const foo of foos) {\n\tconst {bar} = foo;\n\tconst {baz} = foo;\n} 2`] = `
+
+Message:
+  1 | for (const foo of foos) {
+  2 | 	const {bar} = foo;
+> 3 | 	const {baz} = foo;
+    | 	^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+  4 | }
+
+Output:
+  1 | for (const foo of foos) {
+  2 | 	const {bar, baz} = foo;
+  3 | }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(6): const foo = getFoo()?.bar; const {baz} = foo; 1`] = `
+
+  1 | const foo = getFoo()?.bar; const {baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(6): const foo = getFoo()?.bar; const {baz} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo()?.bar; const {baz} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {baz} = getFoo()?.bar;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(6): const foo = {};\nconst {\n\tbar\n} = foo;\nconst {\n\tbaz\n} = foo; 1`] = `
+
+  1 | const foo = {};
+  2 | const {
+  3 | 	bar
+  4 | } = foo;
+  5 | const {
+  6 | 	baz
+  7 | } = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(6): const foo = {};\nconst {\n\tbar\n} = foo;\nconst {\n\tbaz\n} = foo; 2`] = `
+
+Message:
+  1 | const foo = {};
+  2 | const {
+  3 | 	bar
+  4 | } = foo;
+> 5 | const {
+    | ^^^^^^^
+> 6 | 	baz
+    | ^^^^
+> 7 | } = foo;
+    | ^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+
+Output:
+  1 | const foo = {};
+  2 | const {bar, baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(7): const foo = source; const {bar} = foo; 1`] = `
+
+  1 | const foo = source; const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(7): const foo = source; const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = source; const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = source;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(7): {\n\tconst foo = {};\n\tconst {bar} = foo;\n\tconst {baz} = foo;\n} 1`] = `
+
+  1 | {
+  2 | 	const foo = {};
+  3 | 	const {bar} = foo;
+  4 | 	const {baz} = foo;
+  5 | }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(7): {\n\tconst foo = {};\n\tconst {bar} = foo;\n\tconst {baz} = foo;\n} 2`] = `
+
+Message:
+  1 | {
+  2 | 	const foo = {};
+  3 | 	const {bar} = foo;
+> 4 | 	const {baz} = foo;
+    | 	^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+  5 | }
+
+Output:
+  1 | {
+  2 | 	const foo = {};
+  3 | 	const {bar, baz} = foo;
+  4 | }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(8): class Foo {\n\tstatic {\n\t\tconst foo = {};\n\t\tconst {bar} = foo;\n\t\tconst {baz} = foo;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static {
+  3 | 		const foo = {};
+  4 | 		const {bar} = foo;
+  5 | 		const {baz} = foo;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(8): class Foo {\n\tstatic {\n\t\tconst foo = {};\n\t\tconst {bar} = foo;\n\t\tconst {baz} = foo;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	static {
+  3 | 		const foo = {};
+  4 | 		const {bar} = foo;
+> 5 | 		const {baz} = foo;
+    | 		^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+  6 | 	}
+  7 | }
+
+Output:
+  1 | class Foo {
+  2 | 	static {
+  3 | 		const foo = {};
+  4 | 		const {bar, baz} = foo;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(8): const foo = source.bar; const {baz} = foo; 1`] = `
+
+  1 | const foo = source.bar; const {baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(8): const foo = source.bar; const {baz} = foo; 2`] = `
+
+Message:
+> 1 | const foo = source.bar; const {baz} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {baz} = source.bar;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(9): const foo = new Foo(); const {bar} = foo; 1`] = `
+
+  1 | const foo = new Foo(); const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(9): const foo = new Foo(); const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = new Foo(); const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+Output:
+  1 | const {bar} = new Foo();
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(9): switch (value) {\n\tcase 1:\n\t\tconst foo = {};\n\t\tconst {bar} = foo;\n\t\tconst {baz} = foo;\n} 1`] = `
+
+  1 | switch (value) {
+  2 | 	case 1:
+  3 | 		const foo = {};
+  4 | 		const {bar} = foo;
+  5 | 		const {baz} = foo;
+  6 | }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(9): switch (value) {\n\tcase 1:\n\t\tconst foo = {};\n\t\tconst {bar} = foo;\n\t\tconst {baz} = foo;\n} 2`] = `
+
+Message:
+  1 | switch (value) {
+  2 | 	case 1:
+  3 | 		const foo = {};
+  4 | 		const {bar} = foo;
+> 5 | 		const {baz} = foo;
+    | 		^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+  6 | }
+
+Output:
+  1 | switch (value) {
+  2 | 	case 1:
+  3 | 		const foo = {};
+  4 | 		const {bar, baz} = foo;
+  5 | }
+
+`;

@@ -93,6 +93,16 @@ test.snapshot({
 			import {fileURLToPath} from "node:url";
 			const filename = fileURLToPath(import.meta['url'])
 		`,
+		// `fileURLToPath` is not imported from `url`
+		outdent`
+			import {fileURLToPath} from "./url.js";
+			const filename = fileURLToPath(import.meta.url);
+		`,
+		// The base is not the current directory
+		outdent`
+			import {fileURLToPath} from "node:url";
+			const dirname = fileURLToPath(new URL(base, import.meta.url));
+		`,
 	],
 	invalid: [
 		outdent`

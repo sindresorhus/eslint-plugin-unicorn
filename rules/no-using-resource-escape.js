@@ -12,11 +12,12 @@ const typeOnlyComputedKeyNodeTypes = new Set([
 ]);
 
 function getOwner(node) {
-	for (let {parent} = node; parent; parent = parent.parent) {
-		if (isFunction(parent) || parent.type === 'Program') {
-			return parent;
-		}
+	let {parent} = node;
+	while (!isFunction(parent) && parent.type !== 'Program') {
+		parent = parent.parent;
 	}
+
+	return parent;
 }
 
 function getUniqueDefinition(variable, definitionTypes) {
@@ -83,8 +84,9 @@ function isTypeOnlyComputedKey(node) {
 	);
 }
 
+// `node` is a reference captured by a function, so the walk always stops at that function.
 function isNonRuntimeReference(node) {
-	for (let child = node; child.parent; child = child.parent) {
+	for (let child = node; !isFunction(child.parent); child = child.parent) {
 		const {parent} = child;
 		if (parent.type === 'TSTypeQuery' || parent.type === 'JSXNamespacedName') {
 			return true;
@@ -92,10 +94,6 @@ function isNonRuntimeReference(node) {
 
 		if (isTypeOnlyComputedKey(parent) && parent.key === child) {
 			return true;
-		}
-
-		if (isFunction(parent) || parent.type === 'Program') {
-			return false;
 		}
 	}
 

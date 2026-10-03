@@ -1,0 +1,232 @@
+exports[`prefer-response-static-json > invalid(1): new Response(JSON.stringify(data)) 1`] = `
+
+  1 | new Response(JSON.stringify(data))
+
+`;
+
+exports[`prefer-response-static-json > invalid(1): new Response(JSON.stringify(data)) 2`] = `
+
+Message:
+> 1 | new Response(JSON.stringify(data))
+    |              ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+Output:
+  1 | Response.json(data)
+
+`;
+
+exports[`prefer-response-static-json > invalid(10): new Response(JSON.stringify(/* keep */ foo)); 1`] = `
+
+  1 | new Response(JSON.stringify(/* keep */ foo));
+
+`;
+
+exports[`prefer-response-static-json > invalid(10): new Response(JSON.stringify(/* keep */ foo)); 2`] = `
+
+Message:
+> 1 | new Response(JSON.stringify(/* keep */ foo));
+    |              ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+`;
+
+exports[`prefer-response-static-json > invalid(11): new Response(JSON.stringify(foo /* keep */)); 1`] = `
+
+  1 | new Response(JSON.stringify(foo /* keep */));
+
+`;
+
+exports[`prefer-response-static-json > invalid(11): new Response(JSON.stringify(foo /* keep */)); 2`] = `
+
+Message:
+> 1 | new Response(JSON.stringify(foo /* keep */));
+    |              ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+`;
+
+exports[`prefer-response-static-json > invalid(12): new Response( ( /* keep */ ( JSON.stringify( (( 0, foo )), ) ) ) ); 1`] = `
+
+  1 | new Response( ( /* keep */ ( JSON.stringify( (( 0, foo )), ) ) ) );
+
+`;
+
+exports[`prefer-response-static-json > invalid(12): new Response( ( /* keep */ ( JSON.stringify( (( 0, foo )), ) ) ) ); 2`] = `
+
+Message:
+> 1 | new Response( ( /* keep */ ( JSON.stringify( (( 0, foo )), ) ) ) );
+    |                              ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+`;
+
+exports[`prefer-response-static-json > invalid(13): new Response(JSON.stringify({a: 1 /* keep */})); 1`] = `
+
+  1 | new Response(JSON.stringify({a: 1 /* keep */}));
+
+`;
+
+exports[`prefer-response-static-json > invalid(13): new Response(JSON.stringify({a: 1 /* keep */})); 2`] = `
+
+Message:
+> 1 | new Response(JSON.stringify({a: 1 /* keep */}));
+    |              ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+Output:
+  1 | Response.json({a: 1 /* keep */});
+
+`;
+
+exports[`prefer-response-static-json > invalid(2): new Response(JSON.stringify(data), extraArgument) 1`] = `
+
+  1 | new Response(JSON.stringify(data), extraArgument)
+
+`;
+
+exports[`prefer-response-static-json > invalid(2): new Response(JSON.stringify(data), extraArgument) 2`] = `
+
+Message:
+> 1 | new Response(JSON.stringify(data), extraArgument)
+    |              ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+Output:
+  1 | Response.json(data, extraArgument)
+
+`;
+
+exports[`prefer-response-static-json > invalid(3): new Response( (( JSON.stringify( (( 0, data )), ) )), ) 1`] = `
+
+  1 | new Response( (( JSON.stringify( (( 0, data )), ) )), )
+
+`;
+
+exports[`prefer-response-static-json > invalid(3): new Response( (( JSON.stringify( (( 0, data )), ) )), ) 2`] = `
+
+Message:
+> 1 | new Response( (( JSON.stringify( (( 0, data )), ) )), )
+    |                  ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+Output:
+  1 | Response.json( (( 0, data )), )
+
+`;
+
+exports[`prefer-response-static-json > invalid(4): function foo() {\n\treturn new // comment\n\t\tResponse(JSON.stringify(data))\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return new // comment
+  3 | 		Response(JSON.stringify(data))
+  4 | }
+
+`;
+
+exports[`prefer-response-static-json > invalid(4): function foo() {\n\treturn new // comment\n\t\tResponse(JSON.stringify(data))\n} 2`] = `
+
+Message:
+  1 | function foo() {
+  2 | 	return new // comment
+> 3 | 		Response(JSON.stringify(data))
+    | 		         ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+  4 | }
+
+Output:
+  1 | function foo() {
+  2 | 	return ( // comment
+  3 | 		Response.json(data))
+  4 | }
+
+`;
+
+exports[`prefer-response-static-json > invalid(5): new Response(JSON.stringify(data), {status: 200}) 1`] = `
+
+  1 | new Response(JSON.stringify(data), {status: 200})
+
+`;
+
+exports[`prefer-response-static-json > invalid(5): new Response(JSON.stringify(data), {status: 200}) 2`] = `
+
+Message:
+> 1 | new Response(JSON.stringify(data), {status: 200})
+    |              ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+Output:
+  1 | Response.json(data, {status: 200})
+
+`;
+
+exports[`prefer-response-static-json > invalid(6): foo\nnew (( Response ))(JSON.stringify(data)) 1`] = `
+
+  1 | foo
+  2 | new (( Response ))(JSON.stringify(data))
+
+`;
+
+exports[`prefer-response-static-json > invalid(6): foo\nnew (( Response ))(JSON.stringify(data)) 2`] = `
+
+Message:
+  1 | foo
+> 2 | new (( Response ))(JSON.stringify(data))
+    |                    ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+Output:
+  1 | foo
+  2 | ;(( Response.json ))(data)
+
+`;
+
+exports[`prefer-response-static-json > invalid(7): foo;\nnew (( Response ))(JSON.stringify(data)) 1`] = `
+
+  1 | foo;
+  2 | new (( Response ))(JSON.stringify(data))
+
+`;
+
+exports[`prefer-response-static-json > invalid(7): foo;\nnew (( Response ))(JSON.stringify(data)) 2`] = `
+
+Message:
+  1 | foo;
+> 2 | new (( Response ))(JSON.stringify(data))
+    |                    ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+Output:
+  1 | foo;
+  2 | (( Response.json ))(data)
+
+`;
+
+exports[`prefer-response-static-json > invalid(8): foo;\n(( new (( Response ))(JSON.stringify(data)) )) 1`] = `
+
+  1 | foo;
+  2 | (( new (( Response ))(JSON.stringify(data)) ))
+
+`;
+
+exports[`prefer-response-static-json > invalid(8): foo;\n(( new (( Response ))(JSON.stringify(data)) )) 2`] = `
+
+Message:
+  1 | foo;
+> 2 | (( new (( Response ))(JSON.stringify(data)) ))
+    |                       ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+Output:
+  1 | foo;
+  2 | (( (( Response.json ))(data) ))
+
+`;
+
+exports[`prefer-response-static-json > invalid(9): foo\n(( new (( Response ))(JSON.stringify(data)) )) 1`] = `
+
+  1 | foo
+  2 | (( new (( Response ))(JSON.stringify(data)) ))
+
+`;
+
+exports[`prefer-response-static-json > invalid(9): foo\n(( new (( Response ))(JSON.stringify(data)) )) 2`] = `
+
+Message:
+  1 | foo
+> 2 | (( new (( Response ))(JSON.stringify(data)) ))
+    |                       ^^^^^^^^^^^^^^ Prefer using \`Response.json(…)\` over \`JSON.stringify()\`.
+
+Output:
+  1 | foo
+  2 | (( (( Response.json ))(data) ))
+
+`;

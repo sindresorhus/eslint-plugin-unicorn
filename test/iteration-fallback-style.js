@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import unicorn from '../index.js';
@@ -177,6 +177,8 @@ ruleTest.snapshot({
 		fallbackStyle('if (items) { for (const item of getItems()) {} }'),
 		fallbackStyle('if (items) { for (const item of items ?? []) {} }'),
 		fallbackStyle('if (items?.length) { for (const item of items?.length) {} }'),
+		fallbackStyle('if (items != other) { for (const item of items) {} }'),
+		fallbackStyle('if (getItems() != null) { for (const item of getItems()) {} }'),
 	],
 	invalid: [
 		fallbackStyle('if (items) { for (const item of items) {} }'),
@@ -211,11 +213,15 @@ test('iteration-fallback-style rejects invalid style options', t => {
 	});
 
 	for (const options of [[], ['guard'], ['fallback']]) {
-		t.notThrows(() => verify(options));
+		verify(options);
 	}
 
-	for (const options of [['invalid'], [{}], ['guard', 'fallback']]) {
-		t.throws(() => verify(options));
+	for (const [options, message] of [
+		[['invalid'], /Value "invalid" should be equal to one of the allowed values/u],
+		[[{}], /Value \{\} should be equal to one of the allowed values/u],
+		[['guard', 'fallback'], /should NOT have more than 1 items/u],
+	]) {
+		t.assert.throws(() => verify(options), {message});
 	}
 });
 

@@ -128,7 +128,7 @@ const getParentByLevel = (node, level) => {
 		current = current.parent;
 	}
 
-	/* c8 ignore next 3 */
+	/* node:coverage ignore next 3 */
 	if (level === 0) {
 		return current;
 	}

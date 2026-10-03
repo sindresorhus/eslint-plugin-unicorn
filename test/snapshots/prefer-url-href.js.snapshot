@@ -1,0 +1,705 @@
+exports[`prefer-url-href > invalid(1): declare function getUrl(): URL; String(getUrl()); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getUrl(): URL; String(getUrl());
+
+`;
+
+exports[`prefer-url-href > invalid(1): declare function getUrl(): URL; String(getUrl()); 2`] = `
+
+Message:
+> 1 | declare function getUrl(): URL; String(getUrl());
+    |                                 ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(1): new URL(value).toString() 1`] = `
+
+  1 | new URL(value).toString()
+
+`;
+
+exports[`prefer-url-href > invalid(1): new URL(value).toString() 2`] = `
+
+Message:
+> 1 | new URL(value).toString()
+    |                ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | new URL(value).href
+
+`;
+
+exports[`prefer-url-href > invalid(10): String((a, new URL(x))) 1`] = `
+
+  1 | String((a, new URL(x)))
+
+`;
+
+exports[`prefer-url-href > invalid(10): String((a, new URL(x))) 2`] = `
+
+Message:
+> 1 | String((a, new URL(x)))
+    | ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | (a, new URL(x)).href
+
+`;
+
+exports[`prefer-url-href > invalid(11): new URL(value)!.toString() 1`] = `
+
+  1 | new URL(value)!.toString()
+
+`;
+
+exports[`prefer-url-href > invalid(11): new URL(value)!.toString() 2`] = `
+
+Message:
+> 1 | new URL(value)!.toString()
+    |                 ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | new URL(value)!.href
+
+`;
+
+exports[`prefer-url-href > invalid(12): const url = new URL(value); url.toString = () => \"custom\"; url.toString() 1`] = `
+
+  1 | const url = new URL(value); url.toString = () => "custom"; url.toString()
+
+`;
+
+exports[`prefer-url-href > invalid(12): const url = new URL(value); url.toString = () => \"custom\"; url.toString() 2`] = `
+
+Message:
+> 1 | const url = new URL(value); url.toString = () => "custom"; url.toString()
+    |                                                                ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(13): const url = new URL(value); url.toString = () => \"custom\"; String(url) 1`] = `
+
+  1 | const url = new URL(value); url.toString = () => "custom"; String(url)
+
+`;
+
+exports[`prefer-url-href > invalid(13): const url = new URL(value); url.toString = () => \"custom\"; String(url) 2`] = `
+
+Message:
+> 1 | const url = new URL(value); url.toString = () => "custom"; String(url)
+    |                                                            ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(14): import {URL} from \"node:url\"; new URL(value).toString() 1`] = `
+
+  1 | import {URL} from "node:url"; new URL(value).toString()
+
+`;
+
+exports[`prefer-url-href > invalid(14): import {URL} from \"node:url\"; new URL(value).toString() 2`] = `
+
+Message:
+> 1 | import {URL} from "node:url"; new URL(value).toString()
+    |                                              ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | import {URL} from "node:url"; new URL(value).href
+
+`;
+
+exports[`prefer-url-href > invalid(15): import {URL as NodeURL} from \"url\"; String(new NodeURL(value)) 1`] = `
+
+  1 | import {URL as NodeURL} from "url"; String(new NodeURL(value))
+
+`;
+
+exports[`prefer-url-href > invalid(15): import {URL as NodeURL} from \"url\"; String(new NodeURL(value)) 2`] = `
+
+Message:
+> 1 | import {URL as NodeURL} from "url"; String(new NodeURL(value))
+    |                                     ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | import {URL as NodeURL} from "url"; new NodeURL(value).href
+
+`;
+
+exports[`prefer-url-href > invalid(16): import {URL as NodeURL} from \"node:url\"; const url = new NodeURL(value); String(url) 1`] = `
+
+  1 | import {URL as NodeURL} from "node:url"; const url = new NodeURL(value); String(url)
+
+`;
+
+exports[`prefer-url-href > invalid(16): import {URL as NodeURL} from \"node:url\"; const url = new NodeURL(value); String(url) 2`] = `
+
+Message:
+> 1 | import {URL as NodeURL} from "node:url"; const url = new NodeURL(value); String(url)
+    |                                                                          ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(17): import type {URL} from \"node:url\"; new URL(value).toString(); 1`] = `
+
+  1 | import type {URL} from "node:url"; new URL(value).toString();
+
+`;
+
+exports[`prefer-url-href > invalid(17): import type {URL} from \"node:url\"; new URL(value).toString(); 2`] = `
+
+Message:
+> 1 | import type {URL} from "node:url"; new URL(value).toString();
+    |                                                   ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | import type {URL} from "node:url"; new URL(value).href;
+
+`;
+
+exports[`prefer-url-href > invalid(18): import type {URL} from \"node:url\"; String(new URL(value)); 1`] = `
+
+  1 | import type {URL} from "node:url"; String(new URL(value));
+
+`;
+
+exports[`prefer-url-href > invalid(18): import type {URL} from \"node:url\"; String(new URL(value)); 2`] = `
+
+Message:
+> 1 | import type {URL} from "node:url"; String(new URL(value));
+    |                                    ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | import type {URL} from "node:url"; new URL(value).href;
+
+`;
+
+exports[`prefer-url-href > invalid(19): fetch(new URL(value).toString()) 1`] = `
+
+  1 | fetch(new URL(value).toString())
+
+`;
+
+exports[`prefer-url-href > invalid(19): fetch(new URL(value).toString()) 2`] = `
+
+Message:
+> 1 | fetch(new URL(value).toString())
+    |                      ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | fetch(new URL(value).href)
+
+`;
+
+exports[`prefer-url-href > invalid(2): (new URL(value)).toString() 1`] = `
+
+  1 | (new URL(value)).toString()
+
+`;
+
+exports[`prefer-url-href > invalid(2): (new URL(value)).toString() 2`] = `
+
+Message:
+> 1 | (new URL(value)).toString()
+    |                  ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | (new URL(value)).href
+
+`;
+
+exports[`prefer-url-href > invalid(2): declare function getUrl(): URL; getUrl().toString(); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getUrl(): URL; getUrl().toString();
+
+`;
+
+exports[`prefer-url-href > invalid(2): declare function getUrl(): URL; getUrl().toString(); 2`] = `
+
+Message:
+> 1 | declare function getUrl(): URL; getUrl().toString();
+    |                                          ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(20): const url = new URL(value); fetch(url.toString()) 1`] = `
+
+  1 | const url = new URL(value); fetch(url.toString())
+
+`;
+
+exports[`prefer-url-href > invalid(20): const url = new URL(value); fetch(url.toString()) 2`] = `
+
+Message:
+> 1 | const url = new URL(value); fetch(url.toString())
+    |                                       ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(21): (new URL(value).toString)() 1`] = `
+
+  1 | (new URL(value).toString)()
+
+`;
+
+exports[`prefer-url-href > invalid(21): (new URL(value).toString)() 2`] = `
+
+Message:
+> 1 | (new URL(value).toString)()
+    |                 ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(22): const url = new URL(value); (url.toString)() 1`] = `
+
+  1 | const url = new URL(value); (url.toString)()
+
+`;
+
+exports[`prefer-url-href > invalid(22): const url = new URL(value); (url.toString)() 2`] = `
+
+Message:
+> 1 | const url = new URL(value); (url.toString)()
+    |                                  ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(23): function foo(url: URL) { return url.toString(); } 1`] = `
+
+  1 | function foo(url: URL) { return url.toString(); }
+
+`;
+
+exports[`prefer-url-href > invalid(23): function foo(url: URL) { return url.toString(); } 2`] = `
+
+Message:
+> 1 | function foo(url: URL) { return url.toString(); }
+    |                                     ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(24): function foo(url: URL) { return String(url); } 1`] = `
+
+  1 | function foo(url: URL) { return String(url); }
+
+`;
+
+exports[`prefer-url-href > invalid(24): function foo(url: URL) { return String(url); } 2`] = `
+
+Message:
+> 1 | function foo(url: URL) { return String(url); }
+    |                                 ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(25): function foo(url: URL) { url.toString = () => \"custom\"; return String(url); } 1`] = `
+
+  1 | function foo(url: URL) { url.toString = () => "custom"; return String(url); }
+
+`;
+
+exports[`prefer-url-href > invalid(25): function foo(url: URL) { url.toString = () => \"custom\"; return String(url); } 2`] = `
+
+Message:
+> 1 | function foo(url: URL) { url.toString = () => "custom"; return String(url); }
+    |                                                                ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(26): let url: URL = new URL(value); url.toString = () => \"custom\"; url.toString(); 1`] = `
+
+  1 | let url: URL = new URL(value); url.toString = () => "custom"; url.toString();
+
+`;
+
+exports[`prefer-url-href > invalid(26): let url: URL = new URL(value); url.toString = () => \"custom\"; url.toString(); 2`] = `
+
+Message:
+> 1 | let url: URL = new URL(value); url.toString = () => "custom"; url.toString();
+    |                                                                   ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(27): const url: URL | string = new URL(value); String(url); 1`] = `
+
+  1 | const url: URL | string = new URL(value); String(url);
+
+`;
+
+exports[`prefer-url-href > invalid(27): const url: URL | string = new URL(value); String(url); 2`] = `
+
+Message:
+> 1 | const url: URL | string = new URL(value); String(url);
+    |                                           ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(28): const url: unknown = new URL(value); url.toString(); 1`] = `
+
+  1 | const url: unknown = new URL(value); url.toString();
+
+`;
+
+exports[`prefer-url-href > invalid(28): const url: unknown = new URL(value); url.toString(); 2`] = `
+
+Message:
+> 1 | const url: unknown = new URL(value); url.toString();
+    |                                          ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(29): type Url = URL; function foo(url: Url) { return url.toString(); } 1`] = `
+
+  1 | type Url = URL; function foo(url: Url) { return url.toString(); }
+
+`;
+
+exports[`prefer-url-href > invalid(29): type Url = URL; function foo(url: Url) { return url.toString(); } 2`] = `
+
+Message:
+> 1 | type Url = URL; function foo(url: Url) { return url.toString(); }
+    |                                                     ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(3): String(new URL(value)) 1`] = `
+
+  1 | String(new URL(value))
+
+`;
+
+exports[`prefer-url-href > invalid(3): String(new URL(value)) 2`] = `
+
+Message:
+> 1 | String(new URL(value))
+    | ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | new URL(value).href
+
+`;
+
+exports[`prefer-url-href > invalid(3): import {URL} from \"node:url\"; declare function getUrl(): URL; String(getUrl()); 1`] = `
+
+Filename: file.ts
+
+  1 | import {URL} from "node:url"; declare function getUrl(): URL; String(getUrl());
+
+`;
+
+exports[`prefer-url-href > invalid(3): import {URL} from \"node:url\"; declare function getUrl(): URL; String(getUrl()); 2`] = `
+
+Message:
+> 1 | import {URL} from "node:url"; declare function getUrl(): URL; String(getUrl());
+    |                                                               ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(30): import type {URL} from \"node:url\"; function foo(url: URL) { return String(url); } 1`] = `
+
+  1 | import type {URL} from "node:url"; function foo(url: URL) { return String(url); }
+
+`;
+
+exports[`prefer-url-href > invalid(30): import type {URL} from \"node:url\"; function foo(url: URL) { return String(url); } 2`] = `
+
+Message:
+> 1 | import type {URL} from "node:url"; function foo(url: URL) { return String(url); }
+    |                                                                    ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(31): String(new URL(value) as URL) 1`] = `
+
+  1 | String(new URL(value) as URL)
+
+`;
+
+exports[`prefer-url-href > invalid(31): String(new URL(value) as URL) 2`] = `
+
+Message:
+> 1 | String(new URL(value) as URL)
+    | ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | (new URL(value) as URL).href
+
+`;
+
+exports[`prefer-url-href > invalid(32): (new URL(value) as URL).toString() 1`] = `
+
+  1 | (new URL(value) as URL).toString()
+
+`;
+
+exports[`prefer-url-href > invalid(32): (new URL(value) as URL).toString() 2`] = `
+
+Message:
+> 1 | (new URL(value) as URL).toString()
+    |                         ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | (new URL(value) as URL).href
+
+`;
+
+exports[`prefer-url-href > invalid(33): const url = foo as URL; String(url) 1`] = `
+
+  1 | const url = foo as URL; String(url)
+
+`;
+
+exports[`prefer-url-href > invalid(33): const url = foo as URL; String(url) 2`] = `
+
+Message:
+> 1 | const url = foo as URL; String(url)
+    |                         ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(34): type Url = URL; const url: Url = new URL(value); { type Url = string; String(url); } 1`] = `
+
+  1 | type Url = URL; const url: Url = new URL(value); { type Url = string; String(url); }
+
+`;
+
+exports[`prefer-url-href > invalid(34): type Url = URL; const url: Url = new URL(value); { type Url = string; String(url); } 2`] = `
+
+Message:
+> 1 | type Url = URL; const url: Url = new URL(value); { type Url = string; String(url); }
+    |                                                                       ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(35): type Url = URL; function foo(url: Url) { type Url = string; String(url); } 1`] = `
+
+  1 | type Url = URL; function foo(url: Url) { type Url = string; String(url); }
+
+`;
+
+exports[`prefer-url-href > invalid(35): type Url = URL; function foo(url: Url) { type Url = string; String(url); } 2`] = `
+
+Message:
+> 1 | type Url = URL; function foo(url: Url) { type Url = string; String(url); }
+    |                                                             ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(36): const foo = 1\nString((new URL(value))) 1`] = `
+
+  1 | const foo = 1
+  2 | String((new URL(value)))
+
+`;
+
+exports[`prefer-url-href > invalid(36): const foo = 1\nString((new URL(value))) 2`] = `
+
+Message:
+  1 | const foo = 1
+> 2 | String((new URL(value)))
+    | ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | const foo = 1
+  2 | ;(new URL(value)).href
+
+`;
+
+exports[`prefer-url-href > invalid(37): new URL(/* comment */ value).toString() 1`] = `
+
+  1 | new URL(/* comment */ value).toString()
+
+`;
+
+exports[`prefer-url-href > invalid(37): new URL(/* comment */ value).toString() 2`] = `
+
+Message:
+> 1 | new URL(/* comment */ value).toString()
+    |                              ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(38): String(/* comment */ new URL(value)) 1`] = `
+
+  1 | String(/* comment */ new URL(value))
+
+`;
+
+exports[`prefer-url-href > invalid(38): String(/* comment */ new URL(value)) 2`] = `
+
+Message:
+> 1 | String(/* comment */ new URL(value))
+    | ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(39): const url = new URL(value); url.toString(/* comment */) 1`] = `
+
+  1 | const url = new URL(value); url.toString(/* comment */)
+
+`;
+
+exports[`prefer-url-href > invalid(39): const url = new URL(value); url.toString(/* comment */) 2`] = `
+
+Message:
+> 1 | const url = new URL(value); url.toString(/* comment */)
+    |                                 ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(4): String((new URL(value))) 1`] = `
+
+  1 | String((new URL(value)))
+
+`;
+
+exports[`prefer-url-href > invalid(4): String((new URL(value))) 2`] = `
+
+Message:
+> 1 | String((new URL(value)))
+    | ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | (new URL(value)).href
+
+`;
+
+exports[`prefer-url-href > invalid(4): import {URL as NodeURL} from \"url\"; declare function getUrl(): NodeURL; getUrl().toString(); 1`] = `
+
+Filename: file.ts
+
+  1 | import {URL as NodeURL} from "url"; declare function getUrl(): NodeURL; getUrl().toString();
+
+`;
+
+exports[`prefer-url-href > invalid(4): import {URL as NodeURL} from \"url\"; declare function getUrl(): NodeURL; getUrl().toString(); 2`] = `
+
+Message:
+> 1 | import {URL as NodeURL} from "url"; declare function getUrl(): NodeURL; getUrl().toString();
+    |                                                                                  ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(5): const url = new URL(value); url.toString() 1`] = `
+
+  1 | const url = new URL(value); url.toString()
+
+`;
+
+exports[`prefer-url-href > invalid(5): const url = new URL(value); url.toString() 2`] = `
+
+Message:
+> 1 | const url = new URL(value); url.toString()
+    |                                 ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(5): import {URL} from \"node:url\"; declare function getUrl(): URL & URL; String(getUrl()); 1`] = `
+
+Filename: file.ts
+
+  1 | import {URL} from "node:url"; declare function getUrl(): URL & URL; String(getUrl());
+
+`;
+
+exports[`prefer-url-href > invalid(5): import {URL} from \"node:url\"; declare function getUrl(): URL & URL; String(getUrl()); 2`] = `
+
+Message:
+> 1 | import {URL} from "node:url"; declare function getUrl(): URL & URL; String(getUrl());
+    |                                                                     ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(6): const url = new URL(value); String(url) 1`] = `
+
+  1 | const url = new URL(value); String(url)
+
+`;
+
+exports[`prefer-url-href > invalid(6): const url = new URL(value); String(url) 2`] = `
+
+Message:
+> 1 | const url = new URL(value); String(url)
+    |                             ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(6): declare const url: import(\"node:url\").URL; String(url); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const url: import("node:url").URL; String(url);
+
+`;
+
+exports[`prefer-url-href > invalid(6): declare const url: import(\"node:url\").URL; String(url); 2`] = `
+
+Message:
+> 1 | declare const url: import("node:url").URL; String(url);
+    |                                            ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(7): const url = new URL(value); const url2 = url; url2.toString() 1`] = `
+
+  1 | const url = new URL(value); const url2 = url; url2.toString()
+
+`;
+
+exports[`prefer-url-href > invalid(7): const url = new URL(value); const url2 = url; url2.toString() 2`] = `
+
+Message:
+> 1 | const url = new URL(value); const url2 = url; url2.toString()
+    |                                                    ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(7): type Url = import(\"url\").URL; declare const url: Url; String(url); 1`] = `
+
+Filename: file.ts
+
+  1 | type Url = import("url").URL; declare const url: Url; String(url);
+
+`;
+
+exports[`prefer-url-href > invalid(7): type Url = import(\"url\").URL; declare const url: Url; String(url); 2`] = `
+
+Message:
+> 1 | type Url = import("url").URL; declare const url: Url; String(url);
+    |                                                       ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(8): const url = condition ? new URL(a) : new URL(b); String(url) 1`] = `
+
+  1 | const url = condition ? new URL(a) : new URL(b); String(url)
+
+`;
+
+exports[`prefer-url-href > invalid(8): const url = condition ? new URL(a) : new URL(b); String(url) 2`] = `
+
+Message:
+> 1 | const url = condition ? new URL(a) : new URL(b); String(url)
+    |                                                  ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+`;
+
+exports[`prefer-url-href > invalid(9): String(condition ? new URL(a) : new URL(b)) 1`] = `
+
+  1 | String(condition ? new URL(a) : new URL(b))
+
+`;
+
+exports[`prefer-url-href > invalid(9): String(condition ? new URL(a) : new URL(b)) 2`] = `
+
+Message:
+> 1 | String(condition ? new URL(a) : new URL(b))
+    | ^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
+
+Output:
+  1 | (condition ? new URL(a) : new URL(b)).href
+
+`;

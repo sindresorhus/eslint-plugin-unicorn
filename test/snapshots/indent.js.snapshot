@@ -1,0 +1,1536 @@
+exports[`indent > invalid(1): {\n\"value\": 1\n} 1`] = `
+
+  1 | {
+  2 | "value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(1): {\n\"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 | "value": 1
+    | ^ Expected indentation of 1 tab.
+  3 | }
+
+Output:
+  1 | {
+  2 | 	"value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(10):   {\"value\": 1} 1`] = `
+
+  1 |   {"value": 1}
+
+`;
+
+exports[`indent > invalid(10):   {\"value\": 1} 2`] = `
+
+Message:
+> 1 |   {"value": 1}
+    | ^^ Expected indentation of 0 tabs.
+
+Output:
+  1 | {"value": 1}
+
+`;
+
+exports[`indent > invalid(11): \t42 1`] = `
+
+  1 | 	42
+
+`;
+
+exports[`indent > invalid(11): \t42 2`] = `
+
+Message:
+> 1 | 	42
+    | ^ Expected indentation of 0 tabs.
+
+Output:
+  1 | 42
+
+`;
+
+exports[`indent > invalid(12): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 1`] = `
+
+  1 | {
+  2 |  	"value": [1, {
+  3 | "nested": "[{]}"
+  4 | }]
+  5 | }
+
+`;
+
+exports[`indent > invalid(12): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |  	"value": [1, {
+    | ^^ Expected indentation of 1 tab.
+  3 | "nested": "[{]}"
+  4 | }]
+  5 | }
+
+Output:
+  1 | {
+  2 | 	"value": [1, {
+  3 | "nested": "[{]}"
+  4 | }]
+  5 | }
+
+`;
+
+exports[`indent > invalid(12): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 3`] = `
+
+Message:
+  1 | {
+  2 |  	"value": [1, {
+> 3 | "nested": "[{]}"
+    | ^ Expected indentation of 3 tabs.
+  4 | }]
+  5 | }
+
+Output:
+  1 | {
+  2 |  	"value": [1, {
+  3 | 			"nested": "[{]}"
+  4 | }]
+  5 | }
+
+`;
+
+exports[`indent > invalid(12): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 4`] = `
+
+Message:
+  1 | {
+  2 |  	"value": [1, {
+  3 | "nested": "[{]}"
+> 4 | }]
+    | ^ Expected indentation of 2 tabs.
+  5 | }
+
+Output:
+  1 | {
+  2 |  	"value": [1, {
+  3 | "nested": "[{]}"
+  4 | 		}]
+  5 | }
+
+`;
+
+exports[`indent > invalid(13): {\n\t\"value\": 1\n} 1`] = `
+
+Options:
+- indent: 2
+
+Code:
+  1 | {
+  2 | 	"value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(13): {\n\t\"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 | 	"value": 1
+    | ^ Expected indentation of 2 spaces.
+  3 | }
+
+Output:
+  1 | {
+  2 |   "value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(14): [\n  1\n] 1`] = `
+
+Options:
+- indent: 4
+
+Code:
+  1 | [
+  2 |   1
+  3 | ]
+
+`;
+
+exports[`indent > invalid(14): [\n  1\n] 2`] = `
+
+Message:
+  1 | [
+> 2 |   1
+    | ^^ Expected indentation of 4 spaces.
+  3 | ]
+
+Output:
+  1 | [
+  2 |     1
+  3 | ]
+
+`;
+
+exports[`indent > invalid(15): {\n\"value\": 1\n} 1`] = `
+
+  1 | {
+  2 | "value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(15): {\n\"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 | "value": 1
+    | ^ Expected indentation of 1 tab.
+  3 | }
+
+Output:
+  1 | {
+  2 | 	"value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(16): {\n   \"value\": 1\n  } 1`] = `
+
+  1 | {
+  2 |    "value": 1
+  3 |   }
+
+`;
+
+exports[`indent > invalid(16): {\n   \"value\": 1\n  } 2`] = `
+
+Message:
+  1 | {
+> 2 |    "value": 1
+    | ^^^ Expected indentation of 1 tab.
+  3 |   }
+
+Output:
+  1 | {
+  2 | 	"value": 1
+  3 |   }
+
+`;
+
+exports[`indent > invalid(16): {\n   \"value\": 1\n  } 3`] = `
+
+Message:
+  1 | {
+  2 |    "value": 1
+> 3 |   }
+    | ^^ Expected indentation of 0 tabs.
+
+Output:
+  1 | {
+  2 |    "value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(17):   {\"value\": 1} 1`] = `
+
+  1 |   {"value": 1}
+
+`;
+
+exports[`indent > invalid(17):   {\"value\": 1} 2`] = `
+
+Message:
+> 1 |   {"value": 1}
+    | ^^ Expected indentation of 0 tabs.
+
+Output:
+  1 | {"value": 1}
+
+`;
+
+exports[`indent > invalid(18): \t42 1`] = `
+
+  1 | 	42
+
+`;
+
+exports[`indent > invalid(18): \t42 2`] = `
+
+Message:
+> 1 | 	42
+    | ^ Expected indentation of 0 tabs.
+
+Output:
+  1 | 42
+
+`;
+
+exports[`indent > invalid(19): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 1`] = `
+
+  1 | {
+  2 |  	"value": [1, {
+  3 | "nested": "[{]}"
+  4 | }]
+  5 | }
+
+`;
+
+exports[`indent > invalid(19): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |  	"value": [1, {
+    | ^^ Expected indentation of 1 tab.
+  3 | "nested": "[{]}"
+  4 | }]
+  5 | }
+
+Output:
+  1 | {
+  2 | 	"value": [1, {
+  3 | "nested": "[{]}"
+  4 | }]
+  5 | }
+
+`;
+
+exports[`indent > invalid(19): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 3`] = `
+
+Message:
+  1 | {
+  2 |  	"value": [1, {
+> 3 | "nested": "[{]}"
+    | ^ Expected indentation of 3 tabs.
+  4 | }]
+  5 | }
+
+Output:
+  1 | {
+  2 |  	"value": [1, {
+  3 | 			"nested": "[{]}"
+  4 | }]
+  5 | }
+
+`;
+
+exports[`indent > invalid(19): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 4`] = `
+
+Message:
+  1 | {
+  2 |  	"value": [1, {
+  3 | "nested": "[{]}"
+> 4 | }]
+    | ^ Expected indentation of 2 tabs.
+  5 | }
+
+Output:
+  1 | {
+  2 |  	"value": [1, {
+  3 | "nested": "[{]}"
+  4 | 		}]
+  5 | }
+
+`;
+
+exports[`indent > invalid(2): {\n   \"value\": 1\n  } 1`] = `
+
+  1 | {
+  2 |    "value": 1
+  3 |   }
+
+`;
+
+exports[`indent > invalid(2): {\n   \"value\": 1\n  } 2`] = `
+
+Message:
+  1 | {
+> 2 |    "value": 1
+    | ^^^ Expected indentation of 1 tab.
+  3 |   }
+
+Output:
+  1 | {
+  2 | 	"value": 1
+  3 |   }
+
+`;
+
+exports[`indent > invalid(2): {\n   \"value\": 1\n  } 3`] = `
+
+Message:
+  1 | {
+  2 |    "value": 1
+> 3 |   }
+    | ^^ Expected indentation of 0 tabs.
+
+Output:
+  1 | {
+  2 |    "value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(20): {\n\t\"value\": 1\n} 1`] = `
+
+Options:
+- indent: 2
+
+Code:
+  1 | {
+  2 | 	"value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(20): {\n\t\"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 | 	"value": 1
+    | ^ Expected indentation of 2 spaces.
+  3 | }
+
+Output:
+  1 | {
+  2 |   "value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(21): [\n  1\n] 1`] = `
+
+Options:
+- indent: 4
+
+Code:
+  1 | [
+  2 |   1
+  3 | ]
+
+`;
+
+exports[`indent > invalid(21): [\n  1\n] 2`] = `
+
+Message:
+  1 | [
+> 2 |   1
+    | ^^ Expected indentation of 4 spaces.
+  3 | ]
+
+Output:
+  1 | [
+  2 |     1
+  3 | ]
+
+`;
+
+exports[`indent > invalid(22): {\n // comment\n \"value\": 1\n} 1`] = `
+
+  1 | {
+  2 |  // comment
+  3 |  "value": 1
+  4 | }
+
+`;
+
+exports[`indent > invalid(22): {\n // comment\n \"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |  // comment
+    | ^ Expected indentation of 1 tab.
+  3 |  "value": 1
+  4 | }
+
+Output:
+  1 | {
+  2 | 	// comment
+  3 |  "value": 1
+  4 | }
+
+`;
+
+exports[`indent > invalid(22): {\n // comment\n \"value\": 1\n} 3`] = `
+
+Message:
+  1 | {
+  2 |  // comment
+> 3 |  "value": 1
+    | ^ Expected indentation of 1 tab.
+  4 | }
+
+Output:
+  1 | {
+  2 |  // comment
+  3 | 	"value": 1
+  4 | }
+
+`;
+
+exports[`indent > invalid(23): {\n /* comment\n  * preserve indentation\n */ \"value\": 1\n} 1`] = `
+
+  1 | {
+  2 |  /* comment
+  3 |   * preserve indentation
+  4 |  */ "value": 1
+  5 | }
+
+`;
+
+exports[`indent > invalid(23): {\n /* comment\n  * preserve indentation\n */ \"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |  /* comment
+    | ^ Expected indentation of 1 tab.
+  3 |   * preserve indentation
+  4 |  */ "value": 1
+  5 | }
+
+Output:
+  1 | {
+  2 | 	/* comment
+  3 |   * preserve indentation
+  4 |  */ "value": 1
+  5 | }
+
+`;
+
+exports[`indent > invalid(24):   // header comment\n{} 1`] = `
+
+  1 |   // header comment
+  2 | {}
+
+`;
+
+exports[`indent > invalid(24):   // header comment\n{} 2`] = `
+
+Message:
+> 1 |   // header comment
+    | ^^ Expected indentation of 0 tabs.
+  2 | {}
+
+Output:
+  1 | // header comment
+  2 | {}
+
+`;
+
+exports[`indent > invalid(25): {\n/* comment */ } 1`] = `
+
+  1 | {
+  2 | /* comment */ }
+
+`;
+
+exports[`indent > invalid(25): {\n/* comment */ } 2`] = `
+
+Message:
+  1 | {
+> 2 | /* comment */ }
+    | ^ Expected indentation of 1 tab.
+
+Output:
+  1 | {
+  2 | 	/* comment */ }
+
+`;
+
+exports[`indent > invalid(26): {\n // comment\n \"value\": 1\n} 1`] = `
+
+  1 | {
+  2 |  // comment
+  3 |  "value": 1
+  4 | }
+
+`;
+
+exports[`indent > invalid(26): {\n // comment\n \"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |  // comment
+    | ^ Expected indentation of 1 tab.
+  3 |  "value": 1
+  4 | }
+
+Output:
+  1 | {
+  2 | 	// comment
+  3 |  "value": 1
+  4 | }
+
+`;
+
+exports[`indent > invalid(26): {\n // comment\n \"value\": 1\n} 3`] = `
+
+Message:
+  1 | {
+  2 |  // comment
+> 3 |  "value": 1
+    | ^ Expected indentation of 1 tab.
+  4 | }
+
+Output:
+  1 | {
+  2 |  // comment
+  3 | 	"value": 1
+  4 | }
+
+`;
+
+exports[`indent > invalid(27): {\n /* comment\n  * preserve indentation\n */ \"value\": 1\n} 1`] = `
+
+  1 | {
+  2 |  /* comment
+  3 |   * preserve indentation
+  4 |  */ "value": 1
+  5 | }
+
+`;
+
+exports[`indent > invalid(27): {\n /* comment\n  * preserve indentation\n */ \"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |  /* comment
+    | ^ Expected indentation of 1 tab.
+  3 |   * preserve indentation
+  4 |  */ "value": 1
+  5 | }
+
+Output:
+  1 | {
+  2 | 	/* comment
+  3 |   * preserve indentation
+  4 |  */ "value": 1
+  5 | }
+
+`;
+
+exports[`indent > invalid(28):   // header comment\n{} 1`] = `
+
+  1 |   // header comment
+  2 | {}
+
+`;
+
+exports[`indent > invalid(28):   // header comment\n{} 2`] = `
+
+Message:
+> 1 |   // header comment
+    | ^^ Expected indentation of 0 tabs.
+  2 | {}
+
+Output:
+  1 | // header comment
+  2 | {}
+
+`;
+
+exports[`indent > invalid(29): {\n/* comment */ } 1`] = `
+
+  1 | {
+  2 | /* comment */ }
+
+`;
+
+exports[`indent > invalid(29): {\n/* comment */ } 2`] = `
+
+Message:
+  1 | {
+> 2 | /* comment */ }
+    | ^ Expected indentation of 1 tab.
+
+Output:
+  1 | {
+  2 | 	/* comment */ }
+
+`;
+
+exports[`indent > invalid(3):   {\"value\": 1} 1`] = `
+
+  1 |   {"value": 1}
+
+`;
+
+exports[`indent > invalid(3):   {\"value\": 1} 2`] = `
+
+Message:
+> 1 |   {"value": 1}
+    | ^^ Expected indentation of 0 tabs.
+
+Output:
+  1 | {"value": 1}
+
+`;
+
+exports[`indent > invalid(30): {\n value: 1\n} 1`] = `
+
+  1 | {
+  2 |  value: 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(30): {\n value: 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |  value: 1
+    | ^ Expected indentation of 1 tab.
+  3 | }
+
+Output:
+  1 | {
+  2 | 	value: 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(31): {\n  value: 1\n} 1`] = `
+
+  1 | {
+  2 |   value: 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(31): {\n  value: 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |   value: 1
+    | ^^ Expected indentation of 1 tab.
+  3 | }
+
+Output:
+  1 | {
+  2 | 	value: 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(32): {\n\u000b\fvalue: 1\n} 1`] = `
+
+  1 | {
+  2 | value: 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(32): {\n\u000b\fvalue: 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 | value: 1
+    | ^^ Expected indentation of 1 tab.
+  3 | }
+
+Output:
+  1 | {
+  2 | 	value: 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(33): {\n  value: \"first\\\n  second\"\n} 1`] = `
+
+  1 | {
+  2 |   value: "first\\
+  3 |   second"
+  4 | }
+
+`;
+
+exports[`indent > invalid(33): {\n  value: \"first\\\n  second\"\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |   value: "first\\
+    | ^^ Expected indentation of 1 tab.
+  3 |   second"
+  4 | }
+
+Output:
+  1 | {
+  2 | 	value: "first\\
+  3 |   second"
+  4 | }
+
+`;
+
+exports[`indent > invalid(34): a {\n  color: red;\n} 1`] = `
+
+  1 | a {
+  2 |   color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(34): a {\n  color: red;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |   color: red;
+    | ^^ Expected indentation of 1 tab.
+  3 | }
+
+Output:
+  1 | a {
+  2 | 	color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(35): a {\n     color: red;\n} 1`] = `
+
+  1 | a {
+  2 |      color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(35): a {\n     color: red;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |      color: red;
+    | ^^^^^ Expected indentation of 2 tabs.
+  3 | }
+
+Output:
+  1 | a {
+  2 | 		color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(36): a {\n \t color: red;\n} 1`] = `
+
+  1 | a {
+  2 |  	 color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(36): a {\n \t color: red;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |  	 color: red;
+    | ^^^ Expected indentation of 2 tabs.
+  3 | }
+
+Output:
+  1 | a {
+  2 | 		color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(37): a {\n\t  color: red;\n} 1`] = `
+
+  1 | a {
+  2 | 	  color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(37): a {\n\t  color: red;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 | 	  color: red;
+    | ^^^ Expected indentation of 2 tabs.
+  3 | }
+
+Output:
+  1 | a {
+  2 | 		color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(38):   a,\n   b { color: red; } 1`] = `
+
+  1 |   a,
+  2 |    b { color: red; }
+
+`;
+
+exports[`indent > invalid(38):   a,\n   b { color: red; } 2`] = `
+
+Message:
+> 1 |   a,
+    | ^^ Expected indentation of 1 tab.
+  2 |    b { color: red; }
+
+Output:
+  1 | 	a,
+  2 |    b { color: red; }
+
+`;
+
+exports[`indent > invalid(38):   a,\n   b { color: red; } 3`] = `
+
+Message:
+  1 |   a,
+> 2 |    b { color: red; }
+    | ^^^ Expected indentation of 1 tab.
+
+Output:
+  1 |   a,
+  2 | 	b { color: red; }
+
+`;
+
+exports[`indent > invalid(39): @media screen {\n  a {\n      color: red;\n  }\n} 1`] = `
+
+  1 | @media screen {
+  2 |   a {
+  3 |       color: red;
+  4 |   }
+  5 | }
+
+`;
+
+exports[`indent > invalid(39): @media screen {\n  a {\n      color: red;\n  }\n} 2`] = `
+
+Message:
+  1 | @media screen {
+> 2 |   a {
+    | ^^ Expected indentation of 1 tab.
+  3 |       color: red;
+  4 |   }
+  5 | }
+
+Output:
+  1 | @media screen {
+  2 | 	a {
+  3 |       color: red;
+  4 |   }
+  5 | }
+
+`;
+
+exports[`indent > invalid(39): @media screen {\n  a {\n      color: red;\n  }\n} 3`] = `
+
+Message:
+  1 | @media screen {
+  2 |   a {
+> 3 |       color: red;
+    | ^^^^^^ Expected indentation of 2 tabs.
+  4 |   }
+  5 | }
+
+Output:
+  1 | @media screen {
+  2 |   a {
+  3 | 		color: red;
+  4 |   }
+  5 | }
+
+`;
+
+exports[`indent > invalid(39): @media screen {\n  a {\n      color: red;\n  }\n} 4`] = `
+
+Message:
+  1 | @media screen {
+  2 |   a {
+  3 |       color: red;
+> 4 |   }
+    | ^^ Expected indentation of 1 tab.
+  5 | }
+
+Output:
+  1 | @media screen {
+  2 |   a {
+  3 |       color: red;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`indent > invalid(4): \t42 1`] = `
+
+  1 | 	42
+
+`;
+
+exports[`indent > invalid(4): \t42 2`] = `
+
+Message:
+> 1 | 	42
+    | ^ Expected indentation of 0 tabs.
+
+Output:
+  1 | 42
+
+`;
+
+exports[`indent > invalid(40): a {\n  color: rgb(\n   0 0 0\n  );\n} 1`] = `
+
+  1 | a {
+  2 |   color: rgb(
+  3 |    0 0 0
+  4 |   );
+  5 | }
+
+`;
+
+exports[`indent > invalid(40): a {\n  color: rgb(\n   0 0 0\n  );\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |   color: rgb(
+    | ^^ Expected indentation of 1 tab.
+  3 |    0 0 0
+  4 |   );
+  5 | }
+
+Output:
+  1 | a {
+  2 | 	color: rgb(
+  3 |    0 0 0
+  4 |   );
+  5 | }
+
+`;
+
+exports[`indent > invalid(40): a {\n  color: rgb(\n   0 0 0\n  );\n} 3`] = `
+
+Message:
+  1 | a {
+  2 |   color: rgb(
+> 3 |    0 0 0
+    | ^^^ Expected indentation of 1 tab.
+  4 |   );
+  5 | }
+
+Output:
+  1 | a {
+  2 |   color: rgb(
+  3 | 	0 0 0
+  4 |   );
+  5 | }
+
+`;
+
+exports[`indent > invalid(40): a {\n  color: rgb(\n   0 0 0\n  );\n} 4`] = `
+
+Message:
+  1 | a {
+  2 |   color: rgb(
+  3 |    0 0 0
+> 4 |   );
+    | ^^ Expected indentation of 1 tab.
+  5 | }
+
+Output:
+  1 | a {
+  2 |   color: rgb(
+  3 |    0 0 0
+  4 | 	);
+  5 | }
+
+`;
+
+exports[`indent > invalid(41):   /* comment\n * preserve indentation\n */\na {} 1`] = `
+
+  1 |   /* comment
+  2 |  * preserve indentation
+  3 |  */
+  4 | a {}
+
+`;
+
+exports[`indent > invalid(41):   /* comment\n * preserve indentation\n */\na {} 2`] = `
+
+Message:
+> 1 |   /* comment
+    | ^^ Expected indentation of 1 tab.
+  2 |  * preserve indentation
+  3 |  */
+  4 | a {}
+
+Output:
+  1 | 	/* comment
+  2 |  * preserve indentation
+  3 |  */
+  4 | a {}
+
+`;
+
+exports[`indent > invalid(42): a {\n  background: url(\"data:image/svg+xml;utf8,<svg>{}</svg>\");\n} 1`] = `
+
+  1 | a {
+  2 |   background: url("data:image/svg+xml;utf8,<svg>{}</svg>");
+  3 | }
+
+`;
+
+exports[`indent > invalid(42): a {\n  background: url(\"data:image/svg+xml;utf8,<svg>{}</svg>\");\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |   background: url("data:image/svg+xml;utf8,<svg>{}</svg>");
+    | ^^ Expected indentation of 1 tab.
+  3 | }
+
+Output:
+  1 | a {
+  2 | 	background: url("data:image/svg+xml;utf8,<svg>{}</svg>");
+  3 | }
+
+`;
+
+exports[`indent > invalid(43): a {\n  --value: \"first\\\n  second\";\n} 1`] = `
+
+  1 | a {
+  2 |   --value: "first\\
+  3 |   second";
+  4 | }
+
+`;
+
+exports[`indent > invalid(43): a {\n  --value: \"first\\\n  second\";\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |   --value: "first\\
+    | ^^ Expected indentation of 1 tab.
+  3 |   second";
+  4 | }
+
+Output:
+  1 | a {
+  2 | 	--value: "first\\
+  3 |   second";
+  4 | }
+
+`;
+
+exports[`indent > invalid(44):    a {} 1`] = `
+
+  1 |    a {}
+
+`;
+
+exports[`indent > invalid(44):    a {} 2`] = `
+
+Message:
+> 1 |    a {}
+    | ^^ Expected indentation of 1 tab.
+
+Output:
+  1 | 	 a {}
+
+`;
+
+exports[`indent > invalid(45): a {\n  --value: foo\\31\n  bar;\n} 1`] = `
+
+  1 | a {
+  2 |   --value: foo\\31
+  3 |   bar;
+  4 | }
+
+`;
+
+exports[`indent > invalid(45): a {\n  --value: foo\\31\n  bar;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |   --value: foo\\31
+    | ^^ Expected indentation of 1 tab.
+  3 |   bar;
+  4 | }
+
+Output:
+  1 | a {
+  2 | 	--value: foo\\31
+  3 |   bar;
+  4 | }
+
+`;
+
+exports[`indent > invalid(45): a {\n  --value: foo\\31\n  bar;\n} 3`] = `
+
+Message:
+  1 | a {
+  2 |   --value: foo\\31
+> 3 |   bar;
+    | ^^ Expected indentation of 1 tab.
+  4 | }
+
+Output:
+  1 | a {
+  2 |   --value: foo\\31
+  3 | 	bar;
+  4 | }
+
+`;
+
+exports[`indent > invalid(46): a {\n\t color: red;\n} 1`] = `
+
+Options:
+- indent: 2
+
+Code:
+  1 | a {
+  2 | 	 color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(46): a {\n\t color: red;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 | 	 color: red;
+    | ^^ Expected indentation of 6 spaces.
+  3 | }
+
+Output:
+  1 | a {
+  2 |       color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(47): a {\n   color: red;\n} 1`] = `
+
+Options:
+- indent: 2
+
+Code:
+  1 | a {
+  2 |    color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(47): a {\n   color: red;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |    color: red;
+    | ^^^ Expected indentation of 4 spaces.
+  3 | }
+
+Output:
+  1 | a {
+  2 |     color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(48): a {\n \tcolor: red;\n} 1`] = `
+
+Options:
+- indent: 3
+  tabWidth: 8
+
+Code:
+  1 | a {
+  2 |  	color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(48): a {\n \tcolor: red;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |  	color: red;
+    | ^^ Expected indentation of 9 spaces.
+  3 | }
+
+Output:
+  1 | a {
+  2 |          color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(49): a {\n   color: red;\n} 1`] = `
+
+Options:
+- tabWidth: 2
+
+Code:
+  1 | a {
+  2 |    color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(49): a {\n   color: red;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 |    color: red;
+    | ^^^ Expected indentation of 2 tabs.
+  3 | }
+
+Output:
+  1 | a {
+  2 | 		color: red;
+  3 | }
+
+`;
+
+exports[`indent > invalid(5): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 1`] = `
+
+  1 | {
+  2 |  	"value": [1, {
+  3 | "nested": "[{]}"
+  4 | }]
+  5 | }
+
+`;
+
+exports[`indent > invalid(5): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |  	"value": [1, {
+    | ^^ Expected indentation of 1 tab.
+  3 | "nested": "[{]}"
+  4 | }]
+  5 | }
+
+Output:
+  1 | {
+  2 | 	"value": [1, {
+  3 | "nested": "[{]}"
+  4 | }]
+  5 | }
+
+`;
+
+exports[`indent > invalid(5): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 3`] = `
+
+Message:
+  1 | {
+  2 |  	"value": [1, {
+> 3 | "nested": "[{]}"
+    | ^ Expected indentation of 3 tabs.
+  4 | }]
+  5 | }
+
+Output:
+  1 | {
+  2 |  	"value": [1, {
+  3 | 			"nested": "[{]}"
+  4 | }]
+  5 | }
+
+`;
+
+exports[`indent > invalid(5): {\n \t\"value\": [1, {\n\"nested\": \"[{]}\"\n}]\n} 4`] = `
+
+Message:
+  1 | {
+  2 |  	"value": [1, {
+  3 | "nested": "[{]}"
+> 4 | }]
+    | ^ Expected indentation of 2 tabs.
+  5 | }
+
+Output:
+  1 | {
+  2 |  	"value": [1, {
+  3 | "nested": "[{]}"
+  4 | 		}]
+  5 | }
+
+`;
+
+exports[`indent > invalid(50): {\n  \"items\": [\n    1,\n  ],\n} 1`] = `
+
+  1 | {
+  2 |   "items": [
+  3 |     1,
+  4 |   ],
+  5 | }
+
+`;
+
+exports[`indent > invalid(50): {\n  \"items\": [\n    1,\n  ],\n} 2`] = `
+
+Message:
+  1 | {
+> 2 |   "items": [
+    | ^^ Expected indentation of 1 tab.
+  3 |     1,
+  4 |   ],
+  5 | }
+
+Output:
+  1 | {
+  2 | 	"items": [
+  3 |     1,
+  4 |   ],
+  5 | }
+
+`;
+
+exports[`indent > invalid(50): {\n  \"items\": [\n    1,\n  ],\n} 3`] = `
+
+Message:
+  1 | {
+  2 |   "items": [
+> 3 |     1,
+    | ^^^^ Expected indentation of 2 tabs.
+  4 |   ],
+  5 | }
+
+Output:
+  1 | {
+  2 |   "items": [
+  3 | 		1,
+  4 |   ],
+  5 | }
+
+`;
+
+exports[`indent > invalid(50): {\n  \"items\": [\n    1,\n  ],\n} 4`] = `
+
+Message:
+  1 | {
+  2 |   "items": [
+  3 |     1,
+> 4 |   ],
+    | ^^ Expected indentation of 1 tab.
+  5 | }
+
+Output:
+  1 | {
+  2 |   "items": [
+  3 |     1,
+  4 | 	],
+  5 | }
+
+`;
+
+exports[`indent > invalid(6): {\n\t\"value\": 1\n} 1`] = `
+
+Options:
+- indent: 2
+
+Code:
+  1 | {
+  2 | 	"value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(6): {\n\t\"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 | 	"value": 1
+    | ^ Expected indentation of 2 spaces.
+  3 | }
+
+Output:
+  1 | {
+  2 |   "value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(7): [\n  1\n] 1`] = `
+
+Options:
+- indent: 4
+
+Code:
+  1 | [
+  2 |   1
+  3 | ]
+
+`;
+
+exports[`indent > invalid(7): [\n  1\n] 2`] = `
+
+Message:
+  1 | [
+> 2 |   1
+    | ^^ Expected indentation of 4 spaces.
+  3 | ]
+
+Output:
+  1 | [
+  2 |     1
+  3 | ]
+
+`;
+
+exports[`indent > invalid(8): {\n\"value\": 1\n} 1`] = `
+
+  1 | {
+  2 | "value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(8): {\n\"value\": 1\n} 2`] = `
+
+Message:
+  1 | {
+> 2 | "value": 1
+    | ^ Expected indentation of 1 tab.
+  3 | }
+
+Output:
+  1 | {
+  2 | 	"value": 1
+  3 | }
+
+`;
+
+exports[`indent > invalid(9): {\n   \"value\": 1\n  } 1`] = `
+
+  1 | {
+  2 |    "value": 1
+  3 |   }
+
+`;
+
+exports[`indent > invalid(9): {\n   \"value\": 1\n  } 2`] = `
+
+Message:
+  1 | {
+> 2 |    "value": 1
+    | ^^^ Expected indentation of 1 tab.
+  3 |   }
+
+Output:
+  1 | {
+  2 | 	"value": 1
+  3 |   }
+
+`;
+
+exports[`indent > invalid(9): {\n   \"value\": 1\n  } 3`] = `
+
+Message:
+  1 | {
+  2 |    "value": 1
+> 3 |   }
+    | ^^ Expected indentation of 0 tabs.
+
+Output:
+  1 | {
+  2 |    "value": 1
+  3 | }
+
+`;

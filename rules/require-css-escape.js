@@ -28,18 +28,14 @@ const selectorMethods = [
 
 const hasUnclosedAttributeSelector = string => string.lastIndexOf('[') > string.lastIndexOf(']');
 
+// The template literal is not tagged, so an invalid escape is a syntax error and every quasi has a cooked value
 const getCookedText = quasi => quasi.value.cooked;
 
 const isAttributeSelectorInterpolation = (templateLiteral, expressionIndex) => {
 	let textBefore = '';
 
 	for (const quasi of templateLiteral.quasis.slice(0, expressionIndex + 1)) {
-		const cookedText = getCookedText(quasi);
-		if (cookedText === undefined) {
-			return false;
-		}
-
-		textBefore += cookedText;
+		textBefore += getCookedText(quasi);
 	}
 
 	if (!hasUnclosedAttributeSelector(textBefore)) {
@@ -47,12 +43,7 @@ const isAttributeSelectorInterpolation = (templateLiteral, expressionIndex) => {
 	}
 
 	for (const quasi of templateLiteral.quasis.slice(expressionIndex + 1)) {
-		const cookedText = getCookedText(quasi);
-		if (cookedText === undefined) {
-			return false;
-		}
-
-		if (cookedText.includes(']')) {
+		if (getCookedText(quasi).includes(']')) {
 			return true;
 		}
 	}

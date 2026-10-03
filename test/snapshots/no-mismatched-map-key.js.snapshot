@@ -1,0 +1,503 @@
+exports[`no-mismatched-map-key > invalid(1): function f(map: Map<string, number>) { if (map.has(\"a\")) { return map.get(\"b\"); } } 1`] = `
+
+  1 | function f(map: Map<string, number>) { if (map.has("a")) { return map.get("b"); } }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(1): function f(map: Map<string, number>) { if (map.has(\"a\")) { return map.get(\"b\"); } } 2`] = `
+
+Message:
+> 1 | function f(map: Map<string, number>) { if (map.has("a")) { return map.get("b"); } }
+    |                                                                           ^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(10): map.has(key) ? value : map.get(anotherKey); 1`] = `
+
+  1 | map.has(key) ? value : map.get(anotherKey);
+
+`;
+
+exports[`no-mismatched-map-key > invalid(10): map.has(key) ? value : map.get(anotherKey); 2`] = `
+
+Message:
+> 1 | map.has(key) ? value : map.get(anotherKey);
+    |                                ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(11): !map.has(key) ? value : map.get(anotherKey); 1`] = `
+
+  1 | !map.has(key) ? value : map.get(anotherKey);
+
+`;
+
+exports[`no-mismatched-map-key > invalid(11): !map.has(key) ? value : map.get(anotherKey); 2`] = `
+
+Message:
+> 1 | !map.has(key) ? value : map.get(anotherKey);
+    |                                 ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(12): if (map.has(key)) {} else { map.get(anotherKey); } 1`] = `
+
+  1 | if (map.has(key)) {} else { map.get(anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(12): if (map.has(key)) {} else { map.get(anotherKey); } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) {} else { map.get(anotherKey); }
+    |                                     ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(13): if (!map.has(key)) {} else { map.get(anotherKey); } 1`] = `
+
+  1 | if (!map.has(key)) {} else { map.get(anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(13): if (!map.has(key)) {} else { map.get(anotherKey); } 2`] = `
+
+Message:
+> 1 | if (!map.has(key)) {} else { map.get(anotherKey); }
+    |                                      ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(14): if (map.has(key)) { for (const item of items) { map.get(anotherKey); } } 1`] = `
+
+  1 | if (map.has(key)) { for (const item of items) { map.get(anotherKey); } }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(14): if (map.has(key)) { for (const item of items) { map.get(anotherKey); } } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { for (const item of items) { map.get(anotherKey); } }
+    |                                                         ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(15): map.has(key) ? (map.has(key) ? map.get(anotherKey) : value) : value; 1`] = `
+
+  1 | map.has(key) ? (map.has(key) ? map.get(anotherKey) : value) : value;
+
+`;
+
+exports[`no-mismatched-map-key > invalid(15): map.has(key) ? (map.has(key) ? map.get(anotherKey) : value) : value; 2`] = `
+
+Message:
+> 1 | map.has(key) ? (map.has(key) ? map.get(anotherKey) : value) : value;
+    |                                        ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(16): if (map.has(key)) { if (condition) { map.get(anotherKey); } } 1`] = `
+
+  1 | if (map.has(key)) { if (condition) { map.get(anotherKey); } }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(16): if (map.has(key)) { if (condition) { map.get(anotherKey); } } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { if (condition) { map.get(anotherKey); } }
+    |                                              ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(17): if (map.has(key)) { condition ? map.get(anotherKey) : value; } 1`] = `
+
+  1 | if (map.has(key)) { condition ? map.get(anotherKey) : value; }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(17): if (map.has(key)) { condition ? map.get(anotherKey) : value; } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { condition ? map.get(anotherKey) : value; }
+    |                                         ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(18): if (map.has(key)) { const key = anotherKey, value = map.get(key); } 1`] = `
+
+  1 | if (map.has(key)) { const key = anotherKey, value = map.get(key); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(18): if (map.has(key)) { const key = anotherKey, value = map.get(key); } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { const key = anotherKey, value = map.get(key); }
+    |                                                             ^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(19): if (map.has(object.key)) { const object = other, value = map.get(object.key); } 1`] = `
+
+  1 | if (map.has(object.key)) { const object = other, value = map.get(object.key); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(19): if (map.has(object.key)) { const object = other, value = map.get(object.key); } 2`] = `
+
+Message:
+> 1 | if (map.has(object.key)) { const object = other, value = map.get(object.key); }
+    |                                                                  ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(2): map.has(key) ? map.get(anotherKey) : value; 1`] = `
+
+  1 | map.has(key) ? map.get(anotherKey) : value;
+
+`;
+
+exports[`no-mismatched-map-key > invalid(2): map.has(key) ? map.get(anotherKey) : value; 2`] = `
+
+Message:
+> 1 | map.has(key) ? map.get(anotherKey) : value;
+    |                        ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(20): if (map.has(\"key\")) { map.get(\"anotherKey\"); } 1`] = `
+
+  1 | if (map.has("key")) { map.get("anotherKey"); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(20): if (map.has(\"key\")) { map.get(\"anotherKey\"); } 2`] = `
+
+Message:
+> 1 | if (map.has("key")) { map.get("anotherKey"); }
+    |                               ^^^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(21): if (map.has(1)) { map.get(2); } 1`] = `
+
+  1 | if (map.has(1)) { map.get(2); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(21): if (map.has(1)) { map.get(2); } 2`] = `
+
+Message:
+> 1 | if (map.has(1)) { map.get(2); }
+    |                           ^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(22): if (map.has(object.key)) { map.get(object.anotherKey); } 1`] = `
+
+  1 | if (map.has(object.key)) { map.get(object.anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(22): if (map.has(object.key)) { map.get(object.anotherKey); } 2`] = `
+
+Message:
+> 1 | if (map.has(object.key)) { map.get(object.anotherKey); }
+    |                                    ^^^^^^^^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(23): if (this.map.has(this.key)) { this.map.get(this.anotherKey); } 1`] = `
+
+  1 | if (this.map.has(this.key)) { this.map.get(this.anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(23): if (this.map.has(this.key)) { this.map.get(this.anotherKey); } 2`] = `
+
+Message:
+> 1 | if (this.map.has(this.key)) { this.map.get(this.anotherKey); }
+    |                                            ^^^^^^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(24): if (map.has(key as string)) { map.get(anotherKey as string); } 1`] = `
+
+  1 | if (map.has(key as string)) { map.get(anotherKey as string); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(24): if (map.has(key as string)) { map.get(anotherKey as string); } 2`] = `
+
+Message:
+> 1 | if (map.has(key as string)) { map.get(anotherKey as string); }
+    |                                       ^^^^^^^^^^^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(25): if (condition && map.has(key)) { map.get(anotherKey); } 1`] = `
+
+  1 | if (condition && map.has(key)) { map.get(anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(25): if (condition && map.has(key)) { map.get(anotherKey); } 2`] = `
+
+Message:
+> 1 | if (condition && map.has(key)) { map.get(anotherKey); }
+    |                                          ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(26): while (map.has(key)) { map.get(anotherKey); } 1`] = `
+
+  1 | while (map.has(key)) { map.get(anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(26): while (map.has(key)) { map.get(anotherKey); } 2`] = `
+
+Message:
+> 1 | while (map.has(key)) { map.get(anotherKey); }
+    |                                ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(27): while (!map.has(key)) { map.set(anotherKey, value); } 1`] = `
+
+  1 | while (!map.has(key)) { map.set(anotherKey, value); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(27): while (!map.has(key)) { map.set(anotherKey, value); } 2`] = `
+
+Message:
+> 1 | while (!map.has(key)) { map.set(anotherKey, value); }
+    |                                 ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(28): while (map.has(key)) { const x = map.get(anotherKey); } 1`] = `
+
+  1 | while (map.has(key)) { const x = map.get(anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(28): while (map.has(key)) { const x = map.get(anotherKey); } 2`] = `
+
+Message:
+> 1 | while (map.has(key)) { const x = map.get(anotherKey); }
+    |                                          ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(29): const value = map.has(key) && map.get(otherKey); 1`] = `
+
+  1 | const value = map.has(key) && map.get(otherKey);
+
+`;
+
+exports[`no-mismatched-map-key > invalid(29): const value = map.has(key) && map.get(otherKey); 2`] = `
+
+Message:
+> 1 | const value = map.has(key) && map.get(otherKey);
+    |                                       ^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(3): map.has(key) ? map.set(anotherKey, value) : value; 1`] = `
+
+  1 | map.has(key) ? map.set(anotherKey, value) : value;
+
+`;
+
+exports[`no-mismatched-map-key > invalid(3): map.has(key) ? map.set(anotherKey, value) : value; 2`] = `
+
+Message:
+> 1 | map.has(key) ? map.set(anotherKey, value) : value;
+    |                        ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(30): if (!map.has(key) && map.get(otherKey)) {} 1`] = `
+
+  1 | if (!map.has(key) && map.get(otherKey)) {}
+
+`;
+
+exports[`no-mismatched-map-key > invalid(30): if (!map.has(key) && map.get(otherKey)) {} 2`] = `
+
+Message:
+> 1 | if (!map.has(key) && map.get(otherKey)) {}
+    |                              ^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(31): const value = map.has(key) || map.get(otherKey); 1`] = `
+
+  1 | const value = map.has(key) || map.get(otherKey);
+
+`;
+
+exports[`no-mismatched-map-key > invalid(31): const value = map.has(key) || map.get(otherKey); 2`] = `
+
+Message:
+> 1 | const value = map.has(key) || map.get(otherKey);
+    |                                       ^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(32): if (map.has(key)) map.get(anotherKey); 1`] = `
+
+  1 | if (map.has(key)) map.get(anotherKey);
+
+`;
+
+exports[`no-mismatched-map-key > invalid(32): if (map.has(key)) map.get(anotherKey); 2`] = `
+
+Message:
+> 1 | if (map.has(key)) map.get(anotherKey);
+    |                           ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(33): if (map.has(key)) { use([object.value] = values, map.get(anotherKey)); } 1`] = `
+
+  1 | if (map.has(key)) { use([object.value] = values, map.get(anotherKey)); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(33): if (map.has(key)) { use([object.value] = values, map.get(anotherKey)); } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { use([object.value] = values, map.get(anotherKey)); }
+    |                                                          ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(34): if (map.has(key)) { (count = 1, map.get(anotherKey)); } 1`] = `
+
+  1 | if (map.has(key)) { (count = 1, map.get(anotherKey)); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(34): if (map.has(key)) { (count = 1, map.get(anotherKey)); } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { (count = 1, map.get(anotherKey)); }
+    |                                         ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(35): if (map.has(key)) { (count++, map.get(anotherKey)); } 1`] = `
+
+  1 | if (map.has(key)) { (count++, map.get(anotherKey)); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(35): if (map.has(key)) { (count++, map.get(anotherKey)); } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { (count++, map.get(anotherKey)); }
+    |                                       ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(36): if (map.has(key)) { if (check(() => map.has(anotherKey))) { map.get(anotherKey); } } 1`] = `
+
+  1 | if (map.has(key)) { if (check(() => map.has(anotherKey))) { map.get(anotherKey); } }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(36): if (map.has(key)) { if (check(() => map.has(anotherKey))) { map.get(anotherKey); } } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { if (check(() => map.has(anotherKey))) { map.get(anotherKey); } }
+    |                                                                     ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(4): if (weakMap.has(key)) { weakMap.get(anotherKey); } 1`] = `
+
+  1 | if (weakMap.has(key)) { weakMap.get(anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(4): if (weakMap.has(key)) { weakMap.get(anotherKey); } 2`] = `
+
+Message:
+> 1 | if (weakMap.has(key)) { weakMap.get(anotherKey); }
+    |                                     ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(5): weakMap.has(key) ? weakMap.get(anotherKey) : value; 1`] = `
+
+  1 | weakMap.has(key) ? weakMap.get(anotherKey) : value;
+
+`;
+
+exports[`no-mismatched-map-key > invalid(5): weakMap.has(key) ? weakMap.get(anotherKey) : value; 2`] = `
+
+Message:
+> 1 | weakMap.has(key) ? weakMap.get(anotherKey) : value;
+    |                                ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(6): if (map.has(key)) { const value = map.get(anotherKey); } 1`] = `
+
+  1 | if (map.has(key)) { const value = map.get(anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(6): if (map.has(key)) { const value = map.get(anotherKey); } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { const value = map.get(anotherKey); }
+    |                                           ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(7): if (map.has(key)) { map.set(anotherKey, value); } 1`] = `
+
+  1 | if (map.has(key)) { map.set(anotherKey, value); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(7): if (map.has(key)) { map.set(anotherKey, value); } 2`] = `
+
+Message:
+> 1 | if (map.has(key)) { map.set(anotherKey, value); }
+    |                             ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(8): if (!map.has(key)) { const value = map.get(anotherKey); } 1`] = `
+
+  1 | if (!map.has(key)) { const value = map.get(anotherKey); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(8): if (!map.has(key)) { const value = map.get(anotherKey); } 2`] = `
+
+Message:
+> 1 | if (!map.has(key)) { const value = map.get(anotherKey); }
+    |                                            ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;
+
+exports[`no-mismatched-map-key > invalid(9): if (!map.has(key)) { map.set(anotherKey, value); } 1`] = `
+
+  1 | if (!map.has(key)) { map.set(anotherKey, value); }
+
+`;
+
+exports[`no-mismatched-map-key > invalid(9): if (!map.has(key)) { map.set(anotherKey, value); } 2`] = `
+
+Message:
+> 1 | if (!map.has(key)) { map.set(anotherKey, value); }
+    |                              ^^^^^^^^^^ Do not check a Map key before accessing a different key.
+
+`;

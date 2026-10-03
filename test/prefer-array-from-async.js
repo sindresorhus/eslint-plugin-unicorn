@@ -445,6 +445,7 @@ test.snapshot({
 		},
 		typeAware('async function foo(paths: string[] | undefined) { const result = []; for (const path of paths!) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo(paths: string[]) { const result = []; for (const path of (paths satisfies readonly string[])) { result.push(await readFile(path)); } }'),
+		'const result = []; for (const path of [, "a"]) { result.push(await readFile(path)); }',
 	],
 });
 

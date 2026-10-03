@@ -1,0 +1,552 @@
+exports[`prefer-math-abs > invalid(1): function foo(value: number) {\n\treturn value < 0 ? -value : value;\n} 1`] = `
+
+  1 | function foo(value: number) {
+  2 | 	return value < 0 ? -value : value;
+  3 | }
+
+`;
+
+exports[`prefer-math-abs > invalid(1): function foo(value: number) {\n\treturn value < 0 ? -value : value;\n} 2`] = `
+
+Message:
+  1 | function foo(value: number) {
+> 2 | 	return value < 0 ? -value : value;
+    | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+  3 | }
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | function foo(value: number) {
+  2 | 	return Math.abs(value);
+  3 | }
+
+`;
+
+exports[`prefer-math-abs > invalid(1): value < 0 ? -value : value 1`] = `
+
+  1 | value < 0 ? -value : value
+
+`;
+
+exports[`prefer-math-abs > invalid(1): value < 0 ? -value : value 2`] = `
+
+Message:
+> 1 | value < 0 ? -value : value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(10): 0 > value ? -value : value 1`] = `
+
+  1 | 0 > value ? -value : value
+
+`;
+
+exports[`prefer-math-abs > invalid(10): 0 > value ? -value : value 2`] = `
+
+Message:
+> 1 | 0 > value ? -value : value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(11): 0 >= value ? -value : value 1`] = `
+
+  1 | 0 >= value ? -value : value
+
+`;
+
+exports[`prefer-math-abs > invalid(11): 0 >= value ? -value : value 2`] = `
+
+Message:
+> 1 | 0 >= value ? -value : value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(12): 0 < value ? value : -value 1`] = `
+
+  1 | 0 < value ? value : -value
+
+`;
+
+exports[`prefer-math-abs > invalid(12): 0 < value ? value : -value 2`] = `
+
+Message:
+> 1 | 0 < value ? value : -value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(13): 0 <= value ? value : -value 1`] = `
+
+  1 | 0 <= value ? value : -value
+
+`;
+
+exports[`prefer-math-abs > invalid(13): 0 <= value ? value : -value 2`] = `
+
+Message:
+> 1 | 0 <= value ? value : -value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(14): function foo() {return value < 0 ? -value : value;} 1`] = `
+
+  1 | function foo() {return value < 0 ? -value : value;}
+
+`;
+
+exports[`prefer-math-abs > invalid(14): function foo() {return value < 0 ? -value : value;} 2`] = `
+
+Message:
+> 1 | function foo() {return value < 0 ? -value : value;}
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | function foo() {return Math.abs(value);}
+
+`;
+
+exports[`prefer-math-abs > invalid(15): function foo() {return(value < 0 ? -value : value);} 1`] = `
+
+  1 | function foo() {return(value < 0 ? -value : value);}
+
+`;
+
+exports[`prefer-math-abs > invalid(15): function foo() {return(value < 0 ? -value : value);} 2`] = `
+
+Message:
+> 1 | function foo() {return(value < 0 ? -value : value);}
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | function foo() {return (Math.abs(value));}
+
+`;
+
+exports[`prefer-math-abs > invalid(16): const absolute = value > limit || value < -limit; 1`] = `
+
+  1 | const absolute = value > limit || value < -limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(16): const absolute = value > limit || value < -limit; 2`] = `
+
+Message:
+> 1 | const absolute = value > limit || value < -limit;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | const absolute = Math.abs(value) > limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(17): const absolute = value >= limit || value <= -limit; 1`] = `
+
+  1 | const absolute = value >= limit || value <= -limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(17): const absolute = value >= limit || value <= -limit; 2`] = `
+
+Message:
+> 1 | const absolute = value >= limit || value <= -limit;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | const absolute = Math.abs(value) >= limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(18): const absolute = value < -limit || value > limit; 1`] = `
+
+  1 | const absolute = value < -limit || value > limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(18): const absolute = value < -limit || value > limit; 2`] = `
+
+Message:
+> 1 | const absolute = value < -limit || value > limit;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | const absolute = Math.abs(value) > limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(19): const absolute = value <= -limit || value >= limit; 1`] = `
+
+  1 | const absolute = value <= -limit || value >= limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(19): const absolute = value <= -limit || value >= limit; 2`] = `
+
+Message:
+> 1 | const absolute = value <= -limit || value >= limit;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | const absolute = Math.abs(value) >= limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(2): function foo(value) {\n\treturn (value satisfies number) < 0 ? -(value satisfies number) : (value satisfies number);\n} 1`] = `
+
+  1 | function foo(value) {
+  2 | 	return (value satisfies number) < 0 ? -(value satisfies number) : (value satisfies number);
+  3 | }
+
+`;
+
+exports[`prefer-math-abs > invalid(2): function foo(value) {\n\treturn (value satisfies number) < 0 ? -(value satisfies number) : (value satisfies number);\n} 2`] = `
+
+Message:
+  1 | function foo(value) {
+> 2 | 	return (value satisfies number) < 0 ? -(value satisfies number) : (value satisfies number);
+    | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+  3 | }
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | function foo(value) {
+  2 | 	return Math.abs((value satisfies number));
+  3 | }
+
+`;
+
+exports[`prefer-math-abs > invalid(2): value <= 0 ? -value : value 1`] = `
+
+  1 | value <= 0 ? -value : value
+
+`;
+
+exports[`prefer-math-abs > invalid(2): value <= 0 ? -value : value 2`] = `
+
+Message:
+> 1 | value <= 0 ? -value : value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(20): const absolute = limit < value || -limit > value; 1`] = `
+
+  1 | const absolute = limit < value || -limit > value;
+
+`;
+
+exports[`prefer-math-abs > invalid(20): const absolute = limit < value || -limit > value; 2`] = `
+
+Message:
+> 1 | const absolute = limit < value || -limit > value;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | const absolute = Math.abs(value) > limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(21): const absolute = limit <= value || -limit >= value; 1`] = `
+
+  1 | const absolute = limit <= value || -limit >= value;
+
+`;
+
+exports[`prefer-math-abs > invalid(21): const absolute = limit <= value || -limit >= value; 2`] = `
+
+Message:
+> 1 | const absolute = limit <= value || -limit >= value;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | const absolute = Math.abs(value) >= limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(22): function foo() {return value > limit || value < -limit;} 1`] = `
+
+  1 | function foo() {return value > limit || value < -limit;}
+
+`;
+
+exports[`prefer-math-abs > invalid(22): function foo() {return value > limit || value < -limit;} 2`] = `
+
+Message:
+> 1 | function foo() {return value > limit || value < -limit;}
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | function foo() {return Math.abs(value) > limit;}
+
+`;
+
+exports[`prefer-math-abs > invalid(23): function foo() {return(value > limit || value < -limit);} 1`] = `
+
+  1 | function foo() {return(value > limit || value < -limit);}
+
+`;
+
+exports[`prefer-math-abs > invalid(23): function foo() {return(value > limit || value < -limit);} 2`] = `
+
+Message:
+> 1 | function foo() {return(value > limit || value < -limit);}
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | function foo() {return (Math.abs(value) > limit);}
+
+`;
+
+exports[`prefer-math-abs > invalid(24): const absolute = object.value > limit || object.value < -limit; 1`] = `
+
+  1 | const absolute = object.value > limit || object.value < -limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(24): const absolute = object.value > limit || object.value < -limit; 2`] = `
+
+Message:
+> 1 | const absolute = object.value > limit || object.value < -limit;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+`;
+
+exports[`prefer-math-abs > invalid(25): const absolute = value > object.limit || value < -object.limit; 1`] = `
+
+  1 | const absolute = value > object.limit || value < -object.limit;
+
+`;
+
+exports[`prefer-math-abs > invalid(25): const absolute = value > object.limit || value < -object.limit; 2`] = `
+
+Message:
+> 1 | const absolute = value > object.limit || value < -object.limit;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+`;
+
+exports[`prefer-math-abs > invalid(26): value < 0 ? -/* comment */value : value 1`] = `
+
+  1 | value < 0 ? -/* comment */value : value
+
+`;
+
+exports[`prefer-math-abs > invalid(26): value < 0 ? -/* comment */value : value 2`] = `
+
+Message:
+> 1 | value < 0 ? -/* comment */value : value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+`;
+
+exports[`prefer-math-abs > invalid(27): value > limit || value < -/* comment */limit 1`] = `
+
+  1 | value > limit || value < -/* comment */limit
+
+`;
+
+exports[`prefer-math-abs > invalid(27): value > limit || value < -/* comment */limit 2`] = `
+
+Message:
+> 1 | value > limit || value < -/* comment */limit
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+`;
+
+exports[`prefer-math-abs > invalid(28): if (number > POSITIVE_CONSTANT || number < -POSITIVE_CONSTANT) {\n\tconsole.log(number);\n} 1`] = `
+
+  1 | if (number > POSITIVE_CONSTANT || number < -POSITIVE_CONSTANT) {
+  2 | 	console.log(number);
+  3 | }
+
+`;
+
+exports[`prefer-math-abs > invalid(28): if (number > POSITIVE_CONSTANT || number < -POSITIVE_CONSTANT) {\n\tconsole.log(number);\n} 2`] = `
+
+Message:
+> 1 | if (number > POSITIVE_CONSTANT || number < -POSITIVE_CONSTANT) {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+  2 | 	console.log(number);
+  3 | }
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | if (Math.abs(number) > POSITIVE_CONSTANT) {
+  2 | 	console.log(number);
+  3 | }
+
+`;
+
+exports[`prefer-math-abs > invalid(29): if (number >= POSITIVE_CONSTANT || number <= -POSITIVE_CONSTANT) {\n\tconsole.log(number);\n} 1`] = `
+
+  1 | if (number >= POSITIVE_CONSTANT || number <= -POSITIVE_CONSTANT) {
+  2 | 	console.log(number);
+  3 | }
+
+`;
+
+exports[`prefer-math-abs > invalid(29): if (number >= POSITIVE_CONSTANT || number <= -POSITIVE_CONSTANT) {\n\tconsole.log(number);\n} 2`] = `
+
+Message:
+> 1 | if (number >= POSITIVE_CONSTANT || number <= -POSITIVE_CONSTANT) {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+  2 | 	console.log(number);
+  3 | }
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | if (Math.abs(number) >= POSITIVE_CONSTANT) {
+  2 | 	console.log(number);
+  3 | }
+
+`;
+
+exports[`prefer-math-abs > invalid(3): value > 0 ? value : -value 1`] = `
+
+  1 | value > 0 ? value : -value
+
+`;
+
+exports[`prefer-math-abs > invalid(3): value > 0 ? value : -value 2`] = `
+
+Message:
+> 1 | value > 0 ? value : -value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(30): import {value} from \"./value.js\"; value < 0 ? -value : value; 1`] = `
+
+  1 | import {value} from "./value.js"; value < 0 ? -value : value;
+
+`;
+
+exports[`prefer-math-abs > invalid(30): import {value} from \"./value.js\"; value < 0 ? -value : value; 2`] = `
+
+Message:
+> 1 | import {value} from "./value.js"; value < 0 ? -value : value;
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | import {value} from "./value.js"; Math.abs(value);
+
+`;
+
+exports[`prefer-math-abs > invalid(4): value >= 0 ? value : -value 1`] = `
+
+  1 | value >= 0 ? value : -value
+
+`;
+
+exports[`prefer-math-abs > invalid(4): value >= 0 ? value : -value 2`] = `
+
+Message:
+> 1 | value >= 0 ? value : -value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(5): value < 0 ? 0 - value : value 1`] = `
+
+  1 | value < 0 ? 0 - value : value
+
+`;
+
+exports[`prefer-math-abs > invalid(5): value < 0 ? 0 - value : value 2`] = `
+
+Message:
+> 1 | value < 0 ? 0 - value : value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(6): value <= 0 ? 0 - value : value 1`] = `
+
+  1 | value <= 0 ? 0 - value : value
+
+`;
+
+exports[`prefer-math-abs > invalid(6): value <= 0 ? 0 - value : value 2`] = `
+
+Message:
+> 1 | value <= 0 ? 0 - value : value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(7): value < 0 ? value * -1 : value 1`] = `
+
+  1 | value < 0 ? value * -1 : value
+
+`;
+
+exports[`prefer-math-abs > invalid(7): value < 0 ? value * -1 : value 2`] = `
+
+Message:
+> 1 | value < 0 ? value * -1 : value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(8): value < 0 ? -1 * value : value 1`] = `
+
+  1 | value < 0 ? -1 * value : value
+
+`;
+
+exports[`prefer-math-abs > invalid(8): value < 0 ? -1 * value : value 2`] = `
+
+Message:
+> 1 | value < 0 ? -1 * value : value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+Suggestion 1/1: Replace with \`Math.abs()\`.:
+  1 | Math.abs(value)
+
+`;
+
+exports[`prefer-math-abs > invalid(9): object.value < 0 ? -object.value : object.value 1`] = `
+
+  1 | object.value < 0 ? -object.value : object.value
+
+`;
+
+exports[`prefer-math-abs > invalid(9): object.value < 0 ? -object.value : object.value 2`] = `
+
+Message:
+> 1 | object.value < 0 ? -object.value : object.value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.abs()\` to simplify this expression.
+
+`;

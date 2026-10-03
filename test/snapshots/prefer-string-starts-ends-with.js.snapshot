@@ -1,0 +1,947 @@
+exports[`prefer-string-starts-ends-with > invalid(1): /^a/.test(\"string\") 1`] = `
+
+  1 | /^a/.test("string")
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(1): /^a/.test(\"string\") 2`] = `
+
+Message:
+> 1 | /^a/.test("string")
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | "string".startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(10): /^a/.test(new SomeString(/* comment */)) 1`] = `
+
+  1 | /^a/.test(new SomeString(/* comment */))
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(10): /^a/.test(new SomeString(/* comment */)) 2`] = `
+
+Message:
+> 1 | /^a/.test(new SomeString(/* comment */))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | new SomeString(/* comment */).startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(new SomeString(/* comment */)).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | new SomeString(/* comment */)?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (new SomeString(/* comment */) ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(11): /^a/.test(new SomeString(\"string\")) 1`] = `
+
+  1 | /^a/.test(new SomeString("string"))
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(11): /^a/.test(new SomeString(\"string\")) 2`] = `
+
+Message:
+> 1 | /^a/.test(new SomeString("string"))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | new SomeString("string").startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(new SomeString("string")).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | new SomeString("string")?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (new SomeString("string") ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(12): /^a/.test(foo.bar) 1`] = `
+
+  1 | /^a/.test(foo.bar)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(12): /^a/.test(foo.bar) 2`] = `
+
+Message:
+> 1 | /^a/.test(foo.bar)
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | foo.bar.startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(foo.bar).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | foo.bar?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (foo.bar ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(13): /^a/.test(foo.bar()) 1`] = `
+
+  1 | /^a/.test(foo.bar())
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(13): /^a/.test(foo.bar()) 2`] = `
+
+Message:
+> 1 | /^a/.test(foo.bar())
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | foo.bar().startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(foo.bar()).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | foo.bar()?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (foo.bar() ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(14): /^a/.test(foo?.bar) 1`] = `
+
+  1 | /^a/.test(foo?.bar)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(14): /^a/.test(foo?.bar) 2`] = `
+
+Message:
+> 1 | /^a/.test(foo?.bar)
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | foo?.bar.startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(foo?.bar).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | foo?.bar?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (foo?.bar ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(15): /^a/.test(foo?.bar()) 1`] = `
+
+  1 | /^a/.test(foo?.bar())
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(15): /^a/.test(foo?.bar()) 2`] = `
+
+Message:
+> 1 | /^a/.test(foo?.bar())
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | foo?.bar().startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(foo?.bar()).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | foo?.bar()?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (foo?.bar() ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(16): /^a/.test(foo!) 1`] = `
+
+  1 | /^a/.test(foo!)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(16): /^a/.test(foo!) 2`] = `
+
+Message:
+> 1 | /^a/.test(foo!)
+    | ^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | foo!.startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(foo!).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | foo!?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (foo! ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(17): /^a/.test(\`string\`) 1`] = `
+
+  1 | /^a/.test(\`string\`)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(17): /^a/.test(\`string\`) 2`] = `
+
+Message:
+> 1 | /^a/.test(\`string\`)
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | \`string\`.startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(18): /^a/.test(tagged\`string\`) 1`] = `
+
+  1 | /^a/.test(tagged\`string\`)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(18): /^a/.test(tagged\`string\`) 2`] = `
+
+Message:
+> 1 | /^a/.test(tagged\`string\`)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | tagged\`string\`.startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(tagged\`string\`).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | tagged\`string\`?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (tagged\`string\` ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(19): (/^a/).test((0, \"string\")) 1`] = `
+
+  1 | (/^a/).test((0, "string"))
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(19): (/^a/).test((0, \"string\")) 2`] = `
+
+Message:
+> 1 | (/^a/).test((0, "string"))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | ((0, "string")).startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(2): /^a/.test((0, \"string\")) 1`] = `
+
+  1 | /^a/.test((0, "string"))
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(2): /^a/.test((0, \"string\")) 2`] = `
+
+Message:
+> 1 | /^a/.test((0, "string"))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | (0, "string").startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(20): /^a/.test(true ? a : b) 1`] = `
+
+  1 | /^a/.test(true ? a : b)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(20): /^a/.test(true ? a : b) 2`] = `
+
+Message:
+> 1 | /^a/.test(true ? a : b)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | (true ? a : b).startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(true ? a : b).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | (true ? a : b)?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | ((true ? a : b) ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(21): /a$/.test(a ??= b) 1`] = `
+
+  1 | /a$/.test(a ??= b)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(21): /a$/.test(a ??= b) 2`] = `
+
+Message:
+> 1 | /a$/.test(a ??= b)
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`String#endsWith()\` over a regex with \`$\`.
+
+Output:
+  1 | (a ??= b).endsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).endsWith()\`.:
+  1 | String(a ??= b).endsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.endsWith()\`.:
+  1 | (a ??= b)?.endsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').endsWith()\`.:
+  1 | ((a ??= b) ?? '').endsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(22): /^a/.test(a || b) 1`] = `
+
+  1 | /^a/.test(a || b)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(22): /^a/.test(a || b) 2`] = `
+
+Message:
+> 1 | /^a/.test(a || b)
+    | ^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | (a || b).startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(a || b).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | (a || b)?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | ((a || b) ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(23): /^a/.test(a && b) 1`] = `
+
+  1 | /^a/.test(a && b)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(23): /^a/.test(a && b) 2`] = `
+
+Message:
+> 1 | /^a/.test(a && b)
+    | ^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | (a && b).startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(a && b).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | (a && b)?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | ((a && b) ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(24): /^a/u.test(\"string\") 1`] = `
+
+  1 | /^a/u.test("string")
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(24): /^a/u.test(\"string\") 2`] = `
+
+Message:
+> 1 | /^a/u.test("string")
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | "string".startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(25): /^a/v.test(\"string\") 1`] = `
+
+  1 | /^a/v.test("string")
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(25): /^a/v.test(\"string\") 2`] = `
+
+Message:
+> 1 | /^a/v.test("string")
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | "string".startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(26): /a$/.test(\`\${unknown}\`) 1`] = `
+
+  1 | /a$/.test(\`\${unknown}\`)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(26): /a$/.test(\`\${unknown}\`) 2`] = `
+
+Message:
+> 1 | /a$/.test(\`\${unknown}\`)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#endsWith()\` over a regex with \`$\`.
+
+Output:
+  1 | \`\${unknown}\`.endsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(27): /a$/.test(String(unknown)) 1`] = `
+
+  1 | /a$/.test(String(unknown))
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(27): /a$/.test(String(unknown)) 2`] = `
+
+Message:
+> 1 | /a$/.test(String(unknown))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#endsWith()\` over a regex with \`$\`.
+
+Output:
+  1 | String(unknown).endsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(28): /* 1 */\n(\n\t/* 2 */\n\t(\n\t\t/* 3 */\n\t\t/^a/\n\t\t/* 4 */\n\t)\n\t/* 5 */\n)\n/* 6 */\n. /* 7 */ test /* 8 */ (\n\t/* 9 */\n\t(\n\t\t/* 10 */\n\t\t(\n\t\t\t/* 11 */\n\t\t\ta\n\t\t\t/* 12 */\n\t\t)\n\t\t/* 13 */\n\t)\n\t/* 14 */\n) /* 15 */ 1`] = `
+
+   1 | /* 1 */
+   2 | (
+   3 | 	/* 2 */
+   4 | 	(
+   5 | 		/* 3 */
+   6 | 		/^a/
+   7 | 		/* 4 */
+   8 | 	)
+   9 | 	/* 5 */
+  10 | )
+  11 | /* 6 */
+  12 | . /* 7 */ test /* 8 */ (
+  13 | 	/* 9 */
+  14 | 	(
+  15 | 		/* 10 */
+  16 | 		(
+  17 | 			/* 11 */
+  18 | 			a
+  19 | 			/* 12 */
+  20 | 		)
+  21 | 		/* 13 */
+  22 | 	)
+  23 | 	/* 14 */
+  24 | ) /* 15 */
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(28): /* 1 */\n(\n\t/* 2 */\n\t(\n\t\t/* 3 */\n\t\t/^a/\n\t\t/* 4 */\n\t)\n\t/* 5 */\n)\n/* 6 */\n. /* 7 */ test /* 8 */ (\n\t/* 9 */\n\t(\n\t\t/* 10 */\n\t\t(\n\t\t\t/* 11 */\n\t\t\ta\n\t\t\t/* 12 */\n\t\t)\n\t\t/* 13 */\n\t)\n\t/* 14 */\n) /* 15 */ 2`] = `
+
+Message:
+   1 | /* 1 */
+>  2 | (
+     | ^
+>  3 | 	/* 2 */
+     | ^^^^^^^^
+>  4 | 	(
+     | ^^
+>  5 | 		/* 3 */
+     | ^^^^^^^^^
+>  6 | 		/^a/
+     | ^^^^^^
+>  7 | 		/* 4 */
+     | ^^^^^^^^^
+>  8 | 	)
+     | ^^
+>  9 | 	/* 5 */
+     | ^^^^^^^^
+> 10 | )
+     | ^
+> 11 | /* 6 */
+     | ^^^^^^^
+> 12 | . /* 7 */ test /* 8 */ (
+     | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 13 | 	/* 9 */
+     | ^^^^^^^^
+> 14 | 	(
+     | ^^
+> 15 | 		/* 10 */
+     | ^^^^^^^^^^
+> 16 | 		(
+     | ^^^
+> 17 | 			/* 11 */
+     | ^^^^^^^^^^^
+> 18 | 			a
+     | ^^^^
+> 19 | 			/* 12 */
+     | ^^^^^^^^^^^
+> 20 | 		)
+     | ^^^
+> 21 | 		/* 13 */
+     | ^^^^^^^^^^
+> 22 | 	)
+     | ^^
+> 23 | 	/* 14 */
+     | ^^^^^^^^^
+> 24 | ) /* 15 */
+     | ^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+   1 | /* 1 */
+   2 | (
+   3 | 	/* 2 */
+   4 | 	(
+   5 | 		/* 3 */
+   6 | 		(
+   7 | 		/* 10 */
+   8 | 		(
+   9 | 			/* 11 */
+  10 | 			a
+  11 | 			/* 12 */
+  12 | 		)
+  13 | 		/* 13 */
+  14 | 	)
+  15 | 		/* 4 */
+  16 | 	)
+  17 | 	/* 5 */
+  18 | )
+  19 | /* 6 */
+  20 | . /* 7 */ startsWith /* 8 */ (
+  21 | 	/* 9 */
+  22 | 	'a'
+  23 | 	/* 14 */
+  24 | ) /* 15 */
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+   1 | /* 1 */
+   2 | (
+   3 | 	/* 2 */
+   4 | 	(
+   5 | 		/* 3 */
+   6 | 		String((
+   7 | 		/* 10 */
+   8 | 		(
+   9 | 			/* 11 */
+  10 | 			a
+  11 | 			/* 12 */
+  12 | 		)
+  13 | 		/* 13 */
+  14 | 	))
+  15 | 		/* 4 */
+  16 | 	)
+  17 | 	/* 5 */
+  18 | )
+  19 | /* 6 */
+  20 | . /* 7 */ startsWith /* 8 */ (
+  21 | 	/* 9 */
+  22 | 	'a'
+  23 | 	/* 14 */
+  24 | ) /* 15 */
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+   1 | /* 1 */
+   2 | (
+   3 | 	/* 2 */
+   4 | 	(
+   5 | 		/* 3 */
+   6 | 		(
+   7 | 		/* 10 */
+   8 | 		(
+   9 | 			/* 11 */
+  10 | 			a
+  11 | 			/* 12 */
+  12 | 		)
+  13 | 		/* 13 */
+  14 | 	)
+  15 | 		/* 4 */
+  16 | 	)
+  17 | 	/* 5 */
+  18 | )
+  19 | /* 6 */
+  20 | ?. /* 7 */ startsWith /* 8 */ (
+  21 | 	/* 9 */
+  22 | 	'a'
+  23 | 	/* 14 */
+  24 | ) /* 15 */
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+   1 | /* 1 */
+   2 | (
+   3 | 	/* 2 */
+   4 | 	(
+   5 | 		/* 3 */
+   6 | 		(
+   7 | 		/* 10 */
+   8 | 		(
+   9 | 			/* 11 */
+  10 | 			a
+  11 | 			/* 12 */
+  12 | 		)
+  13 | 		/* 13 */
+  14 | 	) ?? ''
+  15 | 		/* 4 */
+  16 | 	)
+  17 | 	/* 5 */
+  18 | )
+  19 | /* 6 */
+  20 | . /* 7 */ startsWith /* 8 */ (
+  21 | 	/* 9 */
+  22 | 	'a'
+  23 | 	/* 14 */
+  24 | ) /* 15 */
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(29): /^a/.test(foo)\n\`tpl\` 1`] = `
+
+  1 | /^a/.test(foo)
+  2 | \`tpl\`
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(29): /^a/.test(foo)\n\`tpl\` 2`] = `
+
+Message:
+> 1 | /^a/.test(foo)
+    | ^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+  2 | \`tpl\`
+
+Output:
+  1 | foo.startsWith('a')
+  2 | \`tpl\`
+
+Suggestion 1/2: Convert to string \`String(…).startsWith()\`.:
+  1 | String(foo).startsWith('a')
+  2 | \`tpl\`
+
+Suggestion 2/2: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (foo ?? '').startsWith('a')
+  2 | \`tpl\`
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(3): async function a() {return /^a/.test(await foo())} 1`] = `
+
+  1 | async function a() {return /^a/.test(await foo())}
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(3): async function a() {return /^a/.test(await foo())} 2`] = `
+
+Message:
+> 1 | async function a() {return /^a/.test(await foo())}
+    |                            ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | async function a() {return (await foo()).startsWith('a')}
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | async function a() {return String(await foo()).startsWith('a')}
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | async function a() {return (await foo())?.startsWith('a')}
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | async function a() {return ((await foo()) ?? '').startsWith('a')}
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(30): bar(/^a/.test(foo)\`tpl\`) 1`] = `
+
+  1 | bar(/^a/.test(foo)\`tpl\`)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(30): bar(/^a/.test(foo)\`tpl\`) 2`] = `
+
+Message:
+> 1 | bar(/^a/.test(foo)\`tpl\`)
+    |     ^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | bar(foo.startsWith('a')\`tpl\`)
+
+Suggestion 1/2: Convert to string \`String(…).startsWith()\`.:
+  1 | bar(String(foo).startsWith('a')\`tpl\`)
+
+Suggestion 2/2: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | bar((foo ?? '').startsWith('a')\`tpl\`)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(31): \`\${/^a/.test(foo)\`tpl\`}\` 1`] = `
+
+  1 | \`\${/^a/.test(foo)\`tpl\`}\`
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(31): \`\${/^a/.test(foo)\`tpl\`}\` 2`] = `
+
+Message:
+> 1 | \`\${/^a/.test(foo)\`tpl\`}\`
+    |    ^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | \`\${foo.startsWith('a')\`tpl\`}\`
+
+Suggestion 1/2: Convert to string \`String(…).startsWith()\`.:
+  1 | \`\${String(foo).startsWith('a')\`tpl\`}\`
+
+Suggestion 2/2: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | \`\${(foo ?? '').startsWith('a')\`tpl\`}\`
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(32): (/^a/.test(foo))\n\`tpl\` 1`] = `
+
+  1 | (/^a/.test(foo))
+  2 | \`tpl\`
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(32): (/^a/.test(foo))\n\`tpl\` 2`] = `
+
+Message:
+> 1 | (/^a/.test(foo))
+    |  ^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+  2 | \`tpl\`
+
+Output:
+  1 | (foo.startsWith('a'))
+  2 | \`tpl\`
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | (String(foo).startsWith('a'))
+  2 | \`tpl\`
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | (foo?.startsWith('a'))
+  2 | \`tpl\`
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | ((foo ?? '').startsWith('a'))
+  2 | \`tpl\`
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(33): \`\${/^a/.test((foo))}\` 1`] = `
+
+  1 | \`\${/^a/.test((foo))}\`
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(33): \`\${/^a/.test((foo))}\` 2`] = `
+
+Message:
+> 1 | \`\${/^a/.test((foo))}\`
+    |    ^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | \`\${(foo).startsWith('a')}\`
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | \`\${String((foo)).startsWith('a')}\`
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | \`\${(foo)?.startsWith('a')}\`
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | \`\${((foo) ?? '').startsWith('a')}\`
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(4): /^a/.test(foo + bar) 1`] = `
+
+  1 | /^a/.test(foo + bar)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(4): /^a/.test(foo + bar) 2`] = `
+
+Message:
+> 1 | /^a/.test(foo + bar)
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | (foo + bar).startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(foo + bar).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | (foo + bar)?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | ((foo + bar) ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(5): /^a/.test(foo || bar) 1`] = `
+
+  1 | /^a/.test(foo || bar)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(5): /^a/.test(foo || bar) 2`] = `
+
+Message:
+> 1 | /^a/.test(foo || bar)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | (foo || bar).startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(foo || bar).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | (foo || bar)?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | ((foo || bar) ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(6): /^a/.test(new SomeString) 1`] = `
+
+  1 | /^a/.test(new SomeString)
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(6): /^a/.test(new SomeString) 2`] = `
+
+Message:
+> 1 | /^a/.test(new SomeString)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | (new SomeString).startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(new SomeString).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | (new SomeString)?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (new SomeString ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(7): /^a/.test(new (SomeString)) 1`] = `
+
+  1 | /^a/.test(new (SomeString))
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(7): /^a/.test(new (SomeString)) 2`] = `
+
+Message:
+> 1 | /^a/.test(new (SomeString))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | (new (SomeString)).startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(new (SomeString)).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | (new (SomeString))?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (new (SomeString) ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(8): /^a/.test(new SomeString()) 1`] = `
+
+  1 | /^a/.test(new SomeString())
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(8): /^a/.test(new SomeString()) 2`] = `
+
+Message:
+> 1 | /^a/.test(new SomeString())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | new SomeString().startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(new SomeString()).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | new SomeString()?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (new SomeString() ?? '').startsWith('a')
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(9): /^a/.test(new new SomeClassReturnsAStringSubClass()) 1`] = `
+
+  1 | /^a/.test(new new SomeClassReturnsAStringSubClass())
+
+`;
+
+exports[`prefer-string-starts-ends-with > invalid(9): /^a/.test(new new SomeClassReturnsAStringSubClass()) 2`] = `
+
+Message:
+> 1 | /^a/.test(new new SomeClassReturnsAStringSubClass())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#startsWith()\` over a regex with \`^\`.
+
+Output:
+  1 | (new new SomeClassReturnsAStringSubClass()).startsWith('a')
+
+Suggestion 1/3: Convert to string \`String(…).startsWith()\`.:
+  1 | String(new new SomeClassReturnsAStringSubClass()).startsWith('a')
+
+Suggestion 2/3: Use optional chaining \`…?.startsWith()\`.:
+  1 | (new new SomeClassReturnsAStringSubClass())?.startsWith('a')
+
+Suggestion 3/3: Use nullish coalescing \`(… ?? '').startsWith()\`.:
+  1 | (new new SomeClassReturnsAStringSubClass() ?? '').startsWith('a')
+
+`;

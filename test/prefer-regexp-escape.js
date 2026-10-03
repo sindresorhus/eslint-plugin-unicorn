@@ -63,6 +63,8 @@ test.snapshot({
 			code: `function foo(collection: {replace(pattern: RegExp, replacement: string): string}) { return collection.replace(${regexpEscapeLiteral}, ${regexpEscapeReplacement}); }`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		'const escaped = window.escapeRegExp(string);',
+		'import escapeRegExp from "other-package"; const escaped = escapeRegExp(string);',
 	],
 	invalid: [
 		`const escaped = string.replace(${regexpEscapeLiteral}, ${regexpEscapeReplacement});`,

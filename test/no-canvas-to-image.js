@@ -60,6 +60,7 @@ test.snapshot({
 			otherContext.putImageData(imageData, 0, 0);
 			const imageData = context.getImageData(0, 0, width, height);
 		`,
+		'context.drawImage(...images, 0, 0);',
 	],
 	invalid: [
 		'context.drawImage(loadImage(canvas.toDataURL()), 0, 0);',

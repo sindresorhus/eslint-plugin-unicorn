@@ -1,0 +1,611 @@
+exports[`no-unnecessary-array-splice-count > invalid(1): foo.splice(1, foo.length) 1`] = `
+
+  1 | foo.splice(1, foo.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(1): foo.splice(1, foo.length) 2`] = `
+
+Message:
+> 1 | foo.splice(1, foo.length)
+    |               ^^^^^^^^^^ Passing \`foo.length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(1): foo.toSpliced(1, foo.length) 1`] = `
+
+  1 | foo.toSpliced(1, foo.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(1): foo.toSpliced(1, foo.length) 2`] = `
+
+Message:
+> 1 | foo.toSpliced(1, foo.length)
+    |                  ^^^^^^^^^^ Passing \`foo.length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(1): function f(foo: number[]) { foo.splice(1, foo.length); } 1`] = `
+
+  1 | function f(foo: number[]) { foo.splice(1, foo.length); }
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(1): function f(foo: number[]) { foo.splice(1, foo.length); } 2`] = `
+
+Message:
+> 1 | function f(foo: number[]) { foo.splice(1, foo.length); }
+    |                                           ^^^^^^^^^^ Passing \`foo.length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | function f(foo: number[]) { foo.splice(1); }
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(10): (foo as any[]).splice(1, (foo as any[]).length) 1`] = `
+
+  1 | (foo as any[]).splice(1, (foo as any[]).length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(10): (foo as any[]).splice(1, (foo as any[]).length) 2`] = `
+
+Message:
+> 1 | (foo as any[]).splice(1, (foo as any[]).length)
+    |                          ^^^^^^^^^^^^^^^^^^^^^ Passing \`….length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | (foo as any[]).splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(10): (foo as any[]).toSpliced(1, (foo as any[]).length) 1`] = `
+
+  1 | (foo as any[]).toSpliced(1, (foo as any[]).length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(10): (foo as any[]).toSpliced(1, (foo as any[]).length) 2`] = `
+
+Message:
+> 1 | (foo as any[]).toSpliced(1, (foo as any[]).length)
+    |                             ^^^^^^^^^^^^^^^^^^^^^ Passing \`….length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | (foo as any[]).toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(11): (array as string[])?.splice(1, (array as string[])?.length) 1`] = `
+
+  1 | (array as string[])?.splice(1, (array as string[])?.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(11): (array as string[])?.splice(1, (array as string[])?.length) 2`] = `
+
+Message:
+> 1 | (array as string[])?.splice(1, (array as string[])?.length)
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`…?.length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | (array as string[])?.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(11): (array as string[])?.toSpliced(1, (array as string[])?.length) 1`] = `
+
+  1 | (array as string[])?.toSpliced(1, (array as string[])?.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(11): (array as string[])?.toSpliced(1, (array as string[])?.length) 2`] = `
+
+Message:
+> 1 | (array as string[])?.toSpliced(1, (array as string[])?.length)
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`…?.length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | (array as string[])?.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(12): (foo as number[]).splice(1, Infinity) 1`] = `
+
+  1 | (foo as number[]).splice(1, Infinity)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(12): (foo as number[]).splice(1, Infinity) 2`] = `
+
+Message:
+> 1 | (foo as number[]).splice(1, Infinity)
+    |                             ^^^^^^^^ Passing \`Infinity\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | (foo as number[]).splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(12): (foo as number[]).toSpliced(1, Infinity) 1`] = `
+
+  1 | (foo as number[]).toSpliced(1, Infinity)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(12): (foo as number[]).toSpliced(1, Infinity) 2`] = `
+
+Message:
+> 1 | (foo as number[]).toSpliced(1, Infinity)
+    |                                ^^^^^^^^ Passing \`Infinity\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | (foo as number[]).toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(13): (bar as any[]).splice(1, Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | (bar as any[]).splice(1, Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(13): (bar as any[]).splice(1, Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | (bar as any[]).splice(1, Number.POSITIVE_INFINITY)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`Number.POSITIVE_INFINITY\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | (bar as any[]).splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(13): (bar as any[]).toSpliced(1, Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | (bar as any[]).toSpliced(1, Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(13): (bar as any[]).toSpliced(1, Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | (bar as any[]).toSpliced(1, Number.POSITIVE_INFINITY)
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`Number.POSITIVE_INFINITY\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | (bar as any[]).toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(14): foo!.splice(1, foo!.length) 1`] = `
+
+  1 | foo!.splice(1, foo!.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(14): foo!.splice(1, foo!.length) 2`] = `
+
+Message:
+> 1 | foo!.splice(1, foo!.length)
+    |                ^^^^^^^^^^^ Passing \`….length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo!.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(14): foo!.toSpliced(1, foo!.length) 1`] = `
+
+  1 | foo!.toSpliced(1, foo!.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(14): foo!.toSpliced(1, foo!.length) 2`] = `
+
+Message:
+> 1 | foo!.toSpliced(1, foo!.length)
+    |                   ^^^^^^^^^^^ Passing \`….length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo!.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(15): foo!.splice(1, Infinity) 1`] = `
+
+  1 | foo!.splice(1, Infinity)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(15): foo!.splice(1, Infinity) 2`] = `
+
+Message:
+> 1 | foo!.splice(1, Infinity)
+    |                ^^^^^^^^ Passing \`Infinity\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo!.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(15): foo!.toSpliced(1, Infinity) 1`] = `
+
+  1 | foo!.toSpliced(1, Infinity)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(15): foo!.toSpliced(1, Infinity) 2`] = `
+
+Message:
+> 1 | foo!.toSpliced(1, Infinity)
+    |                   ^^^^^^^^ Passing \`Infinity\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo!.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(16): bar!.splice(1, Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | bar!.splice(1, Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(16): bar!.splice(1, Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | bar!.splice(1, Number.POSITIVE_INFINITY)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`Number.POSITIVE_INFINITY\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | bar!.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(16): bar!.toSpliced(1, Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | bar!.toSpliced(1, Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(16): bar!.toSpliced(1, Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | bar!.toSpliced(1, Number.POSITIVE_INFINITY)
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`Number.POSITIVE_INFINITY\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | bar!.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(2): foo?.splice(1, foo.length) 1`] = `
+
+  1 | foo?.splice(1, foo.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(2): foo?.splice(1, foo.length) 2`] = `
+
+Message:
+> 1 | foo?.splice(1, foo.length)
+    |                ^^^^^^^^^^ Passing \`foo.length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo?.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(2): foo?.toSpliced(1, foo.length) 1`] = `
+
+  1 | foo?.toSpliced(1, foo.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(2): foo?.toSpliced(1, foo.length) 2`] = `
+
+Message:
+> 1 | foo?.toSpliced(1, foo.length)
+    |                   ^^^^^^^^^^ Passing \`foo.length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo?.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(2): function f(foo: readonly number[]) { foo.toSpliced(1, foo.length); } 1`] = `
+
+  1 | function f(foo: readonly number[]) { foo.toSpliced(1, foo.length); }
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(2): function f(foo: readonly number[]) { foo.toSpliced(1, foo.length); } 2`] = `
+
+Message:
+> 1 | function f(foo: readonly number[]) { foo.toSpliced(1, foo.length); }
+    |                                                       ^^^^^^^^^^ Passing \`foo.length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | function f(foo: readonly number[]) { foo.toSpliced(1); }
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(3): foo.splice(1, foo.length,) 1`] = `
+
+  1 | foo.splice(1, foo.length,)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(3): foo.splice(1, foo.length,) 2`] = `
+
+Message:
+> 1 | foo.splice(1, foo.length,)
+    |               ^^^^^^^^^^ Passing \`foo.length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo.splice(1,)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(3): foo.toSpliced(1, foo.length,) 1`] = `
+
+  1 | foo.toSpliced(1, foo.length,)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(3): foo.toSpliced(1, foo.length,) 2`] = `
+
+Message:
+> 1 | foo.toSpliced(1, foo.length,)
+    |                  ^^^^^^^^^^ Passing \`foo.length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo.toSpliced(1,)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(3): function f(foo: Uint8Array) { foo.splice(1, foo.length); } 1`] = `
+
+  1 | function f(foo: Uint8Array) { foo.splice(1, foo.length); }
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(3): function f(foo: Uint8Array) { foo.splice(1, foo.length); } 2`] = `
+
+Message:
+> 1 | function f(foo: Uint8Array) { foo.splice(1, foo.length); }
+    |                                             ^^^^^^^^^^ Passing \`foo.length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | function f(foo: Uint8Array) { foo.splice(1); }
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(4): foo.splice(1, (( foo.length ))) 1`] = `
+
+  1 | foo.splice(1, (( foo.length )))
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(4): foo.splice(1, (( foo.length ))) 2`] = `
+
+Message:
+> 1 | foo.splice(1, (( foo.length )))
+    |                  ^^^^^^^^^^ Passing \`foo.length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(4): foo.toSpliced(1, (( foo.length ))) 1`] = `
+
+  1 | foo.toSpliced(1, (( foo.length )))
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(4): foo.toSpliced(1, (( foo.length ))) 2`] = `
+
+Message:
+> 1 | foo.toSpliced(1, (( foo.length )))
+    |                     ^^^^^^^^^^ Passing \`foo.length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(4): function f(foo: Uint8Array) { foo.toSpliced(1, Infinity); } 1`] = `
+
+  1 | function f(foo: Uint8Array) { foo.toSpliced(1, Infinity); }
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(4): function f(foo: Uint8Array) { foo.toSpliced(1, Infinity); } 2`] = `
+
+Message:
+> 1 | function f(foo: Uint8Array) { foo.toSpliced(1, Infinity); }
+    |                                                ^^^^^^^^ Passing \`Infinity\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | function f(foo: Uint8Array) { foo.toSpliced(1); }
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(5): foo.splice(1, foo?.length) 1`] = `
+
+  1 | foo.splice(1, foo?.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(5): foo.splice(1, foo?.length) 2`] = `
+
+Message:
+> 1 | foo.splice(1, foo?.length)
+    |               ^^^^^^^^^^^ Passing \`foo?.length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(5): foo.toSpliced(1, foo?.length) 1`] = `
+
+  1 | foo.toSpliced(1, foo?.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(5): foo.toSpliced(1, foo?.length) 2`] = `
+
+Message:
+> 1 | foo.toSpliced(1, foo?.length)
+    |                  ^^^^^^^^^^^ Passing \`foo?.length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(6): foo?.splice(1, foo?.length) 1`] = `
+
+  1 | foo?.splice(1, foo?.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(6): foo?.splice(1, foo?.length) 2`] = `
+
+Message:
+> 1 | foo?.splice(1, foo?.length)
+    |                ^^^^^^^^^^^ Passing \`foo?.length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo?.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(6): foo?.toSpliced(1, foo?.length) 1`] = `
+
+  1 | foo?.toSpliced(1, foo?.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(6): foo?.toSpliced(1, foo?.length) 2`] = `
+
+Message:
+> 1 | foo?.toSpliced(1, foo?.length)
+    |                   ^^^^^^^^^^^ Passing \`foo?.length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo?.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(7): foo?.splice(1, Infinity) 1`] = `
+
+  1 | foo?.splice(1, Infinity)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(7): foo?.splice(1, Infinity) 2`] = `
+
+Message:
+> 1 | foo?.splice(1, Infinity)
+    |                ^^^^^^^^ Passing \`Infinity\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo?.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(7): foo?.toSpliced(1, Infinity) 1`] = `
+
+  1 | foo?.toSpliced(1, Infinity)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(7): foo?.toSpliced(1, Infinity) 2`] = `
+
+Message:
+> 1 | foo?.toSpliced(1, Infinity)
+    |                   ^^^^^^^^ Passing \`Infinity\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo?.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(8): foo?.splice(1, Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | foo?.splice(1, Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(8): foo?.splice(1, Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | foo?.splice(1, Number.POSITIVE_INFINITY)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`Number.POSITIVE_INFINITY\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo?.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(8): foo?.toSpliced(1, Number.POSITIVE_INFINITY) 1`] = `
+
+  1 | foo?.toSpliced(1, Number.POSITIVE_INFINITY)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(8): foo?.toSpliced(1, Number.POSITIVE_INFINITY) 2`] = `
+
+Message:
+> 1 | foo?.toSpliced(1, Number.POSITIVE_INFINITY)
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^ Passing \`Number.POSITIVE_INFINITY\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo?.toSpliced(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(9): foo.bar.splice(1, foo.bar.length) 1`] = `
+
+  1 | foo.bar.splice(1, foo.bar.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(9): foo.bar.splice(1, foo.bar.length) 2`] = `
+
+Message:
+> 1 | foo.bar.splice(1, foo.bar.length)
+    |                   ^^^^^^^^^^^^^^ Passing \`….length\` as the \`deleteCount\` argument is unnecessary.
+
+Output:
+  1 | foo.bar.splice(1)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(9): foo.bar.toSpliced(1, foo.bar.length) 1`] = `
+
+  1 | foo.bar.toSpliced(1, foo.bar.length)
+
+`;
+
+exports[`no-unnecessary-array-splice-count > invalid(9): foo.bar.toSpliced(1, foo.bar.length) 2`] = `
+
+Message:
+> 1 | foo.bar.toSpliced(1, foo.bar.length)
+    |                      ^^^^^^^^^^^^^^ Passing \`….length\` as the \`skipCount\` argument is unnecessary.
+
+Output:
+  1 | foo.bar.toSpliced(1)
+
+`;

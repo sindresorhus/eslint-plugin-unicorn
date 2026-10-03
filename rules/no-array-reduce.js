@@ -123,7 +123,7 @@ function getSumPreciseSuggestions(callExpression, context) {
 	}];
 }
 
-const getVariableReferences = (scope, node) => findVariable(scope, node)?.references ?? [];
+const getVariableReferences = (scope, node) => findVariable(scope, node).references;
 
 const isInlineCallback = node => node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression';
 
@@ -137,20 +137,20 @@ const isReferenceInside = (sourceCode, reference, node) => {
 };
 
 const hasWriteReferenceInside = (sourceCode, variable, node) =>
-	variable?.references.some(reference =>
+	variable.references.some(reference =>
 		!reference.init
 		&& reference.isWrite()
-		&& isReferenceInside(sourceCode, reference, node)) ?? false;
+		&& isReferenceInside(sourceCode, reference, node));
 
 const hasReadReferenceInside = (sourceCode, variable, node) =>
-	variable?.references.some(reference =>
+	variable.references.some(reference =>
 		reference.isRead()
-		&& isReferenceInside(sourceCode, reference, node)) ?? false;
+		&& isReferenceInside(sourceCode, reference, node));
 
 const hasWriteReference = variable =>
-	variable?.references.some(reference =>
+	variable.references.some(reference =>
 		!reference.init
-		&& reference.isWrite()) ?? false;
+		&& reference.isWrite());
 
 const hasParameterWrite = (sourceCode, callback) =>
 	sourceCode.getDeclaredVariables(callback)
@@ -174,8 +174,7 @@ const hasDirectEval = node => isNodeMatchedInside(node, node =>
 
 const isShorthandPropertyReference = identifier =>
 	identifier.parent.type === 'Property'
-	&& identifier.parent.shorthand
-	&& identifier.parent.value === identifier;
+	&& identifier.parent.shorthand;
 
 const isCallArgument = identifier =>
 	identifier.parent.type === 'CallExpression'
@@ -296,26 +295,13 @@ const getLocalCallbackFunction = (callback, sourceCode) => {
 function getReplacedExpressionText(expression, replacements, callbackScope, options) {
 	const {arrayText, context} = options;
 	const {sourceCode} = context;
-	const [expressionStart, expressionEnd] = sourceCode.getRange(expression);
+	const [expressionStart] = sourceCode.getRange(expression);
 	const textReplacements = [];
 
+	// The parameters are plain identifiers that are never written (see `getInlineCallbackExpressionText()`), and the callback body is just `expression`, so every reference is inside it
 	for (const [parameter, replacement] of replacements) {
-		if (
-			replacement === arrayText
-			&& hasWriteReferenceInside(sourceCode, findVariable(callbackScope, parameter), expression)
-		) {
-			return;
-		}
-
 		for (const {identifier} of getVariableReferences(callbackScope, parameter)) {
 			const [start, end] = sourceCode.getRange(identifier);
-			if (
-				start < expressionStart
-				|| end > expressionEnd
-			) {
-				continue;
-			}
-
 			if (sourceCode.getScope(identifier) !== callbackScope) {
 				return;
 			}
@@ -452,7 +438,7 @@ function isSafeCallbackIdentifier(callback, replacementNames, context, options) 
 
 // `[]` and an array of nothing but holes both yield no elements, and a receiver bound to one of them is empty for the loop as well.
 const isStaticallyEmptyArray = (receiver, sourceCode) => {
-	const array = receiver.type === 'Identifier' ? getConstVariableInitializer(receiver, {sourceCode}) : receiver;
+	const array = getConstVariableInitializer(receiver, {sourceCode});
 
 	return array?.type === 'ArrayExpression'
 		&& array.elements.every(element => element === null);

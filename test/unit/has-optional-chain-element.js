@@ -1,5 +1,5 @@
+import test from 'node:test';
 import {Linter} from 'eslint';
-import test from 'ava';
 import hasOptionalChainElement, {hasUnparenthesizedOptionalChainElement} from '../../rules/utils/has-optional-chain-element.js';
 import parsers from '../utils/parsers.js';
 
@@ -61,7 +61,7 @@ test('`hasOptionalChainElement` detects optional chain elements', t => {
 		'const value = object?.getArray().toSorted();',
 		'const value = object.getArray?.().toSorted();',
 	]) {
-		t.true(hasOptionalChainElement(getVariableInitializer(code)), 'Expected optional chain to be detected.');
+		t.assert.strictEqual(hasOptionalChainElement(getVariableInitializer(code)), true, 'Expected optional chain to be detected.');
 	}
 });
 
@@ -71,7 +71,7 @@ test('`hasOptionalChainElement` unwraps TypeScript expression wrappers', t => {
 		'const value = (object?.array as number[]).toSorted();',
 		'const value = (object?.array satisfies number[]).toSorted();',
 	]) {
-		t.true(hasOptionalChainElement(getVariableInitializer(code, typescriptLanguageOptions)), 'Expected optional chain to be detected through TypeScript wrapper.');
+		t.assert.strictEqual(hasOptionalChainElement(getVariableInitializer(code, typescriptLanguageOptions)), true, 'Expected optional chain to be detected through TypeScript wrapper.');
 	}
 });
 
@@ -83,7 +83,7 @@ test('`hasOptionalChainElement` ignores optional chains outside the chain spine'
 		'const value = object.method(argument?.property);',
 		'const value = object[property?.name].toSorted();',
 	]) {
-		t.false(hasOptionalChainElement(getVariableInitializer(code)), 'Expected non-optional chain to be ignored.');
+		t.assert.strictEqual(hasOptionalChainElement(getVariableInitializer(code)), false, 'Expected non-optional chain to be ignored.');
 	}
 });
 
@@ -94,7 +94,7 @@ test('`hasUnparenthesizedOptionalChainElement` detects unparenthesized optional 
 	]) {
 		const {initializer, context} = getVariableInitializerWithContext(code, typescriptLanguageOptions);
 
-		t.true(hasUnparenthesizedOptionalChainElement(initializer, context), 'Expected unparenthesized optional chain to be detected.');
+		t.assert.strictEqual(hasUnparenthesizedOptionalChainElement(initializer, context), true, 'Expected unparenthesized optional chain to be detected.');
 	}
 });
 
@@ -107,6 +107,6 @@ test('`hasUnparenthesizedOptionalChainElement` ignores parenthesized optional ch
 	]) {
 		const {initializer, context} = getVariableInitializerWithContext(code, typescriptLanguageOptions);
 
-		t.false(hasUnparenthesizedOptionalChainElement(initializer, context), 'Expected parenthesized optional chain to be ignored.');
+		t.assert.strictEqual(hasUnparenthesizedOptionalChainElement(initializer, context), false, 'Expected parenthesized optional chain to be ignored.');
 	}
 });

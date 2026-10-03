@@ -1,0 +1,4579 @@
+exports[`prefer-spread > invalid(1): [1].concat(2) 1`] = `
+
+  1 | [1].concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(1): [1].concat(2) 2`] = `
+
+Message:
+> 1 | [1].concat(2)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2]
+
+`;
+
+exports[`prefer-spread > invalid(1): array.slice() 1`] = `
+
+  1 | array.slice()
+
+`;
+
+exports[`prefer-spread > invalid(1): array.slice() 2`] = `
+
+Message:
+> 1 | array.slice()
+    |       ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...array]
+
+`;
+
+exports[`prefer-spread > invalid(1): array.toSpliced() 1`] = `
+
+  1 | array.toSpliced()
+
+`;
+
+exports[`prefer-spread > invalid(1): array.toSpliced() 2`] = `
+
+Message:
+> 1 | array.toSpliced()
+    |       ^^^^^^^^^ Prefer the spread operator over \`Array#toSpliced()\`.
+
+Output:
+  1 | [...array]
+
+`;
+
+exports[`prefer-spread > invalid(1): const result = [];\nfor (const element of iterable) {\n\tresult.push(element);\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of iterable) {
+  3 | 	result.push(element);
+  4 | }
+
+`;
+
+exports[`prefer-spread > invalid(1): const result = [];\nfor (const element of iterable) {\n\tresult.push(element);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Prefer the spread operator over this \`for…of\` loop.
+
+Output:
+  1 | const result = [...iterable];
+
+`;
+
+exports[`prefer-spread > invalid(1): const x = Array.from(set); 1`] = `
+
+  1 | const x = Array.from(set);
+
+`;
+
+exports[`prefer-spread > invalid(1): const x = Array.from(set); 2`] = `
+
+Message:
+> 1 | const x = Array.from(set);
+    |           ^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const x = [...set];
+
+`;
+
+exports[`prefer-spread > invalid(1): import Link from \"link\"; function foo(link: Link) { link.concat(next); } 1`] = `
+
+  1 | import Link from "link"; function foo(link: Link) { link.concat(next); }
+
+`;
+
+exports[`prefer-spread > invalid(1): import Link from \"link\"; function foo(link: Link) { link.concat(next); } 2`] = `
+
+Message:
+> 1 | import Link from "link"; function foo(link: Link) { link.concat(next); }
+    |                                                          ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | import Link from "link"; function foo(link: Link) { [...link, ...next]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | import Link from "link"; function foo(link: Link) { [...link, next]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | import Link from "link"; function foo(link: Link) { [...link, ...(Array.isArray(next) ? next : [next])]; }
+
+`;
+
+exports[`prefer-spread > invalid(10): [1,].concat(2,) 1`] = `
+
+  1 | [1,].concat(2,)
+
+`;
+
+exports[`prefer-spread > invalid(10): [1,].concat(2,) 2`] = `
+
+Message:
+> 1 | [1,].concat(2,)
+    |      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2,]
+
+`;
+
+exports[`prefer-spread > invalid(10): array.slice(0) 1`] = `
+
+  1 | array.slice(0)
+
+`;
+
+exports[`prefer-spread > invalid(10): array.slice(0) 2`] = `
+
+Message:
+> 1 | array.slice(0)
+    |       ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...array]
+
+`;
+
+exports[`prefer-spread > invalid(10): const foo = /./\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = /./
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(10): const foo = /./\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = /./
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = /./
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(10): const result = [];\n// Keep this comment.\nfor (const element of iterable) {\n\tresult.push(element);\n} 1`] = `
+
+  1 | const result = [];
+  2 | // Keep this comment.
+  3 | for (const element of iterable) {
+  4 | 	result.push(element);
+  5 | }
+
+`;
+
+exports[`prefer-spread > invalid(10): const result = [];\n// Keep this comment.\nfor (const element of iterable) {\n\tresult.push(element);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+  2 | // Keep this comment.
+> 3 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer the spread operator over this \`for…of\` loop.
+
+`;
+
+exports[`prefer-spread > invalid(10): function foo<T>(value: string[] | T) { value.concat(other); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<T>(value: string[] | T) { value.concat(other); }
+
+`;
+
+exports[`prefer-spread > invalid(10): function foo<T>(value: string[] | T) { value.concat(other); } 2`] = `
+
+Message:
+> 1 | function foo<T>(value: string[] | T) { value.concat(other); }
+    |                                              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo<T>(value: string[] | T) { [...value, ...other]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo<T>(value: string[] | T) { [...value, other]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo<T>(value: string[] | T) { [...value, ...(Array.isArray(other) ? other : [other])]; }
+
+`;
+
+exports[`prefer-spread > invalid(100): const baz = [2];\ncall(foo, ...[bar].concat(baz)); 1`] = `
+
+  1 | const baz = [2];
+  2 | call(foo, ...[bar].concat(baz));
+
+`;
+
+exports[`prefer-spread > invalid(100): const baz = [2];\ncall(foo, ...[bar].concat(baz)); 2`] = `
+
+Message:
+  1 | const baz = [2];
+> 2 | call(foo, ...[bar].concat(baz));
+    |                    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | const baz = [2];
+  2 | call(foo, ...[bar, ...baz]);
+
+`;
+
+exports[`prefer-spread > invalid(101): foo.concat((/* keep */ [1])) 1`] = `
+
+  1 | foo.concat((/* keep */ [1]))
+
+`;
+
+exports[`prefer-spread > invalid(101): foo.concat((/* keep */ [1])) 2`] = `
+
+Message:
+> 1 | foo.concat((/* keep */ [1]))
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, ...(/* keep */ [1])]
+
+`;
+
+exports[`prefer-spread > invalid(102): [1].concat([/* keep */ 2]) 1`] = `
+
+  1 | [1].concat([/* keep */ 2])
+
+`;
+
+exports[`prefer-spread > invalid(102): [1].concat([/* keep */ 2]) 2`] = `
+
+Message:
+> 1 | [1].concat([/* keep */ 2])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, /* keep */ 2]
+
+`;
+
+exports[`prefer-spread > invalid(103): [1].concat([2, /* keep */], [3]) 1`] = `
+
+  1 | [1].concat([2, /* keep */], [3])
+
+`;
+
+exports[`prefer-spread > invalid(103): [1].concat([2, /* keep */], [3]) 2`] = `
+
+Message:
+> 1 | [1].concat([2, /* keep */], [3])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(104): foo.concat((/* keep */ [])) 1`] = `
+
+  1 | foo.concat((/* keep */ []))
+
+`;
+
+exports[`prefer-spread > invalid(104): foo.concat((/* keep */ [])) 2`] = `
+
+Message:
+> 1 | foo.concat((/* keep */ []))
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(105): foo.concat([/* keep */]) 1`] = `
+
+  1 | foo.concat([/* keep */])
+
+`;
+
+exports[`prefer-spread > invalid(105): foo.concat([/* keep */]) 2`] = `
+
+Message:
+> 1 | foo.concat([/* keep */])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(106): foo.concat([1], /* keep */ bar) 1`] = `
+
+  1 | foo.concat([1], /* keep */ bar)
+
+`;
+
+exports[`prefer-spread > invalid(106): foo.concat([1], /* keep */ bar) 2`] = `
+
+Message:
+> 1 | foo.concat([1], /* keep */ bar)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, 1].concat(/* keep */ bar)
+
+`;
+
+exports[`prefer-spread > invalid(107): foo.concat(/* keep */ [1], bar) 1`] = `
+
+  1 | foo.concat(/* keep */ [1], bar)
+
+`;
+
+exports[`prefer-spread > invalid(107): foo.concat(/* keep */ [1], bar) 2`] = `
+
+Message:
+> 1 | foo.concat(/* keep */ [1], bar)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(108): if (Array.isArray(foo)) { foo.concat(bar); } 1`] = `
+
+  1 | if (Array.isArray(foo)) { foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(108): if (Array.isArray(foo)) { foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | if (Array.isArray(foo)) { foo.concat(bar); }
+    |                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | if (Array.isArray(foo)) { [...foo, ...bar]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | if (Array.isArray(foo)) { [...foo, bar]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | if (Array.isArray(foo)) { [...foo, ...(Array.isArray(bar) ? bar : [bar])]; }
+
+`;
+
+exports[`prefer-spread > invalid(109): const Array = {isArray: () => false}; if (!Array.isArray(foo)) { foo.concat(bar); } 1`] = `
+
+  1 | const Array = {isArray: () => false}; if (!Array.isArray(foo)) { foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(109): const Array = {isArray: () => false}; if (!Array.isArray(foo)) { foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | const Array = {isArray: () => false}; if (!Array.isArray(foo)) { foo.concat(bar); }
+    |                                                                      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | const Array = {isArray: () => false}; if (!Array.isArray(foo)) { [...foo, ...bar]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | const Array = {isArray: () => false}; if (!Array.isArray(foo)) { [...foo, bar]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | const Array = {isArray: () => false}; if (!Array.isArray(foo)) { [...foo, ...(Array.isArray(bar) ? bar : [bar])]; }
+
+`;
+
+exports[`prefer-spread > invalid(11): [1,].concat([2, 3],) 1`] = `
+
+  1 | [1,].concat([2, 3],)
+
+`;
+
+exports[`prefer-spread > invalid(11): [1,].concat([2, 3],) 2`] = `
+
+Message:
+> 1 | [1,].concat([2, 3],)
+    |      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2, 3,]
+
+`;
+
+exports[`prefer-spread > invalid(11): array.slice(0b0) 1`] = `
+
+  1 | array.slice(0b0)
+
+`;
+
+exports[`prefer-spread > invalid(11): array.slice(0b0) 2`] = `
+
+Message:
+> 1 | array.slice(0b0)
+    |       ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...array]
+
+`;
+
+exports[`prefer-spread > invalid(11): const foo = /./g\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = /./g
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(11): const foo = /./g\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = /./g
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = /./g
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(11): const result = [];\nfor (const element of iterable) {\n\t// Keep this comment.\n\tresult.push(element);\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of iterable) {
+  3 | 	// Keep this comment.
+  4 | 	result.push(element);
+  5 | }
+
+`;
+
+exports[`prefer-spread > invalid(11): const result = [];\nfor (const element of iterable) {\n\t// Keep this comment.\n\tresult.push(element);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	// Keep this comment.
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer the spread operator over this \`for…of\` loop.
+
+`;
+
+exports[`prefer-spread > invalid(11): declare const value: string[] | string; value.concat(other); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string[] | string; value.concat(other);
+
+`;
+
+exports[`prefer-spread > invalid(11): declare const value: string[] | string; value.concat(other); 2`] = `
+
+Message:
+> 1 | declare const value: string[] | string; value.concat(other);
+    |                                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | declare const value: string[] | string; [...value, ...other];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | declare const value: string[] | string; [...value, other];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | declare const value: string[] | string; [...value, ...(Array.isArray(other) ? other : [other])];
+
+`;
+
+exports[`prefer-spread > invalid(110): if (!Array.isArray(foo)) { const foo = []; foo.concat(bar); } 1`] = `
+
+  1 | if (!Array.isArray(foo)) { const foo = []; foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(110): if (!Array.isArray(foo)) { const foo = []; foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | if (!Array.isArray(foo)) { const foo = []; foo.concat(bar); }
+    |                                                ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | if (!Array.isArray(foo)) { const foo = []; [...foo, ...bar]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | if (!Array.isArray(foo)) { const foo = []; [...foo, bar]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | if (!Array.isArray(foo)) { const foo = []; [...foo, ...(Array.isArray(bar) ? bar : [bar])]; }
+
+`;
+
+exports[`prefer-spread > invalid(111): if (!Array.isArray(foo)) { foo = []; foo.concat(bar); } 1`] = `
+
+  1 | if (!Array.isArray(foo)) { foo = []; foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(111): if (!Array.isArray(foo)) { foo = []; foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | if (!Array.isArray(foo)) { foo = []; foo.concat(bar); }
+    |                                          ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | if (!Array.isArray(foo)) { foo = []; [...foo, ...bar]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | if (!Array.isArray(foo)) { foo = []; [...foo, bar]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | if (!Array.isArray(foo)) { foo = []; [...foo, ...(Array.isArray(bar) ? bar : [bar])]; }
+
+`;
+
+exports[`prefer-spread > invalid(112): let foo; if (!Array.isArray(foo)) { foo = []; foo.concat(bar); } 1`] = `
+
+  1 | let foo; if (!Array.isArray(foo)) { foo = []; foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(112): let foo; if (!Array.isArray(foo)) { foo = []; foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | let foo; if (!Array.isArray(foo)) { foo = []; foo.concat(bar); }
+    |                                                   ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | let foo; if (!Array.isArray(foo)) { foo = []; [...foo, ...bar]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | let foo; if (!Array.isArray(foo)) { foo = []; [...foo, bar]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | let foo; if (!Array.isArray(foo)) { foo = []; [...foo, ...(Array.isArray(bar) ? bar : [bar])]; }
+
+`;
+
+exports[`prefer-spread > invalid(113): function f(foo) { if (!Array.isArray(foo)) { var foo = []; foo.concat(bar); } } 1`] = `
+
+  1 | function f(foo) { if (!Array.isArray(foo)) { var foo = []; foo.concat(bar); } }
+
+`;
+
+exports[`prefer-spread > invalid(113): function f(foo) { if (!Array.isArray(foo)) { var foo = []; foo.concat(bar); } } 2`] = `
+
+Message:
+> 1 | function f(foo) { if (!Array.isArray(foo)) { var foo = []; foo.concat(bar); } }
+    |                                                                ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function f(foo) { if (!Array.isArray(foo)) { var foo = []; [...foo, ...bar]; } }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function f(foo) { if (!Array.isArray(foo)) { var foo = []; [...foo, bar]; } }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function f(foo) { if (!Array.isArray(foo)) { var foo = []; [...foo, ...(Array.isArray(bar) ? bar : [bar])]; } }
+
+`;
+
+exports[`prefer-spread > invalid(114): let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object = {foo: []}; object.foo.concat(bar); } 1`] = `
+
+  1 | let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object = {foo: []}; object.foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(114): let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object = {foo: []}; object.foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object = {foo: []}; object.foo.concat(bar); }
+    |                                                                                             ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(115): let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[\"foo\"] = []; object.foo.concat(bar); } 1`] = `
+
+  1 | let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object["foo"] = []; object.foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(115): let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[\"foo\"] = []; object.foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object["foo"] = []; object.foo.concat(bar); }
+    |                                                                                             ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(116): const key = \"foo\"; let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); } 1`] = `
+
+  1 | const key = "foo"; let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(116): const key = \"foo\"; let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | const key = "foo"; let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); }
+    |                                                                                                              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(117): let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); } 1`] = `
+
+  1 | let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(117): let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); }
+    |                                                                                           ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(118): let foo; if (!Array.isArray(foo)) { [foo] = [[]]; foo.concat(bar); } 1`] = `
+
+  1 | let foo; if (!Array.isArray(foo)) { [foo] = [[]]; foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(118): let foo; if (!Array.isArray(foo)) { [foo] = [[]]; foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | let foo; if (!Array.isArray(foo)) { [foo] = [[]]; foo.concat(bar); }
+    |                                                       ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | let foo; if (!Array.isArray(foo)) { [foo] = [[]]; [...foo, ...bar]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | let foo; if (!Array.isArray(foo)) { [foo] = [[]]; [...foo, bar]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | let foo; if (!Array.isArray(foo)) { [foo] = [[]]; [...foo, ...(Array.isArray(bar) ? bar : [bar])]; }
+
+`;
+
+exports[`prefer-spread > invalid(119): const object = {foo: maybe}; if (!Array.isArray(object.foo)) { const object = {foo: []}; object.foo.concat(bar); } 1`] = `
+
+  1 | const object = {foo: maybe}; if (!Array.isArray(object.foo)) { const object = {foo: []}; object.foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(119): const object = {foo: maybe}; if (!Array.isArray(object.foo)) { const object = {foo: []}; object.foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | const object = {foo: maybe}; if (!Array.isArray(object.foo)) { const object = {foo: []}; object.foo.concat(bar); }
+    |                                                                                                     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(12): Array(1).concat(2) 1`] = `
+
+  1 | Array(1).concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(12): Array(1).concat(2) 2`] = `
+
+Message:
+> 1 | Array(1).concat(2)
+    |          ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(12): array.slice(0.00) 1`] = `
+
+  1 | array.slice(0.00)
+
+`;
+
+exports[`prefer-spread > invalid(12): array.slice(0.00) 2`] = `
+
+Message:
+> 1 | array.slice(0.00)
+    |       ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...array]
+
+`;
+
+exports[`prefer-spread > invalid(12): const foo = bar\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = bar
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(12): const foo = bar\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = bar
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = bar
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(12): function foo<T extends string[]>(value: T) { value.concat(other); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<T extends string[]>(value: T) { value.concat(other); }
+
+`;
+
+exports[`prefer-spread > invalid(12): function foo<T extends string[]>(value: T) { value.concat(other); } 2`] = `
+
+Message:
+> 1 | function foo<T extends string[]>(value: T) { value.concat(other); }
+    |                                                    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo<T extends string[]>(value: T) { [...value, ...other]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo<T extends string[]>(value: T) { [...value, other]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo<T extends string[]>(value: T) { [...value, ...(Array.isArray(other) ? other : [other])]; }
+
+`;
+
+exports[`prefer-spread > invalid(120): if (!Array.isArray(object.foo)) { object.foo = []; object.foo.concat(bar); } 1`] = `
+
+  1 | if (!Array.isArray(object.foo)) { object.foo = []; object.foo.concat(bar); }
+
+`;
+
+exports[`prefer-spread > invalid(120): if (!Array.isArray(object.foo)) { object.foo = []; object.foo.concat(bar); } 2`] = `
+
+Message:
+> 1 | if (!Array.isArray(object.foo)) { object.foo = []; object.foo.concat(bar); }
+    |                                                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(121): let foo; if (!Array.isArray(foo)) { callbacks.push(() => foo.concat(bar)); } 1`] = `
+
+  1 | let foo; if (!Array.isArray(foo)) { callbacks.push(() => foo.concat(bar)); }
+
+`;
+
+exports[`prefer-spread > invalid(121): let foo; if (!Array.isArray(foo)) { callbacks.push(() => foo.concat(bar)); } 2`] = `
+
+Message:
+> 1 | let foo; if (!Array.isArray(foo)) { callbacks.push(() => foo.concat(bar)); }
+    |                                                              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | let foo; if (!Array.isArray(foo)) { callbacks.push(() => [...foo, ...bar]); }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | let foo; if (!Array.isArray(foo)) { callbacks.push(() => [...foo, bar]); }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | let foo; if (!Array.isArray(foo)) { callbacks.push(() => [...foo, ...(Array.isArray(bar) ? bar : [bar])]); }
+
+`;
+
+exports[`prefer-spread > invalid(122): foo.concat(\n\t// keep\n\t[1],\n\tbar,\n) 1`] = `
+
+  1 | foo.concat(
+  2 | 	// keep
+  3 | 	[1],
+  4 | 	bar,
+  5 | )
+
+`;
+
+exports[`prefer-spread > invalid(122): foo.concat(\n\t// keep\n\t[1],\n\tbar,\n) 2`] = `
+
+Message:
+> 1 | foo.concat(
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+  2 | 	// keep
+  3 | 	[1],
+  4 | 	bar,
+  5 | )
+
+`;
+
+exports[`prefer-spread > invalid(123): foo.concat(\n\t// keep\n\t[1],\n) 1`] = `
+
+  1 | foo.concat(
+  2 | 	// keep
+  3 | 	[1],
+  4 | )
+
+`;
+
+exports[`prefer-spread > invalid(123): foo.concat(\n\t// keep\n\t[1],\n) 2`] = `
+
+Message:
+> 1 | foo.concat(
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+  2 | 	// keep
+  3 | 	[1],
+  4 | )
+
+`;
+
+exports[`prefer-spread > invalid(124): foo/* keep */.concat([1], bar) 1`] = `
+
+  1 | foo/* keep */.concat([1], bar)
+
+`;
+
+exports[`prefer-spread > invalid(124): foo/* keep */.concat([1], bar) 2`] = `
+
+Message:
+> 1 | foo/* keep */.concat([1], bar)
+    |               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(125): foo.concat(/* keep */ [1]) 1`] = `
+
+  1 | foo.concat(/* keep */ [1])
+
+`;
+
+exports[`prefer-spread > invalid(125): foo.concat(/* keep */ [1]) 2`] = `
+
+Message:
+> 1 | foo.concat(/* keep */ [1])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(126): foo/* keep */.concat([1]) 1`] = `
+
+  1 | foo/* keep */.concat([1])
+
+`;
+
+exports[`prefer-spread > invalid(126): foo/* keep */.concat([1]) 2`] = `
+
+Message:
+> 1 | foo/* keep */.concat([1])
+    |               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(127): function foo(array: string[]) { array.concat(item); } 1`] = `
+
+  1 | function foo(array: string[]) { array.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(127): function foo(array: string[]) { array.concat(item); } 2`] = `
+
+Message:
+> 1 | function foo(array: string[]) { array.concat(item); }
+    |                                       ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo(array: string[]) { [...array, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo(array: string[]) { [...array, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo(array: string[]) { [...array, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(128): function foo(array: string[]) { array.concat(\"item\"); } 1`] = `
+
+  1 | function foo(array: string[]) { array.concat("item"); }
+
+`;
+
+exports[`prefer-spread > invalid(128): function foo(array: string[]) { array.concat(\"item\"); } 2`] = `
+
+Message:
+> 1 | function foo(array: string[]) { array.concat("item"); }
+    |                                       ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | function foo(array: string[]) { [...array, "item"]; }
+
+`;
+
+exports[`prefer-spread > invalid(129): (Array(1) as number[]).concat(2); 1`] = `
+
+  1 | (Array(1) as number[]).concat(2);
+
+`;
+
+exports[`prefer-spread > invalid(129): (Array(1) as number[]).concat(2); 2`] = `
+
+Message:
+> 1 | (Array(1) as number[]).concat(2);
+    |                        ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(13): array.slice(0.00, ) 1`] = `
+
+  1 | array.slice(0.00, )
+
+`;
+
+exports[`prefer-spread > invalid(13): array.slice(0.00, ) 2`] = `
+
+Message:
+> 1 | array.slice(0.00, )
+    |       ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...array]
+
+`;
+
+exports[`prefer-spread > invalid(13): const foo = bar.baz\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = bar.baz
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(13): const foo = bar.baz\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = bar.baz
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = bar.baz
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(13): declare const value: string[] & {foo: 1}; value.concat(other); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string[] & {foo: 1}; value.concat(other);
+
+`;
+
+exports[`prefer-spread > invalid(13): declare const value: string[] & {foo: 1}; value.concat(other); 2`] = `
+
+Message:
+> 1 | declare const value: string[] & {foo: 1}; value.concat(other);
+    |                                                 ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | declare const value: string[] & {foo: 1}; [...value, ...other];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | declare const value: string[] & {foo: 1}; [...value, other];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | declare const value: string[] & {foo: 1}; [...value, ...(Array.isArray(other) ? other : [other])];
+
+`;
+
+exports[`prefer-spread > invalid(13): new Array(1).concat(2) 1`] = `
+
+  1 | new Array(1).concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(13): new Array(1).concat(2) 2`] = `
+
+Message:
+> 1 | new Array(1).concat(2)
+    |              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(130): (Array(1)!).concat(foo); 1`] = `
+
+  1 | (Array(1)!).concat(foo);
+
+`;
+
+exports[`prefer-spread > invalid(130): (Array(1)!).concat(foo); 2`] = `
+
+Message:
+> 1 | (Array(1)!).concat(foo);
+    |             ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(131): (<number[]>Array(1)).concat(2); 1`] = `
+
+  1 | (<number[]>Array(1)).concat(2);
+
+`;
+
+exports[`prefer-spread > invalid(131): (<number[]>Array(1)).concat(2); 2`] = `
+
+Message:
+> 1 | (<number[]>Array(1)).concat(2);
+    |                      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(132): (Array(1) satisfies number[]).concat(2); 1`] = `
+
+  1 | (Array(1) satisfies number[]).concat(2);
+
+`;
+
+exports[`prefer-spread > invalid(132): (Array(1) satisfies number[]).concat(2); 2`] = `
+
+Message:
+> 1 | (Array(1) satisfies number[]).concat(2);
+    |                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(133): declare const Items: string[]; Items.concat(item); 1`] = `
+
+  1 | declare const Items: string[]; Items.concat(item);
+
+`;
+
+exports[`prefer-spread > invalid(133): declare const Items: string[]; Items.concat(item); 2`] = `
+
+Message:
+> 1 | declare const Items: string[]; Items.concat(item);
+    |                                      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | declare const Items: string[]; [...Items, ...item];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | declare const Items: string[]; [...Items, item];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | declare const Items: string[]; [...Items, ...(Array.isArray(item) ? item : [item])];
+
+`;
+
+exports[`prefer-spread > invalid(134): function foo(array: readonly string[]) { array.concat(item); } 1`] = `
+
+  1 | function foo(array: readonly string[]) { array.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(134): function foo(array: readonly string[]) { array.concat(item); } 2`] = `
+
+Message:
+> 1 | function foo(array: readonly string[]) { array.concat(item); }
+    |                                                ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo(array: readonly string[]) { [...array, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo(array: readonly string[]) { [...array, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo(array: readonly string[]) { [...array, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(135): function foo(array: [string, string]) { array.concat(item); } 1`] = `
+
+  1 | function foo(array: [string, string]) { array.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(135): function foo(array: [string, string]) { array.concat(item); } 2`] = `
+
+Message:
+> 1 | function foo(array: [string, string]) { array.concat(item); }
+    |                                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo(array: [string, string]) { [...array, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo(array: [string, string]) { [...array, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo(array: [string, string]) { [...array, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(136): function foo(array: Array<string>) { array.concat(item); } 1`] = `
+
+  1 | function foo(array: Array<string>) { array.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(136): function foo(array: Array<string>) { array.concat(item); } 2`] = `
+
+Message:
+> 1 | function foo(array: Array<string>) { array.concat(item); }
+    |                                            ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo(array: Array<string>) { [...array, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo(array: Array<string>) { [...array, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo(array: Array<string>) { [...array, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(137): function foo(array: ReadonlyArray<string>) { array.concat(item); } 1`] = `
+
+  1 | function foo(array: ReadonlyArray<string>) { array.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(137): function foo(array: ReadonlyArray<string>) { array.concat(item); } 2`] = `
+
+Message:
+> 1 | function foo(array: ReadonlyArray<string>) { array.concat(item); }
+    |                                                    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo(array: ReadonlyArray<string>) { [...array, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo(array: ReadonlyArray<string>) { [...array, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo(array: ReadonlyArray<string>) { [...array, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(138): type Strings = string[]; function foo(array: Strings) { array.concat(item); } 1`] = `
+
+  1 | type Strings = string[]; function foo(array: Strings) { array.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(138): type Strings = string[]; function foo(array: Strings) { array.concat(item); } 2`] = `
+
+Message:
+> 1 | type Strings = string[]; function foo(array: Strings) { array.concat(item); }
+    |                                                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | type Strings = string[]; function foo(array: Strings) { [...array, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | type Strings = string[]; function foo(array: Strings) { [...array, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | type Strings = string[]; function foo(array: Strings) { [...array, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(139): function foo<ArrayType extends string[]>(array: ArrayType) { array.concat(item); } 1`] = `
+
+  1 | function foo<ArrayType extends string[]>(array: ArrayType) { array.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(139): function foo<ArrayType extends string[]>(array: ArrayType) { array.concat(item); } 2`] = `
+
+Message:
+> 1 | function foo<ArrayType extends string[]>(array: ArrayType) { array.concat(item); }
+    |                                                                    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo<ArrayType extends string[]>(array: ArrayType) { [...array, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo<ArrayType extends string[]>(array: ArrayType) { [...array, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo<ArrayType extends string[]>(array: ArrayType) { [...array, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(14): (/* comment */ array).slice() 1`] = `
+
+  1 | (/* comment */ array).slice()
+
+`;
+
+exports[`prefer-spread > invalid(14): (/* comment */ array).slice() 2`] = `
+
+Message:
+> 1 | (/* comment */ array).slice()
+    |                       ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...(/* comment */ array)]
+
+`;
+
+exports[`prefer-spread > invalid(14): Array(1).concat(\"bar\") 1`] = `
+
+  1 | Array(1).concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(14): Array(1).concat(\"bar\") 2`] = `
+
+Message:
+> 1 | Array(1).concat("bar")
+    |          ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(14): function foo<T>(value: T & {foo: 1}) { value.concat(other); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<T>(value: T & {foo: 1}) { value.concat(other); }
+
+`;
+
+exports[`prefer-spread > invalid(14): function foo<T>(value: T & {foo: 1}) { value.concat(other); } 2`] = `
+
+Message:
+> 1 | function foo<T>(value: T & {foo: 1}) { value.concat(other); }
+    |                                              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo<T>(value: T & {foo: 1}) { [...value, ...other]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo<T>(value: T & {foo: 1}) { [...value, other]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo<T>(value: T & {foo: 1}) { [...value, ...(Array.isArray(other) ? other : [other])]; }
+
+`;
+
+exports[`prefer-spread > invalid(14): function* foo() {\n\tyield Array.from(arrayLike).forEach(doSomething)\n} 1`] = `
+
+  1 | function* foo() {
+  2 | 	yield Array.from(arrayLike).forEach(doSomething)
+  3 | }
+
+`;
+
+exports[`prefer-spread > invalid(14): function* foo() {\n\tyield Array.from(arrayLike).forEach(doSomething)\n} 2`] = `
+
+Message:
+  1 | function* foo() {
+> 2 | 	yield Array.from(arrayLike).forEach(doSomething)
+    | 	      ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+  3 | }
+
+Output:
+  1 | function* foo() {
+  2 | 	yield [...arrayLike].forEach(doSomething)
+  3 | }
+
+`;
+
+exports[`prefer-spread > invalid(140): interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); } 1`] = `
+
+  1 | interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(140): interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); } 2`] = `
+
+Message:
+> 1 | interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); }
+    |                                                                                                                   ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { [...value, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { [...value, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { [...value, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(141): import type {Strings} from \"./types\"; declare const array: Strings; array.concat(item); 1`] = `
+
+  1 | import type {Strings} from "./types"; declare const array: Strings; array.concat(item);
+
+`;
+
+exports[`prefer-spread > invalid(141): import type {Strings} from \"./types\"; declare const array: Strings; array.concat(item); 2`] = `
+
+Message:
+> 1 | import type {Strings} from "./types"; declare const array: Strings; array.concat(item);
+    |                                                                           ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | import type {Strings} from "./types"; declare const array: Strings; [...array, ...item];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | import type {Strings} from "./types"; declare const array: Strings; [...array, item];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | import type {Strings} from "./types"; declare const array: Strings; [...array, ...(Array.isArray(item) ? item : [item])];
+
+`;
+
+exports[`prefer-spread > invalid(142): function foo<T>(value: T) { value.concat(item); } 1`] = `
+
+  1 | function foo<T>(value: T) { value.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(142): function foo<T>(value: T) { value.concat(item); } 2`] = `
+
+Message:
+> 1 | function foo<T>(value: T) { value.concat(item); }
+    |                                   ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo<T>(value: T) { [...value, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo<T>(value: T) { [...value, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo<T>(value: T) { [...value, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(143): type ApolloLink = unknown; declare const link: ApolloLink; link.concat(next); 1`] = `
+
+  1 | type ApolloLink = unknown; declare const link: ApolloLink; link.concat(next);
+
+`;
+
+exports[`prefer-spread > invalid(143): type ApolloLink = unknown; declare const link: ApolloLink; link.concat(next); 2`] = `
+
+Message:
+> 1 | type ApolloLink = unknown; declare const link: ApolloLink; link.concat(next);
+    |                                                                 ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | type ApolloLink = unknown; declare const link: ApolloLink; [...link, ...next];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | type ApolloLink = unknown; declare const link: ApolloLink; [...link, next];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | type ApolloLink = unknown; declare const link: ApolloLink; [...link, ...(Array.isArray(next) ? next : [next])];
+
+`;
+
+exports[`prefer-spread > invalid(144): function foo<ApolloLink>(link: ApolloLink) { link.concat(next); } 1`] = `
+
+  1 | function foo<ApolloLink>(link: ApolloLink) { link.concat(next); }
+
+`;
+
+exports[`prefer-spread > invalid(144): function foo<ApolloLink>(link: ApolloLink) { link.concat(next); } 2`] = `
+
+Message:
+> 1 | function foo<ApolloLink>(link: ApolloLink) { link.concat(next); }
+    |                                                   ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo<ApolloLink>(link: ApolloLink) { [...link, ...next]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo<ApolloLink>(link: ApolloLink) { [...link, next]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo<ApolloLink>(link: ApolloLink) { [...link, ...(Array.isArray(next) ? next : [next])]; }
+
+`;
+
+exports[`prefer-spread > invalid(145): namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; link.concat(next); 1`] = `
+
+  1 | namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; link.concat(next);
+
+`;
+
+exports[`prefer-spread > invalid(145): namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; link.concat(next); 2`] = `
+
+Message:
+> 1 | namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; link.concat(next);
+    |                                                                                                    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; [...link, ...next];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; [...link, next];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; [...link, ...(Array.isArray(next) ? next : [next])];
+
+`;
+
+exports[`prefer-spread > invalid(146): namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; link.concat(next); 1`] = `
+
+  1 | namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; link.concat(next);
+
+`;
+
+exports[`prefer-spread > invalid(146): namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; link.concat(next); 2`] = `
+
+Message:
+> 1 | namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; link.concat(next);
+    |                                                                                                                                     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; [...link, ...next];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; [...link, next];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; [...link, ...(Array.isArray(next) ? next : [next])];
+
+`;
+
+exports[`prefer-spread > invalid(147): function foo<T>(value: T) { value.concat(item); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<T>(value: T) { value.concat(item); }
+
+`;
+
+exports[`prefer-spread > invalid(147): function foo<T>(value: T) { value.concat(item); } 2`] = `
+
+Message:
+> 1 | function foo<T>(value: T) { value.concat(item); }
+    |                                   ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo<T>(value: T) { [...value, ...item]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo<T>(value: T) { [...value, item]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo<T>(value: T) { [...value, ...(Array.isArray(item) ? item : [item])]; }
+
+`;
+
+exports[`prefer-spread > invalid(148): type Strings = ReturnType<() => string[]>; declare const array: Strings; array.concat(item); 1`] = `
+
+Filename: file.ts
+
+  1 | type Strings = ReturnType<() => string[]>; declare const array: Strings; array.concat(item);
+
+`;
+
+exports[`prefer-spread > invalid(148): type Strings = ReturnType<() => string[]>; declare const array: Strings; array.concat(item); 2`] = `
+
+Message:
+> 1 | type Strings = ReturnType<() => string[]>; declare const array: Strings; array.concat(item);
+    |                                                                                ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | type Strings = ReturnType<() => string[]>; declare const array: Strings; [...array, ...item];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | type Strings = ReturnType<() => string[]>; declare const array: Strings; [...array, item];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | type Strings = ReturnType<() => string[]>; declare const array: Strings; [...array, ...(Array.isArray(item) ? item : [item])];
+
+`;
+
+exports[`prefer-spread > invalid(149): declare function getArray(): string[]; const array = getArray(); array.concat(item); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getArray(): string[]; const array = getArray(); array.concat(item);
+
+`;
+
+exports[`prefer-spread > invalid(149): declare function getArray(): string[]; const array = getArray(); array.concat(item); 2`] = `
+
+Message:
+> 1 | declare function getArray(): string[]; const array = getArray(); array.concat(item);
+    |                                                                        ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | declare function getArray(): string[]; const array = getArray(); [...array, ...item];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | declare function getArray(): string[]; const array = getArray(); [...array, item];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | declare function getArray(): string[]; const array = getArray(); [...array, ...(Array.isArray(item) ? item : [item])];
+
+`;
+
+exports[`prefer-spread > invalid(15): array.slice(/* comment */) 1`] = `
+
+  1 | array.slice(/* comment */)
+
+`;
+
+exports[`prefer-spread > invalid(15): array.slice(/* comment */) 2`] = `
+
+Message:
+> 1 | array.slice(/* comment */)
+    |       ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+`;
+
+exports[`prefer-spread > invalid(15): const foo = \`bar\`\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = \`bar\`
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(15): const foo = \`bar\`\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = \`bar\`
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = \`bar\`
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(15): if (Array.isArray(other)) {} else { value.concat(other); } 1`] = `
+
+  1 | if (Array.isArray(other)) {} else { value.concat(other); }
+
+`;
+
+exports[`prefer-spread > invalid(15): if (Array.isArray(other)) {} else { value.concat(other); } 2`] = `
+
+Message:
+> 1 | if (Array.isArray(other)) {} else { value.concat(other); }
+    |                                           ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | if (Array.isArray(other)) {} else { [...value, ...other]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | if (Array.isArray(other)) {} else { [...value, other]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | if (Array.isArray(other)) {} else { [...value, ...(Array.isArray(other) ? other : [other])]; }
+
+`;
+
+exports[`prefer-spread > invalid(15): new Array(1).concat(\"bar\") 1`] = `
+
+  1 | new Array(1).concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(15): new Array(1).concat(\"bar\") 2`] = `
+
+Message:
+> 1 | new Array(1).concat("bar")
+    |              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(150): [1].concat(/* comment */ 2) 1`] = `
+
+  1 | [1].concat(/* comment */ 2)
+
+`;
+
+exports[`prefer-spread > invalid(150): [1].concat(/* comment */ 2) 2`] = `
+
+Message:
+> 1 | [1].concat(/* comment */ 2)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(151): [1].concat(\n\t// eslint-disable-next-line no-restricted-syntax\n\t[2, 3],\n) 1`] = `
+
+  1 | [1].concat(
+  2 | 	// eslint-disable-next-line no-restricted-syntax
+  3 | 	[2, 3],
+  4 | )
+
+`;
+
+exports[`prefer-spread > invalid(151): [1].concat(\n\t// eslint-disable-next-line no-restricted-syntax\n\t[2, 3],\n) 2`] = `
+
+Message:
+> 1 | [1].concat(
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+  2 | 	// eslint-disable-next-line no-restricted-syntax
+  3 | 	[2, 3],
+  4 | )
+
+`;
+
+exports[`prefer-spread > invalid(16): Array().concat(\"bar\") 1`] = `
+
+  1 | Array().concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(16): Array().concat(\"bar\") 2`] = `
+
+Message:
+> 1 | Array().concat("bar")
+    |         ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...Array(), "bar"]
+
+`;
+
+exports[`prefer-spread > invalid(16): const foo = [];\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = [];
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(16): const foo = [];\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = [];
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = [];
+  2 | [...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(16): if (!Array.isArray(foo)) { const {bar} = baz; foo.concat(value); } 1`] = `
+
+  1 | if (!Array.isArray(foo)) { const {bar} = baz; foo.concat(value); }
+
+`;
+
+exports[`prefer-spread > invalid(16): if (!Array.isArray(foo)) { const {bar} = baz; foo.concat(value); } 2`] = `
+
+Message:
+> 1 | if (!Array.isArray(foo)) { const {bar} = baz; foo.concat(value); }
+    |                                                   ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | if (!Array.isArray(foo)) { const {bar} = baz; [...foo, ...value]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | if (!Array.isArray(foo)) { const {bar} = baz; [...foo, value]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | if (!Array.isArray(foo)) { const {bar} = baz; [...foo, ...(Array.isArray(value) ? value : [value])]; }
+
+`;
+
+exports[`prefer-spread > invalid(17): for (const key of Array.from(arrayLike)) {\n} 1`] = `
+
+  1 | for (const key of Array.from(arrayLike)) {
+  2 | }
+
+`;
+
+exports[`prefer-spread > invalid(17): for (const key of Array.from(arrayLike)) {\n} 2`] = `
+
+Message:
+> 1 | for (const key of Array.from(arrayLike)) {
+    |                   ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+  2 | }
+
+Output:
+  1 | for (const key of [...arrayLike]) {
+  2 | }
+
+`;
+
+exports[`prefer-spread > invalid(17): if (Array.isArray(foo)) { foo.concat(value); } else {} 1`] = `
+
+  1 | if (Array.isArray(foo)) { foo.concat(value); } else {}
+
+`;
+
+exports[`prefer-spread > invalid(17): if (Array.isArray(foo)) { foo.concat(value); } else {} 2`] = `
+
+Message:
+> 1 | if (Array.isArray(foo)) { foo.concat(value); } else {}
+    |                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | if (Array.isArray(foo)) { [...foo, ...value]; } else {}
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | if (Array.isArray(foo)) { [...foo, value]; } else {}
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | if (Array.isArray(foo)) { [...foo, ...(Array.isArray(value) ? value : [value])]; } else {}
+
+`;
+
+exports[`prefer-spread > invalid(17): new Array().concat(\"bar\") 1`] = `
+
+  1 | new Array().concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(17): new Array().concat(\"bar\") 2`] = `
+
+Message:
+> 1 | new Array().concat("bar")
+    |             ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...new Array(), "bar"]
+
+`;
+
+exports[`prefer-spread > invalid(18): Array(1, 2).concat(\"bar\") 1`] = `
+
+  1 | Array(1, 2).concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(18): Array(1, 2).concat(\"bar\") 2`] = `
+
+Message:
+> 1 | Array(1, 2).concat("bar")
+    |             ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...Array(1, 2), "bar"]
+
+`;
+
+exports[`prefer-spread > invalid(18): for (const key in Array.from(arrayLike)) {\n} 1`] = `
+
+  1 | for (const key in Array.from(arrayLike)) {
+  2 | }
+
+`;
+
+exports[`prefer-spread > invalid(18): for (const key in Array.from(arrayLike)) {\n} 2`] = `
+
+Message:
+> 1 | for (const key in Array.from(arrayLike)) {
+    |                   ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+  2 | }
+
+Output:
+  1 | for (const key in [...arrayLike]) {
+  2 | }
+
+`;
+
+exports[`prefer-spread > invalid(19): const foo = \`\${Array.from(arrayLike)}\` 1`] = `
+
+  1 | const foo = \`\${Array.from(arrayLike)}\`
+
+`;
+
+exports[`prefer-spread > invalid(19): const foo = \`\${Array.from(arrayLike)}\` 2`] = `
+
+Message:
+> 1 | const foo = \`\${Array.from(arrayLike)}\`
+    |                ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = \`\${[...arrayLike]}\`
+
+`;
+
+exports[`prefer-spread > invalid(19): globalThis.Array().concat(\"bar\") 1`] = `
+
+  1 | globalThis.Array().concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(19): globalThis.Array().concat(\"bar\") 2`] = `
+
+Message:
+> 1 | globalThis.Array().concat("bar")
+    |                    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(2): Array.from(set).map(() => {}); 1`] = `
+
+  1 | Array.from(set).map(() => {});
+
+`;
+
+exports[`prefer-spread > invalid(2): Array.from(set).map(() => {}); 2`] = `
+
+Message:
+> 1 | Array.from(set).map(() => {});
+    | ^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...set].map(() => {});
+
+`;
+
+exports[`prefer-spread > invalid(2): array.slice().slice() 1`] = `
+
+  1 | array.slice().slice()
+
+`;
+
+exports[`prefer-spread > invalid(2): array.slice().slice() 2`] = `
+
+Message:
+> 1 | array.slice().slice()
+    |       ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...array].slice()
+
+`;
+
+exports[`prefer-spread > invalid(2): array.slice().slice() 3`] = `
+
+Message:
+> 1 | array.slice().slice()
+    |               ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...array.slice()]
+
+`;
+
+exports[`prefer-spread > invalid(2): array.toSpliced().toSpliced() 1`] = `
+
+  1 | array.toSpliced().toSpliced()
+
+`;
+
+exports[`prefer-spread > invalid(2): array.toSpliced().toSpliced() 2`] = `
+
+Message:
+> 1 | array.toSpliced().toSpliced()
+    |       ^^^^^^^^^ Prefer the spread operator over \`Array#toSpliced()\`.
+
+Output:
+  1 | [...array].toSpliced()
+
+`;
+
+exports[`prefer-spread > invalid(2): array.toSpliced().toSpliced() 3`] = `
+
+Message:
+> 1 | array.toSpliced().toSpliced()
+    |                   ^^^^^^^^^ Prefer the spread operator over \`Array#toSpliced()\`.
+
+Output:
+  1 | [...array.toSpliced()]
+
+`;
+
+exports[`prefer-spread > invalid(2): const Foo = 1; function foo(value: Foo) { value.concat(other); } 1`] = `
+
+  1 | const Foo = 1; function foo(value: Foo) { value.concat(other); }
+
+`;
+
+exports[`prefer-spread > invalid(2): const Foo = 1; function foo(value: Foo) { value.concat(other); } 2`] = `
+
+Message:
+> 1 | const Foo = 1; function foo(value: Foo) { value.concat(other); }
+    |                                                 ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | const Foo = 1; function foo(value: Foo) { [...value, ...other]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | const Foo = 1; function foo(value: Foo) { [...value, other]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | const Foo = 1; function foo(value: Foo) { [...value, ...(Array.isArray(other) ? other : [other])]; }
+
+`;
+
+exports[`prefer-spread > invalid(2): const object = {value: [2]};\nObject.defineProperty(object, 'value', {get() { return 'bar'; }});\n[1].concat(object.value); 1`] = `
+
+  1 | const object = {value: [2]};
+  2 | Object.defineProperty(object, 'value', {get() { return 'bar'; }});
+  3 | [1].concat(object.value);
+
+`;
+
+exports[`prefer-spread > invalid(2): const object = {value: [2]};\nObject.defineProperty(object, 'value', {get() { return 'bar'; }});\n[1].concat(object.value); 2`] = `
+
+Message:
+  1 | const object = {value: [2]};
+  2 | Object.defineProperty(object, 'value', {get() { return 'bar'; }});
+> 3 | [1].concat(object.value);
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | const object = {value: [2]};
+  2 | Object.defineProperty(object, 'value', {get() { return 'bar'; }});
+  3 | [1, ...object.value];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | const object = {value: [2]};
+  2 | Object.defineProperty(object, 'value', {get() { return 'bar'; }});
+  3 | [1, object.value];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | const object = {value: [2]};
+  2 | Object.defineProperty(object, 'value', {get() { return 'bar'; }});
+  3 | [1, ...(Array.isArray(object.value) ? object.value : [object.value])];
+
+`;
+
+exports[`prefer-spread > invalid(2): const result = [];\nfor (const element of iterable)\n\tresult.push(element); 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of iterable)
+  3 | 	result.push(element);
+
+`;
+
+exports[`prefer-spread > invalid(2): const result = [];\nfor (const element of iterable)\n\tresult.push(element); 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of iterable)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over this \`for…of\` loop.
+
+Output:
+  1 | const result = [...iterable];
+
+`;
+
+exports[`prefer-spread > invalid(20): async function foo(){\n\treturn await Array.from(arrayLike)\n} 1`] = `
+
+  1 | async function foo(){
+  2 | 	return await Array.from(arrayLike)
+  3 | }
+
+`;
+
+exports[`prefer-spread > invalid(20): async function foo(){\n\treturn await Array.from(arrayLike)\n} 2`] = `
+
+Message:
+  1 | async function foo(){
+> 2 | 	return await Array.from(arrayLike)
+    | 	             ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+  3 | }
+
+Output:
+  1 | async function foo(){
+  2 | 	return await [...arrayLike]
+  3 | }
+
+`;
+
+exports[`prefer-spread > invalid(20): global[\"Array\"]().concat(\"bar\") 1`] = `
+
+  1 | global["Array"]().concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(20): global[\"Array\"]().concat(\"bar\") 2`] = `
+
+Message:
+> 1 | global["Array"]().concat("bar")
+    |                   ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(21): foo()\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | foo()
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(21): foo()\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | foo()
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | foo()
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(21): new globalThis[\"Array\"]().concat(\"bar\") 1`] = `
+
+  1 | new globalThis["Array"]().concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(21): new globalThis[\"Array\"]().concat(\"bar\") 2`] = `
+
+Message:
+> 1 | new globalThis["Array"]().concat("bar")
+    |                           ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(22): Array(1).concat() 1`] = `
+
+  1 | Array(1).concat()
+
+`;
+
+exports[`prefer-spread > invalid(22): Array(1).concat() 2`] = `
+
+Message:
+> 1 | Array(1).concat()
+    |          ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(22): const foo = {}\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = {}
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(22): const foo = {}\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = {}
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = {}
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(23): (Array).from(foo) 1`] = `
+
+  1 | (Array).from(foo)
+
+`;
+
+exports[`prefer-spread > invalid(23): (Array).from(foo) 2`] = `
+
+Message:
+> 1 | (Array).from(foo)
+    | ^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...foo]
+
+`;
+
+exports[`prefer-spread > invalid(23): new Array(1).concat() 1`] = `
+
+  1 | new Array(1).concat()
+
+`;
+
+exports[`prefer-spread > invalid(23): new Array(1).concat() 2`] = `
+
+Message:
+> 1 | new Array(1).concat()
+    |              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(24): (Array.from)(foo) 1`] = `
+
+  1 | (Array.from)(foo)
+
+`;
+
+exports[`prefer-spread > invalid(24): (Array.from)(foo) 2`] = `
+
+Message:
+> 1 | (Array.from)(foo)
+    | ^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...foo]
+
+`;
+
+exports[`prefer-spread > invalid(24): Array(1).concat(foo) 1`] = `
+
+  1 | Array(1).concat(foo)
+
+`;
+
+exports[`prefer-spread > invalid(24): Array(1).concat(foo) 2`] = `
+
+Message:
+> 1 | Array(1).concat(foo)
+    |          ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(25): ((Array).from)(foo) 1`] = `
+
+  1 | ((Array).from)(foo)
+
+`;
+
+exports[`prefer-spread > invalid(25): ((Array).from)(foo) 2`] = `
+
+Message:
+> 1 | ((Array).from)(foo)
+    | ^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...foo]
+
+`;
+
+exports[`prefer-spread > invalid(25): new Array(1).concat(foo) 1`] = `
+
+  1 | new Array(1).concat(foo)
+
+`;
+
+exports[`prefer-spread > invalid(25): new Array(1).concat(foo) 2`] = `
+
+Message:
+> 1 | new Array(1).concat(foo)
+    |              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(26): (Array).from((0, foo)) 1`] = `
+
+  1 | (Array).from((0, foo))
+
+`;
+
+exports[`prefer-spread > invalid(26): (Array).from((0, foo)) 2`] = `
+
+Message:
+> 1 | (Array).from((0, foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...(0, foo)]
+
+`;
+
+exports[`prefer-spread > invalid(26): globalThis.Array(1).concat(2) 1`] = `
+
+  1 | globalThis.Array(1).concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(26): globalThis.Array(1).concat(2) 2`] = `
+
+Message:
+> 1 | globalThis.Array(1).concat(2)
+    |                     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(27): (Array.from)((0, foo)) 1`] = `
+
+  1 | (Array.from)((0, foo))
+
+`;
+
+exports[`prefer-spread > invalid(27): (Array.from)((0, foo)) 2`] = `
+
+Message:
+> 1 | (Array.from)((0, foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...(0, foo)]
+
+`;
+
+exports[`prefer-spread > invalid(27): globalThis.Array(1).concat(foo) 1`] = `
+
+  1 | globalThis.Array(1).concat(foo)
+
+`;
+
+exports[`prefer-spread > invalid(27): globalThis.Array(1).concat(foo) 2`] = `
+
+Message:
+> 1 | globalThis.Array(1).concat(foo)
+    |                     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(28): ((Array).from)((0, foo)) 1`] = `
+
+  1 | ((Array).from)((0, foo))
+
+`;
+
+exports[`prefer-spread > invalid(28): ((Array).from)((0, foo)) 2`] = `
+
+Message:
+> 1 | ((Array).from)((0, foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...(0, foo)]
+
+`;
+
+exports[`prefer-spread > invalid(28): global.Array(1).concat(2) 1`] = `
+
+  1 | global.Array(1).concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(28): global.Array(1).concat(2) 2`] = `
+
+Message:
+> 1 | global.Array(1).concat(2)
+    |                 ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(29): Array.from(a ? b : c) 1`] = `
+
+  1 | Array.from(a ? b : c)
+
+`;
+
+exports[`prefer-spread > invalid(29): Array.from(a ? b : c) 2`] = `
+
+Message:
+> 1 | Array.from(a ? b : c)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...a ? b : c]
+
+`;
+
+exports[`prefer-spread > invalid(29): globalThis[\"Array\"](1).concat(2) 1`] = `
+
+  1 | globalThis["Array"](1).concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(29): globalThis[\"Array\"](1).concat(2) 2`] = `
+
+Message:
+> 1 | globalThis["Array"](1).concat(2)
+    |                        ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(3): Array.from(new Set([1, 2])).map(() => {}); 1`] = `
+
+  1 | Array.from(new Set([1, 2])).map(() => {});
+
+`;
+
+exports[`prefer-spread > invalid(3): Array.from(new Set([1, 2])).map(() => {}); 2`] = `
+
+Message:
+> 1 | Array.from(new Set([1, 2])).map(() => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...new Set([1, 2])].map(() => {});
+
+`;
+
+exports[`prefer-spread > invalid(3): array.slice(1).slice() 1`] = `
+
+  1 | array.slice(1).slice()
+
+`;
+
+exports[`prefer-spread > invalid(3): array.slice(1).slice() 2`] = `
+
+Message:
+> 1 | array.slice(1).slice()
+    |                ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...array.slice(1)]
+
+`;
+
+exports[`prefer-spread > invalid(3): const copy = array.toSpliced() 1`] = `
+
+  1 | const copy = array.toSpliced()
+
+`;
+
+exports[`prefer-spread > invalid(3): const copy = array.toSpliced() 2`] = `
+
+Message:
+> 1 | const copy = array.toSpliced()
+    |                    ^^^^^^^^^ Prefer the spread operator over \`Array#toSpliced()\`.
+
+Output:
+  1 | const copy = [...array]
+
+`;
+
+exports[`prefer-spread > invalid(3): const object = {value: [1]};\nObject.defineProperty(object, 'value', {get() { return 'bar'; }});\nobject.value.concat(2); 1`] = `
+
+  1 | const object = {value: [1]};
+  2 | Object.defineProperty(object, 'value', {get() { return 'bar'; }});
+  3 | object.value.concat(2);
+
+`;
+
+exports[`prefer-spread > invalid(3): const object = {value: [1]};\nObject.defineProperty(object, 'value', {get() { return 'bar'; }});\nobject.value.concat(2); 2`] = `
+
+Message:
+  1 | const object = {value: [1]};
+  2 | Object.defineProperty(object, 'value', {get() { return 'bar'; }});
+> 3 | object.value.concat(2);
+    |              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(3): function foo(value: string[] | number[]) { value.concat(other); } 1`] = `
+
+  1 | function foo(value: string[] | number[]) { value.concat(other); }
+
+`;
+
+exports[`prefer-spread > invalid(3): function foo(value: string[] | number[]) { value.concat(other); } 2`] = `
+
+Message:
+> 1 | function foo(value: string[] | number[]) { value.concat(other); }
+    |                                                  ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo(value: string[] | number[]) { [...value, ...other]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo(value: string[] | number[]) { [...value, other]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo(value: string[] | number[]) { [...value, ...(Array.isArray(other) ? other : [other])]; }
+
+`;
+
+exports[`prefer-spread > invalid(3): let result = [];\nfor (const element of object.items) {\n\tresult.push(element);\n} 1`] = `
+
+  1 | let result = [];
+  2 | for (const element of object.items) {
+  3 | 	result.push(element);
+  4 | }
+
+`;
+
+exports[`prefer-spread > invalid(3): let result = [];\nfor (const element of object.items) {\n\tresult.push(element);\n} 2`] = `
+
+Message:
+  1 | let result = [];
+> 2 | for (const element of object.items) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Prefer the spread operator over this \`for…of\` loop.
+
+Output:
+  1 | let result = [...object.items];
+
+`;
+
+exports[`prefer-spread > invalid(30): Array.from((0, a)) 1`] = `
+
+  1 | Array.from((0, a))
+
+`;
+
+exports[`prefer-spread > invalid(30): Array.from((0, a)) 2`] = `
+
+Message:
+> 1 | Array.from((0, a))
+    | ^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...(0, a)]
+
+`;
+
+exports[`prefer-spread > invalid(30): global[\"Array\"](1).concat(foo) 1`] = `
+
+  1 | global["Array"](1).concat(foo)
+
+`;
+
+exports[`prefer-spread > invalid(30): global[\"Array\"](1).concat(foo) 2`] = `
+
+Message:
+> 1 | global["Array"](1).concat(foo)
+    |                    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(31): (new globalThis.Array(1)).concat(2) 1`] = `
+
+  1 | (new globalThis.Array(1)).concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(31): (new globalThis.Array(1)).concat(2) 2`] = `
+
+Message:
+> 1 | (new globalThis.Array(1)).concat(2)
+    |                           ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(31): Array.from([...iterator.toArray(), ...other]) 1`] = `
+
+  1 | Array.from([...iterator.toArray(), ...other])
+
+`;
+
+exports[`prefer-spread > invalid(31): Array.from([...iterator.toArray(), ...other]) 2`] = `
+
+Message:
+> 1 | Array.from([...iterator.toArray(), ...other])
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...iterator.toArray(), ...other]
+
+`;
+
+exports[`prefer-spread > invalid(32): (new global.Array(1)).concat(foo) 1`] = `
+
+  1 | (new global.Array(1)).concat(foo)
+
+`;
+
+exports[`prefer-spread > invalid(32): (new global.Array(1)).concat(foo) 2`] = `
+
+Message:
+> 1 | (new global.Array(1)).concat(foo)
+    |                       ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(32): Array.from([1]) 1`] = `
+
+  1 | Array.from([1])
+
+`;
+
+exports[`prefer-spread > invalid(32): Array.from([1]) 2`] = `
+
+Message:
+> 1 | Array.from([1])
+    | ^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [1]
+
+`;
+
+exports[`prefer-spread > invalid(33): (new globalThis[\"Array\"](1)).concat(2) 1`] = `
+
+  1 | (new globalThis["Array"](1)).concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(33): (new globalThis[\"Array\"](1)).concat(2) 2`] = `
+
+Message:
+> 1 | (new globalThis["Array"](1)).concat(2)
+    |                              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(33): Array.from(new Map([[\"a\", 1]])) 1`] = `
+
+  1 | Array.from(new Map([["a", 1]]))
+
+`;
+
+exports[`prefer-spread > invalid(33): Array.from(new Map([[\"a\", 1]])) 2`] = `
+
+Message:
+> 1 | Array.from(new Map([["a", 1]]))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...new Map([["a", 1]])]
+
+`;
+
+exports[`prefer-spread > invalid(34): (new global[\"Array\"](1)).concat(foo) 1`] = `
+
+  1 | (new global["Array"](1)).concat(foo)
+
+`;
+
+exports[`prefer-spread > invalid(34): (new global[\"Array\"](1)).concat(foo) 2`] = `
+
+Message:
+> 1 | (new global["Array"](1)).concat(foo)
+    |                          ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(34): Array.from([1,,3]) 1`] = `
+
+  1 | Array.from([1,,3])
+
+`;
+
+exports[`prefer-spread > invalid(34): Array.from([1,,3]) 2`] = `
+
+Message:
+> 1 | Array.from([1,,3])
+    | ^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...[1,,3]]
+
+`;
+
+exports[`prefer-spread > invalid(35): Array.from([,]) 1`] = `
+
+  1 | Array.from([,])
+
+`;
+
+exports[`prefer-spread > invalid(35): Array.from([,]) 2`] = `
+
+Message:
+> 1 | Array.from([,])
+    | ^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...[,]]
+
+`;
+
+exports[`prefer-spread > invalid(35): foo.concat(Array(1)) 1`] = `
+
+  1 | foo.concat(Array(1))
+
+`;
+
+exports[`prefer-spread > invalid(35): foo.concat(Array(1)) 2`] = `
+
+Message:
+> 1 | foo.concat(Array(1))
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(36): Array.from([1, , 3, ,]) 1`] = `
+
+  1 | Array.from([1, , 3, ,])
+
+`;
+
+exports[`prefer-spread > invalid(36): Array.from([1, , 3, ,]) 2`] = `
+
+Message:
+> 1 | Array.from([1, , 3, ,])
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...[1, , 3, ,]]
+
+`;
+
+exports[`prefer-spread > invalid(36): foo.concat(new Array(1)) 1`] = `
+
+  1 | foo.concat(new Array(1))
+
+`;
+
+exports[`prefer-spread > invalid(36): foo.concat(new Array(1)) 2`] = `
+
+Message:
+> 1 | foo.concat(new Array(1))
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(37): Array.from((/* keep */ [1])) 1`] = `
+
+  1 | Array.from((/* keep */ [1]))
+
+`;
+
+exports[`prefer-spread > invalid(37): Array.from((/* keep */ [1])) 2`] = `
+
+Message:
+> 1 | Array.from((/* keep */ [1]))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(37): foo.concat(globalThis[\"Array\"](1)) 1`] = `
+
+  1 | foo.concat(globalThis["Array"](1))
+
+`;
+
+exports[`prefer-spread > invalid(37): foo.concat(globalThis[\"Array\"](1)) 2`] = `
+
+Message:
+> 1 | foo.concat(globalThis["Array"](1))
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(38): Array.from((/* comment */ foo)) 1`] = `
+
+  1 | Array.from((/* comment */ foo))
+
+`;
+
+exports[`prefer-spread > invalid(38): Array.from((/* comment */ foo)) 2`] = `
+
+Message:
+> 1 | Array.from((/* comment */ foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...(/* comment */ foo)]
+
+`;
+
+exports[`prefer-spread > invalid(38): foo.concat(bar, Array(1)) 1`] = `
+
+  1 | foo.concat(bar, Array(1))
+
+`;
+
+exports[`prefer-spread > invalid(38): foo.concat(bar, Array(1)) 2`] = `
+
+Message:
+> 1 | foo.concat(bar, Array(1))
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | [...foo, ...bar].concat(Array(1))
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | [...foo, bar].concat(Array(1))
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...foo, ...(Array.isArray(bar) ? bar : [bar])].concat(Array(1))
+
+`;
+
+exports[`prefer-spread > invalid(39): /* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,) 1`] = `
+
+  1 | /* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)
+
+`;
+
+exports[`prefer-spread > invalid(39): /* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,) 2`] = `
+
+Message:
+> 1 | /* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(39): foo.concat(bar, new Array(1)) 1`] = `
+
+  1 | foo.concat(bar, new Array(1))
+
+`;
+
+exports[`prefer-spread > invalid(39): foo.concat(bar, new Array(1)) 2`] = `
+
+Message:
+> 1 | foo.concat(bar, new Array(1))
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | [...foo, ...bar].concat(new Array(1))
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | [...foo, bar].concat(new Array(1))
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...foo, ...(Array.isArray(bar) ? bar : [bar])].concat(new Array(1))
+
+`;
+
+exports[`prefer-spread > invalid(4): (( (( (( array )).toSpliced ))() )) 1`] = `
+
+  1 | (( (( (( array )).toSpliced ))() ))
+
+`;
+
+exports[`prefer-spread > invalid(4): (( (( (( array )).toSpliced ))() )) 2`] = `
+
+Message:
+> 1 | (( (( (( array )).toSpliced ))() ))
+    |                   ^^^^^^^^^ Prefer the spread operator over \`Array#toSpliced()\`.
+
+Output:
+  1 | (( [...(( (( array )) ))] ))
+
+`;
+
+exports[`prefer-spread > invalid(4): Array.from(document.querySelectorAll(\"*\")).map(() => {}); 1`] = `
+
+  1 | Array.from(document.querySelectorAll("*")).map(() => {});
+
+`;
+
+exports[`prefer-spread > invalid(4): Array.from(document.querySelectorAll(\"*\")).map(() => {}); 2`] = `
+
+Message:
+> 1 | Array.from(document.querySelectorAll("*")).map(() => {});
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...document.querySelectorAll("*")].map(() => {});
+
+`;
+
+exports[`prefer-spread > invalid(4): [1].concat(\"bar\") 1`] = `
+
+  1 | [1].concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(4): [1].concat(\"bar\") 2`] = `
+
+Message:
+> 1 | [1].concat("bar")
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, "bar"]
+
+`;
+
+exports[`prefer-spread > invalid(4): array.slice().slice(1) 1`] = `
+
+  1 | array.slice().slice(1)
+
+`;
+
+exports[`prefer-spread > invalid(4): array.slice().slice(1) 2`] = `
+
+Message:
+> 1 | array.slice().slice(1)
+    |       ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...array].slice(1)
+
+`;
+
+exports[`prefer-spread > invalid(4): const result = [];\nfor (const element of (iterable)) {\n\tresult.push(element);\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of (iterable)) {
+  3 | 	result.push(element);
+  4 | }
+
+`;
+
+exports[`prefer-spread > invalid(4): const result = [];\nfor (const element of (iterable)) {\n\tresult.push(element);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of (iterable)) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Prefer the spread operator over this \`for…of\` loop.
+
+Output:
+  1 | const result = [...(iterable)];
+
+`;
+
+exports[`prefer-spread > invalid(4): function foo(value: string[] & Foo) { value.concat(other); } 1`] = `
+
+  1 | function foo(value: string[] & Foo) { value.concat(other); }
+
+`;
+
+exports[`prefer-spread > invalid(4): function foo(value: string[] & Foo) { value.concat(other); } 2`] = `
+
+Message:
+> 1 | function foo(value: string[] & Foo) { value.concat(other); }
+    |                                             ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo(value: string[] & Foo) { [...value, ...other]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo(value: string[] & Foo) { [...value, other]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo(value: string[] & Foo) { [...value, ...(Array.isArray(other) ? other : [other])]; }
+
+`;
+
+exports[`prefer-spread > invalid(40): Array.from(/* comment */ foo) 1`] = `
+
+  1 | Array.from(/* comment */ foo)
+
+`;
+
+exports[`prefer-spread > invalid(40): Array.from(/* comment */ foo) 2`] = `
+
+Message:
+> 1 | Array.from(/* comment */ foo)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(40): foo.concat(bar, globalThis[\"Array\"](1)) 1`] = `
+
+  1 | foo.concat(bar, globalThis["Array"](1))
+
+`;
+
+exports[`prefer-spread > invalid(40): foo.concat(bar, globalThis[\"Array\"](1)) 2`] = `
+
+Message:
+> 1 | foo.concat(bar, globalThis["Array"](1))
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | [...foo, ...bar].concat(globalThis["Array"](1))
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | [...foo, bar].concat(globalThis["Array"](1))
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...foo, ...(Array.isArray(bar) ? bar : [bar])].concat(globalThis["Array"](1))
+
+`;
+
+exports[`prefer-spread > invalid(41): const Buffer = {concat: () => []}; Buffer.concat([buffer]).concat(other) 1`] = `
+
+  1 | const Buffer = {concat: () => []}; Buffer.concat([buffer]).concat(other)
+
+`;
+
+exports[`prefer-spread > invalid(41): const Buffer = {concat: () => []}; Buffer.concat([buffer]).concat(other) 2`] = `
+
+Message:
+> 1 | const Buffer = {concat: () => []}; Buffer.concat([buffer]).concat(other)
+    |                                                            ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(42): const global = {Buffer: {concat: () => []}}; global.Buffer.concat([buffer]).concat(other) 1`] = `
+
+  1 | const global = {Buffer: {concat: () => []}}; global.Buffer.concat([buffer]).concat(other)
+
+`;
+
+exports[`prefer-spread > invalid(42): const global = {Buffer: {concat: () => []}}; global.Buffer.concat([buffer]).concat(other) 2`] = `
+
+Message:
+> 1 | const global = {Buffer: {concat: () => []}}; global.Buffer.concat([buffer]).concat(other)
+    |                                                                             ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(43): (( (( (( [1,] )).concat ))( (([2, 3])) ,) )) 1`] = `
+
+  1 | (( (( (( [1,] )).concat ))( (([2, 3])) ,) ))
+
+`;
+
+exports[`prefer-spread > invalid(43): (( (( (( [1,] )).concat ))( (([2, 3])) ,) )) 2`] = `
+
+Message:
+> 1 | (( (( (( [1,] )).concat ))( (([2, 3])) ,) ))
+    |                  ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | (( (( (( [1, 2, 3,] )) )) ))
+
+`;
+
+exports[`prefer-spread > invalid(44): (( (( (( [1,] )).concat ))( (([2, 3])) , bar ) )) 1`] = `
+
+  1 | (( (( (( [1,] )).concat ))( (([2, 3])) , bar ) ))
+
+`;
+
+exports[`prefer-spread > invalid(44): (( (( (( [1,] )).concat ))( (([2, 3])) , bar ) )) 2`] = `
+
+Message:
+> 1 | (( (( (( [1,] )).concat ))( (([2, 3])) , bar ) ))
+    |                  ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | (( (( (( [1, 2, 3,] )).concat ))( bar ) ))
+
+`;
+
+exports[`prefer-spread > invalid(45): foo.concat(2) 1`] = `
+
+  1 | foo.concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(45): foo.concat(2) 2`] = `
+
+Message:
+> 1 | foo.concat(2)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, 2]
+
+`;
+
+exports[`prefer-spread > invalid(46): foo.concat([2, 3]) 1`] = `
+
+  1 | foo.concat([2, 3])
+
+`;
+
+exports[`prefer-spread > invalid(46): foo.concat([2, 3]) 2`] = `
+
+Message:
+> 1 | foo.concat([2, 3])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, 2, 3]
+
+`;
+
+exports[`prefer-spread > invalid(47): foo.concat(2,) 1`] = `
+
+  1 | foo.concat(2,)
+
+`;
+
+exports[`prefer-spread > invalid(47): foo.concat(2,) 2`] = `
+
+Message:
+> 1 | foo.concat(2,)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, 2]
+
+`;
+
+exports[`prefer-spread > invalid(48): foo.concat([2, 3],) 1`] = `
+
+  1 | foo.concat([2, 3],)
+
+`;
+
+exports[`prefer-spread > invalid(48): foo.concat([2, 3],) 2`] = `
+
+Message:
+> 1 | foo.concat([2, 3],)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, 2, 3]
+
+`;
+
+exports[`prefer-spread > invalid(49): (( (( ((foo)).concat ))( (([2, 3])) ,) )) 1`] = `
+
+  1 | (( (( ((foo)).concat ))( (([2, 3])) ,) ))
+
+`;
+
+exports[`prefer-spread > invalid(49): (( (( ((foo)).concat ))( (([2, 3])) ,) )) 2`] = `
+
+Message:
+> 1 | (( (( ((foo)).concat ))( (([2, 3])) ,) ))
+    |               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | (( (( [...((foo)), 2, 3] )) ))
+
+`;
+
+exports[`prefer-spread > invalid(5): (object?.array).toSpliced() 1`] = `
+
+  1 | (object?.array).toSpliced()
+
+`;
+
+exports[`prefer-spread > invalid(5): (object?.array).toSpliced() 2`] = `
+
+Message:
+> 1 | (object?.array).toSpliced()
+    |                 ^^^^^^^^^ Prefer the spread operator over \`Array#toSpliced()\`.
+
+Output:
+  1 | [...(object?.array)]
+
+`;
+
+exports[`prefer-spread > invalid(5): [1].concat([2, 3]) 1`] = `
+
+  1 | [1].concat([2, 3])
+
+`;
+
+exports[`prefer-spread > invalid(5): [1].concat([2, 3]) 2`] = `
+
+Message:
+> 1 | [1].concat([2, 3])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2, 3]
+
+`;
+
+exports[`prefer-spread > invalid(5): const copy = array.slice() 1`] = `
+
+  1 | const copy = array.slice()
+
+`;
+
+exports[`prefer-spread > invalid(5): const copy = array.slice() 2`] = `
+
+Message:
+> 1 | const copy = array.slice()
+    |                    ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | const copy = [...array]
+
+`;
+
+exports[`prefer-spread > invalid(5): const foo = []\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = []
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(5): const foo = []\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = []
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = []
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(5): const result = [];\nfor (const element of (/* Keep this comment. */ iterable)) {\n\tresult.push(element);\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const element of (/* Keep this comment. */ iterable)) {
+  3 | 	result.push(element);
+  4 | }
+
+`;
+
+exports[`prefer-spread > invalid(5): const result = [];\nfor (const element of (/* Keep this comment. */ iterable)) {\n\tresult.push(element);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const element of (/* Keep this comment. */ iterable)) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Prefer the spread operator over this \`for…of\` loop.
+
+Output:
+  1 | const result = [...(/* Keep this comment. */ iterable)];
+
+`;
+
+exports[`prefer-spread > invalid(5): function foo(value: Foo.Bar) { value.concat(other); } 1`] = `
+
+  1 | function foo(value: Foo.Bar) { value.concat(other); }
+
+`;
+
+exports[`prefer-spread > invalid(5): function foo(value: Foo.Bar) { value.concat(other); } 2`] = `
+
+Message:
+> 1 | function foo(value: Foo.Bar) { value.concat(other); }
+    |                                      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo(value: Foo.Bar) { [...value, ...other]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo(value: Foo.Bar) { [...value, other]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo(value: Foo.Bar) { [...value, ...(Array.isArray(other) ? other : [other])]; }
+
+`;
+
+exports[`prefer-spread > invalid(50): (( (( ((foo)).concat ))( (([2, 3])) , bar ) )) 1`] = `
+
+  1 | (( (( ((foo)).concat ))( (([2, 3])) , bar ) ))
+
+`;
+
+exports[`prefer-spread > invalid(50): (( (( ((foo)).concat ))( (([2, 3])) , bar ) )) 2`] = `
+
+Message:
+> 1 | (( (( ((foo)).concat ))( (([2, 3])) , bar ) ))
+    |               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | (( (( [...((foo)), 2, 3].concat ))( bar ) ))
+
+`;
+
+exports[`prefer-spread > invalid(51): bar()\nfoo.concat(2) 1`] = `
+
+  1 | bar()
+  2 | foo.concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(51): bar()\nfoo.concat(2) 2`] = `
+
+Message:
+  1 | bar()
+> 2 | foo.concat(2)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | bar()
+  2 | ;[...foo, 2]
+
+`;
+
+exports[`prefer-spread > invalid(52): const foo = foo.concat(2) 1`] = `
+
+  1 | const foo = foo.concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(52): const foo = foo.concat(2) 2`] = `
+
+Message:
+> 1 | const foo = foo.concat(2)
+    |                 ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(53): const foo = () => foo.concat(2) 1`] = `
+
+  1 | const foo = () => foo.concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(53): const foo = () => foo.concat(2) 2`] = `
+
+Message:
+> 1 | const foo = () => foo.concat(2)
+    |                       ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(54): const five = 2 + 3;\nfoo.concat(five); 1`] = `
+
+  1 | const five = 2 + 3;
+  2 | foo.concat(five);
+
+`;
+
+exports[`prefer-spread > invalid(54): const five = 2 + 3;\nfoo.concat(five); 2`] = `
+
+Message:
+  1 | const five = 2 + 3;
+> 2 | foo.concat(five);
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | const five = 2 + 3;
+  2 | [...foo, five];
+
+`;
+
+exports[`prefer-spread > invalid(55): const array = [2 + 3];\nfoo.concat(array); 1`] = `
+
+  1 | const array = [2 + 3];
+  2 | foo.concat(array);
+
+`;
+
+exports[`prefer-spread > invalid(55): const array = [2 + 3];\nfoo.concat(array); 2`] = `
+
+Message:
+  1 | const array = [2 + 3];
+> 2 | foo.concat(array);
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | const array = [2 + 3];
+  2 | [...foo, ...array];
+
+`;
+
+exports[`prefer-spread > invalid(56): foo.concat([bar]) 1`] = `
+
+  1 | foo.concat([bar])
+
+`;
+
+exports[`prefer-spread > invalid(56): foo.concat([bar]) 2`] = `
+
+Message:
+> 1 | foo.concat([bar])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, bar]
+
+`;
+
+exports[`prefer-spread > invalid(57): foo.concat(bar) 1`] = `
+
+  1 | foo.concat(bar)
+
+`;
+
+exports[`prefer-spread > invalid(57): foo.concat(bar) 2`] = `
+
+Message:
+> 1 | foo.concat(bar)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | [...foo, ...bar]
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | [...foo, bar]
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...foo, ...(Array.isArray(bar) ? bar : [bar])]
+
+`;
+
+exports[`prefer-spread > invalid(58): Array.from(set).concat([2, 3]) 1`] = `
+
+  1 | Array.from(set).concat([2, 3])
+
+`;
+
+exports[`prefer-spread > invalid(58): Array.from(set).concat([2, 3]) 2`] = `
+
+Message:
+> 1 | Array.from(set).concat([2, 3])
+    | ^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...set].concat([2, 3])
+
+`;
+
+exports[`prefer-spread > invalid(58): Array.from(set).concat([2, 3]) 3`] = `
+
+Message:
+> 1 | Array.from(set).concat([2, 3])
+    |                 ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(59): Array.from(set).concat(\"bar\") 1`] = `
+
+  1 | Array.from(set).concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(59): Array.from(set).concat(\"bar\") 2`] = `
+
+Message:
+> 1 | Array.from(set).concat("bar")
+    | ^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | [...set].concat("bar")
+
+`;
+
+exports[`prefer-spread > invalid(6): (( (( (( array )).slice ))() )) 1`] = `
+
+  1 | (( (( (( array )).slice ))() ))
+
+`;
+
+exports[`prefer-spread > invalid(6): (( (( (( array )).slice ))() )) 2`] = `
+
+Message:
+> 1 | (( (( (( array )).slice ))() ))
+    |                   ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | (( [...(( (( array )) ))] ))
+
+`;
+
+exports[`prefer-spread > invalid(6): (object?.array as string[]).toSpliced() 1`] = `
+
+  1 | (object?.array as string[]).toSpliced()
+
+`;
+
+exports[`prefer-spread > invalid(6): (object?.array as string[]).toSpliced() 2`] = `
+
+Message:
+> 1 | (object?.array as string[]).toSpliced()
+    |                             ^^^^^^^^^ Prefer the spread operator over \`Array#toSpliced()\`.
+
+Output:
+  1 | [...(object?.array as string[])]
+
+`;
+
+exports[`prefer-spread > invalid(6): [1].concat(2,) 1`] = `
+
+  1 | [1].concat(2,)
+
+`;
+
+exports[`prefer-spread > invalid(6): [1].concat(2,) 2`] = `
+
+Message:
+> 1 | [1].concat(2,)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2]
+
+`;
+
+exports[`prefer-spread > invalid(6): const foo = \"1\"\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = "1"
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(6): const foo = \"1\"\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = "1"
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = "1"
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(6): const result = [];\nfor (const [index, element] of [foo, bar].entries()) {\n\tresult[index] = element;\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const [index, element] of [foo, bar].entries()) {
+  3 | 	result[index] = element;
+  4 | }
+
+`;
+
+exports[`prefer-spread > invalid(6): const result = [];\nfor (const [index, element] of [foo, bar].entries()) {\n\tresult[index] = element;\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const [index, element] of [foo, bar].entries()) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result[index] = element;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Prefer the spread operator over this \`for…of\` loop.
+
+Output:
+  1 | const result = [...[foo, bar]];
+
+`;
+
+exports[`prefer-spread > invalid(6): function foo(link: Unknown.ApolloLink) { link.concat(next); } 1`] = `
+
+  1 | function foo(link: Unknown.ApolloLink) { link.concat(next); }
+
+`;
+
+exports[`prefer-spread > invalid(6): function foo(link: Unknown.ApolloLink) { link.concat(next); } 2`] = `
+
+Message:
+> 1 | function foo(link: Unknown.ApolloLink) { link.concat(next); }
+    |                                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | function foo(link: Unknown.ApolloLink) { [...link, ...next]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | function foo(link: Unknown.ApolloLink) { [...link, next]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | function foo(link: Unknown.ApolloLink) { [...link, ...(Array.isArray(next) ? next : [next])]; }
+
+`;
+
+exports[`prefer-spread > invalid(60): foo.concat([2, 3]).concat(4) 1`] = `
+
+  1 | foo.concat([2, 3]).concat(4)
+
+`;
+
+exports[`prefer-spread > invalid(60): foo.concat([2, 3]).concat(4) 2`] = `
+
+Message:
+> 1 | foo.concat([2, 3]).concat(4)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, 2, 3].concat(4)
+
+`;
+
+exports[`prefer-spread > invalid(60): foo.concat([2, 3]).concat(4) 3`] = `
+
+Message:
+> 1 | foo.concat([2, 3]).concat(4)
+    |                    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(61): foo.concat(2, 3) 1`] = `
+
+  1 | foo.concat(2, 3)
+
+`;
+
+exports[`prefer-spread > invalid(61): foo.concat(2, 3) 2`] = `
+
+Message:
+> 1 | foo.concat(2, 3)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, 2, 3]
+
+`;
+
+exports[`prefer-spread > invalid(62): foo.concat(2, bar) 1`] = `
+
+  1 | foo.concat(2, bar)
+
+`;
+
+exports[`prefer-spread > invalid(62): foo.concat(2, bar) 2`] = `
+
+Message:
+> 1 | foo.concat(2, bar)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, 2].concat(bar)
+
+`;
+
+exports[`prefer-spread > invalid(63): [...foo, 2].concat(bar) 1`] = `
+
+  1 | [...foo, 2].concat(bar)
+
+`;
+
+exports[`prefer-spread > invalid(63): [...foo, 2].concat(bar) 2`] = `
+
+Message:
+> 1 | [...foo, 2].concat(bar)
+    |             ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | [...foo, 2, ...bar]
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | [...foo, 2, bar]
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...foo, 2, ...(Array.isArray(bar) ? bar : [bar])]
+
+`;
+
+exports[`prefer-spread > invalid(64): let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]); 1`] = `
+
+  1 | let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]);
+
+`;
+
+exports[`prefer-spread > invalid(64): let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]); 2`] = `
+
+Message:
+> 1 | let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]);
+    |                           ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | let sortedScores = [...scores].sort((a, b) => b[0] - a[0]);
+
+`;
+
+exports[`prefer-spread > invalid(65): foo.concat(bar, 2, 3) 1`] = `
+
+  1 | foo.concat(bar, 2, 3)
+
+`;
+
+exports[`prefer-spread > invalid(65): foo.concat(bar, 2, 3) 2`] = `
+
+Message:
+> 1 | foo.concat(bar, 2, 3)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | [...foo, ...bar, 2, 3]
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | [...foo, bar, 2, 3]
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...foo, ...(Array.isArray(bar) ? bar : [bar]), 2, 3]
+
+`;
+
+exports[`prefer-spread > invalid(66): foo.concat(bar, 2, 3, baz) 1`] = `
+
+  1 | foo.concat(bar, 2, 3, baz)
+
+`;
+
+exports[`prefer-spread > invalid(66): foo.concat(bar, 2, 3, baz) 2`] = `
+
+Message:
+> 1 | foo.concat(bar, 2, 3, baz)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/4: First argument is an \`array\`.:
+  1 | [...foo, ...bar, 2, 3].concat(baz)
+
+Suggestion 2/4: First argument is not an \`array\`.:
+  1 | [...foo, bar, 2, 3].concat(baz)
+
+Suggestion 3/4: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...foo, ...(Array.isArray(bar) ? bar : [bar]), 2, 3].concat(baz)
+
+Suggestion 4/4: Spread all unknown arguments.:
+  1 | [...foo, ...bar, 2, 3, ...baz]
+
+`;
+
+exports[`prefer-spread > invalid(67): async function a() {return [].concat(await bar)} 1`] = `
+
+  1 | async function a() {return [].concat(await bar)}
+
+`;
+
+exports[`prefer-spread > invalid(67): async function a() {return [].concat(await bar)} 2`] = `
+
+Message:
+> 1 | async function a() {return [].concat(await bar)}
+    |                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/2: First argument is an \`array\`.:
+  1 | async function a() {return [...await bar]}
+
+Suggestion 2/2: First argument is not an \`array\`.:
+  1 | async function a() {return [await bar]}
+
+`;
+
+exports[`prefer-spread > invalid(68): async function a() {return [].concat((0, bar))} 1`] = `
+
+  1 | async function a() {return [].concat((0, bar))}
+
+`;
+
+exports[`prefer-spread > invalid(68): async function a() {return [].concat((0, bar))} 2`] = `
+
+Message:
+> 1 | async function a() {return [].concat((0, bar))}
+    |                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | async function a() {return [...(0, bar)]}
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | async function a() {return [(0, bar)]}
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | async function a() {return [...(Array.isArray((0, bar)) ? (0, bar) : [(0, bar)])]}
+
+`;
+
+exports[`prefer-spread > invalid(69): async function a() {return [].concat(((await bar)))} 1`] = `
+
+  1 | async function a() {return [].concat(((await bar)))}
+
+`;
+
+exports[`prefer-spread > invalid(69): async function a() {return [].concat(((await bar)))} 2`] = `
+
+Message:
+> 1 | async function a() {return [].concat(((await bar)))}
+    |                               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/2: First argument is an \`array\`.:
+  1 | async function a() {return [...((await bar))]}
+
+Suggestion 2/2: First argument is not an \`array\`.:
+  1 | async function a() {return [((await bar))]}
+
+`;
+
+exports[`prefer-spread > invalid(7): (scopeManager?.scopes).slice() 1`] = `
+
+  1 | (scopeManager?.scopes).slice()
+
+`;
+
+exports[`prefer-spread > invalid(7): (scopeManager?.scopes).slice() 2`] = `
+
+Message:
+> 1 | (scopeManager?.scopes).slice()
+    |                        ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...(scopeManager?.scopes)]
+
+`;
+
+exports[`prefer-spread > invalid(7): [1].concat([2, ...bar],) 1`] = `
+
+  1 | [1].concat([2, ...bar],)
+
+`;
+
+exports[`prefer-spread > invalid(7): [1].concat([2, ...bar],) 2`] = `
+
+Message:
+> 1 | [1].concat([2, ...bar],)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2, ...bar]
+
+`;
+
+exports[`prefer-spread > invalid(7): bar()\nfoo.toSpliced() 1`] = `
+
+  1 | bar()
+  2 | foo.toSpliced()
+
+`;
+
+exports[`prefer-spread > invalid(7): bar()\nfoo.toSpliced() 2`] = `
+
+Message:
+  1 | bar()
+> 2 | foo.toSpliced()
+    |     ^^^^^^^^^ Prefer the spread operator over \`Array#toSpliced()\`.
+
+Output:
+  1 | bar()
+  2 | ;[...foo]
+
+`;
+
+exports[`prefer-spread > invalid(7): const foo = null\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = null
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(7): const foo = null\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = null
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = null
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(7): function foo(array: string[]) {\n\tconst result = [];\n\tfor (const [index, element] of array.entries()) {\n\t\tresult[index] = element;\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(array: string[]) {
+  2 | 	const result = [];
+  3 | 	for (const [index, element] of array.entries()) {
+  4 | 		result[index] = element;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-spread > invalid(7): function foo(array: string[]) {\n\tconst result = [];\n\tfor (const [index, element] of array.entries()) {\n\t\tresult[index] = element;\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo(array: string[]) {
+  2 | 	const result = [];
+> 3 | 	for (const [index, element] of array.entries()) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		result[index] = element;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer the spread operator over this \`for…of\` loop.
+  6 | }
+
+Output:
+  1 | function foo(array: string[]) {
+  2 | 	const result = [...array];
+  3 | }
+
+`;
+
+exports[`prefer-spread > invalid(7): type A = B; type B = A; function foo(value: A) { value.concat(other); } 1`] = `
+
+  1 | type A = B; type B = A; function foo(value: A) { value.concat(other); }
+
+`;
+
+exports[`prefer-spread > invalid(7): type A = B; type B = A; function foo(value: A) { value.concat(other); } 2`] = `
+
+Message:
+> 1 | type A = B; type B = A; function foo(value: A) { value.concat(other); }
+    |                                                        ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | type A = B; type B = A; function foo(value: A) { [...value, ...other]; }
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | type A = B; type B = A; function foo(value: A) { [...value, other]; }
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | type A = B; type B = A; function foo(value: A) { [...value, ...(Array.isArray(other) ? other : [other])]; }
+
+`;
+
+exports[`prefer-spread > invalid(70): foo.concat((0, 1)) 1`] = `
+
+  1 | foo.concat((0, 1))
+
+`;
+
+exports[`prefer-spread > invalid(70): foo.concat((0, 1)) 2`] = `
+
+Message:
+> 1 | foo.concat((0, 1))
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...foo, (0, 1)]
+
+`;
+
+exports[`prefer-spread > invalid(71): async function a() {return (await bar).concat(1)} 1`] = `
+
+  1 | async function a() {return (await bar).concat(1)}
+
+`;
+
+exports[`prefer-spread > invalid(71): async function a() {return (await bar).concat(1)} 2`] = `
+
+Message:
+> 1 | async function a() {return (await bar).concat(1)}
+    |                                        ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | async function a() {return [...(await bar), 1]}
+
+`;
+
+exports[`prefer-spread > invalid(72): [].concat(...bar) 1`] = `
+
+  1 | [].concat(...bar)
+
+`;
+
+exports[`prefer-spread > invalid(72): [].concat(...bar) 2`] = `
+
+Message:
+> 1 | [].concat(...bar)
+    |    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(73): [].concat([,], []) 1`] = `
+
+  1 | [].concat([,], [])
+
+`;
+
+exports[`prefer-spread > invalid(73): [].concat([,], []) 2`] = `
+
+Message:
+> 1 | [].concat([,], [])
+    |    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [,]
+
+`;
+
+exports[`prefer-spread > invalid(74): [,].concat([,], [,]) 1`] = `
+
+  1 | [,].concat([,], [,])
+
+`;
+
+exports[`prefer-spread > invalid(74): [,].concat([,], [,]) 2`] = `
+
+Message:
+> 1 | [,].concat([,], [,])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [, , ,]
+
+`;
+
+exports[`prefer-spread > invalid(75): [,].concat([,,], [,]) 1`] = `
+
+  1 | [,].concat([,,], [,])
+
+`;
+
+exports[`prefer-spread > invalid(75): [,].concat([,,], [,]) 2`] = `
+
+Message:
+> 1 | [,].concat([,,], [,])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [, ,, ,]
+
+`;
+
+exports[`prefer-spread > invalid(76): [,].concat([,], [,,]) 1`] = `
+
+  1 | [,].concat([,], [,,])
+
+`;
+
+exports[`prefer-spread > invalid(76): [,].concat([,], [,,]) 2`] = `
+
+Message:
+> 1 | [,].concat([,], [,,])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [, , ,,]
+
+`;
+
+exports[`prefer-spread > invalid(77): [1].concat([2,], [3,]) 1`] = `
+
+  1 | [1].concat([2,], [3,])
+
+`;
+
+exports[`prefer-spread > invalid(77): [1].concat([2,], [3,]) 2`] = `
+
+Message:
+> 1 | [1].concat([2,], [3,])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2, 3,]
+
+`;
+
+exports[`prefer-spread > invalid(78): [1].concat([2,,], [3,,]) 1`] = `
+
+  1 | [1].concat([2,,], [3,,])
+
+`;
+
+exports[`prefer-spread > invalid(78): [1].concat([2,,], [3,,]) 2`] = `
+
+Message:
+> 1 | [1].concat([2,,], [3,,])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2,, 3,,]
+
+`;
+
+exports[`prefer-spread > invalid(79): [1,].concat([2,], [3,]) 1`] = `
+
+  1 | [1,].concat([2,], [3,])
+
+`;
+
+exports[`prefer-spread > invalid(79): [1,].concat([2,], [3,]) 2`] = `
+
+Message:
+> 1 | [1,].concat([2,], [3,])
+    |      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2, 3,]
+
+`;
+
+exports[`prefer-spread > invalid(8): (object?.array as string[]).slice() 1`] = `
+
+  1 | (object?.array as string[]).slice()
+
+`;
+
+exports[`prefer-spread > invalid(8): (object?.array as string[]).slice() 2`] = `
+
+Message:
+> 1 | (object?.array as string[]).slice()
+    |                             ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | [...(object?.array as string[])]
+
+`;
+
+exports[`prefer-spread > invalid(8): [1,].concat(2) 1`] = `
+
+  1 | [1,].concat(2)
+
+`;
+
+exports[`prefer-spread > invalid(8): [1,].concat(2) 2`] = `
+
+Message:
+> 1 | [1,].concat(2)
+    |      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2,]
+
+`;
+
+exports[`prefer-spread > invalid(8): array.toSpliced(/* comment */) 1`] = `
+
+  1 | array.toSpliced(/* comment */)
+
+`;
+
+exports[`prefer-spread > invalid(8): array.toSpliced(/* comment */) 2`] = `
+
+Message:
+> 1 | array.toSpliced(/* comment */)
+    |       ^^^^^^^^^ Prefer the spread operator over \`Array#toSpliced()\`.
+
+`;
+
+exports[`prefer-spread > invalid(8): const foo = true\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = true
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(8): const foo = true\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = true
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = true
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(8): declare const value: any; value.concat(other); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: any; value.concat(other);
+
+`;
+
+exports[`prefer-spread > invalid(8): declare const value: any; value.concat(other); 2`] = `
+
+Message:
+> 1 | declare const value: any; value.concat(other);
+    |                                 ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | declare const value: any; [...value, ...other];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | declare const value: any; [...value, other];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | declare const value: any; [...value, ...(Array.isArray(other) ? other : [other])];
+
+`;
+
+exports[`prefer-spread > invalid(8): function foo(values: string[]) {\n\tconst result: string[] = [];\n\tfor (const element of values) {\n\t\tresult.push(element);\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(values: string[]) {
+  2 | 	const result: string[] = [];
+  3 | 	for (const element of values) {
+  4 | 		result.push(element);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-spread > invalid(8): function foo(values: string[]) {\n\tconst result: string[] = [];\n\tfor (const element of values) {\n\t\tresult.push(element);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo(values: string[]) {
+  2 | 	const result: string[] = [];
+> 3 | 	for (const element of values) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer the spread operator over this \`for…of\` loop.
+  6 | }
+
+Output:
+  1 | function foo(values: string[]) {
+  2 | 	const result: string[] = [...values];
+  3 | }
+
+`;
+
+exports[`prefer-spread > invalid(80): [1,].concat([2,,], [3,,]) 1`] = `
+
+  1 | [1,].concat([2,,], [3,,])
+
+`;
+
+exports[`prefer-spread > invalid(80): [1,].concat([2,,], [3,,]) 2`] = `
+
+Message:
+> 1 | [1,].concat([2,,], [3,,])
+    |      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2,, 3,,]
+
+`;
+
+exports[`prefer-spread > invalid(81): [].concat([], []) 1`] = `
+
+  1 | [].concat([], [])
+
+`;
+
+exports[`prefer-spread > invalid(81): [].concat([], []) 2`] = `
+
+Message:
+> 1 | [].concat([], [])
+    |    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | []
+
+`;
+
+exports[`prefer-spread > invalid(82): const EMPTY_STRING = \"\"\nconst EMPTY_STRING_IN_ARRAY = \"\"\nconst EMPTY_STRING_IN_ARRAY_OF_ARRAY = \"\"\nconst array = [].concat(\n\tundefined,\n\tnull,\n\tEMPTY_STRING,\n\tfalse,\n\t0,\n\t[EMPTY_STRING_IN_ARRAY],\n\t[[EMPTY_STRING_IN_ARRAY_OF_ARRAY]]\n) 1`] = `
+
+   1 | const EMPTY_STRING = ""
+   2 | const EMPTY_STRING_IN_ARRAY = ""
+   3 | const EMPTY_STRING_IN_ARRAY_OF_ARRAY = ""
+   4 | const array = [].concat(
+   5 | 	undefined,
+   6 | 	null,
+   7 | 	EMPTY_STRING,
+   8 | 	false,
+   9 | 	0,
+  10 | 	[EMPTY_STRING_IN_ARRAY],
+  11 | 	[[EMPTY_STRING_IN_ARRAY_OF_ARRAY]]
+  12 | )
+
+`;
+
+exports[`prefer-spread > invalid(82): const EMPTY_STRING = \"\"\nconst EMPTY_STRING_IN_ARRAY = \"\"\nconst EMPTY_STRING_IN_ARRAY_OF_ARRAY = \"\"\nconst array = [].concat(\n\tundefined,\n\tnull,\n\tEMPTY_STRING,\n\tfalse,\n\t0,\n\t[EMPTY_STRING_IN_ARRAY],\n\t[[EMPTY_STRING_IN_ARRAY_OF_ARRAY]]\n) 2`] = `
+
+Message:
+   1 | const EMPTY_STRING = ""
+   2 | const EMPTY_STRING_IN_ARRAY = ""
+   3 | const EMPTY_STRING_IN_ARRAY_OF_ARRAY = ""
+>  4 | const array = [].concat(
+     |                  ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+   5 | 	undefined,
+   6 | 	null,
+   7 | 	EMPTY_STRING,
+   8 | 	false,
+   9 | 	0,
+  10 | 	[EMPTY_STRING_IN_ARRAY],
+  11 | 	[[EMPTY_STRING_IN_ARRAY_OF_ARRAY]]
+  12 | )
+
+Output:
+  1 | const EMPTY_STRING = ""
+  2 | const EMPTY_STRING_IN_ARRAY = ""
+  3 | const EMPTY_STRING_IN_ARRAY_OF_ARRAY = ""
+  4 | const array = [undefined, null, EMPTY_STRING, false, 0, EMPTY_STRING_IN_ARRAY, [EMPTY_STRING_IN_ARRAY_OF_ARRAY]]
+
+`;
+
+exports[`prefer-spread > invalid(83): [].concat((a.b.c), 2) 1`] = `
+
+  1 | [].concat((a.b.c), 2)
+
+`;
+
+exports[`prefer-spread > invalid(83): [].concat((a.b.c), 2) 2`] = `
+
+Message:
+> 1 | [].concat((a.b.c), 2)
+    |    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | [...(a.b.c), 2]
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | [(a.b.c), 2]
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...(Array.isArray((a.b.c)) ? (a.b.c) : [(a.b.c)]), 2]
+
+`;
+
+exports[`prefer-spread > invalid(84): [].concat(a.b(), 2) 1`] = `
+
+  1 | [].concat(a.b(), 2)
+
+`;
+
+exports[`prefer-spread > invalid(84): [].concat(a.b(), 2) 2`] = `
+
+Message:
+> 1 | [].concat(a.b(), 2)
+    |    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/2: First argument is an \`array\`.:
+  1 | [...a.b(), 2]
+
+Suggestion 2/2: First argument is not an \`array\`.:
+  1 | [a.b(), 2]
+
+`;
+
+exports[`prefer-spread > invalid(85): foo.concat(bar, 2, [3, 4], baz, 5, [6, 7]) 1`] = `
+
+  1 | foo.concat(bar, 2, [3, 4], baz, 5, [6, 7])
+
+`;
+
+exports[`prefer-spread > invalid(85): foo.concat(bar, 2, [3, 4], baz, 5, [6, 7]) 2`] = `
+
+Message:
+> 1 | foo.concat(bar, 2, [3, 4], baz, 5, [6, 7])
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/4: First argument is an \`array\`.:
+  1 | [...foo, ...bar, 2, 3, 4].concat(baz, 5, [6, 7])
+
+Suggestion 2/4: First argument is not an \`array\`.:
+  1 | [...foo, bar, 2, 3, 4].concat(baz, 5, [6, 7])
+
+Suggestion 3/4: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...foo, ...(Array.isArray(bar) ? bar : [bar]), 2, 3, 4].concat(baz, 5, [6, 7])
+
+Suggestion 4/4: Spread all unknown arguments.:
+  1 | [...foo, ...bar, 2, 3, 4, ...baz, 5, 6, 7]
+
+`;
+
+exports[`prefer-spread > invalid(86): foo.concat(bar, 2, 3, ...baz) 1`] = `
+
+  1 | foo.concat(bar, 2, 3, ...baz)
+
+`;
+
+exports[`prefer-spread > invalid(86): foo.concat(bar, 2, 3, ...baz) 2`] = `
+
+Message:
+> 1 | foo.concat(bar, 2, 3, ...baz)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | [...foo, ...bar, 2, 3].concat(...baz)
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | [...foo, bar, 2, 3].concat(...baz)
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | [...foo, ...(Array.isArray(bar) ? bar : [bar]), 2, 3].concat(...baz)
+
+`;
+
+exports[`prefer-spread > invalid(87): notClass.concat(1) 1`] = `
+
+  1 | notClass.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(87): notClass.concat(1) 2`] = `
+
+Message:
+> 1 | notClass.concat(1)
+    |          ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...notClass, 1]
+
+`;
+
+exports[`prefer-spread > invalid(88): _A.concat(1) 1`] = `
+
+  1 | _A.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(88): _A.concat(1) 2`] = `
+
+Message:
+> 1 | _A.concat(1)
+    |    ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [..._A, 1]
+
+`;
+
+exports[`prefer-spread > invalid(89): FOO.concat(1) 1`] = `
+
+  1 | FOO.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(89): FOO.concat(1) 2`] = `
+
+Message:
+> 1 | FOO.concat(1)
+    |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...FOO, 1]
+
+`;
+
+exports[`prefer-spread > invalid(9): [1,].concat([2, 3]) 1`] = `
+
+  1 | [1,].concat([2, 3])
+
+`;
+
+exports[`prefer-spread > invalid(9): [1,].concat([2, 3]) 2`] = `
+
+Message:
+> 1 | [1,].concat([2, 3])
+    |      ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [1, 2, 3,]
+
+`;
+
+exports[`prefer-spread > invalid(9): bar()\nfoo.slice() 1`] = `
+
+  1 | bar()
+  2 | foo.slice()
+
+`;
+
+exports[`prefer-spread > invalid(9): bar()\nfoo.slice() 2`] = `
+
+Message:
+  1 | bar()
+> 2 | foo.slice()
+    |     ^^^^^ Prefer the spread operator over \`Array#slice()\`.
+
+Output:
+  1 | bar()
+  2 | ;[...foo]
+
+`;
+
+exports[`prefer-spread > invalid(9): const foo = 1\nArray.from(arrayLike).forEach(doSomething) 1`] = `
+
+  1 | const foo = 1
+  2 | Array.from(arrayLike).forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(9): const foo = 1\nArray.from(arrayLike).forEach(doSomething) 2`] = `
+
+Message:
+  1 | const foo = 1
+> 2 | Array.from(arrayLike).forEach(doSomething)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
+
+Output:
+  1 | const foo = 1
+  2 | ;[...arrayLike].forEach(doSomething)
+
+`;
+
+exports[`prefer-spread > invalid(9): const result = [/* Keep this comment. */];\nfor (const element of iterable) {\n\tresult.push(element);\n} 1`] = `
+
+  1 | const result = [/* Keep this comment. */];
+  2 | for (const element of iterable) {
+  3 | 	result.push(element);
+  4 | }
+
+`;
+
+exports[`prefer-spread > invalid(9): const result = [/* Keep this comment. */];\nfor (const element of iterable) {\n\tresult.push(element);\n} 2`] = `
+
+Message:
+  1 | const result = [/* Keep this comment. */];
+> 2 | for (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Prefer the spread operator over this \`for…of\` loop.
+
+`;
+
+exports[`prefer-spread > invalid(9): declare const value: string[] | number[]; value.concat(other); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string[] | number[]; value.concat(other);
+
+`;
+
+exports[`prefer-spread > invalid(9): declare const value: string[] | number[]; value.concat(other); 2`] = `
+
+Message:
+> 1 | declare const value: string[] | number[]; value.concat(other);
+    |                                                 ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Suggestion 1/3: First argument is an \`array\`.:
+  1 | declare const value: string[] | number[]; [...value, ...other];
+
+Suggestion 2/3: First argument is not an \`array\`.:
+  1 | declare const value: string[] | number[]; [...value, other];
+
+Suggestion 3/3: Test first argument with \`Array.isArray(…)\`.:
+  1 | declare const value: string[] | number[]; [...value, ...(Array.isArray(other) ? other : [other])];
+
+`;
+
+exports[`prefer-spread > invalid(90): A.concat(1) 1`] = `
+
+  1 | A.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(90): A.concat(1) 2`] = `
+
+Message:
+> 1 | A.concat(1)
+    |   ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | [...A, 1]
+
+`;
+
+exports[`prefer-spread > invalid(91): Foo.x.concat(1) 1`] = `
+
+  1 | Foo.x.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(91): Foo.x.concat(1) 2`] = `
+
+Message:
+> 1 | Foo.x.concat(1)
+    |       ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+`;
+
+exports[`prefer-spread > invalid(92): if (test) foo.concat(1) 1`] = `
+
+  1 | if (test) foo.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(92): if (test) foo.concat(1) 2`] = `
+
+Message:
+> 1 | if (test) foo.concat(1)
+    |               ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | if (test) [...foo, 1]
+
+`;
+
+exports[`prefer-spread > invalid(93): if (test) {} else foo.concat(1) 1`] = `
+
+  1 | if (test) {} else foo.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(93): if (test) {} else foo.concat(1) 2`] = `
+
+Message:
+> 1 | if (test) {} else foo.concat(1)
+    |                       ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | if (test) {} else [...foo, 1]
+
+`;
+
+exports[`prefer-spread > invalid(94): for (;;) foo.concat(1) 1`] = `
+
+  1 | for (;;) foo.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(94): for (;;) foo.concat(1) 2`] = `
+
+Message:
+> 1 | for (;;) foo.concat(1)
+    |              ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | for (;;) [...foo, 1]
+
+`;
+
+exports[`prefer-spread > invalid(95): for (a in b) foo.concat(1) 1`] = `
+
+  1 | for (a in b) foo.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(95): for (a in b) foo.concat(1) 2`] = `
+
+Message:
+> 1 | for (a in b) foo.concat(1)
+    |                  ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | for (a in b) [...foo, 1]
+
+`;
+
+exports[`prefer-spread > invalid(96): for (const a of b) foo.concat(1) 1`] = `
+
+  1 | for (const a of b) foo.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(96): for (const a of b) foo.concat(1) 2`] = `
+
+Message:
+> 1 | for (const a of b) foo.concat(1)
+    |                        ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | for (const a of b) [...foo, 1]
+
+`;
+
+exports[`prefer-spread > invalid(97): while (test) foo.concat(1) 1`] = `
+
+  1 | while (test) foo.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(97): while (test) foo.concat(1) 2`] = `
+
+Message:
+> 1 | while (test) foo.concat(1)
+    |                  ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | while (test) [...foo, 1]
+
+`;
+
+exports[`prefer-spread > invalid(98): do foo.concat(1); while (test) 1`] = `
+
+  1 | do foo.concat(1); while (test)
+
+`;
+
+exports[`prefer-spread > invalid(98): do foo.concat(1); while (test) 2`] = `
+
+Message:
+> 1 | do foo.concat(1); while (test)
+    |        ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | do [...foo, 1]; while (test)
+
+`;
+
+exports[`prefer-spread > invalid(99): with (foo) foo.concat(1) 1`] = `
+
+  1 | with (foo) foo.concat(1)
+
+`;
+
+exports[`prefer-spread > invalid(99): with (foo) foo.concat(1) 2`] = `
+
+Message:
+> 1 | with (foo) foo.concat(1)
+    |                ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
+
+Output:
+  1 | with (foo) [...foo, 1]
+
+`;
