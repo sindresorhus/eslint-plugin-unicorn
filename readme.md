@@ -497,7 +497,7 @@ While most rules target JavaScript and TypeScript, some also lint other file typ
 
 When linting JSON, CSS, Markdown, HTML, or other non-JavaScript languages in the same ESLint config, scope Unicorn's JavaScript rule config objects with `files`. Include TypeScript/JSX extensions there only if your config already provides the matching parser/language setup for those files.
 
-Use the [non-JavaScript recommended presets](#non-javascript-recommended-configs) in each language config, keeping Unicorn's JavaScript presets scoped separately:
+For example, keep Unicorn's JavaScript rules scoped separately, and enable only compatible Unicorn rules in each non-JavaScript language config:
 
 ```js
 import css from '@eslint/css';
@@ -505,51 +505,91 @@ import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import html from '@html-eslint/eslint-plugin';
 import toml from 'eslint-plugin-toml';
-import yml from 'eslint-plugin-yml';
 import unicorn from 'eslint-plugin-unicorn';
 import {defineConfig} from 'eslint/config';
 
 export default defineConfig([
 	{
 		files: ['**/*.js'],
-		plugins: {unicorn},
-		extends: ['unicorn/recommended'],
+		plugins: {
+			unicorn,
+		},
+		extends: [
+			'unicorn/recommended',
+		],
 	},
 	{
 		files: ['**/*.json'],
-		plugins: {json, unicorn},
+		plugins: {
+			json,
+			unicorn,
+		},
 		language: 'json/json',
-		extends: ['unicorn/recommended-json'],
+		rules: {
+			'unicorn/no-empty-file': 'error',
+			'unicorn/prefer-https': 'error',
+			'unicorn/prefer-short-escape-sequences': 'error',
+		},
 	},
 	{
 		files: ['**/*.css'],
-		plugins: {css, unicorn},
+		plugins: {
+			css,
+			unicorn,
+		},
 		language: 'css/css',
-		extends: ['unicorn/recommended-css'],
+		rules: {
+			'unicorn/no-unscoped-css-nesting-selector': 'error',
+			'unicorn/prefer-explicit-viewport-units': 'error',
+			'unicorn/prefer-https': 'error',
+			'unicorn/prefer-media-feature-range-syntax': 'error',
+			'unicorn/text-encoding-identifier-case': 'error',
+		},
 	},
 	{
 		files: ['**/*.html'],
-		plugins: {html, unicorn},
+		plugins: {
+			html,
+			unicorn,
+		},
 		language: 'html/html',
-		extends: ['unicorn/recommended-html'],
+		rules: {
+			'unicorn/no-invalid-file-input-accept': 'error',
+			'unicorn/prefer-https': 'error',
+		},
 	},
 	{
 		files: ['**/*.md'],
-		plugins: {markdown, unicorn},
+		plugins: {
+			markdown,
+			unicorn,
+		},
 		language: 'markdown/commonmark',
-		extends: ['unicorn/recommended-markdown'],
+		rules: {
+			'unicorn/expiring-todo-comments': 'error',
+			'unicorn/prefer-https': 'error',
+		},
 	},
 	{
 		files: ['**/*.toml'],
-		plugins: {toml, unicorn},
+		plugins: {
+			toml,
+			unicorn,
+		},
 		language: 'toml/toml',
-		extends: ['unicorn/recommended-toml'],
-	},
-	{
-		files: ['**/*.yaml'],
-		plugins: {yml, unicorn},
-		language: 'yml/yaml',
-		extends: ['unicorn/recommended-yaml'],
+		rules: {
+			'unicorn/comment-content': 'error',
+			'unicorn/escape-case': 'error',
+			'unicorn/expiring-todo-comments': 'error',
+			'unicorn/filename-case': 'error',
+			'unicorn/no-abusive-eslint-disable': 'error',
+			'unicorn/no-empty-file': 'error',
+			'unicorn/no-manually-wrapped-comments': 'error',
+			'unicorn/number-literal-case': 'error',
+			'unicorn/numeric-separators-style': 'error',
+			'unicorn/prefer-https': 'error',
+			'unicorn/prefer-short-escape-sequences': 'error',
+		},
 	},
 ]);
 ```
@@ -678,7 +718,22 @@ These presets enable recommended rules compatible with every dialect listed belo
 
 For JSONC or JSON5, use `recommended-json` with `language: 'json/jsonc'` or `language: 'json/json5'`. For GFM Markdown, use `recommended-markdown` with `language: 'markdown/gfm'`. These choices are independent of the file extension.
 
-See the [configuration examples](#non-javascript-files). You can also extend a preset directly, for example `extends: [unicorn.configs['recommended-json']]`.
+For example:
+
+```js
+import json from '@eslint/json';
+import unicorn from 'eslint-plugin-unicorn';
+import {defineConfig} from 'eslint/config';
+
+export default defineConfig({
+	files: ['**/*.json'],
+	plugins: {json, unicorn},
+	language: 'json/json',
+	extends: ['unicorn/recommended-json'],
+});
+```
+
+You can also extend a preset directly, for example `extends: [unicorn.configs['recommended-json']]`. Scope JavaScript presets separately as shown in the [configuration examples](#non-javascript-files).
 
 ### All config
 

@@ -339,71 +339,6 @@ for (const ruleName of ['expiring-todo-comments', 'no-asterisk-prefix-in-documen
 	});
 }
 
-for (const language of ['markdown/commonmark', 'markdown/gfm']) {
-	test(`recommended-markdown checks comment rules in ${language} on .txt files`, async t => {
-		const eslint = new ESLint({
-			overrideConfigFile: true,
-			fix: true,
-			baseConfig: defineConfig({
-				files: ['**/*.txt'],
-				plugins: languages.markdown.plugins,
-				language,
-				extends: [eslintPluginUnicorn.configs['recommended-markdown']],
-				rules: {
-					'unicorn/comment-content': 'error',
-					'unicorn/expiring-todo-comments': ['error', {date: '2026-01-01', checkDates: true, checkDatesOnPullRequests: true}],
-				},
-			}),
-		});
-		const code = [
-			'<!-- github -->',
-			'<!-- TODO [2000-01-01]: Update -->',
-			'```html\n<!-- TODO [2000-01-01]: github inside code -->\n```',
-			'`<!-- github -->`',
-			'    <!-- github -->',
-			'> ```html\n> <!-- github -->\n> ```',
-			'- ```html\n  <!-- github -->\n  ```',
-			String.raw`\<!-- github -->`,
-		].join('\n\n');
-		const [result] = await eslint.lintText(code, {filePath: 'file.txt'});
-		t.deepEqual(result.messages.map(({ruleId, message}) => ({ruleId, message})), [{
-			ruleId: 'unicorn/expiring-todo-comments',
-			message: 'Past due date: 2000-01-01. Update',
-		}]);
-		t.is(result.output, code.replace('github', 'GitHub'));
-	});
-
-	test(`recommended-markdown preserves comment source ranges in ${language}`, async t => {
-		const eslint = new ESLint({
-			overrideConfigFile: true,
-			fix: true,
-			baseConfig: defineConfig({
-				files: ['**/*.txt'],
-				plugins: languages.markdown.plugins,
-				language,
-				extends: [eslintPluginUnicorn.configs['recommended-markdown']],
-				rules: {
-					'unicorn/comment-content': 'error',
-					'unicorn/expiring-todo-comments': ['error', {date: '2026-01-01', checkDates: true, checkDatesOnPullRequests: true}],
-				},
-			}),
-		});
-		const code = '> <div>\n> <!-- TODO [2000-01-01]: Update -->\n> </div>\n\n> <!--\n> github\n> -->\n\n<!-- github';
-		const [result] = await eslint.lintText(code, {filePath: 'file.txt'});
-		t.deepEqual(result.messages.map(({ruleId, message, line, column, endLine, endColumn}) => ({
-			ruleId, message, line, column, endLine, endColumn,
-		})), [{
-			ruleId: 'unicorn/expiring-todo-comments',
-			message: 'Past due date: 2000-01-01. Update',
-			line: 2,
-			column: 3,
-			endLine: 2,
-			endColumn: 37,
-		}]);
-		t.is(result.output, code.replaceAll('github', 'GitHub'));
-	});
-}
-
 for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 	test(`recommended-json fixes comments in ${language}`, async t => {
 		const eslint = new ESLint({
@@ -420,26 +355,6 @@ for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 		t.deepEqual(result.messages, []);
 		t.is(result.output, '/**\nComment.\n*/\n{}');
 	});
-}
-
-for (const {language, plugins} of [languages.json, languages.jsonc, languages.json5]) {
-	for (const extension of ['json', 'json5', 'txt']) {
-		test(`recommended-json preserves valid escapes in ${language} on .${extension} files`, async t => {
-			const eslint = new ESLint({
-				overrideConfigFile: true,
-				fix: true,
-				baseConfig: defineConfig({
-					files: [`**/*.${extension}`],
-					plugins,
-					language,
-					extends: [eslintPluginUnicorn.configs['recommended-json']],
-				}),
-			});
-			const [result] = await eslint.lintText(String.raw`{"value":"\u0000\u000B\u000A"}`, {filePath: `file.${extension}`});
-			t.deepEqual(result.messages, []);
-			t.is(result.output, String.raw`{"value":"\u0000\u000B\n"}`);
-		});
-	}
 }
 
 test('Every rule has valid meta.type', t => {

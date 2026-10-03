@@ -6,7 +6,6 @@ import {
 	isEslintDisableOrEnableDirective,
 	getBuiltinRule,
 	getComments,
-	getMarkdownHtmlComments,
 	matchesAnyRegExp,
 	normalizeComment,
 	onRoot,
@@ -299,6 +298,53 @@ const DEFAULT_OPTIONS = {
 	allowWarningComments: true,
 };
 
+function getMarkdownHtmlComments(sourceCode) {
+	const comments = [];
+	const collectComments = node => {
+		if (node.type === 'html' && typeof node.position?.start?.offset === 'number') {
+			const nodeStart = node.position.start.offset;
+			const {value} = node;
+
+			for (let index = 0; index < value.length; index++) {
+				if (!value.startsWith('<!--', index)) {
+					continue;
+				}
+
+				const end = value.indexOf('-->', index + 4);
+				const valueEnd = end === -1 ? value.length : end;
+				const range = [
+					nodeStart + index,
+					nodeStart + (end === -1 ? value.length : end + 3),
+				];
+				comments.push({
+					type: 'Block',
+					value: value.slice(index + 4, valueEnd),
+					range,
+					loc: {
+						start: sourceCode.getLocFromIndex(range[0]),
+						end: sourceCode.getLocFromIndex(range[1]),
+					},
+				});
+				index = end === -1 ? value.length - 1 : end + 2;
+			}
+		}
+
+		if (!Array.isArray(node.children)) {
+			return;
+		}
+
+		for (const child of node.children) {
+			collectComments(child);
+		}
+	};
+
+	if (sourceCode.ast) {
+		collectComments(sourceCode.ast);
+	}
+
+	return comments;
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -315,7 +361,9 @@ const create = context => {
 	const {packageJson, packageDependencies, parseArgument, parseTodoMessage, parseTodoWithArguments} = getPackageHelpers(dirname);
 
 	const {sourceCode} = context;
-	const markdownComments = getMarkdownHtmlComments(context);
+	const filename = context.physicalFilename?.toLowerCase() ?? '';
+	const isMarkdown = filename.endsWith('.md') || filename.endsWith('.markdown');
+	const markdownComments = isMarkdown ? getMarkdownHtmlComments(sourceCode) : [];
 	const comments = [...getComments(context), ...markdownComments];
 	const unusedComments = comments
 		.filter(comment => comment.type !== 'Shebang' && !isEslintDisableOrEnableDirective(context, comment))

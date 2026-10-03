@@ -22,7 +22,7 @@ const tomlReplacements = new Map([
 	['002F', '/'],
 	['005C', String.raw`\\`],
 ]);
-const javascriptReplacements = new Map([
+const javascriptAndJson5Replacements = new Map([
 	['0000', String.raw`\0`],
 	['000B', String.raw`\v`],
 ]);
@@ -34,12 +34,12 @@ function getReplacement(codePoint, {dialect, nextCharacter}) {
 		return tomlReplacements.get(codePoint) ?? commonReplacements.get(codePoint);
 	}
 
-	if (dialect === 'javascript') {
+	if (dialect === 'javascript' || dialect === 'json5') {
 		if (codePoint === '0000' && /^\d$/v.test(nextCharacter)) {
 			return;
 		}
 
-		const replacement = javascriptReplacements.get(codePoint);
+		const replacement = javascriptAndJson5Replacements.get(codePoint);
 		if (replacement) {
 			return replacement;
 		}
@@ -86,11 +86,12 @@ function getProblem(node, content, options, fix) {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const jsonDialect = context.physicalFilename.toLowerCase().endsWith('.json5') ? 'json5' : 'json';
 
 	context.on('String', node => {
 		const raw = sourceCode.getText(node);
 		const [start, end] = sourceCode.getRange(node);
-		return getProblem(node, raw.slice(1, -1), {dialect: 'json'}, (fixer, fixed) => fixer.replaceTextRange([start + 1, end - 1], fixed));
+		return getProblem(node, raw.slice(1, -1), {dialect: jsonDialect}, (fixer, fixed) => fixer.replaceTextRange([start + 1, end - 1], fixed));
 	});
 
 	context.on('Literal', node => {
