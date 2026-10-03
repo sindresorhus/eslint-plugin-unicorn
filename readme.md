@@ -476,102 +476,35 @@ export default defineConfig([
 
 ### Non-JavaScript files
 
-While most rules target JavaScript and TypeScript, some also lint other file types when used with the corresponding [ESLint language plugin](https://eslint.org/docs/latest/use/configure/plugins#specifying-a-language) such as [`@eslint/css`](https://github.com/eslint/css), [`@eslint/json`](https://github.com/eslint/json), [`@eslint/markdown`](https://github.com/eslint/markdown), [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml), or [`eslint-plugin-toml`](https://github.com/ota-meshi/eslint-plugin-toml). Each such rule declares this with the `meta.languages` field.
-
-For more CSS rules, see [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn).
+While most rules target JavaScript and TypeScript, some also lint other file types when used with the corresponding [ESLint language plugin](https://eslint.org/docs/latest/use/configure/plugins#specifying-a-language) such as [`@eslint/css`](https://github.com/eslint/css), [`@eslint/json`](https://github.com/eslint/json), [`@eslint/markdown`](https://github.com/eslint/markdown), [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml), or [`eslint-plugin-toml`](https://github.com/ota-meshi/eslint-plugin-toml).
 
 When linting JSON, CSS, Markdown, HTML, or other non-JavaScript languages in the same ESLint config, scope Unicorn's JavaScript rule config objects with `files`. Include TypeScript/JSX extensions there only if your config already provides the matching parser/language setup for those files.
 
-For example, keep Unicorn's JavaScript rules scoped separately, and enable only compatible Unicorn rules in each non-JavaScript language config:
+For example, keep Unicorn's JavaScript rules scoped separately, and use the [non-JavaScript recommended configs](#non-javascript-recommended-configs) for other languages:
 
 ```js
 import css from '@eslint/css';
 import json from '@eslint/json';
-import markdown from '@eslint/markdown';
-import html from '@html-eslint/eslint-plugin';
-import toml from 'eslint-plugin-toml';
 import unicorn from 'eslint-plugin-unicorn';
 import {defineConfig} from 'eslint/config';
 
 export default defineConfig([
 	{
 		files: ['**/*.js'],
-		plugins: {
-			unicorn,
-		},
-		extends: [
-			'unicorn/recommended',
-		],
+		plugins: {unicorn},
+		extends: ['unicorn/recommended'],
 	},
 	{
 		files: ['**/*.json'],
-		plugins: {
-			json,
-			unicorn,
-		},
+		plugins: {json, unicorn},
 		language: 'json/json',
-		rules: {
-			'unicorn/no-empty-file': 'error',
-			'unicorn/prefer-https': 'error',
-			'unicorn/prefer-short-escape-sequences': 'error',
-		},
+		extends: ['unicorn/recommended-json'],
 	},
 	{
 		files: ['**/*.css'],
-		plugins: {
-			css,
-			unicorn,
-		},
+		plugins: {css, unicorn},
 		language: 'css/css',
-		rules: {
-			'unicorn/prefer-https': 'error',
-			'unicorn/text-encoding-identifier-case': 'error',
-		},
-	},
-	{
-		files: ['**/*.html'],
-		plugins: {
-			html,
-			unicorn,
-		},
-		language: 'html/html',
-		rules: {
-			'unicorn/no-invalid-file-input-accept': 'error',
-			'unicorn/prefer-https': 'error',
-		},
-	},
-	{
-		files: ['**/*.md'],
-		plugins: {
-			markdown,
-			unicorn,
-		},
-		language: 'markdown/commonmark',
-		rules: {
-			'unicorn/expiring-todo-comments': 'error',
-			'unicorn/prefer-https': 'error',
-		},
-	},
-	{
-		files: ['**/*.toml'],
-		plugins: {
-			toml,
-			unicorn,
-		},
-		language: 'toml/toml',
-		rules: {
-			'unicorn/comment-content': 'error',
-			'unicorn/escape-case': 'error',
-			'unicorn/expiring-todo-comments': 'error',
-			'unicorn/filename-case': 'error',
-			'unicorn/no-abusive-eslint-disable': 'error',
-			'unicorn/no-empty-file': 'error',
-			'unicorn/no-manually-wrapped-comments': 'error',
-			'unicorn/number-literal-case': 'error',
-			'unicorn/numeric-separators-style': 'error',
-			'unicorn/prefer-https': 'error',
-			'unicorn/prefer-short-escape-sequences': 'error',
-		},
+		extends: ['unicorn/recommended-css'],
 	},
 ]);
 ```
@@ -589,7 +522,7 @@ These rules work on **any** file type:
 
 These rules also work on specific non-JavaScript languages:
 
-| Name | CSS | HTML | JSON | Markdown | TOML | YAML |
+| Name | [CSS](#css) | [HTML](#html) | [JSON](#json) | [Markdown](#markdown) | [TOML](#toml) | [YAML](#yaml) |
 | :-- | :-: | :-: | :-: | :-: | :-: | :-: |
 | [`comma-spacing`](docs/rules/comma-spacing.md) |  |  | ✅ |  |  |  |
 | [`consistent-compound-words`](docs/rules/consistent-compound-words.md) | ✅ | ✅ | ✅ |  | ✅ | ✅ |
@@ -624,6 +557,173 @@ These rules also work on specific non-JavaScript languages:
 | [`single-line-block-comment-style`](docs/rules/single-line-block-comment-style.md) | ✅ |  | ✅ |  |  |  |
 | [`string-content`](docs/rules/string-content.md) | ✅ |  | ✅ |  | ✅ | ✅ |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |  |  |
+
+#### CSS
+
+For more CSS rules, see [`eslint-cssicorn`](https://github.com/sindresorhus/eslint-cssicorn).
+
+Enabled by the [`recommended-css`](#non-javascript-recommended-configs) preset:
+
+- [`consistent-compound-words`](docs/rules/consistent-compound-words.md): Enforce consistent spelling of compound words in identifiers.
+- [`empty-brace-spaces`](docs/rules/empty-brace-spaces.md): Enforce no spaces between braces.
+- [`escape-case`](docs/rules/escape-case.md): Require escape sequences to use uppercase or lowercase values.
+- [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md): Add expiration conditions to TODO comments.
+- [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
+- [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
+- [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
+- [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md): Disallow asterisk prefixes in multiline comments.
+- [`no-conflicting-constraints`](docs/rules/no-conflicting-constraints.md): Disallow conflicting CSS query and HTML form constraints.
+- [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
+- [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
+- [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md): Disallow shorthand properties that override related longhand properties.
+- [`no-transition-all`](docs/rules/no-transition-all.md): Disallow `all` as a transition property.
+- [`no-zero-fractions`](docs/rules/no-zero-fractions.md): Require consistent decimal numbers without redundant zeros.
+- [`number-literal-case`](docs/rules/number-literal-case.md): Enforce proper case for numeric literals.
+- [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+- [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md): Prefer literal printable ASCII characters over escape sequences.
+- [`relative-url-style`](docs/rules/relative-url-style.md): Enforce consistent relative URL style.
+- [`single-line-block-comment-style`](docs/rules/single-line-block-comment-style.md): Enforce a consistent style for single-line block comments.
+- [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md): Enforce consistent case for text encoding identifiers.
+
+Opt-in:
+
+- [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
+- [`id-match`](docs/rules/id-match.md): Require identifiers to match a specified regular expression.
+- [`indent`](docs/rules/indent.md): Enforce consistent indentation in JSON and CSS.
+- [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
+- [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
+- [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md): Disallow references to missing local resources.
+- [`string-content`](docs/rules/string-content.md): Enforce better string content.
+
+#### HTML
+
+Enabled by the [`recommended-html`](#non-javascript-recommended-configs) preset:
+
+- [`consistent-compound-words`](docs/rules/consistent-compound-words.md): Enforce consistent spelling of compound words in identifiers.
+- [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md): Add expiration conditions to TODO comments.
+- [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
+- [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
+- [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
+- [`no-conflicting-constraints`](docs/rules/no-conflicting-constraints.md): Disallow conflicting CSS query and HTML form constraints.
+- [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
+- [`no-ineffective-csp-directives`](docs/rules/no-ineffective-csp-directives.md): Disallow ineffective CSP directives in `<meta>` elements.
+- [`no-invalid-integrity`](docs/rules/no-invalid-integrity.md): Disallow invalid subresource integrity metadata.
+- [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
+- [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+- [`relative-url-style`](docs/rules/relative-url-style.md): Enforce consistent relative URL style.
+- [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md): Enforce consistent case for text encoding identifiers.
+
+Opt-in:
+
+- [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
+- [`id-match`](docs/rules/id-match.md): Require identifiers to match a specified regular expression.
+- [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md): Disallow invalid `accept` values on file inputs.
+- [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md): Disallow references to missing local resources.
+
+#### JSON
+
+Enabled by the [`recommended-json`](#non-javascript-recommended-configs) preset:
+
+- [`consistent-compound-words`](docs/rules/consistent-compound-words.md): Enforce consistent spelling of compound words in identifiers.
+- [`empty-brace-spaces`](docs/rules/empty-brace-spaces.md): Enforce no spaces between braces.
+- [`escape-case`](docs/rules/escape-case.md): Require escape sequences to use uppercase or lowercase values.
+- [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md): Add expiration conditions to TODO comments.
+- [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
+- [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
+- [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
+- [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md): Disallow asterisk prefixes in multiline comments.
+- [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
+- [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
+- [`no-zero-fractions`](docs/rules/no-zero-fractions.md): Require consistent decimal numbers without redundant zeros.
+- [`number-literal-case`](docs/rules/number-literal-case.md): Enforce proper case for numeric literals.
+- [`prefer-escaped-irregular-whitespace`](docs/rules/prefer-escaped-irregular-whitespace.md): Prefer escape sequences for irregular whitespace characters.
+- [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+- [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md): Prefer literal printable ASCII characters over escape sequences.
+- [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md): Prefer shorter alternatives to Unicode escape sequences.
+- [`single-line-block-comment-style`](docs/rules/single-line-block-comment-style.md): Enforce a consistent style for single-line block comments.
+
+Opt-in:
+
+- [`comma-spacing`](docs/rules/comma-spacing.md): Enforce consistent spacing before and after commas in JSON.
+- [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
+- [`indent`](docs/rules/indent.md): Enforce consistent indentation in JSON and CSS.
+- [`key-name-casing`](docs/rules/key-name-casing.md): Enforce a case style for data keys.
+- [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
+- [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
+- [`string-content`](docs/rules/string-content.md): Enforce better string content.
+
+#### Markdown
+
+Enabled by the [`recommended-markdown`](#non-javascript-recommended-configs) preset:
+
+- [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md): Add expiration conditions to TODO comments.
+- [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
+- [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
+- [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
+- [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
+- [`no-empty-link-text`](docs/rules/no-empty-link-text.md): Disallow empty link text in Markdown.
+- [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
+- [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+- [`relative-url-style`](docs/rules/relative-url-style.md): Enforce consistent relative URL style.
+
+Opt-in:
+
+- [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
+- [`no-javascript-url`](docs/rules/no-javascript-url.md): Disallow `javascript:` URLs in Markdown.
+- [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md): Disallow references to missing local resources.
+- [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md): Require configured YAML frontmatter fields.
+
+#### TOML
+
+Enabled by the [`recommended-toml`](#non-javascript-recommended-configs) preset:
+
+- [`consistent-compound-words`](docs/rules/consistent-compound-words.md): Enforce consistent spelling of compound words in identifiers.
+- [`empty-brace-spaces`](docs/rules/empty-brace-spaces.md): Enforce no spaces between braces.
+- [`escape-case`](docs/rules/escape-case.md): Require escape sequences to use uppercase or lowercase values.
+- [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md): Add expiration conditions to TODO comments.
+- [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
+- [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
+- [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
+- [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
+- [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
+- [`no-zero-fractions`](docs/rules/no-zero-fractions.md): Require consistent decimal numbers without redundant zeros.
+- [`number-literal-case`](docs/rules/number-literal-case.md): Enforce proper case for numeric literals.
+- [`numeric-separators-style`](docs/rules/numeric-separators-style.md): Enforce the style of numeric separators by correctly grouping digits.
+- [`prefer-escaped-irregular-whitespace`](docs/rules/prefer-escaped-irregular-whitespace.md): Prefer escape sequences for irregular whitespace characters.
+- [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+- [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md): Prefer shorter alternatives to Unicode escape sequences.
+
+Opt-in:
+
+- [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
+- [`key-name-casing`](docs/rules/key-name-casing.md): Enforce a case style for data keys.
+- [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
+- [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
+- [`string-content`](docs/rules/string-content.md): Enforce better string content.
+
+#### YAML
+
+Enabled by the [`recommended-yaml`](#non-javascript-recommended-configs) preset:
+
+- [`consistent-compound-words`](docs/rules/consistent-compound-words.md): Enforce consistent spelling of compound words in identifiers.
+- [`empty-brace-spaces`](docs/rules/empty-brace-spaces.md): Enforce no spaces between braces.
+- [`escape-case`](docs/rules/escape-case.md): Require escape sequences to use uppercase or lowercase values.
+- [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md): Add expiration conditions to TODO comments.
+- [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
+- [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
+- [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
+- [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
+- [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
+- [`no-zero-fractions`](docs/rules/no-zero-fractions.md): Require consistent decimal numbers without redundant zeros.
+- [`number-literal-case`](docs/rules/number-literal-case.md): Enforce proper case for numeric literals.
+- [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+
+Opt-in:
+
+- [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
+- [`key-name-casing`](docs/rules/key-name-casing.md): Enforce a case style for data keys.
+- [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
+- [`string-content`](docs/rules/string-content.md): Enforce better string content.
 
 <!-- end auto-generated non-js languages list -->
 
@@ -671,12 +771,12 @@ These presets enable recommended rules compatible with every dialect listed belo
 
 | Preset | Supported languages |
 | :-- | :-- |
-| `recommended-css` | `css/css` |
-| `recommended-html` | `html/html` |
-| `recommended-json` | `json/json`, `json/jsonc`, `json/json5` |
-| `recommended-markdown` | `markdown/commonmark`, `markdown/gfm` |
-| `recommended-toml` | `toml/toml` |
-| `recommended-yaml` | `yml/yaml` |
+| [`recommended-css`](#css) | `css/css` |
+| [`recommended-html`](#html) | `html/html` |
+| [`recommended-json`](#json) | `json/json`, `json/jsonc`, `json/json5` |
+| [`recommended-markdown`](#markdown) | `markdown/commonmark`, `markdown/gfm` |
+| [`recommended-toml`](#toml) | `toml/toml` |
+| [`recommended-yaml`](#yaml) | `yml/yaml` |
 
 For JSONC or JSON5, use `recommended-json` with `language: 'json/jsonc'` or `language: 'json/json5'`. For GFM Markdown, use `recommended-markdown` with `language: 'markdown/gfm'`. These choices are independent of the file extension.
 
