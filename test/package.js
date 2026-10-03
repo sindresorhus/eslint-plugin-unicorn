@@ -337,6 +337,23 @@ for (const ruleName of ['expiring-todo-comments', 'no-asterisk-prefix-in-documen
 	});
 }
 
+for (const {language, plugins} of [languages.json, languages.jsonc, languages.json5]) {
+	test(`recommended-json uses JSON-safe escapes in ${language} independently of the file extension`, t => {
+		for (const extension of ['json', 'jsonc', 'json5', 'txt']) {
+			const filename = `file.${extension}`;
+			const result = new Linter().verifyAndFix(String.raw`{"value":"\u0000\u000B\u000A"}`, {
+				...eslintPluginUnicorn.configs['recommended-json'],
+				files: [filename],
+				language,
+				plugins: {...plugins, unicorn: eslintPluginUnicorn},
+			}, {filename});
+			t.deepEqual(result.messages, [], filename);
+			t.is(result.output, String.raw`{"value":"\u0000\u000B\n"}`, filename);
+			t.true(result.fixed);
+		}
+	});
+}
+
 for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 	test(`recommended-json fixes comments in ${language}`, async t => {
 		const eslint = new ESLint({
