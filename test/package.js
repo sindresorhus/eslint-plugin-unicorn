@@ -174,7 +174,7 @@ test('recommended config works with defineConfig', async t => {
 	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
 });
 
-test('CSS rule works with defineConfig', async t => {
+test('rules moved to eslint-cssicorn are deprecated no-ops in CSS configs', async t => {
 	const eslint = new ESLint({
 		baseConfig: defineConfig({
 			files: ['**/*.css'],
@@ -191,7 +191,10 @@ test('CSS rule works with defineConfig', async t => {
 	});
 
 	const [result] = await eslint.lintText('a { word-wrap: break-word; }', {filePath: 'file.css'});
-	t.true(result.messages.some(message => message.ruleId === 'unicorn/no-deprecated-css-features'));
+	t.deepEqual(result.messages, []);
+	t.deepEqual(result.usedDeprecatedRules.map(({ruleId, replacedBy}) => ({ruleId, replacedBy})), [
+		{ruleId: 'unicorn/no-deprecated-css-features', replacedBy: ['eslint-cssicorn/no-deprecated-features']},
+	]);
 });
 
 /* eslint-disable unicorn/prefer-https -- Test fixtures intentionally use HTTP. */
@@ -441,6 +444,15 @@ test('Every deprecated rules listed in docs/deleted-and-deprecated-rules.md', as
 		for (const replacement of rule.meta.deprecated.replacedBy) {
 			t.is(typeof replacement.rule.name, 'string', `${name} meta.deprecated.replacedBy[].rule.name should be string`);
 			t.is(typeof replacement.rule.url, 'string', `${name} meta.deprecated.replacedBy[].rule.url should be string`);
+
+			if (replacement.plugin === undefined) {
+				t.true(replacement.rule.name.startsWith('unicorn/'), `${name} meta.deprecated.replacedBy[].rule.name should be a Unicorn rule ID when there is no plugin`);
+			} else {
+				t.is(typeof replacement.plugin.name, 'string', `${name} meta.deprecated.replacedBy[].plugin.name should be string`);
+				t.is(typeof replacement.plugin.url, 'string', `${name} meta.deprecated.replacedBy[].plugin.url should be string`);
+				// ESLint prefixes the rule name with the plugin name.
+				t.false(replacement.rule.name.includes('/'), `${name} meta.deprecated.replacedBy[].rule.name should not include a plugin prefix`);
+			}
 		}
 
 		t.true(content.includes(`\n### ${name}\n`));

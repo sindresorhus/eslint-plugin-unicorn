@@ -23,7 +23,7 @@ The rule includes properties reset indirectly by a shorthand, such as `border-im
 
 This rule does not provide an autofix or editor suggestion because the intended styling is ambiguous. Move the shorthand before the longhand if the longhand should win, include the intended value in the shorthand where possible, or remove the earlier declaration if the override is intentional.
 
-Related rules check different patterns: [`no-duplicate-properties`](./no-duplicate-properties.md) checks repeated property names, [`no-redundant-longhand-properties`](./no-redundant-longhand-properties.md) combines longhands into shorthands, and [`no-redundant-shorthand-values`](./no-redundant-shorthand-values.md) removes repeated shorthand values.
+Related rules check different patterns: [`cssicorn/no-duplicate-properties`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-duplicate-properties.md) checks repeated property names, [`cssicorn/no-redundant-longhand-properties`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-redundant-longhand-properties.md) combines longhands into shorthands, and [`cssicorn/no-redundant-shorthand-values`](https://github.com/sindresorhus/eslint-cssicorn/blob/main/docs/rules/no-redundant-shorthand-values.md) removes repeated shorthand values.
 
 ## Examples
 
