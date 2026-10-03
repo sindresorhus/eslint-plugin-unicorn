@@ -237,6 +237,9 @@ test({
 		'import {lazy} from "react"; export default lazy(() => import("./Component.js"));',
 		'import {createElement} from "react"; export default createElement("div", {}, createElement("span"));',
 		'import {memo} from "react"; export default memo(/* Component */ Link);',
+		'import {memo} from "react"; export default memo(class extends Component {});',
+		typescriptCode('import {memo} from "react"; export default memo!(Link);'),
+		typescriptCode('import React from "react"; export default (React as typeof React).memo(Link);'),
 		typescriptCode('import {memo} from "react"; export default (memo(Link) as Component);'),
 		typescriptCode('import {memo} from "react"; export default (memo(Link) satisfies Component);'),
 		typescriptCode('import {memo} from "react"; export default memo(Link)!;'),
@@ -247,6 +250,18 @@ test({
 	invalid: [
 		...[
 			'import React from "react"; export default React.memo(initialize());',
+			'import {memo} from "react"; export default (enabled ? memo : initialize)(Link);',
+			'import {memo} from "react"; export {}; (enabled && memo || initialize)(Link);',
+			'import React from "react"; export default (enabled ? React : factory).memo(Link);',
+			'import {memo} from "react"; let wrap = memo; wrap = initialize; export default wrap(Link);',
+			'import React from "react"; let factory = React; factory = custom; export default factory.memo(Link);',
+			'import {memo} from "react"; const wrap = memo; export default wrap(Link);',
+			'import React from "react"; export default React["memo"](Link);',
+			'import {memo} from "react"; export default memo?.(Link);',
+			'import React from "react"; export default React?.memo(Link);',
+			'import {memo} from "react"; export default memo(class { static field = initialize(); });',
+			'import {memo} from "react"; export {}; memo(class { static { initialize(); } });',
+			'import {memo} from "react"; export default memo(class { [initialize()]() {} });',
 			'import {memo} from "react"; export default (initialize(), memo)(Link);',
 			'import React from "react"; export default React[(initialize(), "memo")](Link);',
 			'import {memo, forwardRef} from "react"; export default memo(forwardRef(initialize()));',
@@ -273,6 +288,14 @@ test({
 		].map(code => ({code, errors: 1})),
 		{
 			...typescriptCode('import {memo} from "react"; export default (memo(initialize()) as Component);'),
+			errors: 1,
+		},
+		{
+			...typescriptCode('import {memo} from "react"; export default memo((class { static field = initialize(); }) as Component);'),
+			errors: 1,
+		},
+		{
+			...typescriptCode('import type {memo} from "react"; export default memo(Link);'),
 			errors: 1,
 		},
 	],

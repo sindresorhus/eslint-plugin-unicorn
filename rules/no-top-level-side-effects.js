@@ -1,12 +1,12 @@
-import {hasSideEffect, ReferenceTracker} from '@eslint-community/eslint-utils';
-import {unwrapTypeScriptExpression} from './utils/index.js';
+import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
+import {isRuntimeImportSpecifier, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-top-level-side-effects';
 const messages = {
 	[MESSAGE_ID]: 'Do not use top-level side effects in exported modules.',
 };
 
-const reactCallMap = Object.fromEntries([
+const pureReactMethods = new Set([
 	'memo',
 	'forwardRef',
 	'lazy',
@@ -15,14 +15,7 @@ const reactCallMap = Object.fromEntries([
 	'createElement',
 	'cloneElement',
 	'isValidElement',
-].map(method => [method, {[ReferenceTracker.CALL]: true}]));
-const reactTraceMap = {
-	react: {
-		[ReferenceTracker.ESM]: true,
-		...reactCallMap,
-		default: reactCallMap,
-	},
-};
+]);
 
 const exportDeclarationTypes = new Set([
 	'ExportAllDeclaration',
@@ -63,20 +56,59 @@ const isInScriptSetup = (node, scriptSetupRange, sourceCode) => {
 	return scriptSetupRange[0] <= nodeRange[0] && nodeRange[1] <= scriptSetupRange[1];
 };
 
-const hasTopLevelSideEffect = (node, sourceCode, pureReactCalls) => {
-	node = unwrapTypeScriptExpression(node);
-
-	if (pureReactCalls.has(node)) {
-		return hasSideEffect(node.callee, sourceCode)
-			|| node.arguments.some(argument => hasTopLevelSideEffect(argument, sourceCode, pureReactCalls));
+const isPureReactCall = (node, sourceCode) => {
+	if (node.type !== 'CallExpression' || node.optional) {
+		return false;
 	}
 
-	if (node.type === 'ClassExpression') {
-		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode, pureReactCalls) : false;
+	const callee = unwrapTypeScriptExpression(node.callee);
+	const isMember = callee.type === 'MemberExpression';
+	if (isMember && (callee.computed || callee.optional || !pureReactMethods.has(callee.property.name))) {
+		return false;
+	}
+
+	const reference = unwrapTypeScriptExpression(isMember ? callee.object : callee);
+	if (reference.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(sourceCode.getScope(reference), reference);
+	return variable?.defs.some(definition => {
+		if (
+			definition.type !== 'ImportBinding'
+			|| definition.parent.type !== 'ImportDeclaration'
+			|| definition.parent.source.value !== 'react'
+			|| !isRuntimeImportSpecifier(definition.node)
+		) {
+			return false;
+		}
+
+		const specifier = definition.node;
+		return isMember
+			? specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier'
+			: specifier.type === 'ImportSpecifier' && pureReactMethods.has(specifier.imported.name ?? specifier.imported.value);
+	}) ?? false;
+};
+
+const hasExpressionSideEffect = (node, sourceCode) => {
+	node = unwrapTypeScriptExpression(node);
+
+	if (isPureReactCall(node, sourceCode)) {
+		return node.arguments.some(argument => hasExpressionSideEffect(argument, sourceCode));
 	}
 
 	return node.type === 'TaggedTemplateExpression'
 		|| hasSideEffect(node, sourceCode);
+};
+
+const hasTopLevelSideEffect = (node, sourceCode) => {
+	node = unwrapTypeScriptExpression(node);
+
+	if (node.type === 'ClassExpression') {
+		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode) : false;
+	}
+
+	return hasExpressionSideEffect(node, sourceCode);
 };
 
 /**
@@ -85,19 +117,11 @@ const hasTopLevelSideEffect = (node, sourceCode, pureReactCalls) => {
 const create = context => {
 	const {sourceCode} = context;
 	const scriptSetupRange = getScriptSetupRange(sourceCode);
-	const pureReactCalls = new Set();
 	let shouldCheck = false;
 
 	context.on('Program', program => {
 		shouldCheck = !sourceCode.lines[0].startsWith('#!')
 			&& program.body.some(node => isExportDeclaration(node));
-
-		if (shouldCheck) {
-			const tracker = new ReferenceTracker(sourceCode.getScope(program));
-			for (const {node} of tracker.iterateEsmReferences(reactTraceMap)) {
-				pureReactCalls.add(node);
-			}
-		}
 	});
 
 	context.on('ExpressionStatement', node => {
@@ -106,7 +130,7 @@ const create = context => {
 			|| node.parent.type !== 'Program'
 			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(node.expression)
-			|| !hasTopLevelSideEffect(node.expression, sourceCode, pureReactCalls)
+			|| !hasTopLevelSideEffect(node.expression, sourceCode)
 		) {
 			return;
 		}
@@ -125,7 +149,7 @@ const create = context => {
 			|| (declaration.type === 'FunctionDeclaration' || declaration.type === 'ClassDeclaration')
 			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(declaration)
-			|| !hasTopLevelSideEffect(declaration, sourceCode, pureReactCalls)
+			|| !hasTopLevelSideEffect(declaration, sourceCode)
 		) {
 			return;
 		}
