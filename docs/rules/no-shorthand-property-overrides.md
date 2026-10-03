@@ -2,7 +2,7 @@
 
 📝 Disallow shorthand properties that override related longhand properties.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, ☑️ `unopinionated`.
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -10,6 +10,10 @@
 CSS shorthands reset every related longhand that they omit. Placing a shorthand after a longhand in the same declaration block is therefore usually an accidental reset.
 
 This rule checks declarations only within the same block. It supports matching vendor-prefixed properties and intentionally ignores CSS-escaped property names.
+
+For JavaScript and TypeScript, it checks direct object literals in the `style` prop of intrinsic JSX elements, such as `<div>`. It supports camelCase and quoted CSS property names, matching vendor prefixes, and TypeScript assertions or `satisfies`. Values must be literal strings or numbers; signed numbers and template strings without interpolation are also supported.
+
+Objects with spreads, computed keys, methods, or accessors are ignored. Dynamic, empty, nullish, boolean, and `!important` values are ignored. Style variables, custom component props, and CSS library APIs are not checked.
 
 A normal shorthand after an `!important` longhand is not reported, because the `!important` declaration wins whatever the source order is.
 
@@ -84,6 +88,14 @@ b {
 ```
 
 The effective `padding-left` in this example remains `1px`, because the first shorthand made it important.
+
+```jsx
+// ❌
+<div style={{paddingLeft: 10, padding: 20}} />;
+
+// ✅
+<div style={{padding: 20, paddingLeft: 10}} />;
+```
 
 ## CSS files
 

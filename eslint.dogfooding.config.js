@@ -118,6 +118,13 @@ const config = [
 		},
 	},
 	{
+		files: ['test/expiring-todo-comments.js'],
+		rules: {
+			// This test creates its temporary resource directory at runtime.
+			'unicorn/no-missing-local-resource': 'off',
+		},
+	},
+	{
 		files: [
 			'test/no-deprecated-css-features.js',
 			'test/no-redundant-longhand-properties.js',

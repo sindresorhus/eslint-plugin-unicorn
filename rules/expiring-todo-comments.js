@@ -361,9 +361,7 @@ const create = context => {
 	const {packageJson, packageDependencies, parseArgument, parseTodoMessage, parseTodoWithArguments} = getPackageHelpers(dirname);
 
 	const {sourceCode} = context;
-	const filename = context.physicalFilename?.toLowerCase() ?? '';
-	const isMarkdown = filename.endsWith('.md') || filename.endsWith('.markdown');
-	const markdownComments = isMarkdown ? getMarkdownHtmlComments(sourceCode) : [];
+	const markdownComments = sourceCode.ast.type === 'root' ? getMarkdownHtmlComments(sourceCode) : [];
 	const comments = [...getComments(context), ...markdownComments];
 	const unusedComments = comments
 		.filter(comment => comment.type !== 'Shebang' && !isEslintDisableOrEnableDirective(context, comment))
@@ -658,6 +656,7 @@ const config = {
 			'js/js',
 			'css/css',
 			'html/html',
+			'json/json',
 			'json/jsonc',
 			'json/json5',
 			'markdown/commonmark',

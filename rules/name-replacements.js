@@ -719,6 +719,8 @@ const config = {
 			'json/json5',
 			'css/css',
 			'html/html',
+			'markdown/commonmark',
+			'markdown/gfm',
 			'yml/yaml',
 			'toml/toml',
 		],

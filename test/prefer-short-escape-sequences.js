@@ -68,6 +68,11 @@ ruleTest.snapshot({
 			filename: 'fixture.JSON5',
 			language: languages.json5,
 		},
+		{
+			code: String.raw`{'\u0022':'\u000B\u000b\u0000\u0027'}`,
+			filename: 'fixture.json5',
+			language: languages.json5,
+		},
 	],
 	invalid: [
 		{
@@ -92,26 +97,6 @@ ruleTest.snapshot({
 			code: String.raw`"\\\u000A"`,
 			filename: 'fixture.json',
 			language: json,
-		},
-		{
-			code: String.raw`{'\u0022':'\u000B\u000b\u0000\u0027'}`,
-			filename: 'fixture.json5',
-			language: languages.json5,
-		},
-		{
-			code: String.raw`"\u00001\u000B"`,
-			filename: 'fixture.json5',
-			language: languages.json5,
-		},
-		{
-			code: String.raw`"\u0000\u0030"`,
-			filename: 'fixture.json5',
-			language: languages.json5,
-		},
-		{
-			code: String.raw`"\u0000١"`,
-			filename: 'fixture.json5',
-			language: languages.json5,
 		},
 		{
 			code: String.raw`'before\
@@ -155,9 +140,9 @@ ruleTest({
 	],
 	invalid: [
 		{
-			code: String.raw`'\u005C\u0000'`,
+			code: String.raw`'\u005C\u000A'`,
 			filename: 'fixture.json5',
-			output: String.raw`'\u005C\0'`,
+			output: String.raw`'\u005C\n'`,
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{

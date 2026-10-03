@@ -102,11 +102,32 @@ const configs = {
 	recommended: createConfig(recommendedRules, 'unicorn/recommended'),
 	unopinionated: createConfig(unopinionatedRules, 'unicorn/unopinionated'),
 	all: createConfig(allRules, 'unicorn/all'),
-
-	// TODO: Remove this at some point. Kept for now to avoid breaking users.
-	'flat/recommended': createConfig(recommendedRules, 'unicorn/flat/recommended'),
-	'flat/all': createConfig(allRules, 'unicorn/flat/all'),
 };
+
+const nonJavaScriptLanguages = {
+	css: ['css/css'],
+	html: ['html/html'],
+	json: ['json/json', 'json/jsonc', 'json/json5'],
+	markdown: ['markdown/commonmark', 'markdown/gfm'],
+	toml: ['toml/toml'],
+	yaml: ['yml/yaml'],
+};
+
+const isLanguageSupported = (rule, language) => {
+	const {languages} = rule.meta;
+	return !languages || languages.includes('*') || languages.includes(language) || languages.includes(`${language.slice(0, language.lastIndexOf('/'))}/*`);
+};
+
+for (const [name, languages] of Object.entries(nonJavaScriptLanguages)) {
+	const configName = `recommended-${name}`;
+	configs[configName] = {
+		name: `unicorn/${configName}`,
+		plugins: {unicorn},
+		rules: Object.fromEntries(Object.entries(rules)
+			.filter(([, rule]) => !rule.meta.deprecated && languages.every(language => isLanguageSupported(rule, language)))
+			.map(([ruleName, rule]) => [`unicorn/${ruleName}`, rule.meta.docs.recommended ? 'error' : 'off'])),
+	};
+}
 
 unicorn.configs = configs;
 

@@ -5,11 +5,15 @@ const config = {
 	configEmoji: [
 		['recommended', '✅'],
 		['unopinionated', '☑️'],
+		['recommended-css', '🎨'],
+		['recommended-html', '🌐'],
+		['recommended-json', '🧩'],
+		['recommended-markdown', '📚'],
+		['recommended-toml', '🛠️'],
+		['recommended-yaml', '📋'],
 	],
 	ignoreConfig: [
 		'all',
-		'flat/all',
-		'flat/recommended',
 	],
 	ignoreDeprecatedRules: true,
 	ruleDocTitleFormat: 'name',
@@ -24,6 +28,15 @@ const config = {
 		'requiresTypeChecking',
 	],
 	urlConfigs: 'https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config',
+	postprocess(content) {
+		const headerEnd = content.indexOf('<!-- end auto-generated rule header -->');
+		if (headerEnd === -1) {
+			return content;
+		}
+
+		const header = content.slice(0, headerEnd).replace(/^🚫 This rule is _disabled_ .+$/mv, '🚫 Disabled by default.');
+		return header + content.slice(headerEnd);
+	},
 };
 
 export default config;

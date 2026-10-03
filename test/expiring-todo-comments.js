@@ -724,13 +724,13 @@ test('supports Markdown HTML comments with @eslint/markdown', t => {
 });
 
 // Lint Markdown source and return the simplified messages for the expiring-todo-comments rule.
-function lintMarkdown(code) {
+function lintMarkdown(code, filename = 'fixture.md', language = 'markdown/commonmark') {
 	const linter = new Linter({configType: 'flat'});
 	const messages = linter.verify(
 		code,
 		{
-			files: ['**/*.md'],
-			language: 'markdown/commonmark',
+			files: [filename],
+			language,
 			plugins: {
 				markdown,
 				unicorn,
@@ -747,10 +747,19 @@ function lintMarkdown(code) {
 				],
 			},
 		},
-		{filename: 'fixture.md'},
+		{filename},
 	);
 
 	return messages.map(({message, ruleId}) => ({message, ruleId}));
+}
+
+for (const language of ['markdown/commonmark', 'markdown/gfm']) {
+	test(`supports ${language} independently of the file extension`, t => {
+		t.deepEqual(lintMarkdown('<!-- TODO [2000-01-01]: Update -->', 'fixture.txt', language), [{
+			message: 'Past due date: 2000-01-01. Update',
+			ruleId: 'unicorn/expiring-todo-comments',
+		}]);
+	});
 }
 
 test('ignores HTML comments inside Markdown fenced code blocks', t => {
