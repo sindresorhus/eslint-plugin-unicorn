@@ -341,7 +341,8 @@ for (const {language, plugins} of [languages.json, languages.jsonc, languages.js
 	test(`recommended-json uses JSON-safe escapes in ${language} independently of the file extension`, t => {
 		for (const extension of ['json', 'jsonc', 'json5', 'txt']) {
 			const filename = `file.${extension}`;
-			const result = new Linter().verifyAndFix(String.raw`{"value":"\u0000\u000B\u000A"}`, {
+			const linter = new Linter();
+			const result = linter.verifyAndFix(String.raw`{"value":"\u0000\u000B\u000A"}`, {
 				...eslintPluginUnicorn.configs['recommended-json'],
 				files: [filename],
 				language,
